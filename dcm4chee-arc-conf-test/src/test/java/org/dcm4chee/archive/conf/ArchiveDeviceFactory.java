@@ -55,6 +55,7 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.imageio.ImageReaderExtension;
 import org.dcm4che3.net.imageio.ImageWriterExtension;
 
+import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.EnumSet;
@@ -431,13 +432,14 @@ class ArchiveDeviceFactory {
             "ADT^A40",
             "ORM^O01"
     };
-    static final String DCM4CHEE_ARC_KEY_JKS =
-            "${jboss.server.config.url}/dcm4chee-arc/key.jks";
-    static final String HL7_ADT2DCM_XSL =
-            "${jboss.server.config.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
+    static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
+    static final String HL7_ADT2DCM_XSL = "${jboss.server.config.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String PIX_CONSUMER = "DCM4CHEE^DCM4CHEE";
     static final String PIX_MANAGER = "HL7RCV^DCM4CHEE";
 
+    static final String STORAGE_ID = "local";
+    static final URI STORAGE_URI = URI.create("file:///var/local/dcm4chee-arc/fs1/");
+    static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
 
     private final KeyStore keyStore;
     private final DicomConfiguration config;
@@ -611,6 +613,11 @@ class ArchiveDeviceFactory {
                 new AttributeFilter(SERIES_ATTRS));
         ext.setAttributeFilter(Entity.Instance,
                 new AttributeFilter(INSTANCE_ATTRS));
+
+        StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
+        storageDescriptor.setStorageURI(STORAGE_URI);
+        storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
+        ext.addStorageDescriptor(storageDescriptor);
     }
 
     private static ApplicationEntity createAE(String aet, Connection dicom, Connection dicomTLS,
@@ -627,6 +634,7 @@ class ArchiveDeviceFactory {
             addTCs(ae, null, SCP, IMAGE_CUIDS, IMAGE_TSUIDS);
             addTCs(ae, null, SCP, VIDEO_CUIDS, VIDEO_TSUIDS);
             addTCs(ae, null, SCP, OTHER_CUIDS, OTHER_TSUIDS);
+            aeExt.setStorageID(STORAGE_ID);
         }
         addTCs(ae, null, SCU, IMAGE_CUIDS, IMAGE_TSUIDS);
         addTCs(ae, null, SCU, VIDEO_CUIDS, VIDEO_TSUIDS);

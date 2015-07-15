@@ -236,6 +236,10 @@
     <module>dcm4chee-arc-ctrl</module>
     <module>dcm4chee-arc-war</module>
     <module>dcm4chee-arc-ear</module>
+    <module>dcm4chee-arc-store</module>
+    <module>dcm4chee-arc-store-scp</module>
+    <module>dcm4chee-arc-storage</module>
+    <module>dcm4chee-arc-storage-filesystem</module>
   </modules>
 
 </project>

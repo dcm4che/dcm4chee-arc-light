@@ -46,20 +46,16 @@ import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.archive.conf.ArchiveAEExtension;
-import org.dcm4chee.archive.conf.ArchiveDeviceExtension;
-import org.dcm4chee.archive.conf.AttributeFilter;
-import org.dcm4chee.archive.conf.Entity;
+import org.dcm4chee.archive.conf.*;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+import java.net.URI;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -96,6 +92,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         storeAttributeFilter(deviceDN, arcDev);
+        storeStorageDescriptors(deviceDN, arcDev);
     }
 
     @Override
@@ -106,6 +103,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         loadAttributeFilters(arcdev, deviceDN);
+        loadStorageDescriptors(arcdev, deviceDN);
     }
 
     @Override
@@ -129,6 +127,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         mergeAttributeFilters(aa, bb, deviceDN);
+        mergeStorageDescriptors(aa, bb, deviceDN);
     }
 
     @Override
@@ -138,6 +137,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         attrs.get("objectclass").add("dcmArchiveNetworkAE");
+        LdapUtils.storeNotNull(attrs, "dcmStorageID", aeExt.getStorageID());
         LdapUtils.storeNotDef(attrs, "hl7PIXQuery", aeExt.isPixQuery(), false);
         LdapUtils.storeNotNull(attrs, "hl7PIXConsumerApplication", aeExt.getLocalPIXConsumerApplication());
         LdapUtils.storeNotNull(attrs, "hl7PIXManagerApplication", aeExt.getRemotePIXManagerApplication());
@@ -150,6 +150,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         ArchiveAEExtension aeExt = new ArchiveAEExtension();
         ae.addAEExtension(aeExt);
+        aeExt.setStorageID(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
         aeExt.setPixQuery(LdapUtils.booleanValue(attrs.get("hl7PIXQuery"), false));
         aeExt.setLocalPIXConsumerApplication(LdapUtils.stringValue(attrs.get("hl7PIXConsumerApplication"), null));
         aeExt.setRemotePIXManagerApplication(LdapUtils.stringValue(attrs.get("hl7PIXManagerApplication"), null));
@@ -162,6 +163,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         if (aa == null || bb == null)
             return;
 
+        LdapUtils.storeDiff(mods, "dcmStorageID", aa.getStorageID(), bb.getStorageID());
         LdapUtils.storeDiff(mods, "hl7PIXQuery", aa.isPixQuery(), bb.isPixQuery(), false);
         LdapUtils.storeDiff(mods, "hl7PIXConsumerApplication",
                 aa.getLocalPIXConsumerApplication(), bb.getLocalPIXConsumerApplication());
@@ -177,7 +179,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     storeTo(arcDev.getAttributeFilter(entity), entity, new BasicAttributes(true)));
         }
     }
-
     private static Attributes storeTo(AttributeFilter filter, Entity entity,  BasicAttributes attrs) {
         attrs.put("objectclass", "dcmAttributeFilter");
         attrs.put("dcmEntity", entity.name());
@@ -187,6 +188,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute3", filter.getCustomAttribute3());
         return attrs;
     }
+
 
     private static Attribute tagsAttr(String attrID, int[] tags) {
         Attribute attr = new BasicAttribute(attrID);
@@ -228,7 +230,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return is;
     }
 
-
     private void mergeAttributeFilters(ArchiveDeviceExtension prev, ArchiveDeviceExtension devExt,
                                        String deviceDN) throws NamingException {
         for (Entity entity : Entity.values())
@@ -255,4 +256,88 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         if (!Arrays.equals(prevs, vals))
             mods.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, tagsAttr(attrId, vals)));
     }
+
+    private void storeStorageDescriptors(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+        for (StorageDescriptor descriptor : arcDev.getStorageDescriptors()) {
+            String storageID = descriptor.getStorageID();
+            config.createSubcontext(
+                    LdapUtils.dnOf("dcmStorageID", storageID, deviceDN),
+                    storeTo(descriptor, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(StorageDescriptor descriptor, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmStorage");
+        attrs.put("dcmStorageID", descriptor.getStorageID());
+        attrs.put("dcmURI", descriptor.getStorageURI().toString());
+        String[] ss = new String[descriptor.getProperties().size()];
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
+        return attrs;
+    }
+
+    private String[] toStrings(Map<String, String> props) {
+        String[] ss = new String[props.size()];
+        int i = 0;
+        for (Map.Entry<String,String> entry : props.entrySet())
+            ss[i] = entry.getKey() + '=' + entry.getValue();
+        return ss;
+    }
+
+    private void loadStorageDescriptors(ArchiveDeviceExtension arcdev, String deviceDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmStorage)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                StorageDescriptor descriptor = new StorageDescriptor(
+                        LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
+                descriptor.setStorageURI(URI.create(LdapUtils.stringValue(attrs.get("dcmURI"), null)));
+                for (String s : LdapUtils.stringArray(attrs.get("dcmProperty"))) {
+                    String[] ss = StringUtils.split(s, '=');
+                    descriptor.setProperty(ss[0], ss[1]);
+                }
+                arcdev.addStorageDescriptor(descriptor);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void mergeStorageDescriptors(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+            throws NamingException {
+        for (StorageDescriptor descriptor : prev.getStorageDescriptors()) {
+            String storageID = descriptor.getStorageID();
+            if (arcDev.getStorageDescriptor(storageID) == null)
+                config.destroySubcontext(LdapUtils.dnOf("dcmStorageID", storageID, deviceDN));
+        }
+        for (StorageDescriptor descriptor : arcDev.getStorageDescriptors()) {
+            String storageID = descriptor.getStorageID();
+            String dn = LdapUtils.dnOf("dcmStorageID", storageID, deviceDN);
+            StorageDescriptor prevDescriptor = prev.getStorageDescriptor(storageID);
+            if (prevDescriptor == null)
+                config.createSubcontext(dn,
+                        storeTo(descriptor, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn,
+                        storeDiffs(prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(StorageDescriptor prev, StorageDescriptor descriptor,
+                                              List<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmURI", prev.getStorageURI().toString(), descriptor.getStorageURI().toString());
+        storeDiffProperties(mods, prev.getProperties(), descriptor.getProperties());
+        return mods;
+    }
+
+    private void storeDiffProperties(List<ModificationItem> mods, Map<String, String> prev, Map<String, String> props) {
+        if (!prev.equals(props)) {
+            mods.add(props.size() == 0
+                    ? new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
+                        new BasicAttribute("dcmProperty"))
+                    : new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                        LdapUtils.attr("dcmProperty", toStrings(props))));
+        }
+    }
+
 }

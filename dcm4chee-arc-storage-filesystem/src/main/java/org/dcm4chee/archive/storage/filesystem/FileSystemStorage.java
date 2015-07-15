@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,61 +35,60 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.conf;
+package org.dcm4chee.archive.storage.filesystem;
 
-import org.dcm4che3.net.AEExtension;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.util.AttributesFormat;
+import org.dcm4chee.archive.conf.StorageDescriptor;
+import org.dcm4chee.archive.storage.Storage;
+import org.dcm4chee.archive.storage.StorageContext;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.nio.file.*;
+import java.util.Random;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class ArchiveAEExtension extends AEExtension {
-    private String storageID;
-    private String remotePIXManagerApplication;
-    private String localPIXConsumerApplication;
-    private boolean pixQuery;
+public class FileSystemStorage implements Storage {
+    private Random random = new Random();
+    private final URI rootURI;
+    private final AttributesFormat pathFormat;
 
-    public String getStorageID() {
-        return storageID;
-    }
-
-    public void setStorageID(String storageID) {
-        this.storageID = storageID;
-    }
-
-    public String getRemotePIXManagerApplication() {
-        return remotePIXManagerApplication;
-    }
-
-    public void setRemotePIXManagerApplication(String remotePIXManagerApplication) {
-        this.remotePIXManagerApplication = remotePIXManagerApplication;
-    }
-
-    public String getLocalPIXConsumerApplication() {
-        return localPIXConsumerApplication;
-    }
-
-    public void setLocalPIXConsumerApplication(String localPIXConsumerApplication) {
-        this.localPIXConsumerApplication = localPIXConsumerApplication;
-    }
-
-    public boolean isPixQuery() {
-        return pixQuery;
-    }
-
-    public void setPixQuery(boolean pixQuery) {
-        this.pixQuery = pixQuery;
+    public FileSystemStorage(StorageDescriptor descriptor) {
+        rootURI = descriptor.getStorageURI();
+        pathFormat = new AttributesFormat((String) descriptor.getProperty("pathFormat"));
     }
 
     @Override
-    public void reconfigure(AEExtension from) {
-        ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
-        storageID = aeExt.storageID;
-        pixQuery = aeExt.pixQuery;
-        remotePIXManagerApplication = aeExt.remotePIXManagerApplication;
-        localPIXConsumerApplication = aeExt.localPIXConsumerApplication;
+    public StorageContext newStorageContext(Attributes attrs) {
+        return new FileSystemStorageContext(attrs);
+    }
+
+    @Override
+    public OutputStream newOutputStream(StorageContext ctx) throws IOException {
+        Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
+        Path dir = path.getParent();
+        Files.createDirectories(dir);
+        OutputStream stream = null;
+        while (stream == null)
+            try {
+                stream = Files.newOutputStream(path, StandardOpenOption.CREATE_NEW);
+            } catch (FileAlreadyExistsException e) {
+                path = dir.resolve(String.format("%8X", random.nextInt()));
+            }
+        ctx.setObjectURI(rootURI.relativize(path.toUri()));
+        return stream;
+    }
+
+    @Override
+    public String toString() {
+        return "FileSystemStorage{" + rootURI + '}';
     }
 }

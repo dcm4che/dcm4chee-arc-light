@@ -40,12 +40,10 @@
 
 package org.dcm4chee.archive.conf;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
-import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Issuer;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.SSLManagerFactory;
@@ -55,10 +53,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
-import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -111,8 +109,34 @@ public class ArchiveDeviceConfigurationTest {
 
         Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice);
         config.persist(arc);
+        ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
+        assertNotNull(ae);
+        assertDeviceEquals(arc, ae.getDevice());
+    }
 
+    private void assertDeviceEquals(Device expected, Device actual) {
+        assertEquals(expected.getDeviceName(), actual.getDeviceName());
+        assertEqualsArchiveDeviceExtension(expected.getDeviceExtension(ArchiveDeviceExtension.class),
+                expected.getDeviceExtension(ArchiveDeviceExtension.class));
+        assertAEEquals(expected.getApplicationEntity("DCM4CHEE"), actual.getApplicationEntity("DCM4CHEE"));
+    }
 
+    private void assertAEEquals(ApplicationEntity expected, ApplicationEntity actual) {
+        assertEqualsArchiveAEExtension(expected.getAEExtension(ArchiveAEExtension.class),
+                actual.getAEExtension(ArchiveAEExtension.class));
+    }
+
+    private void assertEqualsArchiveAEExtension(ArchiveAEExtension expected, ArchiveAEExtension actual) {
+        if (expected == null)
+            return;
+        assertNotNull(actual);
+        assertEquals(expected.getStorageID(), actual.getStorageID());
+    }
+
+    private void assertEqualsArchiveDeviceExtension(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
+        assertNotNull(actual);
+        assertEquals(expected.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID),
+                actual.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID));
     }
 
     private void cleanUp() throws Exception {

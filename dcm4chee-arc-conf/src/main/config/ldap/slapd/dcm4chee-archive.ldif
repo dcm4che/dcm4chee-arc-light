@@ -48,6 +48,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.27 NAME 'hl7PIXManagerApplication'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.28 NAME 'dcmStorageID'
+  DESC 'Storage ID'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -57,6 +62,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
   MAY (
+    dcmStorageID $
     hl7PIXQuery $
     hl7PIXConsumerApplication $
     hl7PIXManagerApplication ) )
@@ -75,3 +81,11 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
   SUP top AUXILIARY
   MAY (
      labeledURI ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
+  DESC 'Storage Descriptor'
+  SUP top STRUCTURAL
+  MUST (
+    dcmStorageID $
+    dcmURI )
+  MAY (
+    dcmProperty ) )

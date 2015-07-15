@@ -43,7 +43,9 @@ package org.dcm4chee.archive.conf;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 
-import java.util.EnumMap;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -54,6 +56,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String fuzzyAlgorithmClass;
 
     private final AttributeFilter[] attributeFilters = new AttributeFilter[Entity.values().length];
+
+    private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<String, StorageDescriptor>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -93,11 +97,29 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         attributeFilters[entity.ordinal()] = filter;
     }
 
+    public StorageDescriptor getStorageDescriptor(String storageID) {
+        return storageDescriptorMap.get(storageID);
+    }
+
+    public StorageDescriptor removeStorageDescriptor(String storageID) {
+        return storageDescriptorMap.remove(storageID);
+    }
+
+    public void addStorageDescriptor(StorageDescriptor descriptor) {
+        storageDescriptorMap.put(descriptor.getStorageID(), descriptor);
+    }
+
+    public Collection<StorageDescriptor> getStorageDescriptors() {
+        return storageDescriptorMap.values();
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
-        setFuzzyAlgorithmClass(arcdev.fuzzyAlgorithmClass);
-        System.arraycopy(arcdev.attributeFilters, 0,
-                attributeFilters, 0, attributeFilters.length);
+        fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
+        fuzzyStr = arcdev.fuzzyStr;
+        System.arraycopy(arcdev.attributeFilters, 0, attributeFilters, 0, attributeFilters.length);
+        storageDescriptorMap.clear();
+        storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
     }
 }

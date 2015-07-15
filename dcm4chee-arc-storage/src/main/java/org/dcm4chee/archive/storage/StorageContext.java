@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,61 +35,24 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.conf;
+package org.dcm4chee.archive.storage;
 
-import org.dcm4che3.net.AEExtension;
+import org.dcm4che3.data.Attributes;
+
+import java.net.URI;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class ArchiveAEExtension extends AEExtension {
-    private String storageID;
-    private String remotePIXManagerApplication;
-    private String localPIXConsumerApplication;
-    private boolean pixQuery;
+public interface StorageContext {
 
-    public String getStorageID() {
-        return storageID;
-    }
+    Attributes getAttributes();
 
-    public void setStorageID(String storageID) {
-        this.storageID = storageID;
-    }
+    URI getObjectURI();
 
-    public String getRemotePIXManagerApplication() {
-        return remotePIXManagerApplication;
-    }
-
-    public void setRemotePIXManagerApplication(String remotePIXManagerApplication) {
-        this.remotePIXManagerApplication = remotePIXManagerApplication;
-    }
-
-    public String getLocalPIXConsumerApplication() {
-        return localPIXConsumerApplication;
-    }
-
-    public void setLocalPIXConsumerApplication(String localPIXConsumerApplication) {
-        this.localPIXConsumerApplication = localPIXConsumerApplication;
-    }
-
-    public boolean isPixQuery() {
-        return pixQuery;
-    }
-
-    public void setPixQuery(boolean pixQuery) {
-        this.pixQuery = pixQuery;
-    }
-
-    @Override
-    public void reconfigure(AEExtension from) {
-        ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
-        storageID = aeExt.storageID;
-        pixQuery = aeExt.pixQuery;
-        remotePIXManagerApplication = aeExt.remotePIXManagerApplication;
-        localPIXConsumerApplication = aeExt.localPIXConsumerApplication;
-    }
+    void setObjectURI(URI uri);
 }
