@@ -15,7 +15,12 @@ public final class StorageDescriptor {
     private final Map<String, String> properties = new HashMap<String, String>();
 
     public StorageDescriptor(String storageID) {
+        this(storageID, null);
+    }
+
+    public StorageDescriptor(String storageID, URI storageURI) {
         this.storageID = storageID;
+        this.storageURI = storageURI;
     }
 
     public String getStorageID() {
@@ -34,8 +39,9 @@ public final class StorageDescriptor {
         properties.put(name, value);
     }
 
-    public String getProperty(String name) {
-        return properties.get(name);
+    public String getProperty(String name, String defValue) {
+        String value = properties.get(name);
+        return value != null ? value : defValue;
     }
 
     public Map<String,String> getProperties() {

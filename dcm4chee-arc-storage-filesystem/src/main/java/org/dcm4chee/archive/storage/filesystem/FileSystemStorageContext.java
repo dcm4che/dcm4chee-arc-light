@@ -51,7 +51,7 @@ import java.net.URI;
  */
 public class FileSystemStorageContext implements StorageContext {
     private final Attributes attrs;
-    private URI objectURI;
+    private String storagePath;
 
     public FileSystemStorageContext(Attributes attrs) {
         this.attrs = attrs;
@@ -63,12 +63,12 @@ public class FileSystemStorageContext implements StorageContext {
     }
 
     @Override
-    public URI getObjectURI() {
-        return objectURI;
+    public String getStoragePath() {
+        return storagePath;
     }
 
     @Override
-    public void setObjectURI(URI objectURI) {
-        this.objectURI = objectURI;
+    public void setStoragePath(String storagePath) {
+        this.storagePath = storagePath;
     }
 }

@@ -437,7 +437,7 @@ class ArchiveDeviceFactory {
     static final String PIX_CONSUMER = "DCM4CHEE^DCM4CHEE";
     static final String PIX_MANAGER = "HL7RCV^DCM4CHEE";
 
-    static final String STORAGE_ID = "local";
+    static final String STORAGE_ID = "fs1";
     static final URI STORAGE_URI = URI.create("file:///var/local/dcm4chee-arc/fs1/");
     static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
 

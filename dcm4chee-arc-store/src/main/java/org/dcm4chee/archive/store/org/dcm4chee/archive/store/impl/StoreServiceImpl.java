@@ -59,7 +59,7 @@ class StoreServiceImpl implements StoreService {
             Attributes fmi = dataset.createFileMetaInformation(tsuid);
             stream.writeDataset(fmi, dataset);
         }
-        LOG.info("Stored object at {} with Object URI: {}", storage, storageContext.getObjectURI());
+        LOG.info("Stored object on {} at {}", storage.getStorageURI(), storageContext.getStoragePath());
     }
 
     private Attributes readAttributes(InputStream data, String tsuid) throws IOException {

@@ -50,20 +50,33 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.*;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
 public class FileSystemStorage implements Storage {
-    private Random random = new Random();
+
+    private static final String DEFAULT_PATH_FORMAT =
+            "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+
     private final URI rootURI;
     private final AttributesFormat pathFormat;
 
     public FileSystemStorage(StorageDescriptor descriptor) {
-        rootURI = descriptor.getStorageURI();
-        pathFormat = new AttributesFormat((String) descriptor.getProperty("pathFormat"));
+        rootURI = ensureTrailingSlash(descriptor.getStorageURI());
+        pathFormat = new AttributesFormat((String) descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
+    }
+
+    private URI ensureTrailingSlash(URI uri) {
+        String s = uri.toString();
+        return (s.charAt(s.length()-1) == '/') ? uri : URI.create(s + '/');
+    }
+
+    @Override
+    public URI getStorageURI() {
+        return rootURI;
     }
 
     @Override
@@ -81,9 +94,9 @@ public class FileSystemStorage implements Storage {
             try {
                 stream = Files.newOutputStream(path, StandardOpenOption.CREATE_NEW);
             } catch (FileAlreadyExistsException e) {
-                path = dir.resolve(String.format("%8X", random.nextInt()));
+                path = dir.resolve(String.format("%8X", ThreadLocalRandom.current().nextInt()));
             }
-        ctx.setObjectURI(rootURI.relativize(path.toUri()));
+        ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
         return stream;
     }
 

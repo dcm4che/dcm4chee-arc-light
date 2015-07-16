@@ -52,7 +52,7 @@ public interface StorageContext {
 
     Attributes getAttributes();
 
-    URI getObjectURI();
+    String getStoragePath();
 
-    void setObjectURI(URI uri);
+    void setStoragePath(String storagePath);
 }
