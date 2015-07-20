@@ -1,5 +1,6 @@
 package org.dcm4chee.archive.store.org.dcm4chee.archive.store.impl;
 
+import org.dcm4chee.archive.storage.StorageContext;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreSession;
 
@@ -13,6 +14,7 @@ class StoreContextImpl implements StoreContext {
     private String sopClassUID;
     private String sopInstanceUID;
     private String originalTranferSyntaxUID;
+    private StorageContext storageContext;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -51,5 +53,15 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setOriginalTransferSyntax(String transferSyntaxUID) {
         this.originalTranferSyntaxUID = transferSyntaxUID;
+    }
+
+    @Override
+    public StorageContext getStorageContext() {
+        return storageContext;
+    }
+
+    @Override
+    public void setStorageContext(StorageContext storageContext) {
+        this.storageContext = storageContext;
     }
 }

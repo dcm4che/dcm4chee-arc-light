@@ -50,6 +50,8 @@ import java.net.URI;
  */
 public interface StorageContext {
 
+    Storage getStorage();
+
     Attributes getAttributes();
 
     String getStoragePath();

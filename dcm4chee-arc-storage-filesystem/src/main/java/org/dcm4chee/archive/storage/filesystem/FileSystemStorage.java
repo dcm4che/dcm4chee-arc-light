@@ -81,7 +81,7 @@ public class FileSystemStorage implements Storage {
 
     @Override
     public StorageContext newStorageContext(Attributes attrs) {
-        return new FileSystemStorageContext(attrs);
+        return new FileSystemStorageContext(this, attrs);
     }
 
     @Override

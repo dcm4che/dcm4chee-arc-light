@@ -2,6 +2,7 @@ package org.dcm4chee.archive.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.Association;
@@ -22,6 +23,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -50,21 +52,18 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
-        Storage storage = getStorage(ctx);
         String tsuid = ctx.getOriginalTranferSyntaxUID();
-        Attributes dataset = readAttributes(data, tsuid);
-        StorageContext storageContext = storage.newStorageContext(dataset);
-        try ( DicomOutputStream stream =
-                      new DicomOutputStream(storage.newOutputStream(storageContext), UID.ExplicitVRLittleEndian)) {
-            Attributes fmi = dataset.createFileMetaInformation(tsuid);
-            stream.writeDataset(fmi, dataset);
-        }
-        LOG.info("Stored object on {} at {}", storage.getStorageURI(), storageContext.getStoragePath());
-    }
-
-    private Attributes readAttributes(InputStream data, String tsuid) throws IOException {
         DicomInputStream dis = new DicomInputStream(data, tsuid);
-        return dis.readDataset(-1, -1);
+        dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+        dis.setConcatenateBulkDataFiles(true);
+        try ( Transcoder transcoder = new Transcoder(new TranscoderHandler(ctx))) {
+            dis.setDicomInputHandler(transcoder);
+            dis.readDataset(-1,-1);
+        }
+
+        StorageContext storageContext = ctx.getStorageContext();
+        Storage storage = storageContext.getStorage();
+        LOG.info("Stored object on {} at {}", storage.getStorageURI(), storageContext.getStoragePath());
     }
 
     private Storage getStorage(StoreContext ctx) {
@@ -81,4 +80,23 @@ class StoreServiceImpl implements StoreService {
         return storage;
     }
 
+    private final class TranscoderHandler implements Transcoder.Handler {
+        private final StoreContext storeContext;
+
+        private TranscoderHandler(StoreContext storeContext) {
+            this.storeContext = storeContext;
+        }
+
+        @Override
+        public DicomOutputStream newDicomOutputStream(Attributes dataset) throws IOException {
+            String tsuid = storeContext.getOriginalTranferSyntaxUID();
+            Storage storage = getStorage(storeContext);
+            StorageContext storageCtx = storage.newStorageContext(dataset);
+            storeContext.setStorageContext(storageCtx);
+            OutputStream out = storage.newOutputStream(storageCtx);
+            DicomOutputStream dos = new DicomOutputStream(out, UID.ExplicitVRLittleEndian);
+            dos.writeFileMetaInformation(dataset.createFileMetaInformation(tsuid));
+            return dos;
+        }
+    }
 }

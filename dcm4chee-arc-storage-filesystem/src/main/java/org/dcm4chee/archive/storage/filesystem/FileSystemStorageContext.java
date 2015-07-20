@@ -41,6 +41,7 @@
 package org.dcm4chee.archive.storage.filesystem;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.storage.StorageContext;
 
 import java.net.URI;
@@ -50,11 +51,18 @@ import java.net.URI;
  * @since Jul 2015
  */
 public class FileSystemStorageContext implements StorageContext {
+    private final Storage storage;
     private final Attributes attrs;
     private String storagePath;
 
-    public FileSystemStorageContext(Attributes attrs) {
+    public FileSystemStorageContext(Storage storage, Attributes attrs) {
+        this.storage = storage;
         this.attrs = attrs;
+    }
+
+    @Override
+    public Storage getStorage() {
+        return storage;
     }
 
     @Override
