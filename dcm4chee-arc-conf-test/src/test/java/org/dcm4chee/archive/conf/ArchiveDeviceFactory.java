@@ -45,6 +45,7 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.imageio.codec.CompressionRule;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
 import org.dcm4che3.net.*;
@@ -72,7 +73,6 @@ class ArchiveDeviceFactory {
             "dcmqrscp",
             "stgcmtscu",
             "storescp",
-
             "mppsscp",
             "ianscp",
             "storescu",
@@ -423,6 +423,85 @@ class ArchiveDeviceFactory {
             UID.PatientStudyOnlyQueryRetrieveInformationModelGETRetired,
             UID.PatientStudyOnlyQueryRetrieveInformationModelMOVERetired
     };
+    static final CompressionRule JPEG_BASELINE = new CompressionRule(
+            "JPEG 8-bit Lossy",
+            new String[]{
+                    "MONOCHROME1",
+                    "MONOCHROME2",
+                    "RGB"},
+            new int[]{8},                // Bits Stored
+            0,                              // Pixel Representation
+            new String[]{"JPEG_LOSSY"},  // Source AETs
+            null,                           // SOP Classes
+            null,                           // Body Parts
+            UID.JPEGBaseline1,
+            "compressionQuality=0.8",
+            "maxPixelValueError=10",
+            "avgPixelValueBlockSize=8"
+    );
+    static final CompressionRule JPEG_EXTENDED = new CompressionRule(
+            "JPEG 12-bit Lossy",
+            new String[]{
+                    "MONOCHROME1",
+                    "MONOCHROME2",},
+            new int[]{9, 10, 11, 12},    // Bits Stored
+            0,                              // Pixel Representation
+            new String[]{"JPEG_LOSSY"},  // Source AETs
+            null,                           // SOP Classes
+            null,                           // Body Parts
+            UID.JPEGExtended24,
+            "compressionQuality=0.8",
+            "maxPixelValueError=20",
+            "avgPixelValueBlockSize=8"
+    );
+    static final CompressionRule JPEG_LOSSLESS = new CompressionRule(
+            "JPEG Lossless",
+            new String[]{
+                    "MONOCHROME1",
+                    "MONOCHROME2",
+                    "PALETTE COLOR",
+                    "RGB",
+                    "YBR_FULL"},
+            new int[]{8, 9, 10, 11, 12, 13, 14, 15, 16},    // Bits Stored
+            -1,                              // Pixel Representation
+            new String[]{"JPEG_LOSSLESS"},  // Source AETs
+            null,                           // SOP Classes
+            null,                           // Body Parts
+            UID.JPEGLossless,
+            "maxPixelValueError=0"
+    );
+    static final CompressionRule JPEG_LS = new CompressionRule(
+            "JPEG LS Lossless",
+            new String[]{
+                    "MONOCHROME1",
+                    "MONOCHROME2",
+                    "PALETTE COLOR",
+                    "RGB",
+                    "YBR_FULL"},
+            new int[]{8, 9, 10, 11, 12, 13, 14, 15, 16},    // Bits Stored
+            -1,                             // Pixel Representation
+            new String[]{"JPEG_LS"},     // Source AETs
+            null,                           // SOP Classes
+            null,                           // Body Parts
+            UID.JPEGLSLossless,
+            "maxPixelValueError=0"
+    );
+    static final CompressionRule JPEG_2000 = new CompressionRule(
+            "JPEG 2000 Lossless",
+            new String[]{
+                    "MONOCHROME1",
+                    "MONOCHROME2",
+                    "PALETTE COLOR",
+                    "RGB",
+                    "YBR_FULL"},
+            new int[]{8, 9, 10, 11, 12, 13, 14, 15, 16},  // Bits Stored
+            -1,                             // Pixel Representation
+            new String[]{"JPEG_2000"},   // Source AETs
+            null,                           // SOP Classes
+            null,                           // Body Parts
+            UID.JPEG2000LosslessOnly,
+            "maxPixelValueError=0"
+    );
     static final String[] HL7_MESSAGE_TYPES = {
             "ADT^A02",
             "ADT^A03",
@@ -433,6 +512,7 @@ class ArchiveDeviceFactory {
             "ORM^O01"
     };
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
+    static final String BULK_DATA_SPOOL_DIR = "${jboss.server.temp.dir}";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.config.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String PIX_CONSUMER = "DCM4CHEE^DCM4CHEE";
     static final String PIX_MANAGER = "HL7RCV^DCM4CHEE";
@@ -604,6 +684,7 @@ class ArchiveDeviceFactory {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
+        ext.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
 
         ext.setAttributeFilter(Entity.Patient,
                 new AttributeFilter(PATIENT_ATTRS));
@@ -618,6 +699,13 @@ class ArchiveDeviceFactory {
         storageDescriptor.setStorageURI(STORAGE_URI);
         storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
         ext.addStorageDescriptor(storageDescriptor);
+
+        ext.addCompressionRule(JPEG_BASELINE);
+        ext.addCompressionRule(JPEG_EXTENDED);
+        ext.addCompressionRule(JPEG_LOSSLESS);
+        ext.addCompressionRule(JPEG_LS);
+        ext.addCompressionRule(JPEG_2000);
+
     }
 
     private static ApplicationEntity createAE(String aet, Connection dicom, Connection dicomTLS,

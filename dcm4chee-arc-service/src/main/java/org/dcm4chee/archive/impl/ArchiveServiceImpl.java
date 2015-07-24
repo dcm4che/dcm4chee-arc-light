@@ -59,9 +59,6 @@ import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

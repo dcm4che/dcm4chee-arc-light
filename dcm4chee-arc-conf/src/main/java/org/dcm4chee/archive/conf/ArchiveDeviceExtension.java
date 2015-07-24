@@ -40,9 +40,12 @@
 
 package org.dcm4chee.archive.conf;
 
+import org.dcm4che3.imageio.codec.CompressionRule;
+import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,10 +58,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private String fuzzyAlgorithmClass;
 
+    private String bulkDataSpoolDirectory;
+
     private final AttributeFilter[] attributeFilters = new AttributeFilter[Entity.values().length];
 
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<String, StorageDescriptor>();
 
+    private final CompressionRules compressionRules = new CompressionRules();
     private transient FuzzyStr fuzzyStr;
 
     public String getFuzzyAlgorithmClass() {
@@ -89,6 +95,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
+    public String getBulkDataSpoolDirectory() {
+        return bulkDataSpoolDirectory;
+    }
+
+    public void setBulkDataSpoolDirectory(String bulkDataSpoolDirectory) {
+        this.bulkDataSpoolDirectory = bulkDataSpoolDirectory;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters[entity.ordinal()];
     }
@@ -113,13 +127,33 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return storageDescriptorMap.values();
     }
 
+    public CompressionRules getCompressionRules() {
+        return compressionRules;
+    }
+
+    public void addCompressionRule(CompressionRule rule) {
+        compressionRules.add(rule);
+    }
+
+    public void setCompressionRules(CompressionRules rules) {
+        compressionRules.clear();
+        compressionRules.add(rules);
+    }
+
+    public boolean removeCompressionRule(CompressionRule ac) {
+        return compressionRules.remove(ac);
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
+        bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         System.arraycopy(arcdev.attributeFilters, 0, attributeFilters, 0, attributeFilters.length);
         storageDescriptorMap.clear();
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
+        compressionRules.clear();
+        compressionRules.add(arcdev.compressionRules);
     }
 }

@@ -43,7 +43,12 @@ package org.dcm4chee.archive.impl;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.imageio.codec.ImageReaderFactory;
+import org.dcm4che3.imageio.codec.ImageWriterFactory;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.imageio.ImageReaderExtension;
+import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +56,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.imageio.ImageWriter;
 import javax.inject.Inject;
 
 /**
@@ -75,6 +81,8 @@ public class ArchiveDeviceProducer {
     private void init() {
         try {
             device = findDevice();
+            initImageReaderFactory();
+            initImageWriterFactory();
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -87,6 +95,8 @@ public class ArchiveDeviceProducer {
 
     public void reloadConfiguration() throws Exception {
         device.reconfigure(findDevice());
+        initImageReaderFactory();
+        initImageWriterFactory();
     }
 
     private Device findDevice() throws ConfigurationException {
@@ -101,5 +111,22 @@ public class ArchiveDeviceProducer {
             throw e;
         }
         return arcDevice;
+    }
+
+    private void initImageReaderFactory() {
+        ImageReaderExtension ext = device.getDeviceExtension(ImageReaderExtension.class);
+        if (ext != null)
+            ImageReaderFactory.setDefault(ext.getImageReaderFactory());
+        else
+            ImageReaderFactory.resetDefault();
+    }
+
+    private void initImageWriterFactory() {
+        ImageWriterExtension ext = device.getDeviceExtension(ImageWriterExtension.class);
+        if (ext != null)
+            ImageWriterFactory.setDefault(ext.getImageWriterFactory());
+        else
+            ImageWriterFactory.resetDefault();
+        ImageWriterFactory.getImageWriter(ImageWriterFactory.getImageWriterParam(UID.JPEGLSLossless));
     }
 }

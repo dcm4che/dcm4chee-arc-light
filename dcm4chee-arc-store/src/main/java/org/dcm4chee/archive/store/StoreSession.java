@@ -42,6 +42,8 @@ package org.dcm4chee.archive.store;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4chee.archive.conf.ArchiveAEExtension;
+import org.dcm4chee.archive.conf.StorageDescriptor;
 import org.dcm4chee.archive.storage.Storage;
 
 /**
@@ -53,7 +55,11 @@ public interface StoreSession {
 
     ApplicationEntity getLocalApplicationEntity();
 
+    ArchiveAEExtension getArchiveAEExtension();
+
     Storage getStorage();
 
     void setStorage(Storage storage);
+
+    String getRemoteApplicationEntityTitle();
 }

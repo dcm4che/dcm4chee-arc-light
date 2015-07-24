@@ -1,5 +1,6 @@
 package org.dcm4chee.archive.store.org.dcm4chee.archive.store.impl;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.storage.StorageContext;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreSession;
@@ -13,7 +14,9 @@ class StoreContextImpl implements StoreContext {
     private final StoreSession storeSession;
     private String sopClassUID;
     private String sopInstanceUID;
-    private String originalTranferSyntaxUID;
+    private String receiveTranferSyntaxUID;
+    private String storeTranferSyntaxUID;
+    private Attributes attributes;
     private StorageContext storageContext;
 
     public StoreContextImpl(StoreSession storeSession) {
@@ -31,7 +34,7 @@ class StoreContextImpl implements StoreContext {
     }
 
     @Override
-    public void setSOPClassUID(String sopClassUID) {
+    public void setSopClassUID(String sopClassUID) {
         this.sopClassUID = sopClassUID;
     }
 
@@ -41,18 +44,39 @@ class StoreContextImpl implements StoreContext {
     }
 
     @Override
-    public void setSOPInstanceUID(String sopInstanceUID) {
+    public void setSopInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
     }
 
     @Override
-    public String getOriginalTranferSyntaxUID() {
-        return originalTranferSyntaxUID;
+    public String getReceiveTranferSyntax() {
+        return receiveTranferSyntaxUID;
     }
 
     @Override
-    public void setOriginalTransferSyntax(String transferSyntaxUID) {
-        this.originalTranferSyntaxUID = transferSyntaxUID;
+    public void setReceiveTransferSyntax(String transferSyntaxUID) {
+        this.receiveTranferSyntaxUID = transferSyntaxUID;
+        this.storeTranferSyntaxUID = transferSyntaxUID;
+    }
+
+    @Override
+    public String getStoreTranferSyntax() {
+        return storeTranferSyntaxUID;
+    }
+
+    @Override
+    public void setStoreTranferSyntax(String storeTranferSyntaxUID) {
+        this.storeTranferSyntaxUID = storeTranferSyntaxUID;
+    }
+
+    @Override
+    public Attributes getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public void setAttributes(Attributes attributes) {
+        this.attributes = attributes;
     }
 
     @Override

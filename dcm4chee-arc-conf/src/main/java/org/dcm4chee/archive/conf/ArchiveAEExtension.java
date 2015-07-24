@@ -40,7 +40,14 @@
 
 package org.dcm4chee.archive.conf;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.imageio.codec.CompressionRule;
+import org.dcm4che3.imageio.codec.CompressionRules;
+import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.net.AEExtension;
+import org.dcm4che3.util.StringUtils;
+
+import java.io.File;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -48,9 +55,12 @@ import org.dcm4che3.net.AEExtension;
  */
 public class ArchiveAEExtension extends AEExtension {
     private String storageID;
+    private String bulkDataSpoolDirectory;
     private String remotePIXManagerApplication;
     private String localPIXConsumerApplication;
     private boolean pixQuery;
+    private CompressionRules compressionRules = new CompressionRules();
+
 
     public String getStorageID() {
         return storageID;
@@ -58,6 +68,31 @@ public class ArchiveAEExtension extends AEExtension {
 
     public void setStorageID(String storageID) {
         this.storageID = storageID;
+    }
+
+    public String getBulkDataSpoolDirectory() {
+        return bulkDataSpoolDirectory;
+    }
+
+    public void setBulkDataSpoolDirectory(String bulkDataSpoolDirectory) {
+        this.bulkDataSpoolDirectory = bulkDataSpoolDirectory;
+    }
+
+    public CompressionRules getCompressionRules() {
+        return compressionRules;
+    }
+
+    public void addCompressionRule(CompressionRule rule) {
+        compressionRules.add(rule);
+    }
+
+    public void setCompressionRules(CompressionRules rules) {
+        compressionRules.clear();
+        compressionRules.add(rules);
+    }
+
+    public boolean removeCompressionRule(CompressionRule ac) {
+        return compressionRules.remove(ac);
     }
 
     public String getRemotePIXManagerApplication() {
@@ -88,8 +123,35 @@ public class ArchiveAEExtension extends AEExtension {
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         storageID = aeExt.storageID;
+        bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;
         pixQuery = aeExt.pixQuery;
         remotePIXManagerApplication = aeExt.remotePIXManagerApplication;
         localPIXConsumerApplication = aeExt.localPIXConsumerApplication;
+        compressionRules.clear();
+        compressionRules.add(aeExt.compressionRules);
+    }
+
+    public ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+    }
+
+    public StorageDescriptor getStorageDescriptor() {
+        return storageID != null ? getArchiveDeviceExtension().getStorageDescriptor(storageID) : null;
+    }
+
+    public CompressionRule findCompressionRule(String aeTitle, ImageDescriptor imageDescriptor) {
+        CompressionRule rule = compressionRules.findCompressionRule(aeTitle, imageDescriptor);
+        if (rule == null)
+            rule = getArchiveDeviceExtension().getCompressionRules().findCompressionRule(aeTitle, imageDescriptor);
+        return rule;
+    }
+
+    public File getBulkDataSpoolDirectoryFile() {
+        return fileOf(bulkDataSpoolDirectory != null ? bulkDataSpoolDirectory
+                : getArchiveDeviceExtension().getBulkDataSpoolDirectory());
+    }
+
+    private File fileOf(String s) {
+        return s != null ? new File(StringUtils.replaceSystemProperties(s)) : null;
     }
 }

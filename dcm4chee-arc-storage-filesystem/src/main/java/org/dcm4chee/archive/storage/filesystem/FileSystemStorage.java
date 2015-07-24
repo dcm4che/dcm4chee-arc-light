@@ -94,7 +94,7 @@ public class FileSystemStorage implements Storage {
             try {
                 stream = Files.newOutputStream(path, StandardOpenOption.CREATE_NEW);
             } catch (FileAlreadyExistsException e) {
-                path = dir.resolve(String.format("%8X", ThreadLocalRandom.current().nextInt()));
+                path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
             }
         ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
         return stream;

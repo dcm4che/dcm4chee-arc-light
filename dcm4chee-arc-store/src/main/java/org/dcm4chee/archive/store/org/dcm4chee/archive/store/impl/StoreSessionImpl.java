@@ -5,6 +5,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.archive.conf.ArchiveAEExtension;
 import org.dcm4chee.archive.conf.ArchiveDeviceExtension;
+import org.dcm4chee.archive.conf.StorageDescriptor;
 import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.store.StoreSession;
 
@@ -33,6 +34,11 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    @Override
     public Storage getStorage() {
         return storage;
     }
@@ -40,6 +46,11 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public void setStorage(Storage storage) {
         this.storage = storage;
+    }
+
+    @Override
+    public String getRemoteApplicationEntityTitle() {
+        return as.getRemoteAET();
     }
 
 }

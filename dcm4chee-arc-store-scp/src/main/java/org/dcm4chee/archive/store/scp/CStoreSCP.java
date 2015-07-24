@@ -2,13 +2,11 @@ package org.dcm4chee.archive.store.scp;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.PDVInputStream;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicCStoreSCP;
 import org.dcm4che3.net.service.DicomService;
-import org.dcm4chee.archive.conf.ArchiveAEExtension;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreService;
 import org.dcm4chee.archive.store.StoreSession;
@@ -39,9 +37,9 @@ class CStoreSCP extends BasicCStoreSCP {
 
     private StoreContext newStoreContext(StoreSession session,  PresentationContext pc, Attributes rq) {
         StoreContext ctx = storeService.newStoreContext(session);
-        ctx.setSOPClassUID(rq.getString(Tag.AffectedSOPClassUID));
-        ctx.setSOPInstanceUID(rq.getString(Tag.AffectedSOPInstanceUID));
-        ctx.setOriginalTransferSyntax(pc.getTransferSyntax());
+        ctx.setSopClassUID(rq.getString(Tag.AffectedSOPClassUID));
+        ctx.setSopInstanceUID(rq.getString(Tag.AffectedSOPInstanceUID));
+        ctx.setReceiveTransferSyntax(pc.getTransferSyntax());
         return ctx;
 
     }

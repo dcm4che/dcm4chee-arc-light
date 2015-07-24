@@ -61,17 +61,26 @@ attributetype ( 1.2.40.0.13.1.15.110.3.28 NAME 'dcmStorageID'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.29 NAME 'dcmBulkDataSpoolDirectory'
+  DESC 'Path to Bulk Data Spool Directory'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
   MUST (
-    dcmFuzzyAlgorithmClass ) )
+    dcmFuzzyAlgorithmClass )
+  MAY (
+    dcmBulkDataSpoolDirectory ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
   MAY (
     dcmStorageID $
+    dcmBulkDataSpoolDirectory $
     hl7PIXQuery $
     hl7PIXConsumerApplication $
     hl7PIXManagerApplication ) )

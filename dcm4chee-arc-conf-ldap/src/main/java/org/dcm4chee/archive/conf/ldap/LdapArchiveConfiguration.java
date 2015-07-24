@@ -43,7 +43,9 @@ package org.dcm4chee.archive.conf.ldap;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.LdapUtils;
+import org.dcm4che3.conf.ldap.imageio.LdapCompressionRulesConfiguration;
 import org.dcm4che3.data.ValueSelector;
+import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
@@ -71,6 +73,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         attrs.get("objectclass").add("dcmArchiveDevice");
         LdapUtils.storeNotNull(attrs, "dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass());
+        LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
     }
 
     @Override
@@ -81,6 +84,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ArchiveDeviceExtension arcdev = new ArchiveDeviceExtension();
         device.addDeviceExtension(arcdev);
         arcdev.setFuzzyAlgorithmClass(LdapUtils.stringValue(attrs.get("dcmFuzzyAlgorithmClass"), null));
+        arcdev.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
     }
 
     @Override
@@ -93,6 +97,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         storeAttributeFilter(deviceDN, arcDev);
         storeStorageDescriptors(deviceDN, arcDev);
+        storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
     }
 
     @Override
@@ -104,6 +109,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         loadAttributeFilters(arcdev, deviceDN);
         loadStorageDescriptors(arcdev, deviceDN);
+        loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
     }
 
     @Override
@@ -114,6 +120,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         LdapUtils.storeDiff(mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass());
+        LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
+                aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
     }
 
     @Override
@@ -128,6 +136,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         mergeAttributeFilters(aa, bb, deviceDN);
         mergeStorageDescriptors(aa, bb, deviceDN);
+        mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
     }
 
     @Override
@@ -138,6 +147,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         attrs.get("objectclass").add("dcmArchiveNetworkAE");
         LdapUtils.storeNotNull(attrs, "dcmStorageID", aeExt.getStorageID());
+        LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", aeExt.getBulkDataSpoolDirectory());
         LdapUtils.storeNotDef(attrs, "hl7PIXQuery", aeExt.isPixQuery(), false);
         LdapUtils.storeNotNull(attrs, "hl7PIXConsumerApplication", aeExt.getLocalPIXConsumerApplication());
         LdapUtils.storeNotNull(attrs, "hl7PIXManagerApplication", aeExt.getRemotePIXManagerApplication());
@@ -151,6 +161,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ArchiveAEExtension aeExt = new ArchiveAEExtension();
         ae.addAEExtension(aeExt);
         aeExt.setStorageID(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
+        aeExt.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
         aeExt.setPixQuery(LdapUtils.booleanValue(attrs.get("hl7PIXQuery"), false));
         aeExt.setLocalPIXConsumerApplication(LdapUtils.stringValue(attrs.get("hl7PIXConsumerApplication"), null));
         aeExt.setRemotePIXManagerApplication(LdapUtils.stringValue(attrs.get("hl7PIXManagerApplication"), null));
@@ -164,11 +175,41 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         LdapUtils.storeDiff(mods, "dcmStorageID", aa.getStorageID(), bb.getStorageID());
+        LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
+                aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
         LdapUtils.storeDiff(mods, "hl7PIXQuery", aa.isPixQuery(), bb.isPixQuery(), false);
         LdapUtils.storeDiff(mods, "hl7PIXConsumerApplication",
                 aa.getLocalPIXConsumerApplication(), bb.getLocalPIXConsumerApplication());
         LdapUtils.storeDiff(mods, "hl7PIXManagerApplication",
                 aa.getRemotePIXManagerApplication(), bb.getRemotePIXManagerApplication());
+    }
+
+    @Override
+    protected void storeChilds(String aeDN, ApplicationEntity ae) throws NamingException {
+        ArchiveAEExtension aeExt = ae.getAEExtension(ArchiveAEExtension.class);
+        if (aeExt == null)
+            return;
+
+        storeCompressionRules(aeExt.getCompressionRules(), aeDN);
+    }
+
+    @Override
+    protected void loadChilds(ApplicationEntity ae, String aeDN) throws NamingException {
+        ArchiveAEExtension aeExt = ae.getAEExtension(ArchiveAEExtension.class);
+        if (aeExt == null)
+            return;
+
+        loadCompressionRules(aeExt.getCompressionRules(), aeDN);
+    }
+
+    @Override
+    protected void mergeChilds(ApplicationEntity prev, ApplicationEntity ae, String aeDN) throws NamingException {
+        ArchiveAEExtension aa = prev.getAEExtension(ArchiveAEExtension.class);
+        ArchiveAEExtension bb = ae.getAEExtension(ArchiveAEExtension.class);
+        if (aa == null || bb == null)
+            return;
+
+        mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
     }
 
     private void storeAttributeFilter(String deviceDN, ArchiveDeviceExtension arcDev)
@@ -179,6 +220,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     storeTo(arcDev.getAttributeFilter(entity), entity, new BasicAttributes(true)));
         }
     }
+
     private static Attributes storeTo(AttributeFilter filter, Entity entity,  BasicAttributes attrs) {
         attrs.put("objectclass", "dcmAttributeFilter");
         attrs.put("dcmEntity", entity.name());
@@ -188,14 +230,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute3", filter.getCustomAttribute3());
         return attrs;
     }
-
-
     private static Attribute tagsAttr(String attrID, int[] tags) {
         Attribute attr = new BasicAttribute(attrID);
         for (int tag : tags)
             attr.add(TagUtils.toHexString(tag));
         return attr;
     }
+
 
     private void loadAttributeFilters(ArchiveDeviceExtension device, String deviceDN)
             throws NamingException {
@@ -338,6 +379,20 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     : new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
                         LdapUtils.attr("dcmProperty", toStrings(props))));
         }
+    }
+
+    private void storeCompressionRules(CompressionRules rules, String parentDN) throws NamingException {
+        new LdapCompressionRulesConfiguration(config).store(rules, parentDN);
+    }
+
+    private void loadCompressionRules(CompressionRules rules, String parentDN) throws NamingException {
+        rules.clear();
+        new LdapCompressionRulesConfiguration(config).load(rules, parentDN);
+    }
+
+    private void mergeCompressionRules(CompressionRules aa, CompressionRules bb, String parentDN)
+            throws NamingException {
+        new LdapCompressionRulesConfiguration(config).merge(aa, bb, parentDN);
     }
 
 }

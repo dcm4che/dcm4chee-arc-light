@@ -1,5 +1,6 @@
 package org.dcm4chee.archive.store;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.storage.StorageContext;
 
 /**
@@ -12,18 +13,25 @@ public interface StoreContext {
 
     String getSopClassUID();
 
-    void setSOPClassUID(String string);
+    void setSopClassUID(String string);
 
     String getSopInstanceUID();
 
-    void setSOPInstanceUID(String string);
+    void setSopInstanceUID(String string);
 
-    String getOriginalTranferSyntaxUID();
+    String getReceiveTranferSyntax();
 
-    void setOriginalTransferSyntax(String transferSyntax);
+    void setReceiveTransferSyntax(String transferSyntax);
+
+    String getStoreTranferSyntax();
+
+    void setStoreTranferSyntax(String storeTranferSyntaxUID);
+
+    Attributes getAttributes();
+
+    void setAttributes(Attributes dataset);
 
     StorageContext getStorageContext();
 
     void setStorageContext(StorageContext storageContext);
-
 }
