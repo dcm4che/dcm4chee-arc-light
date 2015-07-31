@@ -35,6 +35,9 @@ class StoreServiceImpl implements StoreService {
     @Inject
     private StorageFactory storageFactory;
 
+    @Inject
+    private StoreServiceEJB ejb;
+
     @Override
     public StoreSession newStoreSession(Association as) {
         return new StoreSessionImpl(as);
@@ -58,7 +61,10 @@ class StoreServiceImpl implements StoreService {
 
         StorageContext storageContext = ctx.getStorageContext();
         Storage storage = storageContext.getStorage();
-        LOG.info("Stored object on {} at {}", storage.getStorageURI(), storageContext.getStoragePath());
+        LOG.info("Stored object on {} at {}",
+                storage.getStorageDescriptor().getStorageURI(),
+                storageContext.getStoragePath());
+        ejb.updateDB(ctx);
     }
 
     private Storage getStorage(StoreContext ctx) {

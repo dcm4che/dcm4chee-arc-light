@@ -57,4 +57,8 @@ public interface StorageContext {
     String getStoragePath();
 
     void setStoragePath(String storagePath);
+
+    long getSize();
+
+    void setSize(long size);
 }

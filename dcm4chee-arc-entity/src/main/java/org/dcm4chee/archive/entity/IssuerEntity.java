@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,56 +38,56 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.storage.filesystem;
+package org.dcm4chee.archive.entity;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4che3.data.Issuer;
 
-import java.net.URI;
+import javax.persistence.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class FileSystemStorageContext implements StorageContext {
-    private final Storage storage;
-    private final Attributes attrs;
-    private String storagePath;
-    private long size = -1L;
+@NamedQueries({
+@NamedQuery(
+    name=IssuerEntity.FIND_BY_ENTITY_ID,
+    query="select entity from IssuerEntity entity where entity.issuer.localNamespaceEntityID = ?1"),
+@NamedQuery(
+    name=IssuerEntity.FIND_BY_ENTITY_UID,
+    query="select entity from IssuerEntity entity " +
+            "where entity.issuer.universalEntityID = ?1 and entity.issuer.universalEntityIDType = ?2"),
+@NamedQuery(
+    name=IssuerEntity.FIND_BY_ENTITY_ID_OR_UID,
+    query="select entity from IssuerEntity entity where entity.issuer.localNamespaceEntityID = ?1 " +
+            "or (entity.issuer.universalEntityID = ?2 and entity.issuer.universalEntityIDType = ?3)")
+})
+@Entity
+@Table(name = "id_issuer")
+public class IssuerEntity {
 
-    public FileSystemStorageContext(Storage storage, Attributes attrs) {
-        this.storage = storage;
-        this.attrs = attrs;
+    public static final String FIND_BY_ENTITY_ID = "IssuerEntity.findByEntityID";
+    public static final String FIND_BY_ENTITY_UID = "IssuerEntity.findByEntityUID";
+    public static final String FIND_BY_ENTITY_ID_OR_UID = "IssuerEntity.findByEntityIDorUID";
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "pk")
+    private long pk;
+
+    @Embedded
+    private Issuer issuer;
+
+    protected IssuerEntity() {} // for JPA
+
+    public IssuerEntity(Issuer issuer) {
+        this.issuer = issuer;
     }
 
-    @Override
-    public Storage getStorage() {
-        return storage;
+    public long getPk() {
+        return pk;
     }
 
-    @Override
-    public Attributes getAttributes() {
-        return attrs;
-    }
-
-    @Override
-    public String getStoragePath() {
-        return storagePath;
-    }
-
-    @Override
-    public void setStoragePath(String storagePath) {
-        this.storagePath = storagePath;
-    }
-
-    @Override
-    public long getSize() {
-        return size;
-    }
-
-    @Override
-    public void setSize(long size) {
-        this.size = size;
+    public Issuer getIssuer() {
+        return issuer;
     }
 }

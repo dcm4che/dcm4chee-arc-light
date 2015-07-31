@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,56 +38,59 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.storage.filesystem;
+package org.dcm4chee.archive.entity;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.DateUtils;
 
-import java.net.URI;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
+ * @author Damien Evans <damien.daddy@gmail.com>
+ * @author Justin Falk <jfalkmu@gmail.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @author Michael Backhaus <michael.backhaus@agfa.com>
  */
-public class FileSystemStorageContext implements StorageContext {
-    private final Storage storage;
-    private final Attributes attrs;
-    private String storagePath;
-    private long size = -1L;
+@Entity
+@Table(name = "verify_observer")
+public class VerifyingObserver {
 
-    public FileSystemStorageContext(Storage storage, Attributes attrs) {
-        this.storage = storage;
-        this.attrs = attrs;
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name = "pk")
+    private long pk;
+
+    @Basic(optional = false)
+    @Column(name = "verify_datetime")
+    private String verificationDateTime;
+
+    @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "observer_name_fk")
+    private PersonName verifyingObserverName;
+
+    public VerifyingObserver() {}
+
+    public VerifyingObserver(Attributes attrs, FuzzyStr fuzzyStr) {
+        Date dt = attrs.getDate(Tag.VerificationDateTime);
+        verificationDateTime = DateUtils.formatDT(null, dt);
+        verifyingObserverName = PersonName.valueOf(
+                attrs.getString(Tag.VerifyingObserverName), fuzzyStr, null);
     }
 
-    @Override
-    public Storage getStorage() {
-        return storage;
+    public long getPk() {
+        return pk;
     }
 
-    @Override
-    public Attributes getAttributes() {
-        return attrs;
+    public String getVerificationDateTime() {
+        return verificationDateTime;
     }
 
-    @Override
-    public String getStoragePath() {
-        return storagePath;
+    public PersonName getVerifyingObserverName() {
+        return verifyingObserverName;
     }
 
-    @Override
-    public void setStoragePath(String storagePath) {
-        this.storagePath = storagePath;
-    }
-
-    @Override
-    public long getSize() {
-        return size;
-    }
-
-    @Override
-    public void setSize(long size) {
-        this.size = size;
-    }
 }

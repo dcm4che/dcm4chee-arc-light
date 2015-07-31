@@ -1,6 +1,7 @@
 package org.dcm4chee.archive.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4chee.archive.storage.StorageContext;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreSession;
@@ -18,6 +19,8 @@ class StoreContextImpl implements StoreContext {
     private String storeTranferSyntaxUID;
     private Attributes attributes;
     private StorageContext storageContext;
+    private String studyInstanceUID;
+    private String seriesInstanceUID;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -49,6 +52,16 @@ class StoreContextImpl implements StoreContext {
     }
 
     @Override
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
+    }
+
+    @Override
+    public String getSeriesInstanceUID() {
+        return seriesInstanceUID;
+    }
+
+    @Override
     public String getReceiveTranferSyntax() {
         return receiveTranferSyntaxUID;
     }
@@ -75,8 +88,12 @@ class StoreContextImpl implements StoreContext {
     }
 
     @Override
-    public void setAttributes(Attributes attributes) {
-        this.attributes = attributes;
+    public void setAttributes(Attributes attrs) {
+        this.studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+        this.seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
+        this.sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
+        this.sopClassUID = attrs.getString(Tag.SOPClassUID);
+        this.attributes = attrs;
     }
 
     @Override

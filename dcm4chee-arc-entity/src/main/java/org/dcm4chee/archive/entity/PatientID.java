@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,56 +38,82 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.storage.filesystem;
+package org.dcm4chee.archive.entity;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4che3.data.IDWithIssuer;
 
-import java.net.URI;
+import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ *
  */
-public class FileSystemStorageContext implements StorageContext {
-    private final Storage storage;
-    private final Attributes attrs;
-    private String storagePath;
-    private long size = -1L;
+@Entity
+@Table(name = "patient_id")
+public class PatientID {
 
-    public FileSystemStorageContext(Storage storage, Attributes attrs) {
-        this.storage = storage;
-        this.attrs = attrs;
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name = "pk")
+    private long pk;
+    
+    @Version
+    @Column(name = "version")
+    private long version;    
+
+    @Basic(optional=false)
+    @Column(name = "pat_id")
+    private String id;
+
+    @Column(name = "pat_id_type_code")
+    private String identifierTypeCode;
+
+    @ManyToOne
+    @JoinColumn(name = "issuer_fk")
+    private IssuerEntity issuer;
+
+    public long getPk() {
+        return pk;
     }
 
-    @Override
-    public Storage getStorage() {
-        return storage;
+    public String getID() {
+        return id;
     }
 
-    @Override
-    public Attributes getAttributes() {
-        return attrs;
+    public void setID(String id) {
+        this.id = id;
     }
 
-    @Override
-    public String getStoragePath() {
-        return storagePath;
+    public String getIdentifierTypeCode() {
+        return identifierTypeCode;
     }
 
-    @Override
-    public void setStoragePath(String storagePath) {
-        this.storagePath = storagePath;
+    public void setIdentifierTypeCode(String identifierTypeCode) {
+        this.identifierTypeCode = identifierTypeCode;
     }
 
-    @Override
-    public long getSize() {
-        return size;
+    public IssuerEntity getIssuer() {
+        return issuer;
     }
 
+    public void setIssuer(IssuerEntity issuer) {
+        this.issuer = issuer;
+    }
+    
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+    
     @Override
-    public void setSize(long size) {
-        this.size = size;
+    public String toString() {
+        return "PatientID[pk=" + pk
+                + ", id=" + id
+                + ", issuer=" + issuer
+                + "]";
     }
 }

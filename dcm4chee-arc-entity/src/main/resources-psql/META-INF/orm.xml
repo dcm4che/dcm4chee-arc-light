@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ **** BEGIN LICENSE BLOCK *****
+  ~ Version: MPL 1.1/GPL 2.0/LGPL 2.1
+  ~
+  ~ The contents of this file are subject to the Mozilla Public License Version
+  ~ 1.1 (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~ http://www.mozilla.org/MPL/
+  ~
+  ~ Software distributed under the License is distributed on an "AS IS" basis,
+  ~ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+  ~ for the specific language governing rights and limitations under the
+  ~ License.
+  ~
+  ~ The Original Code is part of dcm4che, an implementation of DICOM(TM) in
+  ~ Java(TM), hosted at https://github.com/gunterze/dcm4che.
+  ~
+  ~ The Initial Developer of the Original Code is
+  ~ J4Care.
+  ~ Portions created by the Initial Developer are Copyright (C) 2015
+  ~ the Initial Developer. All Rights Reserved.
+  ~
+  ~ Contributor(s):
+  ~ See @authors listed below
+  ~
+  ~ Alternatively, the contents of this file may be used under the terms of
+  ~ either the GNU General Public License Version 2 or later (the "GPL"), or
+  ~ the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+  ~ in which case the provisions of the GPL or the LGPL are applicable instead
+  ~ of those above. If you wish to allow use of your version of this file only
+  ~ under the terms of either the GPL or the LGPL, and not to allow others to
+  ~ use your version of this file under the terms of the MPL, indicate your
+  ~ decision by deleting the provisions above and replace them with the notice
+  ~ and other provisions required by the GPL or the LGPL. If you do not delete
+  ~ the provisions above, a recipient may use your version of this file under
+  ~ the terms of any one of the MPL, the GPL or the LGPL.
+  ~
+  ~ **** END LICENSE BLOCK *****
+  -->
+
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+        version="2.1">
+
+    <package>org.dcm4chee.archive.entity</package>
+
+    <access>FIELD</access>
+
+    <entity class="AttributesBlob">
+        <table name="dicomattrs" />
+        <sequence-generator name="attrs_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="attrs_pk_seq" />
+            </id>
+            <basic name="encodedAttributes" optional="false">
+                <column name="attrs" column-definition="bytea" />
+            </basic>
+        </attributes>
+    </entity>
+
+    <entity class="CodeEntity">
+        <table name="code" />
+        <sequence-generator name="code_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="code_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="ContentItem">
+        <table name="content_item" />
+        <sequence-generator name="content_item_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="content_item_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="Instance">
+        <table name="instance" />
+        <sequence-generator name="instance_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="instance_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="IssuerEntity">
+        <table name="id_issuer" />
+        <sequence-generator name="issuer_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="issuer_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="Location">
+        <table name="location" />
+        <sequence-generator name="location_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="location_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="Patient">
+        <table name="patient" />
+        <sequence-generator name="patient_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="patient_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="PatientID">
+        <table name="patient_id" />
+        <sequence-generator name="patient_id_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="patient_id_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="PersonName">
+        <table name="person_name" />
+        <sequence-generator name="person_name_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="person_name_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="Series">
+        <table name="series" />
+        <sequence-generator name="series_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="series_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="SeriesRequestAttributes">
+        <table name="series_req" />
+        <sequence-generator name="series_req_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="series_req_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="SoundexCode">
+        <table name="soundex_code" />
+        <sequence-generator name="soundex_code_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="soundex_code_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="Study">
+        <table name="study" />
+        <sequence-generator name="study_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="study_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="VerifyingObserver">
+        <table name="verify_observer" />
+        <sequence-generator name="verify_observer_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="verify_observer_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <embeddable class="org.dcm4che3.data.Code">
+        <attributes>
+            <basic name="codeValue" optional="false">
+                <column name="code_value"/>
+            </basic>
+            <basic name="codingSchemeDesignator" optional="false">
+                <column name="code_designator"/>
+            </basic>
+            <basic name="codingSchemeVersion" optional="true">
+                <column name="code_version"/>
+            </basic>
+            <basic name="codeMeaning" optional="false">
+                <column name="code_meaning"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="org.dcm4che3.data.Issuer">
+        <attributes>
+            <basic name="localNamespaceEntityID" optional="true">
+                <column name="entity_id"/>
+            </basic>
+            <basic name="universalEntityID" optional="true">
+                <column name="entity_uid"/>
+            </basic>
+            <basic name="universalEntityIDType" optional="true">
+                <column name="entity_uid_type"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
+</entity-mappings>

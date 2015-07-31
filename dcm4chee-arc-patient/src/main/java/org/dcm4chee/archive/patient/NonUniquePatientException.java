@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,56 +38,18 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.storage.filesystem;
-
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
-
-import java.net.URI;
+package org.dcm4chee.archive.patient;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class FileSystemStorageContext implements StorageContext {
-    private final Storage storage;
-    private final Attributes attrs;
-    private String storagePath;
-    private long size = -1L;
-
-    public FileSystemStorageContext(Storage storage, Attributes attrs) {
-        this.storage = storage;
-        this.attrs = attrs;
+public class NonUniquePatientException extends Exception {
+    public NonUniquePatientException() {
+        super();
     }
 
-    @Override
-    public Storage getStorage() {
-        return storage;
-    }
-
-    @Override
-    public Attributes getAttributes() {
-        return attrs;
-    }
-
-    @Override
-    public String getStoragePath() {
-        return storagePath;
-    }
-
-    @Override
-    public void setStoragePath(String storagePath) {
-        this.storagePath = storagePath;
-    }
-
-    @Override
-    public long getSize() {
-        return size;
-    }
-
-    @Override
-    public void setSize(long size) {
-        this.size = size;
+    public NonUniquePatientException(String message) {
+        super(message);
     }
 }

@@ -46,6 +46,8 @@ import org.dcm4chee.archive.conf.StorageDescriptor;
 import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.storage.StorageContext;
 
+import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -63,8 +65,10 @@ public class FileSystemStorage implements Storage {
 
     private final URI rootURI;
     private final AttributesFormat pathFormat;
+    private final StorageDescriptor descriptor;
 
     public FileSystemStorage(StorageDescriptor descriptor) {
+        this.descriptor = descriptor;
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
         pathFormat = new AttributesFormat((String) descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
     }
@@ -75,8 +79,8 @@ public class FileSystemStorage implements Storage {
     }
 
     @Override
-    public URI getStorageURI() {
-        return rootURI;
+    public StorageDescriptor getStorageDescriptor() {
+        return descriptor;
     }
 
     @Override
@@ -85,7 +89,7 @@ public class FileSystemStorage implements Storage {
     }
 
     @Override
-    public OutputStream newOutputStream(StorageContext ctx) throws IOException {
+    public OutputStream newOutputStream(final StorageContext ctx) throws IOException {
         Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
         Path dir = path.getParent();
         Files.createDirectories(dir);
@@ -97,7 +101,14 @@ public class FileSystemStorage implements Storage {
                 path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
             }
         ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
-        return stream;
+        final Path finalPath = path;
+        return new FilterOutputStream(stream) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                ctx.setSize(Files.size(finalPath));
+            }
+        };
     }
 
     @Override

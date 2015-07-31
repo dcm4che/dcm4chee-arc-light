@@ -12,7 +12,7 @@ import java.net.URI;
  * @since Jul 2015
  */
 public interface Storage {
-    URI getStorageURI();
+    StorageDescriptor getStorageDescriptor();
 
     StorageContext newStorageContext(Attributes attrs);
 

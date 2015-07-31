@@ -38,56 +38,59 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.storage.filesystem;
+package org.dcm4chee.archive.entity;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4che3.data.Code;
 
-import java.net.URI;
+import javax.persistence.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class FileSystemStorageContext implements StorageContext {
-    private final Storage storage;
-    private final Attributes attrs;
-    private String storagePath;
-    private long size = -1L;
 
-    public FileSystemStorageContext(Storage storage, Attributes attrs) {
-        this.storage = storage;
-        this.attrs = attrs;
+@NamedQueries({
+@NamedQuery(
+    name=CodeEntity.FIND_BY_CODE_VALUE_WITHOUT_SCHEME_VERSION,
+    query="select entity from CodeEntity entity " +
+            "where entity.code.codeValue = ?1 " +
+            "and entity.code.codingSchemeDesignator = ?2 " +
+            "and entity.code.codingSchemeVersion IS NULL"),
+@NamedQuery(
+    name=CodeEntity.FIND_BY_CODE_VALUE_WITH_SCHEME_VERSION,
+    query="select entity from CodeEntity entity " +
+            "where entity.code.codeValue = ?1 " +
+            "and entity.code.codingSchemeDesignator = ?2 " +
+            "and entity.code.codingSchemeVersion = ?3")
+})
+@Entity
+@Table(name = "code")
+public class CodeEntity {
+
+    public static final String FIND_BY_CODE_VALUE_WITHOUT_SCHEME_VERSION =
+            "CodeEntity.findByCodeValueWithoutSchemeVersion";
+    public static final String FIND_BY_CODE_VALUE_WITH_SCHEME_VERSION =
+            "CodeEntity.findByCodeValueWithSchemeVersion";
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "pk")
+    private long pk;
+
+    @Embedded
+    private Code code;
+
+    protected CodeEntity() {} // for JPA
+
+    public CodeEntity(Code code) {
+        this.code = code;
     }
 
-    @Override
-    public Storage getStorage() {
-        return storage;
+    public long getPk() {
+        return pk;
     }
 
-    @Override
-    public Attributes getAttributes() {
-        return attrs;
-    }
-
-    @Override
-    public String getStoragePath() {
-        return storagePath;
-    }
-
-    @Override
-    public void setStoragePath(String storagePath) {
-        this.storagePath = storagePath;
-    }
-
-    @Override
-    public long getSize() {
-        return size;
-    }
-
-    @Override
-    public void setSize(long size) {
-        this.size = size;
+    public Code getCode() {
+        return code;
     }
 }

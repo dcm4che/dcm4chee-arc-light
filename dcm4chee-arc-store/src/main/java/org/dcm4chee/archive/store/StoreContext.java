@@ -31,7 +31,12 @@ public interface StoreContext {
 
     void setAttributes(Attributes dataset);
 
+    String getStudyInstanceUID();
+
+    String getSeriesInstanceUID();
+
     StorageContext getStorageContext();
 
     void setStorageContext(StorageContext storageContext);
+
 }

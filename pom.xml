@@ -50,21 +50,25 @@
   <packaging>pom</packaging>
 
   <properties>
-
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
     <!-- Versions -->
     <dcm4che.version>3.3.5-SNAPSHOT</dcm4che.version>
+    <querydsl.version>4.0.2</querydsl.version>
+
+    <!-- JPA -->
+    <ds>java:/PacsDS</ds>
+
   </properties>
 
-  <repositories>
-    <repository>
-      <id>JBoss Repository</id>
-      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-    </repository>
-  </repositories>
+  <!--<repositories>-->
+    <!--<repository>-->
+      <!--<id>JBoss Repository</id>-->
+      <!--<url>https://repository.jboss.org/nexus/content/groups/public/</url>-->
+    <!--</repository>-->
+  <!--</repositories>-->
 
   <dependencyManagement>
     <dependencies>
@@ -189,7 +193,14 @@
       <scope>provided</scope>
     </dependency>
 
-  <dependency>
+    <dependency>
+      <groupId>com.querydsl</groupId>
+      <artifactId>querydsl-jpa</artifactId>
+      <version>${querydsl.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
       <artifactId>jboss-ejb-api_3.2_spec</artifactId>
       <scope>provided</scope>
@@ -229,17 +240,35 @@
   </dependencies>
 
   <modules>
+    <module>dcm4chee-arc-code</module>
     <module>dcm4chee-arc-conf</module>
     <module>dcm4chee-arc-conf-ldap</module>
     <module>dcm4chee-arc-conf-test</module>
-    <module>dcm4chee-arc-service</module>
     <module>dcm4chee-arc-ctrl</module>
-    <module>dcm4chee-arc-war</module>
-    <module>dcm4chee-arc-ear</module>
+    <module>dcm4chee-arc-entity</module>
+    <module>dcm4chee-arc-issuer</module>
+    <module>dcm4chee-arc-patient</module>
+    <module>dcm4chee-arc-service</module>
     <module>dcm4chee-arc-store</module>
     <module>dcm4chee-arc-store-scp</module>
     <module>dcm4chee-arc-storage</module>
     <module>dcm4chee-arc-storage-filesystem</module>
+    <module>dcm4chee-arc-war</module>
+    <module>dcm4chee-arc-ear</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>db_unspecified</id>
+      <activation>
+        <property>
+          <name>!db</name>
+        </property>
+      </activation>
+      <properties>
+        <db>psql</db>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

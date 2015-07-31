@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,56 +38,50 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.storage.filesystem;
+package org.dcm4chee.archive.code.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4che3.data.Code;
+import org.dcm4chee.archive.code.CodeService;
+import org.dcm4chee.archive.entity.CodeEntity;
 
-import java.net.URI;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class FileSystemStorageContext implements StorageContext {
-    private final Storage storage;
-    private final Attributes attrs;
-    private String storagePath;
-    private long size = -1L;
+@Stateless
+public class CodeServiceEJB implements CodeService {
 
-    public FileSystemStorageContext(Storage storage, Attributes attrs) {
-        this.storage = storage;
-        this.attrs = attrs;
-    }
+    @PersistenceContext(unitName="dcm4chee-arc")
+    private EntityManager em;
 
     @Override
-    public Storage getStorage() {
-        return storage;
+    public CodeEntity findOrCreate(Code code) {
+        try {
+            return find(code);
+        } catch (NoResultException e) {
+            CodeEntity entity = new CodeEntity(code);
+            em.persist(entity);
+            return entity;
+        }
     }
 
-    @Override
-    public Attributes getAttributes() {
-        return attrs;
-    }
-
-    @Override
-    public String getStoragePath() {
-        return storagePath;
-    }
-
-    @Override
-    public void setStoragePath(String storagePath) {
-        this.storagePath = storagePath;
-    }
-
-    @Override
-    public long getSize() {
-        return size;
-    }
-
-    @Override
-    public void setSize(long size) {
-        this.size = size;
+    private CodeEntity find(Code code) {
+        String codingSchemeVersion = code.getCodingSchemeVersion();
+        TypedQuery<CodeEntity> query = em.createNamedQuery(
+                codingSchemeVersion == null
+                        ? CodeEntity.FIND_BY_CODE_VALUE_WITHOUT_SCHEME_VERSION
+                        : CodeEntity.FIND_BY_CODE_VALUE_WITH_SCHEME_VERSION,
+                CodeEntity.class)
+                .setParameter(1, code.getCodeValue())
+                .setParameter(2, code.getCodingSchemeDesignator());
+        if (codingSchemeVersion != null)
+            query.setParameter(3, codingSchemeVersion);
+        return query.getSingleResult();
     }
 }
