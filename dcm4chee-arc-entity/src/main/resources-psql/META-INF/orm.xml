@@ -48,7 +48,7 @@
 
     <entity class="AttributesBlob">
         <table name="dicomattrs" />
-        <sequence-generator name="attrs_pk_seq" allocation-size="1" />
+        <sequence-generator name="attrs_pk_seq" sequence-name="attrs_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -62,7 +62,7 @@
 
     <entity class="CodeEntity">
         <table name="code" />
-        <sequence-generator name="code_pk_seq" allocation-size="1" />
+        <sequence-generator name="code_pk_seq" sequence-name="code_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -73,7 +73,7 @@
 
     <entity class="ContentItem">
         <table name="content_item" />
-        <sequence-generator name="content_item_pk_seq" allocation-size="1" />
+        <sequence-generator name="content_item_pk_seq" sequence-name="content_item_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -84,7 +84,7 @@
 
     <entity class="Instance">
         <table name="instance" />
-        <sequence-generator name="instance_pk_seq" allocation-size="1" />
+        <sequence-generator name="instance_pk_seq" sequence-name="instance_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -95,7 +95,7 @@
 
     <entity class="IssuerEntity">
         <table name="id_issuer" />
-        <sequence-generator name="issuer_pk_seq" allocation-size="1" />
+        <sequence-generator name="issuer_pk_seq" sequence-name="issuer_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -106,7 +106,7 @@
 
     <entity class="Location">
         <table name="location" />
-        <sequence-generator name="location_pk_seq" allocation-size="1" />
+        <sequence-generator name="location_pk_seq" sequence-name="location_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -117,7 +117,7 @@
 
     <entity class="Patient">
         <table name="patient" />
-        <sequence-generator name="patient_pk_seq" allocation-size="1" />
+        <sequence-generator name="patient_pk_seq" sequence-name="patient_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -128,7 +128,7 @@
 
     <entity class="PatientID">
         <table name="patient_id" />
-        <sequence-generator name="patient_id_pk_seq" allocation-size="1" />
+        <sequence-generator name="patient_id_pk_seq" sequence-name="patient_id_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -139,7 +139,7 @@
 
     <entity class="PersonName">
         <table name="person_name" />
-        <sequence-generator name="person_name_pk_seq" allocation-size="1" />
+        <sequence-generator name="person_name_pk_seq" sequence-name="person_name_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -150,7 +150,7 @@
 
     <entity class="Series">
         <table name="series" />
-        <sequence-generator name="series_pk_seq" allocation-size="1" />
+        <sequence-generator name="series_pk_seq" sequence-name="series_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -161,7 +161,7 @@
 
     <entity class="SeriesRequestAttributes">
         <table name="series_req" />
-        <sequence-generator name="series_req_pk_seq" allocation-size="1" />
+        <sequence-generator name="series_req_pk_seq" sequence-name="series_req_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -172,7 +172,7 @@
 
     <entity class="SoundexCode">
         <table name="soundex_code" />
-        <sequence-generator name="soundex_code_pk_seq" allocation-size="1" />
+        <sequence-generator name="soundex_code_pk_seq" sequence-name="soundex_code_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -183,7 +183,7 @@
 
     <entity class="Study">
         <table name="study" />
-        <sequence-generator name="study_pk_seq" allocation-size="1" />
+        <sequence-generator name="study_pk_seq" sequence-name="study_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />
@@ -194,7 +194,7 @@
 
     <entity class="VerifyingObserver">
         <table name="verify_observer" />
-        <sequence-generator name="verify_observer_pk_seq" allocation-size="1" />
+        <sequence-generator name="verify_observer_pk_seq" sequence-name="verify_observer_pk_seq" allocation-size="1" />
         <attributes>
             <id name="pk">
                 <column name="pk" />

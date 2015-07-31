@@ -126,6 +126,7 @@ public class PatientServiceEJB implements PatientService {
         Patient patient = new Patient();
         patient.setAttributes(attrs, getAttributeFilter(), getFuzzyStr());
         patient.setPatientID(createPatientID(IDWithIssuer.pidOf(attrs)));
+        em.persist(patient);
         return patient;
     }
 
