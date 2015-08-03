@@ -112,6 +112,12 @@ public class FileSystemStorage implements Storage {
     }
 
     @Override
+    public void deleteObject(String storagePath) throws IOException {
+        Path path = Paths.get(rootURI.resolve(storagePath));
+        Files.delete(path);
+    }
+
+    @Override
     public String toString() {
         return "FileSystemStorage{" + rootURI + '}';
     }

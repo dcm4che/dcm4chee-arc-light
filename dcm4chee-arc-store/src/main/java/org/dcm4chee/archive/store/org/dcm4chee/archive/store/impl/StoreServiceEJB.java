@@ -63,9 +63,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -95,6 +93,7 @@ public class StoreServiceEJB {
 
         Instance instance = createInstance(ctx);
         Location location = createLocation(ctx, instance);
+        ctx.setLocation(location);
         return true;
     }
 
@@ -123,6 +122,11 @@ public class StoreServiceEJB {
     }
 
     private Study findStudy(StoreContext ctx) {
+        StoreSession storeSession = ctx.getStoreSession();
+        Series series = storeSession.getCachedSeries();
+        if (series != null
+                && series.getStudy().getStudyInstanceUID().equals(ctx.getStudyInstanceUID()))
+            return series.getStudy();
         try {
             return em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
@@ -131,15 +135,23 @@ public class StoreServiceEJB {
             return null;
         }
     }
+
     private Series findSeries(StoreContext ctx) {
-        try {
-            return em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
-                    .setParameter(1, ctx.getStudyInstanceUID())
-                    .setParameter(2, ctx.getSeriesInstanceUID())
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        StoreSession storeSession = ctx.getStoreSession();
+        Series series = storeSession.getCachedSeries();
+        if (series == null
+                || !series.getSeriesInstanceUID().equals(ctx.getSeriesInstanceUID())
+                || !series.getStudy().getStudyInstanceUID().equals(ctx.getStudyInstanceUID()))
+            try {
+                series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
+                        .setParameter(1, ctx.getStudyInstanceUID())
+                        .setParameter(2, ctx.getSeriesInstanceUID())
+                        .getSingleResult();
+                storeSession.setCachedSeries(series);
+            } catch (NoResultException e) {
+                return null;
+            }
+        return series;
     }
 
     private Instance findInstance(StoreContext ctx) {
@@ -168,7 +180,6 @@ public class StoreServiceEJB {
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
         study.setPatient(patient);
-        patient.getStudies().add(study);
         em.persist(study);
         return study;
     }
@@ -184,8 +195,8 @@ public class StoreServiceEJB {
         setRequestAttributes(series, attrs, fuzzyStr);
         series.setSourceAET(session.getRemoteApplicationEntityTitle());
         series.setStudy(study);
-        study.getSeries().add(series);
         em.persist(series);
+        session.setCachedSeries(series);
         return series;
     }
 
@@ -215,7 +226,7 @@ public class StoreServiceEJB {
                 .size(storageContext.getSize())
                 .build();
         location.setInstance(instance);
-        instance.getLocations().add(location);
+        em.persist(location);
         return location;
     }
 
@@ -249,17 +260,19 @@ public class StoreServiceEJB {
         if (seq != null)
             for (Attributes item : seq) {
                 String type = item.getString(Tag.ValueType);
-                ContentItem contentItem = null;
                 if ("CODE".equals(type)) {
-                    contentItems.add(new ContentItem(item.getString(
-                            Tag.RelationshipType).toUpperCase(), findOrCreateCode(item,
-                            Tag.ConceptNameCodeSequence), findOrCreateCode(item,
-                            Tag.ConceptCodeSequence)));
-                } else if ("TEXT".equals(type)) {
                     contentItems.add(new ContentItem(
-                            item.getString(Tag.RelationshipType).toUpperCase(), findOrCreateCode(item,
-                            Tag.ConceptNameCodeSequence), item.getString(
-                            Tag.TextValue, "*")));
+                            item.getString(Tag.RelationshipType).toUpperCase(),
+                            findOrCreateCode(item, Tag.ConceptNameCodeSequence),
+                            findOrCreateCode(item, Tag.ConceptCodeSequence)));
+                } else if ("TEXT".equals(type)) {
+                    String text = item.getString(Tag.TextValue, "*");
+                    if (text.length() <= ContentItem.MAX_TEXT_LENGTH) {
+                        contentItems.add(new ContentItem(
+                                item.getString(Tag.RelationshipType).toUpperCase(),
+                                findOrCreateCode(item, Tag.ConceptNameCodeSequence),
+                                text));
+                    }
                 }
             }
     }

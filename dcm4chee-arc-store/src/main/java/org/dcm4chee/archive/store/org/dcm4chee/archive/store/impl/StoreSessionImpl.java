@@ -6,6 +6,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.archive.conf.ArchiveAEExtension;
 import org.dcm4chee.archive.conf.ArchiveDeviceExtension;
 import org.dcm4chee.archive.conf.StorageDescriptor;
+import org.dcm4chee.archive.entity.Series;
 import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.store.StoreSession;
 
@@ -17,6 +18,7 @@ class StoreSessionImpl implements StoreSession {
     private final Association as;
     private final ApplicationEntity ae;
     private Storage storage;
+    private Series cachedSeries;
 
     public StoreSessionImpl(Association as) {
         this.as = as;
@@ -53,4 +55,13 @@ class StoreSessionImpl implements StoreSession {
         return as.getRemoteAET();
     }
 
+    @Override
+    public Series getCachedSeries() {
+        return cachedSeries;
+    }
+
+    @Override
+    public void setCachedSeries(Series cachedSeries) {
+        this.cachedSeries = cachedSeries;
+    }
 }

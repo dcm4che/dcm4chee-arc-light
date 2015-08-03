@@ -66,6 +66,8 @@ import java.util.Date;
     name=Study.FIND_BY_STUDY_IUID_EAGER,
     query="select st from Study st " +
             "join fetch st.patient p " +
+            "join fetch p.patientName " +
+            "join fetch st.referringPhysicianName " +
             "join fetch st.attributesBlob " +
             "join fetch p.attributesBlob " +
             "where st.studyInstanceUID = ?1")
@@ -156,9 +158,6 @@ public class Study {
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_fk")
     private Patient patient;
-
-    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL,orphanRemoval = true)
-    private Collection<Series> series;
 
     @Override
     public String toString() {
@@ -269,13 +268,6 @@ public class Study {
 
     public void setPatient(Patient patient) {
         this.patient = patient;
-    }
-
-    public Collection<Series> getSeries() {
-        if (series == null)
-            series = new ArrayList<>();
-
-        return series;
     }
 
     public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {

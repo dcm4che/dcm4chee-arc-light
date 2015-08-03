@@ -2,6 +2,7 @@ package org.dcm4chee.archive.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4chee.archive.entity.Location;
 import org.dcm4chee.archive.storage.StorageContext;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreSession;
@@ -21,6 +22,7 @@ class StoreContextImpl implements StoreContext {
     private StorageContext storageContext;
     private String studyInstanceUID;
     private String seriesInstanceUID;
+    private Location location;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -104,5 +106,21 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setStorageContext(StorageContext storageContext) {
         this.storageContext = storageContext;
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void onUpdateDBException() {
+        storeSession.setCachedSeries(null);
+        location = null;
     }
 }

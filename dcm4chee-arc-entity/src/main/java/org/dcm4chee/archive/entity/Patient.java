@@ -61,6 +61,7 @@ import java.util.*;
 @NamedQuery(
     name=Patient.FIND_BY_PATIENT_ID_EAGER,
     query="select p from Patient p " +
+            "join fetch p.patientName " +
             "join fetch p.attributesBlob " +
             "where p.patientID.id = ?1"),
 @NamedQuery(
@@ -70,6 +71,7 @@ import java.util.*;
 @NamedQuery(
     name=Patient.FIND_BY_PATIENT_FAMILY_NAME_EAGER,
     query="select p from Patient p " +
+            "join fetch p.patientName " +
             "join fetch p.attributesBlob " +
             "where p.patientName.familyName = ?1")
 })
@@ -136,9 +138,6 @@ public class Patient {
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "patient_id_fk")
     private PatientID patientID;
-
-    @OneToMany(mappedBy = "patient", cascade=CascadeType.ALL, orphanRemoval = true)
-    private Collection<Study> studies;
 
     @Override
     public String toString() {
@@ -213,14 +212,7 @@ public class Patient {
         this.patientID = patientID;
     }
 
-    public Collection<Study> getStudies() {
-        if (studies == null)
-            studies = new ArrayList<>();
-
-        return studies;
-    }
-
-    public Attributes getAttributes() throws BlobCorruptedException {
+   public Attributes getAttributes() throws BlobCorruptedException {
         return attributesBlob.getAttributes();
     }
 

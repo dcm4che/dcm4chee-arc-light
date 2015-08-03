@@ -1,6 +1,7 @@
 package org.dcm4chee.archive.store;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.archive.entity.Location;
 import org.dcm4chee.archive.storage.StorageContext;
 
 /**
@@ -39,4 +40,9 @@ public interface StoreContext {
 
     void setStorageContext(StorageContext storageContext);
 
+    Location getLocation();
+
+    void setLocation(Location location);
+
+    void onUpdateDBException();
 }

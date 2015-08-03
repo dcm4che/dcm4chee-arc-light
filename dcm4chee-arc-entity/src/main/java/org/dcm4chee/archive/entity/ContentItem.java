@@ -51,6 +51,8 @@ import java.io.Serializable;
 @Table(name = "content_item")
 public class ContentItem {
 
+    public static final int MAX_TEXT_LENGTH = 64;
+
     protected ContentItem() {}
 
     public ContentItem(String relationshipType, CodeEntity conceptName,

@@ -44,6 +44,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4chee.archive.conf.ArchiveAEExtension;
 import org.dcm4chee.archive.conf.StorageDescriptor;
+import org.dcm4chee.archive.entity.Series;
 import org.dcm4chee.archive.storage.Storage;
 
 /**
@@ -62,4 +63,8 @@ public interface StoreSession {
     void setStorage(Storage storage);
 
     String getRemoteApplicationEntityTitle();
+
+    Series getCachedSeries();
+
+    void setCachedSeries(Series series);
 }

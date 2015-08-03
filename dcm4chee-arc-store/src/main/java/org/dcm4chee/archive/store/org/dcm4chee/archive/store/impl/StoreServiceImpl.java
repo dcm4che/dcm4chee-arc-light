@@ -7,6 +7,8 @@ import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.imageio.codec.TransferSyntaxType;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.storage.StorageContext;
 import org.dcm4chee.archive.storage.StorageFactory;
@@ -50,21 +52,37 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
-        try ( Transcoder transcoder = new Transcoder(data, ctx.getReceiveTranferSyntax())) {
-            transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
-            transcoder.setConcatenateBulkDataFiles(true);
-            transcoder.setBulkDataDirectory(
-                    ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
-            transcoder.setIncludeFileMetaInformation(true);
-            transcoder.transcode(new TranscoderHandler(ctx));
-        }
+        try {
+            try (Transcoder transcoder = new Transcoder(data, ctx.getReceiveTranferSyntax())) {
+                transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+                transcoder.setConcatenateBulkDataFiles(true);
+                transcoder.setBulkDataDirectory(
+                        ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
+                transcoder.setIncludeFileMetaInformation(true);
+                transcoder.transcode(new TranscoderHandler(ctx));
+            }
 
-        StorageContext storageContext = ctx.getStorageContext();
-        Storage storage = storageContext.getStorage();
-        LOG.info("Stored object on {} at {}",
-                storage.getStorageDescriptor().getStorageURI(),
-                storageContext.getStoragePath());
-        ejb.updateDB(ctx);
+            StorageContext storageContext = ctx.getStorageContext();
+            Storage storage = storageContext.getStorage();
+            LOG.info("Stored object on {} at {}",
+                    storage.getStorageDescriptor().getStorageURI(),
+                    storageContext.getStoragePath());
+            try {
+                ejb.updateDB(ctx);
+            } catch (Exception ex) {
+                ctx.onUpdateDBException();
+                throw ex;
+            } finally {
+                if (ctx.getLocation() == null) {
+                    LOG.info("Delete object on {} at {}",
+                            storage.getStorageDescriptor().getStorageURI(),
+                            storageContext.getStoragePath());
+                    storage.deleteObject(storageContext.getStoragePath());
+                }
+            }
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
     }
 
     private Storage getStorage(StoreContext ctx) {

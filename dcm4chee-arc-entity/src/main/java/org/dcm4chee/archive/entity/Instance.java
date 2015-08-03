@@ -73,6 +73,9 @@ import java.util.Date;
             "join fetch i.series se " +
             "join fetch se.study st " +
             "join fetch st.patient p " +
+            "join fetch p.patientName " +
+            "join fetch st.referringPhysicianName " +
+            "join fetch se.performingPhysicianName " +
             "join fetch i.attributesBlob " +
             "join fetch se.attributesBlob " +
             "join fetch st.attributesBlob " +
@@ -173,9 +176,6 @@ public class Instance {
     @ManyToOne(optional = false)
     @JoinColumn(name = "series_fk")
     private Series series;
-
-    @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = false)
-    private Collection<Location> locations;
 
     @Override
     public String toString() {
@@ -304,13 +304,6 @@ public class Instance {
 
     public void setSeries(Series series) {
         this.series = series;
-    }
-
-    public Collection<Location> getLocations() {
-        if (locations == null)
-            locations = new ArrayList<>();
-
-        return locations;
     }
 
     public Attributes getAttributes() throws BlobCorruptedException {
