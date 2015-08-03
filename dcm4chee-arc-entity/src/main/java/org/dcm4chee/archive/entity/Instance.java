@@ -76,6 +76,8 @@ import java.util.Date;
             "join fetch p.patientName " +
             "join fetch st.referringPhysicianName " +
             "join fetch se.performingPhysicianName " +
+            "left join fetch i.conceptNameCode " +
+            "left join fetch i.rejectionNoteCode " +
             "join fetch i.attributesBlob " +
             "join fetch se.attributesBlob " +
             "join fetch st.attributesBlob " +
@@ -153,7 +155,7 @@ public class Instance {
     @Column(name = "retrieve_aets")
     private String retrieveAETs;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "dicomattrs_fk")
     private AttributesBlob attributesBlob;
 
@@ -173,7 +175,7 @@ public class Instance {
     @JoinColumn(name = "instance_fk")
     private Collection<ContentItem> contentItems;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "series_fk")
     private Series series;
 
