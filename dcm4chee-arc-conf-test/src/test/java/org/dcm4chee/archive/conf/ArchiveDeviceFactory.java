@@ -423,6 +423,44 @@ class ArchiveDeviceFactory {
             UID.PatientStudyOnlyQueryRetrieveInformationModelGETRetired,
             UID.PatientStudyOnlyQueryRetrieveInformationModelMOVERetired
     };
+    static final Code INCORRECT_WORKLIST_ENTRY_SELECTED =
+            new Code("110514", "DCM", null, "Incorrect worklist entry selected");
+    static final Code REJECTED_FOR_QUALITY_REASONS =
+            new Code("113001", "DCM", null, "Rejected for Quality Reasons");
+    static final Code REJECT_FOR_PATIENT_SAFETY_REASONS =
+            new Code("113037", "DCM", null, "Rejected for Patient Safety Reasons");
+    static final Code INCORRECT_MODALITY_WORKLIST_ENTRY =
+            new Code("113038", "DCM", null, "Incorrect Modality Worklist Entry");
+    static final Code DATA_RETENTION_POLICY_EXPIRED =
+            new Code("113039", "DCM", null, "Data Retention Policy Expired");
+    static final Code REVOKE_REJECTION =
+            new Code("REVOKE_REJECTION", "99DCM4CHEE", null, "Restore rejected Instances");
+    static final Code[] REJECTION_CODES = {
+            INCORRECT_WORKLIST_ENTRY_SELECTED,
+            REJECTED_FOR_QUALITY_REASONS,
+            REJECT_FOR_PATIENT_SAFETY_REASONS,
+            INCORRECT_MODALITY_WORKLIST_ENTRY,
+            DATA_RETENTION_POLICY_EXPIRED
+    };
+    static final QueryRetrieveView REGULAR_USE_VIEW =
+            createQueryRetrieveView("regularUse",
+                    new Code[]{REJECTED_FOR_QUALITY_REASONS},
+                    new Code[]{DATA_RETENTION_POLICY_EXPIRED},
+                    false);
+    static final QueryRetrieveView HIDE_REJECTED_VIEW =
+            createQueryRetrieveView("hideRejected",
+                    new Code[0],
+                    new Code[]{DATA_RETENTION_POLICY_EXPIRED},
+                    false);
+    static final QueryRetrieveView TRASH_VIEW =
+            createQueryRetrieveView("trashView",
+                    REJECTION_CODES,
+                    new Code[0],
+                    true);
+    static final QueryRetrieveView[] QUERY_RETRIEVE_VIEWS = {
+            HIDE_REJECTED_VIEW,
+            REGULAR_USE_VIEW,
+            TRASH_VIEW};
     static final CompressionRule JPEG_BASELINE = new CompressionRule(
             "JPEG 8-bit Lossy",
             new String[]{
@@ -635,9 +673,22 @@ class ArchiveDeviceFactory {
             device.setAuthorizedNodeCertificates(config.deviceRef(other),
                     (X509Certificate) keyStore.getCertificate(other));
 
-        device.addApplicationEntity(createAE("DCM4CHEE", dicom, dicomTLS, true, true));
+        device.addApplicationEntity(createAE("DCM4CHEE", dicom, dicomTLS, HIDE_REJECTED_VIEW, true));
+        device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", dicom, dicomTLS, REGULAR_USE_VIEW, false));
+        device.addApplicationEntity(createAE("DCM4CHEE_TRASH", dicom, dicomTLS, TRASH_VIEW, false));
 
         return device;
+    }
+
+    private static QueryRetrieveView createQueryRetrieveView(
+            String viewID, Code[] showInstancesRejectedByCodes, Code[] hideRejectionNoteCodes,
+            boolean hideNotRejectedInstances) {
+        QueryRetrieveView view = new QueryRetrieveView();
+        view.setViewID(viewID);
+        view.setShowInstancesRejectedByCodes(showInstancesRejectedByCodes);
+        view.setHideRejectionNotesWithCodes(hideRejectionNoteCodes);
+        view.setHideNotRejectedInstances(hideNotRejectedInstances);
+        return view;
     }
 
     private static void addAuditLogger(Device device, Device arrDevice) {
@@ -684,7 +735,10 @@ class ArchiveDeviceFactory {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
+        ext.setStorageID(STORAGE_ID);
+        ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
+        ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);
 
         ext.setAttributeFilter(Entity.Patient,
                 new AttributeFilter(PATIENT_ATTRS));
@@ -708,8 +762,9 @@ class ArchiveDeviceFactory {
 
     }
 
-    private static ApplicationEntity createAE(String aet, Connection dicom, Connection dicomTLS,
-                                              boolean storeSCP, boolean pixQuery) {
+    private static ApplicationEntity createAE(
+            String aet, Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
+            boolean storeSCP) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.addConnection(dicom);
         ae.addConnection(dicomTLS);
@@ -722,7 +777,6 @@ class ArchiveDeviceFactory {
             addTCs(ae, null, SCP, IMAGE_CUIDS, IMAGE_TSUIDS);
             addTCs(ae, null, SCP, VIDEO_CUIDS, VIDEO_TSUIDS);
             addTCs(ae, null, SCP, OTHER_CUIDS, OTHER_TSUIDS);
-            aeExt.setStorageID(STORAGE_ID);
         }
         addTCs(ae, null, SCU, IMAGE_CUIDS, IMAGE_TSUIDS);
         addTCs(ae, null, SCU, VIDEO_CUIDS, VIDEO_TSUIDS);
@@ -736,9 +790,7 @@ class ArchiveDeviceFactory {
         addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
         addTC(ae, null, SCP, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
         addTC(ae, null, SCU, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
-        aeExt.setPixQuery(pixQuery);
-        aeExt.setLocalPIXConsumerApplication(PIX_CONSUMER);
-        aeExt.setRemotePIXManagerApplication(PIX_MANAGER);
+        aeExt.setQueryRetrieveViewID(qrView.getViewID());
         return ae;
     }
 

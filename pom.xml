@@ -56,7 +56,8 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <!-- Versions -->
     <dcm4che.version>3.3.5-SNAPSHOT</dcm4che.version>
-    <querydsl.version>4.0.2</querydsl.version>
+    <hibernate.version>4.3.7.Final</hibernate.version>
+    <querydsl.version>4.0.3</querydsl.version>
 
     <!-- JPA -->
     <ds>java:/PacsDS</ds>
@@ -194,6 +195,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>${hibernate.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.querydsl</groupId>
       <artifactId>querydsl-jpa</artifactId>
       <version>${querydsl.version}</version>
@@ -248,6 +256,9 @@
     <module>dcm4chee-arc-entity</module>
     <module>dcm4chee-arc-issuer</module>
     <module>dcm4chee-arc-patient</module>
+    <module>dcm4chee-arc-query</module>
+    <module>dcm4chee-arc-query-scp</module>
+    <module>dcm4chee-arc-query-util</module>
     <module>dcm4chee-arc-service</module>
     <module>dcm4chee-arc-store</module>
     <module>dcm4chee-arc-store-scp</module>

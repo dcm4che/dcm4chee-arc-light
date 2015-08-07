@@ -12,6 +12,9 @@ public final class StorageDescriptor {
 
     private final String storageID;
     private URI storageURI;
+    private String digestAlgorithm;
+    private String[] retrieveAETitles = {};
+    private Availability instanceAvailability;
     private final Map<String, String> properties = new HashMap<String, String>();
 
     public StorageDescriptor(String storageID) {
@@ -35,6 +38,30 @@ public final class StorageDescriptor {
         this.storageURI = storageURI;
     }
 
+    public String getDigestAlgorithm() {
+        return digestAlgorithm;
+    }
+
+    public void setDigestAlgorithm(String digestAlgorithm) {
+        this.digestAlgorithm = digestAlgorithm;
+    }
+
+    public String[] getRetrieveAETitles() {
+        return retrieveAETitles;
+    }
+
+    public void setRetrieveAETitles(String[] retrieveAETitles) {
+        this.retrieveAETitles = retrieveAETitles;
+    }
+
+    public Availability getInstanceAvailability() {
+        return instanceAvailability;
+    }
+
+    public void setInstanceAvailability(Availability instanceAvailability) {
+        this.instanceAvailability = instanceAvailability;
+    }
+
     public void setProperty(String name, String value) {
         properties.put(name, value);
     }
@@ -49,29 +76,13 @@ public final class StorageDescriptor {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof StorageDescriptor)) return false;
-
-        StorageDescriptor that = (StorageDescriptor) o;
-        return storageID.equals(that.storageID)
-                && (storageURI == null ? storageURI == null : storageURI.equals(that.storageURI))
-                && properties.equals(that.properties);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = storageID.hashCode();
-        result = 31 * result + (storageURI == null ? 0 : storageURI.hashCode());
-        result = 31 * result + properties.hashCode();
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "StorageDescriptor{" +
-                "storageID='" + storageID + '\'' +
+                "storageID=" + storageID +
                 ", storageURI=" + storageURI +
+                ", digestAlg=" + digestAlgorithm +
+                ", retrieveAETs=" + retrieveAETitles +
+                ", availability=" + instanceAvailability +
                 ", properties=" + properties +
                 '}';
     }

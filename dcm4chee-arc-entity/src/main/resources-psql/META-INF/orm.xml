@@ -159,6 +159,17 @@
         </attributes>
     </entity>
 
+    <entity class="SeriesQueryAttributes">
+        <table name="series_query_attrs" />
+        <sequence-generator name="series_query_attrs_pk_seq" sequence-name="series_query_attrs_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="series_query_attrs_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
     <entity class="SeriesRequestAttributes">
         <table name="series_req" />
         <sequence-generator name="series_req_pk_seq" sequence-name="series_req_pk_seq" allocation-size="1" />
@@ -188,6 +199,17 @@
             <id name="pk">
                 <column name="pk" />
                 <generated-value strategy="SEQUENCE" generator="study_pk_seq" />
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="StudyQueryAttributes">
+        <table name="study_query_attrs" />
+        <sequence-generator name="study_query_attrs_pk_seq" sequence-name="study_query_attrs_pk_seq" allocation-size="1" />
+        <attributes>
+            <id name="pk">
+                <column name="pk" />
+                <generated-value strategy="SEQUENCE" generator="study_query_attrs_pk_seq" />
             </id>
         </attributes>
     </entity>

@@ -45,6 +45,7 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.archive.code.CodeService;
 import org.dcm4chee.archive.conf.ArchiveDeviceExtension;
+import org.dcm4chee.archive.conf.Availability;
 import org.dcm4chee.archive.conf.Entity;
 import org.dcm4chee.archive.conf.StorageDescriptor;
 import org.dcm4chee.archive.entity.*;
@@ -86,15 +87,16 @@ public class StoreServiceEJB {
     @Inject
     private PatientService patientService;
 
-    public boolean updateDB(StoreContext ctx) {
+    public UpdateDBResult updateDB(StoreContext ctx) {
+        UpdateDBResult result = new UpdateDBResult();
         Instance prevInstance = findInstance(ctx);
         if (prevInstance != null)
-            return false;
+            return result;
 
         Instance instance = createInstance(ctx);
         Location location = createLocation(ctx, instance);
-        ctx.setLocation(location);
-        return true;
+        result.setLocation(location);
+        return result;
     }
 
     private Instance createInstance(StoreContext ctx) {
@@ -139,19 +141,18 @@ public class StoreServiceEJB {
     private Series findSeries(StoreContext ctx) {
         StoreSession storeSession = ctx.getStoreSession();
         Series series = storeSession.getCachedSeries();
-        if (series == null
-                || !series.getSeriesInstanceUID().equals(ctx.getSeriesInstanceUID())
-                || !series.getStudy().getStudyInstanceUID().equals(ctx.getStudyInstanceUID()))
-            try {
-                series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
-                        .setParameter(1, ctx.getStudyInstanceUID())
-                        .setParameter(2, ctx.getSeriesInstanceUID())
-                        .getSingleResult();
-                storeSession.setCachedSeries(series);
-            } catch (NoResultException e) {
-                return null;
-            }
-        return series;
+        if (series != null
+                && series.getSeriesInstanceUID().equals(ctx.getSeriesInstanceUID())
+                && series.getStudy().getStudyInstanceUID().equals(ctx.getStudyInstanceUID()))
+            return series;
+        try {
+            return em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
+                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .setParameter(2, ctx.getSeriesInstanceUID())
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     private Instance findInstance(StoreContext ctx) {
@@ -196,7 +197,6 @@ public class StoreServiceEJB {
         series.setSourceAET(session.getRemoteApplicationEntityTitle());
         series.setStudy(study);
         em.persist(series);
-        session.setCachedSeries(series);
         return series;
     }
 
@@ -210,6 +210,10 @@ public class StoreServiceEJB {
         setVerifyingObservers(instance, attrs, fuzzyStr);
         instance.setConceptNameCode(findOrCreateCode(attrs, Tag.ConceptNameCodeSequence));
         setContentItems(instance, attrs);
+        //TODO
+        instance.setRetrieveAETs(session.getLocalApplicationEntity().getAETitle());
+        instance.setAvailability(Availability.ONLINE);
+
         instance.setSeries(series);
         em.persist(instance);
         return instance;

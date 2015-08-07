@@ -40,9 +40,4 @@ public interface StoreContext {
 
     void setStorageContext(StorageContext storageContext);
 
-    Location getLocation();
-
-    void setLocation(Location location);
-
-    void onUpdateDBException();
 }

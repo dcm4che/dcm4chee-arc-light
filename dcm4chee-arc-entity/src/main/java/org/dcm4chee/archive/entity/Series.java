@@ -188,6 +188,9 @@ public class Series {
     @JoinColumn(name = "series_fk")
     private Collection<SeriesRequestAttributes> requestAttributes;
 
+    @OneToMany(mappedBy = "series", cascade=CascadeType.ALL, orphanRemoval = true)
+    private Collection<SeriesQueryAttributes> queryAttributes;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "study_fk")
     private Study study;

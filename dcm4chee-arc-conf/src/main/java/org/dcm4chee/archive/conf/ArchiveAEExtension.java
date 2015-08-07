@@ -56,11 +56,10 @@ import java.io.File;
 public class ArchiveAEExtension extends AEExtension {
     private String storageID;
     private String bulkDataSpoolDirectory;
-    private String remotePIXManagerApplication;
-    private String localPIXConsumerApplication;
-    private boolean pixQuery;
+    private String queryRetrieveViewID;
+    private Boolean queryMatchUnknown;
+    private Boolean personNameComponentOrderInsensitiveMatching;
     private CompressionRules compressionRules = new CompressionRules();
-
 
     public String getStorageID() {
         return storageID;
@@ -70,6 +69,12 @@ public class ArchiveAEExtension extends AEExtension {
         this.storageID = storageID;
     }
 
+    public String getEffectiveStorageID() {
+        return storageID != null
+                ? storageID
+                : getArchiveDeviceExtension().getStorageID();
+    }
+
     public String getBulkDataSpoolDirectory() {
         return bulkDataSpoolDirectory;
     }
@@ -77,6 +82,59 @@ public class ArchiveAEExtension extends AEExtension {
     public void setBulkDataSpoolDirectory(String bulkDataSpoolDirectory) {
         this.bulkDataSpoolDirectory = bulkDataSpoolDirectory;
     }
+
+    public String getEffectiveBulkDataSpoolDirectory() {
+        return bulkDataSpoolDirectory != null
+                ? bulkDataSpoolDirectory
+                : getArchiveDeviceExtension().getBulkDataSpoolDirectory();
+    }
+
+    public File getBulkDataSpoolDirectoryFile() {
+        return fileOf(getEffectiveBulkDataSpoolDirectory());
+    }
+
+    public String getQueryRetrieveViewID() {
+        return queryRetrieveViewID;
+    }
+
+    public void setQueryRetrieveViewID(String queryRetrieveViewID) {
+        this.queryRetrieveViewID = queryRetrieveViewID;
+    }
+
+    public String getEffectiveQueryRetrieveViewID() {
+        return queryRetrieveViewID != null
+                ? queryRetrieveViewID
+                : getArchiveDeviceExtension().getQueryRetrieveViewID();
+    }
+
+    public Boolean getQueryMatchUnknown() {
+        return queryMatchUnknown;
+    }
+
+    public void setQueryMatchUnknown(Boolean queryMatchUnknown) {
+        this.queryMatchUnknown = queryMatchUnknown;
+    }
+
+    public boolean isEffectiveQueryMatchUnknown() {
+        return queryMatchUnknown != null
+                ? queryMatchUnknown.booleanValue()
+                : getArchiveDeviceExtension().isQueryMatchUnknown();
+    }
+
+    public Boolean getPersonNameComponentOrderInsensitiveMatching() {
+        return personNameComponentOrderInsensitiveMatching;
+    }
+
+    public void setPersonNameComponentOrderInsensitiveMatching(Boolean personNameComponentOrderInsensitiveMatching) {
+        this.personNameComponentOrderInsensitiveMatching = personNameComponentOrderInsensitiveMatching;
+    }
+
+    public boolean isEffectivePersonNameComponentOrderInsensitiveMatching() {
+        return personNameComponentOrderInsensitiveMatching != null
+                ? personNameComponentOrderInsensitiveMatching.booleanValue()
+                : getArchiveDeviceExtension().isPersonNameComponentOrderInsensitiveMatching();
+    }
+
 
     public CompressionRules getCompressionRules() {
         return compressionRules;
@@ -95,38 +153,14 @@ public class ArchiveAEExtension extends AEExtension {
         return compressionRules.remove(ac);
     }
 
-    public String getRemotePIXManagerApplication() {
-        return remotePIXManagerApplication;
-    }
-
-    public void setRemotePIXManagerApplication(String remotePIXManagerApplication) {
-        this.remotePIXManagerApplication = remotePIXManagerApplication;
-    }
-
-    public String getLocalPIXConsumerApplication() {
-        return localPIXConsumerApplication;
-    }
-
-    public void setLocalPIXConsumerApplication(String localPIXConsumerApplication) {
-        this.localPIXConsumerApplication = localPIXConsumerApplication;
-    }
-
-    public boolean isPixQuery() {
-        return pixQuery;
-    }
-
-    public void setPixQuery(boolean pixQuery) {
-        this.pixQuery = pixQuery;
-    }
-
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         storageID = aeExt.storageID;
         bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;
-        pixQuery = aeExt.pixQuery;
-        remotePIXManagerApplication = aeExt.remotePIXManagerApplication;
-        localPIXConsumerApplication = aeExt.localPIXConsumerApplication;
+        queryRetrieveViewID = aeExt.queryRetrieveViewID;
+        queryMatchUnknown = aeExt.queryMatchUnknown;
+        personNameComponentOrderInsensitiveMatching = aeExt.personNameComponentOrderInsensitiveMatching;
         compressionRules.clear();
         compressionRules.add(aeExt.compressionRules);
     }
@@ -136,7 +170,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public StorageDescriptor getStorageDescriptor() {
-        return storageID != null ? getArchiveDeviceExtension().getStorageDescriptor(storageID) : null;
+        return getArchiveDeviceExtension().getStorageDescriptor(getEffectiveStorageID());
     }
 
     public CompressionRule findCompressionRule(String aeTitle, ImageDescriptor imageDescriptor) {
@@ -146,12 +180,11 @@ public class ArchiveAEExtension extends AEExtension {
         return rule;
     }
 
-    public File getBulkDataSpoolDirectoryFile() {
-        return fileOf(bulkDataSpoolDirectory != null ? bulkDataSpoolDirectory
-                : getArchiveDeviceExtension().getBulkDataSpoolDirectory());
-    }
-
     private File fileOf(String s) {
         return s != null ? new File(StringUtils.replaceSystemProperties(s)) : null;
+    }
+
+    public QueryRetrieveView getQueryRetrieveView() {
+        return getArchiveDeviceExtension().getQueryRetrieveView(getEffectiveQueryRetrieveViewID());
     }
 }

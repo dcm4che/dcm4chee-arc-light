@@ -57,14 +57,20 @@ import java.util.Map;
 public class ArchiveDeviceExtension extends DeviceExtension {
 
     private String fuzzyAlgorithmClass;
-
+    private String storageID;
     private String bulkDataSpoolDirectory;
+    private String queryRetrieveViewID;
+    private boolean queryMatchUnknown = true;
+    private boolean personNameComponentOrderInsensitiveMatching;
 
     private final AttributeFilter[] attributeFilters = new AttributeFilter[Entity.values().length];
 
-    private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<String, StorageDescriptor>();
+    private QueryRetrieveView[] queryRetrieveViews = {};
+
+    private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
 
     private final CompressionRules compressionRules = new CompressionRules();
+
     private transient FuzzyStr fuzzyStr;
 
     public String getFuzzyAlgorithmClass() {
@@ -103,12 +109,60 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.bulkDataSpoolDirectory = bulkDataSpoolDirectory;
     }
 
+    public String getStorageID() {
+        return storageID;
+    }
+
+    public void setStorageID(String storageID) {
+        this.storageID = storageID;
+    }
+
+    public String getQueryRetrieveViewID() {
+        return queryRetrieveViewID;
+    }
+
+    public void setQueryRetrieveViewID(String queryRetrieveViewID) {
+        this.queryRetrieveViewID = queryRetrieveViewID;
+    }
+
+    public boolean isQueryMatchUnknown() {
+        return queryMatchUnknown;
+    }
+
+    public void setQueryMatchUnknown(boolean queryMatchUnknown) {
+        this.queryMatchUnknown = queryMatchUnknown;
+    }
+
+    public boolean isPersonNameComponentOrderInsensitiveMatching() {
+        return personNameComponentOrderInsensitiveMatching;
+    }
+
+    public void setPersonNameComponentOrderInsensitiveMatching(boolean personNameComponentOrderInsensitiveMatching) {
+        this.personNameComponentOrderInsensitiveMatching = personNameComponentOrderInsensitiveMatching;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters[entity.ordinal()];
     }
 
     public void setAttributeFilter(Entity entity, AttributeFilter filter) {
         attributeFilters[entity.ordinal()] = filter;
+    }
+
+    public QueryRetrieveView[] getQueryRetrieveViews() {
+        return queryRetrieveViews;
+    }
+
+    public void setQueryRetrieveViews(QueryRetrieveView... queryRetrieveViews) {
+        this.queryRetrieveViews = queryRetrieveViews;
+    }
+
+    public QueryRetrieveView getQueryRetrieveView(String viewID) {
+        for (QueryRetrieveView view : queryRetrieveViews) {
+            if (view.getViewID().equals(viewID))
+                return view;
+        }
+        return null;
     }
 
     public StorageDescriptor getStorageDescriptor(String storageID) {
@@ -149,7 +203,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
+        storageID = arcdev.storageID;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
+        queryRetrieveViewID = arcdev.queryRetrieveViewID;
+        queryMatchUnknown = arcdev.queryMatchUnknown;
+        personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
+        queryRetrieveViews = arcdev.queryRetrieveViews;
         System.arraycopy(arcdev.attributeFilters, 0, attributeFilters, 0, attributeFilters.length);
         storageDescriptorMap.clear();
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);

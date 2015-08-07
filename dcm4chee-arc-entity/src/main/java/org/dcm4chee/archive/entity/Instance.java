@@ -46,6 +46,7 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.archive.conf.AttributeFilter;
+import org.dcm4chee.archive.conf.Availability;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -155,6 +156,10 @@ public class Instance {
     @Column(name = "retrieve_aets")
     private String retrieveAETs;
 
+    @Basic(optional = false)
+    @Column(name = "availability")
+    private Availability availability;
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "dicomattrs_fk")
     private AttributesBlob attributesBlob;
@@ -262,6 +267,14 @@ public class Instance {
 
     public void setRetrieveAETs(String... retrieveAETs) {
         this.retrieveAETs = StringUtils.concat(retrieveAETs, '\\');
+    }
+
+    public Availability getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(Availability availability) {
+        this.availability = availability;
     }
 
     public String getEncodedRetrieveAETs() {

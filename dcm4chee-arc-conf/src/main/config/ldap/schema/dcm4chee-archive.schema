@@ -29,61 +29,99 @@ attributetype ( 1.2.40.0.13.1.15.110.3.5 NAME 'dcmCustomAttribute3'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.24 NAME 'dcmEntity'
+attributetype ( 1.2.40.0.13.1.15.110.3.6 NAME 'dcmEntity'
   DESC 'Entity of the Attribute Filter ("Patient", "Study", "Series", "Instance").'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.25 NAME 'hl7PIXQuery'
-  DESC 'Perform HL7 PIX Query to support IHE SWF Multiple Identity Resolution. Disabled by default'
-  EQUALITY booleanMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
-  SINGLE-VALUE )
-
-attributetype ( 1.2.40.0.13.1.15.110.3.26 NAME 'hl7PIXConsumerApplication'
-  DESC 'Application^Facility name of local PIX Consumer Application'
-  EQUALITY caseExactMatch
-  SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-  SINGLE-VALUE )
-
-attributetype ( 1.2.40.0.13.1.15.110.3.27 NAME 'hl7PIXManagerApplication'
-  DESC 'Application^Facility name of remote PIX Manager Application'
-  EQUALITY caseExactMatch
-  SUBSTR caseExactSubstringsMatch
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
-  SINGLE-VALUE )
-
-attributetype ( 1.2.40.0.13.1.15.110.3.28 NAME 'dcmStorageID'
+attributetype ( 1.2.40.0.13.1.15.110.3.7 NAME 'dcmStorageID'
   DESC 'Storage ID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.29 NAME 'dcmBulkDataSpoolDirectory'
+attributetype ( 1.2.40.0.13.1.15.110.3.8 NAME 'dcmBulkDataSpoolDirectory'
   DESC 'Path to Bulk Data Spool Directory'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.9 NAME 'dcmDigestAlgorithm'
+  DESC 'Algorithm for generation of check sums: "MD5" or "SHA-1"'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.10 NAME 'dcmRetrieveAET'
+  DESC 'AE Title associated with Storage System'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.11 NAME 'dcmInstanceAvailability'
+  DESC 'Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.12 NAME 'dcmQueryMatchUnknown'
+  DESC 'Indicates if missing Attributes or zero-length Attribute values in stored entities shall considered unknown and all matching against it shall be considered a successful match; enabled if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.13 NAME 'dcmPersonNameComponentOrderInsensitiveMatching'
+  DESC 'Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names; disabled if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.14 NAME 'dcmQueryRetrieveViewID'
+  DESC 'Query/Retrieve View Identifier'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.15 NAME 'dcmShowInstancesRejectedByCode'
+  DESC 'Indicates if the Q/R Services shall show instances rejected by the specified code in format (CV, CSD, "CM")'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.16 NAME 'dcmHideRejectionNoteWithCode'
+  DESC 'Indicates if the Q/R Services shall hide Rejection Notes with the specified code in format (CV, CSD, "CM")'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.27 NAME 'dcmHideNotRejectedInstances'
+  DESC 'Indicates if the Q/R Services shall hide instances not rejected by any reason; disabled if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
   MUST (
-    dcmFuzzyAlgorithmClass )
+    dcmFuzzyAlgorithmClass $
+    dcmStorageID $
+    dcmQueryRetrieveViewID )
   MAY (
-    dcmBulkDataSpoolDirectory ) )
+    dcmBulkDataSpoolDirectory $
+    dcmQueryMatchUnknown $
+    dcmPersonNameComponentOrderInsensitiveMatching ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
   MAY (
     dcmStorageID $
+    dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $
-    hl7PIXQuery $
-    hl7PIXConsumerApplication $
-    hl7PIXManagerApplication ) )
+    dcmQueryMatchUnknown $
+    dcmPersonNameComponentOrderInsensitiveMatching ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
@@ -109,4 +147,17 @@ objectclass ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmStorageID $
     dcmURI )
   MAY (
+    dcmDigestAlgorithm $
+    dcmRetrieveAET $
+    dcmInstanceAvailability $
     dcmProperty ) )
+
+objectclass ( 1.2.40.0.13.1.15.110.4.13 NAME 'dcmQueryRetrieveView'
+  DESC 'Specifies behavior on Rejection Note Stored'
+  SUP top STRUCTURAL
+  MUST (
+    dcmQueryRetrieveViewID )
+  MAY (
+    dcmShowInstancesRejectedByCode $
+    dcmHideRejectionNoteWithCode $
+    dcmHideNotRejectedInstances ) )

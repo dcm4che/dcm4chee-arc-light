@@ -67,13 +67,18 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     @Override
     protected void storeTo(Device device, Attributes attrs) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        if (arcDev == null)
+        ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        if (ext == null)
             return;
 
         attrs.get("objectclass").add("dcmArchiveDevice");
-        LdapUtils.storeNotNull(attrs, "dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass());
-        LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
+        LdapUtils.storeNotNull(attrs, "dcmFuzzyAlgorithmClass", ext.getFuzzyAlgorithmClass());
+        LdapUtils.storeNotNull(attrs, "dcmStorageID", ext.getStorageID());
+        LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory());
+        LdapUtils.storeNotNull(attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID());
+        LdapUtils.storeNotDef(attrs, "dcmQueryMatchUnknown", ext.isQueryMatchUnknown(), true);
+        LdapUtils.storeNotDef(attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
+                ext.isPersonNameComponentOrderInsensitiveMatching(), false);
     }
 
     @Override
@@ -81,10 +86,34 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         if (!LdapUtils.hasObjectClass(attrs, "dcmArchiveDevice"))
             return;
 
-        ArchiveDeviceExtension arcdev = new ArchiveDeviceExtension();
-        device.addDeviceExtension(arcdev);
-        arcdev.setFuzzyAlgorithmClass(LdapUtils.stringValue(attrs.get("dcmFuzzyAlgorithmClass"), null));
-        arcdev.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
+        ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
+        device.addDeviceExtension(ext);
+        ext.setFuzzyAlgorithmClass(LdapUtils.stringValue(attrs.get("dcmFuzzyAlgorithmClass"), null));
+        ext.setStorageID(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
+        ext.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
+        ext.setQueryRetrieveViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
+        ext.setQueryMatchUnknown(LdapUtils.booleanValue(attrs.get("dcmQueryMatchUnknown"), true));
+        ext.setPersonNameComponentOrderInsensitiveMatching(
+                LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), false));
+    }
+
+    @Override
+    protected void storeDiffs(Device prev, Device device, List<ModificationItem> mods) {
+        ArchiveDeviceExtension aa = prev.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension bb = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        if (aa == null || bb == null)
+            return;
+
+        LdapUtils.storeDiff(mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass());
+        LdapUtils.storeDiff(mods, "dcmStorageID", aa.getStorageID(), bb.getStorageID());
+        LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
+                aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
+        LdapUtils.storeDiff(mods, "dcmQueryRetrieveViewID", aa.getQueryRetrieveViewID(), bb.getQueryRetrieveViewID());
+        LdapUtils.storeDiff(mods, "dcmQueryMatchUnknown", aa.isQueryMatchUnknown(), bb.isQueryMatchUnknown(), true);
+        LdapUtils.storeDiff(mods, "dcmPersonNameComponentOrderInsensitiveMatching",
+                aa.isPersonNameComponentOrderInsensitiveMatching(),
+                bb.isPersonNameComponentOrderInsensitiveMatching(),
+                false);
     }
 
     @Override
@@ -98,6 +127,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeAttributeFilter(deviceDN, arcDev);
         storeStorageDescriptors(deviceDN, arcDev);
         storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
+        storeQueryRetrieveViews(deviceDN, arcDev);
     }
 
     @Override
@@ -110,18 +140,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadAttributeFilters(arcdev, deviceDN);
         loadStorageDescriptors(arcdev, deviceDN);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
-    }
-
-    @Override
-    protected void storeDiffs(Device prev, Device device, List<ModificationItem> mods) {
-        ArchiveDeviceExtension aa = prev.getDeviceExtension(ArchiveDeviceExtension.class);
-        ArchiveDeviceExtension bb = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        if (aa == null || bb == null)
-            return;
-
-        LdapUtils.storeDiff(mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass());
-        LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
-                aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
+        loadQueryRetrieveViews(arcdev, deviceDN);
     }
 
     @Override
@@ -137,20 +156,22 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeAttributeFilters(aa, bb, deviceDN);
         mergeStorageDescriptors(aa, bb, deviceDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
+        mergeQueryRetrieveViews(aa, bb, deviceDN);
     }
 
     @Override
     protected void storeTo(ApplicationEntity ae, Attributes attrs) {
-        ArchiveAEExtension aeExt = ae.getAEExtension(ArchiveAEExtension.class);
-        if (aeExt == null)
+        ArchiveAEExtension ext = ae.getAEExtension(ArchiveAEExtension.class);
+        if (ext == null)
             return;
 
         attrs.get("objectclass").add("dcmArchiveNetworkAE");
-        LdapUtils.storeNotNull(attrs, "dcmStorageID", aeExt.getStorageID());
-        LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", aeExt.getBulkDataSpoolDirectory());
-        LdapUtils.storeNotDef(attrs, "hl7PIXQuery", aeExt.isPixQuery(), false);
-        LdapUtils.storeNotNull(attrs, "hl7PIXConsumerApplication", aeExt.getLocalPIXConsumerApplication());
-        LdapUtils.storeNotNull(attrs, "hl7PIXManagerApplication", aeExt.getRemotePIXManagerApplication());
+        LdapUtils.storeNotNull(attrs, "dcmStorageID", ext.getStorageID());
+        LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory());
+        LdapUtils.storeNotNull(attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID());
+        LdapUtils.storeNotNull(attrs, "dcmQueryMatchUnknown", ext.getQueryMatchUnknown());
+        LdapUtils.storeNotNull(attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
+                ext.getPersonNameComponentOrderInsensitiveMatching());
     }
 
     @Override
@@ -158,13 +179,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         if (!LdapUtils.hasObjectClass(attrs, "dcmArchiveNetworkAE"))
             return;
 
-        ArchiveAEExtension aeExt = new ArchiveAEExtension();
-        ae.addAEExtension(aeExt);
-        aeExt.setStorageID(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
-        aeExt.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
-        aeExt.setPixQuery(LdapUtils.booleanValue(attrs.get("hl7PIXQuery"), false));
-        aeExt.setLocalPIXConsumerApplication(LdapUtils.stringValue(attrs.get("hl7PIXConsumerApplication"), null));
-        aeExt.setRemotePIXManagerApplication(LdapUtils.stringValue(attrs.get("hl7PIXManagerApplication"), null));
+        ArchiveAEExtension ext = new ArchiveAEExtension();
+        ae.addAEExtension(ext);
+        ext.setStorageID(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
+        ext.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
+        ext.setQueryRetrieveViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
+        ext.setQueryMatchUnknown(LdapUtils.booleanValue(attrs.get("dcmQueryMatchUnknown"), null));
+        ext.setPersonNameComponentOrderInsensitiveMatching(
+                LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), null));
     }
 
     @Override
@@ -177,11 +199,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmStorageID", aa.getStorageID(), bb.getStorageID());
         LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
-        LdapUtils.storeDiff(mods, "hl7PIXQuery", aa.isPixQuery(), bb.isPixQuery(), false);
-        LdapUtils.storeDiff(mods, "hl7PIXConsumerApplication",
-                aa.getLocalPIXConsumerApplication(), bb.getLocalPIXConsumerApplication());
-        LdapUtils.storeDiff(mods, "hl7PIXManagerApplication",
-                aa.getRemotePIXManagerApplication(), bb.getRemotePIXManagerApplication());
+        LdapUtils.storeDiff(mods, "dcmQueryRetrieveViewID", aa.getQueryRetrieveViewID(), bb.getQueryRetrieveViewID());
+        LdapUtils.storeDiff(mods, "dcmQueryMatchUnknown", aa.getQueryMatchUnknown(), bb.getQueryMatchUnknown());
+        LdapUtils.storeDiff(mods, "dcmPersonNameComponentOrderInsensitiveMatching",
+                aa.getPersonNameComponentOrderInsensitiveMatching(),
+                bb.getPersonNameComponentOrderInsensitiveMatching());
     }
 
     @Override
@@ -311,7 +333,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "dcmStorage");
         attrs.put("dcmStorageID", descriptor.getStorageID());
         attrs.put("dcmURI", descriptor.getStorageURI().toString());
-        String[] ss = new String[descriptor.getProperties().size()];
+        LdapUtils.storeNotNull(attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm());
+        LdapUtils.storeNotNull(attrs, "dcmInstanceAvailability", descriptor.getInstanceAvailability());
+        LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         return attrs;
     }
@@ -330,14 +354,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                StorageDescriptor descriptor = new StorageDescriptor(
-                        LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
-                descriptor.setStorageURI(URI.create(LdapUtils.stringValue(attrs.get("dcmURI"), null)));
+                StorageDescriptor desc = new StorageDescriptor(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
+                desc.setStorageURI(URI.create(LdapUtils.stringValue(attrs.get("dcmURI"), null)));
+                desc.setDigestAlgorithm(LdapUtils.stringValue(attrs.get("dcmDigestAlgorithm"), null));
+                desc.setInstanceAvailability(
+                        LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
+                desc.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
                 for (String s : LdapUtils.stringArray(attrs.get("dcmProperty"))) {
                     String[] ss = StringUtils.split(s, '=');
-                    descriptor.setProperty(ss[0], ss[1]);
+                    desc.setProperty(ss[0], ss[1]);
                 }
-                arcdev.addStorageDescriptor(descriptor);
+                arcdev.addStorageDescriptor(desc);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -364,10 +391,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private List<ModificationItem> storeDiffs(StorageDescriptor prev, StorageDescriptor descriptor,
+    private List<ModificationItem> storeDiffs(StorageDescriptor prev, StorageDescriptor desc,
                                               List<ModificationItem> mods) {
-        LdapUtils.storeDiff(mods, "dcmURI", prev.getStorageURI().toString(), descriptor.getStorageURI().toString());
-        storeDiffProperties(mods, prev.getProperties(), descriptor.getProperties());
+        LdapUtils.storeDiff(mods, "dcmURI",
+                prev.getStorageURI().toString(), desc.getStorageURI().toString());
+        LdapUtils.storeDiff(mods, "dcmDigestAlgorithm",
+                prev.getDigestAlgorithm(), desc.getDigestAlgorithm());
+        LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
+                prev.getInstanceAvailability(), desc.getInstanceAvailability());
+        LdapUtils.storeDiff(mods, "dcmRetrieveAET",
+                prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
+        storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         return mods;
     }
 
@@ -395,4 +429,76 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         new LdapCompressionRulesConfiguration(config).merge(aa, bb, parentDN);
     }
 
+    private void storeQueryRetrieveViews(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+        for (QueryRetrieveView view : arcDev.getQueryRetrieveViews())
+            config.createSubcontext(
+                    LdapUtils.dnOf("dcmQueryRetrieveViewID", view.getViewID(), deviceDN),
+                    storeTo(view, new BasicAttributes(true)));
+    }
+
+    private Attributes storeTo(QueryRetrieveView qrView, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmQueryRetrieveView");
+        attrs.put("dcmQueryRetrieveViewID", qrView.getViewID());
+        LdapUtils.storeNotEmpty(attrs, "dcmShowInstancesRejectedByCode", qrView.getShowInstancesRejectedByCodes());
+        LdapUtils.storeNotEmpty(attrs, "dcmHideRejectionNoteWithCode", qrView.getHideRejectionNotesWithCodes());
+        LdapUtils.storeNotDef(attrs, "dcmHideNotRejectedInstances", qrView.isHideNotRejectedInstances(), false);
+        return attrs;
+    }
+
+    private void loadQueryRetrieveViews(ArchiveDeviceExtension arcdev, String deviceDN) throws NamingException {
+        ArrayList<QueryRetrieveView> views = new ArrayList<>();
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmQueryRetrieveView)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                QueryRetrieveView view = new QueryRetrieveView();
+                view.setViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
+                view.setShowInstancesRejectedByCodes(
+                        LdapUtils.codeArray(attrs.get("dcmShowInstancesRejectedByCode")));
+                view.setHideRejectionNotesWithCodes(
+                        LdapUtils.codeArray(attrs.get("dcmHideRejectionNoteWithCode")));
+                view.setHideNotRejectedInstances(
+                        LdapUtils.booleanValue(attrs.get("dcmHideNotRejectedInstances"), false));
+                views.add(view);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+        arcdev.setQueryRetrieveViews(views.toArray(new QueryRetrieveView[views.size()]));
+    }
+
+    private void mergeQueryRetrieveViews(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+            throws NamingException {
+        for (QueryRetrieveView entry : prev.getQueryRetrieveViews()) {
+            String viewID = entry.getViewID();
+            if (arcDev.getQueryRetrieveView(viewID) == null)
+                config.destroySubcontext( LdapUtils.dnOf("dcmQueryRetrieveViewID", viewID, deviceDN));
+        }
+        for (QueryRetrieveView entryNew : arcDev.getQueryRetrieveViews()) {
+            String viewID = entryNew.getViewID();
+            String dn = LdapUtils.dnOf("dcmQueryRetrieveViewID", viewID, deviceDN);
+            QueryRetrieveView entryOld = prev.getQueryRetrieveView(viewID);
+            if (entryOld == null) {
+                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
+            } else{
+                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
+            }
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(
+            QueryRetrieveView prev, QueryRetrieveView view, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmShowInstancesRejectedByCode",
+                prev.getShowInstancesRejectedByCodes(),
+                view.getShowInstancesRejectedByCodes());
+        LdapUtils.storeDiff(mods, "dcmHideRejectionNoteWithCode",
+                prev.getHideRejectionNotesWithCodes(),
+                view.getHideRejectionNotesWithCodes());
+        LdapUtils.storeDiff(mods, "dcmHideNotRejectedInstances",
+                prev.isHideNotRejectedInstances(),
+                view.isHideNotRejectedInstances(),
+                false);
+        return mods;
+    }
 }

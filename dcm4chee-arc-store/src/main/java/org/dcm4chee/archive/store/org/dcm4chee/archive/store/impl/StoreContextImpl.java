@@ -108,19 +108,4 @@ class StoreContextImpl implements StoreContext {
         this.storageContext = storageContext;
     }
 
-    @Override
-    public Location getLocation() {
-        return location;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void onUpdateDBException() {
-        storeSession.setCachedSeries(null);
-        location = null;
-    }
 }
