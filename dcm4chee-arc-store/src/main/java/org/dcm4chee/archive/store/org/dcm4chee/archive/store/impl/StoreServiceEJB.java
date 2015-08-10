@@ -218,9 +218,17 @@ public class StoreServiceEJB {
         setVerifyingObservers(instance, attrs, fuzzyStr);
         instance.setConceptNameCode(findOrCreateCode(attrs, Tag.ConceptNameCodeSequence));
         setContentItems(instance, attrs);
-        //TODO
-        instance.setRetrieveAETs(session.getLocalApplicationEntity().getAETitle());
-        instance.setAvailability(Availability.ONLINE);
+
+        StorageContext storageContext = ctx.getStorageContext();
+        Storage storage = storageContext.getStorage();
+        StorageDescriptor descriptor = storage.getStorageDescriptor();
+        String[] retrieveAETs = descriptor.getRetrieveAETitles();
+        Availability availability = descriptor.getInstanceAvailability();
+        instance.setRetrieveAETs(
+                retrieveAETs.length > 0
+                        ? retrieveAETs
+                        : new String[] { session.getLocalApplicationEntity().getAETitle() });
+        instance.setAvailability(availability != null ? availability : Availability.ONLINE);
 
         instance.setSeries(series);
         em.persist(instance);
