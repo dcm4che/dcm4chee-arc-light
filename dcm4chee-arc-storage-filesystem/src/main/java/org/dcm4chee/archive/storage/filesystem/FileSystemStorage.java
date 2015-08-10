@@ -43,11 +43,10 @@ package org.dcm4chee.archive.storage.filesystem;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.archive.conf.StorageDescriptor;
-import org.dcm4chee.archive.storage.Storage;
+import org.dcm4chee.archive.storage.AbstractStorage;
+import org.dcm4chee.archive.storage.DefaultStorageContext;
 import org.dcm4chee.archive.storage.StorageContext;
 
-import java.io.FileOutputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -58,17 +57,16 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class FileSystemStorage implements Storage {
+public class FileSystemStorage extends AbstractStorage {
 
     private static final String DEFAULT_PATH_FORMAT =
             "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
 
     private final URI rootURI;
     private final AttributesFormat pathFormat;
-    private final StorageDescriptor descriptor;
 
     public FileSystemStorage(StorageDescriptor descriptor) {
-        this.descriptor = descriptor;
+        super(descriptor);
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
         pathFormat = new AttributesFormat((String) descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
     }
@@ -79,17 +77,12 @@ public class FileSystemStorage implements Storage {
     }
 
     @Override
-    public StorageDescriptor getStorageDescriptor() {
-        return descriptor;
-    }
-
-    @Override
     public StorageContext newStorageContext(Attributes attrs) {
-        return new FileSystemStorageContext(this, attrs);
+        return new DefaultStorageContext(this, attrs);
     }
 
     @Override
-    public OutputStream newOutputStream(final StorageContext ctx) throws IOException {
+    protected OutputStream openOutputStreamA(StorageContext ctx) throws IOException {
         Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
         Path dir = path.getParent();
         Files.createDirectories(dir);
@@ -101,14 +94,13 @@ public class FileSystemStorage implements Storage {
                 path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
             }
         ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
-        final Path finalPath = path;
-        return new FilterOutputStream(stream) {
-            @Override
-            public void close() throws IOException {
-                super.close();
-                ctx.setSize(Files.size(finalPath));
-            }
-        };
+        return stream;
+    }
+
+    @Override
+    protected void onOutputStreamClosed(StorageContext ctx) throws IOException {
+        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        ctx.setSize(Files.size(path));
     }
 
     @Override

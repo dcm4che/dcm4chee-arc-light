@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -118,7 +117,7 @@ class StoreServiceImpl implements StoreService {
             Storage storage = getStorage(storeContext);
             StorageContext storageCtx = storage.newStorageContext(dataset);
             storeContext.setStorageContext(storageCtx);
-            return storage.newOutputStream(storageCtx);
+            return storage.openOutputStream(storageCtx);
         }
     }
 

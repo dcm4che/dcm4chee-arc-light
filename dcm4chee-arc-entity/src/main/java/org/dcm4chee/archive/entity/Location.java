@@ -40,6 +40,8 @@
 
 package org.dcm4chee.archive.entity;
 
+import org.dcm4che3.util.TagUtils;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -121,8 +123,8 @@ public class Location {
             return this;
         }
 
-        public Builder digest(String digest) {
-            this.digest = digest;
+        public Builder digest(byte[] digest) {
+            this.digest = digest != null  ? TagUtils.toHexString(digest) : null;
             return this;
         }
 

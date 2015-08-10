@@ -16,7 +16,7 @@ public interface Storage {
 
     StorageContext newStorageContext(Attributes attrs);
 
-    OutputStream newOutputStream(StorageContext ctx) throws IOException;
+    OutputStream openOutputStream(StorageContext ctx) throws IOException;
 
     void deleteObject(String storagePath) throws IOException;
 }

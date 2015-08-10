@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,29 +40,61 @@
 
 package org.dcm4chee.archive.storage;
 
-import org.dcm4che3.data.Attributes;
+import org.dcm4chee.archive.conf.StorageDescriptor;
 
-import java.net.URI;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Aug 2015
  */
-public interface StorageContext {
+public abstract class AbstractStorage implements Storage {
 
-    Storage getStorage();
+    protected final StorageDescriptor descriptor;
 
-    Attributes getAttributes();
+    protected AbstractStorage(StorageDescriptor descriptor) {
+        this.descriptor = descriptor;
+    }
 
-    String getStoragePath();
+    @Override
+    public StorageDescriptor getStorageDescriptor() {
+        return descriptor;
+    }
 
-    void setStoragePath(String storagePath);
+    @Override
+    public OutputStream openOutputStream(final StorageContext ctx) throws IOException {
+        OutputStream stream = openOutputStreamA(ctx);
+        final MessageDigest digest;
+        String digestAlgorithm = descriptor.getDigestAlgorithm();
+        if (digestAlgorithm == null) {
+            digest = null;
+        } else {
+            try {
+                digest = MessageDigest.getInstance(digestAlgorithm);
+                stream = new DigestOutputStream(stream, digest);
+            } catch (NoSuchAlgorithmException e) {
+                throw new IOException(e);
+            }
+        }
+        return new FilterOutputStream(stream) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                if (digest != null)
+                    ctx.setDigest(digest.digest());
+                onOutputStreamClosed(ctx);
+            }
+        };
+    }
 
-    long getSize();
+    protected void onOutputStreamClosed(StorageContext ctx) throws IOException {
 
-    void setSize(long size);
+    }
 
-    byte[] getDigest();
-
-    void setDigest(byte[] digest);
+    protected abstract OutputStream openOutputStreamA(StorageContext ctx) throws IOException;
 }

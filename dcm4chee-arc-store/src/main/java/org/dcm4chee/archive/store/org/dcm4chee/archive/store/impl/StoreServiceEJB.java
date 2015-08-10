@@ -244,6 +244,7 @@ public class StoreServiceEJB {
                 .storagePath(storageContext.getStoragePath())
                 .transferSyntaxUID(ctx.getStoreTranferSyntax())
                 .size(storageContext.getSize())
+                .digest(storageContext.getDigest())
                 .build();
         location.setInstance(instance);
         em.persist(location);

@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.storage.filesystem;
+package org.dcm4chee.archive.storage;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.storage.Storage;
@@ -50,13 +50,14 @@ import java.net.URI;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class FileSystemStorageContext implements StorageContext {
+public class DefaultStorageContext implements StorageContext {
     private final Storage storage;
     private final Attributes attrs;
     private String storagePath;
     private long size = -1L;
+    private byte[] digest;
 
-    public FileSystemStorageContext(Storage storage, Attributes attrs) {
+    public DefaultStorageContext(Storage storage, Attributes attrs) {
         this.storage = storage;
         this.attrs = attrs;
     }
@@ -89,5 +90,15 @@ public class FileSystemStorageContext implements StorageContext {
     @Override
     public void setSize(long size) {
         this.size = size;
+    }
+
+    @Override
+    public byte[] getDigest() {
+        return digest;
+    }
+
+    @Override
+    public void setDigest(byte[] digest) {
+        this.digest = digest;
     }
 }
