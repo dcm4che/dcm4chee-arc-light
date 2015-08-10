@@ -43,6 +43,8 @@ package org.dcm4chee.archive.query.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4chee.archive.code.CodeCache;
+import org.dcm4chee.archive.conf.QueryRetrieveView;
 import org.dcm4chee.archive.entity.SeriesQueryAttributes;
 import org.dcm4chee.archive.entity.StudyQueryAttributes;
 import org.dcm4chee.archive.query.Query;
@@ -71,13 +73,22 @@ class QueryServiceImpl implements QueryService {
     @Inject
     private QueryServiceEJB ejb;
 
+    @Inject
+    private CodeCache codeCache;
+
     StatelessSession openStatelessSession() {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
     }
 
     @Override
     public QueryContext newQueryContext(Association as, EnumSet<QueryOption> queryOpts) {
-        return new QueryContextImpl(as, queryOpts, this);
+        QueryParam queryParam = new QueryParam(as.getApplicationEntity(), queryOpts);
+        QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
+        queryParam.setHideRejectionNotesWithCode(
+                codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
+        queryParam.setShowInstancesRejectedByCode(
+                codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
+        return new QueryContextImpl(as, queryParam, this);
     }
 
     @Override

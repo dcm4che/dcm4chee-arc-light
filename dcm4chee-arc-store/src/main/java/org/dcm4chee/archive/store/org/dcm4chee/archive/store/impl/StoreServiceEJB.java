@@ -95,8 +95,16 @@ public class StoreServiceEJB {
 
         Instance instance = createInstance(ctx);
         Location location = createLocation(ctx, instance);
+        deleteQueryAttributes(instance);
         result.setLocation(location);
         return result;
+    }
+
+    private void deleteQueryAttributes(Instance instance) {
+        Series series = instance.getSeries();
+        Study study = series.getStudy();
+        em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
+        em.createNamedQuery(StudyQueryAttributes.DELETE_FOR_STUDY).setParameter(1, study).executeUpdate();
     }
 
     private Instance createInstance(StoreContext ctx) {

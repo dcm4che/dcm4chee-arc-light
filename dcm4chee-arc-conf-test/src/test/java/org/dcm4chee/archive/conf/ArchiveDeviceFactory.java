@@ -752,6 +752,9 @@ class ArchiveDeviceFactory {
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURI(STORAGE_URI);
         storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
+        storageDescriptor.setRetrieveAETitles("DCM4CHEE", "DCM4CHEE_ADMIN", "DCM4CHEE_TRASH");
+        storageDescriptor.setDigestAlgorithm("MD5");
+        storageDescriptor.setInstanceAvailability(Availability.ONLINE);
         ext.addStorageDescriptor(storageDescriptor);
 
         ext.addCompressionRule(JPEG_BASELINE);

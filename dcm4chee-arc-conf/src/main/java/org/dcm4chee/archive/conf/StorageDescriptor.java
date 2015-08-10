@@ -50,7 +50,7 @@ public final class StorageDescriptor {
         return retrieveAETitles;
     }
 
-    public void setRetrieveAETitles(String[] retrieveAETitles) {
+    public void setRetrieveAETitles(String... retrieveAETitles) {
         this.retrieveAETitles = retrieveAETitles;
     }
 

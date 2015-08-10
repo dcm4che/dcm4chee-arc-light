@@ -201,8 +201,7 @@ public class QueryBuilder {
     public static HibernateQuery<Tuple> applySeriesLevelJoins(
             HibernateQuery<Tuple> query, Attributes keys, QueryParam queryParam) {
         query = query.innerJoin(QSeries.series.study, QStudy.study);
-        query = query.leftJoin(QSeries.series.queryAttributes,
-                QSeriesQueryAttributes.seriesQueryAttributes)
+        query = query.leftJoin(QSeries.series.queryAttributes, QSeriesQueryAttributes.seriesQueryAttributes)
                 .on(QSeriesQueryAttributes.seriesQueryAttributes.viewID.eq(
                         queryParam.getViewID()));
         if (!isUniversalMatching(keys.getString(Tag.PerformingPhysicianName))) {

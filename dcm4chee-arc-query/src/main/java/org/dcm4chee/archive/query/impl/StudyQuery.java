@@ -51,7 +51,6 @@ import org.dcm4chee.archive.conf.Availability;
 import org.dcm4chee.archive.entity.*;
 import org.dcm4chee.archive.query.QueryContext;
 import org.dcm4chee.archive.query.util.QueryBuilder;
-import org.hibernate.ScrollableResults;
 import org.hibernate.StatelessSession;
 
 /**
@@ -61,15 +60,15 @@ import org.hibernate.StatelessSession;
 class StudyQuery extends AbstractQuery {
 
     static final Expression<?>[] SELECT = {
-            QStudy.study.pk,                                                // (0)
-            QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,   // (1)
-            QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,      // (2)
-            QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy,   // (3)
-            QStudyQueryAttributes.studyQueryAttributes.sopClassesInStudy,   // (4)
-            QStudyQueryAttributes.studyQueryAttributes.retrieveAETs,        // (5)
-            QStudyQueryAttributes.studyQueryAttributes.availability,        // (6)
-            QueryBuilder.studyAttributesBlob.encodedAttributes,             // (7)
-            QueryBuilder.patientAttributesBlob.encodedAttributes            // (8)
+            QStudy.study.pk,
+            QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
+            QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
+            QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy,
+            QStudyQueryAttributes.studyQueryAttributes.sopClassesInStudy,
+            QStudyQueryAttributes.studyQueryAttributes.retrieveAETs,
+            QStudyQueryAttributes.studyQueryAttributes.availability,
+            QueryBuilder.studyAttributesBlob.encodedAttributes,
+            QueryBuilder.patientAttributesBlob.encodedAttributes
     };
 
     public StudyQuery(QueryContext context, StatelessSession session) {
@@ -79,11 +78,11 @@ class StudyQuery extends AbstractQuery {
     @Override
     protected HibernateQuery<Tuple> newHibernateQuery() {
         HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QStudy.study);
-        q = QueryBuilder.applyPatientLevelJoins(q,
-                context.getPatientIDs(),
+        q = QueryBuilder.applyStudyLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam());
-        q = QueryBuilder.applyStudyLevelJoins(q,
+        q = QueryBuilder.applyPatientLevelJoins(q,
+                context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         BooleanBuilder predicates = new BooleanBuilder();
@@ -98,9 +97,9 @@ class StudyQuery extends AbstractQuery {
     }
 
     @Override
-    protected Attributes toAttributes(ScrollableResults results) {
-        Long studyPk = results.getLong(0);
-        Integer numberOfInstancesI = results.getInteger(1);
+    protected Attributes toAttributes(Tuple results) {
+        Long studyPk = results.get(QStudy.study.pk);
+        Integer numberOfInstancesI = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
         int numberOfStudyRelatedInstances;
         int numberOfStudyRelatedSeries;
         String modalitiesInStudy;
@@ -112,11 +111,11 @@ class StudyQuery extends AbstractQuery {
             if (numberOfStudyRelatedInstances == 0)
                 return null;
 
-            numberOfStudyRelatedSeries = results.getInteger(2);
-            modalitiesInStudy = results.getString(3);
-            sopClassesInStudy = results.getString(4);
-            retrieveAETs = results.getString(5);
-            availability = (Availability) results.get(6);
+            numberOfStudyRelatedSeries = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfSeries);
+            modalitiesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy);
+            sopClassesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.sopClassesInStudy);
+            retrieveAETs = results.get(QStudyQueryAttributes.studyQueryAttributes.retrieveAETs);
+            availability = results.get(QStudyQueryAttributes.studyQueryAttributes.availability);
         } else {
             StudyQueryAttributes studyView = context.getQueryService()
                     .calculateStudyQueryAttributes(studyPk, context.getQueryParam());
@@ -130,8 +129,10 @@ class StudyQuery extends AbstractQuery {
             retrieveAETs = studyView.getRawRetrieveAETs();
             availability = studyView.getAvailability();
         }
-        Attributes studyAttrs = AttributesBlob.decodeAttributes(results.getBinary(7), null);
-        Attributes patAttrs = AttributesBlob.decodeAttributes(results.getBinary(8), null);
+        Attributes studyAttrs = AttributesBlob.decodeAttributes(
+                results.get(QueryBuilder.studyAttributesBlob.encodedAttributes), null);
+        Attributes patAttrs = AttributesBlob.decodeAttributes(
+                results.get(QueryBuilder.seriesAttributesBlob.encodedAttributes), null);
         Attributes.unifyCharacterSets(patAttrs, studyAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 6);
         attrs.addAll(patAttrs);
@@ -140,8 +141,8 @@ class StudyQuery extends AbstractQuery {
         attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
         attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
         attrs.setString(Tag.SOPClassesInStudy, VR.UI, sopClassesInStudy);
-        attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.US, numberOfStudyRelatedSeries);
-        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.US, numberOfStudyRelatedInstances);
+        attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
+        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
         return attrs;
     }
 

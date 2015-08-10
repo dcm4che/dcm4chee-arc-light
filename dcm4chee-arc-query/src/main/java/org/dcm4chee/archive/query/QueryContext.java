@@ -73,4 +73,8 @@ public interface QueryContext {
     void setPatientIDs(Collection<IDWithIssuer> pids);
 
     QueryService getQueryService();
+
+    Attributes getReturnKeys();
+
+    void setReturnKeys(Attributes returnKeys);
 }

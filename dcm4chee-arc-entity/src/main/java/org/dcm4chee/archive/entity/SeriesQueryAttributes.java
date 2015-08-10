@@ -49,10 +49,15 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  *
  */
+@NamedQuery(
+    name = SeriesQueryAttributes.DELETE_FOR_SERIES,
+    query = "delete from SeriesQueryAttributes where series = ?1"
+)
 @Entity
 @Table(name = "series_query_attrs")
 public class SeriesQueryAttributes {
 
+    public static final String DELETE_FOR_SERIES = "deleteForSeries";
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pk")

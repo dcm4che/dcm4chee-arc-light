@@ -42,6 +42,7 @@ package org.dcm4chee.archive.query.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.ScrollableResultsIterator;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.query.Query;
@@ -61,8 +62,7 @@ abstract class AbstractQuery implements Query {
     protected final QueryContext context;
     protected final StatelessSession session;
     private HibernateQuery<Tuple> query;
-    private boolean hasMoreMatches;
-    private ScrollableResults results;
+    private ScrollableResultsIterator<Tuple> results;
 
     public AbstractQuery(QueryContext context, StatelessSession session) {
         this.context = context;
@@ -75,7 +75,7 @@ abstract class AbstractQuery implements Query {
 
     protected abstract HibernateQuery<Tuple> newHibernateQuery();
 
-    protected abstract Attributes toAttributes(ScrollableResults results);
+    protected abstract Attributes toAttributes(Tuple results);
 
     private void checkQuery() {
         if (query == null)
@@ -85,8 +85,7 @@ abstract class AbstractQuery implements Query {
     @Override
     public void executeQuery() {
         checkQuery();
-        results = query.scroll(ScrollMode.FORWARD_ONLY);
-        hasMoreMatches = results.next();
+        results = new ScrollableResultsIterator(query.scroll(ScrollMode.FORWARD_ONLY));
     }
 
     @Override
@@ -115,16 +114,27 @@ abstract class AbstractQuery implements Query {
 
     @Override
     public boolean hasMoreMatches() {
-        return hasMoreMatches;
+        return results.hasNext();
     }
 
     @Override
     public Attributes nextMatch() {
-        if (!hasMoreMatches)
-            throw new NoSuchElementException();
-        Attributes attrs = toAttributes(results);
-        hasMoreMatches = results.next();
+        Attributes attrs = toAttributes(results.next());
         return attrs;
+    }
+
+    @Override
+    public Attributes adjust(Attributes match) {
+        if (match == null)
+            return null;
+
+        Attributes returnKeys = context.getReturnKeys();
+        if (returnKeys == null)
+            return match;
+
+        Attributes filtered = new Attributes(returnKeys.size());
+        filtered.addSelected(match, returnKeys);
+        return filtered;
     }
 
     @Override

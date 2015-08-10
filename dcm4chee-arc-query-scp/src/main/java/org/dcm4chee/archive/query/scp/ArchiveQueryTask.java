@@ -56,12 +56,17 @@ public class ArchiveQueryTask extends BasicQueryTask {
 
     private final Query query;
 
-    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query) {
+    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query)
+            throws DicomServiceException {
         super(as, pc, rq, keys);
         this.query = query;
+        try {
+            query.initQuery();
+            query.executeQuery();
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
+        }
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
-        query.initQuery();
-        query.executeQuery();
     }
 
     @Override
@@ -85,5 +90,10 @@ public class ArchiveQueryTask extends BasicQueryTask {
         }  catch (Exception e) {
             throw new DicomServiceException(Status.UnableToProcess, e);
         }
+    }
+
+    @Override
+    protected Attributes adjust(Attributes match) {
+        return query.adjust(match);
     }
 }

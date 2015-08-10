@@ -105,11 +105,11 @@ public class QueryServiceEJB {
                 .select(PATIENT_STUDY_SERIES_ATTRS)
                 .from(QSeries.series)
                 .join(QSeries.series.attributesBlob, QueryBuilder.seriesAttributesBlob)
-                .leftJoin(QSeries.series.queryAttributes)
+                .leftJoin(QSeries.series.queryAttributes, QSeriesQueryAttributes.seriesQueryAttributes)
                 .on(QSeriesQueryAttributes.seriesQueryAttributes.viewID.eq(viewID))
                 .join(QSeries.series.study, QStudy.study)
                 .join(QStudy.study.attributesBlob, QueryBuilder.studyAttributesBlob)
-                .leftJoin(QStudy.study.queryAttributes)
+                .leftJoin(QStudy.study.queryAttributes, QStudyQueryAttributes.studyQueryAttributes)
                 .on(QStudyQueryAttributes.studyQueryAttributes.viewID.eq(viewID))
                 .join(QStudy.study.patient, QPatient.patient)
                 .join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob)
@@ -157,9 +157,9 @@ public class QueryServiceEJB {
         attrs.addAll(seriesAttrs);
         attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
         attrs.setString(Tag.SOPClassesInStudy, VR.UI, sopClassesInStudy);
-        attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.US, numberOfStudyRelatedSeries);
-        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.US, numberOfStudyRelatedInstances);
-        attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.US, numberOfSeriesRelatedInstances);
+        attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
+        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
+        attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
         return attrs;
     }
 

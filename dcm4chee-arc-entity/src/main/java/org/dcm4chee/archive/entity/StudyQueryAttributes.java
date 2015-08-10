@@ -49,9 +49,15 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  *
  */
+@NamedQuery(
+    name = StudyQueryAttributes.DELETE_FOR_STUDY,
+    query = "delete from StudyQueryAttributes where study = ?1"
+)
 @Entity
 @Table(name = "study_query_attrs")
 public class StudyQueryAttributes {
+
+    public static final String DELETE_FOR_STUDY = "deleteForStudy";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

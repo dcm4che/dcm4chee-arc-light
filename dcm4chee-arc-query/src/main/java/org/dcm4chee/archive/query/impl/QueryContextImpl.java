@@ -66,12 +66,13 @@ class QueryContextImpl implements QueryContext {
     private final QueryService queryService;
     private Collection<IDWithIssuer> patientIDs = Collections.emptySet();
     private Attributes queryKeys;
+    private Attributes returnKeys;
 
-    public QueryContextImpl(Association as, EnumSet<QueryOption> queryOpts, QueryService queryService) {
+    public QueryContextImpl(Association as, QueryParam queryParam, QueryService queryService) {
         this.as = as;
         this.ae = as.getApplicationEntity();
         this.queryService = queryService;
-        this.queryParam = new QueryParam(ae, queryOpts);
+        this.queryParam = queryParam;
     }
 
     @Override
@@ -102,6 +103,16 @@ class QueryContextImpl implements QueryContext {
     @Override
     public QueryService getQueryService() {
         return queryService;
+    }
+
+    @Override
+    public Attributes getReturnKeys() {
+        return returnKeys;
+    }
+
+    @Override
+    public void setReturnKeys(Attributes returnKeys) {
+        this.returnKeys = returnKeys;
     }
 
     @Override

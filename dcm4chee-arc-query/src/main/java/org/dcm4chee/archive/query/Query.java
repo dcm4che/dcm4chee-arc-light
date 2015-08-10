@@ -68,4 +68,5 @@ public interface Query {
 
     Attributes nextMatch();
 
+    Attributes adjust(Attributes match);
 }

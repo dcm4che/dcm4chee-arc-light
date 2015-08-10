@@ -49,7 +49,6 @@ import org.dcm4chee.archive.entity.AttributesBlob;
 import org.dcm4chee.archive.entity.QPatient;
 import org.dcm4chee.archive.query.QueryContext;
 import org.dcm4chee.archive.query.util.QueryBuilder;
-import org.hibernate.ScrollableResults;
 import org.hibernate.StatelessSession;
 
 /**
@@ -84,8 +83,9 @@ class PatientQuery extends AbstractQuery {
     }
 
     @Override
-    protected Attributes toAttributes(ScrollableResults results) {
-        Attributes patAttrs = AttributesBlob.decodeAttributes(results.getBinary(1), null);
+    protected Attributes toAttributes(Tuple results) {
+        Attributes patAttrs = AttributesBlob.decodeAttributes(
+                results.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         return patAttrs;
     }
 

@@ -40,10 +40,7 @@
 
 package org.dcm4chee.archive.query.scp;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.ElementDictionary;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.Status;
@@ -105,7 +102,23 @@ class AbstractCFindSCP extends BasicCFindSCP {
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(Collections.singleton(idWithIssuer));
         ctx.setQueryKeys(keys);
+        ctx.setReturnKeys(createReturnKeys(keys));
         return new ArchiveQueryTask(as, pc, rq, keys, createQuery(qrLevel, ctx));
+    }
+
+    private Attributes createReturnKeys(Attributes keys) {
+        Attributes returnKeys = new Attributes(keys.size() + 8);
+        returnKeys.addAll(keys);
+        if (!returnKeys.contains(Tag.SpecificCharacterSet))
+            returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
+        returnKeys.setNull(Tag.RetrieveAETitle, VR.AE);
+        returnKeys.setNull(Tag.InstanceAvailability, VR.CS);
+        returnKeys.setNull(Tag.ModalitiesInStudy, VR.CS);
+        returnKeys.setNull(Tag.SOPClassesInStudy, VR.UI);
+        returnKeys.setNull(Tag.NumberOfStudyRelatedSeries, VR.IS);
+        returnKeys.setNull(Tag.NumberOfStudyRelatedInstances, VR.IS);
+        returnKeys.setNull(Tag.NumberOfSeriesRelatedInstances, VR.IS);
+        return returnKeys;
     }
 
     private Query createQuery(Level qrLevel, QueryContext ctx) {

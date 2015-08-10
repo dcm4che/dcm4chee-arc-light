@@ -45,11 +45,14 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4chee.archive.conf.Availability;
+import org.dcm4chee.archive.entity.AttributesBlob;
 import org.dcm4chee.archive.entity.QInstance;
 import org.dcm4chee.archive.entity.QSeries;
 import org.dcm4chee.archive.query.QueryContext;
 import org.dcm4chee.archive.query.util.QueryBuilder;
-import org.hibernate.ScrollableResults;
 import org.hibernate.StatelessSession;
 
 /**
@@ -75,17 +78,17 @@ class InstanceQuery extends AbstractQuery {
     @Override
     protected HibernateQuery<Tuple> newHibernateQuery() {
         HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QInstance.instance);
-        q = QueryBuilder.applyPatientLevelJoins(q,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam());
-        q = QueryBuilder.applyStudyLevelJoins(q,
+        q = QueryBuilder.applyInstanceLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam());
         q = QueryBuilder.applySeriesLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam());
-        q = QueryBuilder.applyInstanceLevelJoins(q,
+        q = QueryBuilder.applyStudyLevelJoins(q,
+                context.getQueryKeys(),
+                context.getQueryParam());
+        q = QueryBuilder.applyPatientLevelJoins(q,
+                context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam());
         BooleanBuilder predicates = new BooleanBuilder();
@@ -106,8 +109,24 @@ class InstanceQuery extends AbstractQuery {
     }
 
     @Override
-    protected Attributes toAttributes(ScrollableResults results) {
-        return null;
+    protected Attributes toAttributes(Tuple results) {
+        Long seriesPk = results.get(QSeries.series.pk);
+        String retrieveAETs = results.get(QInstance.instance.retrieveAETs);
+        Availability availability = results.get(QInstance.instance.availability);
+        if (!seriesPk.equals(this.seriesPk)) {
+            this.seriesAttrs = context.getQueryService()
+                    .getSeriesAttributes(seriesPk, context.getQueryParam());
+            this.seriesPk = seriesPk;
+        }
+        Attributes instAtts = AttributesBlob.decodeAttributes(
+                results.get(QInstance.instance.attributesBlob.encodedAttributes), null);
+        Attributes.unifyCharacterSets(seriesAttrs, instAtts);
+        Attributes attrs = new Attributes(seriesAttrs.size() + instAtts.size() + 2);
+        attrs.addAll(seriesAttrs);
+        attrs.addAll(instAtts);
+        attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+        attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
+        return attrs;
     }
 
     @Override

@@ -117,6 +117,10 @@ public class QueryParam {
         return qrView.getViewID();
     }
 
+    public QueryRetrieveView getQueryRetrieveView() {
+        return qrView;
+    }
+
     public boolean isCombinedDatetimeMatching() {
         return queryOpts.contains(QueryOption.DATETIME);
     }
