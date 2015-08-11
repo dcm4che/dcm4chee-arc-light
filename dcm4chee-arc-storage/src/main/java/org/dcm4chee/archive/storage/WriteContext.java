@@ -41,85 +41,35 @@
 package org.dcm4chee.archive.storage;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
 
 import java.net.URI;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class DefaultStorageContext implements StorageContext {
-    private final Storage storage;
-    private final Attributes attrs;
-    private String storagePath;
-    private long size;
-    private MessageDigest messageDigest;
+public interface WriteContext {
 
-    public DefaultStorageContext(Storage storage, Attributes attrs) {
-        this.storage = storage;
-        this.attrs = attrs;
-    }
+    Storage getStorage();
 
-    @Override
-    public Storage getStorage() {
-        return storage;
-    }
+    Attributes getAttributes();
 
-    @Override
-    public Attributes getAttributes() {
-        return attrs;
-    }
+    String getStoragePath();
 
-    @Override
-    public String getStoragePath() {
-        return storagePath;
-    }
+    void setStoragePath(String storagePath);
 
-    @Override
-    public void setStoragePath(String storagePath) {
-        this.storagePath = storagePath;
-    }
+    long getSize();
 
-    @Override
-    public long getSize() {
-        return size;
-    }
+    void setSize(long size);
 
-    @Override
-    public void setSize(long size) {
-        this.size = size;
-    }
+    void incrementSize(long size);
 
-    @Override
-    public void incrementSize(long size) {
-        this.size += size;
-    }
+    MessageDigest getMessageDigest();
 
-    @Override
-    public MessageDigest getMessageDigest() {
-        return messageDigest;
-    }
+    void setMessageDigest(MessageDigest messageDigest);
 
-    @Override
-    public void setMessageDigest(MessageDigest messageDigest) {
-        this.messageDigest = messageDigest;
-    }
+    void setMessageDigest(String messageAlgorithm);
 
-    @Override
-    public void setMessageDigest(String algorithm) {
-        try {
-            setMessageDigest(algorithm != null ? MessageDigest.getInstance(algorithm) : null);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("No such algorithm: " + algorithm);
-        }
-    }
-
-    @Override
-    public byte[] getDigest() {
-        return messageDigest != null ? messageDigest.digest() : null;
-    }
+    byte[] getDigest();
 }

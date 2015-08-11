@@ -66,18 +66,18 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
-    public StorageContext newStorageContext(Attributes attrs) {
-        StorageContext ctx = newStorageContextA(attrs);
+    public WriteContext createWriteContext(Attributes attrs) {
+        WriteContext ctx = createWriteContextA(attrs);
         ctx.setMessageDigest(descriptor.getDigestAlgorithm());
         return ctx;
     }
 
-    protected StorageContext newStorageContextA(Attributes attrs) {
-        return new DefaultStorageContext(this, attrs);
+    protected WriteContext createWriteContextA(Attributes attrs) {
+        return new DefaultWriteContext(this, attrs);
     }
 
     @Override
-    public OutputStream openOutputStream(final StorageContext ctx) throws IOException {
+    public OutputStream openOutputStream(final WriteContext ctx) throws IOException {
         OutputStream stream = openOutputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
             stream = new DigestOutputStream(stream, ctx.getMessageDigest());
@@ -110,18 +110,18 @@ public abstract class AbstractStorage implements Storage {
         };
     }
 
-    protected abstract OutputStream openOutputStreamA(StorageContext ctx) throws IOException;
+    protected abstract OutputStream openOutputStreamA(WriteContext ctx) throws IOException;
 
-    protected void beforeOutputStreamClosed(StorageContext ctx, OutputStream stream) throws IOException {}
+    protected void beforeOutputStreamClosed(WriteContext ctx, OutputStream stream) throws IOException {}
 
-    protected void afterOutputStreamClosed(StorageContext ctx) throws IOException {}
+    protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {}
 
     @Override
-    public void commitStorage(StorageContext ctx) throws IOException {
+    public void commitStorage(WriteContext ctx) throws IOException {
     }
 
     @Override
-    public void revokeStorage(StorageContext ctx) throws IOException {
+    public void revokeStorage(WriteContext ctx) throws IOException {
         deleteObject(ctx.getStoragePath());
     }
 }

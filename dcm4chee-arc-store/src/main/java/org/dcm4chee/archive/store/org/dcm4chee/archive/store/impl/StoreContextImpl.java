@@ -3,7 +3,7 @@ package org.dcm4chee.archive.store.org.dcm4chee.archive.store.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.archive.entity.Location;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4chee.archive.storage.WriteContext;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreSession;
 
@@ -19,7 +19,7 @@ class StoreContextImpl implements StoreContext {
     private String receiveTranferSyntaxUID;
     private String storeTranferSyntaxUID;
     private Attributes attributes;
-    private StorageContext storageContext;
+    private WriteContext writeContext;
     private String studyInstanceUID;
     private String seriesInstanceUID;
     private Location location;
@@ -99,13 +99,13 @@ class StoreContextImpl implements StoreContext {
     }
 
     @Override
-    public StorageContext getStorageContext() {
-        return storageContext;
+    public WriteContext getWriteContext() {
+        return writeContext;
     }
 
     @Override
-    public void setStorageContext(StorageContext storageContext) {
-        this.storageContext = storageContext;
+    public void setWriteContext(WriteContext writeContext) {
+        this.writeContext = writeContext;
     }
 
 }

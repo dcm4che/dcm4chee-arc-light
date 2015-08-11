@@ -11,7 +11,7 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.archive.entity.*;
 import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4chee.archive.storage.WriteContext;
 import org.dcm4chee.archive.storage.StorageFactory;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreService;
@@ -67,17 +67,17 @@ class StoreServiceImpl implements StoreService {
             location = result.getLocation();
             if (location != null) {
                 Series series = location.getInstance().getSeries();
-                StorageContext storageContext = ctx.getStorageContext();
-                Storage storage = storageContext.getStorage();
-                updateAttributes(storageContext.getAttributes(), series);
-                storage.commitStorage(storageContext);
+                WriteContext writeContext = ctx.getWriteContext();
+                Storage storage = writeContext.getStorage();
+                updateAttributes(writeContext.getAttributes(), series);
+                storage.commitStorage(writeContext);
                 ctx.getStoreSession().setCachedSeries(series);
             }
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         } finally {
             if (location == null) {
-                StorageContext storageContext = ctx.getStorageContext();
+                WriteContext storageContext = ctx.getWriteContext();
                 if (storageContext != null) {
                     Storage storage = storageContext.getStorage();
                     storage.revokeStorage(storageContext);
@@ -127,8 +127,8 @@ class StoreServiceImpl implements StoreService {
                 storeContext.setStoreTranferSyntax(compressionRule.getTransferSyntax());
             }
             Storage storage = getStorage(storeContext);
-            StorageContext storageCtx = storage.newStorageContext(dataset);
-            storeContext.setStorageContext(storageCtx);
+            WriteContext storageCtx = storage.createWriteContext(dataset);
+            storeContext.setWriteContext(storageCtx);
             return storage.openOutputStream(storageCtx);
         }
     }

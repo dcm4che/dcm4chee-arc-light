@@ -5,7 +5,6 @@ import org.dcm4chee.archive.conf.StorageDescriptor;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -14,13 +13,13 @@ import java.net.URI;
 public interface Storage {
     StorageDescriptor getStorageDescriptor();
 
-    StorageContext newStorageContext(Attributes attrs);
+    WriteContext createWriteContext(Attributes attrs);
 
-    OutputStream openOutputStream(StorageContext ctx) throws IOException;
+    OutputStream openOutputStream(WriteContext ctx) throws IOException;
 
-    void commitStorage(StorageContext ctx) throws IOException;
+    void commitStorage(WriteContext ctx) throws IOException;
 
-    void revokeStorage(StorageContext ctx) throws IOException;
+    void revokeStorage(WriteContext ctx) throws IOException;
 
     void deleteObject(String storagePath) throws IOException;
 }

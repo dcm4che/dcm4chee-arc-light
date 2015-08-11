@@ -42,34 +42,81 @@ package org.dcm4chee.archive.storage;
 
 import org.dcm4che3.data.Attributes;
 
-import java.net.URI;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public interface StorageContext {
+public class DefaultWriteContext implements WriteContext {
+    private final Storage storage;
+    private final Attributes attrs;
+    private String storagePath;
+    private long size;
+    private MessageDigest messageDigest;
 
-    Storage getStorage();
+    public DefaultWriteContext(Storage storage, Attributes attrs) {
+        this.storage = storage;
+        this.attrs = attrs;
+    }
 
-    Attributes getAttributes();
+    @Override
+    public Storage getStorage() {
+        return storage;
+    }
 
-    String getStoragePath();
+    @Override
+    public Attributes getAttributes() {
+        return attrs;
+    }
 
-    void setStoragePath(String storagePath);
+    @Override
+    public String getStoragePath() {
+        return storagePath;
+    }
 
-    long getSize();
+    @Override
+    public void setStoragePath(String storagePath) {
+        this.storagePath = storagePath;
+    }
 
-    void setSize(long size);
+    @Override
+    public long getSize() {
+        return size;
+    }
 
-    void incrementSize(long size);
+    @Override
+    public void setSize(long size) {
+        this.size = size;
+    }
 
-    MessageDigest getMessageDigest();
+    @Override
+    public void incrementSize(long size) {
+        this.size += size;
+    }
 
-    void setMessageDigest(MessageDigest messageDigest);
+    @Override
+    public MessageDigest getMessageDigest() {
+        return messageDigest;
+    }
 
-    void setMessageDigest(String messageAlgorithm);
+    @Override
+    public void setMessageDigest(MessageDigest messageDigest) {
+        this.messageDigest = messageDigest;
+    }
 
-    byte[] getDigest();
+    @Override
+    public void setMessageDigest(String algorithm) {
+        try {
+            setMessageDigest(algorithm != null ? MessageDigest.getInstance(algorithm) : null);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException("No such algorithm: " + algorithm);
+        }
+    }
+
+    @Override
+    public byte[] getDigest() {
+        return messageDigest != null ? messageDigest.digest() : null;
+    }
 }

@@ -53,7 +53,7 @@ import org.dcm4chee.archive.issuer.IssuerService;
 import org.dcm4chee.archive.patient.NonUniquePatientException;
 import org.dcm4chee.archive.patient.PatientService;
 import org.dcm4chee.archive.storage.Storage;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4chee.archive.storage.WriteContext;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreSession;
 import org.slf4j.Logger;
@@ -219,7 +219,7 @@ public class StoreServiceEJB {
         instance.setConceptNameCode(findOrCreateCode(attrs, Tag.ConceptNameCodeSequence));
         setContentItems(instance, attrs);
 
-        StorageContext storageContext = ctx.getStorageContext();
+        WriteContext storageContext = ctx.getWriteContext();
         Storage storage = storageContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
         String[] retrieveAETs = descriptor.getRetrieveAETitles();
@@ -236,15 +236,15 @@ public class StoreServiceEJB {
     }
 
     private Location createLocation(StoreContext ctx, Instance instance) {
-        StorageContext storageContext = ctx.getStorageContext();
-        Storage storage = storageContext.getStorage();
+        WriteContext writeContext = ctx.getWriteContext();
+        Storage storage = writeContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
         Location location = new Location.Builder()
                 .storageID(descriptor.getStorageID())
-                .storagePath(storageContext.getStoragePath())
+                .storagePath(writeContext.getStoragePath())
                 .transferSyntaxUID(ctx.getStoreTranferSyntax())
-                .size(storageContext.getSize())
-                .digest(storageContext.getDigest())
+                .size(writeContext.getSize())
+                .digest(writeContext.getDigest())
                 .build();
         location.setInstance(instance);
         em.persist(location);

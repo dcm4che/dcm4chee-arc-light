@@ -40,12 +40,10 @@
 
 package org.dcm4chee.archive.storage.filesystem;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.archive.conf.StorageDescriptor;
 import org.dcm4chee.archive.storage.AbstractStorage;
-import org.dcm4chee.archive.storage.DefaultStorageContext;
-import org.dcm4chee.archive.storage.StorageContext;
+import org.dcm4chee.archive.storage.WriteContext;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -77,7 +75,7 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     @Override
-    protected OutputStream openOutputStreamA(StorageContext ctx) throws IOException {
+    protected OutputStream openOutputStreamA(WriteContext ctx) throws IOException {
         Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
         Path dir = path.getParent();
         Files.createDirectories(dir);
