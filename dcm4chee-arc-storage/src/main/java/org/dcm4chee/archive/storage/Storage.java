@@ -18,5 +18,9 @@ public interface Storage {
 
     OutputStream openOutputStream(StorageContext ctx) throws IOException;
 
+    void commitStorage(StorageContext ctx) throws IOException;
+
+    void revokeStorage(StorageContext ctx) throws IOException;
+
     void deleteObject(String storagePath) throws IOException;
 }

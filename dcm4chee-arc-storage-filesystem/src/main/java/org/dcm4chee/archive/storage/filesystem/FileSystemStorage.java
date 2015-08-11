@@ -77,11 +77,6 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     @Override
-    public StorageContext newStorageContext(Attributes attrs) {
-        return new DefaultStorageContext(this, attrs);
-    }
-
-    @Override
     protected OutputStream openOutputStreamA(StorageContext ctx) throws IOException {
         Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
         Path dir = path.getParent();
@@ -95,12 +90,6 @@ public class FileSystemStorage extends AbstractStorage {
             }
         ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
         return stream;
-    }
-
-    @Override
-    protected void onOutputStreamClosed(StorageContext ctx) throws IOException {
-        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
-        ctx.setSize(Files.size(path));
     }
 
     @Override

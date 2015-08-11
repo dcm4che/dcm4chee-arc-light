@@ -45,6 +45,8 @@ import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.storage.StorageContext;
 
 import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -54,8 +56,8 @@ public class DefaultStorageContext implements StorageContext {
     private final Storage storage;
     private final Attributes attrs;
     private String storagePath;
-    private long size = -1L;
-    private byte[] digest;
+    private long size;
+    private MessageDigest messageDigest;
 
     public DefaultStorageContext(Storage storage, Attributes attrs) {
         this.storage = storage;
@@ -93,12 +95,31 @@ public class DefaultStorageContext implements StorageContext {
     }
 
     @Override
-    public byte[] getDigest() {
-        return digest;
+    public void incrementSize(long size) {
+        this.size += size;
     }
 
     @Override
-    public void setDigest(byte[] digest) {
-        this.digest = digest;
+    public MessageDigest getMessageDigest() {
+        return messageDigest;
+    }
+
+    @Override
+    public void setMessageDigest(MessageDigest messageDigest) {
+        this.messageDigest = messageDigest;
+    }
+
+    @Override
+    public void setMessageDigest(String algorithm) {
+        try {
+            setMessageDigest(algorithm != null ? MessageDigest.getInstance(algorithm) : null);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException("No such algorithm: " + algorithm);
+        }
+    }
+
+    @Override
+    public byte[] getDigest() {
+        return messageDigest != null ? messageDigest.digest() : null;
     }
 }

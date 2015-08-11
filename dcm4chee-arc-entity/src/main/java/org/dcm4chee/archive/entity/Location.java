@@ -54,6 +54,7 @@ import java.util.Date;
 @Table(name = "location")
 public class Location {
 
+
     public enum Status { OK }
 
     @Id
@@ -100,7 +101,7 @@ public class Location {
         private String storagePath;
         private String transferSyntaxUID;
         private long size;
-        private String digest;
+        private byte[] digest;
         private Status status = Status.OK;
 
         public Builder storageID(String storageID) {
@@ -124,7 +125,7 @@ public class Location {
         }
 
         public Builder digest(byte[] digest) {
-            this.digest = digest != null  ? TagUtils.toHexString(digest) : null;
+            this.digest = digest;
             return this;
         }
 
@@ -145,7 +146,7 @@ public class Location {
         storagePath = builder.storagePath;
         transferSyntaxUID = builder.transferSyntaxUID;
         size = builder.size;
-        digest = builder.digest;
+        setDigest(builder.digest);
         status = builder.status;
     }
 
@@ -178,8 +179,12 @@ public class Location {
         return size;
     }
 
-    public String getDigest() {
-        return digest;
+    public byte[] getDigest() {
+        return digest != null ? TagUtils.fromHexString(digest) : null;
+    }
+
+    private void setDigest(byte[] digest) {
+        this.digest = digest != null ? TagUtils.toHexString(digest) : null;
     }
 
     public Status getStatus() {

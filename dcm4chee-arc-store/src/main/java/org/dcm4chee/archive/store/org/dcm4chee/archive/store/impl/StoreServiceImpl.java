@@ -9,7 +9,7 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.archive.entity.Location;
+import org.dcm4chee.archive.entity.*;
 import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.storage.StorageContext;
 import org.dcm4chee.archive.storage.StorageFactory;
@@ -63,15 +63,16 @@ class StoreServiceImpl implements StoreService {
                 transcoder.transcode(new TranscoderHandler(ctx));
             }
 
-            StorageContext storageContext = ctx.getStorageContext();
-            Storage storage = storageContext.getStorage();
-            LOG.info("Stored object on {} at {}",
-                    storage.getStorageDescriptor().getStorageURI(),
-                    storageContext.getStoragePath());
             UpdateDBResult result = ejb.updateDB(ctx);
             location = result.getLocation();
-            if (location != null)
-                ctx.getStoreSession().setCachedSeries(location.getInstance().getSeries());
+            if (location != null) {
+                Series series = location.getInstance().getSeries();
+                StorageContext storageContext = ctx.getStorageContext();
+                Storage storage = storageContext.getStorage();
+                updateAttributes(storageContext.getAttributes(), series);
+                storage.commitStorage(storageContext);
+                ctx.getStoreSession().setCachedSeries(series);
+            }
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         } finally {
@@ -79,11 +80,22 @@ class StoreServiceImpl implements StoreService {
                 StorageContext storageContext = ctx.getStorageContext();
                 if (storageContext != null) {
                     Storage storage = storageContext.getStorage();
-                    LOG.info("Delete object on {} at {}",  storageContext.getStoragePath());
-                    storage.deleteObject(storageContext.getStoragePath());
+                    storage.revokeStorage(storageContext);
                 }
             }
         }
+    }
+
+    private void updateAttributes(Attributes attrs, Series series) {
+        Study study = series.getStudy();
+        Patient patient = study.getPatient();
+        Attributes seriesAttrs = series.getAttributes();
+        Attributes studyAttrs = study.getAttributes();
+        Attributes patAttrs = patient.getAttributes();
+        Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, attrs);
+        attrs.addAll(patAttrs);
+        attrs.addAll(studyAttrs);
+        attrs.addAll(seriesAttrs);
     }
 
     private Storage getStorage(StoreContext ctx) {

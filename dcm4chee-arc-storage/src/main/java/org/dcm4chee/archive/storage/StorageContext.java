@@ -43,6 +43,7 @@ package org.dcm4chee.archive.storage;
 import org.dcm4che3.data.Attributes;
 
 import java.net.URI;
+import java.security.MessageDigest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -62,7 +63,13 @@ public interface StorageContext {
 
     void setSize(long size);
 
-    byte[] getDigest();
+    void incrementSize(long size);
 
-    void setDigest(byte[] digest);
+    MessageDigest getMessageDigest();
+
+    void setMessageDigest(MessageDigest messageDigest);
+
+    void setMessageDigest(String messageAlgorithm);
+
+    byte[] getDigest();
 }

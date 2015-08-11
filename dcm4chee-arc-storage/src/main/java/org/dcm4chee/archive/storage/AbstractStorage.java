@@ -40,14 +40,13 @@
 
 package org.dcm4chee.archive.storage;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.conf.StorageDescriptor;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -67,34 +66,62 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
+    public StorageContext newStorageContext(Attributes attrs) {
+        StorageContext ctx = newStorageContextA(attrs);
+        ctx.setMessageDigest(descriptor.getDigestAlgorithm());
+        return ctx;
+    }
+
+    protected StorageContext newStorageContextA(Attributes attrs) {
+        return new DefaultStorageContext(this, attrs);
+    }
+
+    @Override
     public OutputStream openOutputStream(final StorageContext ctx) throws IOException {
         OutputStream stream = openOutputStreamA(ctx);
-        final MessageDigest digest;
-        String digestAlgorithm = descriptor.getDigestAlgorithm();
-        if (digestAlgorithm == null) {
-            digest = null;
-        } else {
-            try {
-                digest = MessageDigest.getInstance(digestAlgorithm);
-                stream = new DigestOutputStream(stream, digest);
-            } catch (NoSuchAlgorithmException e) {
-                throw new IOException(e);
-            }
+        if (ctx.getMessageDigest() != null) {
+            stream = new DigestOutputStream(stream, ctx.getMessageDigest());
         }
         return new FilterOutputStream(stream) {
             @Override
+            public void write(int b) throws IOException {
+                out.write(b);
+                ctx.incrementSize(1);
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                out.write(b, off, len);
+                ctx.incrementSize(len);
+            }
+
+            @Override
             public void close() throws IOException {
-                super.close();
-                if (digest != null)
-                    ctx.setDigest(digest.digest());
-                onOutputStreamClosed(ctx);
+                try {
+                    beforeOutputStreamClosed(ctx, this);
+                } finally {
+                    try {
+                        super.close();
+                    } finally {
+                        afterOutputStreamClosed(ctx);
+                    }
+                }
             }
         };
     }
 
-    protected void onOutputStreamClosed(StorageContext ctx) throws IOException {
+    protected abstract OutputStream openOutputStreamA(StorageContext ctx) throws IOException;
 
+    protected void beforeOutputStreamClosed(StorageContext ctx, OutputStream stream) throws IOException {}
+
+    protected void afterOutputStreamClosed(StorageContext ctx) throws IOException {}
+
+    @Override
+    public void commitStorage(StorageContext ctx) throws IOException {
     }
 
-    protected abstract OutputStream openOutputStreamA(StorageContext ctx) throws IOException;
+    @Override
+    public void revokeStorage(StorageContext ctx) throws IOException {
+        deleteObject(ctx.getStoragePath());
+    }
 }
