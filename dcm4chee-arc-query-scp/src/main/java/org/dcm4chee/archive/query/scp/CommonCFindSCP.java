@@ -43,13 +43,11 @@ package org.dcm4chee.archive.query.scp;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicCFindSCP;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.QueryTask;
-import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.archive.query.Query;
 import org.dcm4chee.archive.query.QueryContext;
 import org.dcm4chee.archive.query.QueryService;
@@ -62,30 +60,14 @@ import java.util.EnumSet;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-class AbstractCFindSCP extends BasicCFindSCP {
+class CommonCFindSCP extends BasicCFindSCP {
 
-    private static ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
-
-    enum Level {
-        PATIENT(Tag.PatientID),
-        STUDY(Tag.StudyInstanceUID),
-        SERIES(Tag.SeriesInstanceUID),
-        IMAGE(Tag.SOPInstanceUID);
-
-        final int uniqueKey;
-
-        Level(int uniqueKey) {
-            this.uniqueKey = uniqueKey;
-        }
-
-    }
-
-    private final Level[] qrLevels;
+    private final EnumSet<QueryRetrieveLevel2> qrLevels;
 
     @Inject
     private QueryService queryService;
 
-    protected AbstractCFindSCP(String sopClass, Level... qrLevels) {
+    protected CommonCFindSCP(String sopClass, EnumSet<QueryRetrieveLevel2> qrLevels) {
         super(sopClass);
         this.qrLevels = qrLevels;
     }
@@ -94,9 +76,9 @@ class AbstractCFindSCP extends BasicCFindSCP {
     protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
 
-        Level qrLevel = levelOf(keys.getString(Tag.QueryRetrieveLevel));
         EnumSet<QueryOption> queryOpts = queryOpts(as, rq);
-        validateIdentifier(keys, qrLevel, queryOpts);
+        QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(
+                keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
         QueryContext ctx = queryService.newQueryContext(as, queryOpts);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
@@ -121,7 +103,7 @@ class AbstractCFindSCP extends BasicCFindSCP {
         return returnKeys;
     }
 
-    private Query createQuery(Level qrLevel, QueryContext ctx) {
+    private Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx) {
         switch (qrLevel) {
             case PATIENT:
                 return queryService.createPatientQuery(ctx);
@@ -134,54 +116,8 @@ class AbstractCFindSCP extends BasicCFindSCP {
         }
     }
 
-    private void validateIdentifier(Attributes keys, Level qrLevel, EnumSet<QueryOption> queryOpts)
-            throws DicomServiceException {
-        boolean relational = queryOpts.contains(QueryOption.RELATIONAL);
-        if (qrLevel == Level.PATIENT)
-            checkUniqueKey(keys, qrLevel.uniqueKey, true);
-
-        for (int i = 0; qrLevels[i] != qrLevel; i++)
-            checkUniqueKey(keys, qrLevels[i].uniqueKey, relational);
-    }
-
-    private void checkUniqueKey(Attributes keys, int uniqueKey, boolean relational)
-            throws DicomServiceException {
-        String[] ids = keys.getStrings(uniqueKey);
-        if (ids != null && ids.length > 1)
-            throw invalidAttributeValue(uniqueKey, StringUtils.concat(ids, '\\'));
-        if (!relational)
-            if (ids == null || ids.length == 0)
-                throw missingAttribute(uniqueKey);
-    }
-
     private static EnumSet<QueryOption> queryOpts(Association as, Attributes rq) {
         return QueryOption.toOptions(as.getAAssociateAC().getExtNegotiationFor(rq.getString(Tag.AffectedSOPClassUID)));
     }
 
-    private static Level levelOf(String value) throws DicomServiceException {
-        try {
-            return Level.valueOf(value);
-        } catch (NullPointerException e) {
-            throw missingAttribute(Tag.QueryRetrieveLevel);
-        } catch (IllegalArgumentException e) {
-            throw invalidAttributeValue(Tag.QueryRetrieveLevel, value);
-        }
-    }
-
-    private static DicomServiceException missingAttribute(int tag) {
-        return identifierDoesNotMatchSOPClass(
-                "Missing " + DICT.keywordOf(tag) + " " + TagUtils.toString(tag), tag);
-    }
-
-    private static DicomServiceException invalidAttributeValue(int tag, String value) {
-        return identifierDoesNotMatchSOPClass(
-                "Invalid " + DICT.keywordOf(tag) + " " + TagUtils.toString(tag) + " - " + value,
-                Tag.QueryRetrieveLevel);
-    }
-
-    private static DicomServiceException identifierDoesNotMatchSOPClass(String comment, int tag) {
-        return new DicomServiceException(Status.IdentifierDoesNotMatchSOPClass, comment)
-                .setOffendingElements(tag);
-    }
-
-}
+ }

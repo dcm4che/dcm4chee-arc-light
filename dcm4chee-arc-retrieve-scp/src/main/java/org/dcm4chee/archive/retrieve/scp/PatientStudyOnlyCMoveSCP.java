@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.query.scp;
+package org.dcm4chee.archive.retrieve.scp;
 
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.service.DicomService;
@@ -54,10 +54,10 @@ import java.util.EnumSet;
  */
 @ApplicationScoped
 @Typed(DicomService.class)
-public class PatientStudyOnlyCFindSCP extends CommonCFindSCP {
+public class PatientStudyOnlyCMoveSCP extends CommonCMoveSCP {
 
-    public PatientStudyOnlyCFindSCP() {
-        super(UID.PatientStudyOnlyQueryRetrieveInformationModelFINDRetired, EnumSet.of(
+    public PatientStudyOnlyCMoveSCP() {
+        super(UID.PatientStudyOnlyQueryRetrieveInformationModelMOVERetired, EnumSet.of(
                 QueryRetrieveLevel2.PATIENT,
                 QueryRetrieveLevel2.STUDY));
     }

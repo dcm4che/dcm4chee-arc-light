@@ -132,7 +132,7 @@ class StudyQuery extends AbstractQuery {
         Attributes studyAttrs = AttributesBlob.decodeAttributes(
                 results.get(QueryBuilder.studyAttributesBlob.encodedAttributes), null);
         Attributes patAttrs = AttributesBlob.decodeAttributes(
-                results.get(QueryBuilder.seriesAttributesBlob.encodedAttributes), null);
+                results.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         Attributes.unifyCharacterSets(patAttrs, studyAttrs);
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 6);
         attrs.addAll(patAttrs);

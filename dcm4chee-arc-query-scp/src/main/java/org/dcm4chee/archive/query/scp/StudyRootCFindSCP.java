@@ -42,9 +42,11 @@ package org.dcm4chee.archive.query.scp;
 
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.service.DicomService;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
+import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -52,9 +54,12 @@ import javax.enterprise.inject.Typed;
  */
 @ApplicationScoped
 @Typed(DicomService.class)
-public class StudyRootCFindSCP extends AbstractCFindSCP {
+public class StudyRootCFindSCP extends CommonCFindSCP {
 
     public StudyRootCFindSCP() {
-        super(UID.StudyRootQueryRetrieveInformationModelFIND, Level.STUDY, Level.SERIES, Level.IMAGE);
+        super(UID.StudyRootQueryRetrieveInformationModelFIND, EnumSet.of(
+                QueryRetrieveLevel2.STUDY,
+                QueryRetrieveLevel2.SERIES,
+                QueryRetrieveLevel2.IMAGE));
     }
 }

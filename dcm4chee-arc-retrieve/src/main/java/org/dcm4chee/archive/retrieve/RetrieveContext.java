@@ -38,27 +38,11 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.query.scp;
-
-import org.dcm4che3.data.UID;
-import org.dcm4che3.net.service.DicomService;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Typed;
-import java.util.EnumSet;
+package org.dcm4chee.archive.retrieve;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-@ApplicationScoped
-@Typed(DicomService.class)
-public class PatientStudyOnlyCFindSCP extends CommonCFindSCP {
-
-    public PatientStudyOnlyCFindSCP() {
-        super(UID.PatientStudyOnlyQueryRetrieveInformationModelFINDRetired, EnumSet.of(
-                QueryRetrieveLevel2.PATIENT,
-                QueryRetrieveLevel2.STUDY));
-    }
+public interface RetrieveContext {
 }

@@ -63,24 +63,16 @@ import java.util.List;
  */
 public class QueryBuilder {
 
-    public static final QPersonName patientName =
-            new QPersonName("patientName");
-    public static final QPersonName referringPhysicianName =
-            new QPersonName("referringPhysicianName");
-    public static final QPersonName performingPhysicianName =
-            new QPersonName("performingPhysicianName");
-    public static final QPersonName verifyingObserverName =
-            new QPersonName("verifyingObserverName");
-    public static final QPersonName requestingPhysician =
-            new QPersonName("requestingPhysician");
-    public static final QAttributesBlob patientAttributesBlob =
-            new QAttributesBlob("patientAttributesBlob");
-    public static final QAttributesBlob studyAttributesBlob =
-            new QAttributesBlob("studyAttributesBlob");
-    public static final QAttributesBlob seriesAttributesBlob =
-            new QAttributesBlob("seriesAttributesBlob");
-    public static final QAttributesBlob instanceAttributesBlob =
-            new QAttributesBlob("instanceAttributesBlob");
+    public static final QPersonName patientName = new QPersonName("patientName");
+    public static final QPersonName referringPhysicianName = new QPersonName("referringPhysicianName");
+    public static final QPersonName performingPhysicianName = new QPersonName("performingPhysicianName");
+    public static final QPersonName verifyingObserverName = new QPersonName("verifyingObserverName");
+    public static final QPersonName requestingPhysician = new QPersonName("requestingPhysician");
+    public static final QAttributesBlob patientAttributesBlob = new QAttributesBlob("patientAttributesBlob");
+    public static final QAttributesBlob studyAttributesBlob = new QAttributesBlob("studyAttributesBlob");
+    public static final QAttributesBlob seriesAttributesBlob =  new QAttributesBlob("seriesAttributesBlob");
+    public static final QAttributesBlob instanceAttributesBlob = new QAttributesBlob("instanceAttributesBlob");
+    public static final QIssuerEntity patientIDIssuer = new QIssuerEntity("patientIDIssuer");
 
     private QueryBuilder() {}
 
@@ -89,10 +81,10 @@ public class QueryBuilder {
         boolean matchUnknown = queryParam.isMatchUnknown();
         if (!pids.isEmpty()) {
             query = matchUnknown
-                    ? query.leftJoin(QPatient.patient.patientID)
-                    : query.join(QPatient.patient.patientID);
+                    ? query.leftJoin(QPatient.patient.patientID, QPatientID.patientID)
+                    : query.join(QPatient.patient.patientID, QPatientID.patientID);
             if (containsIssuer(pids))
-                query.leftJoin(QPatientID.patientID.issuer);
+                query.leftJoin(QPatientID.patientID.issuer, patientIDIssuer);
         }
         if (!isUniversalMatching(keys.getString(Tag.PatientName)))
             query = matchUnknown
@@ -110,8 +102,7 @@ public class QueryBuilder {
 
         BooleanBuilder result = new BooleanBuilder();
         for (IDWithIssuer pid : pids)
-            result.or(idWithIssuer(QPatient.patient.patientID.id, QPatient.patient.patientID.issuer,
-                    pid.getID(), pid.getIssuer()));
+            result.or(idWithIssuer(QPatient.patient.patientID.id, patientIDIssuer, pid.getID(), pid.getIssuer()));
 
         if (!result.hasValue())
             return null;
