@@ -41,67 +41,37 @@
 package org.dcm4chee.archive.retrieve.scp;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.BasicCGetSCP;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4chee.archive.retrieve.InstanceLocations;
 import org.dcm4chee.archive.retrieve.RetrieveContext;
-import org.dcm4chee.archive.retrieve.RetrieveService;
 import org.dcm4chee.archive.store.scu.CStoreSCU;
-
-import javax.inject.Inject;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-class CommonCGetSCP extends BasicCGetSCP {
+public class ArchiveRetrieveTask implements RetrieveTask {
+    private final Association rqas;
+    private final CStoreSCU storeSCU;
+    private final int msgId;
 
-    private final EnumSet<QueryRetrieveLevel2> qrLevels;
-
-    @Inject
-    private RetrieveService retrieveService;
-
-    @Inject
-    private CStoreSCU storeSCU;
-
-    public CommonCGetSCP(String sopClass, EnumSet<QueryRetrieveLevel2> qrLevels) {
-        super(sopClass);
-        this.qrLevels = qrLevels;
+    public ArchiveRetrieveTask(
+            Association rqas, PresentationContext pc, Attributes rq, CStoreSCU storeSCU, RetrieveContext ctx) {
+        this.rqas = rqas;
+        this.storeSCU = storeSCU;
+        this.msgId = rq.getInt(Tag.MessageID, 0);
     }
 
     @Override
-    protected RetrieveTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
-            throws DicomServiceException {
-        EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
-        QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
-                keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
-        RetrieveContext ctx = retrieveService.newRetrieveContext(as.getApplicationEntity());
-        ctx.setPriority(rq.getInt(Tag.Priority, 0));
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
-            ctx.setPatientIDs(new IDWithIssuer[]{ idWithIssuer });
-        switch (qrLevel) {
-            case IMAGE:
-                ctx.setSopInstanceUIDs(keys.getStrings(Tag.SOPInstanceUID));
-            case SERIES:
-                ctx.setSeriesInstanceUIDs(keys.getStrings(Tag.SeriesInstanceUID));
-            case STUDY:
-                ctx.setStudyInstanceUIDs(keys.getStrings(Tag.StudyInstanceUID));
-        }
-        if (!retrieveService.calculateMatches(ctx))
-            return null;
+    public void onCancelRQ(Association association) {
+    }
 
-        ctx.setStoreAssociation(as);
-        return new ArchiveRetrieveTask(as, pc, rq, storeSCU, ctx);
+    @Override
+    public void run() {
+        rqas.addCancelRQHandler(msgId, this);
+
+
     }
 }

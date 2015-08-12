@@ -40,8 +40,10 @@
 
 package org.dcm4chee.archive.conf.ldap;
 
+import org.dcm4che3.conf.api.ApplicationEntityCache;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.DicomConfiguration;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.ldap.LdapDicomConfiguration;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.audit.LdapAuditLoggerConfiguration;
@@ -112,6 +114,12 @@ public class LdapArchiveConfigurationFactory {
     @ApplicationScoped
     public DicomConfiguration newLdapDicomConfiguration() throws ConfigurationException {
         return newLdapDicomConfiguration(envURL());
+    }
+
+    @Produces
+    @ApplicationScoped
+    public IApplicationEntityCache newApplicationEntityCache(DicomConfiguration conf) {
+        return new ApplicationEntityCache(conf);
     }
 
     private static Properties loadProperties(URL url) throws IOException {

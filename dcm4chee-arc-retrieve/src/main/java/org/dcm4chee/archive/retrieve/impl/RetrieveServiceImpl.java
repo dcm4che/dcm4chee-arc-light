@@ -40,6 +40,10 @@
 
 package org.dcm4chee.archive.retrieve.impl;
 
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.archive.retrieve.RetrieveContext;
 import org.dcm4chee.archive.retrieve.RetrieveService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -50,4 +54,14 @@ import javax.enterprise.context.ApplicationScoped;
  */
 @ApplicationScoped
 public class RetrieveServiceImpl implements RetrieveService {
+    @Override
+    public RetrieveContext newRetrieveContext(ApplicationEntity ae) {
+        return new RetrieveContextImpl(ae);
+    }
+
+    @Override
+    public boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException {
+        //TODO
+        return false;
+    }
 }

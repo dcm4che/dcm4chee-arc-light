@@ -259,11 +259,14 @@
     <module>dcm4chee-arc-query</module>
     <module>dcm4chee-arc-query-scp</module>
     <module>dcm4chee-arc-query-util</module>
+    <module>dcm4chee-arc-retrieve</module>
+    <module>dcm4chee-arc-retrieve-scp</module>
     <module>dcm4chee-arc-service</module>
-    <module>dcm4chee-arc-store</module>
-    <module>dcm4chee-arc-store-scp</module>
     <module>dcm4chee-arc-storage</module>
     <module>dcm4chee-arc-storage-filesystem</module>
+    <module>dcm4chee-arc-store</module>
+    <module>dcm4chee-arc-store-scp</module>
+    <module>dcm4chee-arc-store-scu</module>
     <module>dcm4chee-arc-war</module>
     <module>dcm4chee-arc-ear</module>
   </modules>

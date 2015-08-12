@@ -48,10 +48,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.query.Query;
 import org.dcm4chee.archive.query.QueryContext;
 import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
 import org.hibernate.StatelessSession;
-
-import java.util.NoSuchElementException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

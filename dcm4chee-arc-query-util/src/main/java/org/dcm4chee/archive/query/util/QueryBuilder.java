@@ -77,9 +77,9 @@ public class QueryBuilder {
     private QueryBuilder() {}
 
     public static HibernateQuery<Tuple> applyPatientLevelJoins(
-            HibernateQuery<Tuple> query, Collection<IDWithIssuer> pids, Attributes keys, QueryParam queryParam) {
+            HibernateQuery<Tuple> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         boolean matchUnknown = queryParam.isMatchUnknown();
-        if (!pids.isEmpty()) {
+        if (pids.length > 0) {
             query = matchUnknown
                     ? query.leftJoin(QPatient.patient.patientID, QPatientID.patientID)
                     : query.join(QPatient.patient.patientID, QPatientID.patientID);
@@ -96,8 +96,8 @@ public class QueryBuilder {
 
     }
 
-    public static Predicate patientIDPredicate(Collection<IDWithIssuer> pids, boolean matchUnknown) {
-        if (pids == null || pids.isEmpty())
+    public static Predicate patientIDPredicate(IDWithIssuer[] pids, boolean matchUnknown) {
+        if (pids.length == 0)
             return null;
 
         BooleanBuilder result = new BooleanBuilder();
@@ -111,7 +111,7 @@ public class QueryBuilder {
     }
 
     public static void addPatientLevelPredicates(
-            BooleanBuilder builder, Collection<IDWithIssuer> pids, Attributes keys, QueryParam queryParam) {
+            BooleanBuilder builder, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         boolean matchUnknown = queryParam.isMatchUnknown();
         builder.and(patientIDPredicate(pids, matchUnknown));
         builder.and(MatchPersonName.match(QueryBuilder.patientName, keys.getString(Tag.PatientName, "*"), queryParam));
@@ -313,7 +313,7 @@ public class QueryBuilder {
                 .or(QInstance.instance.conceptNameCode.notIn(codes));
     }
 
-    static boolean containsIssuer(Collection<IDWithIssuer> pids) {
+    static boolean containsIssuer(IDWithIssuer[] pids) {
         for (IDWithIssuer pid : pids)
             if (pid.getIssuer() != null)
                 return true;

@@ -40,9 +40,52 @@
 
 package org.dcm4chee.archive.retrieve;
 
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
+import org.dcm4chee.archive.conf.ArchiveAEExtension;
+
+import java.util.Collection;
+import java.util.Set;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 public interface RetrieveContext {
+    ApplicationEntity getLocalApplicationEntity();
+
+    ArchiveAEExtension getArchiveAEExtension();
+
+    int getPriority();
+
+    void setPriority(int priority);
+
+    int getMoveOriginatorMessageID();
+
+    void setMoveOriginatorMessageID(int moveOriginatorMessageID);
+
+    String getMoveOriginatorAETitle();
+
+    void setMoveOriginatorAETitle(String moveOriginatorAETitle);
+
+    IDWithIssuer[] getPatientIDs();
+
+    void setPatientIDs(IDWithIssuer... patientIDs);
+
+    String[] getStudyInstanceUIDs();
+
+    void setStudyInstanceUIDs(String[] studyInstanceUIDs);
+
+    String[] getSeriesInstanceUIDs();
+
+    void setSeriesInstanceUIDs(String[] seriesInstanceUIDs);
+
+    String[] getSopInstanceUIDs();
+
+    void setSopInstanceUIDs(String... sopInstanceUIDs);
+
+    void setStoreAssociation(Association as);
+
+    Collection<InstanceLocations> getInstances();
 }

@@ -38,43 +38,24 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.query;
+package org.dcm4chee.archive.store.scu;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
-import org.dcm4chee.archive.conf.ArchiveAEExtension;
-import org.dcm4chee.archive.query.util.QueryParam;
+import org.dcm4che3.net.IncompatibleConnectionException;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.archive.retrieve.InstanceLocations;
+import org.dcm4chee.archive.retrieve.RetrieveContext;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Collection;
-import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface QueryContext {
-    Association getAssociation();
-
-    ApplicationEntity getLocalApplicationEntity();
-
-    ArchiveAEExtension getArchiveAEExtension();
-
-    Attributes getQueryKeys();
-
-    void setQueryKeys(Attributes keys);
-
-    QueryParam getQueryParam();
-
-    IDWithIssuer[] getPatientIDs();
-
-    void setPatientIDs(IDWithIssuer... pids);
-
-    QueryService getQueryService();
-
-    Attributes getReturnKeys();
-
-    void setReturnKeys(Attributes returnKeys);
+public interface CStoreSCU {
+    Association openAssociation(RetrieveContext ctx, String destAET) throws DicomServiceException;
 }

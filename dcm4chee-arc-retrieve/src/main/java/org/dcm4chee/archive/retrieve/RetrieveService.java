@@ -40,9 +40,18 @@
 
 package org.dcm4chee.archive.retrieve;
 
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
+import org.dcm4che3.net.service.DicomServiceException;
+
+import java.util.Collection;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 public interface RetrieveService {
+    RetrieveContext newRetrieveContext(ApplicationEntity ae);
+
+    boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException;
 }

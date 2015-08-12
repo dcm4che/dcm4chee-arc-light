@@ -44,16 +44,10 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
 import org.dcm4chee.archive.conf.ArchiveAEExtension;
-import org.dcm4chee.archive.conf.ArchiveDeviceExtension;
 import org.dcm4chee.archive.query.QueryContext;
 import org.dcm4chee.archive.query.QueryService;
 import org.dcm4chee.archive.query.util.QueryParam;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,7 +58,7 @@ class QueryContextImpl implements QueryContext {
     private final ApplicationEntity ae;
     private final QueryParam queryParam;
     private final QueryService queryService;
-    private Collection<IDWithIssuer> patientIDs = Collections.emptySet();
+    private IDWithIssuer[] patientIDs = {};
     private Attributes queryKeys;
     private Attributes returnKeys;
 
@@ -91,12 +85,12 @@ class QueryContextImpl implements QueryContext {
     }
 
     @Override
-    public Collection<IDWithIssuer> getPatientIDs() {
+    public IDWithIssuer[] getPatientIDs() {
         return patientIDs;
     }
 
     @Override
-    public void setPatientIDs(Collection<IDWithIssuer> patientIDs) {
+    public void setPatientIDs(IDWithIssuer... patientIDs) {
         this.patientIDs = patientIDs;
     }
 

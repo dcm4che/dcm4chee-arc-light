@@ -75,14 +75,13 @@ class CommonCFindSCP extends BasicCFindSCP {
     @Override
     protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
-
-        EnumSet<QueryOption> queryOpts = queryOpts(as, rq);
+        EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
         QueryContext ctx = queryService.newQueryContext(as, queryOpts);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
-            ctx.setPatientIDs(Collections.singleton(idWithIssuer));
+            ctx.setPatientIDs(new IDWithIssuer[]{ idWithIssuer });
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
         return new ArchiveQueryTask(as, pc, rq, keys, createQuery(qrLevel, ctx));
@@ -114,10 +113,6 @@ class CommonCFindSCP extends BasicCFindSCP {
             default: // case IMAGE
                 return queryService.createInstanceQuery(ctx);
         }
-    }
-
-    private static EnumSet<QueryOption> queryOpts(Association as, Attributes rq) {
-        return QueryOption.toOptions(as.getAAssociateAC().getExtNegotiationFor(rq.getString(Tag.AffectedSOPClassUID)));
     }
 
  }
