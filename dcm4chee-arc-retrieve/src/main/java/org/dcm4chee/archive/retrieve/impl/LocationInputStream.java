@@ -38,23 +38,38 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve;
+package org.dcm4chee.archive.retrieve.impl;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.entity.Location;
+import org.dcm4chee.archive.storage.ReadContext;
 
-import java.util.List;
+import java.io.InputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface InstanceLocations {
-    String getSopInstanceUID();
+class LocationInputStream {
 
-    String getSopClassUID();
+    private final ReadContext ctx;
+    private final Location location;
+    private final InputStream stream;
 
-    List<Location> getLocations();
+    public LocationInputStream(InputStream stream, ReadContext ctx, Location location) {
+        this.stream = stream;
+        this.ctx = ctx;
+        this.location = location;
+    }
 
-    Attributes getAttributes();
+    public InputStream getInputStream() {
+        return stream;
+    }
+
+    public ReadContext getReadContext() {
+        return ctx;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
 }

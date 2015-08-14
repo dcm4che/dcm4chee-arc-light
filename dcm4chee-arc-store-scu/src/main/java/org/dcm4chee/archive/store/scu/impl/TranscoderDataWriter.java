@@ -38,23 +38,40 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve;
+package org.dcm4chee.archive.store.scu.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.entity.Location;
+import org.dcm4che3.data.AttributesCoercion;
+import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.net.DataWriter;
+import org.dcm4che3.net.PDVOutputStream;
 
-import java.util.List;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface InstanceLocations {
-    String getSopInstanceUID();
+public class TranscoderDataWriter implements DataWriter {
 
-    String getSopClassUID();
+    private final Transcoder transcoder;
+    private final AttributesCoercion coerce;
 
-    List<Location> getLocations();
+    public TranscoderDataWriter(Transcoder transcoder, AttributesCoercion coerce) {
+        this.transcoder = transcoder;
+        this.coerce = coerce;
+    }
 
-    Attributes getAttributes();
+    @Override
+    public void writeTo(final PDVOutputStream out, String tsuid) throws IOException {
+        transcoder.setDestinationTransferSyntax(tsuid);
+        transcoder.transcode(new Transcoder.Handler(){
+            @Override
+            public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
+                coerce.coerce(dataset, null);
+                return out;
+            }
+        });
+    }
 }

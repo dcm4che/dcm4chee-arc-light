@@ -40,26 +40,22 @@
 
 package org.dcm4chee.archive.retrieve.scp;
 
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.IncompatibleConnectionException;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicCMoveSCP;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.archive.retrieve.InstanceLocations;
 import org.dcm4chee.archive.retrieve.RetrieveContext;
 import org.dcm4chee.archive.retrieve.RetrieveService;
 import org.dcm4chee.archive.store.scu.CStoreSCU;
 
 import javax.inject.Inject;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.EnumSet;
 
 /**
@@ -87,25 +83,10 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
-        RetrieveContext ctx = retrieveService.newRetrieveContext(as.getApplicationEntity());
-        ctx.setPriority(rq.getInt(Tag.Priority, 0));
-        ctx.setMoveOriginatorAETitle(as.getRemoteAET());
-        ctx.setMoveOriginatorMessageID(rq.getInt(Tag.MessageID, 0));
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
-            ctx.setPatientIDs(new IDWithIssuer[]{ idWithIssuer });
-        switch (qrLevel) {
-            case IMAGE:
-                ctx.setSopInstanceUIDs(keys.getStrings(Tag.SOPInstanceUID));
-            case SERIES:
-                ctx.setSeriesInstanceUIDs(keys.getStrings(Tag.SeriesInstanceUID));
-            case STUDY:
-                ctx.setStudyInstanceUIDs(keys.getStrings(Tag.StudyInstanceUID));
-        }
+        RetrieveContext ctx = retrieveService.newRetrieveContextMOVE(as, rq, qrLevel, keys);
         if (!retrieveService.calculateMatches(ctx))
             return null;
 
-        ctx.setStoreAssociation(storeSCU.openAssociation(ctx, rq.getString(Tag.MoveDestination)));
-        return new ArchiveRetrieveTask(as, pc, rq, storeSCU, ctx);
+        return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
     }
 }

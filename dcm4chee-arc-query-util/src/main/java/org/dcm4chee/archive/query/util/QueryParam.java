@@ -40,14 +40,12 @@
 
 package org.dcm4chee.archive.query.util;
 
-import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.archive.conf.*;
 import org.dcm4chee.archive.entity.CodeEntity;
-import org.dcm4chee.archive.entity.SeriesQueryAttributes;
 
 import java.util.EnumSet;
 
@@ -72,7 +70,7 @@ public class QueryParam {
     }
 
     public boolean isMatchUnknown() {
-        return arcAE.isEffectiveQueryMatchUnknown();
+        return arcAE.queryMatchUnknown();
     }
 
     public boolean isFuzzySemanticMatching() {
@@ -85,7 +83,7 @@ public class QueryParam {
 
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
-        return arcAE.isEffectivePersonNameComponentOrderInsensitiveMatching();
+        return arcAE.personNameComponentOrderInsensitiveMatching();
     }
 
 

@@ -49,21 +49,12 @@ import java.security.NoSuchAlgorithmException;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class DefaultWriteContext implements WriteContext {
-    private final Storage storage;
-    private final Attributes attrs;
-    private String storagePath;
-    private long size;
-    private MessageDigest messageDigest;
+public class DefaultWriteContext extends DefaultReadContext implements WriteContext{
+    private Attributes attrs;
 
-    public DefaultWriteContext(Storage storage, Attributes attrs) {
-        this.storage = storage;
-        this.attrs = attrs;
-    }
 
-    @Override
-    public Storage getStorage() {
-        return storage;
+    public DefaultWriteContext(Storage storage) {
+        super(storage);
     }
 
     @Override
@@ -72,51 +63,8 @@ public class DefaultWriteContext implements WriteContext {
     }
 
     @Override
-    public String getStoragePath() {
-        return storagePath;
+    public void setAttributes(Attributes attrs) {
+        this.attrs = attrs;
     }
 
-    @Override
-    public void setStoragePath(String storagePath) {
-        this.storagePath = storagePath;
-    }
-
-    @Override
-    public long getSize() {
-        return size;
-    }
-
-    @Override
-    public void setSize(long size) {
-        this.size = size;
-    }
-
-    @Override
-    public void incrementSize(long size) {
-        this.size += size;
-    }
-
-    @Override
-    public MessageDigest getMessageDigest() {
-        return messageDigest;
-    }
-
-    @Override
-    public void setMessageDigest(MessageDigest messageDigest) {
-        this.messageDigest = messageDigest;
-    }
-
-    @Override
-    public void setMessageDigest(String algorithm) {
-        try {
-            setMessageDigest(algorithm != null ? MessageDigest.getInstance(algorithm) : null);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("No such algorithm: " + algorithm);
-        }
-    }
-
-    @Override
-    public byte[] getDigest() {
-        return messageDigest != null ? messageDigest.digest() : null;
-    }
 }

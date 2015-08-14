@@ -40,18 +40,28 @@
 
 package org.dcm4chee.archive.retrieve;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 public interface RetrieveService {
-    RetrieveContext newRetrieveContext(ApplicationEntity ae);
+    RetrieveContext newRetrieveContextGET(
+            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+    RetrieveContext newRetrieveContextMOVE(
+            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
 
-    boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException;
+    boolean calculateMatches(RetrieveContext ctx);
+
+    Transcoder newTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) throws IOException;
 }

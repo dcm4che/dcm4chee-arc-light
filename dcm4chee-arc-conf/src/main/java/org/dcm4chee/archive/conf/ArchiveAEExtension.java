@@ -40,7 +40,6 @@
 
 package org.dcm4chee.archive.conf;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.imageio.codec.CompressionRule;
 import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
@@ -59,6 +58,9 @@ public class ArchiveAEExtension extends AEExtension {
     private String queryRetrieveViewID;
     private Boolean queryMatchUnknown;
     private Boolean personNameComponentOrderInsensitiveMatching;
+    private Boolean sendPendingCGet;
+    private int sendPendingCMoveInterval;
+
     private CompressionRules compressionRules = new CompressionRules();
 
     public String getStorageID() {
@@ -69,7 +71,7 @@ public class ArchiveAEExtension extends AEExtension {
         this.storageID = storageID;
     }
 
-    public String getEffectiveStorageID() {
+    public String storageID() {
         return storageID != null
                 ? storageID
                 : getArchiveDeviceExtension().getStorageID();
@@ -83,14 +85,14 @@ public class ArchiveAEExtension extends AEExtension {
         this.bulkDataSpoolDirectory = bulkDataSpoolDirectory;
     }
 
-    public String getEffectiveBulkDataSpoolDirectory() {
+    public String bulkDataSpoolDirectory() {
         return bulkDataSpoolDirectory != null
                 ? bulkDataSpoolDirectory
                 : getArchiveDeviceExtension().getBulkDataSpoolDirectory();
     }
 
     public File getBulkDataSpoolDirectoryFile() {
-        return fileOf(getEffectiveBulkDataSpoolDirectory());
+        return fileOf(bulkDataSpoolDirectory());
     }
 
     public String getQueryRetrieveViewID() {
@@ -101,7 +103,7 @@ public class ArchiveAEExtension extends AEExtension {
         this.queryRetrieveViewID = queryRetrieveViewID;
     }
 
-    public String getEffectiveQueryRetrieveViewID() {
+    public String queryRetrieveViewID() {
         return queryRetrieveViewID != null
                 ? queryRetrieveViewID
                 : getArchiveDeviceExtension().getQueryRetrieveViewID();
@@ -115,7 +117,7 @@ public class ArchiveAEExtension extends AEExtension {
         this.queryMatchUnknown = queryMatchUnknown;
     }
 
-    public boolean isEffectiveQueryMatchUnknown() {
+    public boolean queryMatchUnknown() {
         return queryMatchUnknown != null
                 ? queryMatchUnknown.booleanValue()
                 : getArchiveDeviceExtension().isQueryMatchUnknown();
@@ -129,12 +131,39 @@ public class ArchiveAEExtension extends AEExtension {
         this.personNameComponentOrderInsensitiveMatching = personNameComponentOrderInsensitiveMatching;
     }
 
-    public boolean isEffectivePersonNameComponentOrderInsensitiveMatching() {
+    public boolean personNameComponentOrderInsensitiveMatching() {
         return personNameComponentOrderInsensitiveMatching != null
                 ? personNameComponentOrderInsensitiveMatching.booleanValue()
                 : getArchiveDeviceExtension().isPersonNameComponentOrderInsensitiveMatching();
     }
 
+    public Boolean getSendPendingCGet() {
+        return sendPendingCGet;
+    }
+
+    public void setSendPendingCGet(Boolean sendPendingCGet) {
+        this.sendPendingCGet = sendPendingCGet;
+    }
+
+    public boolean sendPendingCGet() {
+        return sendPendingCGet != null
+                ? sendPendingCGet.booleanValue()
+                : getArchiveDeviceExtension().isSendPendingCGet();
+    }
+
+    public int getSendPendingCMoveInterval() {
+        return sendPendingCMoveInterval;
+    }
+
+    public void setSendPendingCMoveInterval(int sendPendingCMoveInterval) {
+        this.sendPendingCMoveInterval = sendPendingCMoveInterval;
+    }
+
+    public int sendPendingCMoveInterval() {
+        return sendPendingCMoveInterval > 0
+                ? sendPendingCMoveInterval
+                : getArchiveDeviceExtension().getSendPendingCMoveInterval();
+    }
 
     public CompressionRules getCompressionRules() {
         return compressionRules;
@@ -161,6 +190,8 @@ public class ArchiveAEExtension extends AEExtension {
         queryRetrieveViewID = aeExt.queryRetrieveViewID;
         queryMatchUnknown = aeExt.queryMatchUnknown;
         personNameComponentOrderInsensitiveMatching = aeExt.personNameComponentOrderInsensitiveMatching;
+        sendPendingCGet = aeExt.sendPendingCGet;
+        sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
         compressionRules.clear();
         compressionRules.add(aeExt.compressionRules);
     }
@@ -170,7 +201,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public StorageDescriptor getStorageDescriptor() {
-        return getArchiveDeviceExtension().getStorageDescriptor(getEffectiveStorageID());
+        return getArchiveDeviceExtension().getStorageDescriptor(storageID());
     }
 
     public CompressionRule findCompressionRule(String aeTitle, ImageDescriptor imageDescriptor) {
@@ -185,6 +216,6 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public QueryRetrieveView getQueryRetrieveView() {
-        return getArchiveDeviceExtension().getQueryRetrieveView(getEffectiveQueryRetrieveViewID());
+        return getArchiveDeviceExtension().getQueryRetrieveView(queryRetrieveViewID());
     }
 }

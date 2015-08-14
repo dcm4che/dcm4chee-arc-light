@@ -117,8 +117,7 @@ class StoreServiceImpl implements StoreService {
         }
 
         @Override
-        public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset)
-                throws IOException {
+        public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
             storeContext.setAttributes(dataset);
             CompressionRule compressionRule = selectCompressionRule(transcoder, storeContext);
             if (compressionRule != null) {
@@ -127,7 +126,9 @@ class StoreServiceImpl implements StoreService {
                 storeContext.setStoreTranferSyntax(compressionRule.getTransferSyntax());
             }
             Storage storage = getStorage(storeContext);
-            WriteContext storageCtx = storage.createWriteContext(dataset);
+            WriteContext storageCtx = storage.createWriteContext();
+            storageCtx.setAttributes(dataset);
+            storageCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
             storeContext.setWriteContext(storageCtx);
             return storage.openOutputStream(storageCtx);
         }

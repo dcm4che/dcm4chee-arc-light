@@ -1,6 +1,8 @@
 package org.dcm4chee.archive.conf;
 
 import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +45,20 @@ public final class StorageDescriptor {
     }
 
     public void setDigestAlgorithm(String digestAlgorithm) {
+        getMessageDigest(digestAlgorithm);
         this.digestAlgorithm = digestAlgorithm;
+    }
+
+    public MessageDigest getMessageDigest() {
+        return getMessageDigest(digestAlgorithm);
+    }
+
+    private static MessageDigest getMessageDigest(String algorithm) {
+        try {
+            return algorithm != null ? MessageDigest.getInstance(algorithm) : null;
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException("No such algorithm: " + algorithm);
+        }
     }
 
     public String[] getRetrieveAETitles() {

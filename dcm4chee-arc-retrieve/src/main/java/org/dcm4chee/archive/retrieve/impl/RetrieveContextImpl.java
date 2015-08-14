@@ -43,36 +43,58 @@ package org.dcm4chee.archive.retrieve.impl;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Priority;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.archive.conf.ArchiveAEExtension;
+import org.dcm4chee.archive.conf.QueryRetrieveView;
+import org.dcm4chee.archive.entity.CodeEntity;
 import org.dcm4chee.archive.retrieve.InstanceLocations;
 import org.dcm4chee.archive.retrieve.RetrieveContext;
+import org.dcm4chee.archive.retrieve.RetrieveService;
+import org.dcm4chee.archive.storage.Storage;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 public class RetrieveContextImpl implements RetrieveContext {
+    private final RetrieveService retrieveService;
     private final ApplicationEntity ae;
-    private IDWithIssuer[] patientIDs;
-    private String[] studyInstanceUIDs;
-    private String[] seriesInstanceUIDs;
-    private String[] sopInstanceUIDs;
-    private Collection<InstanceLocations> instances;
-    private final ArrayList<InstanceLocations> completed = new ArrayList<>();
-    private final ArrayList<InstanceLocations> failed = new ArrayList<>();
-    private final ArrayList<InstanceLocations> warning = new ArrayList<>();
-    private int priority;
+    private final QueryRetrieveView qrView;
+    private int priority = Priority.NORMAL;
     private int moveOriginatorMessageID;
     private String moveOriginatorAETitle;
-    private Association as;
+    private String destinationAETitle;
+    private IDWithIssuer[] patientIDs = {};
+    private String[] studyInstanceUIDs = {};
+    private String[] seriesInstanceUIDs = {};
+    private String[] sopInstanceUIDs = {};
+    private Collection<InstanceLocations> matches;
+    private final AtomicInteger completed = new AtomicInteger();
+    private final AtomicInteger warning = new AtomicInteger();
+    private final Collection<String> failedSOPInstanceUIDs =
+            Collections.synchronizedCollection(new ArrayList<String>());
+    private final HashMap<String, Storage> storageMap = new HashMap<>();
+    private CodeEntity[] showInstancesRejectedByCode = {};
+    private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
-    public RetrieveContextImpl(ApplicationEntity ae) {
+    public RetrieveContextImpl(RetrieveService retrieveService, ApplicationEntity ae) {
+        this.retrieveService = retrieveService;
         this.ae = ae;
+        this.qrView = getArchiveAEExtension().getQueryRetrieveView();
+    }
+
+    @Override
+    public RetrieveService getRetrieveService() {
+        return retrieveService;
     }
 
     @Override
@@ -83,6 +105,16 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public ArchiveAEExtension getArchiveAEExtension() {
         return ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    @Override
+    public QueryRetrieveView getQueryRetrieveView() {
+        return qrView;
+    }
+
+    @Override
+    public boolean isHideNotRejectedInstances() {
+        return qrView.isHideNotRejectedInstances();
     }
 
     @Override
@@ -116,13 +148,23 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public String getDestinationAETitle() {
+        return destinationAETitle;
+    }
+
+    @Override
+    public void setDestinationAETitle(String destinationAETitle) {
+        this.destinationAETitle = destinationAETitle;
+    }
+
+    @Override
     public IDWithIssuer[] getPatientIDs() {
         return patientIDs;
     }
 
     @Override
     public void setPatientIDs(IDWithIssuer... patientIDs) {
-        this.patientIDs = patientIDs;
+        this.patientIDs = patientIDs != null ? patientIDs : IDWithIssuer.EMPTY;
     }
 
     @Override
@@ -131,8 +173,8 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public void setStudyInstanceUIDs(String[] studyInstanceUIDs) {
-        this.studyInstanceUIDs = studyInstanceUIDs;
+    public void setStudyInstanceUIDs(String... studyInstanceUIDs) {
+        this.studyInstanceUIDs = studyInstanceUIDs != null ? studyInstanceUIDs : StringUtils.EMPTY_STRING;
     }
 
     @Override
@@ -141,8 +183,8 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public void setSeriesInstanceUIDs(String[] seriesInstanceUIDs) {
-        this.seriesInstanceUIDs = seriesInstanceUIDs;
+    public void setSeriesInstanceUIDs(String... seriesInstanceUIDs) {
+        this.seriesInstanceUIDs = seriesInstanceUIDs != null ? seriesInstanceUIDs : StringUtils.EMPTY_STRING;
     }
 
     @Override
@@ -151,59 +193,97 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public void setSopInstanceUIDs(String[] sopInstanceUIDs) {
-        this.sopInstanceUIDs = sopInstanceUIDs;
+    public void setSopInstanceUIDs(String... sopInstanceUIDs) {
+        this.sopInstanceUIDs = sopInstanceUIDs != null ? sopInstanceUIDs : StringUtils.EMPTY_STRING;
     }
 
     @Override
-    public void setStoreAssociation(Association as) {
-        this.as = as;
+    public Collection<InstanceLocations> getMatches() {
+        return matches;
     }
 
     @Override
-    public Collection<InstanceLocations> getInstances() {
-        return instances;
+    public void setMatches(Collection<InstanceLocations> matches) {
+        this.matches = matches;
     }
 
-    void setInstances(Collection<InstanceLocations> instances) {
-        this.instances = instances;
+    @Override
+    public int completed() {
+        return completed.get();
     }
 
-    public void addCompleted(InstanceLocations inst) {
-        completed.add(inst);
+    @Override
+    public void incrementCompleted() {
+        completed.incrementAndGet();
     }
 
-    public void addWarning(InstanceLocations inst) {
-        warning.add(inst);
+    @Override
+    public int warning() {
+        return warning.get();
     }
 
-    public void addFailed(InstanceLocations inst) {
-        failed.add(inst);
+    @Override
+    public void incrementWarning() {
+        warning.incrementAndGet();
     }
 
-    public int getNumberOfRemainingSubOperations() {
-        return instances != null ? instances.size() - completed.size() - warning.size() - failed.size() : -1;
+    @Override
+    public int failed() {
+        return failedSOPInstanceUIDs.size();
     }
 
-    public int getNumberOfCompletedSubOperations() {
-        return completed.size();
+    @Override
+    public void addFailedSOPInstanceUID(String iuid) {
+        failedSOPInstanceUIDs.add(iuid);
     }
 
-    public int getNumberOfWarningSubOperations() {
-        return warning.size();
+    @Override
+    public String[] failedSOPInstanceUIDs() {
+        return failedSOPInstanceUIDs.toArray(StringUtils.EMPTY_STRING);
     }
 
-    public int getNumberOfFailedSubOperations() {
-        return failed.size();
+    @Override
+    public int remaining() {
+        Collection<InstanceLocations> tmp = matches;
+        return tmp != null ?  tmp.size() - completed() - warning() - failed() : -1;
     }
 
-    public String[] getFailedSOPInstanceUIDs() {
-        if (failed.isEmpty())
-            return StringUtils.EMPTY_STRING;
+    @Override
+    public int status() {
+        return (failed() == 0 && warning() == 0)
+                ? Status.Success
+                : (completed() == 0 && warning() == 0)
+                ? Status.UnableToPerformSubOperations
+                : Status.OneOrMoreFailures;
+    }
 
-        String[] uids = new String[failed.size()];
-        for (int i = 0; i < uids.length; i++)
-            uids[i] = failed.get(i).getSopInstanceUID();
-        return uids;
+    @Override
+    public Storage getStorage(String storageID) {
+        return storageMap.get(storageID);
+    }
+
+    @Override
+    public void putStorage(String storageID, Storage storage) {
+        storageMap.put(storageID, storage);
+    }
+
+    @Override
+    public CodeEntity[] getShowInstancesRejectedByCode() {
+        return showInstancesRejectedByCode;
+    }
+
+    @Override
+    public void setShowInstancesRejectedByCode(CodeEntity[] showInstancesRejectedByCode) {
+        this.showInstancesRejectedByCode = showInstancesRejectedByCode;
+    }
+
+    @Override
+    public CodeEntity[] getHideRejectionNotesWithCode() {
+        return hideRejectionNotesWithCode;
+    }
+
+    @Override
+    public void setHideRejectionNotesWithCode(CodeEntity[] hideRejectionNotesWithCode) {
+        this.hideRejectionNotesWithCode = hideRejectionNotesWithCode;
     }
 }

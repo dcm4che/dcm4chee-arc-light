@@ -40,16 +40,14 @@
 
 package org.dcm4chee.archive.store.scu;
 
-import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.IncompatibleConnectionException;
+import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.archive.retrieve.InstanceLocations;
 import org.dcm4chee.archive.retrieve.RetrieveContext;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collection;
 
 /**
@@ -57,5 +55,7 @@ import java.util.Collection;
  * @since Aug 2015
  */
 public interface CStoreSCU {
-    Association openAssociation(RetrieveContext ctx, String destAET) throws DicomServiceException;
+    RetrieveTask newRetrieveTaskMOVE(Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx) throws DicomServiceException;
+
+    RetrieveTask newRetrieveTaskGET(Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx) throws DicomServiceException;
 }

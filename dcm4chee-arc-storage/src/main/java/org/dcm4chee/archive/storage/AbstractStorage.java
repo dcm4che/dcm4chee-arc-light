@@ -43,10 +43,11 @@ package org.dcm4chee.archive.storage;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.conf.StorageDescriptor;
 
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -66,14 +67,13 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
-    public WriteContext createWriteContext(Attributes attrs) {
-        WriteContext ctx = createWriteContextA(attrs);
-        ctx.setMessageDigest(descriptor.getDigestAlgorithm());
-        return ctx;
+    public WriteContext createWriteContext() {
+        return new DefaultWriteContext(this);
     }
 
-    protected WriteContext createWriteContextA(Attributes attrs) {
-        return new DefaultWriteContext(this, attrs);
+    @Override
+    public ReadContext createReadContext() {
+        return new DefaultReadContext(this);
     }
 
     @Override
@@ -124,4 +124,61 @@ public abstract class AbstractStorage implements Storage {
     public void revokeStorage(WriteContext ctx) throws IOException {
         deleteObject(ctx.getStoragePath());
     }
+
+    @Override
+    public InputStream openInputStream(final ReadContext ctx) throws IOException {
+        InputStream stream = openInputStreamA(ctx);
+        if (ctx.getMessageDigest() != null) {
+            stream = new DigestInputStream(stream, ctx.getMessageDigest());
+        }
+        return new FilterInputStream(stream) {
+            @Override
+            public int read() throws IOException {
+                int read = in.read();
+                if (read >= 0)
+                    ctx.incrementSize(1);
+                return read;
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                int read = in.read(b, off, len);
+                if (read > 0)
+                    ctx.incrementSize(read);
+                return read;
+            }
+
+            @Override
+            public long skip(long n) throws IOException {
+                long skip = in.skip(n);
+                ctx.incrementSize(skip);
+                return skip;
+            }
+
+            @Override
+            public boolean markSupported() {
+                return false;
+            }
+
+            @Override
+            public void close() throws IOException {
+                try {
+                    beforeInputStreamClosed(ctx, this);
+                } finally {
+                    try {
+                        super.close();
+                    } finally {
+                        afterInputStreamClosed(ctx);
+                    }
+                }
+            }
+        };
+    }
+
+    protected abstract InputStream openInputStreamA(ReadContext ctx) throws IOException;
+
+    protected void beforeInputStreamClosed(ReadContext ctx, InputStream stream)  throws IOException {}
+
+    protected void afterInputStreamClosed(ReadContext ctx)  throws IOException {}
+
 }

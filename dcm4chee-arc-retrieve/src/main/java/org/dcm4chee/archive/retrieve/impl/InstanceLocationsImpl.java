@@ -38,40 +38,48 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve.scp;
+package org.dcm4chee.archive.retrieve.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4chee.archive.retrieve.RetrieveContext;
-import org.dcm4chee.archive.store.scu.CStoreSCU;
+import org.dcm4chee.archive.entity.Location;
+import org.dcm4chee.archive.retrieve.InstanceLocations;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public class ArchiveRetrieveTask implements RetrieveTask {
-    private final Association rqas;
-    private final CStoreSCU storeSCU;
-    private final int msgId;
+public class InstanceLocationsImpl implements InstanceLocations {
+    private final String sopClassUID;
+    private final String sopInstanceUID;
+    private final Attributes attributes;
+    private final ArrayList<Location> locations = new ArrayList<>();
 
-    public ArchiveRetrieveTask(
-            Association rqas, PresentationContext pc, Attributes rq, CStoreSCU storeSCU, RetrieveContext ctx) {
-        this.rqas = rqas;
-        this.storeSCU = storeSCU;
-        this.msgId = rq.getInt(Tag.MessageID, 0);
+    public InstanceLocationsImpl(String sopClassUID, String sopInstanceUID, Attributes attributes) {
+        this.sopClassUID = sopClassUID;
+        this.sopInstanceUID = sopInstanceUID;
+        this.attributes = attributes;
     }
 
     @Override
-    public void onCancelRQ(Association association) {
+    public String getSopInstanceUID() {
+        return sopInstanceUID;
     }
 
     @Override
-    public void run() {
-        rqas.addCancelRQHandler(msgId, this);
+    public String getSopClassUID() {
+        return sopClassUID;
+    }
 
+    @Override
+    public List<Location> getLocations() {
+        return locations;
+    }
 
+    @Override
+    public Attributes getAttributes() {
+        return attributes;
     }
 }

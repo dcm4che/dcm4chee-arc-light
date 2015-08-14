@@ -41,7 +41,6 @@
 package org.dcm4chee.archive.retrieve.scp;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
@@ -57,7 +56,6 @@ import org.dcm4chee.archive.store.scu.CStoreSCU;
 
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 
 /**
@@ -85,23 +83,10 @@ class CommonCGetSCP extends BasicCGetSCP {
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
-        RetrieveContext ctx = retrieveService.newRetrieveContext(as.getApplicationEntity());
-        ctx.setPriority(rq.getInt(Tag.Priority, 0));
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
-            ctx.setPatientIDs(new IDWithIssuer[]{ idWithIssuer });
-        switch (qrLevel) {
-            case IMAGE:
-                ctx.setSopInstanceUIDs(keys.getStrings(Tag.SOPInstanceUID));
-            case SERIES:
-                ctx.setSeriesInstanceUIDs(keys.getStrings(Tag.SeriesInstanceUID));
-            case STUDY:
-                ctx.setStudyInstanceUIDs(keys.getStrings(Tag.StudyInstanceUID));
-        }
+        RetrieveContext ctx = retrieveService.newRetrieveContextGET(as, rq, qrLevel, keys);
         if (!retrieveService.calculateMatches(ctx))
             return null;
 
-        ctx.setStoreAssociation(as);
-        return new ArchiveRetrieveTask(as, pc, rq, storeSCU, ctx);
+        return storeSCU.newRetrieveTaskGET(as, pc, rq, ctx);
     }
 }

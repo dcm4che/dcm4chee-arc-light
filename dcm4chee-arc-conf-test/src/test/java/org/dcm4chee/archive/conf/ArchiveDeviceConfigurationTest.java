@@ -137,6 +137,8 @@ public class ArchiveDeviceConfigurationTest {
         assertNotNull(actual);
         assertEquals(expected.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID),
                 actual.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID));
+        assertEquals(expected.isSendPendingCGet(), actual.isQueryMatchUnknown());
+        assertEquals(expected.getSendPendingCMoveInterval(), actual.getSendPendingCMoveInterval());
     }
 
     private void cleanUp() throws Exception {

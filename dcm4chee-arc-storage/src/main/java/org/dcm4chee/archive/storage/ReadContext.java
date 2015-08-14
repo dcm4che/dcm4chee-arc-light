@@ -38,23 +38,30 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve;
+package org.dcm4chee.archive.storage;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.archive.entity.Location;
-
-import java.util.List;
+import java.security.MessageDigest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface InstanceLocations {
-    String getSopInstanceUID();
+public interface ReadContext {
+    Storage getStorage();
 
-    String getSopClassUID();
+    String getStoragePath();
 
-    List<Location> getLocations();
+    void setStoragePath(String storagePath);
 
-    Attributes getAttributes();
+    long getSize();
+
+    void setSize(long size);
+
+    void incrementSize(long size);
+
+    MessageDigest getMessageDigest();
+
+    void setMessageDigest(MessageDigest messageDigest);
+
+    byte[] getDigest();
 }

@@ -4,6 +4,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4chee.archive.conf.StorageDescriptor;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -13,7 +14,9 @@ import java.io.OutputStream;
 public interface Storage {
     StorageDescriptor getStorageDescriptor();
 
-    WriteContext createWriteContext(Attributes attrs);
+    WriteContext createWriteContext();
+
+    ReadContext createReadContext();
 
     OutputStream openOutputStream(WriteContext ctx) throws IOException;
 
@@ -22,4 +25,6 @@ public interface Storage {
     void revokeStorage(WriteContext ctx) throws IOException;
 
     void deleteObject(String storagePath) throws IOException;
+
+    InputStream openInputStream(ReadContext ctx) throws IOException;
 }

@@ -38,89 +38,68 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.query.impl;
+package org.dcm4chee.archive.storage;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4chee.archive.conf.ArchiveAEExtension;
-import org.dcm4chee.archive.query.QueryContext;
-import org.dcm4chee.archive.query.QueryService;
-import org.dcm4chee.archive.query.util.QueryParam;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-class QueryContextImpl implements QueryContext {
-    private final Association as;
-    private final ApplicationEntity ae;
-    private final QueryParam queryParam;
-    private final QueryService queryService;
-    private IDWithIssuer[] patientIDs = {};
-    private Attributes queryKeys;
-    private Attributes returnKeys;
+public class DefaultReadContext implements ReadContext {
 
-    public QueryContextImpl(Association as, QueryParam queryParam, QueryService queryService) {
-        this.as = as;
-        this.ae = as.getApplicationEntity();
-        this.queryService = queryService;
-        this.queryParam = queryParam;
+    private final Storage storage;
+    private String storagePath;
+    private long size;
+    private MessageDigest messageDigest;
+
+    public DefaultReadContext(Storage storage) {
+        this.storage = storage;
     }
 
     @Override
-    public Association getAssociation() {
-        return as;
+    public Storage getStorage() {
+        return storage;
     }
 
     @Override
-    public ApplicationEntity getLocalApplicationEntity() {
-        return ae;
+    public String getStoragePath() {
+        return storagePath;
     }
 
     @Override
-    public ArchiveAEExtension getArchiveAEExtension() {
-        return ae.getAEExtension(ArchiveAEExtension.class);
+    public void setStoragePath(String storagePath) {
+        this.storagePath = storagePath;
     }
 
     @Override
-    public IDWithIssuer[] getPatientIDs() {
-        return patientIDs;
+    public long getSize() {
+        return size;
     }
 
     @Override
-    public void setPatientIDs(IDWithIssuer... patientIDs) {
-        this.patientIDs = patientIDs != null ? patientIDs : IDWithIssuer.EMPTY;
+    public void setSize(long size) {
+        this.size = size;
     }
 
     @Override
-    public QueryService getQueryService() {
-        return queryService;
+    public void incrementSize(long size) {
+        this.size += size;
     }
 
     @Override
-    public Attributes getReturnKeys() {
-        return returnKeys;
+    public MessageDigest getMessageDigest() {
+        return messageDigest;
     }
 
     @Override
-    public void setReturnKeys(Attributes returnKeys) {
-        this.returnKeys = returnKeys;
+    public void setMessageDigest(MessageDigest messageDigest) {
+        this.messageDigest = messageDigest;
     }
 
     @Override
-    public Attributes getQueryKeys() {
-        return queryKeys;
-    }
-
-    @Override
-    public void setQueryKeys(Attributes keys) {
-        this.queryKeys = keys;
-    }
-
-    @Override
-    public QueryParam getQueryParam() {
-        return queryParam;
+    public byte[] getDigest() {
+        return messageDigest != null ? messageDigest.digest() : null;
     }
 }

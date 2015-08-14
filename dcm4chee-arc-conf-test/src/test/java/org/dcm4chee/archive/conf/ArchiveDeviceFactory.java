@@ -739,6 +739,8 @@ class ArchiveDeviceFactory {
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
         ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);
+        ext.setSendPendingCGet(true);
+        ext.setSendPendingCMoveInterval(5);
 
         ext.setAttributeFilter(Entity.Patient,
                 new AttributeFilter(PATIENT_ATTRS));

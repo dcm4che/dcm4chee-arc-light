@@ -42,12 +42,16 @@ package org.dcm4chee.archive.store.scu.impl;
 
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.AAssociateRQ;
+import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.archive.entity.Location;
 import org.dcm4chee.archive.retrieve.InstanceLocations;
 import org.dcm4chee.archive.retrieve.RetrieveContext;
@@ -55,6 +59,7 @@ import org.dcm4chee.archive.store.scu.CStoreSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Collection;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -66,14 +71,15 @@ public class CStoreSCUImpl implements CStoreSCU {
     @Inject
     private IApplicationEntityCache aeCache;
 
-    @Override
-    public Association openAssociation(RetrieveContext ctx, String destAET) throws DicomServiceException {
+    private Association openAssociation(RetrieveContext ctx)
+            throws DicomServiceException {
         try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(destAET);
+            ApplicationEntity remoteAE = aeCache.findApplicationEntity(ctx.getDestinationAETitle());
             ApplicationEntity localAE = ctx.getLocalApplicationEntity();
             return localAE.connect(remoteAE, createAARQ(ctx));
         } catch (ConfigurationNotFoundException e) {
-            throw new DicomServiceException(Status.MoveDestinationUnknown, "Unknown Destination: " + destAET);
+            throw new DicomServiceException(Status.MoveDestinationUnknown,
+                    "Unknown Destination: " + ctx.getDestinationAETitle());
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
@@ -81,7 +87,7 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     private AAssociateRQ createAARQ(RetrieveContext ctx) {
         AAssociateRQ aarq = new AAssociateRQ();
-        for (InstanceLocations inst : ctx.getInstances()) {
+        for (InstanceLocations inst : ctx.getMatches()) {
             String cuid = inst.getSopClassUID();
             if (!aarq.containsPresentationContextFor(cuid)) {
                 aarq.addPresentationContextFor(cuid, UID.ImplicitVRLittleEndian);
@@ -89,12 +95,25 @@ public class CStoreSCUImpl implements CStoreSCU {
             }
             for (Location location : inst.getLocations()) {
                 String tsuid = location.getTransferSyntaxUID();
-                if (tsuid != null &&
-                        !tsuid.equals(UID.ImplicitVRLittleEndian) &&
+                if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
                         !tsuid.equals(UID.ExplicitVRLittleEndian))
                     aarq.addPresentationContextFor(cuid, tsuid);
             }
         }
         return aarq;
+    }
+
+    @Override
+    public RetrieveTask newRetrieveTaskMOVE(
+            Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
+            throws DicomServiceException {
+        return new RetrieveTaskImpl(as, openAssociation(ctx), pc, rq, ctx);
+    }
+
+    @Override
+    public RetrieveTask newRetrieveTaskGET(
+            Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
+            throws DicomServiceException {
+        return new RetrieveTaskImpl(as, as, pc, rq, ctx);
     }
 }

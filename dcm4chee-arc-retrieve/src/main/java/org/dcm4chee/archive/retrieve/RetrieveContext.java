@@ -44,6 +44,9 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4chee.archive.conf.ArchiveAEExtension;
+import org.dcm4chee.archive.conf.QueryRetrieveView;
+import org.dcm4chee.archive.entity.CodeEntity;
+import org.dcm4chee.archive.storage.Storage;
 
 import java.util.Collection;
 import java.util.Set;
@@ -53,9 +56,15 @@ import java.util.Set;
  * @since Aug 2015
  */
 public interface RetrieveContext {
+    RetrieveService getRetrieveService();
+
     ApplicationEntity getLocalApplicationEntity();
 
     ArchiveAEExtension getArchiveAEExtension();
+
+    QueryRetrieveView getQueryRetrieveView();
+
+    boolean isHideNotRejectedInstances();
 
     int getPriority();
 
@@ -69,23 +78,57 @@ public interface RetrieveContext {
 
     void setMoveOriginatorAETitle(String moveOriginatorAETitle);
 
+    String getDestinationAETitle();
+
+    void setDestinationAETitle(String destinationAETitle);
+
     IDWithIssuer[] getPatientIDs();
 
     void setPatientIDs(IDWithIssuer... patientIDs);
 
     String[] getStudyInstanceUIDs();
 
-    void setStudyInstanceUIDs(String[] studyInstanceUIDs);
+    void setStudyInstanceUIDs(String... studyInstanceUIDs);
 
     String[] getSeriesInstanceUIDs();
 
-    void setSeriesInstanceUIDs(String[] seriesInstanceUIDs);
+    void setSeriesInstanceUIDs(String... seriesInstanceUIDs);
 
     String[] getSopInstanceUIDs();
 
     void setSopInstanceUIDs(String... sopInstanceUIDs);
 
-    void setStoreAssociation(Association as);
+    Collection<InstanceLocations> getMatches();
 
-    Collection<InstanceLocations> getInstances();
+    void setMatches(Collection<InstanceLocations> matches);
+
+    int completed();
+
+    void incrementCompleted();
+
+    int warning();
+
+    void incrementWarning();
+
+    int failed();
+
+    void addFailedSOPInstanceUID(String iuid);
+
+    String[] failedSOPInstanceUIDs();
+
+    int remaining();
+
+    int status();
+
+    Storage getStorage(String storageID);
+
+    void putStorage(String storageID, Storage storage);
+
+    CodeEntity[] getShowInstancesRejectedByCode();
+
+    void setShowInstancesRejectedByCode(CodeEntity[] showInstancesRejectedByCode);
+
+    CodeEntity[] getHideRejectionNotesWithCode();
+
+    void setHideRejectionNotesWithCode(CodeEntity[] hideRejectionNotesWithCode);
 }

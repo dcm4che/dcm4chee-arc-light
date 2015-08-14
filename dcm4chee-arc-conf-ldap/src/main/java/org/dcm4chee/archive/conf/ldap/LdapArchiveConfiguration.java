@@ -79,6 +79,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmQueryMatchUnknown", ext.isQueryMatchUnknown(), true);
         LdapUtils.storeNotDef(attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
                 ext.isPersonNameComponentOrderInsensitiveMatching(), false);
+        LdapUtils.storeNotDef(attrs, "dcmSendPendingCGet", ext.isSendPendingCGet(), false);
+        LdapUtils.storeNotDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), 0);
     }
 
     @Override
@@ -95,6 +97,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQueryMatchUnknown(LdapUtils.booleanValue(attrs.get("dcmQueryMatchUnknown"), true));
         ext.setPersonNameComponentOrderInsensitiveMatching(
                 LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), false));
+        ext.setSendPendingCGet(LdapUtils.booleanValue(attrs.get("dcmSendPendingCGet"), false));
+        ext.setSendPendingCMoveInterval(LdapUtils.intValue(attrs.get("dcmSendPendingCMoveInterval"), 0));
     }
 
     @Override
@@ -114,6 +118,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isPersonNameComponentOrderInsensitiveMatching(),
                 bb.isPersonNameComponentOrderInsensitiveMatching(),
                 false);
+        LdapUtils.storeDiff(mods, "dcmSendPendingCGet", aa.isSendPendingCGet(), bb.isSendPendingCGet(), false);
+        LdapUtils.storeDiff(mods, "dcmSendPendingCMoveInterval",
+                aa.getSendPendingCMoveInterval(),
+                bb.getSendPendingCMoveInterval(),
+                0);
     }
 
     @Override
@@ -172,6 +181,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmQueryMatchUnknown", ext.getQueryMatchUnknown());
         LdapUtils.storeNotNull(attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
                 ext.getPersonNameComponentOrderInsensitiveMatching());
+        LdapUtils.storeNotNull(attrs, "dcmSendPendingCGet", ext.getSendPendingCGet());
+        LdapUtils.storeNotDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), 0);
     }
 
     @Override
@@ -187,6 +198,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQueryMatchUnknown(LdapUtils.booleanValue(attrs.get("dcmQueryMatchUnknown"), null));
         ext.setPersonNameComponentOrderInsensitiveMatching(
                 LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), null));
+        ext.setSendPendingCGet(LdapUtils.booleanValue(attrs.get("dcmSendPendingCGet"), null));
+        ext.setSendPendingCMoveInterval(LdapUtils.intValue(attrs.get("dcmSendPendingCMoveInterval"), 0));
     }
 
     @Override
@@ -204,6 +217,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmPersonNameComponentOrderInsensitiveMatching",
                 aa.getPersonNameComponentOrderInsensitiveMatching(),
                 bb.getPersonNameComponentOrderInsensitiveMatching());
+        LdapUtils.storeDiff(mods, "dcmSendPendingCGet", aa.getSendPendingCGet(), bb.getSendPendingCGet());
+        LdapUtils.storeDiff(mods, "dcmSendPendingCMoveInterval",
+                aa.getSendPendingCMoveInterval(),
+                bb.getSendPendingCMoveInterval(),
+                0);
     }
 
     @Override

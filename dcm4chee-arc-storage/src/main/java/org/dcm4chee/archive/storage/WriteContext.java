@@ -49,27 +49,9 @@ import java.security.MessageDigest;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public interface WriteContext {
-
-    Storage getStorage();
+public interface WriteContext extends ReadContext {
 
     Attributes getAttributes();
 
-    String getStoragePath();
-
-    void setStoragePath(String storagePath);
-
-    long getSize();
-
-    void setSize(long size);
-
-    void incrementSize(long size);
-
-    MessageDigest getMessageDigest();
-
-    void setMessageDigest(MessageDigest messageDigest);
-
-    void setMessageDigest(String messageAlgorithm);
-
-    byte[] getDigest();
+    void setAttributes(Attributes attrs);
 }

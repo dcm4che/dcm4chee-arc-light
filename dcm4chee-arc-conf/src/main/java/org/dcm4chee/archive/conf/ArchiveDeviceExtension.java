@@ -61,6 +61,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
     private boolean queryMatchUnknown = true;
+    private boolean sendPendingCGet;
+    private int sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching;
 
     private final AttributeFilter[] attributeFilters = new AttributeFilter[Entity.values().length];
@@ -141,6 +143,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.personNameComponentOrderInsensitiveMatching = personNameComponentOrderInsensitiveMatching;
     }
 
+    public boolean isSendPendingCGet() {
+        return sendPendingCGet;
+    }
+
+    public void setSendPendingCGet(boolean sendPendingCGet) {
+        this.sendPendingCGet = sendPendingCGet;
+    }
+
+    public int getSendPendingCMoveInterval() {
+        return sendPendingCMoveInterval;
+    }
+
+    public void setSendPendingCMoveInterval(int sendPendingCMoveInterval) {
+        this.sendPendingCMoveInterval = sendPendingCMoveInterval;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters[entity.ordinal()];
     }
@@ -208,6 +226,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queryRetrieveViewID = arcdev.queryRetrieveViewID;
         queryMatchUnknown = arcdev.queryMatchUnknown;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
+        sendPendingCGet = arcdev.sendPendingCGet;
+        sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         System.arraycopy(arcdev.attributeFilters, 0, attributeFilters, 0, attributeFilters.length);
         storageDescriptorMap.clear();

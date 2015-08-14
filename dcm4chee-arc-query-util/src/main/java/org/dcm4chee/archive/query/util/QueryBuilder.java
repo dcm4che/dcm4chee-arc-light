@@ -79,13 +79,7 @@ public class QueryBuilder {
     public static HibernateQuery<Tuple> applyPatientLevelJoins(
             HibernateQuery<Tuple> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
         boolean matchUnknown = queryParam.isMatchUnknown();
-        if (pids.length > 0) {
-            query = matchUnknown
-                    ? query.leftJoin(QPatient.patient.patientID, QPatientID.patientID)
-                    : query.join(QPatient.patient.patientID, QPatientID.patientID);
-            if (containsIssuer(pids))
-                query.leftJoin(QPatientID.patientID.issuer, patientIDIssuer);
-        }
+        query = applyPatientIDJoins(query, pids, matchUnknown);
         if (!isUniversalMatching(keys.getString(Tag.PatientName)))
             query = matchUnknown
                     ? query.leftJoin(QPatient.patient.patientName, QueryBuilder.patientName)
@@ -94,6 +88,18 @@ public class QueryBuilder {
         query = query.join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob);
         return query;
 
+    }
+
+    public static HibernateQuery<Tuple> applyPatientIDJoins(
+            HibernateQuery<Tuple> query, IDWithIssuer[] pids, boolean matchUnknown) {
+        if (pids.length > 0) {
+            query = matchUnknown
+                    ? query.leftJoin(QPatient.patient.patientID, QPatientID.patientID)
+                    : query.join(QPatient.patient.patientID, QPatientID.patientID);
+            if (containsIssuer(pids))
+                query.leftJoin(QPatientID.patientID.issuer, patientIDIssuer);
+        }
+        return query;
     }
 
     public static Predicate patientIDPredicate(IDWithIssuer[] pids, boolean matchUnknown) {
@@ -292,20 +298,28 @@ public class QueryBuilder {
     }
 
     public static Predicate hideRejectedInstance(QueryParam queryParam) {
-        CodeEntity[] codes = queryParam.getShowInstancesRejectedByCode();
+        return hideRejectedInstance(
+                queryParam.getShowInstancesRejectedByCode(),
+                queryParam.isHideNotRejectedInstances());
+    }
+
+    public static Predicate hideRejectedInstance(CodeEntity[] codes, boolean hideNotRejectedInstances) {
         if (codes.length == 0)
-            return queryParam.isHideNotRejectedInstances()
+            return hideNotRejectedInstances
                     ? QInstance.instance.rejectionNoteCode.isNotNull()
                     : QInstance.instance.rejectionNoteCode.isNull();
 
         BooleanExpression showRejected = QInstance.instance.rejectionNoteCode.in(codes);
-        return queryParam.isHideNotRejectedInstances()
+        return hideNotRejectedInstances
                 ? showRejected
                 : QInstance.instance.rejectionNoteCode.isNull().or(showRejected);
     }
 
     public static Predicate hideRejectionNote(QueryParam queryParam) {
-        CodeEntity[] codes = queryParam.getHideRejectionNotesWithCode();
+        return hideRejectionNode(queryParam.getHideRejectionNotesWithCode());
+    }
+
+    public static Predicate hideRejectionNode(CodeEntity[] codes) {
         if (codes.length == 0)
             return null;
 
