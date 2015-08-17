@@ -136,16 +136,18 @@ final class RetrieveTaskImpl implements RetrieveTask {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 DataWriter data = new TranscoderDataWriter(transcoder,
                         new MergeAttributesCoercion(inst.getAttributes()));
-                if (ctx.getMoveOriginatorAETitle() != null)
+                outstandingRSP.add(inst);
+                if (ctx.getMoveOriginatorAETitle() != null) {
                     storeas.cstore(cuid, iuid, priority,
                             ctx.getMoveOriginatorAETitle(), ctx.getMoveOriginatorMessageID(),
                             data, tsuid, rspHandler);
-                else
+                } else {
                     storeas.cstore(cuid, iuid, priority,
                             data, tsuid, rspHandler);
-                outstandingRSP.add(inst);
+                }
             }
         } catch (Exception e) {
+            outstandingRSP.remove(inst);
             ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
             LOG.info("{}: failed to send {} to {}:", rqas, inst, ctx.getDestinationAETitle(), e);
         }

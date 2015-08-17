@@ -40,6 +40,7 @@
 
 package org.dcm4chee.archive.query.impl;
 
+import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.ScrollableResultsIterator;
@@ -59,7 +60,7 @@ abstract class AbstractQuery implements Query {
     protected final QueryContext context;
     protected final StatelessSession session;
     private HibernateQuery<Tuple> query;
-    private ScrollableResultsIterator<Tuple> results;
+    private CloseableIterator<Tuple> results;
 
     public AbstractQuery(QueryContext context, StatelessSession session) {
         this.context = context;
@@ -82,7 +83,7 @@ abstract class AbstractQuery implements Query {
     @Override
     public void executeQuery() {
         checkQuery();
-        results = new ScrollableResultsIterator(query.scroll(ScrollMode.FORWARD_ONLY));
+        results = query.iterate();
     }
 
     @Override

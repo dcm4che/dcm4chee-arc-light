@@ -97,12 +97,18 @@ public class Location {
     private Instance instance;
 
     public static final class Builder {
+        private long pk;
         private String storageID;
         private String storagePath;
         private String transferSyntaxUID;
         private long size;
-        private byte[] digest;
+        private String digest;
         private Status status = Status.OK;
+
+        public Builder pk(long pk) {
+            this.pk = pk;
+            return this;
+        }
 
         public Builder storageID(String storageID) {
             this.storageID = storageID;
@@ -124,9 +130,13 @@ public class Location {
             return this;
         }
 
-        public Builder digest(byte[] digest) {
+        public Builder digest(String digest) {
             this.digest = digest;
             return this;
+        }
+
+        public Builder digest(byte[] digest) {
+            return digest(digest != null ? TagUtils.toHexString(digest) : null);
         }
 
         public Builder status(Status status) {
@@ -142,11 +152,12 @@ public class Location {
     public Location() {}
 
     private Location(Builder builder) {
+        pk = builder.pk;
         storageID = builder.storageID;
         storagePath = builder.storagePath;
         transferSyntaxUID = builder.transferSyntaxUID;
         size = builder.size;
-        setDigest(builder.digest);
+        digest = builder.digest;
         status = builder.status;
     }
 
@@ -183,10 +194,6 @@ public class Location {
         return digest != null ? TagUtils.fromHexString(digest) : null;
     }
 
-    private void setDigest(byte[] digest) {
-        this.digest = digest != null ? TagUtils.toHexString(digest) : null;
-    }
-
     public Status getStatus() {
         return status;
     }
@@ -205,7 +212,7 @@ public class Location {
 
     @Override
     public String toString() {
-        return "Storage[pk=" + pk
+        return "Location[pk=" + pk
                 + ", systemID=" + storageID
                 + ", path=" + storagePath
                 + ", tsuid=" + transferSyntaxUID

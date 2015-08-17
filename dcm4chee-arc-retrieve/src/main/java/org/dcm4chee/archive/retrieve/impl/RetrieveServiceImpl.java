@@ -42,6 +42,7 @@ package org.dcm4chee.archive.retrieve.impl;
 
 import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -73,10 +74,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -86,7 +84,13 @@ import java.util.HashMap;
 public class RetrieveServiceImpl implements RetrieveService {
 
     private static final Expression<?>[] SELECT = {
-            QLocation.location,
+            QLocation.location.pk,
+            QLocation.location.storageID,
+            QLocation.location.storagePath,
+            QLocation.location.transferSyntaxUID,
+            QLocation.location.digest,
+            QLocation.location.size,
+            QLocation.location.status,
             QSeries.series.pk,
             QInstance.instance.pk,
             QInstance.instance.sopClassUID,
@@ -164,36 +168,48 @@ public class RetrieveServiceImpl implements RetrieveService {
     private Collection<InstanceLocations> calculateMatchesA(RetrieveContext ctx) {
         StatelessSession session = openStatelessSession();
         ArrayList<InstanceLocations> matches = new ArrayList<>();
-        try (CloseableIterator<Tuple> iter = createQuery(ctx, session).iterate()) {
+        try {
             HashMap<Long,InstanceLocations> instMap = new HashMap<>();
             HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
-            while (iter.hasNext()) {
-                Tuple next = iter.next();
-                Long instPk = next.get(QInstance.instance.pk);
+            for (Tuple tuple : createQuery(ctx, session).fetch()) {
+                Long instPk = tuple.get(QInstance.instance.pk);
                 InstanceLocations match = instMap.get(instPk);
                 if (match == null) {
-                    Long seriesPk = next.get(QSeries.series.pk);
+                    Long seriesPk = tuple.get(QSeries.series.pk);
                     Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
                     if (seriesAttrs == null) {
                         seriesAttrs = getSeriesAttributes(session, seriesPk);
                         seriesAttrsMap.put(seriesPk, seriesAttrs);
                     }
                     Attributes instAttrs = AttributesBlob.decodeAttributes(
-                            next.get(QInstance.instance.attributesBlob.encodedAttributes), null);
+                            tuple.get(QInstance.instance.attributesBlob.encodedAttributes), null);
                     Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
                     instAttrs.addAll(seriesAttrs);
                     match = new InstanceLocationsImpl(
-                            next.get(QInstance.instance.sopClassUID),
-                            next.get(QInstance.instance.sopInstanceUID),
+                            tuple.get(QInstance.instance.sopClassUID),
+                            tuple.get(QInstance.instance.sopInstanceUID),
                             instAttrs);
+                    matches.add(match);
                     instMap.put(instPk, match);
                 }
-                match.getLocations().add(next.get(QLocation.location));
+                match.getLocations().add(loadLocation(tuple));
             }
             return matches;
         } finally {
             session.close();
         }
+    }
+
+    private Location loadLocation(Tuple next) {
+        return new Location.Builder()
+                .pk(next.get(QLocation.location.pk))
+                .storageID(next.get(QLocation.location.storageID))
+                .storagePath(next.get(QLocation.location.storagePath))
+                .transferSyntaxUID(next.get(QLocation.location.transferSyntaxUID))
+                .digest(next.get(QLocation.location.digest))
+                .size(next.get(QLocation.location.size))
+                .status(next.get(QLocation.location.status))
+                .build();
     }
 
     private Attributes getSeriesAttributes(StatelessSession session, Long seriesPk) {
@@ -218,7 +234,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
         return attrs;
-    }
+}
 
     private HibernateQuery<Tuple> createQuery(RetrieveContext ctx, StatelessSession session) {
         HibernateQuery<Tuple> query = new HibernateQuery<Void>(session).select(SELECT)
@@ -260,6 +276,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         transcoder.setConcatenateBulkDataFiles(true);
         transcoder.setBulkDataDirectory(ctx.getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
         transcoder.setDestinationTransferSyntax(tsuid);
+        transcoder.setCloseOutputStream(false);
         return transcoder;
     }
 
