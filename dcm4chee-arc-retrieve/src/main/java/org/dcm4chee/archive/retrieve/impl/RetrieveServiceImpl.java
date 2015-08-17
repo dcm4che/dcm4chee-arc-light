@@ -267,7 +267,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         LocationInputStream locationInputStream = openLocationInputStream(ctx, inst);
         String tsuid = locationInputStream.getLocation().getTransferSyntaxUID();
         if (!tsuids.contains(tsuid)) {
-            tsuid = tsuid.contains(UID.ExplicitVRLittleEndian)
+            tsuid = tsuids.contains(UID.ExplicitVRLittleEndian)
                     ? UID.ExplicitVRLittleEndian
                     : UID.ImplicitVRLittleEndian;
         }
