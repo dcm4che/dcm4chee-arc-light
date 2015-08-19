@@ -45,6 +45,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4chee.archive.conf.ArchiveAEExtension;
 import org.dcm4chee.archive.conf.StorageDescriptor;
 import org.dcm4chee.archive.entity.Series;
+import org.dcm4chee.archive.entity.Study;
 import org.dcm4chee.archive.storage.Storage;
 
 /**
@@ -64,7 +65,9 @@ public interface StoreSession {
 
     String getRemoteApplicationEntityTitle();
 
-    Series getCachedSeries();
+    Study getCachedStudy(String studyInstanceUID);
 
-    void setCachedSeries(Series series);
+    Series getCachedSeries(String studyInstanceUID, String seriesIUID);
+
+    void cacheSeries(Series series);
 }

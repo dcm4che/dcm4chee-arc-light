@@ -133,10 +133,9 @@ public class StoreServiceEJB {
 
     private Study findStudy(StoreContext ctx) {
         StoreSession storeSession = ctx.getStoreSession();
-        Series series = storeSession.getCachedSeries();
-        if (series != null
-                && series.getStudy().getStudyInstanceUID().equals(ctx.getStudyInstanceUID()))
-            return series.getStudy();
+        Study study = storeSession.getCachedStudy(ctx.getStudyInstanceUID());
+        if (study != null)
+            return study;
         try {
             return em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
@@ -148,10 +147,8 @@ public class StoreServiceEJB {
 
     private Series findSeries(StoreContext ctx) {
         StoreSession storeSession = ctx.getStoreSession();
-        Series series = storeSession.getCachedSeries();
-        if (series != null
-                && series.getSeriesInstanceUID().equals(ctx.getSeriesInstanceUID())
-                && series.getStudy().getStudyInstanceUID().equals(ctx.getStudyInstanceUID()))
+        Series series = storeSession.getCachedSeries(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID());
+        if (series != null)
             return series;
         try {
             return em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)

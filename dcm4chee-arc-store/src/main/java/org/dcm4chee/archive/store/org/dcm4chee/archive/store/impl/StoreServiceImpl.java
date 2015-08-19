@@ -71,7 +71,7 @@ class StoreServiceImpl implements StoreService {
                 Storage storage = writeContext.getStorage();
                 updateAttributes(writeContext.getAttributes(), series);
                 storage.commitStorage(writeContext);
-                ctx.getStoreSession().setCachedSeries(series);
+                ctx.getStoreSession().cacheSeries(series);
             }
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);

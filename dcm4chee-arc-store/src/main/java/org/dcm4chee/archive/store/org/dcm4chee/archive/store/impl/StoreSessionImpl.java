@@ -7,8 +7,12 @@ import org.dcm4chee.archive.conf.ArchiveAEExtension;
 import org.dcm4chee.archive.conf.ArchiveDeviceExtension;
 import org.dcm4chee.archive.conf.StorageDescriptor;
 import org.dcm4chee.archive.entity.Series;
+import org.dcm4chee.archive.entity.Study;
 import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.store.StoreSession;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -18,7 +22,8 @@ class StoreSessionImpl implements StoreSession {
     private final Association as;
     private final ApplicationEntity ae;
     private Storage storage;
-    private Series cachedSeries;
+    private Study cachedStudy;
+    private final Map<String,Series> seriesCache = new HashMap<>();
 
     public StoreSessionImpl(Association as) {
         this.as = as;
@@ -56,12 +61,26 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public Series getCachedSeries() {
-        return cachedSeries;
+    public Study getCachedStudy(String studyInstanceUID) {
+        return isStudyCached(studyInstanceUID) ? cachedStudy : null;
     }
 
     @Override
-    public void setCachedSeries(Series cachedSeries) {
-        this.cachedSeries = cachedSeries;
+    public Series getCachedSeries(String studyInstanceUID, String seriesIUID) {
+        return isStudyCached(studyInstanceUID) ? seriesCache.get(seriesIUID) : null;
+    }
+
+    @Override
+    public void cacheSeries(Series series) {
+        Study study = series.getStudy();
+        if (!isStudyCached(study.getStudyInstanceUID())) {
+            cachedStudy = study;
+            seriesCache.clear();
+        }
+        seriesCache.put(series.getSeriesInstanceUID(), series);
+    }
+
+    private boolean isStudyCached(String studyInstanceUID) {
+        return cachedStudy != null && cachedStudy.getStudyInstanceUID().equals(studyInstanceUID);
     }
 }
