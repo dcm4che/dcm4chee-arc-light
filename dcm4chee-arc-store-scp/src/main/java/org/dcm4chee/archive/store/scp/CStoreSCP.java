@@ -7,6 +7,7 @@ import org.dcm4che3.net.PDVInputStream;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicCStoreSCP;
 import org.dcm4che3.net.service.DicomService;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreService;
 import org.dcm4chee.archive.store.StoreSession;
@@ -51,5 +52,10 @@ class CStoreSCP extends BasicCStoreSCP {
             as.setProperty(StoreSession.class, session);
         }
         return session;
+    }
+
+    @Override
+    public void onClose(Association as) {
+        SafeClose.close(as.getProperty(StoreSession.class));
     }
 }

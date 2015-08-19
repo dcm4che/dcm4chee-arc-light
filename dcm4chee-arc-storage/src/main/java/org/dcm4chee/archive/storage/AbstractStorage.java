@@ -77,6 +77,10 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
+    public void close() throws IOException {
+    }
+
+    @Override
     public OutputStream openOutputStream(final WriteContext ctx) throws IOException {
         OutputStream stream = openOutputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {

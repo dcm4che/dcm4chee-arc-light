@@ -48,6 +48,7 @@ import org.dcm4chee.archive.conf.QueryRetrieveView;
 import org.dcm4chee.archive.entity.CodeEntity;
 import org.dcm4chee.archive.storage.Storage;
 
+import java.io.Closeable;
 import java.util.Collection;
 import java.util.Set;
 
@@ -55,7 +56,7 @@ import java.util.Set;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface RetrieveContext {
+public interface RetrieveContext extends Closeable {
     RetrieveService getRetrieveService();
 
     ApplicationEntity getLocalApplicationEntity();

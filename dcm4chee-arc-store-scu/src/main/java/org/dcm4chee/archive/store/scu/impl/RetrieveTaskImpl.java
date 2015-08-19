@@ -48,6 +48,7 @@ import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.archive.retrieve.InstanceLocations;
 import org.dcm4chee.archive.retrieve.RetrieveContext;
 import org.slf4j.Logger;
@@ -119,6 +120,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
             releaseStoreAssociation();
             stopWritePendingRSP();
             rqas.removeCancelRQHandler(msgId);
+            SafeClose.close(ctx);
         }
     }
 

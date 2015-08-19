@@ -48,11 +48,13 @@ import org.dcm4chee.archive.entity.Series;
 import org.dcm4chee.archive.entity.Study;
 import org.dcm4chee.archive.storage.Storage;
 
+import java.io.Closeable;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public interface StoreSession {
+public interface StoreSession extends Closeable {
     Association getAssociation();
 
     ApplicationEntity getLocalApplicationEntity();

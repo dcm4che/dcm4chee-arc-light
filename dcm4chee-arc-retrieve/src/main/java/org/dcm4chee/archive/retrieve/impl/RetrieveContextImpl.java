@@ -42,7 +42,6 @@ package org.dcm4chee.archive.retrieve.impl;
 
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.util.StringUtils;
@@ -54,6 +53,7 @@ import org.dcm4chee.archive.retrieve.RetrieveContext;
 import org.dcm4chee.archive.retrieve.RetrieveService;
 import org.dcm4chee.archive.storage.Storage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -285,5 +285,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setHideRejectionNotesWithCode(CodeEntity[] hideRejectionNotesWithCode) {
         this.hideRejectionNotesWithCode = hideRejectionNotesWithCode;
+    }
+
+    @Override
+    public void close() throws IOException {
+        for (Storage storage : storageMap.values())
+            storage.close();
     }
 }

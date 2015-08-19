@@ -3,6 +3,7 @@ package org.dcm4chee.archive.store.org.dcm4chee.archive.store.impl;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.archive.conf.ArchiveAEExtension;
 import org.dcm4chee.archive.conf.ArchiveDeviceExtension;
 import org.dcm4chee.archive.conf.StorageDescriptor;
@@ -11,6 +12,7 @@ import org.dcm4chee.archive.entity.Study;
 import org.dcm4chee.archive.storage.Storage;
 import org.dcm4chee.archive.store.StoreSession;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,5 +84,10 @@ class StoreSessionImpl implements StoreSession {
 
     private boolean isStudyCached(String studyInstanceUID) {
         return cachedStudy != null && cachedStudy.getStudyInstanceUID().equals(studyInstanceUID);
+    }
+
+    @Override
+    public void close() throws IOException {
+        SafeClose.close(storage);
     }
 }
