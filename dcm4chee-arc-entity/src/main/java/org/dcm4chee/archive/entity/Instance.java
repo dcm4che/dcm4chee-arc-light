@@ -74,9 +74,9 @@ import java.util.Date;
             "join fetch i.series se " +
             "join fetch se.study st " +
             "join fetch st.patient p " +
-            "join fetch p.patientName " +
-            "join fetch st.referringPhysicianName " +
-            "join fetch se.performingPhysicianName " +
+            "left join fetch p.patientName " +
+            "left join fetch st.referringPhysicianName " +
+            "left join fetch se.performingPhysicianName " +
             "left join fetch i.conceptNameCode " +
             "left join fetch i.rejectionNoteCode " +
             "join fetch i.attributesBlob " +

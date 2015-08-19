@@ -66,8 +66,8 @@ import java.util.Date;
     name=Study.FIND_BY_STUDY_IUID_EAGER,
     query="select st from Study st " +
             "join fetch st.patient p " +
-            "join fetch p.patientName " +
-            "join fetch st.referringPhysicianName " +
+            "left join fetch p.patientName " +
+            "left join fetch st.referringPhysicianName " +
             "join fetch st.attributesBlob " +
             "join fetch p.attributesBlob " +
             "where st.studyInstanceUID = ?1")

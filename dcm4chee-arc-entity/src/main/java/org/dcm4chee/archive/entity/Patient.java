@@ -71,7 +71,8 @@ import java.util.*;
 @NamedQuery(
     name=Patient.FIND_BY_PATIENT_FAMILY_NAME_EAGER,
     query="select p from Patient p " +
-            "join fetch p.patientName " +
+            "left join fetch p.patientName " +
+            "left join fetch p.patientName " +
             "join fetch p.attributesBlob " +
             "where p.patientName.familyName = ?1")
 })

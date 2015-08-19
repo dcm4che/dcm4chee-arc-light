@@ -70,9 +70,9 @@ import java.util.Date;
     query="select se from Series se " +
             "join fetch se.study st " +
             "join fetch st.patient p " +
-            "join fetch p.patientName " +
-            "join fetch st.referringPhysicianName " +
-            "join fetch se.performingPhysicianName " +
+            "left join fetch p.patientName " +
+            "left join fetch st.referringPhysicianName " +
+            "left join fetch se.performingPhysicianName " +
             "join fetch se.attributesBlob " +
             "join fetch st.attributesBlob " +
             "join fetch p.attributesBlob " +
