@@ -38,36 +38,35 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve;
+package org.dcm4chee.archive.validation.constraints;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface RetrieveService {
-    RetrieveContext newRetrieveContextGET(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+class NotAllowedIfEqualsValidator implements ConstraintValidator<NotAllowedIfEquals, Object> {
+    private NotAllowedIfEquals constraint;
 
-    RetrieveContext newRetrieveContextMOVE(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+    @Override
+    public void initialize(NotAllowedIfEquals constraint) {
+        this.constraint = constraint;
+    }
 
-    RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID);
-
-    boolean calculateMatches(RetrieveContext ctx);
-
-    Transcoder newTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
-            throws IOException;
+    @Override
+    public boolean isValid(Object obj, ConstraintValidatorContext context) {
+        try {
+            if (constraint.paramValue().equalsIgnoreCase(
+                    (String) new FieldValue(obj, constraint.paramName()).get()))
+                for (String name : constraint.notAllowed()) {
+                    if (new FieldValue(obj, name).get() != null)
+                        return false;
+                }
+        } catch (Exception e) {
+            FieldValue.log().warn("Unexpected Exception: ", e);
+        }
+        return true;
+    }
 }

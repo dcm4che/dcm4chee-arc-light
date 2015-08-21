@@ -245,6 +245,11 @@
       <artifactId>jboss-concurrency-api_1.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <modules>
@@ -267,6 +272,8 @@
     <module>dcm4chee-arc-store</module>
     <module>dcm4chee-arc-store-scp</module>
     <module>dcm4chee-arc-store-scu</module>
+    <module>dcm4chee-arc-validation</module>
+    <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
     <module>dcm4chee-arc-ear</module>
   </modules>

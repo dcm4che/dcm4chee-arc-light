@@ -38,36 +38,39 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve;
+package org.dcm4chee.archive.wado;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
+import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface RetrieveService {
-    RetrieveContext newRetrieveContextGET(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+public class DicomObjectOutput implements StreamingOutput {
 
-    RetrieveContext newRetrieveContextMOVE(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+    private final Transcoder transcoder;
+    private final AttributesCoercion coerce;
 
-    RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID);
+    public DicomObjectOutput(Transcoder transcoder, AttributesCoercion coerce) {
+        this.transcoder = transcoder;
+        this.coerce = coerce;
+    }
 
-    boolean calculateMatches(RetrieveContext ctx);
-
-    Transcoder newTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
-            throws IOException;
+    @Override
+    public void write(final OutputStream out) throws IOException, WebApplicationException {
+        transcoder.transcode(new Transcoder.Handler(){
+            @Override
+            public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
+                coerce.coerce(dataset, null);
+                return out;
+            }
+        });
+    }
 }

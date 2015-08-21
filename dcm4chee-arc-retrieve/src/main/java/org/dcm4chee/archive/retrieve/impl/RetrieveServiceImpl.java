@@ -40,9 +40,7 @@
 
 package org.dcm4chee.archive.retrieve.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -52,8 +50,8 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.archive.code.CodeCache;
 import org.dcm4chee.archive.conf.QueryRetrieveView;
@@ -72,6 +70,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -137,8 +136,23 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
+    @Override
+    public RetrieveContext newRetrieveContextWADO(
+            HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID) {
+        RetrieveContext ctx = new RetrieveContextImpl(this, ae);
+        initCodes(ctx);
+        if (studyUID != null)
+            ctx.setStudyInstanceUIDs(studyUID);
+        if (seriesUID != null)
+            ctx.setSeriesInstanceUIDs(seriesUID);
+        if (objectUID != null)
+            ctx.setSopInstanceUIDs(objectUID);
+        return ctx;
+    }
+
     private RetrieveContext newRetrieveContext(Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
         RetrieveContext ctx = new RetrieveContextImpl(this, as.getApplicationEntity());
+        initCodes(ctx);
         IDWithIssuer pid = IDWithIssuer.pidOf(keys);
         if (pid != null)
             ctx.setPatientIDs(pid);
@@ -150,12 +164,15 @@ public class RetrieveServiceImpl implements RetrieveService {
             case STUDY:
                 ctx.setStudyInstanceUIDs(keys.getStrings(Tag.StudyInstanceUID));
         }
+        return ctx;
+    }
+
+    private void initCodes(RetrieveContext ctx) {
         QueryRetrieveView qrView = ctx.getQueryRetrieveView();
         ctx.setHideRejectionNotesWithCode(
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
         ctx.setShowInstancesRejectedByCode(
                 codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
-        return ctx;
     }
 
     @Override
@@ -262,11 +279,11 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public Transcoder newTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids)
+    public Transcoder newTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException {
         LocationInputStream locationInputStream = openLocationInputStream(ctx, inst);
         String tsuid = locationInputStream.getLocation().getTransferSyntaxUID();
-        if (!tsuids.contains(tsuid)) {
+        if (!tsuids.isEmpty() && !tsuids.contains(tsuid)) {
             tsuid = tsuids.contains(UID.ExplicitVRLittleEndian)
                     ? UID.ExplicitVRLittleEndian
                     : UID.ImplicitVRLittleEndian;
@@ -277,6 +294,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         transcoder.setBulkDataDirectory(ctx.getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
         transcoder.setDestinationTransferSyntax(tsuid);
         transcoder.setCloseOutputStream(false);
+        transcoder.setIncludeFileMetaInformation(fmi);
         return transcoder;
     }
 

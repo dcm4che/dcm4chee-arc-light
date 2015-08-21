@@ -38,36 +38,46 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve;
+package org.dcm4chee.archive.validation.constraints;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
+import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface RetrieveService {
-    RetrieveContext newRetrieveContextGET(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+class FieldValue {
+    private final static Logger log = LoggerFactory.getLogger(FieldValue.class);
+    private final Object obj;
+    private final String name;
 
-    RetrieveContext newRetrieveContextMOVE(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+    public FieldValue(Object obj, String name) {
+        this.obj = obj;
+        this.name = name;
+    }
 
-    RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID);
+    public Object get() throws Exception {
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                @Override
+                public Object run() throws Exception {
+                    Field field = obj.getClass().getDeclaredField(name);
+                    field.setAccessible(true);
+                    return field.get(obj);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw e.getException();
+        }
+    }
 
-    boolean calculateMatches(RetrieveContext ctx);
-
-    Transcoder newTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
-            throws IOException;
+    public static Logger log() {
+        return log;
+    }
 }

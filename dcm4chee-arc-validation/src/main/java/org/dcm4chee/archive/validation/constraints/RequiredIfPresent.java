@@ -38,36 +38,35 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve;
+package org.dcm4chee.archive.validation.constraints;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface RetrieveService {
-    RetrieveContext newRetrieveContextGET(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+@Target(TYPE)
+@Retention(RUNTIME)
+@Constraint(validatedBy = RequiredIfPresentValidator.class)
+public @interface RequiredIfPresent {
 
-    RetrieveContext newRetrieveContextMOVE(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+    String paramName();
+    String[] required();
+    String message() default "{org.dcm4chee.archive.validation.constraints.RequiredIfPresent.message}";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
 
-    RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID);
+    @Target(TYPE)
+    @Retention(RUNTIME)
+    @interface List {
 
-    boolean calculateMatches(RetrieveContext ctx);
-
-    Transcoder newTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
-            throws IOException;
+        RequiredIfPresent[] value();
+    }
 }
