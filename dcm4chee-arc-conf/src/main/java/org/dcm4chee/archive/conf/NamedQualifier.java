@@ -1,4 +1,4 @@
-package org.dcm4chee.archive.storage;
+package org.dcm4chee.archive.conf;
 
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Named;

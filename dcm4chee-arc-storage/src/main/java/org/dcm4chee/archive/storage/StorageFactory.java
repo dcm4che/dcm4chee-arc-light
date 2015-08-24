@@ -1,5 +1,6 @@
 package org.dcm4chee.archive.storage;
 
+import org.dcm4chee.archive.conf.NamedQualifier;
 import org.dcm4chee.archive.conf.StorageDescriptor;
 
 import javax.enterprise.context.ApplicationScoped;
