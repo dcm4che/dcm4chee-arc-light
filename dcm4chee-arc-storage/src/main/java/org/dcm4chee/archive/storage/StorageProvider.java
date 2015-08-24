@@ -8,5 +8,5 @@ import org.dcm4chee.archive.conf.StorageDescriptor;
  */
 public interface StorageProvider {
 
-    Storage getStorage(StorageDescriptor descriptor);
+    Storage openStorage(StorageDescriptor descriptor);
 }

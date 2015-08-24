@@ -15,7 +15,7 @@ import javax.inject.Named;
 @Named("file")
 class FileSystemStorageProvider implements StorageProvider {
     @Override
-    public Storage getStorage(StorageDescriptor descriptor) {
+    public Storage openStorage(StorageDescriptor descriptor) {
         return new FileSystemStorage(descriptor);
     }
 }

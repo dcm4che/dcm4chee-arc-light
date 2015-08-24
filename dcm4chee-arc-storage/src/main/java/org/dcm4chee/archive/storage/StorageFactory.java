@@ -19,6 +19,6 @@ public class StorageFactory {
     public Storage getStorage(StorageDescriptor descriptor) {
         String scheme = descriptor.getStorageURI().getScheme();
         StorageProvider provider = providers.select(new NamedQualifier(scheme)).get();
-        return provider.getStorage(descriptor);
+        return provider.openStorage(descriptor);
     }
 }
