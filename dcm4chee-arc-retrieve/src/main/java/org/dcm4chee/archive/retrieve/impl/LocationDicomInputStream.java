@@ -38,37 +38,39 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve;
+package org.dcm4chee.archive.retrieve.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.archive.entity.Location;
+import org.dcm4chee.archive.storage.ReadContext;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Collection;
+import java.io.InputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface RetrieveService {
-    RetrieveContext newRetrieveContextGET(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+class LocationDicomInputStream {
 
-    RetrieveContext newRetrieveContextMOVE(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+    private final ReadContext ctx;
+    private final Location location;
+    private final DicomInputStream stream;
 
-    RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID);
+    public LocationDicomInputStream(DicomInputStream stream, ReadContext ctx, Location location) {
+        this.stream = stream;
+        this.ctx = ctx;
+        this.location = location;
+    }
 
-    boolean calculateMatches(RetrieveContext ctx);
+    public DicomInputStream getDicomInputStream() {
+        return stream;
+    }
 
-    Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
-            throws IOException;
+    public ReadContext getReadContext() {
+        return ctx;
+    }
 
-    DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException;
+    public Location getLocation() {
+        return location;
+    }
 }

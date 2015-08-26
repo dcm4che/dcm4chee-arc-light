@@ -41,7 +41,8 @@
 package org.dcm4chee.archive.wado;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
+import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
@@ -52,18 +53,21 @@ import org.dcm4chee.archive.retrieve.RetrieveService;
 import org.dcm4chee.archive.validation.constraints.*;
 
 import javax.enterprise.context.RequestScoped;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.*;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -171,6 +175,8 @@ public class WadoURI {
     @QueryParam("transferSyntax")
     private String transferSyntax;
 
+    private Attributes presentationState;
+
     @Override
     public String toString() {
         return request.getQueryString();
@@ -197,23 +203,159 @@ public class WadoURI {
                     Response.Status.INTERNAL_SERVER_ERROR);
 
         InstanceLocations inst = matches.iterator().next();
-        MediaType mimeType = selectMimeType(inst);
+        ObjectType objectType = objectTypeOf(inst);
+        MediaType mimeType = selectMimeType(objectType);
         if (mimeType == null)
             throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
 
-        //TODO
-        return getNativeDicomObject(ctx, inst);
-    }
-
-    private Response getNativeDicomObject(RetrieveContext ctx, InstanceLocations inst) {
-        Transcoder transcoder;
+        MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes());
+        Object entity;
         try {
-            transcoder = service.newTranscoder(ctx, inst, tsuids(), true);
+            if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
+                mimeType = MediaTypes.APPLICATION_DICOM_TYPE;
+                entity = new DicomObjectOutput(service.openTranscoder(ctx, inst, tsuids(), true), coerce);
+            } else {
+                if (objectType.isImage() && presentationUID != null)
+                    presentationState = retrievePresentationState(ae);
+                entity = entityOf(objectType, mimeType, service.openDicomInputStream(ctx, inst), coerce,
+                        inst.getAttributes());
+            }
         } catch (IOException e) {
             throw new WebApplicationException(e);
         }
-        AttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes());
-        return Response.ok(new DicomObjectOutput(transcoder, coerce), MediaTypes.APPLICATION_DICOM).build();
+        return Response.ok(entity, mimeType).build();
+    }
+
+    private Object entityOf(ObjectType objectType, MediaType mimeType, DicomInputStream dis,
+                            AttributesCoercion coerce, Attributes attrs) throws IOException {
+        int imageIndex = -1;
+        switch (objectType) {
+            case SingleFrameImage:
+                imageIndex = parseInt(frameNumber, 1) - 1;
+            case MultiFrameImage:
+                return new RenderedImageOutput(
+                        getDicomImageReader(dis),
+                        getImageReadParam(attrs),
+                        parseInt(rows, 0),
+                        parseInt(columns, 0),
+                        imageIndex,
+                        getImageWriter(mimeType),
+                        parseInt(imageQuality, 0));
+            case EncapsulatedCDA:
+            case EncapsulatedPDF:
+                return decapsulateDocument(dis);
+            case MPEG2Video:
+            case MPEG4Video:
+                return decapsulateVideo(dis);
+            case SRDocument:
+                return renderSRDocument(dis, mimeType, coerce);
+        }
+        throw new AssertionError("objectType: " + objectType);
+    }
+
+    private static int parseInt(String s, int defVal) {
+        return s != null ? Integer.parseInt(s) : defVal;
+    }
+
+    private Object renderSRDocument(DicomInputStream dis, MediaType mimeType, AttributesCoercion coerce) {
+        //TODO
+        return null;
+    }
+
+    private Object decapsulateVideo(DicomInputStream dis) throws IOException {
+        dis.readDataset(-1, Tag.PixelData);
+        if (dis.tag() != Tag.PixelData || dis.length() != -1
+                || !dis.readItemHeader() || dis.length() != 0
+                || !dis.readItemHeader())
+            throw new IOException("No or incorrect encapsulated video stream in requested object");
+
+        return new StreamCopyOutput(dis, dis.length());
+    }
+
+    private Object decapsulateDocument(DicomInputStream dis) throws IOException {
+        dis.readDataset(-1, Tag.EncapsulatedDocument);
+        if (dis.tag() != Tag.EncapsulatedDocument)
+            throw new IOException("No encapsulated document in requested object");
+
+        return new StreamCopyOutput(dis, dis.length());
+    }
+
+    private static ImageReader getDicomImageReader(DicomInputStream dis) {
+        Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("DICOM");
+        if (!readers.hasNext()) {
+            ImageIO.scanForPlugins();
+            readers = ImageIO.getImageReadersByFormatName("DICOM");
+            if (!readers.hasNext())
+                throw new RuntimeException("DICOM Image Reader not registered");
+        }
+        ImageReader reader = readers.next();
+        reader.setInput(dis);
+        return reader;
+    }
+
+    private static ImageWriter getImageWriter(MediaType mimeType) {
+        String formatName = formatNameOf(mimeType);
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
+        if (!writers.hasNext()) {
+            throw new RuntimeException(formatName + " Image Writer not registered");
+        }
+        return writers.next();
+    }
+
+    private static String formatNameOf(MediaType mimeType) {
+        return mimeType.getSubtype().toUpperCase();
+    }
+
+
+    private DicomImageReadParam getImageReadParam(Attributes attrs) {
+        DicomImageReadParam param = new DicomImageReadParam();
+        if (windowCenter != null && windowWidth != null) {
+            param.setWindowCenter(Float.parseFloat(windowCenter));
+            param.setWindowWidth(Float.parseFloat(windowWidth));
+        }
+        if (region != null)
+            param.setSourceRegion(new Region(region).getSourceRegion(
+                    attrs.getInt(Tag.Rows, 1),
+                    attrs.getInt(Tag.Columns, 1)));
+        param.setPresentationState(presentationState);
+        return param;
+    }
+
+    private Attributes retrievePresentationState(ApplicationEntity ae) throws IOException {
+        RetrieveContext ctx = service.newRetrieveContextWADO(
+                request, ae, studyUID, presentationSeriesUID, presentationUID);
+        if (!service.calculateMatches(ctx))
+            throw new WebApplicationException(
+                    "Specified Presentation State does not exist", Response.Status.NOT_FOUND);
+
+        Collection<InstanceLocations> matches = ctx.getMatches();
+        if (matches.size() > 1)
+            throw new WebApplicationException(
+                    "More than one matching Presentation State found",
+                    Response.Status.INTERNAL_SERVER_ERROR);
+
+        InstanceLocations inst = matches.iterator().next();
+        try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
+            return dis.readDataset(-1, -1);
+        }
+    }
+
+    private ObjectType objectTypeOf(InstanceLocations inst) {
+        String cuid = inst.getSopClassUID();
+        String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
+        Attributes attrs = inst.getAttributes();
+        return ObjectType.valueOf(cuid, tsuid, attrs, frameNumber);
+    }
+
+    private MediaType selectMimeType(ObjectType objectType) {
+        if (contentType == null)
+            return objectType.getDefaultMimeType();
+
+        for (MediaType mimeType : new ContentTypes(contentType).values) {
+            if (objectType.isCompatibleMimeType(mimeType))
+                return mimeType;
+        }
+        return null;
     }
 
     private Collection<String> tsuids() {
@@ -235,50 +377,18 @@ public class WadoURI {
         }
     }
 
-    public static final class Region {
-        final double left;
-        final double top;
-        final double right;
-        final double bottom;
-
-        public Region(String s) {
-            String[] ss = StringUtils.split(s, ',');
-            if (ss.length != 4)
-                throw new IllegalArgumentException(s);
-            left = Double.parseDouble(ss[0]);
-            top = Double.parseDouble(ss[1]);
-            right = Double.parseDouble(ss[2]);
-            bottom = Double.parseDouble(ss[3]);
-            if (left < 0. || right > 1. || top < 0. || bottom > 1.
-                    || left >= right || top >= bottom)
-                throw new IllegalArgumentException(s);
-        }
-    }
-
-    private MediaType selectMimeType(InstanceLocations inst) {
-        String cuid = inst.getSopClassUID();
-        String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
-        Attributes attrs = inst.getAttributes();
-        ObjectType objectType = ObjectType.valueOf(cuid, tsuid, attrs);
-
-        if (contentType == null)
-            return objectType.getDefaultMimeType();
-
-        for (MediaType mimeType : new ContentTypes(contentType).values) {
-            if (objectType.isCompatibleMimeType(mimeType))
-                return mimeType;
-        }
-        return null;
-    }
-
-    private static enum ObjectType {
-        SingleFrameImage(MediaTypes.APPLICATION_DICOM_TYPE),
-        MultiFrameImage(MediaTypes.APPLICATION_DICOM_TYPE),
-        MPEG2Video(MediaTypes.APPLICATION_DICOM_TYPE),
-        MPEG4Video(MediaTypes.APPLICATION_DICOM_TYPE),
+    private enum ObjectType {
+        SingleFrameImage(
+                MediaTypes.IMAGE_JPEG_TYPE,
+                MediaTypes.APPLICATION_DICOM_TYPE,
+                MediaTypes.IMAGE_GIF_TYPE,
+                MediaTypes.IMAGE_PNG_TYPE),
+        MultiFrameImage(MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.IMAGE_GIF_TYPE),
+        MPEG2Video(MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.VIDEO_MPEG_TYPE),
+        MPEG4Video(MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.VIDEO_MP4_TYPE),
         SRDocument(MediaTypes.APPLICATION_DICOM_TYPE),
-        EncapsulatedPDF(MediaTypes.APPLICATION_DICOM_TYPE),
-        EncapsulatedCDA(MediaTypes.APPLICATION_DICOM_TYPE),
+        EncapsulatedPDF(MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.APPLICATION_PDF_TYPE),
+        EncapsulatedCDA(MediaTypes.APPLICATION_DICOM_TYPE, MediaType.TEXT_XML_TYPE),
         Other(MediaTypes.APPLICATION_DICOM_TYPE);
 
         private final MediaType[] mimeTypes;
@@ -287,7 +397,7 @@ public class WadoURI {
             this.mimeTypes = mimeTypes;
         }
 
-        public static ObjectType valueOf(String cuid, String tsuid, Attributes attrs) {
+        public static ObjectType valueOf(String cuid, String tsuid, Attributes attrs, String frameNumber) {
             if (cuid.equals(UID.EncapsulatedPDFStorage))
                 return EncapsulatedPDF;
             if (cuid.equals(UID.EncapsulatedCDAStorage))
@@ -297,8 +407,10 @@ public class WadoURI {
             if (tsuid.equals(UID.MPEG4AVCH264HighProfileLevel41)
                     || tsuid.equals(UID.MPEG4AVCH264BDCompatibleHighProfileLevel41))
                 return MPEG4Video;
-            if (attrs.contains(Tag.BitsAllocated))
-                return (attrs.getInt(Tag.NumberOfFrames, 1) > 1) ? MultiFrameImage : SingleFrameImage;
+            if (attrs.contains(Tag.BitsAllocated) && !cuid.equals(UID.RTDoseStorage))
+                return (frameNumber == null && attrs.getInt(Tag.NumberOfFrames, 1) > 1)
+                        ? MultiFrameImage
+                        : SingleFrameImage;
             if (attrs.contains(Tag.ContentSequence))
                 return SRDocument;
             return Other;
@@ -314,6 +426,38 @@ public class WadoURI {
                     return true;
             }
             return false;
+        }
+
+        public boolean isImage() {
+            return this == SingleFrameImage || this == MultiFrameImage;
+        }
+    }
+
+    public static final class Region {
+        private final float left;
+        private final float top;
+        private final float right;
+        private final float bottom;
+
+        public Region(String s) {
+            String[] ss = StringUtils.split(s, ',');
+            if (ss.length != 4)
+                throw new IllegalArgumentException(s);
+            left = Float.parseFloat(ss[0]);
+            top = Float.parseFloat(ss[1]);
+            right = Float.parseFloat(ss[2]);
+            bottom = Float.parseFloat(ss[3]);
+            if (left < 0. || right > 1. || top < 0. || bottom > 1.
+                    || left >= right || top >= bottom)
+                throw new IllegalArgumentException(s);
+        }
+
+        public Rectangle getSourceRegion(int rows, int columns) {
+            return new Rectangle(
+                    (int) (left * columns),
+                    (int) (top * rows),
+                    (int) Math.ceil((right - left) * columns),
+                    (int) Math.ceil((bottom - top) * rows));
         }
     }
 }

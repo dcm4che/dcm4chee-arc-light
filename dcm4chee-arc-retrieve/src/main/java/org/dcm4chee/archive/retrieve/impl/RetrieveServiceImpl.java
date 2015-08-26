@@ -53,6 +53,7 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.archive.code.CodeCache;
 import org.dcm4chee.archive.conf.QueryRetrieveView;
 import org.dcm4chee.archive.entity.*;
@@ -94,7 +95,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.pk,
             QInstance.instance.sopClassUID,
             QInstance.instance.sopInstanceUID,
-            QueryBuilder.instanceAttributesBlob
+            QueryBuilder.instanceAttributesBlob.encodedAttributes
     };
 
     static final Expression<?>[] PATIENT_STUDY_SERIES_ATTRS = {
@@ -199,7 +200,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                         seriesAttrsMap.put(seriesPk, seriesAttrs);
                     }
                     Attributes instAttrs = AttributesBlob.decodeAttributes(
-                            tuple.get(QInstance.instance.attributesBlob.encodedAttributes), null);
+                            tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
                     Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
                     instAttrs.addAll(seriesAttrs);
                     match = new InstanceLocationsImpl(
@@ -279,16 +280,16 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public Transcoder newTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
-            throws IOException {
-        LocationInputStream locationInputStream = openLocationInputStream(ctx, inst);
+    public Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst,
+                                     Collection<String> tsuids, boolean fmi) throws IOException {
+        LocationDicomInputStream locationInputStream = openLocationInputStream(ctx, inst);
         String tsuid = locationInputStream.getLocation().getTransferSyntaxUID();
         if (!tsuids.isEmpty() && !tsuids.contains(tsuid)) {
-            tsuid = tsuids.contains(UID.ExplicitVRLittleEndian)
+            tsuid = fmi || tsuids.contains(UID.ExplicitVRLittleEndian)
                     ? UID.ExplicitVRLittleEndian
                     : UID.ImplicitVRLittleEndian;
         }
-        Transcoder transcoder = new Transcoder(locationInputStream.getInputStream());
+        Transcoder transcoder = new Transcoder(locationInputStream.getDicomInputStream());
         transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
         transcoder.setConcatenateBulkDataFiles(true);
         transcoder.setBulkDataDirectory(ctx.getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
@@ -298,7 +299,12 @@ public class RetrieveServiceImpl implements RetrieveService {
         return transcoder;
     }
 
-    private LocationInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)
+    @Override
+    public DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+        return openLocationInputStream(ctx, inst).getDicomInputStream();
+    }
+
+    private LocationDicomInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)
             throws IOException {
         IOException ex = null;
         for (Location location : inst.getLocations()) {
@@ -311,13 +317,18 @@ public class RetrieveServiceImpl implements RetrieveService {
         throw ex;
     }
 
-    private LocationInputStream openLocationInputStream(RetrieveContext ctx, Location location)
+    private LocationDicomInputStream openLocationInputStream(RetrieveContext ctx, Location location)
             throws IOException {
         Storage storage = getStorage(ctx, location.getStorageID());
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(location.getStoragePath());
         InputStream stream = storage.openInputStream(readContext);
-        return new LocationInputStream(stream, readContext, location);
+        try {
+            return new LocationDicomInputStream(new DicomInputStream(stream), readContext, location);
+        } catch (IOException e) {
+            SafeClose.close(stream);
+            throw e;
+        }
     }
 
     private Storage getStorage(RetrieveContext ctx, String storageID) {

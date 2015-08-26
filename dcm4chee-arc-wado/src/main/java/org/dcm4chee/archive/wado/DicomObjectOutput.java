@@ -43,6 +43,7 @@ package org.dcm4chee.archive.wado;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.util.SafeClose;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
@@ -64,13 +65,17 @@ public class DicomObjectOutput implements StreamingOutput {
     }
 
     @Override
-    public void write(final OutputStream out) throws IOException, WebApplicationException {
-        transcoder.transcode(new Transcoder.Handler(){
-            @Override
-            public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                coerce.coerce(dataset, null);
-                return out;
-            }
-        });
+    public void write(final OutputStream out) throws IOException {
+        try {
+            transcoder.transcode(new Transcoder.Handler() {
+                @Override
+                public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
+                    coerce.coerce(dataset, null);
+                    return out;
+                }
+            });
+        } finally {
+            SafeClose.close(transcoder);
+        }
     }
 }

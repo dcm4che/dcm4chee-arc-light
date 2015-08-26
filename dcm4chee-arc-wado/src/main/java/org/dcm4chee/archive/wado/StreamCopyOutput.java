@@ -38,38 +38,33 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.retrieve.impl;
+package org.dcm4chee.archive.wado;
 
-import org.dcm4chee.archive.entity.Location;
-import org.dcm4chee.archive.storage.ReadContext;
+import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.util.StreamUtils;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-class LocationInputStream {
+public class StreamCopyOutput implements StreamingOutput {
 
-    private final ReadContext ctx;
-    private final Location location;
-    private final InputStream stream;
+    private final InputStream in;
+    private final int length;
 
-    public LocationInputStream(InputStream stream, ReadContext ctx, Location location) {
-        this.stream = stream;
-        this.ctx = ctx;
-        this.location = location;
+    public StreamCopyOutput(InputStream in, int length) {
+        this.in = in;
+        this.length = length;
     }
 
-    public InputStream getInputStream() {
-        return stream;
-    }
-
-    public ReadContext getReadContext() {
-        return ctx;
-    }
-
-    public Location getLocation() {
-        return location;
+    @Override
+    public void write(OutputStream out) throws IOException, WebApplicationException {
+        StreamUtils.copy(in, out, length);
     }
 }

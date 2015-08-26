@@ -134,7 +134,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
             if (tsuids.isEmpty()) {
                 throw new NoPresentationContextException(cuid);
             }
-            try (Transcoder transcoder = ctx.getRetrieveService().newTranscoder(ctx, inst, tsuids, false)) {
+            try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 DataWriter data = new TranscoderDataWriter(transcoder,
                         new MergeAttributesCoercion(inst.getAttributes()));
