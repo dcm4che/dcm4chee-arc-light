@@ -41,12 +41,16 @@
 package org.dcm4chee.archive.wado;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.image.PaletteColorModel;
 import org.dcm4che3.image.PixelAspectRatio;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.imageio.plugins.dcm.DicomMetaData;
 
 import javax.imageio.*;
+import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.ws.rs.WebApplicationException;
@@ -61,6 +65,9 @@ import java.io.OutputStream;
  * @since Aug 2015
  */
 public class RenderedImageOutput implements StreamingOutput {
+    private static final float DEF_FRAME_TIME = 1000.f;
+    private static final byte[] LOOP_FOREVER = { 1, 0, 0 };
+
     private final ImageReader reader;
     private final DicomImageReadParam readParam;
     private final int rows;
@@ -89,12 +96,18 @@ public class RenderedImageOutput implements StreamingOutput {
             writer.setOutput(imageOut);
             BufferedImage bi = null;
             if (imageIndex < 0) {
+                IIOMetadata metadata = null;
                 int numImages = reader.getNumImages(false);
                 writer.prepareWriteSequence(null);
                 for (int i = 0; i < numImages; i++) {
                     readParam.setDestination(bi);
                     bi = reader.read(i, readParam);
-                    writer.writeToSequence(new IIOImage(adjust(bi), null, null), writeParam);
+                    BufferedImage bi2 = adjust(bi);
+                    if (metadata == null)
+                        metadata = createAnimatedGIFMetadata(bi2, writeParam, frameTime());
+                    writer.writeToSequence(
+                            new IIOImage(bi2, null, metadata),
+                            writeParam);
                     imageOut.flush();
                 }
                 writer.endWriteSequence();
@@ -107,6 +120,32 @@ public class RenderedImageOutput implements StreamingOutput {
             writer.dispose();
             reader.dispose();
         }
+    }
+
+    private float frameTime() throws IOException {
+        DicomMetaData metaData  = (DicomMetaData) reader.getStreamMetadata();
+        Attributes attrs = metaData.getAttributes();
+        return attrs.getFloat(Tag.FrameTime, DEF_FRAME_TIME);
+    }
+
+    private IIOMetadata createAnimatedGIFMetadata(BufferedImage bi, ImageWriteParam param, float frameTime)
+            throws IOException {
+        ImageTypeSpecifier imageType = ImageTypeSpecifier.createFromRenderedImage(bi);
+        IIOMetadata metadata = writer.getDefaultImageMetadata(imageType, param);
+        String formatName = metadata.getNativeMetadataFormatName();
+        IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(formatName);
+        IIOMetadataNode graphicControlExt =
+                (IIOMetadataNode) root.getElementsByTagName("GraphicControlExtension").item(0);
+        graphicControlExt.setAttribute("delayTime", Integer.toString(Math.round(frameTime() / 10)));
+        IIOMetadataNode appExts = new IIOMetadataNode("ApplicationExtensions");
+        IIOMetadataNode appExt = new IIOMetadataNode("ApplicationExtension");
+        appExt.setAttribute("applicationID", "NETSCAPE");
+        appExt.setAttribute("authenticationCode", "2.0");
+        appExt.setUserObject(LOOP_FOREVER);
+        appExts.appendChild(appExt);
+        root.appendChild(appExts);
+        metadata.setFromTree(formatName, root);
+        return metadata;
     }
 
     private BufferedImage adjust(BufferedImage bi) throws IOException {

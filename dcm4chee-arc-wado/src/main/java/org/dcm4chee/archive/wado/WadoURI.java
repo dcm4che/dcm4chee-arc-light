@@ -188,19 +188,16 @@ public class WadoURI {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
+                    Response.Status.SERVICE_UNAVAILABLE);
 
         RetrieveContext ctx = service.newRetrieveContextWADO(request, ae, studyUID, seriesUID, objectUID);
         if (!service.calculateMatches(ctx))
-            throw new WebApplicationException(
-                    "Specified resource does not exist",
-                    Response.Status.NOT_FOUND);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
 
         Collection<InstanceLocations> matches = ctx.getMatches();
         if (matches.size() > 1)
             throw new WebApplicationException(
-                    "More than one matching resource found",
-                    Response.Status.INTERNAL_SERVER_ERROR);
+                    "More than one matching resource found");
 
         InstanceLocations inst = matches.iterator().next();
         ObjectType objectType = objectTypeOf(inst);
@@ -232,6 +229,14 @@ public class WadoURI {
         switch (objectType) {
             case SingleFrameImage:
                 imageIndex = parseInt(frameNumber, 1) - 1;
+                if (imageIndex > 0) {
+                    int numberOfFrames = attrs.getInt(Tag.NumberOfFrames, 1);
+                    if (imageIndex >= numberOfFrames)
+                        throw webApplicationException("frameNumber=" + frameNumber
+                                + " exceeds number of frames (=" + numberOfFrames
+                                + ") of specified resource",
+                                Response.Status.BAD_REQUEST);
+                }
             case MultiFrameImage:
                 return new RenderedImageOutput(
                         getDicomImageReader(dis),
@@ -251,6 +256,10 @@ public class WadoURI {
                 return renderSRDocument(dis, mimeType, coerce);
         }
         throw new AssertionError("objectType: " + objectType);
+    }
+
+    private WebApplicationException webApplicationException(String message, Response.Status status) {
+        return new WebApplicationException(message, Response.status(status).entity(message).build());
     }
 
     private static int parseInt(String s, int defVal) {
@@ -325,14 +334,13 @@ public class WadoURI {
         RetrieveContext ctx = service.newRetrieveContextWADO(
                 request, ae, studyUID, presentationSeriesUID, presentationUID);
         if (!service.calculateMatches(ctx))
-            throw new WebApplicationException(
-                    "Specified Presentation State does not exist", Response.Status.NOT_FOUND);
+            throw webApplicationException(
+                    "Specified Presentation State does not exist", Response.Status.BAD_REQUEST);
 
         Collection<InstanceLocations> matches = ctx.getMatches();
         if (matches.size() > 1)
             throw new WebApplicationException(
-                    "More than one matching Presentation State found",
-                    Response.Status.INTERNAL_SERVER_ERROR);
+                    "More than one matching Presentation State found");
 
         InstanceLocations inst = matches.iterator().next();
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
