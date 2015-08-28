@@ -334,6 +334,39 @@ class ArchiveDeviceFactory {
             UID.VideoMicroscopicImageStorage,
             UID.VideoPhotographicImageStorage,
     };
+
+    static final String[] VIDEO_TSUIDS = {
+            UID.JPEGBaseline1,
+            UID.MPEG2,
+            UID.MPEG2MainProfileHighLevel,
+            UID.MPEG4AVCH264BDCompatibleHighProfileLevel41,
+            UID.MPEG4AVCH264HighProfileLevel41
+    };
+
+    private static final String[] SR_CUIDS = {
+            UID.SpectaclePrescriptionReportStorage,
+            UID.MacularGridThicknessAndVolumeReportStorage,
+            UID.BasicTextSRStorage,
+            UID.EnhancedSRStorage,
+            UID.ComprehensiveSRStorage,
+            UID.Comprehensive3DSRStorage,
+            UID.ProcedureLogStorage,
+            UID.MammographyCADSRStorage,
+            UID.KeyObjectSelectionDocumentStorage,
+            UID.ChestCADSRStorage,
+            UID.XRayRadiationDoseSRStorage,
+            UID.RadiopharmaceuticalRadiationDoseSRStorage,
+            UID.ColonCADSRStorage,
+            UID.ImplantationPlanSRStorage
+    };
+
+    static final String[] SR_TSUIDS = {
+            UID.ImplicitVRLittleEndian,
+            UID.ExplicitVRLittleEndian,
+            UID.DeflatedExplicitVRLittleEndian,
+            UID.ExplicitVRBigEndianRetired,
+    };
+
     static final String[] OTHER_CUIDS = {
             UID.MRSpectroscopyStorage,
             UID.MultiFrameSingleBitSecondaryCaptureImageStorage,
@@ -368,22 +401,10 @@ class ArchiveDeviceFactory {
             UID.KeratometryMeasurementsStorage,
             UID.SubjectiveRefractionMeasurementsStorage,
             UID.VisualAcuityMeasurementsStorage,
-            UID.SpectaclePrescriptionReportStorage,
             UID.OphthalmicAxialMeasurementsStorage,
             UID.IntraocularLensCalculationsStorage,
-            UID.MacularGridThicknessAndVolumeReportStorage,
             UID.OphthalmicVisualFieldStaticPerimetryMeasurementsStorage,
             UID.BasicStructuredDisplayStorage,
-            UID.BasicTextSRStorage,
-            UID.EnhancedSRStorage,
-            UID.ComprehensiveSRStorage,
-            UID.ProcedureLogStorage,
-            UID.MammographyCADSRStorage,
-            UID.KeyObjectSelectionDocumentStorage,
-            UID.ChestCADSRStorage,
-            UID.XRayRadiationDoseSRStorage,
-            UID.ColonCADSRStorage,
-            UID.ImplantationPlanSRStorage,
             UID.EncapsulatedPDFStorage,
             UID.EncapsulatedCDAStorage,
             UID.StandalonePETCurveStorageRetired,
@@ -396,19 +417,15 @@ class ArchiveDeviceFactory {
             UID.RTIonPlanStorage,
             UID.RTIonBeamsTreatmentRecordStorage,
     };
-    static final String[] VIDEO_TSUIDS = {
-            UID.JPEGBaseline1,
-            UID.MPEG2,
-            UID.MPEG2MainProfileHighLevel,
-            UID.MPEG4AVCH264BDCompatibleHighProfileLevel41,
-            UID.MPEG4AVCH264HighProfileLevel41
+    static final String[] OTHER_TSUIDS = SR_TSUIDS;
+
+    static final String[][] CUIDS_TSUIDS = {
+            IMAGE_CUIDS, IMAGE_TSUIDS,
+            VIDEO_CUIDS, VIDEO_TSUIDS,
+            SR_CUIDS, SR_TSUIDS,
+            OTHER_CUIDS, OTHER_TSUIDS
     };
-    static final String[] OTHER_TSUIDS = {
-            UID.ImplicitVRLittleEndian,
-            UID.ExplicitVRLittleEndian,
-            UID.DeflatedExplicitVRLittleEndian,
-            UID.ExplicitVRBigEndianRetired,
-    };
+
     static final String[] QUERY_CUIDS = {
             UID.PatientRootQueryRetrieveInformationModelFIND,
             UID.StudyRootQueryRetrieveInformationModelFIND,
@@ -741,6 +758,9 @@ class ArchiveDeviceFactory {
         ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);
         ext.setSendPendingCGet(true);
         ext.setSendPendingCMoveInterval(5);
+        ext.setWadoSupportedSRClasses(SR_CUIDS);
+        ext.setWadoSR2HtmlTemplateURI("${jboss.server.config.url}/dcm4chee-arc/sr2html.xsl");
+        ext.setWadoSR2TextTemplateURI("${jboss.server.config.url}/dcm4chee-arc/sr2text.xsl");
 
         ext.setAttributeFilter(Entity.Patient,
                 new AttributeFilter(PATIENT_ATTRS));
@@ -778,14 +798,11 @@ class ArchiveDeviceFactory {
         ae.addAEExtension(aeExt);
         ae.setAssociationAcceptor(true);
         ae.setAssociationInitiator(true);
-        if (storeSCP) {
-            addTCs(ae, null, SCP, IMAGE_CUIDS, IMAGE_TSUIDS);
-            addTCs(ae, null, SCP, VIDEO_CUIDS, VIDEO_TSUIDS);
-            addTCs(ae, null, SCP, OTHER_CUIDS, OTHER_TSUIDS);
-        }
-        addTCs(ae, null, SCU, IMAGE_CUIDS, IMAGE_TSUIDS);
-        addTCs(ae, null, SCU, VIDEO_CUIDS, VIDEO_TSUIDS);
-        addTCs(ae, null, SCU, OTHER_CUIDS, OTHER_TSUIDS);
+        if (storeSCP)
+            for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
+                addTCs(ae, null, SCP, CUIDS_TSUIDS[i], IMAGE_TSUIDS[i+1]);
+        for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
+            addTCs(ae, null, SCU, CUIDS_TSUIDS[i], IMAGE_TSUIDS[i+1]);
         addTCs(ae, EnumSet.allOf(QueryOption.class), SCP, QUERY_CUIDS, UID.ImplicitVRLittleEndian);
         addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
         addTC(ae, null, SCP, UID.CompositeInstanceRetrieveWithoutBulkDataGET, UID.ImplicitVRLittleEndian);

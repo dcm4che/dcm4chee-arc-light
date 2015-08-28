@@ -60,6 +60,8 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
     private int sendPendingCMoveInterval;
+    private String wadoSR2HtmlTemplateURI;
+    private String wadoSR2TextTemplateURI;
 
     private CompressionRules compressionRules = new CompressionRules();
 
@@ -165,6 +167,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getSendPendingCMoveInterval();
     }
 
+    public String getWadoSR2HtmlTemplateURI() {
+        return wadoSR2HtmlTemplateURI;
+    }
+
+    public void setWadoSR2HtmlTemplateURI(String wadoSR2HtmlTemplateURI) {
+        this.wadoSR2HtmlTemplateURI = wadoSR2HtmlTemplateURI;
+    }
+
+
+    public String wadoSR2HtmlTemplateURI() {
+        return wadoSR2HtmlTemplateURI != null
+                ? wadoSR2HtmlTemplateURI
+                : getArchiveDeviceExtension().getWadoSR2HtmlTemplateURI();
+    }
+    public String getWadoSR2TextTemplateURI() {
+        return wadoSR2TextTemplateURI;
+    }
+
+    public void setWadoSR2TextTemplateURI(String wadoSR2TextTemplateURI) {
+        this.wadoSR2TextTemplateURI = wadoSR2TextTemplateURI;
+    }
+
+    public String wadoSR2TextTemplateURI() {
+        return wadoSR2TextTemplateURI != null
+                ? wadoSR2TextTemplateURI
+                : getArchiveDeviceExtension().getWadoSR2TextTemplateURI();
+    }
+
     public CompressionRules getCompressionRules() {
         return compressionRules;
     }
@@ -192,6 +222,8 @@ public class ArchiveAEExtension extends AEExtension {
         personNameComponentOrderInsensitiveMatching = aeExt.personNameComponentOrderInsensitiveMatching;
         sendPendingCGet = aeExt.sendPendingCGet;
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
+        wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
+        wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
         compressionRules.clear();
         compressionRules.add(aeExt.compressionRules);
     }

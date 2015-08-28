@@ -42,6 +42,7 @@ package org.dcm4chee.archive.wado;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.image.BufferedImageUtils;
 import org.dcm4che3.image.PaletteColorModel;
 import org.dcm4che3.image.PixelAspectRatio;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
@@ -77,16 +78,14 @@ public class RenderedImageOutput implements StreamingOutput {
     private final ImageWriteParam writeParam;
 
     public RenderedImageOutput(ImageReader reader, DicomImageReadParam readParam, int rows, int columns,
-                               int imageIndex, ImageWriter writer, int imageQuality) {
+                               int imageIndex, ImageWriter writer, ImageWriteParam writeParam) {
         this.reader = reader;
         this.readParam = readParam;
         this.rows = rows;
         this.columns = columns;
         this.imageIndex = imageIndex;
         this.writer = writer;
-        this.writeParam = writer.getDefaultWriteParam();
-        if (imageQuality > 0)
-            writeParam.setCompressionQuality(imageQuality / 100.f);
+        this.writeParam = writeParam;
     }
 
     @Override
@@ -149,14 +148,9 @@ public class RenderedImageOutput implements StreamingOutput {
     }
 
     private BufferedImage adjust(BufferedImage bi) throws IOException {
-        return rescale(convertPaletteToIntDiscrete(bi));
-    }
-
-    private BufferedImage convertPaletteToIntDiscrete(BufferedImage bi) {
-        ColorModel cm = bi.getColorModel();
-        return (cm instanceof PaletteColorModel)
-                ? ((PaletteColorModel) cm).convertToIntDiscrete(bi.getData())
-                : bi;
+        if (bi.getColorModel().getNumComponents() == 3)
+            bi = BufferedImageUtils.convertToIntRGB(bi);
+        return rescale(bi);
     }
 
     private BufferedImage rescale(BufferedImage bi) throws IOException {
@@ -176,30 +170,10 @@ public class RenderedImageOutput implements StreamingOutput {
             sx = r != 0 ? r / (bi.getHeight() * sy) : c / (float)bi.getWidth();
             sy *= sx;
         }
-        bi = convertBandedToIntDiscrete(bi); // AffineTransformOp does not support BandedSampleModel
         AffineTransformOp op = new AffineTransformOp(
                 AffineTransform.getScaleInstance(sx, sy),
                 AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         return op.filter(bi, null);
-    }
-
-    private BufferedImage convertBandedToIntDiscrete(BufferedImage bi) {
-        WritableRaster raster = bi.getRaster();
-        DataBuffer dataBuffer = raster.getDataBuffer();
-        if (dataBuffer.getNumBanks() != 3)
-            return bi;
-
-        ColorModel cm = new DirectColorModel(bi.getColorModel().getColorSpace(), 24,
-                    0xff0000, 0x00ff00, 0x0000ff, 0, false, DataBuffer.TYPE_INT);
-        WritableRaster discreteRaster = cm.createCompatibleWritableRaster(raster.getWidth(), raster.getHeight());
-        int[] discretData = ((DataBufferInt) discreteRaster.getDataBuffer()).getData();
-        byte[][] bankData = ((DataBufferByte) dataBuffer).getBankData();
-        byte[] r = bankData[0];
-        byte[] g = bankData[1];
-        byte[] b = bankData[2];
-        for (int i = 0; i < discretData.length; i++)
-            discretData[i] = ((r[i] & 0xff) << 16) | ((g[i] & 0xff) << 8) | (b[i] & 0xff);
-        return new BufferedImage(cm, discreteRaster, false, null);
     }
 
     private float getPixelAspectRatio() throws IOException {

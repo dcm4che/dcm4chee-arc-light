@@ -113,6 +113,25 @@ attributetype ( 1.2.40.0.13.1.15.110.3.19 NAME 'dcmHideNotRejectedInstances'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.20 NAME 'dcmWadoSupportedSRClasses'
+  DESC 'Supported SR SOP classes for WADO retrieval'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.21 NAME 'dcmWadoSR2HtmlTemplateURI'
+  DESC 'Specifies URI for the style sheet used to render structured reports to html'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.22 NAME 'dcmWadoSR2TextTemplateURI'
+  DESC 'Specifies URI for the style sheet used to render structured reports to plain text'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -125,7 +144,10 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQueryMatchUnknown $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
-    dcmSendPendingCMoveInterval ) )
+    dcmSendPendingCMoveInterval $
+    dcmWadoSupportedSRClasses $
+    dcmWadoSR2HtmlTemplateURI $
+    dcmWadoSR2TextTemplateURI) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
@@ -137,7 +159,9 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmQueryMatchUnknown $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
-    dcmSendPendingCMoveInterval ) )
+    dcmSendPendingCMoveInterval $
+    dcmWadoSR2HtmlTemplateURI $
+    dcmWadoSR2TextTemplateURI ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'

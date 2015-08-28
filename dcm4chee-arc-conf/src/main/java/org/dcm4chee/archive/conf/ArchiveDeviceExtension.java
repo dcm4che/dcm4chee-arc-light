@@ -44,11 +44,9 @@ import org.dcm4che3.imageio.codec.CompressionRule;
 import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.StringUtils;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,6 +62,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean sendPendingCGet;
     private int sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching;
+    private String wadoSR2HtmlTemplateURI;
+    private String wadoSR2TextTemplateURI;
+    private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
 
     private final AttributeFilter[] attributeFilters = new AttributeFilter[Entity.values().length];
 
@@ -159,6 +160,35 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.sendPendingCMoveInterval = sendPendingCMoveInterval;
     }
 
+    public String[] getWadoSupportedSRClasses() {
+        return wadoSupportedSRClasses.toArray(StringUtils.EMPTY_STRING);
+    }
+
+    public void setWadoSupportedSRClasses(String... wadoSupportedSRClasses) {
+        this.wadoSupportedSRClasses.clear();
+        this.wadoSupportedSRClasses.addAll(Arrays.asList(wadoSupportedSRClasses));
+    }
+
+    public boolean isWadoSupportedSRClass(String cuid) {
+        return wadoSupportedSRClasses.contains(cuid);
+    }
+
+    public String getWadoSR2HtmlTemplateURI() {
+        return wadoSR2HtmlTemplateURI;
+    }
+
+    public void setWadoSR2HtmlTemplateURI(String wadoSR2HtmlTemplateURI) {
+        this.wadoSR2HtmlTemplateURI = wadoSR2HtmlTemplateURI;
+    }
+
+    public String getWadoSR2TextTemplateURI() {
+        return wadoSR2TextTemplateURI;
+    }
+
+    public void setWadoSR2TextTemplateURI(String wadoSR2TextTemplateURI) {
+        this.wadoSR2TextTemplateURI = wadoSR2TextTemplateURI;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters[entity.ordinal()];
     }
@@ -228,6 +258,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
         sendPendingCGet = arcdev.sendPendingCGet;
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
+        wadoSupportedSRClasses.clear();
+        wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
+        wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
+        wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         System.arraycopy(arcdev.attributeFilters, 0, attributeFilters, 0, attributeFilters.length);
         storageDescriptorMap.clear();

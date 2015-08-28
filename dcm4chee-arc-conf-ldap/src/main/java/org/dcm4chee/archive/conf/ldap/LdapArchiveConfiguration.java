@@ -81,6 +81,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isPersonNameComponentOrderInsensitiveMatching(), false);
         LdapUtils.storeNotDef(attrs, "dcmSendPendingCGet", ext.isSendPendingCGet(), false);
         LdapUtils.storeNotDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), 0);
+        LdapUtils.storeNotNull(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI());
+        LdapUtils.storeNotNull(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI());
+        LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
     }
 
     @Override
@@ -99,6 +102,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), false));
         ext.setSendPendingCGet(LdapUtils.booleanValue(attrs.get("dcmSendPendingCGet"), false));
         ext.setSendPendingCMoveInterval(LdapUtils.intValue(attrs.get("dcmSendPendingCMoveInterval"), 0));
+        ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
+        ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
+        ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
     }
 
     @Override
@@ -123,6 +129,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getSendPendingCMoveInterval(),
                 bb.getSendPendingCMoveInterval(),
                 0);
+        LdapUtils.storeDiff(mods, "dcmWadoSR2HtmlTemplateURI",
+                aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI());
+        LdapUtils.storeDiff(mods, "dcmWadoSR2TextTemplateURI",
+                aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI());
+        LdapUtils.storeDiff(mods, "dcmWadoSupportedSRClasses",
+                aa.getWadoSupportedSRClasses(), bb.getWadoSupportedSRClasses());
     }
 
     @Override
@@ -183,6 +195,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPersonNameComponentOrderInsensitiveMatching());
         LdapUtils.storeNotNull(attrs, "dcmSendPendingCGet", ext.getSendPendingCGet());
         LdapUtils.storeNotDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), 0);
+        LdapUtils.storeNotNull(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI());
+        LdapUtils.storeNotNull(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI());
     }
 
     @Override
@@ -200,6 +214,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), null));
         ext.setSendPendingCGet(LdapUtils.booleanValue(attrs.get("dcmSendPendingCGet"), null));
         ext.setSendPendingCMoveInterval(LdapUtils.intValue(attrs.get("dcmSendPendingCMoveInterval"), 0));
+        ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
+        ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
     }
 
     @Override
@@ -222,6 +238,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getSendPendingCMoveInterval(),
                 bb.getSendPendingCMoveInterval(),
                 0);
+        LdapUtils.storeDiff(mods, "dcmWadoSR2HtmlTemplateURI",
+                aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI());
+        LdapUtils.storeDiff(mods, "dcmWadoSR2TextTemplateURI",
+                aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI());
     }
 
     @Override
