@@ -569,9 +569,11 @@ class ArchiveDeviceFactory {
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String BULK_DATA_SPOOL_DIR = "${jboss.server.temp.dir}";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.config.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
+    static final String DSR2HTML_XSL = "${jboss.server.config.url}/dcm4chee-arc/dsr2html.xsl";
+    static final String DSR2TEXT_XSL = "${jboss.server.config.url}/dcm4chee-arc/dsr2text.xsl";
     static final String PIX_CONSUMER = "DCM4CHEE^DCM4CHEE";
-    static final String PIX_MANAGER = "HL7RCV^DCM4CHEE";
 
+    static final String PIX_MANAGER = "HL7RCV^DCM4CHEE";
     static final String STORAGE_ID = "fs1";
     static final URI STORAGE_URI = URI.create("file:///var/local/dcm4chee-arc/fs1/");
     static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
@@ -759,8 +761,8 @@ class ArchiveDeviceFactory {
         ext.setSendPendingCGet(true);
         ext.setSendPendingCMoveInterval(5);
         ext.setWadoSupportedSRClasses(SR_CUIDS);
-        ext.setWadoSR2HtmlTemplateURI("${jboss.server.config.url}/dcm4chee-arc/sr2html.xsl");
-        ext.setWadoSR2TextTemplateURI("${jboss.server.config.url}/dcm4chee-arc/sr2text.xsl");
+        ext.setWadoSR2HtmlTemplateURI(DSR2HTML_XSL);
+        ext.setWadoSR2TextTemplateURI(DSR2TEXT_XSL);
 
         ext.setAttributeFilter(Entity.Patient,
                 new AttributeFilter(PATIENT_ATTRS));
