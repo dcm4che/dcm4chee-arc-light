@@ -41,8 +41,10 @@
 package org.dcm4chee.archive.query.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.archive.code.CodeCache;
 import org.dcm4chee.archive.conf.QueryRetrieveView;
 import org.dcm4chee.archive.entity.SeriesQueryAttributes;
@@ -81,14 +83,39 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public QueryContext newQueryContext(Association as, EnumSet<QueryOption> queryOpts) {
-        QueryParam queryParam = new QueryParam(as.getApplicationEntity(), queryOpts);
+    public QueryContext newQueryContextFIND(Association as, EnumSet<QueryOption> queryOpts) {
+        ApplicationEntity ae = as.getApplicationEntity();
+        return new QueryContextImpl(ae, newQueryParam(ae,
+                        queryOpts.contains(QueryOption.DATETIME), queryOpts.contains(QueryOption.FUZZY)), this);
+    }
+
+    @Override
+    public QueryContext newQueryContextQIDO(ApplicationEntity ae, boolean fuzzyMatching) {
+        return new QueryContextImpl(ae, newQueryParam(ae, true, fuzzyMatching), this);
+    }
+
+    private QueryParam newQueryParam(ApplicationEntity ae, boolean datetimeMatching, boolean fuzzyMatching) {
+        QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching);
         QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
         queryParam.setHideRejectionNotesWithCode(
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
         queryParam.setShowInstancesRejectedByCode(
                 codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
-        return new QueryContextImpl(as, queryParam, this);
+        return queryParam;
+    }
+
+    @Override
+    public Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx) {
+        switch (qrLevel) {
+            case PATIENT:
+                return createPatientQuery(ctx);
+            case STUDY:
+                return createStudyQuery(ctx);
+            case SERIES:
+                return createSeriesQuery(ctx);
+            default: // case IMAGE
+                return createInstanceQuery(ctx);
+        }
     }
 
     @Override

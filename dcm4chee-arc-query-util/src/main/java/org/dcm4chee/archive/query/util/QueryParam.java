@@ -56,17 +56,19 @@ import java.util.EnumSet;
 public class QueryParam {
     private final ArchiveDeviceExtension arcDev;
     private final ArchiveAEExtension arcAE;
-    private final EnumSet<QueryOption> queryOpts;
+    private final boolean combinedDatetimeMatching;
+    private final boolean fuzzySemanticMatching;
     private final QueryRetrieveView qrView;
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
-    public QueryParam(ApplicationEntity ae, EnumSet<QueryOption> queryOpts) {
+    public QueryParam(ApplicationEntity ae, boolean combinedDatetimeMatching, boolean fuzzySemanticMatching) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         this.arcDev = arcAE.getArchiveDeviceExtension();
-        this.queryOpts = queryOpts;
         this.qrView = arcAE.getQueryRetrieveView();
+        this.combinedDatetimeMatching = combinedDatetimeMatching;
+        this.fuzzySemanticMatching = fuzzySemanticMatching;
     }
 
     public boolean isMatchUnknown() {
@@ -74,7 +76,7 @@ public class QueryParam {
     }
 
     public boolean isFuzzySemanticMatching() {
-        return queryOpts.contains(QueryOption.FUZZY);
+        return fuzzySemanticMatching;
     }
 
     public FuzzyStr getFuzzyStr() {
@@ -120,7 +122,7 @@ public class QueryParam {
     }
 
     public boolean isCombinedDatetimeMatching() {
-        return queryOpts.contains(QueryOption.DATETIME);
+        return combinedDatetimeMatching;
     }
 
     public Issuer getDefaultIssuerOfAccessionNumber() {

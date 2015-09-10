@@ -43,18 +43,23 @@ package org.dcm4chee.archive.query.util;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.service.QueryRetrieveLevel;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.archive.conf.AttributeFilter;
 import org.dcm4chee.archive.conf.Entity;
 import org.dcm4chee.archive.entity.*;
 
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.List;
 
 /**
@@ -75,6 +80,93 @@ public class QueryBuilder {
     public static final QIssuerEntity patientIDIssuer = new QIssuerEntity("patientIDIssuer");
 
     private QueryBuilder() {}
+
+    public static boolean addOrderSpecifier(QueryRetrieveLevel2 level, int tag, Order order,
+                                            List<OrderSpecifier<?>> result) {
+        switch (level) {
+            case IMAGE:
+                switch (tag) {
+                    case Tag.SOPInstanceUID:
+                        return result.add(orderSpecifierOf(QInstance.instance.sopInstanceUID, order));
+                    case Tag.SOPClassUID:
+                        return result.add(orderSpecifierOf(QInstance.instance.sopClassUID, order));
+                    case Tag.InstanceNumber:
+                        return result.add(orderSpecifierOf(QInstance.instance.instanceNumber, order));
+                    case Tag.VerificationFlag:
+                        return result.add(orderSpecifierOf(QInstance.instance.verificationFlag, order));
+                    case Tag.CompletionFlag:
+                        return result.add(orderSpecifierOf(QInstance.instance.completionFlag, order));
+                    case Tag.ContentDate:
+                        return result.add(orderSpecifierOf(QInstance.instance.contentDate, order));
+                    case Tag.ContentTime:
+                        return result.add(orderSpecifierOf(QInstance.instance.contentTime, order));
+                }
+            case SERIES:
+                switch (tag) {
+                    case Tag.SeriesInstanceUID:
+                        return result.add(orderSpecifierOf(QSeries.series.seriesInstanceUID, order));
+                    case Tag.SeriesNumber:
+                        return result.add(orderSpecifierOf(QSeries.series.seriesNumber, order));
+                    case Tag.Modality:
+                        return result.add(orderSpecifierOf(QSeries.series.modality, order));
+                    case Tag.BodyPartExamined:
+                        return result.add(orderSpecifierOf(QSeries.series.bodyPartExamined, order));
+                    case Tag.Laterality:
+                        return result.add(orderSpecifierOf(QSeries.series.laterality, order));
+                    case Tag.PerformedProcedureStepStartDate:
+                        return result.add(orderSpecifierOf(QSeries.series.performedProcedureStepStartDate, order));
+                    case Tag.PerformedProcedureStepStartTime:
+                        return result.add(orderSpecifierOf(QSeries.series.performedProcedureStepStartTime, order));
+                    case Tag.PerformingPhysicianName:
+                        result.add(orderSpecifierOf(performingPhysicianName.familyName, order));
+                        result.add(orderSpecifierOf(performingPhysicianName.givenName, order));
+                        return result.add(orderSpecifierOf(performingPhysicianName.middleName, order));
+                    case Tag.SeriesDescription:
+                        return result.add(orderSpecifierOf(QSeries.series.seriesDescription, order));
+                    case Tag.StationName:
+                        return result.add(orderSpecifierOf(QSeries.series.stationName, order));
+                    case Tag.InstitutionName:
+                        return result.add(orderSpecifierOf(QSeries.series.institutionName, order));
+                    case Tag.InstitutionalDepartmentName:
+                        return result.add(orderSpecifierOf(QSeries.series.institutionalDepartmentName, order));
+                }
+            case STUDY:
+                switch (tag) {
+                    case Tag.StudyInstanceUID:
+                        return result.add(orderSpecifierOf(QStudy.study.studyInstanceUID, order));
+                    case Tag.StudyID:
+                        return result.add(orderSpecifierOf(QStudy.study.studyID, order));
+                    case Tag.StudyDate:
+                        return result.add(orderSpecifierOf(QStudy.study.studyDate, order));
+                    case Tag.StudyTime:
+                        return result.add(orderSpecifierOf(QStudy.study.studyTime, order));
+                    case Tag.ReferringPhysicianName:
+                        result.add(orderSpecifierOf(referringPhysicianName.familyName, order));
+                        result.add(orderSpecifierOf(referringPhysicianName.givenName, order));
+                        return result.add(orderSpecifierOf(referringPhysicianName.middleName, order));
+                    case Tag.StudyDescription:
+                        return result.add(orderSpecifierOf(QStudy.study.studyDescription, order));
+                    case Tag.AccessionNumber:
+                        return result.add(orderSpecifierOf(QStudy.study.accessionNumber, order));
+                }
+            case PATIENT:
+                switch (tag) {
+                    case Tag.PatientName:
+                        result.add(orderSpecifierOf(patientName.familyName, order));
+                        result.add(orderSpecifierOf(patientName.givenName, order));
+                        return result.add(orderSpecifierOf(patientName.middleName, order));
+                    case Tag.PatientSex:
+                        return result.add(orderSpecifierOf(QPatient.patient.patientSex, order));
+                    case Tag.PatientBirthDate:
+                        return result.add(orderSpecifierOf(QPatient.patient.patientBirthDate, order));
+                }
+        }
+        return false;
+    }
+
+    private static OrderSpecifier orderSpecifierOf(StringPath path, Order order) {
+        return order == Order.ASC ? path.asc() : path.desc();
+    }
 
     public static HibernateQuery<Tuple> applyPatientLevelJoins(
             HibernateQuery<Tuple> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {

@@ -54,7 +54,6 @@ import org.dcm4chee.archive.query.util.QueryParam;
  * @since Aug 2015
  */
 class QueryContextImpl implements QueryContext {
-    private final Association as;
     private final ApplicationEntity ae;
     private final QueryParam queryParam;
     private final QueryService queryService;
@@ -62,16 +61,10 @@ class QueryContextImpl implements QueryContext {
     private Attributes queryKeys;
     private Attributes returnKeys;
 
-    public QueryContextImpl(Association as, QueryParam queryParam, QueryService queryService) {
-        this.as = as;
-        this.ae = as.getApplicationEntity();
+    public QueryContextImpl(ApplicationEntity ae, QueryParam queryParam, QueryService queryService) {
+        this.ae = ae;
         this.queryService = queryService;
         this.queryParam = queryParam;
-    }
-
-    @Override
-    public Association getAssociation() {
-        return as;
     }
 
     @Override

@@ -38,41 +38,56 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.query;
+package org.dcm4chee.archive.validation.constraints;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.archive.entity.SeriesQueryAttributes;
-import org.dcm4chee.archive.entity.StudyQueryAttributes;
-import org.dcm4chee.archive.query.util.QueryParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.ws.rs.core.UriInfo;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface QueryService {
-    QueryContext newQueryContextFIND(Association as, EnumSet<QueryOption> queryOpts);
+class ValidUriInfoValidator implements ConstraintValidator<ValidUriInfo, Object> {
+    private final static Logger log = LoggerFactory.getLogger(ValidUriInfoValidator.class);
+    private String paramName;
+    private Constructor<?> init;
+    private Method valueOf;
 
-    QueryContext newQueryContextQIDO(ApplicationEntity ae, boolean fuzzyMatching);
+    @Override
+    public void initialize(ValidUriInfo constraint) {
+        this.paramName = constraint.paramName();
+        Class<?> type = constraint.type();
+        try {
+            init = type.getConstructor(UriInfo.class);
+        } catch (NoSuchMethodException e) {
+            try {
+                valueOf = type.getMethod("valueOf", UriInfo.class);
+            } catch (NoSuchMethodException e1) {
+                log.warn("class {} neither provides constructor nor valueOf method with UriInfo parameter", type);
+            }
+        }
+    }
 
-    Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx);
-
-    Query createPatientQuery(QueryContext ctx);
-
-    Query createStudyQuery(QueryContext ctx);
-
-    Query createSeriesQuery(QueryContext ctx);
-
-    Query createInstanceQuery(QueryContext ctx);
-
-    Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam);
-
-    StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam);
-
-    SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam);
+    @Override
+    public boolean isValid(Object obj, ConstraintValidatorContext context) {
+        try {
+            Object value = new FieldValue(obj, paramName).get();
+            if (init != null)
+                init.newInstance(value);
+            else if (valueOf != null)
+                valueOf.invoke(null, value);
+            return true;
+        } catch (InvocationTargetException e) {
+            return false;        } catch (Exception e) {
+            FieldValue.log().warn("Unexpected Exception: ", e);
+        }
+        return true;
+    }
 }

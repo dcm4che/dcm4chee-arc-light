@@ -80,7 +80,7 @@ import java.util.Iterator;
  * @since Aug 2015
  */
 @RequestScoped
-@Path("/wado/{AETitle}")
+@Path("{AETitle}/wado")
 @NotAllowedIfEquals(paramName = "contentType", paramValue = MediaTypes.APPLICATION_DICOM,
         notAllowed = { "annotation", "rows", "columns", "region", "windowCenter",
                 "windowWidth", "frameNumber", "presentationUID", "presentationSeriesUID" })
@@ -101,11 +101,11 @@ public class WadoURI {
     @Context
     private HttpServletRequest request;
 
-    @Context
-    private HttpHeaders headers;
-
     @Inject
     private Device device;
+
+    @PathParam("AETitle")
+    private String aet;
 
     @QueryParam("requestType")
     @NotNull
@@ -187,14 +187,9 @@ public class WadoURI {
     }
 
     @GET
-    public Response get(@PathParam("AETitle") String aet) {
-        ApplicationEntity ae = device.getApplicationEntity(aet);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
-
-        RetrieveContext ctx = service.newRetrieveContextWADO(request, ae, studyUID, seriesUID, objectUID);
+    public Response get() {
+        RetrieveContext ctx = service.newRetrieveContextWADO(
+                request, getApplicationEntity(), studyUID, seriesUID, objectUID);
         if (!service.calculateMatches(ctx))
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
@@ -222,6 +217,15 @@ public class WadoURI {
             throw new WebApplicationException(e);
         }
         return Response.ok(entity, mimeType).build();
+    }
+
+    private ApplicationEntity getApplicationEntity() {
+        ApplicationEntity ae = device.getApplicationEntity(aet);
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(
+                    "No such Application Entity: " + aet,
+                    Response.Status.SERVICE_UNAVAILABLE);
+        return ae;
     }
 
     private Object entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,

@@ -53,7 +53,6 @@ import org.dcm4chee.archive.query.QueryContext;
 import org.dcm4chee.archive.query.QueryService;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.EnumSet;
 
 /**
@@ -78,41 +77,22 @@ class CommonCFindSCP extends BasicCFindSCP {
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
-        QueryContext ctx = queryService.newQueryContext(as, queryOpts);
+        QueryContext ctx = queryService.newQueryContextFIND(as, queryOpts);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
-        return new ArchiveQueryTask(as, pc, rq, keys, createQuery(qrLevel, ctx));
+        return new ArchiveQueryTask(as, pc, rq, keys, queryService.createQuery(qrLevel, ctx));
     }
 
     private Attributes createReturnKeys(Attributes keys) {
-        Attributes returnKeys = new Attributes(keys.size() + 8);
+        Attributes returnKeys = new Attributes(keys.size() + 3);
         returnKeys.addAll(keys);
-        if (!returnKeys.contains(Tag.SpecificCharacterSet))
-            returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
+        returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
         returnKeys.setNull(Tag.RetrieveAETitle, VR.AE);
         returnKeys.setNull(Tag.InstanceAvailability, VR.CS);
-        returnKeys.setNull(Tag.ModalitiesInStudy, VR.CS);
-        returnKeys.setNull(Tag.SOPClassesInStudy, VR.UI);
-        returnKeys.setNull(Tag.NumberOfStudyRelatedSeries, VR.IS);
-        returnKeys.setNull(Tag.NumberOfStudyRelatedInstances, VR.IS);
-        returnKeys.setNull(Tag.NumberOfSeriesRelatedInstances, VR.IS);
         return returnKeys;
-    }
-
-    private Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx) {
-        switch (qrLevel) {
-            case PATIENT:
-                return queryService.createPatientQuery(ctx);
-            case STUDY:
-                return queryService.createStudyQuery(ctx);
-            case SERIES:
-                return queryService.createSeriesQuery(ctx);
-            default: // case IMAGE
-                return queryService.createInstanceQuery(ctx);
-        }
     }
 
  }

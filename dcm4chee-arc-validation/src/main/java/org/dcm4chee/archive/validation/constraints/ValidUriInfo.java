@@ -38,41 +38,35 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.archive.query;
+package org.dcm4chee.archive.validation.constraints;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.archive.entity.SeriesQueryAttributes;
-import org.dcm4chee.archive.entity.StudyQueryAttributes;
-import org.dcm4chee.archive.query.util.QueryParam;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import java.util.EnumSet;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface QueryService {
-    QueryContext newQueryContextFIND(Association as, EnumSet<QueryOption> queryOpts);
+@Target(TYPE)
+@Retention(RUNTIME)
+@Constraint(validatedBy = ValidUriInfoValidator.class)
+public @interface ValidUriInfo {
 
-    QueryContext newQueryContextQIDO(ApplicationEntity ae, boolean fuzzyMatching);
+    String paramName() default "uriInfo";
+    Class<?> type();
+    String message() default "{org.dcm4chee.archive.validation.constraints.ValidUriInfo.message}";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
 
-    Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx);
+    @Target(TYPE)
+    @Retention(RUNTIME)
+    @interface List {
 
-    Query createPatientQuery(QueryContext ctx);
-
-    Query createStudyQuery(QueryContext ctx);
-
-    Query createSeriesQuery(QueryContext ctx);
-
-    Query createInstanceQuery(QueryContext ctx);
-
-    Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam);
-
-    StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam);
-
-    SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam);
+        ValidUriInfo[] value();
+    }
 }

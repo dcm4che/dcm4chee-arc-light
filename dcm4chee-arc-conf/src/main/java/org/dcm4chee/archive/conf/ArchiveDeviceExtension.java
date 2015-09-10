@@ -75,6 +75,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final CompressionRules compressionRules = new CompressionRules();
 
     private transient FuzzyStr fuzzyStr;
+    private int qidoMaxNumberOfResults;
 
     public String getFuzzyAlgorithmClass() {
         return fuzzyAlgorithmClass;
@@ -189,6 +190,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.wadoSR2TextTemplateURI = wadoSR2TextTemplateURI;
     }
 
+    public int getQidoMaxNumberOfResults() {
+        return qidoMaxNumberOfResults;
+    }
+
+    public void setQidoMaxNumberOfResults(int qidoMaxNumberOfResults) {
+        this.qidoMaxNumberOfResults = qidoMaxNumberOfResults;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters[entity.ordinal()];
     }
@@ -262,6 +271,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
+        qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         System.arraycopy(arcdev.attributeFilters, 0, attributeFilters, 0, attributeFilters.length);
         storageDescriptorMap.clear();

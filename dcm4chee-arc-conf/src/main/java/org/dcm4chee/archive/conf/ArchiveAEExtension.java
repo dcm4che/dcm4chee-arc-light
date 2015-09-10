@@ -62,6 +62,7 @@ public class ArchiveAEExtension extends AEExtension {
     private int sendPendingCMoveInterval;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
+    private Integer qidoMaxNumberOfResults;
 
     private CompressionRules compressionRules = new CompressionRules();
 
@@ -195,6 +196,21 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getWadoSR2TextTemplateURI();
     }
 
+    public Integer getQidoMaxNumberOfResults() {
+        return qidoMaxNumberOfResults;
+    }
+
+    public void setQidoMaxNumberOfResults(Integer qidoMaxNumberOfResults) {
+        this.qidoMaxNumberOfResults = qidoMaxNumberOfResults;
+    }
+
+    public int qidoMaxNumberOfResults() {
+        return qidoMaxNumberOfResults != null
+                ? qidoMaxNumberOfResults.intValue()
+                : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
+    }
+
+
     public CompressionRules getCompressionRules() {
         return compressionRules;
     }
@@ -224,6 +240,7 @@ public class ArchiveAEExtension extends AEExtension {
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
+        qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         compressionRules.clear();
         compressionRules.add(aeExt.compressionRules);
     }

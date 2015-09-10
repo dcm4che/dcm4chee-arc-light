@@ -56,8 +56,6 @@ import java.util.EnumSet;
  * @since Aug 2015
  */
 public interface QueryContext {
-    Association getAssociation();
-
     ApplicationEntity getLocalApplicationEntity();
 
     ArchiveAEExtension getArchiveAEExtension();
