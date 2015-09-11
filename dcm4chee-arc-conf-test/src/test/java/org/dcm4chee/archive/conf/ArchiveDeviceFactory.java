@@ -577,6 +577,9 @@ class ArchiveDeviceFactory {
     static final String STORAGE_ID = "fs1";
     static final URI STORAGE_URI = URI.create("file:///var/local/dcm4chee-arc/fs1/");
     static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+    static final boolean SEND_PENDING_C_GET = true;
+    static final int SEND_PENDING_C_MOVE_INTERVAL = 5;
+    static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
 
     private final KeyStore keyStore;
     private final DicomConfiguration config;
@@ -758,11 +761,12 @@ class ArchiveDeviceFactory {
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
         ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);
-        ext.setSendPendingCGet(true);
-        ext.setSendPendingCMoveInterval(5);
+        ext.setSendPendingCGet(SEND_PENDING_C_GET);
+        ext.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);
         ext.setWadoSupportedSRClasses(SR_CUIDS);
         ext.setWadoSR2HtmlTemplateURI(DSR2HTML_XSL);
         ext.setWadoSR2TextTemplateURI(DSR2TEXT_XSL);
+        ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
 
         ext.setAttributeFilter(Entity.Patient,
                 new AttributeFilter(PATIENT_ATTRS));

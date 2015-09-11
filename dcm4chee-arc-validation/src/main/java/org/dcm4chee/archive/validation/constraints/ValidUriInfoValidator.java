@@ -85,8 +85,9 @@ class ValidUriInfoValidator implements ConstraintValidator<ValidUriInfo, Object>
                 valueOf.invoke(null, value);
             return true;
         } catch (InvocationTargetException e) {
-            return false;        } catch (Exception e) {
-            FieldValue.log().warn("Unexpected Exception: ", e);
+            return false;
+        } catch (Exception e) {
+            log.warn("Unexpected Exception: ", e);
         }
         return true;
     }

@@ -64,8 +64,6 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -82,7 +80,7 @@ import java.util.Map;
  * @since Sep 2015
  */
 @RequestScoped
-@Path("/{AETitle}/qido")
+@Path("aets/{AETitle}/rs")
 @ValidUriInfo(type = QidoRS.QueryAttributes.class)
 public class QidoRS {
 
@@ -153,13 +151,11 @@ public class QidoRS {
     private String fuzzymatching;
 
     @QueryParam("offset")
-    @Min(value = 0)
-    @Digits(integer = 5, fraction = 0)
+    @Pattern(regexp = "0|([1-9]\\d{0,4})")
     private String offset;
 
     @QueryParam("limit")
-    @Min(value = 1)
-    @Digits(integer = 5, fraction = 0)
+    @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
     @Override
@@ -571,8 +567,9 @@ public class QidoRS {
     private String retrieveURL(Attributes match, QueryRetrieveLevel2 qrlevel) {
         StringBuilder sb = new StringBuilder(256);
         sb.append(uriInfo.getBaseUri())
+                .append("aets/")
                 .append(aet)
-                .append("/wado/studies/")
+                .append("/rs/studies/")
                 .append(match.getString(Tag.StudyInstanceUID));
 
         if (qrlevel == QueryRetrieveLevel2.STUDY)

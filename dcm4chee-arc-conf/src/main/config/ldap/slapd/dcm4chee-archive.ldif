@@ -112,6 +112,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.22 NAME 'dcmWadoSR2TextTemplateURI'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.23 NAME 'dcmQidoMaxNumberOfResults'
+  DESC 'Maximal number of return results by QIDO-RS Service. 0 (=unlimited) if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -127,7 +132,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmSendPendingCMoveInterval $
     dcmWadoSupportedSRClasses $
     dcmWadoSR2HtmlTemplateURI $
-    dcmWadoSR2TextTemplateURI) )
+    dcmWadoSR2TextTemplateURI $
+    dcmQidoMaxNumberOfResults ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
@@ -140,7 +146,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $
     dcmWadoSR2HtmlTemplateURI $
-    dcmWadoSR2TextTemplateURI ) )
+    dcmWadoSR2TextTemplateURI $
+    dcmQidoMaxNumberOfResults ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
   SUP top STRUCTURAL

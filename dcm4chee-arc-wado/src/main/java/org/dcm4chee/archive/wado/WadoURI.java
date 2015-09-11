@@ -80,7 +80,7 @@ import java.util.Iterator;
  * @since Aug 2015
  */
 @RequestScoped
-@Path("{AETitle}/wado")
+@Path("aets/{AETitle}/wado")
 @NotAllowedIfEquals(paramName = "contentType", paramValue = MediaTypes.APPLICATION_DICOM,
         notAllowed = { "annotation", "rows", "columns", "region", "windowCenter",
                 "windowWidth", "frameNumber", "presentationUID", "presentationSeriesUID" })
@@ -140,13 +140,11 @@ public class WadoURI {
     private String annotation;
 
     @QueryParam("rows")
-    @Min(value = 1)
-    @Digits(integer = 5, fraction = 0)
+    @Pattern(regexp = "[1-9]\\d{0,4}")
     private String rows;
 
     @QueryParam("columns")
-    @Min(value = 1)
-    @Digits(integer = 5, fraction = 0)
+    @Pattern(regexp = "[1-9]\\d{0,4}")
     private String columns;
 
     @QueryParam("region")
@@ -162,14 +160,11 @@ public class WadoURI {
     private String windowWidth;
 
     @QueryParam("frameNumber")
-    @Min(value = 1)
-    @Digits(integer = 5, fraction = 0)
+    @Pattern(regexp = "[1-9]\\d{0,4}")
     private String frameNumber;
 
     @QueryParam("imageQuality")
-    @Min(value = 1)
-    @Max(value = 100)
-    @Digits(integer = 3, fraction = 0)
+    @Pattern(regexp = "([1-9]\\d?})|100")
     private String imageQuality;
 
     @QueryParam("presentationUID")
