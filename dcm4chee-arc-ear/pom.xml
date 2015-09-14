@@ -169,6 +169,7 @@
           <defaultLibBundleDir>lib</defaultLibBundleDir>
           <applicationName>dcm4chee-arc</applicationName>
           <displayName>dcm4chee-arc</displayName>
+          <workDirectory>${project.build.directory}/${project.build.finalName}-${db}</workDirectory>
           <modules>
             <webModule>
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
