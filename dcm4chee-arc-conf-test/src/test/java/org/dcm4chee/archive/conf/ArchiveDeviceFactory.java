@@ -806,9 +806,9 @@ class ArchiveDeviceFactory {
         ae.setAssociationInitiator(true);
         if (storeSCP)
             for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
-                addTCs(ae, null, SCP, CUIDS_TSUIDS[i], IMAGE_TSUIDS[i+1]);
+                addTCs(ae, null, SCP, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
         for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
-            addTCs(ae, null, SCU, CUIDS_TSUIDS[i], IMAGE_TSUIDS[i+1]);
+            addTCs(ae, null, SCU, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
         addTCs(ae, EnumSet.allOf(QueryOption.class), SCP, QUERY_CUIDS, UID.ImplicitVRLittleEndian);
         addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
         addTC(ae, null, SCP, UID.CompositeInstanceRetrieveWithoutBulkDataGET, UID.ImplicitVRLittleEndian);
