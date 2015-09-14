@@ -4,3 +4,6 @@
 .settings/
 .idea/
 target/
+node/
+node_modules/
+bower_components/

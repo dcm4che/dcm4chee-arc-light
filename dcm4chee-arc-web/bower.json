@@ -1,0 +1,16 @@
+{
+  "name": "dcm4chee-arc-web",
+  "private":  true,
+  "version": "0.0.1",
+  "homepage": "https://github.com/dcm4che/dcm4chee-arc-light",
+  "authors": [
+    "Gunter Zeilinger <gunterze@gmail.com>"
+  ],
+  "description": "Web Frontend for dcm4chee-arc DICOM Archive",
+  "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
+  "dependencies": {
+    "angular": "~1.4.5",
+    "angular-route": "~1.4.5",
+    "bootstrap": "~3.3.5"
+  }
+}

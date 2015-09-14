@@ -1,0 +1,7 @@
+table > tbody > tr > td.attribute_list {
+    padding: 0;
+}
+
+table.attribute_list {
+    margin: 0;
+}

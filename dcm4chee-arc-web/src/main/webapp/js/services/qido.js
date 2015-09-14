@@ -1,0 +1,41 @@
+"use strict";
+
+myApp.factory('QidoService', function($http) {
+    var srv = {};
+
+    srv._config = function(params) {
+        return {
+            headers: {Accept: 'application/json'},
+            params: params
+        }
+    };
+
+    srv.queryStudies = function(url, params) {
+        return $http.get(url + '/studies', srv._config(params));
+    };
+
+    srv.querySeries = function(url, studyIUID, params) {
+        return $http.get(url + '/studies/' + studyIUID + '/series', srv._config(params));
+    };
+
+    srv.queryInstances = function(url, studyIUID, seriesIUID, params) {
+        return $http.get(url
+            + '/studies/' + studyIUID
+            + '/series/' + seriesIUID
+            + '/instances',
+            srv._config(params));
+    };
+
+   // Public API
+    return {
+        queryStudies: function(url, params) {
+            return srv.queryStudies(url, params);
+        },
+        querySeries: function(url, studyIUID, params) {
+            return srv.querySeries(url, studyIUID, params);
+        },
+        queryInstances: function(url, studyIUID, seriesIUID, params) {
+            return srv.queryInstances(url, studyIUID, seriesIUID, params);
+        }
+    };
+});

@@ -156,6 +156,12 @@
       <version>${project.version}</version>
       <type>war</type>
     </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-web</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
   </dependencies>
 
   <build>
@@ -175,6 +181,11 @@
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
               <artifactId>dcm4chee-arc-war</artifactId>
               <contextRoot>dcm4chee-arc</contextRoot>
+            </webModule>
+            <webModule>
+              <groupId>org.dcm4che.dcm4chee-arc</groupId>
+              <artifactId>dcm4chee-arc-web</artifactId>
+              <contextRoot>dcm4chee-arc/ui</contextRoot>
             </webModule>
           </modules>
         </configuration>
