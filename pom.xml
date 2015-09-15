@@ -284,8 +284,8 @@
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
+    <module>dcm4chee-arc-ui</module>
     <module>dcm4chee-arc-ear</module>
-    <module>dcm4chee-arc-web</module>
   </modules>
 
   <profiles>

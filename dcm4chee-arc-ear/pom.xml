@@ -158,7 +158,7 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-web</artifactId>
+      <artifactId>dcm4chee-arc-ui</artifactId>
       <version>${project.version}</version>
       <type>war</type>
     </dependency>
@@ -184,7 +184,7 @@
             </webModule>
             <webModule>
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
-              <artifactId>dcm4chee-arc-web</artifactId>
+              <artifactId>dcm4chee-arc-ui</artifactId>
               <contextRoot>dcm4chee-arc/ui</contextRoot>
             </webModule>
           </modules>

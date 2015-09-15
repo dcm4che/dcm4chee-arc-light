@@ -1,5 +1,5 @@
 {
-  "name": "dcm4chee-arc-web",
+  "name": "dcm4chee-arc-ui",
   "private": true,
   "version": "0.0.1",
   "description": "Web Frontend for dcm4chee-arc DICOM Archive",
