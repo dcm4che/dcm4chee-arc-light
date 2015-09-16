@@ -57,6 +57,7 @@
     <!-- Versions -->
     <dcm4che.version>3.3.5-SNAPSHOT</dcm4che.version>
     <hibernate.version>4.3.7.Final</hibernate.version>
+    <jboss-ejb3-ext-api.version>2.1.0</jboss-ejb3-ext-api.version>
     <resteasy.version>3.0.10.Final</resteasy.version>
     <querydsl.version>4.0.3</querydsl.version>
 
@@ -203,6 +204,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-ext-api</artifactId>
+      <version>${jboss-ejb3-ext-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-multipart-provider</artifactId>
       <version>${resteasy.version}</version>
@@ -216,19 +224,18 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Import Enterprise JavaBeans(TM) 3.2 API -->
     <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
       <artifactId>jboss-ejb-api_3.2_spec</artifactId>
       <scope>provided</scope>
     </dependency>
-
+    <!-- Import Java Persistence API, Version 2.1 -->
     <dependency>
       <groupId>org.hibernate.javax.persistence</groupId>
       <artifactId>hibernate-jpa-2.1-api</artifactId>
       <scope>provided</scope>
     </dependency>
-
-
     <!-- Import the CDI API -->
     <dependency>
       <groupId>javax.enterprise</groupId>
@@ -253,6 +260,13 @@
       <artifactId>jboss-concurrency-api_1.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!-- Import Java(TM) Message Service (JMS) 2.0 API -->
+    <dependency>
+      <groupId>org.jboss.spec.javax.jms</groupId>
+      <artifactId>jboss-jms-api_2.0_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Import Bean Validation API -->
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
@@ -276,11 +290,12 @@
     <module>dcm4chee-arc-retrieve</module>
     <module>dcm4chee-arc-retrieve-scp</module>
     <module>dcm4chee-arc-service</module>
+    <module>dcm4chee-arc-stgcmt-scp</module>
     <module>dcm4chee-arc-storage</module>
     <module>dcm4chee-arc-storage-filesystem</module>
     <module>dcm4chee-arc-store</module>
-    <module>dcm4chee-arc-store-scp</module>
     <module>dcm4chee-arc-store-scu</module>
+    <module>dcm4chee-arc-store-scp</module>
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
