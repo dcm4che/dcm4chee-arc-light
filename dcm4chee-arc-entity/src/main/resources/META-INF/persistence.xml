@@ -39,50 +39,15 @@
   ~ **** END LICENSE BLOCK *****
   -->
 
-<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
-
-  <package>org.dcm4chee.archive.entity</package>
-
-  <access>FIELD</access>
-
-  <entity class="AttributesBlob">
-    <table name="dicomattrs"/>
-    <attributes>
-      <basic name="encodedAttributes" optional="false">
-        <column name="attrs" column-definition="longblob"/>
-      </basic>
-    </attributes>
-  </entity>
-
-  <embeddable class="org.dcm4che3.data.Code">
-    <attributes>
-      <basic name="codeValue" optional="false">
-        <column name="code_value"/>
-      </basic>
-      <basic name="codingSchemeDesignator" optional="false">
-        <column name="code_designator"/>
-      </basic>
-      <basic name="codingSchemeVersion" optional="true">
-        <column name="code_version"/>
-      </basic>
-      <basic name="codeMeaning" optional="false">
-        <column name="code_meaning"/>
-      </basic>
-    </attributes>
-  </embeddable>
-
-  <embeddable class="org.dcm4che3.data.Issuer">
-    <attributes>
-      <basic name="localNamespaceEntityID" optional="true">
-        <column name="entity_id"/>
-      </basic>
-      <basic name="universalEntityID" optional="true">
-        <column name="entity_uid"/>
-      </basic>
-      <basic name="universalEntityIDType" optional="true">
-        <column name="entity_uid_type"/>
-      </basic>
-    </attributes>
-  </embeddable>
-
-</entity-mappings>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+  <persistence-unit name="dcm4chee-arc">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <jta-data-source>${ds}</jta-data-source>
+    <mapping-file>${mapping-file}</mapping-file>
+    <properties>
+      <property name="javax.persistence.database-product-name" value="${databaseProductName}"/>
+      <property name="javax.persistence.database-major-version" value="${databaseMajorVersion}"/>
+      <property name="javax.persistence.database-minor-version" value="${databaseMinorVersion}"/>
+    </properties>
+  </persistence-unit>
+</persistence>

@@ -62,7 +62,7 @@
   <build>
     <resources>
       <resource>
-        <directory>src/main/resources-${db}</directory>
+        <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
     </resources>
@@ -75,8 +75,7 @@
             <id>default-jar</id>
             <configuration>
               <excludes>
-                <exclude>META-INF/persistence.xml</exclude>
-                <exclude>META-INF/orm.xml</exclude>
+                <exclude>META-INF/*</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -88,6 +87,11 @@
             </goals>
             <configuration>
               <classifier>${db}</classifier>
+              <includes>
+                <include>org/**</include>
+                <include>META-INF/persistence.xml</include>
+                <include>${mapping-file}</include>
+              </includes>
             </configuration>
           </execution>
         </executions>
