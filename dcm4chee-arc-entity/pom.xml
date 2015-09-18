@@ -74,9 +74,9 @@
           <execution>
             <id>default-jar</id>
             <configuration>
-              <excludes>
-                <exclude>META-INF/*</exclude>
-              </excludes>
+              <includes>
+                <include>org/**</include>
+              </includes>
             </configuration>
           </execution>
           <execution>
@@ -91,6 +91,24 @@
                 <include>org/**</include>
                 <include>META-INF/persistence.xml</include>
                 <include>${mapping-file}</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>sql-schema</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>${db}-sql</classifier>
+              <includes>
+                <include>sql/create-${db}.sql</include>
+                <include>sql/drop-${db}.sql</include>
+                <include>sql/create-index.sql</include>
+                <include>sql/create-case-insensitive-index.sql</include>
+                <include>sql/create-fk-index.sql</include>
+                <include>META-INF/maven/remote-resources.xml</include>
               </includes>
             </configuration>
           </execution>
@@ -129,6 +147,7 @@
               <databaseMajorVersion>${databaseMajorVersion}</databaseMajorVersion>
               <databaseMinorVersion>${databaseMinorVersion}</databaseMinorVersion>
               <scriptAction>drop-and-create</scriptAction>
+              <outputDirectory>${build.outputDirectory}/sql</outputDirectory>
               <createOutputFileName>create-${db}.sql</createOutputFileName>
               <dropOutputFileName>drop-${db}.sql</dropOutputFileName>
             </configuration>
