@@ -56,9 +56,9 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <!-- Versions -->
     <dcm4che.version>3.3.5-SNAPSHOT</dcm4che.version>
-    <hibernate.version>4.3.7.Final</hibernate.version>
+    <hibernate.version>4.3.10.Final</hibernate.version>
     <jboss-ejb3-ext-api.version>2.1.0</jboss-ejb3-ext-api.version>
-    <resteasy.version>3.0.10.Final</resteasy.version>
+    <resteasy.version>3.0.11.Final</resteasy.version>
     <querydsl.version>4.0.3</querydsl.version>
 
     <!-- JPA -->
@@ -281,6 +281,7 @@
     <module>dcm4chee-arc-conf-test</module>
     <module>dcm4chee-arc-ctrl</module>
     <module>dcm4chee-arc-entity</module>
+    <module>dcm4chee-arc-hl7</module>
     <module>dcm4chee-arc-issuer</module>
     <module>dcm4chee-arc-patient</module>
     <module>dcm4chee-arc-qido</module>

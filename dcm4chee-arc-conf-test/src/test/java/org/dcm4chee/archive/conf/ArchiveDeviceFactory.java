@@ -747,7 +747,6 @@ class ArchiveDeviceFactory {
         hl7App.addHL7ApplicationExtension(hl7AppExt);
         hl7App.setAcceptedMessageTypes(HL7_MESSAGE_TYPES);
         hl7App.setHL7DefaultCharacterSet("8859/1");
-        hl7AppExt.addTemplatesURI("adt2dcm", HL7_ADT2DCM_XSL);
         ext.addHL7Application(hl7App);
         hl7App.addConnection(hl7);
         hl7App.addConnection(hl7TLS);
@@ -766,6 +765,7 @@ class ArchiveDeviceFactory {
         ext.setWadoSupportedSRClasses(SR_CUIDS);
         ext.setWadoSR2HtmlTemplateURI(DSR2HTML_XSL);
         ext.setWadoSR2TextTemplateURI(DSR2TEXT_XSL);
+        ext.setPatientUpdateTemplateURI(HL7_ADT2DCM_XSL);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
 
         ext.setAttributeFilter(Entity.Patient,

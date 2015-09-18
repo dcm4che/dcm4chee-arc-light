@@ -143,6 +143,7 @@ public class Patient {
     @Override
     public String toString() {
         return "Patient[pk=" + pk
+                + ", id=" + patientID
                 + ", name=" + patientName
                 + ", dob=" + patientBirthDate
                 + ", sex=" + patientSex

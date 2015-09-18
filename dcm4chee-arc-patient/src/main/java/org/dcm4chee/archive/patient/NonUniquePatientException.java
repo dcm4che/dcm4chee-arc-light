@@ -44,7 +44,7 @@ package org.dcm4chee.archive.patient;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
-public class NonUniquePatientException extends Exception {
+public class NonUniquePatientException extends RuntimeException {
     public NonUniquePatientException() {
         super();
     }

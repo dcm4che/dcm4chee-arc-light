@@ -57,13 +57,13 @@ import java.util.List;
 public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtension {
     @Override
     public void storeTo(HL7Application hl7App, String deviceDN, Attributes attrs) {
-        ArchiveHL7ApplicationExtension arcHL7App =
+        ArchiveHL7ApplicationExtension ext =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        if (arcHL7App == null)
+        if (ext == null)
             return;
 
         attrs.get("objectclass").add("dcmArchiveHL7Application");
-        LdapUtils.storeNotEmpty(attrs, "labeledURI", arcHL7App.getTemplatesURIs());
+        LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
     }
 
     @Override
@@ -72,9 +72,9 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         if (!LdapUtils.hasObjectClass(attrs, "dcmArchiveHL7Application"))
             return;
 
-        ArchiveHL7ApplicationExtension arcHL7App = new ArchiveHL7ApplicationExtension();
-        hl7App.addHL7ApplicationExtension(arcHL7App);
-        arcHL7App.setTemplatesURIs(LdapUtils.stringArray(attrs.get("labeledURI")));
+        ArchiveHL7ApplicationExtension ext = new ArchiveHL7ApplicationExtension();
+        hl7App.addHL7ApplicationExtension(ext);
+        ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
     }
 
     @Override
@@ -87,8 +87,7 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         if (aa == null || bb == null)
             return;
 
-        LdapUtils.storeDiff(mods, "labeledURI",
-                aa.getTemplatesURIs(),
-                bb.getTemplatesURIs());
+        LdapUtils.storeDiff(mods, "hl7PatientUpdateTemplateURI",
+                aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI());
     }
 }

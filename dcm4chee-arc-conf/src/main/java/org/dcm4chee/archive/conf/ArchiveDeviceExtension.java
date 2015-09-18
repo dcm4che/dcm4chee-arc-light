@@ -64,6 +64,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean personNameComponentOrderInsensitiveMatching;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
+    private String patientUpdateTemplateURI;
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
 
     private final AttributeFilter[] attributeFilters = new AttributeFilter[Entity.values().length];
@@ -190,6 +191,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.wadoSR2TextTemplateURI = wadoSR2TextTemplateURI;
     }
 
+    public String getPatientUpdateTemplateURI() {
+        return patientUpdateTemplateURI;
+    }
+
+    public void setPatientUpdateTemplateURI(String patientUpdateTemplateURI) {
+        this.patientUpdateTemplateURI = patientUpdateTemplateURI;
+    }
+
     public int getQidoMaxNumberOfResults() {
         return qidoMaxNumberOfResults;
     }
@@ -271,6 +280,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
+        patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         System.arraycopy(arcdev.attributeFilters, 0, attributeFilters, 0, attributeFilters.length);
@@ -279,4 +289,5 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionRules.clear();
         compressionRules.add(arcdev.compressionRules);
     }
+
 }

@@ -51,8 +51,10 @@ import org.dcm4chee.archive.conf.Entity;
 import org.dcm4chee.archive.entity.IssuerEntity;
 import org.dcm4chee.archive.entity.Patient;
 import org.dcm4chee.archive.entity.PatientID;
+import org.dcm4chee.archive.entity.Study;
 import org.dcm4chee.archive.issuer.IssuerService;
 import org.dcm4chee.archive.patient.NonUniquePatientException;
+import org.dcm4chee.archive.patient.PatientMergedException;
 import org.dcm4chee.archive.patient.PatientService;
 
 import javax.ejb.Stateless;
@@ -128,6 +130,56 @@ public class PatientServiceEJB implements PatientService {
         patient.setPatientID(createPatientID(IDWithIssuer.pidOf(attrs)));
         em.persist(patient);
         return patient;
+    }
+
+    @Override
+    public Patient updatePatient(Attributes newAttrs) throws NonUniquePatientException, PatientMergedException {
+        Patient pat = findPatient(newAttrs);
+        if (pat == null)
+            return createPatient(newAttrs);
+
+        checkMergedWith(pat);
+        updatePatient(pat, newAttrs);
+        return pat;
+    }
+
+    private void updatePatient(Patient pat, Attributes newAttrs) {
+        Attributes attrs = pat.getAttributes();
+        if (attrs.update(newAttrs, null))
+            pat.setAttributes(attrs, getAttributeFilter(), getFuzzyStr());
+    }
+
+    private void checkMergedWith(Patient pat) throws PatientMergedException {
+        if (pat.getMergedWith() != null)
+            throw new PatientMergedException("" + pat + " merged with " + pat.getMergedWith());
+    }
+
+    @Override
+    public Patient mergePatient(Attributes newAttrs, Attributes mrg)
+            throws NonUniquePatientException, PatientMergedException {
+        Patient pat = findPatient(newAttrs);
+        if (pat == null)
+            pat = createPatient(newAttrs);
+        else {
+            checkMergedWith(pat);
+            updatePatient(pat, newAttrs);
+        }
+        Patient prev = findPatient(mrg);
+        if (prev == null)
+            prev = createPatient(mrg);
+        else {
+            checkMergedWith(prev);
+            moveStudies(prev, pat);
+        }
+        prev.setMergedWith(pat);
+        return pat;
+    }
+
+    private void moveStudies(Patient from, Patient to) {
+        for (Study study : em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
+                .setParameter(1, from).getResultList()) {
+            study.setPatient(to);
+        }
     }
 
     private PatientID createPatientID(IDWithIssuer idWithIssuer) {

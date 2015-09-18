@@ -59,6 +59,10 @@ import java.util.Date;
  */
 @NamedQueries({
 @NamedQuery(
+    name=Study.FIND_BY_PATIENT,
+    query="select st from Study st " +
+            "where st.patient = ?1"),
+@NamedQuery(
     name=Study.FIND_BY_STUDY_IUID,
     query="select st from Study st " +
             "where st.studyInstanceUID = ?1"),
@@ -76,6 +80,7 @@ import java.util.Date;
 @Table(name = "study")
 public class Study {
 
+    public static final String FIND_BY_PATIENT = "findByPatient";
     public static final String FIND_BY_STUDY_IUID = "findByStudyIUID";
     public static final String FIND_BY_STUDY_IUID_EAGER = "findByStudyIUIDEager";
 

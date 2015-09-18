@@ -54,4 +54,8 @@ public interface PatientService {
     Patient findPatient(Attributes attrs) throws NonUniquePatientException;
 
     Patient createPatient(Attributes attrs);
+
+    Patient updatePatient(Attributes attrs) throws NonUniquePatientException, PatientMergedException;
+
+    Patient mergePatient(Attributes attrs, Attributes mrg) throws NonUniquePatientException, PatientMergedException;
 }

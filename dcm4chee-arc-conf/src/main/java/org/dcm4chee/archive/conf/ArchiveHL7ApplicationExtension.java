@@ -40,14 +40,7 @@
 
 package org.dcm4chee.archive.conf;
 
-import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
-import org.dcm4che3.util.StringUtils;
-
-import javax.xml.transform.Templates;
-import javax.xml.transform.TransformerConfigurationException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,56 +48,28 @@ import java.util.Map;
  */
 public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
-    private final LinkedHashMap<String, String> templatesURIs =
-            new LinkedHashMap<String, String>();
+    private String patientUpdateTemplateURI;
 
-    public void addTemplatesURI(String key, String uri) {
-        templatesURIs.put(key, uri);
-    }
-
-    public String getTemplatesURI(String key) {
-        return templatesURIs.get(key);
-    }
-
-    public String removeTemplatesURI(String key) {
-        return templatesURIs.remove(key);
-    }
-
-    public void clearTemplatesURIs() {
-        templatesURIs.clear();
-    }
-
-    public final String[] getTemplatesURIs() {
-        String[] ss = new String[templatesURIs.size()];
-        int i = 0;
-        for (Map.Entry<String, String> entry : templatesURIs.entrySet())
-            ss[i++] = entry.getValue() + " " + entry.getKey();
-        return ss ;
-    }
-
-    public void setTemplatesURIs(String[] ss) {
-        clearTemplatesURIs();
-        for (String s : ss) {
-            int end = s.indexOf(' ');
-            addTemplatesURI(s.substring(end+1), s.substring(0, end));
-        }
-    }
-
-    public Templates getTemplates(String key)
-            throws TransformerConfigurationException {
-        String uri = getTemplatesURI(key);
-        if (uri == null)
-            throw new TransformerConfigurationException(
-                    "No templates for " + key + " configured");
-        return TemplatesCache.getDefault().get(
-                StringUtils.replaceSystemProperties(uri));
+    public ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
     @Override
     public void reconfigure(HL7ApplicationExtension src) {
-        ArchiveHL7ApplicationExtension arcapp =
-                (ArchiveHL7ApplicationExtension) src;
-        templatesURIs.clear();
-        templatesURIs.putAll(arcapp.templatesURIs);
+        ArchiveHL7ApplicationExtension arcapp = (ArchiveHL7ApplicationExtension) src;
+        patientUpdateTemplateURI = arcapp.patientUpdateTemplateURI;
+    }
+
+    public String getPatientUpdateTemplateURI() {
+        return patientUpdateTemplateURI;
+    }
+
+    public void setPatientUpdateTemplateURI(String patientUpdateTemplateURI) {
+        this.patientUpdateTemplateURI = patientUpdateTemplateURI;
+    }
+
+    public String patientUpdateTemplateURI() {
+        return patientUpdateTemplateURI != null ? patientUpdateTemplateURI
+                : getArchiveDeviceExtension().getPatientUpdateTemplateURI();
     }
 }
