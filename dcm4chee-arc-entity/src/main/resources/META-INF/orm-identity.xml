@@ -41,11 +41,11 @@
 
 <entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
 
-  <package>org.dcm4chee.archive.entity</package>
+  <package>org.dcm4chee.arc.entity</package>
 
   <access>FIELD</access>
 
-  <entity class="AttributesBlob">
+  <entity class="org.dcm4chee.arc.entity.AttributesBlob">
     <table name="dicomattrs"/>
     <attributes>
       <basic name="encodedAttributes" optional="false">
