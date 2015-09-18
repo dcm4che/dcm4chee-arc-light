@@ -268,6 +268,48 @@ class ArchiveDeviceFactory {
             Tag.IdenticalDocumentsSequence,
             Tag.CurrentRequestedProcedureEvidenceSequence
     };
+    static final int[] MPPS_ATTRS = {
+            Tag.SpecificCharacterSet,
+            Tag.Modality,
+            Tag.ProcedureCodeSequence,
+            Tag.AnatomicStructureSpaceOrRegionSequence,
+            Tag.DistanceSourceToDetector,
+            Tag.ImageAndFluoroscopyAreaDoseProduct,
+            Tag.StudyID,
+            Tag.AdmissionID,
+            Tag.IssuerOfAdmissionIDSequence,
+            Tag.ServiceEpisodeID,
+            Tag.ServiceEpisodeDescription,
+            Tag.IssuerOfServiceEpisodeIDSequence,
+            Tag.PerformedStationAETitle,
+            Tag.PerformedStationName,
+            Tag.PerformedLocation,
+            Tag.PerformedProcedureStepStartDate,
+            Tag.PerformedProcedureStepStartTime,
+            Tag.PerformedProcedureStepEndDate,
+            Tag.PerformedProcedureStepEndTime,
+            Tag.PerformedProcedureStepStatus,
+            Tag.PerformedProcedureStepID,
+            Tag.PerformedProcedureStepDescription,
+            Tag.PerformedProcedureTypeDescription,
+            Tag.PerformedProtocolCodeSequence,
+            Tag.ScheduledStepAttributesSequence,
+            Tag.CommentsOnThePerformedProcedureStep,
+            Tag.PerformedProcedureStepDiscontinuationReasonCodeSequence,
+            Tag.TotalTimeOfFluoroscopy,
+            Tag.TotalNumberOfExposures,
+            Tag.EntranceDose,
+            Tag.ExposedArea,
+            Tag.DistanceSourceToEntrance,
+            Tag.ExposureDoseSequence,
+            Tag.CommentsOnRadiationDose,
+            Tag.BillingProcedureStepSequence,
+            Tag.FilmConsumptionSequence,
+            Tag.BillingSuppliesAndDevicesSequence,
+            Tag.PerformedSeriesSequence,
+            Tag.ReasonForPerformedProcedureCodeSequence,
+            Tag.EntranceDoseInmGy
+    };
     static final String[] IMAGE_CUIDS = {
             UID.ComputedRadiographyImageStorage,
             UID.DigitalXRayImageStorageForPresentation,
@@ -768,14 +810,11 @@ class ArchiveDeviceFactory {
         ext.setPatientUpdateTemplateURI(HL7_ADT2DCM_XSL);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
 
-        ext.setAttributeFilter(Entity.Patient,
-                new AttributeFilter(PATIENT_ATTRS));
-        ext.setAttributeFilter(Entity.Study,
-                new AttributeFilter(STUDY_ATTRS));
-        ext.setAttributeFilter(Entity.Series,
-                new AttributeFilter(SERIES_ATTRS));
-        ext.setAttributeFilter(Entity.Instance,
-                new AttributeFilter(INSTANCE_ATTRS));
+        ext.setAttributeFilter(Entity.Patient, new AttributeFilter(PATIENT_ATTRS));
+        ext.setAttributeFilter(Entity.Study, new AttributeFilter(STUDY_ATTRS));
+        ext.setAttributeFilter(Entity.Series, new AttributeFilter(SERIES_ATTRS));
+        ext.setAttributeFilter(Entity.Instance, new AttributeFilter(INSTANCE_ATTRS));
+        ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURI(STORAGE_URI);

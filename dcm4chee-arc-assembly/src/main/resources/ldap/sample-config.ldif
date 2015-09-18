@@ -1,6 +1,6 @@
 version: 1
 
-dn: dicomAETitle=DCMQRSCP,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=example,dc=com
+it dn: dicomAETitle=DCMQRSCP,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=example,dc=com
 objectClass: dicomUniqueAETitle
 dicomAETitle: DCMQRSCP
 
@@ -813,6 +813,50 @@ dcmTag: 00700083
 dcmTag: 00700084
 dcmTag: 04000561
 dcmEntity: Instance
+objectClass: dcmAttributeFilter
+
+dn: dcmEntity=MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmTag: 00080005
+dcmTag: 00080060
+dcmTag: 00081032
+dcmTag: 00082229
+dcmTag: 00181110
+dcmTag: 0018115E
+dcmTag: 00200010
+dcmTag: 00380010
+dcmTag: 00380014
+dcmTag: 00380060
+dcmTag: 00380062
+dcmTag: 00380064
+dcmTag: 00400241
+dcmTag: 00400242
+dcmTag: 00400243
+dcmTag: 00400244
+dcmTag: 00400245
+dcmTag: 00400250
+dcmTag: 00400251
+dcmTag: 00400252
+dcmTag: 00400253
+dcmTag: 00400254
+dcmTag: 00400255
+dcmTag: 00400260
+dcmTag: 00400270
+dcmTag: 00400280
+dcmTag: 00400281
+dcmTag: 00400300
+dcmTag: 00400301
+dcmTag: 00400302
+dcmTag: 00400303
+dcmTag: 00400306
+dcmTag: 0040030E
+dcmTag: 00400310
+dcmTag: 00400320
+dcmTag: 00400321
+dcmTag: 00400324
+dcmTag: 00400340
+dcmTag: 00401012
+dcmTag: 00408302
+dcmEntity: MPPS
 objectClass: dcmAttributeFilter
 
 dn: dcmStorageID=fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com

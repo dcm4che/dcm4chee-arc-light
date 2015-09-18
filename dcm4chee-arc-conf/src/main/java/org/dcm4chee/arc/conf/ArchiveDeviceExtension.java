@@ -67,7 +67,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String patientUpdateTemplateURI;
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
 
-    private final AttributeFilter[] attributeFilters = new AttributeFilter[Entity.values().length];
+    private final EnumMap<Entity,AttributeFilter> attributeFilters =
+            new EnumMap<Entity, AttributeFilter>(Entity.class);
 
     private QueryRetrieveView[] queryRetrieveViews = {};
 
@@ -208,11 +209,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {
-        return attributeFilters[entity.ordinal()];
+        return attributeFilters.get(entity);
     }
 
     public void setAttributeFilter(Entity entity, AttributeFilter filter) {
-        attributeFilters[entity.ordinal()] = filter;
+        attributeFilters.put(entity, filter);
     }
 
     public QueryRetrieveView[] getQueryRetrieveViews() {
@@ -283,7 +284,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
-        System.arraycopy(arcdev.attributeFilters, 0, attributeFilters, 0, attributeFilters.length);
+        attributeFilters.clear();
+        attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
         compressionRules.clear();
