@@ -52,9 +52,14 @@
     <fileSet>
       <directory>${basedir}/src/main/resources</directory>
       <outputDirectory>.</outputDirectory>
-      <excludes>
-        <exclude>configuration/dcm4chee-arc/key.jks</exclude>
-      </excludes>
+      <includes>
+        <include>cli/add-data-source-${db}.cli</include>
+        <include>cli/add-jms-queues.cli</include>
+        <include>configuration/dcm4chee-arc/*.xsl</include>
+        <include>configuration/dcm4chee-arc/ldap.properties</include>
+        <include>configuration/dcm4chee-arc/report.css</include>
+        <include>ldap/**</include>
+      </includes>
       <lineEnding>dos</lineEnding>
     </fileSet>
     <fileSet>

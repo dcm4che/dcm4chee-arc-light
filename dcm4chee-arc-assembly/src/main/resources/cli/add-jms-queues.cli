@@ -1,0 +1,2 @@
+jms-queue add --queue-address=stgcmtscp --entries=queue/stgcmtscp
+/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.stgcmtscp:add(max-delivery-attempts=10,redelivery-delay=60000)

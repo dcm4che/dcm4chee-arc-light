@@ -1,0 +1,2 @@
+/subsystem=datasources/jdbc-driver=psql:add(driver-module-name=org.postgresql,driver-name=psql)
+data-source add --name=pacsds --driver-name=psql --connection-url=jdbc:postgresql://localhost:5432/pacsdb --user-name=pacs --password=pacs --jndi-name=java:/PacsDS
