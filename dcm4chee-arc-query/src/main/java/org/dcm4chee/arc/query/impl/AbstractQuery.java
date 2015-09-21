@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.query.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -48,6 +47,8 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.hibernate.StatelessSession;
+
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -58,7 +59,8 @@ abstract class AbstractQuery implements Query {
     protected final QueryContext context;
     protected final StatelessSession session;
     private HibernateQuery<Tuple> query;
-    private CloseableIterator<Tuple> results;
+    private Iterator<Tuple> results;
+    boolean hasOffset;
 
     public AbstractQuery(QueryContext context, StatelessSession session) {
         this.context = context;
@@ -81,7 +83,7 @@ abstract class AbstractQuery implements Query {
     @Override
     public void executeQuery() {
         checkQuery();
-        results = query.iterate();
+        results = hasOffset ? query.fetch().iterator() : query.iterate();
     }
 
     @Override
@@ -100,6 +102,7 @@ abstract class AbstractQuery implements Query {
     public void offset(long offset) {
         checkQuery();
         query.offset(offset);
+        hasOffset = true;
     }
 
     @Override
