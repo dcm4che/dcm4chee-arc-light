@@ -68,12 +68,13 @@
 
   </properties>
 
-  <!--<repositories>-->
-    <!--<repository>-->
-      <!--<id>JBoss Repository</id>-->
-      <!--<url>https://repository.jboss.org/nexus/content/groups/public/</url>-->
-    <!--</repository>-->
-  <!--</repositories>-->
+  <repositories>
+    <repository>
+      <id>www.dcm4che.org</id>
+      <name>dcm4che Repository</name>
+      <url>http://www.dcm4che.org/maven2</url>
+    </repository>
+  </repositories>
 
   <dependencyManagement>
     <dependencies>
