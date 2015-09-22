@@ -1,6 +1,6 @@
 version: 1
 
-it dn: dicomAETitle=DCMQRSCP,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=example,dc=com
+dn: dicomAETitle=DCMQRSCP,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=example,dc=com
 objectClass: dicomUniqueAETitle
 dicomAETitle: DCMQRSCP
 
