@@ -48,12 +48,10 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.entity.IssuerEntity;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.PatientID;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
+import org.dcm4chee.arc.patient.CircularPatientMergeException;
 import org.dcm4chee.arc.patient.PatientMergedException;
 import org.dcm4chee.arc.patient.PatientService;
 
@@ -61,6 +59,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -81,7 +80,8 @@ public class PatientServiceEJB implements PatientService {
     private Device device;
 
     @Override
-    public Patient findPatient(Attributes attrs) throws NonUniquePatientException {
+    public Patient findPatient(Attributes attrs, boolean followMergedWith)
+            throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(attrs);
         if (idWithIssuer == null)
             throw new NonUniquePatientException("No Patient ID in received object");
@@ -102,7 +102,22 @@ public class PatientServiceEJB implements PatientService {
             }
             throw new NonUniquePatientException("Multiple Patients with ID " + idWithIssuer);
         }
-        return list.get(0);
+        Patient pat = list.get(0);
+        Patient mergedWith = pat.getMergedWith();
+        if (mergedWith != null) {
+            if (!followMergedWith)
+                throw new PatientMergedException("" + pat + " merged with " + mergedWith);
+
+            HashSet<Long> patPks = new HashSet<>();
+            do {
+                if (!patPks.add(mergedWith.getPk()))
+                    throw new CircularPatientMergeException("" + pat + "circular merged");
+
+                pat = mergedWith;
+                mergedWith = pat.getMergedWith();
+            } while (mergedWith != null);
+        }
+        return pat;
     }
 
     private void removeWithoutIssuer(List<Patient> list) {
@@ -134,11 +149,10 @@ public class PatientServiceEJB implements PatientService {
 
     @Override
     public Patient updatePatient(Attributes newAttrs) throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(newAttrs);
+        Patient pat = findPatient(newAttrs, false);
         if (pat == null)
             return createPatient(newAttrs);
 
-        checkMergedWith(pat);
         updatePatient(pat, newAttrs);
         return pat;
     }
@@ -149,27 +163,21 @@ public class PatientServiceEJB implements PatientService {
             pat.setAttributes(attrs, getAttributeFilter(), getFuzzyStr());
     }
 
-    private void checkMergedWith(Patient pat) throws PatientMergedException {
-        if (pat.getMergedWith() != null)
-            throw new PatientMergedException("" + pat + " merged with " + pat.getMergedWith());
-    }
-
     @Override
     public Patient mergePatient(Attributes newAttrs, Attributes mrg)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(newAttrs);
+        Patient pat = findPatient(newAttrs, false);
         if (pat == null)
             pat = createPatient(newAttrs);
         else {
-            checkMergedWith(pat);
             updatePatient(pat, newAttrs);
         }
-        Patient prev = findPatient(mrg);
+        Patient prev = findPatient(mrg, false);
         if (prev == null)
             prev = createPatient(mrg);
         else {
-            checkMergedWith(prev);
             moveStudies(prev, pat);
+            moveMPPS(prev, pat);
         }
         prev.setMergedWith(pat);
         return pat;
@@ -179,6 +187,13 @@ public class PatientServiceEJB implements PatientService {
         for (Study study : em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
                 .setParameter(1, from).getResultList()) {
             study.setPatient(to);
+        }
+    }
+
+    private void moveMPPS(Patient from, Patient to) {
+        for (MPPS mpps : em.createNamedQuery(MPPS.FIND_BY_PATIENT, MPPS.class)
+                .setParameter(1, from).getResultList()) {
+            mpps.setPatient(to);
         }
     }
 

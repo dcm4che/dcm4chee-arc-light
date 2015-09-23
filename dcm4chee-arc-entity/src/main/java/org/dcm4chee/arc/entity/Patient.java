@@ -77,7 +77,15 @@ import java.util.*;
             "where p.patientName.familyName = ?1")
 })
 @Entity
-@Table(name = "patient")
+@Table(name = "patient",
+    uniqueConstraints = @UniqueConstraint(columnNames = "patient_id_fk"),
+    indexes = {
+        @Index(columnList = "pat_birthdate"),
+        @Index(columnList = "pat_sex"),
+        @Index(columnList = "pat_custom1"),
+        @Index(columnList = "pat_custom2"),
+        @Index(columnList = "pat_custom3")
+})
 public class Patient {
 
     public static final String FIND_BY_PATIENT_ID = "Patient.findByPatientID";

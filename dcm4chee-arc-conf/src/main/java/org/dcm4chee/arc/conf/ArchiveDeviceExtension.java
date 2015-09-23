@@ -65,6 +65,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String patientUpdateTemplateURI;
+    private String[] mppsForwardDestinations = {};
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
 
     private final EnumMap<Entity,AttributeFilter> attributeFilters =
@@ -200,6 +201,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.patientUpdateTemplateURI = patientUpdateTemplateURI;
     }
 
+    public String[] getMppsForwardDestinations() {
+        return mppsForwardDestinations;
+    }
+
+    public void setMppsForwardDestinations(String... mppsForwardDestinations) {
+        this.mppsForwardDestinations = mppsForwardDestinations;
+    }
+
     public int getQidoMaxNumberOfResults() {
         return qidoMaxNumberOfResults;
     }
@@ -284,6 +293,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
+        mppsForwardDestinations = arcdev.mppsForwardDestinations;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();
@@ -291,5 +301,4 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionRules.clear();
         compressionRules.add(arcdev.compressionRules);
     }
-
 }

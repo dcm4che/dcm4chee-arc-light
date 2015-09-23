@@ -64,7 +64,8 @@ import javax.persistence.*;
             "and entity.code.codingSchemeVersion = ?3")
 })
 @Entity
-@Table(name = "code")
+@Table(name = "code", uniqueConstraints =
+    @UniqueConstraint(columnNames = { "code_value", "code_designator", "code_version" }))
 public class CodeEntity {
 
     public static final String FIND_BY_CODE_VALUE_WITHOUT_SCHEME_VERSION =

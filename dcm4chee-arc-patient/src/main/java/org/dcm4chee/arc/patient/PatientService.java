@@ -49,7 +49,8 @@ import org.dcm4chee.arc.entity.Patient;
  */
 public interface PatientService {
 
-    Patient findPatient(Attributes attrs) throws NonUniquePatientException;
+    Patient findPatient(Attributes attrs, boolean followMergedWith)
+            throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException;
 
     Patient createPatient(Attributes attrs);
 

@@ -47,7 +47,8 @@ import javax.persistence.*;
  *
  */
 @Entity
-@Table(name = "patient_id")
+@Table(name = "patient_id", uniqueConstraints =
+    @UniqueConstraint(columnNames = { "pat_id", "issuer_fk" }))
 public class PatientID {
 
     @Id

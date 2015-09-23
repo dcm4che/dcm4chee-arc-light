@@ -44,6 +44,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.patient.CircularPatientMergeException;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -125,8 +126,8 @@ public class StoreServiceEJB {
 
     private Patient findPatient(StoreContext ctx) {
         try {
-            return patientService.findPatient(ctx.getAttributes());
-        } catch (NonUniquePatientException e) {
+            return patientService.findPatient(ctx.getAttributes(), true);
+        } catch (NonUniquePatientException | CircularPatientMergeException e) {
             return null;
         }
     }

@@ -46,7 +46,6 @@
   <access>FIELD</access>
 
   <entity class="org.dcm4chee.arc.entity.AttributesBlob">
-    <table name="dicomattrs"/>
     <attributes>
       <basic name="encodedAttributes" optional="false">
         <column name="attrs" column-definition="${blob}"/>

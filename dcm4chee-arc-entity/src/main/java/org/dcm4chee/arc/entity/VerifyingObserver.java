@@ -55,7 +55,9 @@ import java.util.Date;
  * @author Michael Backhaus <michael.backhaus@agfa.com>
  */
 @Entity
-@Table(name = "verify_observer")
+@Table(name = "verify_observer", indexes = {
+    @Index(columnList = "verify_datetime")
+})
 public class VerifyingObserver {
 
     @Id

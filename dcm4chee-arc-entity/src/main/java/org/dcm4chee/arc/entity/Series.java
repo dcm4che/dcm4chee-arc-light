@@ -79,11 +79,27 @@ import java.util.Date;
             "and se.seriesInstanceUID = ?2")
 })
 @Entity
-@Table(name = "series")
+@Table(name = "series",
+    uniqueConstraints = @UniqueConstraint(columnNames = { "study_fk", "series_iuid" }),
+    indexes = {
+        @Index(columnList = "series_no"),
+        @Index(columnList = "modality"),
+        @Index(columnList = "station_name"),
+        @Index(columnList = "pps_start_date"),
+        @Index(columnList = "pps_start_time"),
+        @Index(columnList = "body_part"),
+        @Index(columnList = "laterality"),
+        @Index(columnList = "series_desc"),
+        @Index(columnList = "institution"),
+        @Index(columnList = "department"),
+        @Index(columnList = "series_custom1"),
+        @Index(columnList = "series_custom2"),
+        @Index(columnList = "series_custom3")
+})
 public class Series {
 
-    public static final java.lang.String FIND_BY_SERIES_IUID = "findBySeriesIUID";
-    public static final java.lang.String FIND_BY_SERIES_IUID_EAGER = "findBySeriesIUIDEager";
+    public static final java.lang.String FIND_BY_SERIES_IUID = "Series.findBySeriesIUID";
+    public static final java.lang.String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

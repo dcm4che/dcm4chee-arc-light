@@ -86,6 +86,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
+        LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
     }
 
     @Override
@@ -109,6 +110,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
+        ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
     }
 
     @Override
@@ -141,6 +143,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoSupportedSRClasses(), bb.getWadoSupportedSRClasses());
         LdapUtils.storeDiff(mods, "dcmQidoMaxNumberOfResults",
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(),  0);
+        LdapUtils.storeDiff(mods, "dcmFwdMppsDestination",
+                aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
     }
 
     @Override
@@ -204,6 +208,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
+        LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
     }
 
     @Override
@@ -224,6 +229,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
+        ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
     }
 
     @Override
@@ -250,6 +256,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI());
         LdapUtils.storeDiff(mods, "dcmQidoMaxNumberOfResults",
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(), 0);
+        LdapUtils.storeDiff(mods, "dcmFwdMppsDestination",
+                aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
     }
 
     @Override

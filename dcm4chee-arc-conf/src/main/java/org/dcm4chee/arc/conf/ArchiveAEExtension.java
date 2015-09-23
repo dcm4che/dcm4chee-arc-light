@@ -62,8 +62,8 @@ public class ArchiveAEExtension extends AEExtension {
     private int sendPendingCMoveInterval;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
+    private String[] mppsForwardDestinations;
     private int qidoMaxNumberOfResults;
-
     private CompressionRules compressionRules = new CompressionRules();
 
     public String getStorageID() {
@@ -194,6 +194,20 @@ public class ArchiveAEExtension extends AEExtension {
         return wadoSR2TextTemplateURI != null
                 ? wadoSR2TextTemplateURI
                 : getArchiveDeviceExtension().getWadoSR2TextTemplateURI();
+    }
+
+    public String[] getMppsForwardDestinations() {
+        return mppsForwardDestinations;
+    }
+
+    public void setMppsForwardDestinations(String... mppsForwardDestinations) {
+        this.mppsForwardDestinations = mppsForwardDestinations;
+    }
+
+    public String[] mppsForwardDestinations() {
+        return mppsForwardDestinations.length > 0
+                ? mppsForwardDestinations
+                : getArchiveDeviceExtension().getMppsForwardDestinations();
     }
 
     public int getQidoMaxNumberOfResults() {

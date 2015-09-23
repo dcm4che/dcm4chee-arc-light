@@ -53,7 +53,13 @@ import javax.persistence.*;
  * @since Feb 29, 2008
  */
 @Entity
-@Table(name = "series_req")
+@Table(name = "series_req", indexes = {
+    @Index(columnList = "accession_no"),
+    @Index(columnList = "req_service"),
+    @Index(columnList = "req_proc_id"),
+    @Index(columnList = "sps_id"),
+    @Index(columnList = "study_iuid")
+})
 public class SeriesRequestAttributes {
 
     @Id

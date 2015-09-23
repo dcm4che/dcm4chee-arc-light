@@ -88,7 +88,21 @@ import java.util.Date;
             "and i.sopInstanceUID = ?3")
 })
 @Entity
-@Table(name = "instance")
+@Table(name = "instance",
+    uniqueConstraints = @UniqueConstraint(columnNames = { "series_fk", "sop_iuid" }),
+    indexes = {
+        @Index(columnList = "sop_iuid"),
+        @Index(columnList = "sop_cuid"),
+        @Index(columnList = "inst_no"),
+        @Index(columnList = "content_date"),
+        @Index(columnList = "content_time"),
+        @Index(columnList = "sr_verified"),
+        @Index(columnList = "sr_complete"),
+        @Index(columnList = "availability"),
+        @Index(columnList = "inst_custom1"),
+        @Index(columnList = "inst_custom2"),
+        @Index(columnList = "inst_custom3")
+    })
 public class Instance {
 
     public static final String FIND_BY_SOP_IUID = "findBySopIUID";

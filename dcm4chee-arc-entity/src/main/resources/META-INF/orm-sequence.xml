@@ -46,7 +46,6 @@
   <access>FIELD</access>
 
   <entity class="org.dcm4chee.arc.entity.AttributesBlob">
-    <table name="dicomattrs"/>
     <sequence-generator name="attrs_pk_seq" sequence-name="attrs_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -60,7 +59,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.CodeEntity">
-    <table name="code"/>
     <sequence-generator name="code_pk_seq" sequence-name="code_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -71,7 +69,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.ContentItem">
-    <table name="content_item"/>
     <sequence-generator name="content_item_pk_seq" sequence-name="content_item_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -82,7 +79,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Instance">
-    <table name="instance"/>
     <sequence-generator name="instance_pk_seq" sequence-name="instance_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -93,7 +89,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.IssuerEntity">
-    <table name="id_issuer"/>
     <sequence-generator name="issuer_pk_seq" sequence-name="issuer_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -103,8 +98,17 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.MPPS">
+    <sequence-generator name="mpps_pk_seq" sequence-name="mpps_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="mpps_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.Location">
-    <table name="location"/>
     <sequence-generator name="location_pk_seq" sequence-name="location_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -115,7 +119,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Patient">
-    <table name="patient"/>
     <sequence-generator name="patient_pk_seq" sequence-name="patient_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -126,7 +129,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.PatientID">
-    <table name="patient_id"/>
     <sequence-generator name="patient_id_pk_seq" sequence-name="patient_id_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -137,7 +139,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.PersonName">
-    <table name="person_name"/>
     <sequence-generator name="person_name_pk_seq" sequence-name="person_name_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -148,7 +149,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Series">
-    <table name="series"/>
     <sequence-generator name="series_pk_seq" sequence-name="series_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -159,7 +159,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.SeriesQueryAttributes">
-    <table name="series_query_attrs"/>
     <sequence-generator name="series_query_attrs_pk_seq" sequence-name="series_query_attrs_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -170,7 +169,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.SeriesRequestAttributes">
-    <table name="series_req"/>
     <sequence-generator name="series_req_pk_seq" sequence-name="series_req_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -181,7 +179,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.SoundexCode">
-    <table name="soundex_code"/>
     <sequence-generator name="soundex_code_pk_seq" sequence-name="soundex_code_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -192,7 +189,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Study">
-    <table name="study"/>
     <sequence-generator name="study_pk_seq" sequence-name="study_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -203,7 +199,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.StudyQueryAttributes">
-    <table name="study_query_attrs"/>
     <sequence-generator name="study_query_attrs_pk_seq" sequence-name="study_query_attrs_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
@@ -214,7 +209,6 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.VerifyingObserver">
-    <table name="verify_observer"/>
     <sequence-generator name="verify_observer_pk_seq" sequence-name="verify_observer_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">

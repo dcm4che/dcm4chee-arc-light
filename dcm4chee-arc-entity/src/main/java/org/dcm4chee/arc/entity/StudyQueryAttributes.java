@@ -54,7 +54,8 @@ import javax.persistence.*;
     query = "delete from StudyQueryAttributes where study = ?1"
 )
 @Entity
-@Table(name = "study_query_attrs")
+@Table(name = "study_query_attrs", uniqueConstraints =
+    @UniqueConstraint(columnNames = { "view_id", "study_fk" }))
 public class StudyQueryAttributes {
 
     public static final String DELETE_FOR_STUDY = "deleteForStudy";

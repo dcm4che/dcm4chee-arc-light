@@ -47,7 +47,10 @@ import javax.persistence.*;
  * @author Michael Backhaus <michael.backhaus@agfa.com>
  */
 @Entity
-@Table(name = "content_item")
+@Table(name = "content_item", indexes = {
+        @Index(columnList = "rel_type"),
+        @Index(columnList = "text_value")
+})
 public class ContentItem {
 
     public static final int MAX_TEXT_LENGTH = 64;

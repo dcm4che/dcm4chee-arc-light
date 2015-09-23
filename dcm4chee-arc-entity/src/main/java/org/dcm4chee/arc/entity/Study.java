@@ -77,12 +77,22 @@ import java.util.Date;
             "where st.studyInstanceUID = ?1")
 })
 @Entity
-@Table(name = "study")
+@Table(name = "study",
+    uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
+    indexes = {
+        @Index(columnList = "study_date"),
+        @Index(columnList = "study_time"),
+        @Index(columnList = "accession_no"),
+        @Index(columnList = "study_desc"),
+        @Index(columnList = "study_custom1"),
+        @Index(columnList = "study_custom2"),
+        @Index(columnList = "study_custom3")
+})
 public class Study {
 
-    public static final String FIND_BY_PATIENT = "findByPatient";
-    public static final String FIND_BY_STUDY_IUID = "findByStudyIUID";
-    public static final String FIND_BY_STUDY_IUID_EAGER = "findByStudyIUIDEager";
+    public static final String FIND_BY_PATIENT = "Study.findByPatient";
+    public static final String FIND_BY_STUDY_IUID = "Study.findByStudyIUID";
+    public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

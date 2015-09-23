@@ -45,7 +45,6 @@
   <remoteResources>
     <remoteResource>sql/create-${db}.sql</remoteResource>
     <remoteResource>sql/drop-${db}.sql</remoteResource>
-    <remoteResource>sql/create-index.sql</remoteResource>
     <remoteResource>sql/create-case-insensitive-index.sql</remoteResource>
     <remoteResource>sql/create-fk-index.sql</remoteResource>
   </remoteResources>

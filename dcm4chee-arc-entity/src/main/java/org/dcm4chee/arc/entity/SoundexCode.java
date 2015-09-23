@@ -51,7 +51,11 @@ import java.util.StringTokenizer;
  *
  */
 @Entity
-@Table(name = "soundex_code")
+@Table(name = "soundex_code", indexes = {
+    @Index(columnList = "sx_pn_comp"),
+    @Index(columnList = "sx_pn_comp_part"),
+    @Index(columnList = "sx_code_value")
+})
 public class SoundexCode {
 
     @Id

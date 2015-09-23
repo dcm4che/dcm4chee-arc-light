@@ -55,7 +55,17 @@ import static org.dcm4che3.data.PersonName.Group;
  *
  */
 @Entity
-@Table(name = "person_name")
+@Table(name = "person_name", indexes = {
+    @Index(columnList = "family_name"),
+    @Index(columnList = "given_name"),
+    @Index(columnList = "middle_name"),
+    @Index(columnList = "i_family_name"),
+    @Index(columnList = "i_given_name"),
+    @Index(columnList = "i_middle_name"),
+    @Index(columnList = "p_family_name"),
+    @Index(columnList = "p_given_name"),
+    @Index(columnList = "p_middle_name")
+})
 public class PersonName {
 
     @Id

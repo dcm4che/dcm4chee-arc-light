@@ -54,7 +54,8 @@ import javax.persistence.*;
     query = "delete from SeriesQueryAttributes where series = ?1"
 )
 @Entity
-@Table(name = "series_query_attrs")
+@Table(name = "series_query_attrs", uniqueConstraints =
+    @UniqueConstraint(columnNames = { "view_id", "series_fk" }))
 public class SeriesQueryAttributes {
 
     public static final String DELETE_FOR_SERIES = "deleteForSeries";
