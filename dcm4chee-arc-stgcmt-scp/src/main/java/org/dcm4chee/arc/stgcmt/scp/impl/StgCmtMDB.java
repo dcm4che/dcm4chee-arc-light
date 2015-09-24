@@ -48,7 +48,7 @@ import java.util.List;
  */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/stgcmtscp"),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/jms/queue/StgCmtSCP"),
         @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
 @TransactionTimeout(600)

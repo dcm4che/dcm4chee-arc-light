@@ -61,7 +61,7 @@ import javax.jms.ObjectMessage;
  */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/mppsscu"),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/jms/queue/MPPSSCU"),
         @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
 @TransactionTimeout(60)

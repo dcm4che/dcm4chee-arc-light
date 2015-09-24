@@ -73,7 +73,7 @@ class MPPSSCUImpl implements MPPSSCU {
     @Inject
     private JMSContext jmsCtx;
 
-    @Resource(lookup = "queue/mppsscu")
+    @Resource(lookup = "java:/jms/queue/MPPSSCU")
     private Queue queue;
 
     @Inject

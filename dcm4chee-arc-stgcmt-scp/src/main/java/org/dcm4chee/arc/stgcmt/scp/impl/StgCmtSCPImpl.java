@@ -38,7 +38,7 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
     @Inject
     private JMSContext jmsCtx;
 
-    @Resource(lookup = "queue/stgcmtscp")
+    @Resource(lookup = "java:/jms/queue/StgCmtSCP")
     private Queue queue;
 
     @Inject
