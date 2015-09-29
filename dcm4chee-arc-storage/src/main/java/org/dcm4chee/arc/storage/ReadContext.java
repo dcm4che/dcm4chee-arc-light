@@ -64,4 +64,8 @@ public interface ReadContext {
     void setMessageDigest(MessageDigest messageDigest);
 
     byte[] getDigest();
+
+    String getStudyInstanceUID();
+
+    void setStudyInstanceUID(String studyInstanceUID);
 }

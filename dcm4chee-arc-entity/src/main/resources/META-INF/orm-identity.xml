@@ -56,7 +56,7 @@
   <entity class="org.dcm4chee.arc.entity.QueueMessage">
     <attributes>
       <basic name="messageBody" optional="false">
-        <column name="msg_body" column-definition="${blob}"/>
+        <column name="msg_body" updatable="false" column-definition="${blob}"/>
       </basic>
     </attributes>
   </entity>

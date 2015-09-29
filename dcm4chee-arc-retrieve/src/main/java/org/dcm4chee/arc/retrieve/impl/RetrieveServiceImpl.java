@@ -307,9 +307,10 @@ public class RetrieveServiceImpl implements RetrieveService {
     private LocationDicomInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)
             throws IOException {
         IOException ex = null;
+        String studyInstanceUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
         for (Location location : inst.getLocations()) {
             try {
-                return openLocationInputStream(ctx, location);
+                return openLocationInputStream(ctx, location, studyInstanceUID);
             } catch (IOException e) {
                 ex = e;
             }
@@ -317,11 +318,13 @@ public class RetrieveServiceImpl implements RetrieveService {
         throw ex;
     }
 
-    private LocationDicomInputStream openLocationInputStream(RetrieveContext ctx, Location location)
+    private LocationDicomInputStream openLocationInputStream(
+            RetrieveContext ctx, Location location, String studyInstanceUID)
             throws IOException {
         Storage storage = getStorage(ctx, location.getStorageID());
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(location.getStoragePath());
+        readContext.setStudyInstanceUID(studyInstanceUID);
         InputStream stream = storage.openInputStream(readContext);
         try {
             return new LocationDicomInputStream(new DicomInputStream(stream), readContext, location);

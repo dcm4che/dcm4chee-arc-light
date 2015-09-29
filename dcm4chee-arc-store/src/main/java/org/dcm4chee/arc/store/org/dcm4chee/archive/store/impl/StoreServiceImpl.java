@@ -1,6 +1,7 @@
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.imageio.codec.CompressionRule;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
@@ -129,11 +130,12 @@ class StoreServiceImpl implements StoreService {
                 storeContext.setStoreTranferSyntax(compressionRule.getTransferSyntax());
             }
             Storage storage = getStorage(storeContext);
-            WriteContext storageCtx = storage.createWriteContext();
-            storageCtx.setAttributes(dataset);
-            storageCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
-            storeContext.setWriteContext(storageCtx);
-            return storage.openOutputStream(storageCtx);
+            WriteContext writeCtx = storage.createWriteContext();
+            writeCtx.setAttributes(dataset);
+            writeCtx.setStudyInstanceUID(dataset.getString(Tag.StudyInstanceUID));
+            writeCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
+            storeContext.setWriteContext(writeCtx);
+            return storage.openOutputStream(writeCtx);
         }
     }
 

@@ -14,10 +14,7 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.QInstance;
-import org.dcm4chee.arc.entity.QLocation;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.jms.queue.QueueManager;
 import org.dcm4chee.arc.stgcmt.scp.StgCmtSCP;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -66,7 +63,8 @@ public class StgCmtMDB implements MessageListener {
             QLocation.location.status,
             QInstance.instance.sopClassUID,
             QInstance.instance.sopInstanceUID,
-            QInstance.instance.retrieveAETs
+            QInstance.instance.retrieveAETs,
+            QStudy.study.studyInstanceUID
     };
     private static final int BUFFER_SIZE = 8192;
 
@@ -164,7 +162,9 @@ public class StgCmtMDB implements MessageListener {
         HibernateQuery<Tuple> query = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(SELECT)
                 .from(QLocation.location)
-                .join(QLocation.location.instance, QInstance.instance);
+                .join(QLocation.location.instance, QInstance.instance)
+                .join(QInstance.instance.series, QSeries.series)
+                .join(QSeries.series.study, QStudy.study);
 
         Sequence requestSeq = actionInfo.getSequence(Tag.ReferencedSOPSequence);
         int size = requestSeq.size();
@@ -194,6 +194,7 @@ public class StgCmtMDB implements MessageListener {
         Storage storage = getStorage(storageMap, tuple.get(QLocation.location.storageID));
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(tuple.get(QLocation.location.storagePath));
+        readContext.setStudyInstanceUID(tuple.get(QStudy.study.studyInstanceUID));
         readContext.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
         try {
             try (InputStream stream = storage.openInputStream(readContext)) {

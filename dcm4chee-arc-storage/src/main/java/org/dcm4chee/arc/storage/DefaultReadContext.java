@@ -51,6 +51,7 @@ public class DefaultReadContext implements ReadContext {
     private final Storage storage;
     private String storagePath;
     private long size;
+    private String studyInstanceUID;
     private MessageDigest messageDigest;
 
     public DefaultReadContext(Storage storage) {
@@ -100,5 +101,15 @@ public class DefaultReadContext implements ReadContext {
     @Override
     public byte[] getDigest() {
         return messageDigest != null ? messageDigest.digest() : null;
+    }
+
+    @Override
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
+    }
+
+    @Override
+    public void setStudyInstanceUID(String studyInstanceUID) {
+        this.studyInstanceUID = studyInstanceUID;
     }
 }
