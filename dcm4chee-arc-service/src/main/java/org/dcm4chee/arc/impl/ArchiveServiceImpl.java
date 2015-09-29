@@ -48,6 +48,7 @@ import org.dcm4che3.net.service.BasicCEchoSCP;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceRegistry;
 import org.dcm4chee.arc.ArchiveService;
+import org.dcm4chee.arc.ArchiveServiceEvent;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -56,6 +57,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.io.File;
@@ -96,6 +98,9 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Resource
     private ManagedScheduledExecutorService scheduledExecutor;
+
+    @Inject
+    private Event<ArchiveServiceEvent> archiveServiceEvent;
 
     private boolean running;
 
@@ -151,12 +156,14 @@ public class ArchiveServiceImpl implements ArchiveService {
     public void start() throws Exception {
         device.bindConnections();
         running = true;
+        archiveServiceEvent.fire(ArchiveServiceEvent.STARTED);
     }
 
     @Override
     public void stop() {
         device.unbindConnections();
         running = false;
+        archiveServiceEvent.fire(ArchiveServiceEvent.STOPPED);
     }
 
     @Override
@@ -168,6 +175,7 @@ public class ArchiveServiceImpl implements ArchiveService {
     public void reload() throws Exception {
         deviceProducer.reloadConfiguration();
         device.rebindConnections();
+        archiveServiceEvent.fire(ArchiveServiceEvent.RELOADED);
     }
 
     private static void addJBossDirURLSystemProperties() {
