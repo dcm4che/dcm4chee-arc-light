@@ -48,6 +48,8 @@ import org.dcm4che3.net.Dimse;
  * @since Sep 2015
  */
 public interface MPPSSCU {
+    String QUEUE_NAME = "MPPSSCU";
+    String JNDI_NAME = "jms/queue/MPPSSCU";
 
     void forwardMPPS(String localAET, String remoteAET, String sopInstanceUID, Attributes attrs) throws Exception;
 }

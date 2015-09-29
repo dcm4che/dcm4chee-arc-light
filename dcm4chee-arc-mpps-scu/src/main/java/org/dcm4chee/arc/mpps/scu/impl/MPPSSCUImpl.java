@@ -48,17 +48,16 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.jms.queue.QueueManager;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.Queue;
+import javax.jms.ObjectMessage;
 import java.io.IOException;
 
 /**
@@ -71,10 +70,7 @@ class MPPSSCUImpl implements MPPSSCU {
     private static final Logger LOG = LoggerFactory.getLogger(MPPSSCUImpl.class);
 
     @Inject
-    private JMSContext jmsCtx;
-
-    @Resource(lookup = "java:/jms/queue/MPPSSCU")
-    private Queue queue;
+    private QueueManager queueManager;
 
     @Inject
     private Device device;
@@ -92,11 +88,15 @@ class MPPSSCUImpl implements MPPSSCU {
     }
 
     private void scheduleForwardMPPS(String localAET, String remoteAET, String iuid, Attributes attrs) {
-        jmsCtx.createProducer()
-                .setProperty("LocalAET", localAET)
-                .setProperty("RemoteAET", remoteAET)
-                .setProperty("SOPInstanceUID", iuid)
-                .send(queue, attrs);
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(attrs);
+            msg.setStringProperty("LocalAET", localAET);
+            msg.setStringProperty("RemoteAET", remoteAET);
+            msg.setStringProperty("SOPInstanceUID", iuid);
+            queueManager.scheduleMessage(QUEUE_NAME, JNDI_NAME, msg);
+        } catch (Exception e) {
+            LOG.warn("Failed to Schedule Forward of MPPS[uid={}] to AE: {}", iuid, remoteAET, e);
+        }
     }
 
     @Override

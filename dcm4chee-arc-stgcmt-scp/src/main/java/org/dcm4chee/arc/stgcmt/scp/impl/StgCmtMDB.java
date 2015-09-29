@@ -17,6 +17,8 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.QInstance;
 import org.dcm4chee.arc.entity.QLocation;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.jms.queue.QueueManager;
 import org.dcm4chee.arc.stgcmt.scp.StgCmtSCP;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
@@ -48,7 +50,7 @@ import java.util.List;
  */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:/jms/queue/StgCmtSCP"),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = StgCmtSCP.JNDI_NAME),
         @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
 @TransactionTimeout(600)
@@ -66,7 +68,6 @@ public class StgCmtMDB implements MessageListener {
             QInstance.instance.sopInstanceUID,
             QInstance.instance.retrieveAETs
     };
-
     private static final int BUFFER_SIZE = 8192;
 
     @Resource
@@ -79,6 +80,9 @@ public class StgCmtMDB implements MessageListener {
     private StorageFactory storageFactory;
 
     @Inject
+    private QueueManager queueManager;
+
+    @Inject
     private StgCmtSCP stgCmtSCP;
 
     @PersistenceContext(unitName="dcm4chee-arc")
@@ -86,15 +90,20 @@ public class StgCmtMDB implements MessageListener {
 
     @Override
     public void onMessage(Message msg) {
+        QueueMessage queueMessage = queueManager.onProcessingStart(msg);
+        if (queueMessage == null)
+            return;
         try {
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
             Attributes eventInfo = calculateResult(actionInfo);
             stgCmtSCP.sendNEventReport(msg.getStringProperty("LocalAET"),
                     msg.getStringProperty("RemoteAET"),
                     eventInfo);
-        } catch (Throwable th) {
+            queueManager.onProcessingSuccessful(queueMessage);
+        } catch (Exception e) {
+            LOG.warn("Failed to process {}", msg, e);
+            queueManager.onProcessingFailed(queueMessage, e);
             ctx.setRollbackOnly();
-            LOG.warn("Failed to process " + msg, th);
         }
     }
 

@@ -12,17 +12,15 @@ import org.dcm4che3.net.pdu.RoleSelection;
 import org.dcm4che3.net.service.AbstractDicomService;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.jms.queue.QueueManager;
 import org.dcm4chee.arc.stgcmt.scp.StgCmtSCP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.JMSException;
-import javax.jms.Queue;
+import javax.jms.ObjectMessage;
 import java.io.IOException;
 
 /**
@@ -36,10 +34,7 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
     private static final Logger LOG = LoggerFactory.getLogger(StgCmtSCPImpl.class);
 
     @Inject
-    private JMSContext jmsCtx;
-
-    @Resource(lookup = "java:/jms/queue/StgCmtSCP")
-    private Queue queue;
+    private QueueManager queueManager;
 
     @Inject
     private Device device;
@@ -81,11 +76,11 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
     }
 
     private void scheduleStorageCommitment(String localAET, String remoteAET, Attributes actionInfo)
-            throws JMSException {
-        jmsCtx.createProducer()
-                .setProperty("LocalAET", localAET)
-                .setProperty("RemoteAET", remoteAET)
-                .send(queue, actionInfo);
+            throws Exception {
+        ObjectMessage msg = queueManager.createObjectMessage(actionInfo);
+        msg.setStringProperty("LocalAET", localAET);
+        msg.setStringProperty("RemoteAET", remoteAET);
+        queueManager.scheduleMessage(QUEUE_NAME, JNDI_NAME, msg);
     }
 
     @Override

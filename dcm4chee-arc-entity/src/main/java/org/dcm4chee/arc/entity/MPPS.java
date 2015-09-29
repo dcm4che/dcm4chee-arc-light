@@ -73,14 +73,6 @@ import java.util.Date;
 @Table(name = "mpps", uniqueConstraints = @UniqueConstraint(columnNames = "sop_iuid"))
 public class MPPS {
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
     public enum Status {
         IN_PROGRESS, COMPLETED, DISCONTINUED;
     }
@@ -174,6 +166,14 @@ public class MPPS {
 
     public long getPk() {
         return pk;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public void setSopInstanceUID(String sopInstanceUID) {

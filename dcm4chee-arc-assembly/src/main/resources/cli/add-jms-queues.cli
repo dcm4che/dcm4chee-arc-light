@@ -1,4 +1,5 @@
+jms-queue add --queue-address=RedeliveryExhausted --entries=java:/jms/queue/RedeliveryExhausted
 jms-queue add --queue-address=StgCmtSCP --entries=java:/jms/queue/StgCmtSCP
-/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.StgCmtSCP:add(max-delivery-attempts=10,redelivery-delay=60000)
+/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.StgCmtSCP:add(dead-letter-address=jms.queue.RedeliveryExhausted,max-delivery-attempts=10,redelivery-delay=60000)
 jms-queue add --queue-address=MPPSSCU --entries=java:/jms/queue/MPPSSCU
-/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.MPPSSCU:add(max-delivery-attempts=10,redelivery-delay=60000)
+/subsystem=messaging/hornetq-server=default/address-setting=jms.queue.MPPSSCU:add(dead-letter-address=jms.queue.RedeliveryExhausted,max-delivery-attempts=10,redelivery-delay=60000)

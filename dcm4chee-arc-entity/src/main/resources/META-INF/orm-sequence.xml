@@ -148,6 +148,19 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.QueueMessage">
+    <sequence-generator name="queue_msg_pk_seq" sequence-name="queue_msg_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="queue_msg_pk_seq"/>
+      </id>
+      <basic name="messageBody" optional="false">
+        <column name="msg_body" column-definition="${blob}"/>
+      </basic>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.Series">
     <sequence-generator name="series_pk_seq" sequence-name="series_pk_seq" allocation-size="1"/>
     <attributes>

@@ -39,57 +39,24 @@
   ~ **** END LICENSE BLOCK *****
   -->
 
-<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>dcm4chee-arc-parent</artifactId>
+    <groupId>org.dcm4che.dcm4chee-arc</groupId>
+    <version>5.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-  <package>org.dcm4chee.arc.entity</package>
+  <artifactId>dcm4chee-arc-jms-queue</artifactId>
 
-  <access>FIELD</access>
+  <dependencies>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-entity</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 
-  <entity class="org.dcm4chee.arc.entity.AttributesBlob">
-    <attributes>
-      <basic name="encodedAttributes" optional="false">
-        <column name="attrs" column-definition="${blob}"/>
-      </basic>
-    </attributes>
-  </entity>
-
-  <entity class="org.dcm4chee.arc.entity.QueueMessage">
-    <attributes>
-      <basic name="messageBody" optional="false">
-        <column name="msg_body" column-definition="${blob}"/>
-      </basic>
-    </attributes>
-  </entity>
-
-  <embeddable class="org.dcm4che3.data.Code">
-    <attributes>
-      <basic name="codeValue" optional="false">
-        <column name="code_value"/>
-      </basic>
-      <basic name="codingSchemeDesignator" optional="false">
-        <column name="code_designator"/>
-      </basic>
-      <basic name="codingSchemeVersion" optional="true">
-        <column name="code_version"/>
-      </basic>
-      <basic name="codeMeaning" optional="false">
-        <column name="code_meaning"/>
-      </basic>
-    </attributes>
-  </embeddable>
-
-  <embeddable class="org.dcm4che3.data.Issuer">
-    <attributes>
-      <basic name="localNamespaceEntityID" optional="true">
-        <column name="entity_id"/>
-      </basic>
-      <basic name="universalEntityID" optional="true">
-        <column name="entity_uid"/>
-      </basic>
-      <basic name="universalEntityIDType" optional="true">
-        <column name="entity_uid_type"/>
-      </basic>
-    </attributes>
-  </embeddable>
-
-</entity-mappings>
+</project>

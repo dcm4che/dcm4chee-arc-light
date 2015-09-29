@@ -38,24 +38,15 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.mpps.scu.impl;
+package org.dcm4chee.arc.jms.queue.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.jms.queue.QueueManager;
-import org.dcm4chee.arc.mpps.scu.MPPSSCU;
-import org.jboss.ejb3.annotation.TransactionTimeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
-import javax.ejb.MessageDrivenContext;
 import javax.inject.Inject;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -63,40 +54,16 @@ import javax.jms.ObjectMessage;
  */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = MPPSSCU.JNDI_NAME),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = "jms/queue/RedeliveryExhausted"),
         @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
-@TransactionTimeout(60)
-public class MPPSMDB implements MessageListener {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MPPSMDB.class);
-
-    @Inject
-    private MPPSSCU mppsSCU;
-
-    @Resource
-    private MessageDrivenContext ctx;
+public class QueueManagerMDB implements MessageListener {
 
     @Inject
     private QueueManager queueManager;
 
     @Override
-    public void onMessage(Message msg) {
-        QueueMessage queueMessage = queueManager.onProcessingStart(msg);
-        if (queueMessage == null)
-            return;
-        try {
-            Attributes attrs = (Attributes) ((ObjectMessage) msg).getObject();
-            mppsSCU.forwardMPPS(
-                    msg.getStringProperty("LocalAET"),
-                    msg.getStringProperty("RemoteAET"),
-                    msg.getStringProperty("SOPInstanceUID"),
-                    attrs);
-            queueManager.onProcessingSuccessful(queueMessage);
-        } catch (Exception e) {
-            LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(queueMessage, e);
-            ctx.setRollbackOnly();
-        }
+    public void onMessage(Message message) {
+        queueManager.onRedeliveryExhausted(message);
     }
 }
