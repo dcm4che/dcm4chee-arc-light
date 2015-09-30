@@ -88,8 +88,8 @@ public class RenderedImageOutput implements StreamingOutput {
 
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
+        ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out);
         try {
-            ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out);
             writer.setOutput(imageOut);
             BufferedImage bi = null;
             if (imageIndex < 0) {
@@ -112,10 +112,10 @@ public class RenderedImageOutput implements StreamingOutput {
                 bi = reader.read(imageIndex, readParam);
                 writer.write(null, new IIOImage(adjust(bi), null, null), writeParam);
             }
-            imageOut.flush();
         } finally {
             writer.dispose();
             reader.dispose();
+            imageOut.close();
         }
     }
 
