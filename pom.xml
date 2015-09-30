@@ -287,12 +287,12 @@
     <module>dcm4chee-arc-entity</module>
     <module>dcm4chee-arc-hl7</module>
     <module>dcm4chee-arc-issuer</module>
-    <module>dcm4chee-arc-jms-queue</module>
     <module>dcm4chee-arc-mpps</module>
     <module>dcm4chee-arc-mpps-scp</module>
     <module>dcm4chee-arc-mpps-scu</module>
     <module>dcm4chee-arc-patient</module>
     <module>dcm4chee-arc-qido</module>
+    <module>dcm4chee-arc-qmgt</module>
     <module>dcm4chee-arc-query</module>
     <module>dcm4chee-arc-query-scp</module>
     <module>dcm4chee-arc-query-util</module>

@@ -15,7 +15,7 @@ import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.jms.queue.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.stgcmt.scp.StgCmtSCP;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;

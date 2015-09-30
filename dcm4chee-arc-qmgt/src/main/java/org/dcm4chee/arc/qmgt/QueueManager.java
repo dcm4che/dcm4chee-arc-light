@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.jms.queue;
+package org.dcm4chee.arc.qmgt;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 

@@ -38,9 +38,9 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.jms.queue.impl;
+package org.dcm4chee.arc.qmgt.impl;
 
-import org.dcm4chee.arc.jms.queue.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueManager;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;

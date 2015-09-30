@@ -42,7 +42,7 @@ package org.dcm4chee.arc.mpps.scu.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.jms.queue.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
 import org.jboss.ejb3.annotation.TransactionTimeout;
 import org.slf4j.Logger;

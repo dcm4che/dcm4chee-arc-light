@@ -49,7 +49,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arc-jms-queue</artifactId>
+  <artifactId>dcm4chee-arc-qmgt</artifactId>
 
   <dependencies>
     <dependency>
