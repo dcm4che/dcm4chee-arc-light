@@ -105,14 +105,14 @@ public class RenderedImageOutput implements StreamingOutput {
                     writer.writeToSequence(
                             new IIOImage(bi2, null, metadata),
                             writeParam);
-                    imageOut.flushBefore(imageOut.length());
+                    imageOut.flush();
                 }
                 writer.endWriteSequence();
             } else {
                 bi = reader.read(imageIndex, readParam);
                 writer.write(null, new IIOImage(adjust(bi), null, null), writeParam);
             }
-            imageOut.flushBefore(imageOut.length());
+            imageOut.flush();
         } finally {
             writer.dispose();
             reader.dispose();
