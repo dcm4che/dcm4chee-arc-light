@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.util.DateUtils;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
@@ -48,6 +49,8 @@ import javax.json.Json;
 import javax.json.stream.JsonParser;
 import javax.persistence.*;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -58,15 +61,36 @@ import java.util.*;
 @Table(name = "queue_msg", uniqueConstraints = @UniqueConstraint(columnNames = "msg_id"),
     indexes = {
         @Index(columnList = "queue_name"),
-        @Index(columnList = "msg_status")
+        @Index(columnList = "msg_status"),
+        @Index(columnList = "updated_time")
 })
 @NamedQueries({
         @NamedQuery(name = QueueMessage.FIND_BY_MSG_ID,
-                query = "SELECT o FROM QueueMessage o WHERE o.messageID=?1")
+                query = "select o from QueueMessage o where o.messageID=?1"),
+        @NamedQuery(name = QueueMessage.FIND_BY_QUEUE_NAME,
+                query = "select o from QueueMessage o where o.queueName=?1 order by o.pk desc"),
+        @NamedQuery(name = QueueMessage.FIND_BY_QUEUE_NAME_AND_STATUS,
+                query = "select o from QueueMessage o where o.queueName=?1 and o.status=?2 order by o.pk desc"),
+        @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME,
+                query = "delete from QueueMessage o where o.queueName=?1"),
+        @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS,
+                query = "delete from QueueMessage o where o.queueName=?1 and o.status=?2"),
+        @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE,
+                query = "delete from QueueMessage o where o.queueName=?1 and o.updatedTime<?2"),
+        @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE,
+                query = "delete from QueueMessage o where o.queueName=?1 and o.status=?2 and o.updatedTime<?3 ")
 })
 public class QueueMessage {
 
     public static final String FIND_BY_MSG_ID = "QueueMessage.FindByMsgId";
+    public static final String FIND_BY_QUEUE_NAME = "QueueMessage.FindByQueueName";
+    public static final String FIND_BY_QUEUE_NAME_AND_STATUS = "QueueMessage.FindByQueueNameAndStatus";
+    public static final String DELETE_BY_QUEUE_NAME = "QueueMessage.DeleteByQueueName";
+    public static final String DELETE_BY_QUEUE_NAME_AND_STATUS = "QueueMessage.DeleteByQueueNameAndStatus";
+    public static final String DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE =
+            "QueueMessage.DeleteByQueueNameAndUpdatedBefore";
+    public static final String DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE =
+            "QueueMessage.DeleteByQueueNameAndStatusAndUpdatedBefore";
 
     public enum Status {
         SCHEDULED, IN_PROCESS, COMPLETED, FAILED, CANCELED
@@ -209,6 +233,38 @@ public class QueueMessage {
     public void setMessageID(String messageID) {
         this.messageID = messageID;
     }
+
+    public void writeAsJSON(Writer out) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        out.write("{id:\"");
+        out.write(messageID);
+        out.write("\",queue:\"");
+        out.write(queueName);
+        out.write("\",status:\"");
+        out.write(status.toString());
+        out.write("\",deliveryCount:");
+        out.write(String.valueOf(deliveryCount));
+        out.write(",createdTime:\"");
+        out.write(df.format(createdTime));
+        out.write("\",updatedTime:\"");
+        out.write(df.format(updatedTime));
+        if (processingStartTime != null) {
+            out.write("\",processingStartTime:\"");
+            out.write(df.format(processingStartTime));
+        }
+        if (processingEndTime != null) {
+            out.write("\",processingEndTime:\"");
+            out.write(df.format(processingEndTime));
+        }
+        if (errorMessage != null) {
+            out.write("\",errorMessage:\"");
+            out.write(errorMessage);
+        }
+        out.write("\",");
+        out.write(messageProperties);
+        out.write('}');
+    }
+
 
     private String propertiesOf(ObjectMessage msg) throws JMSException {
         StringBuilder sb = new StringBuilder(512);

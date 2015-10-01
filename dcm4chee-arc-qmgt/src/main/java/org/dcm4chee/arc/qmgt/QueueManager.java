@@ -45,6 +45,8 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -68,4 +70,8 @@ public interface QueueManager {
     void rescheduleMessage(String msgId);
 
     void deleteMessage(String msgId);
+
+    int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore);
+
+    List<QueueMessage> search(String queueName, QueueMessage.Status status, int offset, int limit);
 }

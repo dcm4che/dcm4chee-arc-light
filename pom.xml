@@ -293,6 +293,7 @@
     <module>dcm4chee-arc-patient</module>
     <module>dcm4chee-arc-qido</module>
     <module>dcm4chee-arc-qmgt</module>
+    <module>dcm4chee-arc-qmgt-rs</module>
     <module>dcm4chee-arc-query</module>
     <module>dcm4chee-arc-query-scp</module>
     <module>dcm4chee-arc-query-util</module>

@@ -50,11 +50,10 @@ import javax.inject.Inject;
 import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -155,6 +154,41 @@ public class QueueManagerEJB implements QueueManager {
     @Override
     public void deleteMessage(String msgId) {
         em.remove(findQueueMessage(msgId));
+    }
+
+    @Override
+    public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore) {
+        Query query = status != null
+                ? updatedBefore != null
+                    ? em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE)
+                        .setParameter(1, queueName)
+                        .setParameter(2, status)
+                        .setParameter(3, updatedBefore)
+                    : em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS)
+                        .setParameter(1, queueName)
+                        .setParameter(2, status)
+                : updatedBefore != null
+                    ? em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE)
+                        .setParameter(1, queueName)
+                        .setParameter(2, updatedBefore)
+                    : em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME)
+                        .setParameter(1, queueName);
+        return query.executeUpdate();
+    }
+
+    @Override
+    public List<QueueMessage> search(String queueName, QueueMessage.Status status, int offset, int limit) {
+        TypedQuery<QueueMessage> query = status != null
+                ? em.createNamedQuery(QueueMessage.FIND_BY_QUEUE_NAME_AND_STATUS, QueueMessage.class)
+                    .setParameter(1, queueName)
+                    .setParameter(2, status)
+                : em.createNamedQuery(QueueMessage.FIND_BY_QUEUE_NAME, QueueMessage.class)
+                    .setParameter(1, queueName);
+        if (offset > 0)
+            query.setFirstResult(offset);
+        if (limit > 0)
+            query.setMaxResults(limit);
+        return query.getResultList();
     }
 
     private Queue lookupQueue(String jndiName) {

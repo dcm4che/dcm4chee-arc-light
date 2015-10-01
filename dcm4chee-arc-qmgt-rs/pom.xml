@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ ***** BEGIN LICENSE BLOCK *****
+  ~ **** BEGIN LICENSE BLOCK *****
   ~ Version: MPL 1.1/GPL 2.0/LGPL 2.1
   ~
   ~ The contents of this file are subject to the Mozilla Public License Version
@@ -18,7 +18,7 @@
   ~
   ~ The Initial Developer of the Original Code is
   ~ J4Care.
-  ~ Portions created by the Initial Developer are Copyright (C) 2013
+  ~ Portions created by the Initial Developer are Copyright (C) 2015
   ~ the Initial Developer. All Rights Reserved.
   ~
   ~ Contributor(s):
@@ -36,42 +36,34 @@
   ~ the provisions above, a recipient may use your version of this file under
   ~ the terms of any one of the MPL, the GPL or the LGPL.
   ~
-  ~ ***** END LICENSE BLOCK *****
+  ~ **** END LICENSE BLOCK *****
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>dcm4chee-arc-parent</artifactId>
-        <groupId>org.dcm4che.dcm4chee-arc</groupId>
-        <version>5.0.0-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>dcm4chee-arc-parent</artifactId>
+    <groupId>org.dcm4che.dcm4chee-arc</groupId>
+    <version>5.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dcm4chee-arc-war</artifactId>
-    <packaging>war</packaging>
+  <artifactId>dcm4chee-arc-qmgt-rs</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-ctrl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-wado</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-qido</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-qmgt-rs</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-entity</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-qmgt</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
 </project>
