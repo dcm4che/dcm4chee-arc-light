@@ -113,7 +113,7 @@ public class RenderedImageOutput implements StreamingOutput {
                 writer.write(null, new IIOImage(adjust(bi), null, null), writeParam);
             }
             imageOut.close();   // does not close out,
-                                // marks imageOut as closed to prevent finalizer thread to call imageOut.flush()
+                                // marks imageOut as closed to prevent finalizer thread to invoke out.flush()
         } finally {
             writer.dispose();
             reader.dispose();
