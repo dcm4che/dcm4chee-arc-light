@@ -1,16 +1,16 @@
 "use strict";
 
-myApp.controller('StudyListCtrl', function ($scope, $window, QidoService) {
+myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService) {
     $scope.studies = [];
     $scope.limit = 20;
-    $scope.qidoURL = "http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs";
-    $scope.wadoURL = "http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado";
+    $scope.aes = [];
+    $scope.aet = null;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
     $scope.queryStudies = function(offset) {
         QidoService.queryStudies(
-            $scope.qidoURL,
+            qidoURL(),
             createQueryParams(offset, createStudyFilterParams())
         ).then(function (res) {
             $scope.studies = res.data.map(function(attrs, index) {
@@ -25,7 +25,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, QidoService) {
     };
     $scope.querySeries = function(study, offset) {
         QidoService.querySeries(
-            $scope.qidoURL,
+            qidoURL(),
             study.attrs['0020000D'].Value[0],
             createQueryParams(offset, { orderby: 'SeriesNumber'})
         ).then(function (res) {
@@ -41,7 +41,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, QidoService) {
     };
     $scope.queryInstances = function (series, offset) {
         QidoService.queryInstances(
-            $scope.qidoURL,
+            qidoURL(),
             series.attrs['0020000D'].Value[0],
             series.attrs['0020000E'].Value[0],
             createQueryParams(offset, { orderby: 'InstanceNumber'})
@@ -111,6 +111,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, QidoService) {
     $scope.nextOffset = function(objs) {
         return objs[0].offset + $scope.limit;
     };
+    function qidoURL() {
+        return "../aets/" + $scope.aet + "/rs";
+    }
     function createStudyFilterParams() {
         var filter = angular.extend({}, $scope.filter);
         appendFilter(filter, "StudyDate", $scope.studyDate, /-/g);
@@ -144,7 +147,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, QidoService) {
         return wadoURL(inst.wadoQueryParams);
     }
     function wadoURL() {
-        var i, url = $scope.wadoURL + "?requestType=WADO";
+        var i, url = "../aets/" + $scope.aet + "/wado?requestType=WADO";
         for (i = 0; i < arguments.length; i++) {
             angular.forEach(arguments[i], function(value, key) {
                 url += '&' + key + '=' + value;
@@ -185,5 +188,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, QidoService) {
             a.push(i);
         return a;
     }
-
+    function init() {
+        $http.get("../aets").then(function (res) {
+            $scope.aes = res.data;
+            $scope.aet = res.data[0].title;
+        })
+    }
+    init();
 });

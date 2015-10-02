@@ -236,28 +236,28 @@ public class QueueMessage {
 
     public void writeAsJSON(Writer out) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        out.write("{id:\"");
+        out.write("{\"id\":\"");
         out.write(messageID);
-        out.write("\",queue:\"");
+        out.write("\",\"queue\":\"");
         out.write(queueName);
-        out.write("\",status:\"");
+        out.write("\",\"status\":\"");
         out.write(status.toString());
-        out.write("\",deliveryCount:");
+        out.write("\",\"deliveryCount\":");
         out.write(String.valueOf(deliveryCount));
-        out.write(",createdTime:\"");
+        out.write(",\"createdTime\":\"");
         out.write(df.format(createdTime));
-        out.write("\",updatedTime:\"");
+        out.write("\",\"updatedTime\":\"");
         out.write(df.format(updatedTime));
         if (processingStartTime != null) {
-            out.write("\",processingStartTime:\"");
+            out.write("\",\"processingStartTime\":\"");
             out.write(df.format(processingStartTime));
         }
         if (processingEndTime != null) {
-            out.write("\",processingEndTime:\"");
+            out.write("\",\"processingEndTime\":\"");
             out.write(df.format(processingEndTime));
         }
         if (errorMessage != null) {
-            out.write("\",errorMessage:\"");
+            out.write("\",\"errorMessage\":\"");
             out.write(errorMessage);
         }
         out.write("\",");
@@ -274,7 +274,7 @@ public class QueueMessage {
             if (!name.startsWith("JMS")) {
                 Object o = msg.getObjectProperty(name);
                 boolean quote = o instanceof String;
-                sb.append(name).append(':');
+                sb.append('"').append(name).append('"').append(':');
                 if (quote) sb.append('"');
                 sb.append(o);
                 if (quote) sb.append('"');

@@ -737,9 +737,12 @@ class ArchiveDeviceFactory {
             device.setAuthorizedNodeCertificates(config.deviceRef(other),
                     (X509Certificate) keyStore.getCertificate(other));
 
-        device.addApplicationEntity(createAE("DCM4CHEE", dicom, dicomTLS, HIDE_REJECTED_VIEW, true));
-        device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", dicom, dicomTLS, REGULAR_USE_VIEW, false));
-        device.addApplicationEntity(createAE("DCM4CHEE_TRASH", dicom, dicomTLS, TRASH_VIEW, false));
+        device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
+                dicom, dicomTLS, HIDE_REJECTED_VIEW, true));
+        device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", "Show instances rejected for Quality Reasons",
+                dicom, dicomTLS, REGULAR_USE_VIEW, false));
+        device.addApplicationEntity(createAE("DCM4CHEE_TRASH", "Show rejected instances only",
+                dicom, dicomTLS, TRASH_VIEW, false));
 
         return device;
     }
@@ -832,10 +835,10 @@ class ArchiveDeviceFactory {
 
     }
 
-    private static ApplicationEntity createAE(
-            String aet, Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
-            boolean storeSCP) {
+    private static ApplicationEntity createAE(String aet, String description,
+            Connection dicom, Connection dicomTLS, QueryRetrieveView qrView, boolean storeSCP) {
         ApplicationEntity ae = new ApplicationEntity(aet);
+        ae.setDescription(description);
         ae.addConnection(dicom);
         ae.addConnection(dicomTLS);
 

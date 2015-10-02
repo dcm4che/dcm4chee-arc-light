@@ -1,17 +1,15 @@
 <div class="form-inline">
     <div class="form-group">
+        <label for="aet">AET:</label>
+        <select id="aet" ng-model="aet">
+            <option ng-repeat="ae in aes" title="{{ae.description}}">{{ae.title}}</option>
+        </select>
+    </div>
+    <div class="form-group">
         <label for="limit">Page Size:</label>
-        <input type="number" min="1" style="width: 3em" ng-model="limit" id="limit" required/>
+        <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
     </div>
-    <div class="form-group">
-        <label for="qido-url">QIDO URL:</label>
-        <input type="url" size="50" ng-model="qidoURL" id="qido-url" required/>
-    </div>
-    <div class="form-group">
-        <label for="wado-url">WADO URL:</label>
-        <input type="url" size="50" ng-model="wadoURL" id="wado-url" required/>
-    </div>
-    <br>
+    <br/>
     <div class="form-group">
         <label for="PatientName">Patient Name:</label>
         <input id="PatientName" type="text" ng-model="filter.PatientName"/>
@@ -71,7 +69,6 @@
             <input type="checkbox" ng-model="filter.timezoneadjustment"> Timezone Adjustment
         </label>
     </div>
-
 </div>
 <table class="table table-bordered table-condensed">
     <thead>
@@ -107,9 +104,11 @@
                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
+                <!--
                 <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
                     <span class="glyphicon glyphicon-save"></span>
                 </a>
+                -->
                 <a ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
                 <a ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
             </td>
@@ -154,9 +153,11 @@
                 <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
+                <!--
                 <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
                     <span class="glyphicon glyphicon-save"></span>
                 </a>
+                -->
                 <a ng-hide="series.instances" ng-click="queryInstances(series,0)" href="" title="Show Instances">&#9658;</a>
                 <a ng-show="series.instances" ng-click="series.instances = null" href="" title="Hide Instances">&#9660;</a>
             </td>
