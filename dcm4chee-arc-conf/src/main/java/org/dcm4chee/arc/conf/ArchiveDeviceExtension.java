@@ -74,6 +74,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private QueryRetrieveView[] queryRetrieveViews = {};
 
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
+    private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
 
     private final CompressionRules compressionRules = new CompressionRules();
 
@@ -257,6 +258,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return storageDescriptorMap.values();
     }
 
+    public QueueDescriptor getQueueDescriptor(String queueName) {
+        return queueDescriptorMap.get(queueName);
+    }
+
+    public QueueDescriptor removeQueueDescriptor(String queueName) {
+        return queueDescriptorMap.remove(queueName);
+    }
+
+    public void addQueueDescriptor(QueueDescriptor descriptor) {
+        queueDescriptorMap.put(descriptor.getQueueName(), descriptor);
+    }
+
+    public Collection<QueueDescriptor> getQueueDescriptors() {
+        return queueDescriptorMap.values();
+    }
+
     public CompressionRules getCompressionRules() {
         return compressionRules;
     }
@@ -298,6 +315,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
+        queueDescriptorMap.clear();
+        queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
         compressionRules.clear();
         compressionRules.add(arcdev.compressionRules);
     }

@@ -80,7 +80,7 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
         ObjectMessage msg = queueManager.createObjectMessage(actionInfo);
         msg.setStringProperty("LocalAET", localAET);
         msg.setStringProperty("RemoteAET", remoteAET);
-        queueManager.scheduleMessage(QUEUE_NAME, JNDI_NAME, msg);
+        queueManager.scheduleMessage(QUEUE_NAME, msg);
     }
 
     @Override

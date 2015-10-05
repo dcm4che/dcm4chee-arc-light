@@ -135,6 +135,11 @@ class ArchiveDeviceFactory {
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // GETSCU
     };
 
+    static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
+        new QueueDescriptor("MPPSSCU", "Forward MPPS Tasks", "jms/queue/MPPSSCU"),
+        new QueueDescriptor("STGCMTSCP", "Storage Commitment Tasks", "jms/queue/STGCMTSCP")
+    };
+
     static final int[] PATIENT_ATTRS = {
             Tag.SpecificCharacterSet,
             Tag.PatientName,
@@ -826,6 +831,9 @@ class ArchiveDeviceFactory {
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
         ext.addStorageDescriptor(storageDescriptor);
+
+        for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
+            ext.addQueueDescriptor(descriptor);
 
         ext.addCompressionRule(JPEG_BASELINE);
         ext.addCompressionRule(JPEG_EXTENDED);

@@ -127,6 +127,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.25 NAME 'dcmFwdMppsDestination'
   DESC 'Destination to forward MPPS N-CREATE RQ and N-SET RQ'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.26 NAME 'dcmQueueName'
+  DESC 'JMS Queue Name'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.27 NAME 'dcmJndiName'
+  DESC 'JNDI Name'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -196,3 +206,11 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.13 NAME 'dcmQueryRetrieveView'
     dcmShowInstancesRejectedByCode $
     dcmHideRejectionNoteWithCode $
     dcmHideNotRejectedInstances ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
+  DESC 'Managed JMS Queue'
+  SUP top STRUCTURAL
+  MUST (
+    dcmQueueName $
+    dcmJndiName)
+  MAY (
+    dicomDescription ) )

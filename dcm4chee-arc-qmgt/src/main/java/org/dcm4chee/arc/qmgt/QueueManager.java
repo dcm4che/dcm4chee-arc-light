@@ -55,7 +55,7 @@ import java.util.List;
 public interface QueueManager {
     ObjectMessage createObjectMessage(Serializable object);
 
-    void scheduleMessage(String queueName, String jndiName, ObjectMessage message);
+    void scheduleMessage(String queueName, ObjectMessage message);
 
     QueueMessage onProcessingStart(Message msg);
 

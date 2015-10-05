@@ -40,6 +40,9 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueManager;
 
@@ -68,6 +71,9 @@ public class QueueManagerEJB implements QueueManager {
     @Inject
     private JMSContext jmsCtx;
 
+    @Inject
+    private Device device;
+
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public ObjectMessage createObjectMessage(Serializable object) {
@@ -75,10 +81,10 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    public void scheduleMessage(String queueName, String jndiName, ObjectMessage msg) {
+    public void scheduleMessage(String queueName, ObjectMessage msg) {
         try {
-            jmsCtx.createProducer().send(lookupQueue(jndiName), msg);
-            em.persist(new QueueMessage(queueName, jndiName, msg));
+            jmsCtx.createProducer().send(lookupQueue(queueName), msg);
+            em.persist(new QueueMessage(queueName, msg));
         } catch (JMSException e) {
             throw toJMSRuntimeException(e);
         }
@@ -144,8 +150,7 @@ public class QueueManagerEJB implements QueueManager {
     public void rescheduleMessage(String msgId) {
         try {
             QueueMessage entity = findQueueMessage(msgId);
-            scheduleMessage(entity.getQueueName(), entity.getJndiName(),
-                    entity.initProperties(createObjectMessage(entity.getMessageBody())));
+            scheduleMessage(entity.getQueueName(), entity.initProperties(createObjectMessage(entity.getMessageBody())));
         } catch (JMSException e) {
             throw toJMSRuntimeException(e);
         }
@@ -191,9 +196,11 @@ public class QueueManagerEJB implements QueueManager {
         return query.getResultList();
     }
 
-    private Queue lookupQueue(String jndiName) {
+    private Queue lookupQueue(String queueName) {
+        ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor desc = ext.getQueueDescriptor(queueName);
         try {
-            return InitialContext.doLookup(jndiName);
+            return InitialContext.doLookup(desc.getJndiName());
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }

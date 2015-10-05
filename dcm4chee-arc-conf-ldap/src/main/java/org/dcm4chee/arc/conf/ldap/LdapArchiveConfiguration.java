@@ -157,6 +157,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         storeAttributeFilter(deviceDN, arcDev);
         storeStorageDescriptors(deviceDN, arcDev);
+        storeQueueDescriptors(deviceDN, arcDev);
         storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
         storeQueryRetrieveViews(deviceDN, arcDev);
     }
@@ -170,6 +171,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         loadAttributeFilters(arcdev, deviceDN);
         loadStorageDescriptors(arcdev, deviceDN);
+        loadQueueDescriptors(arcdev, deviceDN);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
         loadQueryRetrieveViews(arcdev, deviceDN);
     }
@@ -186,6 +188,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         mergeAttributeFilters(aa, bb, deviceDN);
         mergeStorageDescriptors(aa, bb, deviceDN);
+        mergeQueueDescriptors(aa, bb, deviceDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
         mergeQueryRetrieveViews(aa, bb, deviceDN);
     }
@@ -467,6 +470,66 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     : new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
                         LdapUtils.attr("dcmProperty", toStrings(props))));
         }
+    }
+
+    private void storeQueueDescriptors(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+        for (QueueDescriptor descriptor : arcDev.getQueueDescriptors()) {
+            String queueName = descriptor.getQueueName();
+            config.createSubcontext(
+                    LdapUtils.dnOf("dcmQueueName", queueName, deviceDN),
+                    storeTo(descriptor, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(QueueDescriptor descriptor, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmQueue");
+        attrs.put("dcmQueueName", descriptor.getQueueName());
+        attrs.put("dcmJndiName", descriptor.getJndiName());
+        LdapUtils.storeNotNull(attrs, "dicomDescription", descriptor.getDescription());
+        return attrs;
+    }
+
+    private void loadQueueDescriptors(ArchiveDeviceExtension arcdev, String deviceDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmQueue)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                QueueDescriptor desc = new QueueDescriptor(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
+                desc.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
+                desc.setJndiName(LdapUtils.stringValue(attrs.get("dcmJndiName"), null));
+                arcdev.addQueueDescriptor(desc);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void mergeQueueDescriptors(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+            throws NamingException {
+        for (QueueDescriptor descriptor : prev.getQueueDescriptors()) {
+            String queueName = descriptor.getQueueName();
+            if (arcDev.getQueueDescriptor(queueName) == null)
+                config.destroySubcontext(LdapUtils.dnOf("dcmQueueName", queueName, deviceDN));
+        }
+        for (QueueDescriptor descriptor : arcDev.getQueueDescriptors()) {
+            String queueName = descriptor.getQueueName();
+            String dn = LdapUtils.dnOf("dcmQueueName", queueName, deviceDN);
+            QueueDescriptor prevDescriptor = prev.getQueueDescriptor(queueName);
+            if (prevDescriptor == null)
+                config.createSubcontext(dn,
+                        storeTo(descriptor, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn,
+                        storeDiffs(prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(QueueDescriptor prev, QueueDescriptor desc,
+                                              List<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dicomDescription", prev.getDescription(), desc.getDescription());
+        LdapUtils.storeDiff(mods, "dcmJndiName", prev.getJndiName(), desc.getJndiName());
+        return mods;
     }
 
     private void storeCompressionRules(CompressionRules rules, String parentDN) throws NamingException {

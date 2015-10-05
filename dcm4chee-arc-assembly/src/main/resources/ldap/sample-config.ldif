@@ -869,6 +869,18 @@ objectClass: dcmStorage
 dcmStorageID: fs1
 dcmURI: file:///var/local/dcm4chee-arc/fs1/
 
+dn: dcmQueueName=STGCMTSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmJndiName: jms/queue/STGCMTSCP
+dicomDescription: Storage Commitment Tasks
+dcmQueueName: STGCMTSCP
+objectClass: dcmQueue
+
+dn: dcmQueueName=MPPSSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmJndiName: jms/queue/MPPSSCU
+dicomDescription: Forward MPPS Tasks
+dcmQueueName: MPPSSCU
+objectClass: dcmQueue
+
 dn: cn=JPEG Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmAETitle: JPEG_LOSSLESS
 dcmPhotometricInterpretation: MONOCHROME1

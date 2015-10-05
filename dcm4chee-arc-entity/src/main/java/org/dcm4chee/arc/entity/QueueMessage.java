@@ -119,10 +119,6 @@ public class QueueMessage {
     private String queueName;
 
     @Basic(optional = false)
-    @Column(name = "jndi_name", updatable = false)
-    private String jndiName;
-
-    @Basic(optional = false)
     @Column(name = "msg_id", updatable = false)
     private String messageID;
 
@@ -157,9 +153,8 @@ public class QueueMessage {
     public QueueMessage() {
     }
 
-    public QueueMessage(String queueName, String jndiName, ObjectMessage msg) throws JMSException {
+    public QueueMessage(String queueName, ObjectMessage msg) throws JMSException {
         this.queueName = queueName;
-        this.jndiName = jndiName;
         this.messageID = msg.getJMSMessageID();
         this.messageProperties = propertiesOf(msg);
         this.messageBody = serialize(msg.getObject());
@@ -216,14 +211,6 @@ public class QueueMessage {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
-    }
-
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
     }
 
     public String getMessageID() {
@@ -346,5 +333,16 @@ public class QueueMessage {
     @PreUpdate
     public void onPreUpdate() {
         updatedTime = new Date();
+    }
+
+    @Override
+    public String toString() {
+        StringWriter w = new StringWriter(256);
+        try {
+            writeAsJSON(w);
+        } catch (IOException e) {
+            return "" + e;
+        }
+        return w.toString();
     }
 }
