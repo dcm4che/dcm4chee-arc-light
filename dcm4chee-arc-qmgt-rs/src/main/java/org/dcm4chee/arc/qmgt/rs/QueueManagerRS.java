@@ -64,7 +64,7 @@ import java.util.List;
  */
 @RequestScoped
 @Path("queue/{queueName}")
-public class QueryManagerRS {
+public class QueueManagerRS {
 
     @Inject
     private QueueManager mgr;
