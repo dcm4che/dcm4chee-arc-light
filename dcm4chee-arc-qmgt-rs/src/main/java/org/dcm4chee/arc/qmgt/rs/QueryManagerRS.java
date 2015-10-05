@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
-import org.dcm4che3.util.DateUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueManager;
 

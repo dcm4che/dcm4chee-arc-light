@@ -46,6 +46,8 @@ import org.dcm4che3.image.BufferedImageUtils;
 import org.dcm4che3.image.PixelAspectRatio;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.imageio.plugins.dcm.DicomMetaData;
+import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.util.SafeClose;
 
 import javax.imageio.*;
 import javax.imageio.metadata.IIOMetadata;
@@ -67,6 +69,7 @@ public class RenderedImageOutput implements StreamingOutput {
     private static final float DEF_FRAME_TIME = 1000.f;
     private static final byte[] LOOP_FOREVER = { 1, 0, 0 };
 
+    private final DicomInputStream dis;
     private final ImageReader reader;
     private final DicomImageReadParam readParam;
     private final int rows;
@@ -75,8 +78,9 @@ public class RenderedImageOutput implements StreamingOutput {
     private final ImageWriter writer;
     private final ImageWriteParam writeParam;
 
-    public RenderedImageOutput(ImageReader reader, DicomImageReadParam readParam, int rows, int columns,
-                               int imageIndex, ImageWriter writer, ImageWriteParam writeParam) {
+    public RenderedImageOutput(DicomInputStream dis, ImageReader reader, DicomImageReadParam readParam,
+                               int rows, int columns, int imageIndex, ImageWriter writer, ImageWriteParam writeParam) {
+        this.dis = dis;
         this.reader = reader;
         this.readParam = readParam;
         this.rows = rows;
@@ -89,6 +93,7 @@ public class RenderedImageOutput implements StreamingOutput {
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
         try {
+            reader.setInput(dis);
             ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out);
             writer.setOutput(imageOut);
             BufferedImage bi = null;
@@ -115,6 +120,7 @@ public class RenderedImageOutput implements StreamingOutput {
             imageOut.close();   // does not close out,
                                 // marks imageOut as closed to prevent finalizer thread to invoke out.flush()
         } finally {
+            SafeClose.close(dis);
             writer.dispose();
             reader.dispose();
         }

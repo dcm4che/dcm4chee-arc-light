@@ -264,9 +264,9 @@ public class WadoURI {
         if (imageQuality != null)
             writeParam.setCompressionQuality(parseInt(imageQuality) / 100.f);
 
-        ImageReader imageReader = getDicomImageReader(service.openDicomInputStream(ctx, inst));
-        return new RenderedImageOutput(imageReader, readParam,
-                parseInt(rows), parseInt(columns), imageIndex,
+        ImageReader imageReader = getDicomImageReader();
+        return new RenderedImageOutput(service.openDicomInputStream(ctx, inst),
+                imageReader, readParam, parseInt(rows), parseInt(columns), imageIndex,
                 imageWriter, writeParam);
     }
 
@@ -332,7 +332,7 @@ public class WadoURI {
         return new StreamCopyOutput(dis, dis.length());
     }
 
-    private static ImageReader getDicomImageReader(DicomInputStream dis) {
+    private static ImageReader getDicomImageReader() {
         Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("DICOM");
         if (!readers.hasNext()) {
             ImageIO.scanForPlugins();
@@ -341,7 +341,6 @@ public class WadoURI {
                 throw new RuntimeException("DICOM Image Reader not registered");
         }
         ImageReader reader = readers.next();
-        reader.setInput(dis);
         return reader;
     }
 

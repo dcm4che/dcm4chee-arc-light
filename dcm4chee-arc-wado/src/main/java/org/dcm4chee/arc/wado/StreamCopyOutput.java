@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.wado;
 
+import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StreamUtils;
 
 import javax.ws.rs.WebApplicationException;
@@ -64,6 +65,10 @@ public class StreamCopyOutput implements StreamingOutput {
 
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
-        StreamUtils.copy(in, out, length);
+        try {
+            StreamUtils.copy(in, out, length);
+        } finally {
+            SafeClose.close(in);
+        }
     }
 }
