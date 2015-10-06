@@ -1,0 +1,81 @@
+<div class="form-inline">
+    <div class="form-group">
+        <label for="queue">Queue:</label>
+        <select id="queue" ng-model="queueName">
+            <option ng-repeat="queue in queues" title="{{queue.description}}">{{queue.name}}</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" ng-model="status">
+            <option>*</option>
+            <option>SCHEDULED</option>
+            <option>IN PROCESS</option>
+            <option>COMPLETED</option>
+            <option>FAILED</option>
+            <option>CANCELED</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="limit">Page Size:</label>
+        <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
+    </div>
+</div>
+<table class="table table-bordered table-condensed">
+    <thead>
+    <tr>
+        <th colspan="2">
+            <button class="btn btn-link btn-xs" ng-click="search(0)" title="Refresh">
+                <span class="glyphicon glyphicon-refresh"></span>
+            </button>
+            <button class="btn btn-link btn-xs"
+                    ng-disabled="!hasNewer(matches)"
+                    ng-click="search(newerOffset(matches))"
+                    title="Newer">
+                <span class="glyphicon glyphicon-menu-left"></span>
+            </button>
+            <button class="btn btn-link btn-xs"
+                    ng-disabled="!hasOlder(matches)"
+                    ng-click="search(olderOffset(matches))"
+                    title="Older">
+                <span class="glyphicon glyphicon-menu-right"></span>
+            </button>
+        </th>
+        <th>Queue</th>
+        <th>Status</th>
+        <th>Retries</th>
+        <th>Created</th>
+        <th>Updated</th>
+        <th>Started</th>
+        <th>Finished</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat-start="match in matches">
+        <td rowspan="{{match.showProperties ? 2 : 1}}" ng-bind="match.offset+1+'.'"></td>
+        <td>
+            <a ng-click="match.showProperties = !match.showProperties" href="" title="Show Properties">
+                <span class="glyphicon glyphicon-list"></span>
+            </a>
+        </td>
+        <td ng-bind="match.properties.queue"></td>
+        <td ng-bind="match.properties.status"></td>
+        <td ng-bind="match.properties.deliveryCount-1"></td>
+        <td ng-bind="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+        <td ng-bind="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+        <td ng-bind="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+        <td ng-bind="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+    </tr>
+    <tr ng-show="match.showProperties">
+        <td colspan="8">
+            <table class="table table-bordered table-condensed attribute_list">
+                <tr ng-repeat="(key, value) in match.properties">
+                    <th ng-bind="key"></th>
+                    <td ng-bind="value"></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr ng-repeat-end ng-hide="true"></tr>
+    </tbody>
+</table>

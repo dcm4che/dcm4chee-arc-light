@@ -137,7 +137,7 @@ class ArchiveDeviceFactory {
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
         new QueueDescriptor("MPPSSCU", "Forward MPPS Tasks", "jms/queue/MPPSSCU"),
-        new QueueDescriptor("STGCMTSCP", "Storage Commitment Tasks", "jms/queue/STGCMTSCP")
+        new QueueDescriptor("StgCmtSCP", "Storage Commitment Tasks", "jms/queue/StgCmtSCP")
     };
 
     static final int[] PATIENT_ATTRS = {

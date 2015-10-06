@@ -75,16 +75,20 @@
         <tr>
             <th colspan="2">
                 <button class="btn btn-link btn-xs" ng-click="queryStudies(0)" title="Query Studies">
-                    <span class="glyphicon glyphicon-search"></span>
+                    <span class="glyphicon glyphicon-refresh"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!hasPrev(studies)"
                         ng-click="queryStudies(prevOffset(studies))"
-                        title="Previous Studies">&laquo;</button>
+                        title="Previous Studies">
+                    <span class="glyphicon glyphicon-menu-left"></span>
+                </button>
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!hasNext(studies)"
                         ng-click="queryStudies(nextOffset(studies))"
-                        title="Next Studies">&raquo;</button>
+                        title="Next Studies">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                </button>
             </th>
             <th colspan="3">Patient Name</th>
             <th>Patient ID</th>

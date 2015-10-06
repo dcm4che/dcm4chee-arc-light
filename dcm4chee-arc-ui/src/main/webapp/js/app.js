@@ -7,6 +7,10 @@ myApp.config(function ($routeProvider) {
         templateUrl: 'templates/study_list.html',
         controller: 'StudyListCtrl'
     })
+    .when('/queues', {
+        templateUrl: 'templates/queue_mgt.html',
+        controller: 'QueueMgtCtrl'
+    })
     .otherwise({
         redirectTo: '/studies'
     });
