@@ -132,7 +132,7 @@ public class PatientServiceEJB implements PatientService {
         if (issuer != null) {
             for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
                 IssuerEntity ie = it.next().getPatientID().getIssuer();
-                if (ie != null && ie.getIssuer().matches(issuer))
+                if (ie != null && !ie.getIssuer().matches(issuer))
                     it.remove();
             }
         }
