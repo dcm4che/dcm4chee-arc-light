@@ -166,10 +166,11 @@ public class QueryBuilder {
     }
 
     public static HibernateQuery<Tuple> applyPatientLevelJoins(
-            HibernateQuery<Tuple> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+            HibernateQuery<Tuple> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
+            boolean orderByPatientName) {
         boolean matchUnknown = queryParam.isMatchUnknown();
         query = applyPatientIDJoins(query, pids, matchUnknown);
-        if (!isUniversalMatching(keys.getString(Tag.PatientName)))
+        if (orderByPatientName || !isUniversalMatching(keys.getString(Tag.PatientName)))
             query = matchUnknown
                     ? query.leftJoin(QPatient.patient.patientName, QueryBuilder.patientName)
                     : query.join(QPatient.patient.patientName, QueryBuilder.patientName);

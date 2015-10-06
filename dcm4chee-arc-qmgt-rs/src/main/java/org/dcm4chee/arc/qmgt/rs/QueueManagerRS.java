@@ -116,7 +116,7 @@ public class QueueManagerRS {
     @DELETE
     @Produces("application/json")
     public String deleteMessages() {
-        return "{deleted:"
+        return "{\"deleted\":"
                 + mgr.deleteMessages(queueName, parseStatus(status), parseDate(updatedBefore))
                 + '}';
     }

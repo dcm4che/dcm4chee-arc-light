@@ -70,4 +70,8 @@ public interface QueryContext {
     Attributes getReturnKeys();
 
     void setReturnKeys(Attributes returnKeys);
+
+    boolean isOrderByPatientName();
+
+    void setOrderByPatientName(boolean orderByPatientName);
 }

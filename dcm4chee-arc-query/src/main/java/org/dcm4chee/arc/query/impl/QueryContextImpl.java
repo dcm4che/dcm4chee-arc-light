@@ -59,6 +59,7 @@ class QueryContextImpl implements QueryContext {
     private IDWithIssuer[] patientIDs = {};
     private Attributes queryKeys;
     private Attributes returnKeys;
+    private boolean orderByPatientName;
 
     public QueryContextImpl(ApplicationEntity ae, QueryParam queryParam, QueryService queryService) {
         this.ae = ae;
@@ -114,5 +115,15 @@ class QueryContextImpl implements QueryContext {
     @Override
     public QueryParam getQueryParam() {
         return queryParam;
+    }
+
+    @Override
+    public boolean isOrderByPatientName() {
+        return orderByPatientName;
+    }
+
+    @Override
+    public void setOrderByPatientName(boolean orderByPatientName) {
+        this.orderByPatientName = orderByPatientName;
     }
 }

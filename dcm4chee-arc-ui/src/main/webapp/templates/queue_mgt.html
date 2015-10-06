@@ -1,3 +1,7 @@
+<ul class="nav nav-tabs">
+    <li role="presentation"><a href="#/studies">Studies</a></li>
+    <li role="presentation" class="active"><a href="#">Queues</a></li>
+</ul>
 <div class="form-inline">
     <div class="form-group">
         <label for="queue">Queue:</label>
@@ -19,6 +23,10 @@
     <div class="form-group">
         <label for="limit">Page Size:</label>
         <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
+    </div>
+    <div class="form-group">
+        <button class="btn btn-danger" ng-click="flushBefore()">Flush before:</button>
+        <input id="before" type="date" ng-model="before"/>
     </div>
 </div>
 <table class="table table-bordered table-condensed">
@@ -43,7 +51,7 @@
         </th>
         <th>Queue</th>
         <th>Status</th>
-        <th>Retries</th>
+        <th>Failures</th>
         <th>Created</th>
         <th>Updated</th>
         <th>Started</th>
@@ -57,10 +65,19 @@
             <a ng-click="match.showProperties = !match.showProperties" href="" title="Show Properties">
                 <span class="glyphicon glyphicon-list"></span>
             </a>
+            <a ng-click="cancel(match)" href="" title="Cancel">
+                <span class="glyphicon glyphicon-ban-circle"></span>
+            </a>
+            <a ng-click="reschedule(match)" href="" title="Reschedule">
+                <span class="glyphicon glyphicon-repeat"></span>
+            </a>
+            <a ng-click="delete(match)" href="" title="Delete">
+                <span class="glyphicon glyphicon-remove-circle"></span>
+            </a>
         </td>
         <td ng-bind="match.properties.queue"></td>
         <td ng-bind="match.properties.status"></td>
-        <td ng-bind="match.properties.deliveryCount-1"></td>
+        <td ng-bind="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
         <td ng-bind="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
         <td ng-bind="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
         <td ng-bind="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>

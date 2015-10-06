@@ -98,7 +98,6 @@ public class QueueManagerEJB implements QueueManager {
             if (entity == null)
                 return null;
 
-            entity.setDeliveryCount(msg.getIntProperty("JMSXDeliveryCount"));
             entity.setProcessingStartTime(new Date());
             entity.setStatus(QueueMessage.Status.IN_PROCESS);
             return entity;
@@ -122,6 +121,7 @@ public class QueueManagerEJB implements QueueManager {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void onProcessingFailed(QueueMessage entity, Exception e) {
+        entity.incrementNumberOfFailures();
         entity.setErrorMessage(e.getMessage());
         entity.setProcessingEndTime(new Date());
         entity.setStatus(QueueMessage.Status.SCHEDULED);

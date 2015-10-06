@@ -1,11 +1,12 @@
 "use strict";
 
-myApp.controller('QueueMgtCtrl', function ($scope, $http, QmgtService) {
+myApp.controller('QueueMgtCtrl', function ($scope, $http, $filter, QmgtService) {
     $scope.matches = [];
     $scope.limit = 20;
     $scope.queues = [];
     $scope.queueName = null;
     $scope.status = "*";
+    $scope.before = today();
     $scope.search = function(offset) {
         QmgtService.search(qmgtURL(), queryParams(offset))
         .then(function (res) {
@@ -17,6 +18,30 @@ myApp.controller('QueueMgtCtrl', function ($scope, $http, QmgtService) {
                 };
             });
         });
+    };
+    $scope.cancel = function(match) {
+        QmgtService.cancel(qmgtURL(), match.properties.id)
+            .then(function (res) {
+                match.properties.status = 'CANCELED';
+            });
+    };
+    $scope.reschedule = function(match) {
+        QmgtService.reschedule(qmgtURL(), match.properties.id)
+            .then(function (res) {
+                $scope.search(0);
+            });
+    };
+    $scope.delete = function(match) {
+        QmgtService.delete(qmgtURL(), match.properties.id)
+            .then(function (res) {
+                $scope.search($scope.matches[0].offset);
+            });
+    };
+    $scope.flushBefore = function() {
+        QmgtService.flush(qmgtURL(), flushParams())
+            .then(function (res) {
+                $scope.search(0);
+            });
     };
     $scope.hasOlder = function(objs) {
         return objs && (objs.length === $scope.limit);
@@ -30,6 +55,10 @@ myApp.controller('QueueMgtCtrl', function ($scope, $http, QmgtService) {
     $scope.olderOffset = function(objs) {
         return objs[0].offset + $scope.limit;
     };
+    function today() {
+        var now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
     function qmgtURL() {
         return "../queue/" + $scope.queueName;
     }
@@ -40,6 +69,14 @@ myApp.controller('QueueMgtCtrl', function ($scope, $http, QmgtService) {
         }
         if ($scope.status != "*")
             params.status = $scope.status;
+        return params;
+    }
+    function flushParams() {
+        var params = {}
+        if ($scope.status != "*")
+            params.status = $scope.status;
+        if ($scope.before != null)
+            params.updatedBefore = $filter('date')($scope.before, 'yyyy-MM-dd');
         return params;
     }
     function init() {

@@ -131,10 +131,6 @@ public class QueueMessage {
     private byte[] messageBody;
 
     @Basic(optional = false)
-    @Column(name = "delivery_count")
-    private int deliveryCount;
-
-    @Basic(optional = false)
     @Column(name = "msg_status")
     private Status status;
 
@@ -145,6 +141,10 @@ public class QueueMessage {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "proc_end_time")
     private Date processingEndTime;
+
+    @Basic(optional = false)
+    @Column(name = "num_failures")
+    private int numberOfFailures;
 
     @Column(name = "error_msg")
     private String errorMessage;
@@ -163,14 +163,6 @@ public class QueueMessage {
 
     public long getPk() {
         return pk;
-    }
-
-    public int getDeliveryCount() {
-        return deliveryCount;
-    }
-
-    public void setDeliveryCount(int deliveryCount) {
-        this.deliveryCount = deliveryCount;
     }
 
     public Status getStatus() {
@@ -195,6 +187,18 @@ public class QueueMessage {
 
     public void setProcessingEndTime(Date processingEndTime) {
         this.processingEndTime = processingEndTime;
+    }
+
+    public int getNumberOfFailures() {
+        return numberOfFailures;
+    }
+
+    public void incrementNumberOfFailures() {
+        numberOfFailures++;
+    }
+
+    public void setNumberOfFailures(int numberOfFailures) {
+        this.numberOfFailures = numberOfFailures;
     }
 
     public String getErrorMessage() {
@@ -229,8 +233,8 @@ public class QueueMessage {
         out.write(queueName);
         out.write("\",\"status\":\"");
         out.write(status.toString());
-        out.write("\",\"deliveryCount\":");
-        out.write(String.valueOf(deliveryCount));
+        out.write("\",\"failures\":");
+        out.write(String.valueOf(numberOfFailures));
         out.write(",\"createdTime\":\"");
         out.write(df.format(createdTime));
         out.write("\",\"updatedTime\":\"");

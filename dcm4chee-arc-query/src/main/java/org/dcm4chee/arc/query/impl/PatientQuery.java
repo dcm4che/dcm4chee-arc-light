@@ -72,7 +72,8 @@ class PatientQuery extends AbstractQuery {
         q = QueryBuilder.applyPatientLevelJoins(q,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(),
+                context.isOrderByPatientName());
         BooleanBuilder predicates = new BooleanBuilder();
         QueryBuilder.addPatientLevelPredicates(predicates,
                 context.getPatientIDs(),

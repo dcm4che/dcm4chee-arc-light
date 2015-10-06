@@ -320,6 +320,7 @@ public class QidoRS {
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(queryAttrs.getReturnKeys(includetags));
+        ctx.setOrderByPatientName(queryAttrs.isOrderByPatientName());
         return ctx;
     }
 
@@ -350,6 +351,7 @@ public class QidoRS {
         private final Attributes keys = new Attributes();
         private boolean includeAll;
         private final ArrayList<OrderByTag> orderByTags = new ArrayList<>();
+        private boolean orderByPatientName;
 
         public QueryAttributes(UriInfo info) {
             MultivaluedMap<String, String> map = info.getQueryParameters();
@@ -389,6 +391,8 @@ public class QidoRS {
                         boolean desc = field.charAt(0) == '-';
                         int tag = parseTag(desc ? field.substring(1) : field);
                         orderByTags.add(new OrderByTag(tag, desc ? Order.DESC : Order.ASC));
+                        if (tag == Tag.PatientName)
+                            orderByPatientName = true;
                     }
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("orderby=" + s);
@@ -421,6 +425,10 @@ public class QidoRS {
             for (int tag : includetags)
                returnKeys.setNull(tag, DICT.vrOf(tag));
             return returnKeys;
+        }
+
+        public boolean isOrderByPatientName() {
+            return orderByPatientName;
         }
 
         private static class OrderByTag {

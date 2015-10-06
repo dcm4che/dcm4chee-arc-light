@@ -1,3 +1,7 @@
+<ul class="nav nav-tabs">
+    <li role="presentation" class="active"><a href="#">Studies</a></li>
+    <li role="presentation"><a href="#/queues">Queues</a></li>
+</ul>
 <div class="form-inline">
     <div class="form-group">
         <label for="aet">AET:</label>
@@ -136,11 +140,15 @@
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!hasPrev(study.series)"
                         ng-click="querySeries(study, prevOffset(study.series))"
-                        title="Previous Series">&laquo;</button>
+                        title="Previous Series">
+                    <span class="glyphicon glyphicon-menu-left"></span>
+                </button>
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!hasNext(study.series)"
                         ng-click="querySeries(study, nextOffset(study.series))"
-                        title="Next Series">&raquo;</button>
+                        title="Next Series">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                </button>
             </th>
             <th colspan="2">Station Name</th>
             <th>Series Number</th>
@@ -184,11 +192,15 @@
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!hasPrev(series.instances)"
                         ng-click="queryInstances(series, prevOffset(series.instances))"
-                        title="Previous Instances">&laquo;</button>
+                        title="Previous Instances">
+                    <span class="glyphicon glyphicon-menu-left"></span>
+                </button>
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!hasNext(series.instances)"
                         ng-click="queryInstances(series, nextOffset(series.instances))"
-                        title="Next Instances">&raquo;</button>
+                        title="Next Instances">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                </button>
             </th>
             <th>SOP Class UID</th>
             <th>Instance Number</th>
