@@ -1,0 +1,13 @@
+<ul class="nav nav-tabs">
+    <li role="presentation"><a href="#/studies">Studies</a></li>
+    <li role="presentation"><a href="#/queues">Queues</a></li>
+    <li role="presentation" class="active"><a href="#">Control</a></li>
+</ul>
+<p ng-bind="status == 'STARTED' ? 'Archive is running' : 'Archive is not running'"></p>
+<div class="btn-group">
+    <button type="button" class="btn btn-default" ng-click="start()" ng-disabled="status == 'STARTED'" title="Start Archive">Start</button>
+    <button type="button" class="btn btn-default" ng-click="stop()" ng-disabled="status == 'STOPPED'" title="Stop Archive">Stop</button>
+    <button type="button" class="btn btn-default" ng-click="reload()" title="Reload Archive Configuration">Reload</button>
+    <button type="button" class="btn btn-default" ng-click="fetchStatus()" title="Fetch Archive Status">Status</button>
+</div>
+<p ng-bind="message"></p>

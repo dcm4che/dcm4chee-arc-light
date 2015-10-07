@@ -11,6 +11,10 @@ myApp.config(function ($routeProvider) {
         templateUrl: 'templates/queue_mgt.html',
         controller: 'QueueMgtCtrl'
     })
+    .when('/ctrl', {
+        templateUrl: 'templates/control.html',
+        controller: 'ArchiveCtrl'
+    })
     .otherwise({
         redirectTo: '/studies'
     });

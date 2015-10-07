@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller('QueueMgtCtrl', function ($scope, $http, $filter, QmgtService) {
+myApp.controller('QueueMgtCtrl', function ($scope, $http, QmgtService) {
     $scope.matches = [];
     $scope.limit = 20;
     $scope.queues = [];
@@ -8,7 +8,7 @@ myApp.controller('QueueMgtCtrl', function ($scope, $http, $filter, QmgtService) 
     $scope.status = "*";
     $scope.before = today();
     $scope.search = function(offset) {
-        QmgtService.search(qmgtURL(), queryParams(offset))
+        QmgtService.search($scope.queueName, $scope.status, offset, $scope.limit)
         .then(function (res) {
             $scope.matches = res.data.map(function(properties, index) {
                 return {
@@ -20,25 +20,25 @@ myApp.controller('QueueMgtCtrl', function ($scope, $http, $filter, QmgtService) 
         });
     };
     $scope.cancel = function(match) {
-        QmgtService.cancel(qmgtURL(), match.properties.id)
+        QmgtService.cancel($scope.queueName, match.properties.id)
             .then(function (res) {
                 match.properties.status = 'CANCELED';
             });
     };
     $scope.reschedule = function(match) {
-        QmgtService.reschedule(qmgtURL(), match.properties.id)
+        QmgtService.reschedule($scope.queueName, match.properties.id)
             .then(function (res) {
                 $scope.search(0);
             });
     };
     $scope.delete = function(match) {
-        QmgtService.delete(qmgtURL(), match.properties.id)
+        QmgtService.delete($scope.queueName, match.properties.id)
             .then(function (res) {
                 $scope.search($scope.matches[0].offset);
             });
     };
     $scope.flushBefore = function() {
-        QmgtService.flush(qmgtURL(), flushParams())
+        QmgtService.flush($scope.queueName, $scope.status, $scope.before)
             .then(function (res) {
                 $scope.search(0);
             });
@@ -59,31 +59,8 @@ myApp.controller('QueueMgtCtrl', function ($scope, $http, $filter, QmgtService) 
         var now = new Date();
         return new Date(now.getFullYear(), now.getMonth(), now.getDate());
     }
-    function qmgtURL() {
-        return "../queue/" + $scope.queueName;
-    }
-    function queryParams(offset) {
-        var params = {
-            offset: offset,
-            limit: $scope.limit
-        }
-        if ($scope.status != "*")
-            params.status = $scope.status;
-        return params;
-    }
-    function flushParams() {
-        var params = {}
-        if ($scope.status != "*")
-            params.status = $scope.status;
-        if ($scope.before != null)
-            params.updatedBefore = $filter('date')($scope.before, 'yyyy-MM-dd');
-        return params;
-    }
     function init() {
         $http.get("../queue").then(function (res) {
-            function qmgtURL() {
-                return "../queue/" + $scope.queueName;
-            }
             $scope.queues = res.data;
             $scope.queueName = res.data[0].name;
         })

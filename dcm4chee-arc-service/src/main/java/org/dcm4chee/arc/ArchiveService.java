@@ -46,11 +46,13 @@ package org.dcm4chee.arc;
  */
 public interface ArchiveService {
 
+    enum Status { STARTED, STOPPED }
+
     void start() throws Exception;
 
     void stop();
 
-    boolean isRunning();
+    Status status();
 
     void reload() throws Exception;
 }

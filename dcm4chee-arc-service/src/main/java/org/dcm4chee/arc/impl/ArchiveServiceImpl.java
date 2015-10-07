@@ -102,7 +102,7 @@ public class ArchiveServiceImpl implements ArchiveService {
     @Inject
     private Event<ArchiveServiceEvent> archiveServiceEvent;
 
-    private boolean running;
+    private Status status = Status.STOPPED;
 
     private final DicomService echoscp = new BasicCEchoSCP();
 
@@ -155,20 +155,20 @@ public class ArchiveServiceImpl implements ArchiveService {
     @Override
     public void start() throws Exception {
         device.bindConnections();
-        running = true;
+        status = Status.STARTED;
         archiveServiceEvent.fire(ArchiveServiceEvent.STARTED);
     }
 
     @Override
     public void stop() {
         device.unbindConnections();
-        running = false;
+        status = Status.STOPPED;
         archiveServiceEvent.fire(ArchiveServiceEvent.STOPPED);
     }
 
     @Override
-    public boolean isRunning() {
-        return running;
+    public Status status() {
+        return status;
     }
 
     @Override

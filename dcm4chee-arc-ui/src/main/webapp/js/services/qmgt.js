@@ -1,51 +1,82 @@
 "use strict";
 
-myApp.factory('QmgtService', function($http) {
+myApp.factory('QmgtService', function($http, $filter) {
     var srv = {};
 
-    srv._config = function(params) {
+    srv.search = function(queueName, status, offset, limit) {
+        return $http.get(url(queueName), config(queryParams(status, offset, limit)));
+    };
+
+    srv.cancel = function(queueName, msgId) {
+        return $http.get(url3(queueName, msgId, 'cancel'));
+    };
+
+    srv.reschedule = function(queueName, msgId) {
+        return $http.get(url3(queueName, msgId, 'reschedule'));
+    };
+
+    srv.delete = function(queueName, msgId) {
+        return $http.delete(url2(queueName, msgId));
+    };
+
+    srv.flush = function(queueName, status, before) {
+        return $http.delete(url(queueName), config(flushParams(status, before)));
+    };
+
+    function url(queueName) {
+        return '../queue/' + queueName;
+    }
+
+    function url2(queueName, msgId) {
+        return url(queueName) + '/' + msgId;
+    }
+
+    function url3(queueName, msgId, command) {
+        return url2(queueName, msgId) + '/' + command;
+    }
+
+    function config(params) {
         return {
             headers: {Accept: 'application/json'},
             params: params
         }
-    };
+    }
 
-    srv.search = function(url, params) {
-        return $http.get(url, srv._config(params));
-    };
+    function queryParams(status, offset, limit) {
+        var params = {
+            offset: offset,
+            limit: limit
+        }
+        if (status != "*")
+            params.status = status;
+        return params;
+    }
 
-    srv.cancel = function(url, msgId) {
-        return $http.get(url + '/' + msgId + '/cancel');
-    };
-
-    srv.reschedule = function(url, msgId) {
-        return $http.get(url + '/' + msgId + '/reschedule');
-    };
-
-    srv.delete = function(url, msgId) {
-        return $http.delete(url + '/' + msgId);
-    };
-
-    srv.flush = function(url, params) {
-        return $http.delete(url, srv._config(params));
-    };
+    function flushParams(status, before) {
+        var params = {}
+        if (status != "*")
+            params.status = status;
+        if (before != null)
+            params.updatedBefore = $filter('date')(before, 'yyyy-MM-dd');
+        return params;
+    }
 
     // Public API
     return {
-        search: function(url, params) {
-            return srv.search(url, params);
+        search: function(queueName, status, offset, limit) {
+            return srv.search(queueName, status, offset, limit);
         },
-        cancel: function(url, msgId) {
-            return srv.cancel(url, msgId);
+        cancel: function(queueName, msgId) {
+            return srv.cancel(queueName, msgId);
         },
-        reschedule: function(url, msgId) {
-            return srv.reschedule(url, msgId);
+        reschedule: function(queueName, msgId) {
+            return srv.reschedule(queueName, msgId);
         },
-        delete: function(url, msgId) {
-            return srv.delete(url, msgId);
+        delete: function(queueName, msgId) {
+            return srv.delete(queueName, msgId);
         },
-        flush: function(url, params) {
-            return srv.flush(url, params);
+        flush: function(queueName, status, before) {
+            return srv.flush(queueName, status, before);
         }
     };
 });

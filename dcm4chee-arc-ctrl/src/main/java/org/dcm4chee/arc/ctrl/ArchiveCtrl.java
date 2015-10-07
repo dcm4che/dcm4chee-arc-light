@@ -46,6 +46,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -77,8 +78,9 @@ public class ArchiveCtrl {
     }
 
     @GET
-    @Path("running")
-    public String isRunning() {
-        return String.valueOf(service.isRunning());
+    @Path("status")
+    @Produces("application/json")
+    public String status() {
+        return "{\"status\":\"" + service.status() + "\"}";
     }
 }
