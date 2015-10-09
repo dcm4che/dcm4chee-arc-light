@@ -17,7 +17,7 @@ public final class StorageDescriptor {
     private String digestAlgorithm;
     private String[] retrieveAETitles = {};
     private Availability instanceAvailability;
-    private final Map<String, String> properties = new HashMap<String, String>();
+    private final Map<String, String> properties = new HashMap<>();
 
     public StorageDescriptor(String storageID) {
         this(storageID, null);

@@ -158,6 +158,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeAttributeFilter(deviceDN, arcDev);
         storeStorageDescriptors(deviceDN, arcDev);
         storeQueueDescriptors(deviceDN, arcDev);
+        storeExporterDescriptors(deviceDN, arcDev);
+        storeExportRules(arcDev.getExportRules(), deviceDN);
         storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
         storeQueryRetrieveViews(deviceDN, arcDev);
     }
@@ -172,6 +174,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadAttributeFilters(arcdev, deviceDN);
         loadStorageDescriptors(arcdev, deviceDN);
         loadQueueDescriptors(arcdev, deviceDN);
+        loadExporterDescriptors(arcdev, deviceDN);
+        loadExportRules(arcdev.getExportRules(), deviceDN);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
         loadQueryRetrieveViews(arcdev, deviceDN);
     }
@@ -189,6 +193,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeAttributeFilters(aa, bb, deviceDN);
         mergeStorageDescriptors(aa, bb, deviceDN);
         mergeQueueDescriptors(aa, bb, deviceDN);
+        mergeExportDescriptors(aa, bb, deviceDN);
+        mergeExportRules(aa.getExportRules(), bb.getExportRules(), deviceDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
         mergeQueryRetrieveViews(aa, bb, deviceDN);
     }
@@ -269,6 +275,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         if (aeExt == null)
             return;
 
+        storeExportRules(aeExt.getExportRules(), aeDN);
         storeCompressionRules(aeExt.getCompressionRules(), aeDN);
     }
 
@@ -278,6 +285,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         if (aeExt == null)
             return;
 
+        loadExportRules(aeExt.getExportRules(), aeDN);
         loadCompressionRules(aeExt.getCompressionRules(), aeDN);
     }
 
@@ -288,6 +296,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         if (aa == null || bb == null)
             return;
 
+        mergeExportRules(aa.getExportRules(), bb.getExportRules(), aeDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
     }
 
@@ -397,11 +406,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private String[] toStrings(Map<String, String> props) {
+    private String[] toStrings(Map<String, ?> props) {
         String[] ss = new String[props.size()];
         int i = 0;
-        for (Map.Entry<String,String> entry : props.entrySet())
-            ss[i] = entry.getKey() + '=' + entry.getValue();
+        for (Map.Entry<String, ?> entry : props.entrySet())
+            ss[i++] = entry.getKey() + '=' + entry.getValue();
         return ss;
     }
 
@@ -450,19 +459,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(StorageDescriptor prev, StorageDescriptor desc,
                                               List<ModificationItem> mods) {
-        LdapUtils.storeDiff(mods, "dcmURI",
-                prev.getStorageURI().toString(), desc.getStorageURI().toString());
-        LdapUtils.storeDiff(mods, "dcmDigestAlgorithm",
-                prev.getDigestAlgorithm(), desc.getDigestAlgorithm());
+        LdapUtils.storeDiff(mods, "dcmURI", prev.getStorageURI().toString(), desc.getStorageURI().toString());
+        LdapUtils.storeDiff(mods, "dcmDigestAlgorithm", prev.getDigestAlgorithm(), desc.getDigestAlgorithm());
         LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability());
-        LdapUtils.storeDiff(mods, "dcmRetrieveAET",
-                prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
+        LdapUtils.storeDiff(mods, "dcmRetrieveAET", prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         return mods;
     }
 
-    private void storeDiffProperties(List<ModificationItem> mods, Map<String, String> prev, Map<String, String> props) {
+    private void storeDiffProperties(List<ModificationItem> mods, Map<String, ?> prev, Map<String, ?> props) {
         if (!prev.equals(props)) {
             mods.add(props.size() == 0
                     ? new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
@@ -530,6 +536,162 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dicomDescription", prev.getDescription(), desc.getDescription());
         LdapUtils.storeDiff(mods, "dcmJndiName", prev.getJndiName(), desc.getJndiName());
         return mods;
+    }
+
+    private void storeExporterDescriptors(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+        for (ExporterDescriptor descriptor : arcDev.getExporterDescriptors()) {
+            String storageID = descriptor.getExporterID();
+            config.createSubcontext(
+                    LdapUtils.dnOf("dcmExporterID", storageID, deviceDN),
+                    storeTo(descriptor, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(ExporterDescriptor descriptor, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmExporter");
+        attrs.put("dcmExporterID", descriptor.getExporterID());
+        attrs.put("dcmURI", descriptor.getExportURI().toString());
+        attrs.put("dcmQueueName", descriptor.getQueueName());
+        LdapUtils.storeNotEmpty(attrs, "dcmSchedule", descriptor.getSchedules());
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
+        return attrs;
+    }
+
+    private void loadExporterDescriptors(ArchiveDeviceExtension arcdev, String deviceDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmExporter)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                ExporterDescriptor desc = new ExporterDescriptor(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
+                desc.setExportURI(URI.create(LdapUtils.stringValue(attrs.get("dcmURI"), null)));
+                desc.setQueueName(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
+                desc.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
+                for (String s : LdapUtils.stringArray(attrs.get("dcmProperty"))) {
+                    String[] ss = StringUtils.split(s, '=');
+                    desc.setProperty(ss[0], ss[1]);
+                }
+                arcdev.addExporterDescriptor(desc);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private ScheduleExpression[] toScheduleExpressions(String[] ss) {
+        ScheduleExpression[] schedules = new ScheduleExpression[ss.length];
+        for (int i = 0; i < ss.length; i++)
+            schedules[i] = ScheduleExpression.valueOf(ss[i]);
+        return schedules;
+    }
+
+    private void mergeExportDescriptors(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+            throws NamingException {
+        for (ExporterDescriptor descriptor : prev.getExporterDescriptors()) {
+            String exporterID = descriptor.getExporterID();
+            if (arcDev.getExporterDescriptor(exporterID) == null)
+                config.destroySubcontext(LdapUtils.dnOf("dcmExporterID", exporterID, deviceDN));
+        }
+        for (ExporterDescriptor descriptor : arcDev.getExporterDescriptors()) {
+            String exporterID = descriptor.getExporterID();
+            String dn = LdapUtils.dnOf("dcmExporterID", exporterID, deviceDN);
+            ExporterDescriptor prevDescriptor = prev.getExporterDescriptor(exporterID);
+            if (prevDescriptor == null)
+                config.createSubcontext(dn,
+                        storeTo(descriptor, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn,
+                        storeDiffs(prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(ExporterDescriptor prev, ExporterDescriptor desc,
+                                              List<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmURI", prev.getExportURI().toString(), desc.getExportURI().toString());
+        LdapUtils.storeDiff(mods, "dcmQueueName", prev.getQueueName(), desc.getQueueName());
+        LdapUtils.storeDiff(mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
+        storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
+        return mods;
+    }
+
+    private void storeExportRules(Collection<ExportRule> exportRules, String parentDN) throws NamingException {
+        for (ExportRule rule : exportRules) {
+            String cn = rule.getCommonName();
+            config.createSubcontext(
+                    LdapUtils.dnOf("cn", cn, parentDN),
+                    storeTo(rule, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(ExportRule rule, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmExportRule");
+        attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotEmpty(attrs, "dcmSchedule", rule.getSchedules());
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions()));
+        LdapUtils.storeNotEmpty(attrs, "dcmExporterID", rule.getExporterIDs());
+        LdapUtils.storeNotNull(attrs, "dcmEntity", rule.getEntity());
+        LdapUtils.storeNotNull(attrs, "dcmDuration", rule.getExportDelay());
+        return attrs;
+    }
+
+    private void loadExportRules(Collection<ExportRule> exportRules, String parentDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmExportRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                ExportRule rule = new ExportRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
+                for (String s : LdapUtils.stringArray(attrs.get("dcmProperty"))) {
+                    String[] ss = StringUtils.split(s, '=');
+                    rule.setCondition(ss[0], ss[1]);
+                }
+                rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
+                rule.setEntity(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
+                rule.setExportDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmDuration"), null)));
+                exportRules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private Duration toDuration(String s) {
+        return s != null ? Duration.parse(s) : null;
+    }
+
+    private void mergeExportRules(Collection<ExportRule> prevRules, Collection<ExportRule> rules, String parentDN)
+            throws NamingException {
+        for (ExportRule prevRule : prevRules) {
+            String cn = prevRule.getCommonName();
+            if (findByCommonName(rules, cn) == null)
+                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+        }
+        for (ExportRule rule : rules) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            ExportRule prevRule = findByCommonName(prevRules, cn);
+            if (prevRule == null)
+                config.createSubcontext(dn, storeTo(prevRule, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
+        storeDiffProperties(mods, prev.getConditions(), rule.getConditions());
+        LdapUtils.storeDiff(mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
+        LdapUtils.storeDiff(mods, "dcmEntity", prev.getEntity(), rule.getEntity());
+        LdapUtils.storeDiff(mods, "dcmDuration", prev.getExportDelay(), rule.getExportDelay());
+        return mods;
+    }
+
+    private ExportRule findByCommonName(Collection<ExportRule> rules, String cn) {
+        for (ExportRule rule : rules)
+            if (rule.getCommonName().equals(cn))
+                return rule;
+        return null;
     }
 
     private void storeCompressionRules(CompressionRules rules, String parentDN) throws NamingException {

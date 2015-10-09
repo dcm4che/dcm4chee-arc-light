@@ -49,6 +49,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -374,7 +375,7 @@ public class QidoRS {
                 }
                 for (String field : StringUtils.split(s, ',')) {
                     try {
-                        int[] tagPath = parseTagPath(field);
+                        int[] tagPath = TagUtils.parseTagPath(field);
                         int tag = tagPath[tagPath.length-1];
                         nestedKeys(tagPath).setNull(tag, DICT.vrOf(tag));
                     } catch (IllegalArgumentException e2) {
@@ -389,7 +390,7 @@ public class QidoRS {
                 try {
                     for (String field : StringUtils.split(s, ',')) {
                         boolean desc = field.charAt(0) == '-';
-                        int tag = parseTag(desc ? field.substring(1) : field);
+                        int tag = TagUtils.forName(desc ? field.substring(1) : field);
                         orderByTags.add(new OrderByTag(tag, desc ? Order.DESC : Order.ASC));
                         if (tag == Tag.PatientName)
                             orderByPatientName = true;
@@ -443,7 +444,7 @@ public class QidoRS {
 
         private void addQueryKey(String attrPath, List<String> values) {
             try {
-                int[] tagPath = parseTagPath(attrPath);
+                int[] tagPath = TagUtils.parseTagPath(attrPath);
                 int tag = tagPath[tagPath.length-1];
                 nestedKeys(tagPath).setString(tag, DICT.vrOf(tag),
                         values.toArray(new String[values.size()]));
@@ -466,27 +467,6 @@ public class QidoRS {
             return item;
         }
 
-        private static int[] parseTagPath(String attrPath) {
-            return parseTagPath(StringUtils.split(attrPath, '.'));
-        }
-
-        private static int[] parseTagPath(String[] attrPath) {
-            int[] tags = new int[attrPath.length];
-            for (int i = 0; i < tags.length; i++)
-                tags[i] = parseTag(attrPath[i]);
-            return tags;
-        }
-
-        private static int parseTag(String tagOrKeyword) {
-            try {
-                return Integer.parseInt(tagOrKeyword, 16);
-            } catch (IllegalArgumentException e) {
-                int tag = DICT.tagForKeyword(tagOrKeyword);
-                if (tag == -1)
-                    throw new IllegalArgumentException(tagOrKeyword);
-                return tag;
-            }
-        }
     }
 
     private enum Output {

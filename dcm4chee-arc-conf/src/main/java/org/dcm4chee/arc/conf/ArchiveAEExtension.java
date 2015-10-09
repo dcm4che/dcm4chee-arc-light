@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.imageio.codec.CompressionRule;
 import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
@@ -47,6 +48,7 @@ import org.dcm4che3.net.AEExtension;
 import org.dcm4che3.util.StringUtils;
 
 import java.io.File;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,7 +66,8 @@ public class ArchiveAEExtension extends AEExtension {
     private String wadoSR2TextTemplateURI;
     private String[] mppsForwardDestinations;
     private int qidoMaxNumberOfResults;
-    private CompressionRules compressionRules = new CompressionRules();
+    private final ArrayList<ExportRule> exportRules = new ArrayList<>();
+    private final CompressionRules compressionRules = new CompressionRules();
 
     public String getStorageID() {
         return storageID;
@@ -224,6 +227,21 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
     }
 
+    public void removeForwardingRule(ExportRule rule) {
+        exportRules.remove(rule);
+    }
+
+    public void clearForwardingRules() {
+        exportRules.clear();
+    }
+
+    public void addForwardingRule(ExportRule rule) {
+        exportRules.add(rule);
+    }
+
+    public Collection<ExportRule> getExportRules() {
+        return exportRules;
+    }
 
     public CompressionRules getCompressionRules() {
         return compressionRules;
@@ -255,6 +273,8 @@ public class ArchiveAEExtension extends AEExtension {
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
+        exportRules.clear();
+        exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();
         compressionRules.add(aeExt.compressionRules);
     }
@@ -265,6 +285,17 @@ public class ArchiveAEExtension extends AEExtension {
 
     public StorageDescriptor getStorageDescriptor() {
         return getArchiveDeviceExtension().getStorageDescriptor(storageID());
+    }
+
+    public Set<String> findExporterIDs(String aet, Attributes attrs, Calendar cal) {
+        HashSet<String> exporterIDs = new HashSet<>();
+        for (Collection<ExportRule> rules
+                : new Collection[]{exportRules, getArchiveDeviceExtension().getExportRules() })
+            for (ExportRule rule : rules)
+                if (rule.match(aet, attrs, cal))
+                    for (String exporterID : rule.getExporterIDs())
+                        exporterIDs.add(exporterID);
+        return exporterIDs;
     }
 
     public CompressionRule findCompressionRule(String aeTitle, ImageDescriptor imageDescriptor) {

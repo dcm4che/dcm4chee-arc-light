@@ -68,13 +68,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] mppsForwardDestinations = {};
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
 
-    private final EnumMap<Entity,AttributeFilter> attributeFilters =
-            new EnumMap<Entity, AttributeFilter>(Entity.class);
+    private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
 
     private QueryRetrieveView[] queryRetrieveViews = {};
 
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
+    private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
+    private final ArrayList<ExportRule> exportRules = new ArrayList<>();
 
     private final CompressionRules compressionRules = new CompressionRules();
 
@@ -274,6 +275,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return queueDescriptorMap.values();
     }
 
+    public ExporterDescriptor getExporterDescriptor(String exporterID) {
+        return exporterDescriptorMap.get(exporterID);
+    }
+
+    public ExporterDescriptor removeExporterDescriptor(String exporterID) {
+        return exporterDescriptorMap.remove(exporterID);
+    }
+
+    public void addExporterDescriptor(ExporterDescriptor destination) {
+        exporterDescriptorMap.put(destination.getQueueName(), destination);
+    }
+
+    public Collection<ExporterDescriptor> getExporterDescriptors() {
+        return exporterDescriptorMap.values();
+    }
+
+    public void removeExportRule(ExportRule rule) {
+        exportRules.remove(rule);
+    }
+
+    public void clearExportRules() {
+        exportRules.clear();
+    }
+
+    public void addExportRule(ExportRule rule) {
+        exportRules.add(rule);
+    }
+
+    public Collection<ExportRule> getExportRules() {
+        return exportRules;
+    }
+
     public CompressionRules getCompressionRules() {
         return compressionRules;
     }
@@ -317,6 +350,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
         queueDescriptorMap.clear();
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
+        exporterDescriptorMap.clear();
+        exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
+        exportRules.clear();
+        exportRules.addAll(arcdev.exportRules);
         compressionRules.clear();
         compressionRules.add(arcdev.compressionRules);
     }

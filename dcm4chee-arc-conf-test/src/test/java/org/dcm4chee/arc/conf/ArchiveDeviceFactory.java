@@ -137,7 +137,10 @@ class ArchiveDeviceFactory {
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
         new QueueDescriptor("MPPSSCU", "Forward MPPS Tasks", "jms/queue/MPPSSCU"),
-        new QueueDescriptor("StgCmtSCP", "Storage Commitment Tasks", "jms/queue/StgCmtSCP")
+        new QueueDescriptor("StgCmtSCP", "Storage Commitment Tasks", "jms/queue/StgCmtSCP"),
+        new QueueDescriptor("Export1", "Dicom Export Tasks (1)", "jms/queue/Export1"),
+        new QueueDescriptor("Export2", "Dicom Export Tasks (2)", "jms/queue/Export2"),
+        new QueueDescriptor("Export3", "XDS-I Export Tasks", "jms/queue/Export3")
     };
 
     static final int[] PATIENT_ATTRS = {
@@ -627,6 +630,8 @@ class ArchiveDeviceFactory {
     static final boolean SEND_PENDING_C_GET = true;
     static final int SEND_PENDING_C_MOVE_INTERVAL = 5;
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
+    static final String EXPORTER_ID = "STORESCP";
+    static final URI EXPORT_URI = URI.create("dicom:STORESCP");
 
     private final KeyStore keyStore;
     private final DicomConfiguration config;
@@ -834,6 +839,22 @@ class ArchiveDeviceFactory {
 
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
             ext.addQueueDescriptor(descriptor);
+
+        ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
+        exportDescriptor.setExportURI(EXPORT_URI);
+        exportDescriptor.setSchedules(
+                ScheduleExpression.valueOf("hour=18-6 dayOfWeek=*"),
+                ScheduleExpression.valueOf("hour=* dayOfWeek=0,6"));
+        exportDescriptor.setQueueName("Export1");
+        ext.addExporterDescriptor(exportDescriptor);
+
+        ExportRule exportRule = new ExportRule("Forward to STORESCP");
+        exportRule.setSendingAETitle("FORWARD");
+        exportRule.setCondition("Modality", "CT|MR");
+        exportRule.setEntity(Entity.Series);
+        exportRule.setExportDelay(Duration.parse("PT1M"));
+        exportRule.setExporterIDs(EXPORTER_ID);
+        ext.addExportRule(exportRule);
 
         ext.addCompressionRule(JPEG_BASELINE);
         ext.addCompressionRule(JPEG_EXTENDED);

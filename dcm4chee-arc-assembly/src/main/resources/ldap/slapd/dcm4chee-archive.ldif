@@ -27,7 +27,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.5 NAME 'dcmCustomAttribute3'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.6 NAME 'dcmEntity'
-  DESC 'Entity of the Attribute Filter ("Patient", "Study", "Series", "Instance").'
+  DESC 'Entity of the Attribute Filter or Export Rule ("Patient", "Study", "Series", "Instance", "MPPS").'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -137,6 +137,19 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.27 NAME 'dcmJndiName'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.28 NAME 'dcmExporterID'
+  DESC 'Storage ID'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.29 NAME 'dcmSchedule'
+  DESC 'Schedule Expression in format "hour=[0-23] dayOfWeek=[0-6]" (0=Sunday)'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.30 NAME 'dcmDuration'
+  DESC 'Duration in ISO-8601 duration format PnDTnHnMn.nS'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -214,3 +227,24 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmJndiName)
   MAY (
     dicomDescription ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
+  DESC 'Exporter Descriptor'
+  SUP top STRUCTURAL
+  MUST (
+    dcmExporterID $
+    dcmURI $
+    dcmQueueName )
+  MAY (
+    dcmSchedule $
+    dcmProperty ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.16 NAME 'dcmExportRule'
+  DESC 'Export Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmEntity $
+    dcmExporterID )
+  MAY (
+    dcmProperty $
+    dcmSchedule $
+    dcmDuration ) )
