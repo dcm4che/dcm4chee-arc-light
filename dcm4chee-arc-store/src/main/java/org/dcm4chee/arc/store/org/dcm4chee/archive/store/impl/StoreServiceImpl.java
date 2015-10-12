@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +44,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private StoreServiceEJB ejb;
+
+    @Inject
+    private Event<StoreContext> storeEvent;
 
     @Override
     public StoreSession newStoreSession(Association as) {
@@ -76,6 +80,7 @@ class StoreServiceImpl implements StoreService {
                 updateAttributes(writeContext.getAttributes(), series);
                 storage.commitStorage(writeContext);
                 ctx.getStoreSession().cacheSeries(series);
+                storeEvent.fire(ctx);
             }
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);

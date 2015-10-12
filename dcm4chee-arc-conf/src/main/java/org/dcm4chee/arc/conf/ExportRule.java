@@ -60,6 +60,16 @@ public class ExportRule {
         return conditions;
     }
 
+    public void setConditions(String[] ss) {
+        conditions.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException(s);
+            setCondition(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
     public String[] getExporterIDs() {
         return exporterIDs;
     }
@@ -92,7 +102,7 @@ public class ExportRule {
         this.exportDelay = exportDelay;
     }
 
-    public boolean match(String aet, Attributes attrs, Calendar cal) {
+    public boolean match(String sendingAET, Attributes attrs, Calendar cal) {
         if (!match(cal))
             return false;
 
@@ -100,7 +110,7 @@ public class ExportRule {
             String tagPath = entry.getKey();
             Pattern pattern = entry.getValue();
             if (tagPath.equals(SendingApplicationEntityTitle)
-                ? !pattern.matcher(aet).matches()
+                ? !pattern.matcher(sendingAET).matches()
                 : !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0))
                     return false;
         }
@@ -124,7 +134,7 @@ public class ExportRule {
             Sequence seq = attrs.getSequence(tagPath[level]);
             if (seq != null)
                 for (Attributes item : seq)
-                    if (match(attrs, tagPath, pattern, level+1))
+                    if (match(item, tagPath, pattern, level+1))
                         return true;
         } else {
             String[] ss = attrs.getStrings(tagPath[level]);

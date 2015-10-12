@@ -483,6 +483,7 @@ dcmBulkDataSpoolDirectory: ${jboss.server.temp.dir}
 dicomDeviceName: dcm4chee-arc
 dcmWadoSR2TextTemplateURI: ${jboss.server.config.url}/dcm4chee-arc/dsr2text.xsl
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
+dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.config.url}/dcm4chee-arc/dsr2html.xsl
 dicomThisNodeCertificateReference: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com

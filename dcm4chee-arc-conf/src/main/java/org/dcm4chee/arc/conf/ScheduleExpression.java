@@ -82,6 +82,9 @@ public class ScheduleExpression {
     }
 
     public static Calendar ceil(Calendar cal, ScheduleExpression... schedules) {
+        if (schedules.length == 0)
+            return cal;
+
         for (ScheduleExpression schedule : schedules)
             if (schedule.contains(cal))
                 return cal;
@@ -148,6 +151,8 @@ public class ScheduleExpression {
 
     @Override
     public int hashCode() {
+        int result = dayOfWeeks;
+        result = 31 * result + hours;
         return 31 * hours + dayOfWeeks;
     }
 }

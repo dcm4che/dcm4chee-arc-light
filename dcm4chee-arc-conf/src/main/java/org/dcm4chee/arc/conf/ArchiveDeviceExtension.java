@@ -76,6 +76,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
+    private Duration exportTaskPollingInterval;
+    private int exportTaskFetchSize = 5;
 
     private final CompressionRules compressionRules = new CompressionRules();
 
@@ -283,8 +285,24 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exporterDescriptorMap.remove(exporterID);
     }
 
+    public int getExportTaskFetchSize() {
+        return exportTaskFetchSize;
+    }
+
+    public void setExportTaskFetchSize(int exportTaskFetchSize) {
+        this.exportTaskFetchSize = exportTaskFetchSize;
+    }
+
+    public Duration getExportTaskPollingInterval() {
+        return exportTaskPollingInterval;
+    }
+
+    public void setExportTaskPollingInterval(Duration exportTaskPollingInterval) {
+        this.exportTaskPollingInterval = exportTaskPollingInterval;
+    }
+
     public void addExporterDescriptor(ExporterDescriptor destination) {
-        exporterDescriptorMap.put(destination.getQueueName(), destination);
+        exporterDescriptorMap.put(destination.getExporterID(), destination);
     }
 
     public Collection<ExporterDescriptor> getExporterDescriptors() {
@@ -352,6 +370,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
         exporterDescriptorMap.clear();
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
+        exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
+        exportTaskFetchSize = arcdev.exportTaskFetchSize;
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
         compressionRules.clear();

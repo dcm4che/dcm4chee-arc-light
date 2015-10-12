@@ -287,15 +287,18 @@ public class ArchiveAEExtension extends AEExtension {
         return getArchiveDeviceExtension().getStorageDescriptor(storageID());
     }
 
-    public Set<String> findExporterIDs(String aet, Attributes attrs, Calendar cal) {
-        HashSet<String> exporterIDs = new HashSet<>();
+    public Map<String, ExportRule> findExportRules(String sendingAET, Attributes attrs, Calendar cal) {
+        HashMap<String, ExportRule> result = new HashMap<>();
         for (Collection<ExportRule> rules
                 : new Collection[]{exportRules, getArchiveDeviceExtension().getExportRules() })
             for (ExportRule rule : rules)
-                if (rule.match(aet, attrs, cal))
-                    for (String exporterID : rule.getExporterIDs())
-                        exporterIDs.add(exporterID);
-        return exporterIDs;
+                if (rule.match(sendingAET, attrs, cal))
+                    for (String exporterID : rule.getExporterIDs()) {
+                        ExportRule rule1 = result.get(exporterID);
+                        if (rule1 == null || rule1.getEntity().compareTo(rule.getEntity()) > 0)
+                            result.put(exporterID, rule);
+                    }
+        return result;
     }
 
     public CompressionRule findCompressionRule(String aeTitle, ImageDescriptor imageDescriptor) {

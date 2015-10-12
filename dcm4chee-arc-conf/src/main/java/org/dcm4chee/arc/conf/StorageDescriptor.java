@@ -90,6 +90,17 @@ public final class StorageDescriptor {
         return properties;
     }
 
+
+    public void setProperties(String[] ss) {
+        properties.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException(s);
+            setProperty(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
     @Override
     public String toString() {
         return "StorageDescriptor{" +

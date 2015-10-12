@@ -285,6 +285,8 @@
     <module>dcm4chee-arc-conf-test</module>
     <module>dcm4chee-arc-ctrl</module>
     <module>dcm4chee-arc-entity</module>
+    <module>dcm4chee-arc-export</module>
+    <module>dcm4chee-arc-export-mgt</module>
     <module>dcm4chee-arc-hl7</module>
     <module>dcm4chee-arc-issuer</module>
     <module>dcm4chee-arc-mpps</module>

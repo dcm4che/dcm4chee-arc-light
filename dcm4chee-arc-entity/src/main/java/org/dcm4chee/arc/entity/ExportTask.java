@@ -12,7 +12,28 @@ import java.util.Date;
     uniqueConstraints = @UniqueConstraint(columnNames = {"exporter_id", "study_iuid", "series_iuid", "sop_iuid"}),
     indexes = @Index(columnList = "scheduled_time")
 )
+@NamedQueries({
+        @NamedQuery(name = ExportTask.FIND_SCHEDULED,
+                query = "select o from ExportTask o where o.scheduledTime < current_timestamp"),
+        @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID,
+                query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2"),
+        @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID,
+                query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
+                        "and o.seriesInstanceUID in ('*',?3)"),
+        @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID,
+                query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
+                        "and o.seriesInstanceUID in ('*',?3) and o.sopInstanceUID in ('*',?4)")
+})
 public class ExportTask {
+
+    public static final String FIND_SCHEDULED =
+            "ExportTask.FindScheduled";
+    public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID =
+            "ExportTask.FindByExporterIDAndStudyIUID";
+    public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID =
+            "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUID";
+    public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID =
+            "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

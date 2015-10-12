@@ -87,6 +87,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
         LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
+        LdapUtils.storeNotNull(attrs, "dcmExportTaskPollingInterval", ext.getExportTaskPollingInterval());
+        LdapUtils.storeNotDef(attrs, "dcmExportTaskFetchSize", ext.getExportTaskFetchSize(), 5);
     }
 
     @Override
@@ -111,6 +113,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
+        ext.setExportTaskPollingInterval(
+                toDuration(LdapUtils.stringValue(attrs.get("dcmExportTaskPollingInterval"), null)));
+        ext.setExportTaskFetchSize(LdapUtils.intValue(attrs.get("dcmExportTaskFetchSize"), 5));
     }
 
     @Override
@@ -145,6 +150,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(),  0);
         LdapUtils.storeDiff(mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
+        LdapUtils.storeDiff(mods, "dcmExportTaskPollingInterval",
+                aa.getExportTaskPollingInterval(), bb.getExportTaskPollingInterval());
+        LdapUtils.storeDiff(mods, "dcmExportTaskFetchSize",
+                aa.getExportTaskFetchSize(), bb.getExportTaskFetchSize(), 5);
     }
 
     @Override
@@ -426,10 +435,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
                 desc.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
-                for (String s : LdapUtils.stringArray(attrs.get("dcmProperty"))) {
-                    String[] ss = StringUtils.split(s, '=');
-                    desc.setProperty(ss[0], ss[1]);
-                }
+                desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 arcdev.addStorageDescriptor(desc);
             }
         } finally {
@@ -567,10 +573,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setExportURI(URI.create(LdapUtils.stringValue(attrs.get("dcmURI"), null)));
                 desc.setQueueName(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
                 desc.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
-                for (String s : LdapUtils.stringArray(attrs.get("dcmProperty"))) {
-                    String[] ss = StringUtils.split(s, '=');
-                    desc.setProperty(ss[0], ss[1]);
-                }
+                desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 arcdev.addExporterDescriptor(desc);
             }
         } finally {
@@ -642,10 +645,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 ExportRule rule = new ExportRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
-                for (String s : LdapUtils.stringArray(attrs.get("dcmProperty"))) {
-                    String[] ss = StringUtils.split(s, '=');
-                    rule.setCondition(ss[0], ss[1]);
-                }
+                rule.setConditions(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
                 rule.setEntity(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
                 rule.setExportDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmDuration"), null)));

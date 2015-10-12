@@ -249,7 +249,7 @@ public class QueueMessage {
         }
         if (errorMessage != null) {
             out.write("\",\"errorMessage\":\"");
-            out.write(errorMessage);
+            out.write(errorMessage.replace('"', '\''));
         }
         out.write("\",");
         out.write(messageProperties);

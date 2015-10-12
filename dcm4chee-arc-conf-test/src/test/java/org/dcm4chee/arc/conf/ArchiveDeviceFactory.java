@@ -632,6 +632,7 @@ class ArchiveDeviceFactory {
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final String EXPORTER_ID = "STORESCP";
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
+    private static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
 
     private final KeyStore keyStore;
     private final DicomConfiguration config;
@@ -847,6 +848,7 @@ class ArchiveDeviceFactory {
                 ScheduleExpression.valueOf("hour=* dayOfWeek=0,6"));
         exportDescriptor.setQueueName("Export1");
         ext.addExporterDescriptor(exportDescriptor);
+        ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
 
         ExportRule exportRule = new ExportRule("Forward to STORESCP");
         exportRule.setSendingAETitle("FORWARD");
