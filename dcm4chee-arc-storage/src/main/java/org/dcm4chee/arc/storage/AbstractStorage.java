@@ -137,7 +137,7 @@ public abstract class AbstractStorage implements Storage {
             public int read() throws IOException {
                 int read = in.read();
                 if (read >= 0)
-                    ctx.incrementSize(-1);
+                    ctx.incrementSize(1);
                 return read;
             }
 
@@ -145,14 +145,14 @@ public abstract class AbstractStorage implements Storage {
             public int read(byte[] b, int off, int len) throws IOException {
                 int read = in.read(b, off, len);
                 if (read > 0)
-                    ctx.incrementSize(-read);
+                    ctx.incrementSize(read);
                 return read;
             }
 
             @Override
             public long skip(long n) throws IOException {
                 long skip = in.skip(n);
-                ctx.incrementSize(-skip);
+                ctx.incrementSize(skip);
                 return skip;
             }
 
