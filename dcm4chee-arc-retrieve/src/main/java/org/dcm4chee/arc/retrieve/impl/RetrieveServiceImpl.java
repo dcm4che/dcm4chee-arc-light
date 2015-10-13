@@ -332,6 +332,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         Storage storage = getStorage(ctx, location.getStorageID());
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(location.getStoragePath());
+        readContext.setSize(location.getSize());
         readContext.setStudyInstanceUID(studyInstanceUID);
         InputStream stream = storage.openInputStream(readContext);
         try {

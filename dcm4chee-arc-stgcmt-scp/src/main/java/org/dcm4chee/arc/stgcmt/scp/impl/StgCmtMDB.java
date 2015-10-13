@@ -60,6 +60,7 @@ public class StgCmtMDB implements MessageListener {
             QLocation.location.storageID,
             QLocation.location.storagePath,
             QLocation.location.digest,
+            QLocation.location.size,
             QLocation.location.status,
             QInstance.instance.sopClassUID,
             QInstance.instance.sopInstanceUID,
@@ -194,6 +195,7 @@ public class StgCmtMDB implements MessageListener {
         Storage storage = getStorage(storageMap, tuple.get(QLocation.location.storageID));
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(tuple.get(QLocation.location.storagePath));
+        readContext.setSize(tuple.get(QLocation.location.size));
         readContext.setStudyInstanceUID(tuple.get(QStudy.study.studyInstanceUID));
         readContext.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
         try {
