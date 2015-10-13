@@ -496,7 +496,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private Attributes storeTo(QueueDescriptor descriptor, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmQueue");
         attrs.put("dcmQueueName", descriptor.getQueueName());
-        attrs.put("dcmJndiName", descriptor.getJndiName());
+        LdapUtils.storeNotNull(attrs, "dcmJndiName", descriptor.getJndiName());
         LdapUtils.storeNotNull(attrs, "dicomDescription", descriptor.getDescription());
         return attrs;
     }
@@ -556,8 +556,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private Attributes storeTo(ExporterDescriptor descriptor, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmExporter");
         attrs.put("dcmExporterID", descriptor.getExporterID());
-        attrs.put("dcmURI", descriptor.getExportURI().toString());
-        attrs.put("dcmQueueName", descriptor.getQueueName());
+        LdapUtils.storeNotNull(attrs, "dcmURI", descriptor.getExportURI());
+        LdapUtils.storeNotNull(attrs, "dcmQueueName", descriptor.getQueueName());
+        LdapUtils.storeNotNull(attrs, "dicomAETitle", descriptor.getAETitle());
         LdapUtils.storeNotEmpty(attrs, "dcmSchedule", descriptor.getSchedules());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         return attrs;
@@ -572,6 +573,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ExporterDescriptor desc = new ExporterDescriptor(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
                 desc.setExportURI(URI.create(LdapUtils.stringValue(attrs.get("dcmURI"), null)));
                 desc.setQueueName(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
+                desc.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
                 desc.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 arcdev.addExporterDescriptor(desc);
@@ -612,6 +614,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                               List<ModificationItem> mods) {
         LdapUtils.storeDiff(mods, "dcmURI", prev.getExportURI().toString(), desc.getExportURI().toString());
         LdapUtils.storeDiff(mods, "dcmQueueName", prev.getQueueName(), desc.getQueueName());
+        LdapUtils.storeDiff(mods, "dicomAETitle", prev.getAETitle(), desc.getAETitle());
         LdapUtils.storeDiff(mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         return mods;

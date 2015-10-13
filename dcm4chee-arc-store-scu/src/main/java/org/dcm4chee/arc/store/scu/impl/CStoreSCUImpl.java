@@ -102,6 +102,11 @@ public class CStoreSCUImpl implements CStoreSCU {
     }
 
     @Override
+    public RetrieveTask newRetrieveTaskSTORE(RetrieveContext ctx) throws DicomServiceException {
+        return new RetrieveTaskImpl(null, openAssociation(ctx), null, null, ctx);
+    }
+
+    @Override
     public RetrieveTask newRetrieveTaskMOVE(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {

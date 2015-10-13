@@ -14,6 +14,7 @@ public class ExporterDescriptor {
     private final String exporterID;
     private URI exportURI;
     private String queueName;
+    private String aeTitle;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
@@ -45,6 +46,14 @@ public class ExporterDescriptor {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
+    }
+
+    public String getAETitle() {
+        return aeTitle;
+    }
+
+    public void setAETitle(String aeTitle) {
+        this.aeTitle = aeTitle;
     }
 
     public ScheduleExpression[] getSchedules() {

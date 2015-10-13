@@ -86,12 +86,12 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
     RetrieveTaskImpl(Association rqas, Association storeas, PresentationContext pc, Attributes rqCmd,
                      RetrieveContext ctx) {
-        this.dimserq = rqas == storeas ? Dimse.C_GET_RQ : Dimse.C_MOVE_RQ;
+        this.dimserq = rqas == null ? null : rqas == storeas ? Dimse.C_GET_RQ : Dimse.C_MOVE_RQ;
         this.rqas = rqas;
         this.storeas = storeas;
         this.pc = pc;
         this.rqCmd = rqCmd;
-        this.msgId = rqCmd.getInt(Tag.MessageID, 0);
+        this.msgId = rqCmd != null ? rqCmd.getInt(Tag.MessageID, 0) : 0;
         this.ctx = ctx;
         this.pendingRSP =
                 dimserq == Dimse.C_GET_RQ && ctx.getArchiveAEExtension().sendPendingCGet();
@@ -106,7 +106,8 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
     @Override
     public void run() {
-        rqas.addCancelRQHandler(msgId, this);
+        if (rqas != null)
+            rqas.addCancelRQHandler(msgId, this);
         try {
             startWritePendingRSP();
             for (InstanceLocations match : ctx.getMatches()) {
@@ -115,11 +116,13 @@ final class RetrieveTaskImpl implements RetrieveTask {
                 store(match);
             }
             waitForOutstandingCStoreRSP();
-            writeFinalRSP();
+            if (rqas != null)
+                writeFinalRSP();
         } finally {
             releaseStoreAssociation();
             stopWritePendingRSP();
-            rqas.removeCancelRQHandler(msgId);
+            if (rqas != null)
+                rqas.removeCancelRQHandler(msgId);
             SafeClose.close(ctx);
         }
     }

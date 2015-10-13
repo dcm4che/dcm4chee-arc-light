@@ -65,6 +65,9 @@ public interface RetrieveService {
     RetrieveContext newRetrieveContextWADO(
             HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID);
 
+    RetrieveContext newRetrieveContextSTORE(
+            ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, String destAET);
+
     boolean calculateMatches(RetrieveContext ctx);
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)

@@ -52,6 +52,8 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
  * @since Aug 2015
  */
 public interface CStoreSCU {
+    RetrieveTask newRetrieveTaskSTORE(RetrieveContext ctx) throws DicomServiceException;
+
     RetrieveTask newRetrieveTaskMOVE(Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx) throws DicomServiceException;
 
     RetrieveTask newRetrieveTaskGET(Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx) throws DicomServiceException;

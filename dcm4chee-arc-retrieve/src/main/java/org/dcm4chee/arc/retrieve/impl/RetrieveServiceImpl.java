@@ -151,6 +151,14 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
+    @Override
+    public RetrieveContext newRetrieveContextSTORE(
+            ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, String destAET) {
+        RetrieveContext ctx = newRetrieveContextWADO(null, ae, studyUID, seriesUID, objectUID);
+        ctx.setDestinationAETitle(destAET);
+        return ctx;
+    }
+
     private RetrieveContext newRetrieveContext(Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
         RetrieveContext ctx = new RetrieveContextImpl(this, as.getApplicationEntity());
         initCodes(ctx);

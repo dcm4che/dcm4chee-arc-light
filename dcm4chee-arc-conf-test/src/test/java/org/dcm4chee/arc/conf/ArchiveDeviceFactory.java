@@ -847,6 +847,7 @@ class ArchiveDeviceFactory {
                 ScheduleExpression.valueOf("hour=18-6 dayOfWeek=*"),
                 ScheduleExpression.valueOf("hour=* dayOfWeek=0,6"));
         exportDescriptor.setQueueName("Export1");
+        exportDescriptor.setAETitle("DCM4CHEE");
         ext.addExporterDescriptor(exportDescriptor);
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
 
