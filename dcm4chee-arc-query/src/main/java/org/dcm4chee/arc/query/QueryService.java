@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.SeriesQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
 
+import java.util.Collection;
 import java.util.EnumSet;
 
 /**
@@ -75,4 +76,7 @@ public interface QueryService {
     StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam);
 
     SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam);
+
+    Attributes getStudyAttributesWithSOPInstanceRefs(
+            String studyInstanceUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
 }

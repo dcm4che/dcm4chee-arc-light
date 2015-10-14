@@ -48,6 +48,7 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.util.StringUtils;
@@ -60,8 +61,7 @@ import org.hibernate.Session;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -93,6 +93,19 @@ public class QueryServiceEJB {
     static final Expression<?>[] CALC_SERIES_QUERY_ATTRS = {
         QInstance.instance.retrieveAETs,
         QInstance.instance.availability
+    };
+
+    static final Expression<?>[] SOP_REFS_OF_STUDY = {
+            QStudy.study.pk,
+            QSeries.series.pk,
+            QSeries.series.seriesInstanceUID,
+            QInstance.instance.sopInstanceUID,
+            QInstance.instance.sopClassUID,
+    };
+
+    static final Expression<?>[] PATIENT_STUDY_ATTRS = {
+            QueryBuilder.studyAttributesBlob.encodedAttributes,
+            QueryBuilder.patientAttributesBlob.encodedAttributes
     };
 
     @PersistenceContext(unitName = "dcm4chee-arc")
@@ -160,6 +173,71 @@ public class QueryServiceEJB {
         attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
         return attrs;
+    }
+
+    public Attributes getStudyAttributesWithSOPInstanceRefs(
+            String studyInstanceUID, QueryParam queryParam, Collection<Attributes> seriesAttrs) {
+        Attributes attrs = getStudyAttributes(studyInstanceUID);
+        Attributes refStudy = new Attributes(2);
+        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
+        refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
+        attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(refStudy);
+        HashMap<Long, Sequence> seriesMap = new HashMap<>();
+        List<Tuple> tuples = new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(SOP_REFS_OF_STUDY)
+                .from(QInstance.instance)
+                .join(QInstance.instance.series, QSeries.series)
+                .join(QSeries.series.study, QStudy.study)
+                .where(createPredicate(QStudy.study.studyInstanceUID.eq(studyInstanceUID), queryParam))
+                .fetch();
+        for (Tuple tuple : tuples) {
+            Long seriesPk = tuple.get(QSeries.series.pk);
+            Sequence refSOPSeq = seriesMap.get(seriesPk);
+            if (refSOPSeq == null) {
+                Attributes refSeries = new Attributes(4);
+                refSeries.setString(Tag.RetrieveAETitle, VR.AE, queryParam.getAETitle());
+                refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 10);
+                refSeries.setString(Tag.SeriesInstanceUID, VR.UI, tuple.get(QSeries.series.seriesInstanceUID));
+                seriesMap.put(seriesPk, refSOPSeq);
+                refSeriesSeq.add(refSeries);
+                if (seriesAttrs != null)
+                    seriesAttrs.add(getSeriesAttributes(seriesPk));
+            }
+            Attributes refSOP = new Attributes(2);
+            refSOP.setString(Tag.SOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
+            refSOP.setString(Tag.SOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
+            refSOPSeq.add(refSOP);
+        }
+        return attrs;
+    }
+
+    private Attributes getStudyAttributes(String studyInstanceUID) {
+        Tuple result = new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(PATIENT_STUDY_ATTRS)
+                .from(QStudy.study)
+                .join(QStudy.study.attributesBlob, QueryBuilder.studyAttributesBlob)
+                .join(QStudy.study.patient, QPatient.patient)
+                .join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob)
+                .where(QStudy.study.studyInstanceUID.eq(studyInstanceUID))
+                .fetchOne();
+        Attributes patAttrs = AttributesBlob.decodeAttributes(
+                result.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
+        Attributes studyAttrs = AttributesBlob.decodeAttributes(
+                result.get(QueryBuilder.studyAttributesBlob.encodedAttributes), null);
+        Attributes.unifyCharacterSets(patAttrs, studyAttrs);
+        Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size());
+        attrs.addAll(patAttrs);
+        attrs.addAll(studyAttrs);
+        return attrs;
+    }
+
+    private Attributes getSeriesAttributes(Long seriesPk) {
+        return AttributesBlob.decodeAttributes(new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(QueryBuilder.seriesAttributesBlob.encodedAttributes)
+                .from(QSeries.series)
+                .join(QSeries.series.attributesBlob, QueryBuilder.seriesAttributesBlob)
+                .where(QSeries.series.pk.eq(seriesPk))
+                .fetchOne(), null);
     }
 
     Predicate createPredicate(Predicate initial, QueryParam queryParam) {

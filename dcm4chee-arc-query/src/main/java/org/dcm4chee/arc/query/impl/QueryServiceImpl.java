@@ -60,6 +60,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Collection;
 import java.util.EnumSet;
 
 /**
@@ -151,5 +152,12 @@ class QueryServiceImpl implements QueryService {
     @Override
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam) {
         return ejb.calculateSeriesQueryAttributes(seriesPk, queryParam);
+    }
+
+    @Override
+    public Attributes getStudyAttributesWithSOPInstanceRefs(
+            String studyInstanceUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
+        return ejb.getStudyAttributesWithSOPInstanceRefs(
+                studyInstanceUID, newQueryParam(ae, false, false), seriesAttrs);
     }
 }

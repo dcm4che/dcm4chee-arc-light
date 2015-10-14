@@ -68,6 +68,10 @@ public class QueryParam {
         this.fuzzySemanticMatching = fuzzySemanticMatching;
     }
 
+    public String getAETitle() {
+        return arcAE.getApplicationEntity().getAETitle();
+    }
+
     public boolean isMatchUnknown() {
         return arcAE.queryMatchUnknown();
     }
