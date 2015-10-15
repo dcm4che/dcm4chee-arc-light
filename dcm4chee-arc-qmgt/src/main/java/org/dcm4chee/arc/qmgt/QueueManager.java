@@ -57,19 +57,18 @@ public interface QueueManager {
 
     void scheduleMessage(String queueName, ObjectMessage message);
 
-    QueueMessage onProcessingStart(Message msg);
+    boolean onProcessingStart(String msgId);
 
-    void onProcessingSuccessful(QueueMessage entity);
+    void onProcessingSuccessful(String msgId, Outcome outcome);
 
-    void onProcessingFailed(QueueMessage entity, Exception e);
+    void onProcessingFailed(String msgId, Exception e);
 
-    void onRedeliveryExhausted(Message msg);
+    void cancelProcessing(String msgId) throws MessageAlreadyDeletedException;
 
-    void cancelProcessing(String msgId);
+    void rescheduleMessage(String msgId)
+            throws MessageAlreadyDeletedException, IllegalMessageStatusException;
 
-    void rescheduleMessage(String msgId);
-
-    void deleteMessage(String msgId);
+    void deleteMessage(String msgId) throws MessageAlreadyDeletedException;
 
     int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore);
 

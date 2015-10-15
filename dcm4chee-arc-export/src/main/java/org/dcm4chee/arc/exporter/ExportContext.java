@@ -7,6 +7,10 @@ package org.dcm4chee.arc.exporter;
 public interface ExportContext {
     Exporter getExporter();
 
+    String getMessageID();
+
+    void setMessageID(String messageID);
+
     String getStudyInstanceUID();
 
     void setStudyInstanceUID(String studyInstanceUID);

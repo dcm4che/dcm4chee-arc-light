@@ -42,6 +42,7 @@ package org.dcm4chee.arc.mpps.scu;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Dimse;
+import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -51,5 +52,6 @@ public interface MPPSSCU {
     String QUEUE_NAME = "MPPSSCU";
     String JNDI_NAME = "jms/queue/MPPSSCU";
 
-    void forwardMPPS(String localAET, String remoteAET, String sopInstanceUID, Attributes attrs) throws Exception;
+    Outcome forwardMPPS(String localAET, String remoteAET, Dimse dimse, String sopInstanceUID, Attributes attrs)
+            throws Exception;
 }

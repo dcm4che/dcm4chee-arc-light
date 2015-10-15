@@ -61,4 +61,8 @@ public interface MPPSContext {
     Attributes getAttributes();
 
     void setAttributes(Attributes attrs);
+
+    Dimse getDimse();
+
+    void setDimse(Dimse dimse);
 }

@@ -235,7 +235,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
     }
 
     protected void releaseStoreAssociation() {
-        if (dimserq == Dimse.C_MOVE_RQ)
+        if (dimserq != Dimse.C_GET_RQ)
             try {
                 storeas.release();
             } catch (IOException e) {

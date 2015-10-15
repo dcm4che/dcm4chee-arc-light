@@ -73,7 +73,7 @@ public class QueueManagerRS {
     private String queueName;
 
     @QueryParam("status")
-    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("offset")
@@ -97,19 +97,19 @@ public class QueueManagerRS {
 
     @GET
     @Path("{msgId}/cancel")
-    public void cancelProcessing(@PathParam("msgId") String msgId) {
+    public void cancelProcessing(@PathParam("msgId") String msgId) throws Exception {
         mgr.cancelProcessing(msgId);
     }
 
     @GET
     @Path("{msgId}/reschedule")
-    public void rescheduleMessage(@PathParam("msgId") String msgId) {
+    public void rescheduleMessage(@PathParam("msgId") String msgId) throws Exception {
         mgr.rescheduleMessage(msgId);
     }
 
     @DELETE
     @Path("{msgId}")
-    public void deleteMessage(@PathParam("msgId") String msgId) {
+    public void deleteMessage(@PathParam("msgId") String msgId) throws Exception {
         mgr.deleteMessage(msgId);
     }
 

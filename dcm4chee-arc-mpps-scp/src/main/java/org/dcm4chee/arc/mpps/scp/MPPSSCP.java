@@ -43,6 +43,7 @@ package org.dcm4chee.arc.mpps.scp;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.BasicMPPSSCP;
 import org.dcm4che3.net.service.DicomService;
@@ -74,6 +75,7 @@ class MPPSSCP extends BasicMPPSSCP {
     protected Attributes create(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
         MPPSContext ctx = mppsService.newMPPSContext(as);
+        ctx.setDimse(Dimse.N_CREATE_RQ);
         ctx.setSopInstanceUID(rsp.getString(Tag.AffectedSOPInstanceUID));
         ctx.setAttributes(rqAttrs);
         try {
@@ -96,6 +98,7 @@ class MPPSSCP extends BasicMPPSSCP {
     protected Attributes set(Association as, Attributes rq, Attributes rqAttrs, Attributes rsp)
             throws DicomServiceException {
         MPPSContext ctx = mppsService.newMPPSContext(as);
+        ctx.setDimse(Dimse.N_SET_RQ);
         ctx.setSopInstanceUID(rq.getString(Tag.RequestedSOPInstanceUID));
         ctx.setAttributes(rqAttrs);
         try {

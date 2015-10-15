@@ -44,11 +44,12 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.*;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.*;
 import javax.naming.InitialContext;
@@ -74,6 +75,9 @@ public class QueueManagerEJB implements QueueManager {
     @Inject
     private Device device;
 
+    @Inject
+    private Event<MessageCanceled> messageCanceledEvent;
+
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public ObjectMessage createObjectMessage(Serializable object) {
@@ -82,8 +86,8 @@ public class QueueManagerEJB implements QueueManager {
 
     @Override
     public void scheduleMessage(String queueName, ObjectMessage msg) {
+        sendMessage(descriptorOf(queueName), msg, 0L);
         try {
-            jmsCtx.createProducer().send(lookupQueue(queueName), msg);
             em.persist(new QueueMessage(queueName, msg));
         } catch (JMSException e) {
             throw toJMSRuntimeException(e);
@@ -91,74 +95,81 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public QueueMessage onProcessingStart(Message msg) {
-        try {
-            QueueMessage entity = findScheduledQueueMessage(msg.getJMSMessageID());
-            if (entity == null)
-                return null;
-
-            entity.setProcessingStartTime(new Date());
-            entity.setStatus(QueueMessage.Status.IN_PROCESS);
-            return entity;
-        } catch (JMSException e) {
-            throw toJMSRuntimeException(e);
-        }
-    }
-
-    private JMSRuntimeException toJMSRuntimeException(JMSException e) {
-        return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+    public boolean onProcessingStart(String msgId) {
+        QueueMessage entity = findQueueMessage(msgId);
+        if (entity == null || !entity.getStatus().equals(QueueMessage.Status.SCHEDULED))
+            return false;
+        entity.setProcessingStartTime(new Date());
+        entity.setStatus(QueueMessage.Status.IN_PROCESS);
+        return true;
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void onProcessingSuccessful(QueueMessage entity) {
+    public void onProcessingSuccessful(String msgId, Outcome outcome) {
+        QueueMessage entity = findQueueMessage(msgId);
+        if (entity == null)
+            return;
+
         entity.setProcessingEndTime(new Date());
-        entity.setStatus(QueueMessage.Status.COMPLETED);
-        em.merge(entity);
+        entity.setStatus(outcome.getStatus());
+        entity.setOutcomeMessage(outcome.getDescription());
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void onProcessingFailed(QueueMessage entity, Exception e) {
-        entity.incrementNumberOfFailures();
+    public void onProcessingFailed(String msgId, Exception e) {
+        QueueMessage entity = findQueueMessage(msgId);
+        if (entity == null)
+            return;
+
         entity.setErrorMessage(e.getMessage());
         entity.setProcessingEndTime(new Date());
-        entity.setStatus(QueueMessage.Status.SCHEDULED);
-        em.merge(entity);
-    }
-
-    @Override
-    public void onRedeliveryExhausted(Message msg) {
-        try {
-            QueueMessage entity = findQueueMessage(msg.getJMSMessageID());
+        QueueDescriptor descriptor = descriptorOf(entity.getQueueName());
+        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
+        if (delay < 0)
             entity.setStatus(QueueMessage.Status.FAILED);
-            em.merge(entity);
-        } catch (JMSException e) {
-            throw toJMSRuntimeException(e);
-        }
+        else
+            rescheduleMessage(entity, descriptor, delay * 1000L);
     }
 
     @Override
-    public void cancelProcessing(String msgId) {
-        QueueMessage entity = findQueueMessage(msgId);
+    public void cancelProcessing(String msgId) throws MessageAlreadyDeletedException {
+        QueueMessage entity = getQueueMessage(msgId);
         entity.setStatus(QueueMessage.Status.CANCELED);
-        em.merge(entity);
+        messageCanceledEvent.fire(new MessageCanceled(msgId));
     }
 
     @Override
-    public void rescheduleMessage(String msgId) {
+    public void rescheduleMessage(String msgId)
+            throws MessageAlreadyDeletedException, IllegalMessageStatusException {
+        QueueMessage entity = getQueueMessage(msgId);
+        switch (entity.getStatus()) {
+            case SCHEDULED:
+            case IN_PROCESS:
+                throw new IllegalMessageStatusException(
+                        "Cannot reschedule Message[id=" + msgId + "] with status: " + entity.getStatus());
+        }
+        entity.setNumberOfFailures(0);
+        entity.setErrorMessage(null);
+        entity.setOutcomeMessage(null);
+        rescheduleMessage(entity, descriptorOf(entity.getQueueName()), 0L);
+    }
+
+    private void rescheduleMessage(QueueMessage entity, QueueDescriptor descriptor, long delay) {
         try {
-            QueueMessage entity = findQueueMessage(msgId);
-            scheduleMessage(entity.getQueueName(), entity.initProperties(createObjectMessage(entity.getMessageBody())));
+            ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
+            sendMessage(descriptor, msg, delay);
+            entity.setMessageID(msg.getJMSMessageID());
+            entity.setScheduledTime(new Date(System.currentTimeMillis() + delay));
+            entity.setStatus(QueueMessage.Status.SCHEDULED);
         } catch (JMSException e) {
             throw toJMSRuntimeException(e);
         }
+
     }
 
     @Override
-    public void deleteMessage(String msgId) {
-        em.remove(findQueueMessage(msgId));
+    public void deleteMessage(String msgId) throws MessageAlreadyDeletedException {
+        em.remove(getQueueMessage(msgId));
     }
 
     @Override
@@ -196,31 +207,46 @@ public class QueueManagerEJB implements QueueManager {
         return query.getResultList();
     }
 
-    private Queue lookupQueue(String queueName) {
-        ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor desc = ext.getQueueDescriptor(queueName);
+    private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay) {
+        jmsCtx.createProducer().setDeliveryDelay(delay).send(lookup(desc.getJndiName()), msg);
+    }
+
+    private JMSRuntimeException toJMSRuntimeException(JMSException e) {
+        return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+    }
+
+    private Queue lookup(String jndiName) {
         try {
-            return InitialContext.doLookup(desc.getJndiName());
+            return InitialContext.doLookup(jndiName);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private QueueDescriptor descriptorOf(String queueName) {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueueDescriptor(queueName);
+    }
+
     private QueueMessage findQueueMessage(String msgId) {
+        try {
+            return queryQueueMessage(msgId);
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    private QueueMessage getQueueMessage(String msgId) throws MessageAlreadyDeletedException {
+        try {
+            return queryQueueMessage(msgId);
+        } catch (NoResultException e) {
+            throw new MessageAlreadyDeletedException("Message[id=" + msgId + "] already deleted");
+        }
+    }
+
+    private QueueMessage queryQueueMessage(String msgId) {
         return em.createNamedQuery(QueueMessage.FIND_BY_MSG_ID, QueueMessage.class)
                 .setParameter(1, msgId)
                 .getSingleResult();
-    }
-
-    private QueueMessage findScheduledQueueMessage(String msgId) {
-        try {
-            QueueMessage entity = em.createNamedQuery(QueueMessage.FIND_BY_MSG_ID, QueueMessage.class)
-                    .setParameter(1, msgId)
-                    .getSingleResult();
-            if (entity.getStatus().equals(QueueMessage.Status.SCHEDULED))
-                return entity;
-        } catch (NoResultException ignore) {}
-        return null;
     }
 
 }

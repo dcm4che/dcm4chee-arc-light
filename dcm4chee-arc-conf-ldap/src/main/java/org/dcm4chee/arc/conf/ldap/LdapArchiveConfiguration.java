@@ -498,6 +498,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("dcmQueueName", descriptor.getQueueName());
         LdapUtils.storeNotNull(attrs, "dcmJndiName", descriptor.getJndiName());
         LdapUtils.storeNotNull(attrs, "dicomDescription", descriptor.getDescription());
+        LdapUtils.storeNotDef(attrs, "dcmMaxRetries", descriptor.getMaxRetries(), 0);
+        LdapUtils.storeNotNull(attrs, "dcmRetryDelay", descriptor.getRetryDelay());
+        LdapUtils.storeNotNull(attrs, "dcmMaxRetryDelay", descriptor.getMaxRetryDelay());
+        LdapUtils.storeNotDef(attrs, "dcmRetryDelayMultiplier", descriptor.getRetryDelayMultiplier(), 100);
         return attrs;
     }
 
@@ -510,6 +514,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 QueueDescriptor desc = new QueueDescriptor(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
                 desc.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
                 desc.setJndiName(LdapUtils.stringValue(attrs.get("dcmJndiName"), null));
+                desc.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
+                desc.setRetryDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmRetryDelay"), null)));
+                desc.setMaxRetryDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmMaxRetryDelay"), null)));
+                desc.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 0));
                 arcdev.addQueueDescriptor(desc);
             }
         } finally {
@@ -541,6 +549,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                               List<ModificationItem> mods) {
         LdapUtils.storeDiff(mods, "dicomDescription", prev.getDescription(), desc.getDescription());
         LdapUtils.storeDiff(mods, "dcmJndiName", prev.getJndiName(), desc.getJndiName());
+        LdapUtils.storeDiff(mods, "dcmMaxRetries", prev.getMaxRetries(), desc.getMaxRetries(), 0);
+        LdapUtils.storeDiff(mods, "dcmRetryDelay", prev.getRetryDelay(), desc.getRetryDelay());
+        LdapUtils.storeDiff(mods, "dcmMaxRetryDelay", prev.getMaxRetryDelay(), desc.getMaxRetryDelay());
+        LdapUtils.storeDiff(mods, "dcmMaxRetries", prev.getRetryDelayMultiplier(), desc.getRetryDelayMultiplier(), 100);
         return mods;
     }
 

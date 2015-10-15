@@ -190,6 +190,30 @@ attributetype ( 1.2.40.0.13.1.15.110.3.32 NAME 'dcmExportTaskFetchSize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.33 NAME 'dcmMaxRetries'
+  DESC 'Maximal number of retries to process tasks scheduled in a specific queue. 0 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.34 NAME 'dcmRetryDelay'
+  DESC 'Delay to retry to process tasks scheduled in a specific queue in ISO-8601 duration format PnDTnHnMn.nS. PT1M if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.35 NAME 'dcmMaxRetryDelay'
+  DESC 'Maximal Delay to retry to process tasks scheduled in a specific queue in ISO-8601 duration format PnDTnHnMn.nS. Infinite if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.36 NAME 'dcmRetryDelayMultiplier'
+  DESC 'Multiplier in % that will take effect on top of dcmRetryDelay with dcmMaxRetryDelay to be taken into account. 100 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -274,7 +298,11 @@ objectclass ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmQueueName $
     dcmJndiName)
   MAY (
-    dicomDescription ) )
+    dicomDescription $
+    dcmMaxRetries $
+    dcmRetryDelay $
+    dcmMaxRetryDelay $
+    dcmRetryDelayMultiplier ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   DESC 'Exporter Descriptor'

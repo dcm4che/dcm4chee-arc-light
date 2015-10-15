@@ -17,6 +17,7 @@
             <option>SCHEDULED</option>
             <option>IN PROCESS</option>
             <option>COMPLETED</option>
+            <option>WARNING</option>
             <option>FAILED</option>
             <option>CANCELED</option>
         </select>
@@ -55,6 +56,7 @@
         <th>Failures</th>
         <th>Created</th>
         <th>Updated</th>
+        <th>Scheduled</th>
         <th>Started</th>
         <th>Finished</th>
     </tr>
@@ -77,10 +79,11 @@
             </a>
         </td>
         <td ng-bind="match.properties.queue"></td>
-        <td ng-bind="match.properties.status"></td>
+        <td ng-bind="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
         <td ng-bind="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
         <td ng-bind="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
         <td ng-bind="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+        <td ng-bind="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
         <td ng-bind="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
         <td ng-bind="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
     </tr>

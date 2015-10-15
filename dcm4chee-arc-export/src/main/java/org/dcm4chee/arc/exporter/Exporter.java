@@ -1,6 +1,7 @@
 package org.dcm4chee.arc.exporter;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -11,5 +12,5 @@ public interface Exporter {
 
     ExportContext createExportContext();
 
-    void export(ExportContext exportContext) throws Exception;
+    Outcome export(ExportContext exportContext) throws Exception;
 }

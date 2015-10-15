@@ -3,6 +3,7 @@ package org.dcm4chee.arc.stgcmt.scp.impl;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.*;
@@ -12,6 +13,8 @@ import org.dcm4che3.net.pdu.RoleSelection;
 import org.dcm4che3.net.service.AbstractDicomService;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.stgcmt.scp.StgCmtSCP;
 import org.slf4j.Logger;
@@ -84,18 +87,23 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
     }
 
     @Override
-    public void sendNEventReport(String localAET, String remoteAET, Attributes eventInfo)
+    public Outcome sendNEventReport(String localAET, String remoteAET, Attributes eventInfo)
             throws Exception  {
             ApplicationEntity localAE = device.getApplicationEntity(localAET);
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
             AAssociateRQ aarq = mkAAssociateRQ(localAE);
             Association as = localAE.connect(remoteAE, aarq);
             try {
+                int successful = sequenceSizeOf(eventInfo, Tag.ReferencedSOPSequence);
+                int failed = sequenceSizeOf(eventInfo, Tag.FailedSOPSequence);
                 DimseRSP neventReport = as.neventReport(
                         UID.StorageCommitmentPushModelSOPClass,
                         UID.StorageCommitmentPushModelSOPInstance,
-                        eventTypeIdOf(eventInfo), eventInfo, null);
+                        failed > 0 ? 2 : 1, eventInfo, null);
                 neventReport.next();
+                return new Outcome(failed > 0 ? QueueMessage.Status.WARNING : QueueMessage.Status.COMPLETED,
+                        "Return Storage Commitment Result[successful: " + successful + ", failed: " + failed
+                                + "] to AE: " + remoteAET);
             } finally {
                 try {
                     as.release();
@@ -103,6 +111,11 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
                     LOG.info("{}: Failed to release association to {}", as, remoteAET);
                 }
             }
+    }
+
+    private int sequenceSizeOf(Attributes eventInfo, int seqTag) {
+        Sequence seq = eventInfo.getSequence(seqTag);
+        return seq != null ? seq.size() : 0;
     }
 
     private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE) {
@@ -113,9 +126,5 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
                 tc.getTransferSyntaxes()));
         aarq.addRoleSelection(new RoleSelection(UID.StorageCommitmentPushModelSOPClass, false, true));
         return aarq;
-    }
-
-    private static int eventTypeIdOf(Attributes eventInfo) {
-        return eventInfo.containsValue(Tag.FailedSOPSequence) ? 2 : 1;
     }
 }

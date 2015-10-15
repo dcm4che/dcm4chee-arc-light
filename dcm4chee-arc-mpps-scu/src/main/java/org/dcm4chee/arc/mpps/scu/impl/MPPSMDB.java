@@ -41,18 +41,19 @@
 package org.dcm4chee.arc.mpps.scu.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4che3.net.Dimse;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
-import org.jboss.ejb3.annotation.TransactionTimeout;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
-import javax.ejb.MessageDrivenContext;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
@@ -66,7 +67,7 @@ import javax.jms.ObjectMessage;
         @ActivationConfigProperty(propertyName = "destination", propertyValue = MPPSSCU.JNDI_NAME),
         @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
-@TransactionTimeout(60)
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class MPPSMDB implements MessageListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(MPPSMDB.class);
@@ -74,29 +75,31 @@ public class MPPSMDB implements MessageListener {
     @Inject
     private MPPSSCU mppsSCU;
 
-    @Resource
-    private MessageDrivenContext ctx;
-
     @Inject
     private QueueManager queueManager;
 
     @Override
     public void onMessage(Message msg) {
-        QueueMessage queueMessage = queueManager.onProcessingStart(msg);
-        if (queueMessage == null)
+        String msgID = null;
+        try {
+            msgID = msg.getJMSMessageID();
+        } catch (JMSException e) {
+            LOG.error("Failed to process {}", msg, e);
+        }
+        if (!queueManager.onProcessingStart(msgID))
             return;
         try {
             Attributes attrs = (Attributes) ((ObjectMessage) msg).getObject();
-            mppsSCU.forwardMPPS(
+            Outcome outcome = mppsSCU.forwardMPPS(
                     msg.getStringProperty("LocalAET"),
                     msg.getStringProperty("RemoteAET"),
+                    Dimse.valueOf(msg.getStringProperty("DIMSE")),
                     msg.getStringProperty("SOPInstanceUID"),
                     attrs);
-            queueManager.onProcessingSuccessful(queueMessage);
+            queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Exception e) {
             LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(queueMessage, e);
-            ctx.setRollbackOnly();
+            queueManager.onProcessingFailed(msgID, e);
         }
     }
 }

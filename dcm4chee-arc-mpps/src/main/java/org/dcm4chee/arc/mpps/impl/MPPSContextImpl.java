@@ -55,6 +55,7 @@ public class MPPSContextImpl implements MPPSContext {
     private final ApplicationEntity ae;
     private Attributes attributes;
     private String sopInstanceUID;
+    private Dimse dimse;
 
     public MPPSContextImpl(ApplicationEntity ae) {
         this.ae = ae;
@@ -89,5 +90,15 @@ public class MPPSContextImpl implements MPPSContext {
     @Override
     public void setAttributes(Attributes attrs) {
         this.attributes = attrs;
+    }
+
+    @Override
+    public Dimse getDimse() {
+        return dimse;
+    }
+
+    @Override
+    public void setDimse(Dimse dimse) {
+        this.dimse = dimse;
     }
 }

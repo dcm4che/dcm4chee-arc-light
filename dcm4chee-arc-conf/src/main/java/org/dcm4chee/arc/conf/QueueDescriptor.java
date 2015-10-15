@@ -6,18 +6,18 @@ package org.dcm4chee.arc.conf;
  */
 public class QueueDescriptor {
 
+    private static final int DEFAULT_RETRY_DELAY = 60;
+
     private final String queueName;
     private String jndiName;
     private String description;
+    private int maxRetries = 0;
+    private Duration retryDelay;
+    private Duration maxRetryDelay;
+    private int retryDelayMultiplier = 100;
 
     public QueueDescriptor(String queueName) {
         this.queueName = queueName;
-    }
-
-    public QueueDescriptor(String queueName, String description, String jndiName) {
-        this(queueName);
-        setDescription(description);
-        setJndiName(jndiName);
     }
 
     public String getQueueName() {
@@ -38,5 +38,48 @@ public class QueueDescriptor {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getMaxRetries() {
+        return maxRetries;
+    }
+
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
+
+    public Duration getRetryDelay() {
+        return retryDelay;
+    }
+
+    public long getRetryDelayInSeconds(int retry) {
+        if (retry > maxRetries)
+            return -1L;
+
+        long delay = retryDelay != null ? retryDelay.getSeconds() : DEFAULT_RETRY_DELAY;
+        while (--retry > 0)
+            delay = delay * retryDelayMultiplier / 100;
+
+        return maxRetryDelay != null ? Math.min(delay, maxRetryDelay.getSeconds()) : delay;
+    }
+
+    public void setRetryDelay(Duration retryDelay) {
+        this.retryDelay = retryDelay;
+    }
+
+    public Duration getMaxRetryDelay() {
+        return maxRetryDelay;
+    }
+
+    public void setMaxRetryDelay(Duration maxRetryDelay) {
+        this.maxRetryDelay = maxRetryDelay;
+    }
+
+    public int getRetryDelayMultiplier() {
+        return retryDelayMultiplier;
+    }
+
+    public void setRetryDelayMultiplier(int retryDelayMultiplier) {
+        this.retryDelayMultiplier = retryDelayMultiplier;
     }
 }

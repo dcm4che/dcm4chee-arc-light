@@ -1,5 +1,7 @@
 package org.dcm4chee.arc.exporter;
 
+import org.dcm4chee.arc.conf.Entity;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
@@ -7,6 +9,7 @@ package org.dcm4chee.arc.exporter;
 public class DefaultExportContext implements ExportContext {
 
     private final Exporter exporter;
+    private String messageID;
     private String studyInstanceUID;
     private String seriesInstanceUID;
     private String sopInstanceUID;
@@ -18,6 +21,16 @@ public class DefaultExportContext implements ExportContext {
     @Override
     public Exporter getExporter() {
         return exporter;
+    }
+
+    @Override
+    public String getMessageID() {
+        return messageID;
+    }
+
+    @Override
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
     }
 
     @Override
@@ -49,4 +62,5 @@ public class DefaultExportContext implements ExportContext {
     public void setSopInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
     }
+
 }

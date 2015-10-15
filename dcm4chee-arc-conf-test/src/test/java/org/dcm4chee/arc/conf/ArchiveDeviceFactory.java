@@ -136,12 +136,23 @@ class ArchiveDeviceFactory {
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
-        new QueueDescriptor("MPPSSCU", "Forward MPPS Tasks", "jms/queue/MPPSSCU"),
-        new QueueDescriptor("StgCmtSCP", "Storage Commitment Tasks", "jms/queue/StgCmtSCP"),
-        new QueueDescriptor("Export1", "Dicom Export Tasks (1)", "jms/queue/Export1"),
-        new QueueDescriptor("Export2", "Dicom Export Tasks (2)", "jms/queue/Export2"),
-        new QueueDescriptor("Export3", "XDS-I Export Tasks", "jms/queue/Export3")
+        newQueueDescriptor("MPPSSCU", "Forward MPPS Tasks"),
+        newQueueDescriptor("StgCmtSCP", "Storage Commitment Tasks"),
+        newQueueDescriptor("Export1", "Dicom Export Tasks (1)"),
+        newQueueDescriptor("Export2", "Dicom Export Tasks (2)"),
+        newQueueDescriptor("Export3", "XDS-I Export Tasks")
     };
+
+    private static QueueDescriptor newQueueDescriptor(String name, String description) {
+        QueueDescriptor desc = new QueueDescriptor(name);
+        desc.setDescription(description);
+        desc.setJndiName("jms/queue/" + name);
+        desc.setMaxRetries(10);
+        desc.setRetryDelay(Duration.parse("PT30S"));
+        desc.setRetryDelayMultiplier(200);
+        desc.setMaxRetryDelay(Duration.parse("PT10M"));
+        return desc;
+    }
 
     static final int[] PATIENT_ATTRS = {
             Tag.SpecificCharacterSet,

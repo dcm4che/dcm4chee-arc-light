@@ -48,6 +48,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.scu.MPPSSCU;
@@ -81,36 +83,45 @@ class MPPSSCUImpl implements MPPSSCU {
     void onMPPSReceive(@Observes MPPSContext ctx) {
         ApplicationEntity ae = ctx.getLocalApplicationEntity();
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        Dimse dimse = ctx.getDimse();
         String iuid = ctx.getSopInstanceUID();
         Attributes attrs = ctx.getAttributes();
         for (String remoteAET : arcAE.mppsForwardDestinations())
-            scheduleForwardMPPS(ae.getAETitle(), remoteAET, iuid, attrs);
+            scheduleForwardMPPS(ae.getAETitle(), remoteAET, dimse, iuid, attrs);
     }
 
-    private void scheduleForwardMPPS(String localAET, String remoteAET, String iuid, Attributes attrs) {
+    private void scheduleForwardMPPS(String localAET, String remoteAET, Dimse dimse, String iuid, Attributes attrs) {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(attrs);
             msg.setStringProperty("LocalAET", localAET);
             msg.setStringProperty("RemoteAET", remoteAET);
+            msg.setStringProperty("DIMSE", dimse.name());
             msg.setStringProperty("SOPInstanceUID", iuid);
             queueManager.scheduleMessage(QUEUE_NAME, msg);
         } catch (Exception e) {
-            LOG.warn("Failed to Schedule Forward of MPPS[uid={}] to AE: {}", iuid, remoteAET, e);
+            LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}", dimse, iuid, remoteAET, e);
         }
     }
 
     @Override
-    public void forwardMPPS(String localAET, String remoteAET, String sopInstanceUID, Attributes attrs)
+    public Outcome forwardMPPS(String localAET, String remoteAET, Dimse dimse, String sopInstanceUID, Attributes attrs)
             throws Exception {
         ApplicationEntity localAE = device.getApplicationEntity(localAET);
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
         AAssociateRQ aarq = mkAAssociateRQ(localAE);
         Association as = localAE.connect(remoteAE, aarq);
         try {
-            DimseRSP rsp = attrs.contains(Tag.ScheduledStepAttributesSequence)
+            DimseRSP rsp = dimse == Dimse.N_CREATE_RQ
                     ? as.ncreate(UID.ModalityPerformedProcedureStepSOPClass, sopInstanceUID, attrs, null)
                     : as.nset(UID.ModalityPerformedProcedureStepSOPClass, sopInstanceUID, attrs, null);
             rsp.next();
+            int status = rsp.getCommand().getInt(Tag.Status, -1);
+            return status == Status.Success
+                    ? new Outcome(QueueMessage.Status.COMPLETED,
+                        "Forward " + dimse +  " MPPS[uid=" + sopInstanceUID + "] to AE: " + remoteAET)
+                    : new Outcome(QueueMessage.Status.WARNING,
+                        "Forward " + dimse +  " MPPS[uid=" + sopInstanceUID + "] to AE: " + remoteAET
+                                + " failed with error status: " + Integer.toHexString(status) + 'H');
         } finally {
             try {
                 as.release();

@@ -15,21 +15,22 @@ import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.stgcmt.scp.StgCmtSCP;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.hibernate.Session;
-import org.jboss.ejb3.annotation.TransactionTimeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
-import javax.ejb.MessageDrivenContext;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
@@ -50,7 +51,7 @@ import java.util.List;
         @ActivationConfigProperty(propertyName = "destination", propertyValue = StgCmtSCP.JNDI_NAME),
         @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
-@TransactionTimeout(600)
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class StgCmtMDB implements MessageListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(StgCmtMDB.class);
@@ -67,9 +68,6 @@ public class StgCmtMDB implements MessageListener {
             QStudy.study.studyInstanceUID
     };
     private static final int BUFFER_SIZE = 8192;
-
-    @Resource
-    private MessageDrivenContext ctx;
 
     @Inject
     private Device device;
@@ -88,20 +86,25 @@ public class StgCmtMDB implements MessageListener {
 
     @Override
     public void onMessage(Message msg) {
-        QueueMessage queueMessage = queueManager.onProcessingStart(msg);
-        if (queueMessage == null)
+        String msgID = null;
+        try {
+            msgID = msg.getJMSMessageID();
+        } catch (JMSException e) {
+            LOG.error("Failed to process {}", msg, e);
+        }
+        if (!queueManager.onProcessingStart(msgID))
             return;
         try {
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
             Attributes eventInfo = calculateResult(actionInfo);
-            stgCmtSCP.sendNEventReport(msg.getStringProperty("LocalAET"),
+            Outcome outcome = stgCmtSCP.sendNEventReport(
+                    msg.getStringProperty("LocalAET"),
                     msg.getStringProperty("RemoteAET"),
                     eventInfo);
-            queueManager.onProcessingSuccessful(queueMessage);
+            queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Exception e) {
             LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(queueMessage, e);
-            ctx.setRollbackOnly();
+            queueManager.onProcessingFailed(msgID, e);
         }
     }
 

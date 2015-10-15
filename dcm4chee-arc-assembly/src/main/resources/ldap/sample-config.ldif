@@ -872,33 +872,53 @@ dcmURI: file:///var/local/dcm4chee-arc/fs1/
 
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmJndiName: jms/queue/StgCmtSCP
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Storage Commitment Tasks
 dcmQueueName: StgCmtSCP
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
 
 dn: dcmQueueName=Export1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmJndiName: jms/queue/Export1
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Dicom Export Tasks (1)
 dcmQueueName: Export1
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
 
 dn: dcmQueueName=Export2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmJndiName: jms/queue/Export2
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Dicom Export Tasks (2)
 dcmQueueName: Export2
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
 
 dn: dcmQueueName=Export3,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmJndiName: jms/queue/Export3
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: XDS-I Export Tasks
 dcmQueueName: Export3
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
 
 dn: dcmQueueName=MPPSSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmJndiName: jms/queue/MPPSSCU
+dcmRetryDelay: PT30S
+dcmMaxRetries: 10
 dicomDescription: Forward MPPS Tasks
 dcmQueueName: MPPSSCU
 objectClass: dcmQueue
+dcmRetryDelayMultiplier: 200
+dcmMaxRetryDelay: PT10M
 
 dn: dcmExporterID=STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmExporterID: STORESCP

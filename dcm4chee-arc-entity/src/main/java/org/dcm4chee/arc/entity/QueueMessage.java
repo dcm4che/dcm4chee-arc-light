@@ -42,6 +42,7 @@ package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.util.DateUtils;
+import org.dcm4che3.util.StringUtils;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
@@ -68,7 +69,7 @@ import java.util.*;
         @NamedQuery(name = QueueMessage.FIND_BY_MSG_ID,
                 query = "select o from QueueMessage o where o.messageID=?1"),
         @NamedQuery(name = QueueMessage.FIND_BY_QUEUE_NAME,
-                query = "select o from QueueMessage o where o.queueName=?1 order by o.pk desc"),
+                query = "select o from QueueMessage o where o.queueName=?1 order by o.scheduledTime desc"),
         @NamedQuery(name = QueueMessage.FIND_BY_QUEUE_NAME_AND_STATUS,
                 query = "select o from QueueMessage o where o.queueName=?1 and o.status=?2 order by o.pk desc"),
         @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME,
@@ -93,7 +94,7 @@ public class QueueMessage {
             "QueueMessage.DeleteByQueueNameAndStatusAndUpdatedBefore";
 
     public enum Status {
-        SCHEDULED, IN_PROCESS, COMPLETED, FAILED, CANCELED
+        SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED
     }
 
     @Id
@@ -119,7 +120,7 @@ public class QueueMessage {
     private String queueName;
 
     @Basic(optional = false)
-    @Column(name = "msg_id", updatable = false)
+    @Column(name = "msg_id")
     private String messageID;
 
     @Basic(optional = false)
@@ -133,6 +134,11 @@ public class QueueMessage {
     @Basic(optional = false)
     @Column(name = "msg_status")
     private Status status;
+
+    @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "scheduled_time")
+    private Date scheduledTime;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "proc_start_time")
@@ -148,6 +154,9 @@ public class QueueMessage {
 
     @Column(name = "error_msg")
     private String errorMessage;
+
+    @Column(name = "outcome_msg")
+    private String outcomeMessage;
 
 
     public QueueMessage() {
@@ -193,8 +202,8 @@ public class QueueMessage {
         return numberOfFailures;
     }
 
-    public void incrementNumberOfFailures() {
-        numberOfFailures++;
+    public int incrementNumberOfFailures() {
+        return ++numberOfFailures;
     }
 
     public void setNumberOfFailures(int numberOfFailures) {
@@ -206,15 +215,11 @@ public class QueueMessage {
     }
 
     public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
+        this.errorMessage = errorMessage != null ? StringUtils.truncate(errorMessage, 255) : null;
     }
 
     public String getQueueName() {
         return queueName;
-    }
-
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
     }
 
     public String getMessageID() {
@@ -223,6 +228,22 @@ public class QueueMessage {
 
     public void setMessageID(String messageID) {
         this.messageID = messageID;
+    }
+
+    public Date getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(Date scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+
+    public String getOutcomeMessage() {
+        return outcomeMessage;
+    }
+
+    public void setOutcomeMessage(String outcomeMessage) {
+        this.outcomeMessage = outcomeMessage != null ? StringUtils.truncate(outcomeMessage, 255) : null;
     }
 
     public void writeAsJSON(Writer out) throws IOException {
@@ -239,6 +260,8 @@ public class QueueMessage {
         out.write(df.format(createdTime));
         out.write("\",\"updatedTime\":\"");
         out.write(df.format(updatedTime));
+        out.write("\",\"scheduledTime\":\"");
+        out.write(df.format(scheduledTime));
         if (processingStartTime != null) {
             out.write("\",\"processingStartTime\":\"");
             out.write(df.format(processingStartTime));
@@ -250,6 +273,10 @@ public class QueueMessage {
         if (errorMessage != null) {
             out.write("\",\"errorMessage\":\"");
             out.write(errorMessage.replace('"', '\''));
+        }
+        if (outcomeMessage != null) {
+            out.write("\",\"outcomeMessage\":\"");
+            out.write(outcomeMessage.replace('"', '\''));
         }
         out.write("\",");
         out.write(messageProperties);
@@ -332,6 +359,7 @@ public class QueueMessage {
         Date now = new Date();
         createdTime = now;
         updatedTime = now;
+        scheduledTime = now;
     }
 
     @PreUpdate
