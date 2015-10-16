@@ -863,8 +863,8 @@ class ArchiveDeviceFactory {
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
 
         ExportRule exportRule = new ExportRule("Forward to STORESCP");
-        exportRule.setSendingAETitle("FORWARD");
-        exportRule.setCondition("Modality", "CT|MR");
+        exportRule.getConditions().setSendingAETitle("FORWARD");
+        exportRule.getConditions().setCondition("Modality", "CT|MR");
         exportRule.setEntity(Entity.Series);
         exportRule.setExportDelay(Duration.parse("PT1M"));
         exportRule.setExporterIDs(EXPORTER_ID);

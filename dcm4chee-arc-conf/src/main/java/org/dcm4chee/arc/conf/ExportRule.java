@@ -16,20 +16,17 @@ import java.util.regex.Pattern;
  */
 public class ExportRule {
 
-    private static final String SendingApplicationEntityTitle = "SendingApplicationEntityTitle";
-
     private final String commonName;
 
     private ScheduleExpression[] schedules = {};
 
-    private final Map<String, Pattern> conditions = new HashMap<>();
+    private Conditions conditions = new Conditions();
 
     private String[] exporterIDs = {};
 
     private Entity entity;
 
     private Duration exportDelay;
-
 
     public ExportRule(String commonName) {
         this.commonName = commonName;
@@ -47,27 +44,12 @@ public class ExportRule {
         this.schedules = schedules;
     }
 
-    public void setSendingAETitle(String value) {
-        setCondition(SendingApplicationEntityTitle, value);
-    }
-
-    public void setCondition(String tagPath, String value) {
-        TagUtils.parseTagPath(tagPath);
-        conditions.put(tagPath, Pattern.compile(value));
-    }
-
-    public Map<String,Pattern> getConditions() {
+    public Conditions getConditions() {
         return conditions;
     }
 
-    public void setConditions(String[] ss) {
-        conditions.clear();
-        for (String s : ss) {
-            int index = s.indexOf('=');
-            if (index < 0)
-                throw new IllegalArgumentException(s);
-            setCondition(s.substring(0, index), s.substring(index+1));
-        }
+    public void setConditions(Conditions conditions) {
+        this.conditions = conditions;
     }
 
     public String[] getExporterIDs() {
@@ -103,19 +85,7 @@ public class ExportRule {
     }
 
     public boolean match(String sendingAET, Attributes attrs, Calendar cal) {
-        if (!match(cal))
-            return false;
-
-        for (Map.Entry<String, Pattern> entry : conditions.entrySet()) {
-            String tagPath = entry.getKey();
-            Pattern pattern = entry.getValue();
-            if (tagPath.equals(SendingApplicationEntityTitle)
-                ? !pattern.matcher(sendingAET).matches()
-                : !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0))
-                    return false;
-        }
-
-        return true;
+        return match(cal) && conditions.match(sendingAET, attrs);
     }
 
     private boolean match(Calendar cal) {

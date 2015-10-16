@@ -645,7 +645,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "dcmExportRule");
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotEmpty(attrs, "dcmSchedule", rule.getSchedules());
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions()));
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
         LdapUtils.storeNotEmpty(attrs, "dcmExporterID", rule.getExporterIDs());
         LdapUtils.storeNotNull(attrs, "dcmEntity", rule.getEntity());
         LdapUtils.storeNotNull(attrs, "dcmDuration", rule.getExportDelay());
@@ -660,7 +660,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 ExportRule rule = new ExportRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
-                rule.setConditions(LdapUtils.stringArray(attrs.get("dcmProperty")));
+                rule.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
                 rule.setEntity(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
                 rule.setExportDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmDuration"), null)));
@@ -695,7 +695,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
-        storeDiffProperties(mods, prev.getConditions(), rule.getConditions());
+        storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
         LdapUtils.storeDiff(mods, "dcmEntity", prev.getEntity(), rule.getEntity());
         LdapUtils.storeDiff(mods, "dcmDuration", prev.getExportDelay(), rule.getExportDelay());
