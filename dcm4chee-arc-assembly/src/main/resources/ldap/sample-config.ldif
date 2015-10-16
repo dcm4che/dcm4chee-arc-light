@@ -938,96 +938,50 @@ dcmProperty: Modality=CT|MR
 objectClass: dcmExportRule
 cn: Forward to STORESCP
 
-dn: cn=JPEG Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
-dcmAETitle: JPEG_LOSSLESS
-dcmPhotometricInterpretation: MONOCHROME1
-dcmPhotometricInterpretation: MONOCHROME2
-dcmPhotometricInterpretation: PALETTE COLOR
-dcmPhotometricInterpretation: RGB
-dcmPhotometricInterpretation: YBR_FULL
-dicomTransferSyntax: 1.2.840.10008.1.2.4.70
-objectClass: dcmCompressionRule
-dcmImageWriteParam: maxPixelValueError=0.0
-dcmBitsStored: 8
-dcmBitsStored: 9
-dcmBitsStored: 10
-dcmBitsStored: 11
-dcmBitsStored: 12
-dcmBitsStored: 13
-dcmBitsStored: 14
-dcmBitsStored: 15
-dcmBitsStored: 16
-cn: JPEG Lossless
-
-dn: cn=JPEG 2000 Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
-dcmAETitle: JPEG_2000
-dcmPhotometricInterpretation: MONOCHROME1
-dcmPhotometricInterpretation: MONOCHROME2
-dcmPhotometricInterpretation: PALETTE COLOR
-dcmPhotometricInterpretation: RGB
-dcmPhotometricInterpretation: YBR_FULL
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-objectClass: dcmCompressionRule
-dcmImageWriteParam: maxPixelValueError=0.0
-dcmBitsStored: 8
-dcmBitsStored: 9
-dcmBitsStored: 10
-dcmBitsStored: 11
-dcmBitsStored: 12
-dcmBitsStored: 13
-dcmBitsStored: 14
-dcmBitsStored: 15
-dcmBitsStored: 16
-cn: JPEG 2000 Lossless
-
-dn: cn=JPEG LS Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
-dcmAETitle: JPEG_LS
-dcmPhotometricInterpretation: MONOCHROME1
-dcmPhotometricInterpretation: MONOCHROME2
-dcmPhotometricInterpretation: PALETTE COLOR
-dcmPhotometricInterpretation: RGB
-dcmPhotometricInterpretation: YBR_FULL
-dicomTransferSyntax: 1.2.840.10008.1.2.4.80
-objectClass: dcmCompressionRule
-dcmImageWriteParam: maxPixelValueError=0.0
-dcmBitsStored: 8
-dcmBitsStored: 9
-dcmBitsStored: 10
-dcmBitsStored: 11
-dcmBitsStored: 12
-dcmBitsStored: 13
-dcmBitsStored: 14
-dcmBitsStored: 15
-dcmBitsStored: 16
-cn: JPEG LS Lossless
-
-dn: cn=JPEG 12-bit Lossy,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
-dcmAETitle: JPEG_LOSSY
-dcmPhotometricInterpretation: MONOCHROME1
-dcmPhotometricInterpretation: MONOCHROME2
-dicomTransferSyntax: 1.2.840.10008.1.2.4.51
-objectClass: dcmCompressionRule
-dcmImageWriteParam: compressionQuality=0.8
-dcmImageWriteParam: maxPixelValueError=20.0
-dcmImageWriteParam: avgPixelValueBlockSize=8.0
-dcmBitsStored: 9
-dcmBitsStored: 10
-dcmBitsStored: 11
-dcmBitsStored: 12
-cn: JPEG 12-bit Lossy
-
 dn: cn=JPEG 8-bit Lossy,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
-dcmAETitle: JPEG_LOSSY
-dcmPhotometricInterpretation: MONOCHROME1
-dcmPhotometricInterpretation: MONOCHROME2
-dcmPhotometricInterpretation: RGB
 dicomTransferSyntax: 1.2.840.10008.1.2.4.50
-objectClass: dcmCompressionRule
+dcmProperty: SendingApplicationEntityTitle=JPEG_LOSSY
+dcmProperty: PhotometricInterpretation=MONOCHROME1|MONOCHROME2|RGB
+dcmProperty: PixelRepresentation=0
+dcmProperty: BitsStored=8
+objectClass: dcmArchiveCompressionRule
 dcmImageWriteParam: compressionQuality=0.8
 dcmImageWriteParam: maxPixelValueError=10.0
 dcmImageWriteParam: avgPixelValueBlockSize=8.0
-dcmBitsStored: 8
 cn: JPEG 8-bit Lossy
+
+dn: cn=JPEG 12-bit Lossy,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dicomTransferSyntax: 1.2.840.10008.1.2.4.51
+dcmProperty: SendingApplicationEntityTitle=JPEG_LOSSY
+dcmProperty: PhotometricInterpretation=MONOCHROME1|MONOCHROME2
+dcmProperty: PixelRepresentation=0
+dcmProperty: BitsStored=9|10|11|12
+objectClass: dcmArchiveCompressionRule
+dcmImageWriteParam: compressionQuality=0.8
+dcmImageWriteParam: maxPixelValueError=20.0
+dcmImageWriteParam: avgPixelValueBlockSize=8.0
+cn: JPEG 12-bit Lossy
+
+dn: cn=JPEG Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dicomTransferSyntax: 1.2.840.10008.1.2.4.70
+dcmProperty: SendingApplicationEntityTitle=JPEG_LOSSLESS
+objectClass: dcmArchiveCompressionRule
+dcmImageWriteParam: maxPixelValueError=0.0
+cn: JPEG Lossless
+
+dn: cn=JPEG LS Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dicomTransferSyntax: 1.2.840.10008.1.2.4.80
+dcmProperty: SendingApplicationEntityTitle=JPEG_LS
+objectClass: dcmArchiveCompressionRule
+dcmImageWriteParam: maxPixelValueError=0.0
+cn: JPEG LS Lossless
+
+dn: cn=JPEG 2000 Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dicomTransferSyntax: 1.2.840.10008.1.2.4.90
+dcmProperty: SendingApplicationEntityTitle=JPEG_2000
+objectClass: dcmArchiveCompressionRule
+dcmImageWriteParam: maxPixelValueError=0.0
+cn: JPEG 2000 Lossless
 
 dn: dcmQueryRetrieveViewID=hideRejected,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmHideRejectionNoteWithCode: (113039, DCM, "Data Retention Policy Expired")

@@ -45,7 +45,6 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
-import org.dcm4che3.imageio.codec.CompressionRule;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
 import org.dcm4che3.net.*;
@@ -55,6 +54,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.imageio.ImageReaderExtension;
 import org.dcm4che3.net.imageio.ImageWriterExtension;
+import org.dcm4che3.util.Property;
 
 import java.net.URI;
 import java.security.KeyStore;
@@ -539,85 +539,57 @@ class ArchiveDeviceFactory {
             HIDE_REJECTED_VIEW,
             REGULAR_USE_VIEW,
             TRASH_VIEW};
-    static final CompressionRule JPEG_BASELINE = new CompressionRule(
+    static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
             "JPEG 8-bit Lossy",
-            new String[]{
-                    "MONOCHROME1",
-                    "MONOCHROME2",
-                    "RGB"},
-            new int[]{8},                // Bits Stored
-            0,                              // Pixel Representation
-            new String[]{"JPEG_LOSSY"},  // Source AETs
-            null,                           // SOP Classes
-            null,                           // Body Parts
+            new Conditions(
+                    "SendingApplicationEntityTitle=JPEG_LOSSY",
+                    "PhotometricInterpretation=MONOCHROME1|MONOCHROME2|RGB",
+                    "BitsStored=8",
+                    "PixelRepresentation=0"
+            ),
             UID.JPEGBaseline1,
             "compressionQuality=0.8",
             "maxPixelValueError=10",
             "avgPixelValueBlockSize=8"
     );
-    static final CompressionRule JPEG_EXTENDED = new CompressionRule(
+    static final ArchiveCompressionRule JPEG_EXTENDED = createCompressionRule(
             "JPEG 12-bit Lossy",
-            new String[]{
-                    "MONOCHROME1",
-                    "MONOCHROME2",},
-            new int[]{9, 10, 11, 12},    // Bits Stored
-            0,                              // Pixel Representation
-            new String[]{"JPEG_LOSSY"},  // Source AETs
-            null,                           // SOP Classes
-            null,                           // Body Parts
+            new Conditions(
+                    "SendingApplicationEntityTitle=JPEG_LOSSY",
+                    "PhotometricInterpretation=MONOCHROME1|MONOCHROME2",
+                    "BitsStored=9|10|11|12",
+                    "PixelRepresentation=0"
+            ),
             UID.JPEGExtended24,
             "compressionQuality=0.8",
             "maxPixelValueError=20",
             "avgPixelValueBlockSize=8"
     );
-    static final CompressionRule JPEG_LOSSLESS = new CompressionRule(
+    static final ArchiveCompressionRule JPEG_LOSSLESS = createCompressionRule(
             "JPEG Lossless",
-            new String[]{
-                    "MONOCHROME1",
-                    "MONOCHROME2",
-                    "PALETTE COLOR",
-                    "RGB",
-                    "YBR_FULL"},
-            new int[]{8, 9, 10, 11, 12, 13, 14, 15, 16},    // Bits Stored
-            -1,                              // Pixel Representation
-            new String[]{"JPEG_LOSSLESS"},  // Source AETs
-            null,                           // SOP Classes
-            null,                           // Body Parts
+            new Conditions(
+                    "SendingApplicationEntityTitle=JPEG_LOSSLESS"
+            ),
             UID.JPEGLossless,
             "maxPixelValueError=0"
     );
-    static final CompressionRule JPEG_LS = new CompressionRule(
+    static final ArchiveCompressionRule JPEG_LS = createCompressionRule(
             "JPEG LS Lossless",
-            new String[]{
-                    "MONOCHROME1",
-                    "MONOCHROME2",
-                    "PALETTE COLOR",
-                    "RGB",
-                    "YBR_FULL"},
-            new int[]{8, 9, 10, 11, 12, 13, 14, 15, 16},    // Bits Stored
-            -1,                             // Pixel Representation
-            new String[]{"JPEG_LS"},     // Source AETs
-            null,                           // SOP Classes
-            null,                           // Body Parts
+            new Conditions(
+                    "SendingApplicationEntityTitle=JPEG_LS"
+            ),
             UID.JPEGLSLossless,
             "maxPixelValueError=0"
     );
-    static final CompressionRule JPEG_2000 = new CompressionRule(
+    static final ArchiveCompressionRule JPEG_2000 = createCompressionRule(
             "JPEG 2000 Lossless",
-            new String[]{
-                    "MONOCHROME1",
-                    "MONOCHROME2",
-                    "PALETTE COLOR",
-                    "RGB",
-                    "YBR_FULL"},
-            new int[]{8, 9, 10, 11, 12, 13, 14, 15, 16},  // Bits Stored
-            -1,                             // Pixel Representation
-            new String[]{"JPEG_2000"},   // Source AETs
-            null,                           // SOP Classes
-            null,                           // Body Parts
+            new Conditions(
+                    "SendingApplicationEntityTitle=JPEG_2000"
+            ),
             UID.JPEG2000LosslessOnly,
             "maxPixelValueError=0"
     );
+
     static final String[] HL7_MESSAGE_TYPES = {
             "ADT^A02",
             "ADT^A03",
@@ -778,6 +750,14 @@ class ArchiveDeviceFactory {
         view.setHideRejectionNotesWithCodes(hideRejectionNoteCodes);
         view.setHideNotRejectedInstances(hideNotRejectedInstances);
         return view;
+    }
+    private static ArchiveCompressionRule createCompressionRule(String cn, Conditions conditions, String tsuid,
+                                                         String... writeParams) {
+        ArchiveCompressionRule rule = new ArchiveCompressionRule(cn);
+        rule.setConditions(conditions);
+        rule.setTransferSyntax(tsuid);
+        rule.setImageWriteParams(Property.valueOf(writeParams));
+        return rule;
     }
 
     private static void addAuditLogger(Device device, Device arrDevice) {

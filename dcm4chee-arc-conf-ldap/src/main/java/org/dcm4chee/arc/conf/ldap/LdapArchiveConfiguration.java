@@ -43,12 +43,10 @@ package org.dcm4chee.arc.conf.ldap;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.LdapUtils;
-import org.dcm4che3.conf.ldap.imageio.LdapCompressionRulesConfiguration;
 import org.dcm4che3.data.ValueSelector;
-import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.Property;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
 
@@ -679,15 +677,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             throws NamingException {
         for (ExportRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
-            if (findByCommonName(rules, cn) == null)
+            if (findExportRuleByCN(rules, cn) == null)
                 config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
         }
         for (ExportRule rule : rules) {
             String cn = rule.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
-            ExportRule prevRule = findByCommonName(prevRules, cn);
+            ExportRule prevRule = findExportRuleByCN(prevRules, cn);
             if (prevRule == null)
-                config.createSubcontext(dn, storeTo(prevRule, new BasicAttributes(true)));
+                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
             else
                 config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
         }
@@ -702,25 +700,85 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private ExportRule findByCommonName(Collection<ExportRule> rules, String cn) {
+    private ExportRule findExportRuleByCN(Collection<ExportRule> rules, String cn) {
         for (ExportRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
         return null;
     }
 
-    private void storeCompressionRules(CompressionRules rules, String parentDN) throws NamingException {
-        new LdapCompressionRulesConfiguration(config).store(rules, parentDN);
-    }
-
-    private void loadCompressionRules(CompressionRules rules, String parentDN) throws NamingException {
-        rules.clear();
-        new LdapCompressionRulesConfiguration(config).load(rules, parentDN);
-    }
-
-    private void mergeCompressionRules(CompressionRules aa, CompressionRules bb, String parentDN)
+    private void storeCompressionRules(Collection<ArchiveCompressionRule> rules, String parentDN)
             throws NamingException {
-        new LdapCompressionRulesConfiguration(config).merge(aa, bb, parentDN);
+        for (ArchiveCompressionRule rule : rules) {
+            String cn = rule.getCommonName();
+            config.createSubcontext(
+                    LdapUtils.dnOf("cn", cn, parentDN),
+                    storeTo(rule, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(ArchiveCompressionRule rule, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmArchiveCompressionRule");
+        attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        LdapUtils.storeNotNull(attrs, "dicomTransferSyntax", rule.getTransferSyntax());
+        LdapUtils.storeNotEmpty(attrs, "dcmImageWriteParam", rule.getImageWriteParams());
+        LdapUtils.storeNotDef(attrs, "dcmRulePriority", rule.getPriority(), 0);
+        return attrs;
+    }
+
+    private void loadCompressionRules(Collection<ArchiveCompressionRule> rules, String parentDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmArchiveCompressionRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                ArchiveCompressionRule rule = new ArchiveCompressionRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                rule.setTransferSyntax(LdapUtils.stringValue(attrs.get("dicomTransferSyntax"), null));
+                rule.setImageWriteParams(Property.valueOf(LdapUtils.stringArray(attrs.get("dcmImageWriteParam"))));
+                rule.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                rules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void mergeCompressionRules(
+            Collection<ArchiveCompressionRule> prevRules, Collection<ArchiveCompressionRule> rules, String parentDN)
+            throws NamingException {
+        for (ArchiveCompressionRule prevRule : prevRules) {
+            String cn = prevRule.getCommonName();
+            if (findCompressionRuleByCN(rules, cn) == null)
+                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+        }
+        for (ArchiveCompressionRule rule : rules) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            ArchiveCompressionRule prevRule = findCompressionRuleByCN(prevRules, cn);
+            if (prevRule == null)
+                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(
+            ArchiveCompressionRule prev, ArchiveCompressionRule rule, ArrayList<ModificationItem> mods) {
+        storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
+        LdapUtils.storeDiff(mods, "dicomTransferSyntax", prev.getTransferSyntax(), rule.getTransferSyntax());
+        LdapUtils.storeDiff(mods, "dcmImageWriteParam", prev.getImageWriteParams(), rule.getImageWriteParams());
+        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
+        return mods;
+    }
+
+    private ArchiveCompressionRule findCompressionRuleByCN(Collection<ArchiveCompressionRule> rules, String cn) {
+        for (ArchiveCompressionRule rule : rules)
+            if (rule.getCommonName().equals(cn))
+                return rule;
+        return null;
     }
 
     private void storeQueryRetrieveViews(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {

@@ -2,7 +2,6 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.imageio.codec.CompressionRule;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.imageio.codec.TransferSyntaxType;
@@ -10,6 +9,7 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.conf.ArchiveCompressionRule;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Series;
@@ -128,7 +128,7 @@ class StoreServiceImpl implements StoreService {
         @Override
         public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
             storeContext.setAttributes(dataset);
-            CompressionRule compressionRule = selectCompressionRule(transcoder, storeContext);
+            ArchiveCompressionRule compressionRule = selectCompressionRule(transcoder, storeContext);
             if (compressionRule != null) {
                 transcoder.setDestinationTransferSyntax(compressionRule.getTransferSyntax());
                 transcoder.setCompressParams(compressionRule.getImageWriteParams());
@@ -144,7 +144,7 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private CompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {
+    private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {
         ImageDescriptor imageDescriptor = transcoder.getImageDescriptor();
         if (imageDescriptor == null) // not an image
             return null;
@@ -154,7 +154,7 @@ class StoreServiceImpl implements StoreService {
 
         StoreSession session = storeContext.getStoreSession();
         String aet = session.getRemoteApplicationEntityTitle();
-        CompressionRule rule = session.getArchiveAEExtension().findCompressionRule(aet, imageDescriptor);
+        ArchiveCompressionRule rule = session.getArchiveAEExtension().findCompressionRule(aet, storeContext.getAttributes());
         if (rule != null && imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
             LOG.info("Compression of multi-frame image with embedded overlays not supported");
             return null;

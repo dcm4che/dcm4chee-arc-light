@@ -41,9 +41,6 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.CompressionRule;
-import org.dcm4che3.imageio.codec.CompressionRules;
-import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.net.AEExtension;
 import org.dcm4che3.util.StringUtils;
 
@@ -67,7 +64,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String[] mppsForwardDestinations;
     private int qidoMaxNumberOfResults;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
-    private final CompressionRules compressionRules = new CompressionRules();
+    private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
 
     public String getStorageID() {
         return storageID;
@@ -227,15 +224,15 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
     }
 
-    public void removeForwardingRule(ExportRule rule) {
+    public void removeExportRule(ExportRule rule) {
         exportRules.remove(rule);
     }
 
-    public void clearForwardingRules() {
+    public void clearExportRules() {
         exportRules.clear();
     }
 
-    public void addForwardingRule(ExportRule rule) {
+    public void addExportRule(ExportRule rule) {
         exportRules.add(rule);
     }
 
@@ -243,21 +240,20 @@ public class ArchiveAEExtension extends AEExtension {
         return exportRules;
     }
 
-    public CompressionRules getCompressionRules() {
-        return compressionRules;
+    public void removeCompressionRule(ArchiveCompressionRule rule) {
+        compressionRules.remove(rule);
     }
 
-    public void addCompressionRule(CompressionRule rule) {
+    public void clearCompressionRules() {
+        compressionRules.clear();
+    }
+
+    public void addCompressionRule(ArchiveCompressionRule rule) {
         compressionRules.add(rule);
     }
 
-    public void setCompressionRules(CompressionRules rules) {
-        compressionRules.clear();
-        compressionRules.add(rules);
-    }
-
-    public boolean removeCompressionRule(CompressionRule ac) {
-        return compressionRules.remove(ac);
+    public Collection<ArchiveCompressionRule> getCompressionRules() {
+        return compressionRules;
     }
 
     @Override
@@ -276,7 +272,7 @@ public class ArchiveAEExtension extends AEExtension {
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();
-        compressionRules.add(aeExt.compressionRules);
+        compressionRules.addAll(aeExt.compressionRules);
     }
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
@@ -301,11 +297,15 @@ public class ArchiveAEExtension extends AEExtension {
         return result;
     }
 
-    public CompressionRule findCompressionRule(String aeTitle, ImageDescriptor imageDescriptor) {
-        CompressionRule rule = compressionRules.findCompressionRule(aeTitle, imageDescriptor);
-        if (rule == null)
-            rule = getArchiveDeviceExtension().getCompressionRules().findCompressionRule(aeTitle, imageDescriptor);
-        return rule;
+    public ArchiveCompressionRule findCompressionRule(String sendingAET, Attributes attrs) {
+        ArchiveCompressionRule rule1 = null;
+        for (Collection<ArchiveCompressionRule> rules
+                : new Collection[]{ compressionRules, getArchiveDeviceExtension().getCompressionRules() })
+            for (ArchiveCompressionRule rule : rules)
+                if (rule.match(sendingAET, attrs))
+                    if (rule1 == null || rule1.getPriority() < rule.getPriority())
+                        rule1 = rule;
+        return rule1;
     }
 
     private File fileOf(String s) {

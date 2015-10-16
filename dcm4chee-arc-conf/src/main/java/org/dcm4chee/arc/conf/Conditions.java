@@ -2,6 +2,7 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
 
 import java.util.HashMap;
@@ -16,6 +17,7 @@ public class Conditions {
 
     private static final String SendingApplicationEntityTitle = "SendingApplicationEntityTitle";
 
+    private Pattern sendingAETPattern;
     private final Map<String, Pattern> map = new HashMap<>();
 
     public Conditions(String... props) {
@@ -32,8 +34,11 @@ public class Conditions {
     }
 
     public void setCondition(String tagPath, String value) {
-        TagUtils.parseTagPath(tagPath);
-        map.put(tagPath, Pattern.compile(value));
+        int[] tags = TagUtils.parseTagPath(tagPath);
+        Pattern pattern = Pattern.compile(value);
+        map.put(tagPath, pattern);
+        if (tags[0] == Tag.SendingApplicationEntityTitle)
+            sendingAETPattern = pattern;
     }
 
     public Map<String,Pattern> getMap() {
@@ -41,15 +46,16 @@ public class Conditions {
     }
 
     public boolean match(String sendingAET, Attributes attrs) {
+        if (sendingAETPattern != null && !sendingAETPattern.matcher(sendingAET).matches())
+            return false;
+
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
             String tagPath = entry.getKey();
             Pattern pattern = entry.getValue();
-            if (tagPath.equals(SendingApplicationEntityTitle)
-                    ? !pattern.matcher(sendingAET).matches()
-                    : !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0))
+            if (!tagPath.equals(SendingApplicationEntityTitle)
+                    && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0))
                 return false;
         }
-
         return true;
     }
 

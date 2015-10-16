@@ -40,8 +40,6 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.imageio.codec.CompressionRule;
-import org.dcm4che3.imageio.codec.CompressionRules;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
@@ -79,7 +77,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration exportTaskPollingInterval;
     private int exportTaskFetchSize = 5;
 
-    private final CompressionRules compressionRules = new CompressionRules();
+    private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
 
     private transient FuzzyStr fuzzyStr;
     private int qidoMaxNumberOfResults;
@@ -325,22 +323,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exportRules;
     }
 
-    public CompressionRules getCompressionRules() {
-        return compressionRules;
+    public void removeCompressionRule(ArchiveCompressionRule rule) {
+        compressionRules.remove(rule);
     }
 
-    public void addCompressionRule(CompressionRule rule) {
+    public void clearCompressionRules() {
+        compressionRules.clear();
+    }
+
+    public void addCompressionRule(ArchiveCompressionRule rule) {
         compressionRules.add(rule);
     }
 
-    public void setCompressionRules(CompressionRules rules) {
-        compressionRules.clear();
-        compressionRules.add(rules);
+    public Collection<ArchiveCompressionRule> getCompressionRules() {
+        return compressionRules;
     }
 
-    public boolean removeCompressionRule(CompressionRule ac) {
-        return compressionRules.remove(ac);
-    }
 
     @Override
     public void reconfigure(DeviceExtension from) {
@@ -375,6 +373,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
         compressionRules.clear();
-        compressionRules.add(arcdev.compressionRules);
+        compressionRules.addAll(arcdev.compressionRules);
     }
 }
