@@ -984,6 +984,22 @@ objectClass: dcmArchiveCompressionRule
 dcmImageWriteParam: maxPixelValueError=0.0
 cn: JPEG 2000 Lossless
 
+dn: cn=Ensure PID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmDIMSE: C_STORE_RQ
+dcmAETitle: ENSURE_PID
+dicomTransferRole: SCU
+objectClass: dcmArchiveAttributeCoercion
+dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl
+cn: Ensure PID
+
+dn: cn=Nullify PN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmDIMSE: C_STORE_RQ
+dcmAETitle: NULLIFY_PN
+dicomTransferRole: SCP
+objectClass: dcmArchiveAttributeCoercion
+dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl
+cn: Nullify PN
+
 dn: dcmQueryRetrieveViewID=hideRejected,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmHideRejectionNoteWithCode: (113039, DCM, "Data Retention Policy Expired")
 dcmQueryRetrieveViewID: hideRejected

@@ -46,6 +46,8 @@ import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Dimse;
+import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.Property;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
@@ -172,6 +174,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeExporterDescriptors(deviceDN, arcDev);
         storeExportRules(arcDev.getExportRules(), deviceDN);
         storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
+        storeAttributeCoercions(arcDev.getAttributeCoercions(), deviceDN);
         storeQueryRetrieveViews(deviceDN, arcDev);
     }
 
@@ -188,6 +191,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadExporterDescriptors(arcdev, deviceDN);
         loadExportRules(arcdev.getExportRules(), deviceDN);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
+        loadAttributeCoercions(arcdev.getAttributeCoercions(), deviceDN);
         loadQueryRetrieveViews(arcdev, deviceDN);
     }
 
@@ -288,6 +292,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         storeExportRules(aeExt.getExportRules(), aeDN);
         storeCompressionRules(aeExt.getCompressionRules(), aeDN);
+        storeAttributeCoercions(aeExt.getAttributeCoercions(), aeDN);
     }
 
     @Override
@@ -298,6 +303,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         loadExportRules(aeExt.getExportRules(), aeDN);
         loadCompressionRules(aeExt.getCompressionRules(), aeDN);
+        loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN);
     }
 
     @Override
@@ -309,6 +315,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         mergeExportRules(aa.getExportRules(), bb.getExportRules(), aeDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
+        mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
     }
 
     private void storeAttributeFilter(String deviceDN, ArchiveDeviceExtension arcDev)
@@ -857,4 +864,89 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 false);
         return mods;
     }
+
+    private void storeAttributeCoercions(Collection<ArchiveAttributeCoercion> coercions, String parentDN)
+            throws NamingException {
+        for (ArchiveAttributeCoercion coercion : coercions) {
+            String cn = coercion.getCommonName();
+            config.createSubcontext(
+                    LdapUtils.dnOf("cn", cn, parentDN),
+                    storeTo(coercion, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(ArchiveAttributeCoercion coercion, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmArchiveAttributeCoercion");
+        attrs.put("cn", coercion.getCommonName());
+        LdapUtils.storeNotNull(attrs, "dcmDIMSE", coercion.getDIMSE());
+        LdapUtils.storeNotNull(attrs, "dicomTransferRole", coercion.getRole());
+        LdapUtils.storeNotEmpty(attrs, "dcmAETitle", coercion.getAETitles());
+        LdapUtils.storeNotEmpty(attrs, "dcmSOPClass", coercion.getSOPClasses());
+        LdapUtils.storeNotNull(attrs, "dcmURI", coercion.getXSLTStylesheetURI());
+        LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
+        return attrs;
+    }
+
+    private void loadAttributeCoercions(Collection<ArchiveAttributeCoercion> coercions, String parentDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmArchiveAttributeCoercion)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                ArchiveAttributeCoercion coercion =
+                        new ArchiveAttributeCoercion(LdapUtils.stringValue(attrs.get("cn"), null));
+                coercion.setDIMSE(Dimse.valueOf(LdapUtils.stringValue(attrs.get("dcmDIMSE"), null)));
+                coercion.setRole(TransferCapability.Role.valueOf(
+                        LdapUtils.stringValue(attrs.get("dicomTransferRole"), null)));
+                coercion.setAETitles(LdapUtils.stringArray(attrs.get("dcmAETitle")));
+                coercion.setSOPClasses(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
+                coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                coercions.add(coercion);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void mergeAttributeCoercions(
+            Collection<ArchiveAttributeCoercion> prevCoercions,
+            Collection<ArchiveAttributeCoercion> coercions,
+            String parentDN) throws NamingException {
+        for (ArchiveAttributeCoercion prev : prevCoercions) {
+            String cn = prev.getCommonName();
+            if (findAttributeCoercionByCN(coercions, cn) == null)
+                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+        }
+        for (ArchiveAttributeCoercion coercion : coercions) {
+            String cn = coercion.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            ArchiveAttributeCoercion prev = findAttributeCoercionByCN(prevCoercions, cn);
+            if (prev == null)
+                config.createSubcontext(dn, storeTo(coercion, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prev, coercion, new ArrayList<ModificationItem>()));
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(
+            ArchiveAttributeCoercion prev, ArchiveAttributeCoercion coercion, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmDIMSE", prev.getDIMSE(), coercion.getDIMSE());
+        LdapUtils.storeDiff(mods, "dicomTransferRole", prev.getRole(), coercion.getRole());
+        LdapUtils.storeDiff(mods, "dcmAETitle", prev.getAETitles(), coercion.getAETitles());
+        LdapUtils.storeDiff(mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
+        LdapUtils.storeDiff(mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI());
+        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
+        return mods;
+    }
+
+    private ArchiveAttributeCoercion findAttributeCoercionByCN(
+            Collection<ArchiveAttributeCoercion> coercions, String cn) {
+        for (ArchiveAttributeCoercion coercion : coercions)
+            if (coercion.getCommonName().equals(cn))
+                return coercion;
+        return null;
+    }
+
 }

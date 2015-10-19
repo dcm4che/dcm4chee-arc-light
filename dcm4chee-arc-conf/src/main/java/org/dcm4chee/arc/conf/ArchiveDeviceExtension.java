@@ -81,6 +81,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int exportTaskFetchSize = 5;
 
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
+    private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
 
     private transient FuzzyStr fuzzyStr;
     private int qidoMaxNumberOfResults;
@@ -350,6 +351,21 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return compressionRules;
     }
 
+    public void removeAttributeCoercion(ArchiveAttributeCoercion coercion) {
+        attributeCoercions.remove(coercion);
+    }
+
+    public void clearAttributeCoercions() {
+        attributeCoercions.clear();
+    }
+
+    public void addAttributeCoercion(ArchiveAttributeCoercion coercion) {
+        attributeCoercions.add(coercion);
+    }
+
+    public Collection<ArchiveAttributeCoercion> getAttributeCoercions() {
+        return attributeCoercions;
+    }
 
     @Override
     public void reconfigure(DeviceExtension from) {
@@ -385,5 +401,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exportRules.addAll(arcdev.exportRules);
         compressionRules.clear();
         compressionRules.addAll(arcdev.compressionRules);
+        attributeCoercions.clear();
+        attributeCoercions.addAll(arcdev.attributeCoercions);
     }
 }

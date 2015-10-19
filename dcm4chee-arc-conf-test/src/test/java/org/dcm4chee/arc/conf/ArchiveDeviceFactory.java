@@ -605,6 +605,8 @@ class ArchiveDeviceFactory {
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
     static final String DSR2TEXT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl";
     static final String UNZIP_VENDOR_DATA = "${jboss.server.temp.url}/dcm4chee-arc";
+    static final String NULLIFY_PN = "${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl";
+    static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
     static final String PIX_CONSUMER = "DCM4CHEE^DCM4CHEE";
 
     static final String PIX_MANAGER = "HL7RCV^DCM4CHEE";
@@ -752,6 +754,7 @@ class ArchiveDeviceFactory {
         view.setHideNotRejectedInstances(hideNotRejectedInstances);
         return view;
     }
+
     private static ArchiveCompressionRule createCompressionRule(String cn, Conditions conditions, String tsuid,
                                                          String... writeParams) {
         ArchiveCompressionRule rule = new ArchiveCompressionRule(cn);
@@ -759,6 +762,16 @@ class ArchiveDeviceFactory {
         rule.setTransferSyntax(tsuid);
         rule.setImageWriteParams(Property.valueOf(writeParams));
         return rule;
+    }
+
+    private static ArchiveAttributeCoercion createAttributeCoercion(
+            String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI) {
+        ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
+        coercion.setAETitles(aet);
+        coercion.setRole(role);
+        coercion.setDIMSE(dimse);
+        coercion.setXSLTStylesheetURI(xsltURI);
+        return coercion;
     }
 
     private static void addAuditLogger(Device device, Device arrDevice) {
@@ -858,6 +871,10 @@ class ArchiveDeviceFactory {
         ext.addCompressionRule(JPEG_LS);
         ext.addCompressionRule(JPEG_2000);
 
+        ext.addAttributeCoercion(createAttributeCoercion(
+                "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID));
+        ext.addAttributeCoercion(createAttributeCoercion(
+                "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN));
     }
 
     private static ApplicationEntity createAE(String aet, String description,

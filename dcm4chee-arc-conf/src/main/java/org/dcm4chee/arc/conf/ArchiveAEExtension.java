@@ -42,6 +42,8 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.AEExtension;
+import org.dcm4che3.net.Dimse;
+import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 
 import java.io.File;
@@ -65,6 +67,7 @@ public class ArchiveAEExtension extends AEExtension {
     private int qidoMaxNumberOfResults;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
+    private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
 
     public String getStorageID() {
         return storageID;
@@ -190,7 +193,7 @@ public class ArchiveAEExtension extends AEExtension {
         this.wadoSR2TextTemplateURI = wadoSR2TextTemplateURI;
     }
 
-    public String wadoSR2TextTemplateURI() {
+    public String wadoSR2TgitextTemplateURI() {
         return wadoSR2TextTemplateURI != null
                 ? wadoSR2TextTemplateURI
                 : getArchiveDeviceExtension().getWadoSR2TextTemplateURI();
@@ -256,6 +259,22 @@ public class ArchiveAEExtension extends AEExtension {
         return compressionRules;
     }
 
+    public void removeAttributeCoercion(ArchiveAttributeCoercion coercion) {
+        attributeCoercions.remove(coercion);
+    }
+
+    public void clearAttributeCoercions() {
+        attributeCoercions.clear();
+    }
+
+    public void addCompressionRule(ArchiveAttributeCoercion coercion) {
+        attributeCoercions.add(coercion);
+    }
+
+    public Collection<ArchiveAttributeCoercion> getAttributeCoercions() {
+        return attributeCoercions;
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -273,6 +292,8 @@ public class ArchiveAEExtension extends AEExtension {
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();
         compressionRules.addAll(aeExt.compressionRules);
+        attributeCoercions.clear();
+        attributeCoercions.addAll(aeExt.attributeCoercions);
     }
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
@@ -306,6 +327,18 @@ public class ArchiveAEExtension extends AEExtension {
                     if (rule1 == null || rule1.getPriority() < rule.getPriority())
                         rule1 = rule;
         return rule1;
+    }
+
+    public ArchiveAttributeCoercion findAttributeCoercion(
+            String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
+        ArchiveAttributeCoercion coercion1 = null;
+        for (Collection<ArchiveAttributeCoercion> coercions
+                : new Collection[]{ attributeCoercions, getArchiveDeviceExtension().getAttributeCoercions() })
+            for (ArchiveAttributeCoercion coercion : coercions)
+                if (coercion.match(aet, role, dimse, sopClass))
+                    if (coercion1 == null || coercion1.getPriority() < coercion.getPriority())
+                        coercion1 = coercion;
+        return coercion1;
     }
 
     private File fileOf(String s) {

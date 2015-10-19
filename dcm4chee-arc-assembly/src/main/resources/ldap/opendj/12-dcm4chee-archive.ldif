@@ -308,3 +308,15 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.17 NAME 'dcmArchiveCompressionRule'
     dcmRulePriority $
     dcmProperty $
     dcmImageWriteParam ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
+  DESC 'Archive Attribute Coercion of received/sent DIMSE'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmDIMSE $
+    dicomTransferRole $
+    dcmURI )
+  MAY (
+    dcmRulePriority $
+    dcmAETitle $
+    dcmSOPClass ) )
