@@ -44,6 +44,7 @@ import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
 
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -53,6 +54,7 @@ import java.util.*;
 public class ArchiveDeviceExtension extends DeviceExtension {
 
     private String fuzzyAlgorithmClass;
+
     private String storageID;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
@@ -63,6 +65,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String patientUpdateTemplateURI;
+    private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
 
@@ -201,6 +204,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPatientUpdateTemplateURI(String patientUpdateTemplateURI) {
         this.patientUpdateTemplateURI = patientUpdateTemplateURI;
+    }
+
+    public String getUnzipVendorDataToURI() {
+        return unzipVendorDataToURI;
+    }
+
+    public void setUnzipVendorDataToURI(String unzipVendorDataToURI) {
+        this.unzipVendorDataToURI = unzipVendorDataToURI;
     }
 
     public String[] getMppsForwardDestinations() {

@@ -220,6 +220,14 @@ attributetype ( 1.2.40.0.13.1.15.110.3.37 NAME 'dcmRulePriority'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.38 NAME 'dcmUnzipVendorDataToURI'
+  DESC 'Specifies URI of directory into which ZIP stream in Device Vendor Data attribute will be extracted'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -240,7 +248,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFwdMppsDestination $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
-    hl7PatientUpdateTemplateURI ) )
+    hl7PatientUpdateTemplateURI $
+    dcmUnzipVendorDataToURI ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'

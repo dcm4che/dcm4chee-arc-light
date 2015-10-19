@@ -55,12 +55,11 @@
       <includes>
         <include>cli/add-data-source-${db}.cli</include>
         <include>cli/add-jms-queues.cli</include>
-        <include>configuration/dcm4chee-arc/*.xsl</include>
         <include>configuration/dcm4chee-arc/ldap.properties</include>
-        <include>configuration/dcm4chee-arc/report.css</include>
         <include>ldap/**</include>
       </includes>
       <lineEnding>dos</lineEnding>
+      <filtered>true</filtered>
     </fileSet>
     <fileSet>
       <directory>${basedir}/src/main/resources</directory>
@@ -76,6 +75,13 @@
       <outputDirectory>deploy</outputDirectory>
       <includes>
         <include>org.dcm4che.dcm4chee-arc:dcm4chee-arc-ear</include>
+      </includes>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>ldap</outputDirectory>
+      <includes>
+        <include>org.dcm4che.dcm4chee-arc:dcm4chee-arc-conf-data</include>
       </includes>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>

@@ -1,0 +1,5 @@
+version: 1
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+changetype: modify
+add: dicomVendorData
+dicomVendorData:< file:dcm4chee-arc-conf-data-${project.version}.zip

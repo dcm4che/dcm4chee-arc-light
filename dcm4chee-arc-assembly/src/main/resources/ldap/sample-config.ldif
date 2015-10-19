@@ -462,7 +462,7 @@ objectClass: dicomDevice
 objectClass: dcmDevice
 objectClass: dcmArchiveDevice
 objectClass: pkiUser
-hl7PatientUpdateTemplateURI: ${jboss.server.config.url}/dcm4chee-arc/hl7-adt2dcm.xsl
+hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmKeyStoreType: JKS
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=dcmqrscp,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=stgcmtscu,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
@@ -481,11 +481,11 @@ dcmQidoMaxNumberOfResults: 1000
 dicomManufacturer: dcm4che.org
 dcmBulkDataSpoolDirectory: ${jboss.server.temp.dir}
 dicomDeviceName: dcm4chee-arc
-dcmWadoSR2TextTemplateURI: ${jboss.server.config.url}/dcm4chee-arc/dsr2text.xsl
+dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
-dcmWadoSR2HtmlTemplateURI: ${jboss.server.config.url}/dcm4chee-arc/dsr2html.xsl
+dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomThisNodeCertificateReference: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmSendPendingCGet: TRUE
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
@@ -503,6 +503,7 @@ dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.50
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.70
 dcmKeyStorePin: secret
+dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
 dicomManufacturerModelName: dcm4chee-arc
 userCertificate;binary:: MIIDdTCCAl2gAwIBAgIEQ6hfsDANBgkqhkiG9w0BAQsFADBrMQswCQYDVQQGEwJBVDEPMA0GA1UECBMGVmllbm5hMQ8wDQYDVQQHEwZWaWVubmExEDAOBgNVBAoTB2RjbTRjaGUxETAPBgNVBAsTCGRjbTRjaGVlMRUwEwYDVQQDEwxkY200Y2hlZS1hcmMwHhcNMTUwNzEzMTExOTM5WhcNMTYwNzEyMTExOTM5WjBrMQswCQYDVQQGEwJBVDEPMA0GA1UECBMGVmllbm5hMQ8wDQYDVQQHEwZWaWVubmExEDAOBgNVBAoTB2RjbTRjaGUxETAPBgNVBAsTCGRjbTRjaGVlMRUwEwYDVQQDEwxkY200Y2hlZS1hcmMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3r2iB7td8y40h/pBFfXUrp64M9EPxhlZKkoaPSz5MLTb/jAFEGnf7uPxbsqpGIFg+nvlmiJsAWA+ruU6lqcw0/RST8yGSdpGdP5G7swrqg+zEnSpTVfLpvKPNwMmd79BkyE+hJQX3lFeGbkR8iLvPq+E080DRzD+9tHKIc0E+bR2GaB9i0Gxv9+6Iic8u1+LiHquiTT5ZzcHg/yrbvZY6wf5ZthYOtJqzqts5Gd0Br6+RggaRG9opn3sFCBiauE1MyJfnXgCniDreGiIaSETF5COiSqO5FCZiD0aqoext1ad6a2m0FgVRJyvMOWPVLGoppDfPdknFOfh/rGCHe3ndAgMBAAGjITAfMB0GA1UdDgQWBBRktueWkdweK7cVY6U2s2IigR0LZDANBgkqhkiG9w0BAQsFAAOCAQEAkhWQnBIr7YQa/utDWsrRbagzvrSZEjGibbSZW8w7R5d22ZjZJEs8wDa2JQ2jKzVG+SjSFUbJFDfyf4IMJD+773bYJu7M9txej5ETZQsTyfOYea2ul8IW68gf9+3tdIPbFIbGCh/4P2QJVAFc9re4ScEZmIyK1ET+AXrctq5qdeWvbdoMFpt3XapZDww+mZ6ePo31kwtW9Ey/p1v8SWL/45Npz0wB0Wnl5qf0hPodTwlHVRXmPVQ9nkz52ulHuQF79tQfTAzRDCgyTByOM+FfvAW22hJLfJ1RUlY7Vi2ZG++4719mA5IVA4WlC1LeJ6Abnt7PXRU0xxM13S8RMwHm1g==
 

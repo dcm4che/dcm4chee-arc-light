@@ -46,9 +46,12 @@ import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
+import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.imageio.ImageReaderExtension;
 import org.dcm4che3.net.imageio.ImageWriterExtension;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +60,12 @@ import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -82,9 +91,39 @@ public class ArchiveDeviceProducer {
             device = findDevice();
             initImageReaderFactory();
             initImageWriterFactory();
+            extractVendorData();
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void extractVendorData() {
+        String unzipTo = device.getDeviceExtension(ArchiveDeviceExtension.class).getUnzipVendorDataToURI();
+        if (unzipTo == null)
+            return;
+
+        byte[][] vendorData = device.getVendorData();
+        if (vendorData.length == 0) {
+            LOG.warn("UnzipVendorDataToURI={}, but no Vendor Data", unzipTo);
+            return;
+        }
+
+        Path basePath = Paths.get(URI.create(StringUtils.replaceSystemProperties(unzipTo)));
+        ZipInputStream input = new ZipInputStream(new ByteArrayInputStream(vendorData[0]));
+        ZipEntry entry;
+        try {
+            while ((entry = input.getNextEntry()) != null) {
+                if (!entry.isDirectory()) {
+                    Path filePath = basePath.resolve(entry.getName());
+                    Files.createDirectories(filePath.getParent());
+                    Files.copy(input, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to extract Device Vendor Data", e);
+        }
+        device.setVendorData();
+        TemplatesCache.getDefault().clear();
     }
 
     @Produces
@@ -96,6 +135,7 @@ public class ArchiveDeviceProducer {
         device.reconfigure(findDevice());
         initImageReaderFactory();
         initImageWriterFactory();
+        extractVendorData();
     }
 
     private Device findDevice() throws ConfigurationException {
