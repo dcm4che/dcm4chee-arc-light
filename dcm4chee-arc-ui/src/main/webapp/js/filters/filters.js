@@ -36,8 +36,8 @@ myApp.filter("contentDescription", function() {
     function srDescriptionOf(attrs) {
         var code = valueOf(attrs["0040A043"]); // ConceptNameCodeSequence
         return code && [
-                valueOf(attrs["0040A493"]), // PreliminaryFlag
-                valueOf(attrs["0040A493"]), // CompletionFlag
+                valueOf(attrs["0040A496"]), // PreliminaryFlag
+                valueOf(attrs["0040A491"]), // CompletionFlag
                 valueOf(attrs["0040A493"]), // VerificationFlag
                 valueOf(code["00080104"])  // CodeMeaning
             ].filter(function (obj) { return obj }).join(" ");
