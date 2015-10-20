@@ -192,6 +192,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.38 NAME 'dcmUnzipVendorDataToURI'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+attributeTypes: ( 1.2.840.10008.15.110.3.39 NAME 'dcmHostname'
+   DESC 'DNS hostname'
+   EQUALITY caseIgnoreMatch
+   SUBSTR caseIgnoreSubstringsMatch
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -319,4 +324,5 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
   MAY (
     dcmRulePriority $
     dcmAETitle $
+    dcmHostname $
     dcmSOPClass ) )

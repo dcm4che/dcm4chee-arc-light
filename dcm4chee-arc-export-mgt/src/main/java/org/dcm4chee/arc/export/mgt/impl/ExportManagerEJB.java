@@ -43,12 +43,13 @@ public class ExportManagerEJB {
 
     public void onStore(@Observes StoreContext ctx) {
         StoreSession session = ctx.getStoreSession();
+        String hostname = session.getRemoteHostName();
         String sendingAET = session.getRemoteApplicationEntityTitle();
         Calendar now = Calendar.getInstance();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         for (Map.Entry<String, ExportRule> entry
-                : arcAE.findExportRules(sendingAET, ctx.getAttributes(), now).entrySet()) {
+                : arcAE.findExportRules(hostname, sendingAET, ctx.getAttributes(), now).entrySet()) {
             String exporterID = entry.getKey();
             ExportRule rule = entry.getValue();
             ExporterDescriptor desc = arcDev.getExporterDescriptor(exporterID);

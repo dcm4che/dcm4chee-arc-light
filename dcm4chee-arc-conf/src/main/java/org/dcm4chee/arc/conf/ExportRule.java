@@ -79,8 +79,8 @@ public class ExportRule {
         this.exportDelay = exportDelay;
     }
 
-    public boolean match(String sendingAET, Attributes attrs, Calendar cal) {
-        return match(cal) && conditions.match(sendingAET, attrs);
+    public boolean match(String hostName, String sendingAET, Attributes attrs, Calendar cal) {
+        return match(cal) && conditions.match(hostName, sendingAET, attrs);
     }
 
     private boolean match(Calendar cal) {

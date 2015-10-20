@@ -880,6 +880,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("cn", coercion.getCommonName());
         LdapUtils.storeNotNull(attrs, "dcmDIMSE", coercion.getDIMSE());
         LdapUtils.storeNotNull(attrs, "dicomTransferRole", coercion.getRole());
+        LdapUtils.storeNotEmpty(attrs, "dcmHostname", coercion.getHostNames());
         LdapUtils.storeNotEmpty(attrs, "dcmAETitle", coercion.getAETitles());
         LdapUtils.storeNotEmpty(attrs, "dcmSOPClass", coercion.getSOPClasses());
         LdapUtils.storeNotNull(attrs, "dcmURI", coercion.getXSLTStylesheetURI());
@@ -899,6 +900,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setDIMSE(Dimse.valueOf(LdapUtils.stringValue(attrs.get("dcmDIMSE"), null)));
                 coercion.setRole(TransferCapability.Role.valueOf(
                         LdapUtils.stringValue(attrs.get("dicomTransferRole"), null)));
+                coercion.setHostNames(LdapUtils.stringArray(attrs.get("dcmHostname")));
                 coercion.setAETitles(LdapUtils.stringArray(attrs.get("dcmAETitle")));
                 coercion.setSOPClasses(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
                 coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
@@ -934,6 +936,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             ArchiveAttributeCoercion prev, ArchiveAttributeCoercion coercion, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(mods, "dcmDIMSE", prev.getDIMSE(), coercion.getDIMSE());
         LdapUtils.storeDiff(mods, "dicomTransferRole", prev.getRole(), coercion.getRole());
+        LdapUtils.storeDiff(mods, "dcmHostname", prev.getHostNames(), coercion.getHostNames());
         LdapUtils.storeDiff(mods, "dcmAETitle", prev.getAETitles(), coercion.getAETitles());
         LdapUtils.storeDiff(mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
         LdapUtils.storeDiff(mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI());

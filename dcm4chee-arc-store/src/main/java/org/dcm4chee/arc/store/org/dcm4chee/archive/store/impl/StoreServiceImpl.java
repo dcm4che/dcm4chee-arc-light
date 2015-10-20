@@ -153,8 +153,10 @@ class StoreServiceImpl implements StoreService {
             return null;
 
         StoreSession session = storeContext.getStoreSession();
+        String hostname = session.getRemoteHostName();
         String aet = session.getRemoteApplicationEntityTitle();
-        ArchiveCompressionRule rule = session.getArchiveAEExtension().findCompressionRule(aet, storeContext.getAttributes());
+        ArchiveCompressionRule rule = session.getArchiveAEExtension()
+                .findCompressionRule(hostname, aet, storeContext.getAttributes());
         if (rule != null && imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
             LOG.info("Compression of multi-frame image with embedded overlays not supported");
             return null;

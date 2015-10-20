@@ -55,6 +55,7 @@ public class ArchiveAttributeCoercion {
     private TransferCapability.Role role;
     private String[] sopClasses = {};
     private String[] aeTitles = {};
+    private String[] hostNames = {};
     private String xsltStylesheetURI;
 
     public ArchiveAttributeCoercion(String commonName) {
@@ -105,6 +106,14 @@ public class ArchiveAttributeCoercion {
         this.aeTitles = aeTitles;
     }
 
+    public String[] getHostNames() {
+        return hostNames;
+    }
+
+    public void setHostNames(String... hostNames) {
+        this.hostNames = hostNames;
+    }
+
     public String getXSLTStylesheetURI() {
         return xsltStylesheetURI;
     }
@@ -113,14 +122,15 @@ public class ArchiveAttributeCoercion {
         this.xsltStylesheetURI = xsltStylesheetURI;
     }
 
-    public boolean match(String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
-        return this.role == role && this.dimse == null
+    public boolean match(String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
+        return this.role == role && this.dimse == dimse
+                && isEmptyOrContains(hostNames, hostName)
                 && isEmptyOrContains(aeTitles, aet)
                 && isEmptyOrContains(sopClasses, sopClass);
     }
 
     private static boolean isEmptyOrContains(Object[] a, Object o) {
-        if (a.length == 0)
+        if (o == null || a.length == 0)
             return true;
 
         for (Object o1 : a)

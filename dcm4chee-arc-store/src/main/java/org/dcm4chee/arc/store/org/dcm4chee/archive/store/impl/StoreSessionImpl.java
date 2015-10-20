@@ -60,6 +60,11 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
+    public String getRemoteHostName() {
+        return as.getSocket().getInetAddress().getHostName();
+    }
+
+    @Override
     public Study getCachedStudy(String studyInstanceUID) {
         return isStudyCached(studyInstanceUID) ? cachedStudy : null;
     }

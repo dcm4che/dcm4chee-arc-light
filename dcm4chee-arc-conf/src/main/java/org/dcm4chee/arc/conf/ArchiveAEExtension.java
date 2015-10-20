@@ -304,12 +304,12 @@ public class ArchiveAEExtension extends AEExtension {
         return getArchiveDeviceExtension().getStorageDescriptor(storageID());
     }
 
-    public Map<String, ExportRule> findExportRules(String sendingAET, Attributes attrs, Calendar cal) {
+    public Map<String, ExportRule> findExportRules(String hostName, String sendingAET, Attributes attrs, Calendar cal) {
         HashMap<String, ExportRule> result = new HashMap<>();
         for (Collection<ExportRule> rules
                 : new Collection[]{exportRules, getArchiveDeviceExtension().getExportRules() })
             for (ExportRule rule : rules)
-                if (rule.match(sendingAET, attrs, cal))
+                if (rule.match(hostName, sendingAET, attrs, cal))
                     for (String exporterID : rule.getExporterIDs()) {
                         ExportRule rule1 = result.get(exporterID);
                         if (rule1 == null || rule1.getEntity().compareTo(rule.getEntity()) > 0)
@@ -318,24 +318,24 @@ public class ArchiveAEExtension extends AEExtension {
         return result;
     }
 
-    public ArchiveCompressionRule findCompressionRule(String sendingAET, Attributes attrs) {
+    public ArchiveCompressionRule findCompressionRule(String hostName, String sendingAET, Attributes attrs) {
         ArchiveCompressionRule rule1 = null;
         for (Collection<ArchiveCompressionRule> rules
                 : new Collection[]{ compressionRules, getArchiveDeviceExtension().getCompressionRules() })
             for (ArchiveCompressionRule rule : rules)
-                if (rule.match(sendingAET, attrs))
+                if (rule.match(hostName, sendingAET, attrs))
                     if (rule1 == null || rule1.getPriority() < rule.getPriority())
                         rule1 = rule;
         return rule1;
     }
 
     public ArchiveAttributeCoercion findAttributeCoercion(
-            String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
+            String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
         ArchiveAttributeCoercion coercion1 = null;
         for (Collection<ArchiveAttributeCoercion> coercions
                 : new Collection[]{ attributeCoercions, getArchiveDeviceExtension().getAttributeCoercions() })
             for (ArchiveAttributeCoercion coercion : coercions)
-                if (coercion.match(aet, role, dimse, sopClass))
+                if (coercion.match(hostName, aet, role, dimse, sopClass))
                     if (coercion1 == null || coercion1.getPriority() < coercion.getPriority())
                         coercion1 = coercion;
         return coercion1;

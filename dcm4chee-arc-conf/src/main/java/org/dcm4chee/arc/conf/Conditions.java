@@ -16,8 +16,10 @@ import java.util.regex.Pattern;
 public class Conditions {
 
     private static final String SendingApplicationEntityTitle = "SendingApplicationEntityTitle";
+    private static final String SendingHostname = "SendingHostname";
 
     private Pattern sendingAETPattern;
+    private Pattern sendingHostnamePattern;
     private final Map<String, Pattern> map = new HashMap<>();
 
     public Conditions(String... props) {
@@ -33,26 +35,34 @@ public class Conditions {
         setCondition(SendingApplicationEntityTitle, value);
     }
 
+    public void setSendingHostname(String value) {
+        setCondition(SendingHostname, value);
+    }
+
     public void setCondition(String tagPath, String value) {
-        int[] tags = TagUtils.parseTagPath(tagPath);
         Pattern pattern = Pattern.compile(value);
-        map.put(tagPath, pattern);
-        if (tags[0] == Tag.SendingApplicationEntityTitle)
+        if (tagPath.equals(SendingHostname))
+            sendingHostnamePattern = pattern;
+        else if (tagPath.equals(SendingApplicationEntityTitle))
             sendingAETPattern = pattern;
+        map.put(tagPath, pattern);
     }
 
     public Map<String,Pattern> getMap() {
         return map;
     }
 
-    public boolean match(String sendingAET, Attributes attrs) {
-        if (sendingAETPattern != null && !sendingAETPattern.matcher(sendingAET).matches())
+    public boolean match(String hostName, String sendingAET, Attributes attrs) {
+        if (sendingAET != null && sendingAETPattern != null && !sendingAETPattern.matcher(sendingAET).matches())
+            return false;
+
+        if (hostName != null && sendingHostnamePattern != null && !sendingHostnamePattern.matcher(hostName).matches())
             return false;
 
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
             String tagPath = entry.getKey();
             Pattern pattern = entry.getValue();
-            if (!tagPath.equals(SendingApplicationEntityTitle)
+            if (!tagPath.equals(SendingApplicationEntityTitle) && !tagPath.equals(SendingHostname)
                     && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0))
                 return false;
         }
