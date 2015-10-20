@@ -193,7 +193,7 @@ public class ArchiveAEExtension extends AEExtension {
         this.wadoSR2TextTemplateURI = wadoSR2TextTemplateURI;
     }
 
-    public String wadoSR2TgitextTemplateURI() {
+    public String wadoSR2TextTemplateURI() {
         return wadoSR2TextTemplateURI != null
                 ? wadoSR2TextTemplateURI
                 : getArchiveDeviceExtension().getWadoSR2TextTemplateURI();
