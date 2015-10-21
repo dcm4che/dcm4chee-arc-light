@@ -61,6 +61,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
@@ -77,6 +78,17 @@ public class ArchiveDeviceProducer {
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveDeviceProducer.class);
     private static final String DEF_DEVICE_NAME = "dcm4chee-arc";
 
+    private static String[] JBOSS_PROPERITIES = {
+            "jboss.home",
+            "jboss.modules",
+            "jboss.server.base",
+            "jboss.server.config",
+            "jboss.server.data",
+            "jboss.server.deploy",
+            "jboss.server.log",
+            "jboss.server.temp",
+    };
+
     @Resource(lookup="java:app/AppName")
     private String appName;
 
@@ -87,6 +99,7 @@ public class ArchiveDeviceProducer {
 
     @PostConstruct
     private void init() {
+        addJBossDirURLSystemProperties();
         try {
             device = findDevice();
             initImageReaderFactory();
@@ -167,5 +180,12 @@ public class ArchiveDeviceProducer {
         else
             ImageWriterFactory.resetDefault();
         ImageWriterFactory.getImageWriter(ImageWriterFactory.getImageWriterParam(UID.JPEGLSLossless));
+    }
+
+    private static void addJBossDirURLSystemProperties() {
+        for (String key : JBOSS_PROPERITIES) {
+            String url = new File(System.getProperty(key + ".dir")).toURI().toString();
+            System.setProperty(key + ".url", url.substring(0, url.length()-1));
+        }
     }
 }

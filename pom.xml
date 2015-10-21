@@ -60,6 +60,7 @@
     <hibernate.version>4.3.10.Final</hibernate.version>
     <jboss-ejb3-ext-api.version>2.1.0</jboss-ejb3-ext-api.version>
     <resteasy.version>3.0.11.Final</resteasy.version>
+    <jclouds.version>1.9.1</jclouds.version>
     <querydsl.version>4.0.3</querydsl.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
 
@@ -227,6 +228,20 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.jclouds</groupId>
+      <artifactId>jclouds-blobstore</artifactId>
+      <version>${jclouds.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.jclouds</groupId>
+      <artifactId>jclouds-allblobstore</artifactId>
+      <version>${jclouds.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Import Enterprise JavaBeans(TM) 3.2 API -->
     <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
@@ -316,6 +331,7 @@
     <module>dcm4chee-arc-ui</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
+    <module>dcm4chee-arc-storage-cloud</module>
   </modules>
 
   <profiles>

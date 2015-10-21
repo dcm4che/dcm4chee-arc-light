@@ -49,89 +49,21 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arc-assembly</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>dcm4chee-arc-storage-cloud</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-conf-data</artifactId>
+      <artifactId>dcm4chee-arc-conf</artifactId>
       <version>${project.version}</version>
-      <type>zip</type>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-ear</artifactId>
-      <classifier>${db}</classifier>
+      <artifactId>dcm4chee-arc-storage</artifactId>
       <version>${project.version}</version>
-      <type>ear</type>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-entity</artifactId>
-      <classifier>${db}-sql</classifier>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che</groupId>
-      <artifactId>dcm4che-conf-ldap-schema</artifactId>
-      <version>${dcm4che.version}</version>
-    </dependency>
-    <!-- JBoss modules -->
-    <dependency>
-      <groupId>org.dcm4che</groupId>
-      <artifactId>dcm4che-jboss-modules</artifactId>
-      <version>${dcm4che.version}</version>
-      <type>zip</type>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che</groupId>
-      <artifactId>querydsl-jboss-modules</artifactId>
-      <version>${querydsl.version}-noguava</version>
-      <type>zip</type>
-    </dependency>
-     <dependency>
-      <groupId>org.dcm4che</groupId>
-      <artifactId>jclouds-jboss-modules</artifactId>
-      <version>${jclouds.version}-noguava</version>
-      <type>zip</type>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che</groupId>
-      <artifactId>jai_imageio-jboss-modules</artifactId>
-      <version>${jai_imageio.version}</version>
-      <type>zip</type>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che</groupId>
-      <artifactId>jdbc-jboss-modules</artifactId>
-      <classifier>${db}</classifier>
-      <version>${jdbc-jboss-modules.version}</version>
-      <type>zip</type>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <finalName>dcm4chee-arc-${project.version}</finalName>
-    <plugins>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.5.5</version>
-        <configuration>
-          <descriptors>
-            <descriptor>src/main/assembly/dist.xml</descriptor>
-          </descriptors>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

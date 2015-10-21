@@ -70,17 +70,6 @@ import java.io.File;
 @Startup
 public class ArchiveServiceImpl implements ArchiveService {
 
-    private static String[] JBOSS_PROPERITIES = {
-            "jboss.home",
-            "jboss.modules",
-            "jboss.server.base",
-            "jboss.server.config",
-            "jboss.server.data",
-            "jboss.server.deploy",
-            "jboss.server.log",
-            "jboss.server.temp",
-    };
-
     @Inject
     private ArchiveDeviceProducer deviceProducer;
 
@@ -112,7 +101,6 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @PostConstruct
     public void init() {
-        addJBossDirURLSystemProperties();
         try {
 //            device.setConnectionMonitor(connectionEventSource);
             device.setExecutor(executor);
@@ -178,10 +166,4 @@ public class ArchiveServiceImpl implements ArchiveService {
         archiveServiceEvent.fire(ArchiveServiceEvent.RELOADED);
     }
 
-    private static void addJBossDirURLSystemProperties() {
-        for (String key : JBOSS_PROPERITIES) {
-            String url = new File(System.getProperty(key + ".dir")).toURI().toString();
-            System.setProperty(key + ".url", url.substring(0, url.length()-1));
-        }
-    }
 }

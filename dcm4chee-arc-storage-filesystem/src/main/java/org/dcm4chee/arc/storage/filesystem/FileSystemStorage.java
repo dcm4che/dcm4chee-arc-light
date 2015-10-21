@@ -59,16 +59,13 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class FileSystemStorage extends AbstractStorage {
 
-    private static final String DEFAULT_PATH_FORMAT =
-            "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
-
     private final URI rootURI;
     private final AttributesFormat pathFormat;
 
     public FileSystemStorage(StorageDescriptor descriptor) {
         super(descriptor);
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
-        pathFormat = new AttributesFormat((String) descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
+        pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
     }
 
     private URI ensureTrailingSlash(URI uri) {

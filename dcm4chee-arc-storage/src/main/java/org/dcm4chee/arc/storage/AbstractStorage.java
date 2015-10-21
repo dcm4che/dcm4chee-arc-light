@@ -52,6 +52,9 @@ import java.security.DigestOutputStream;
  */
 public abstract class AbstractStorage implements Storage {
 
+    protected static final String DEFAULT_PATH_FORMAT =
+            "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+
     protected final StorageDescriptor descriptor;
 
     protected AbstractStorage(StorageDescriptor descriptor) {
