@@ -86,10 +86,14 @@ class StoreServiceImpl implements StoreService {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         } finally {
             if (location == null) {
-                WriteContext storageContext = ctx.getWriteContext();
-                if (storageContext != null) {
-                    Storage storage = storageContext.getStorage();
-                    storage.revokeStorage(storageContext);
+                WriteContext writeCtx = ctx.getWriteContext();
+                if (writeCtx != null && writeCtx.getStoragePath() != null) {
+                    Storage storage = writeCtx.getStorage();
+                    try {
+                        storage.revokeStorage(writeCtx);
+                    } catch (IOException e) {
+                        LOG.warn("Failed to revoke storage", e);
+                    }
                 }
             }
         }
