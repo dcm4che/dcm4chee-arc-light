@@ -64,8 +64,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.jclouds.filesystem.reference.FilesystemConstants.PROPERTY_BASEDIR;
-
 /**
  * @author Steve Kroetsch<stevekroetsch@hotmail.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -79,6 +77,10 @@ public class CloudStorage extends AbstractStorage {
     private final AttributesFormat pathFormat;
     private final String container;
     private final BlobStoreContext context;
+
+    /** Specify the base directory where provider starts its file operations - must exists */
+    public static final String PROPERTY_BASEDIR = "jclouds.filesystem.basedir";
+
 
     @Override
     public WriteContext createWriteContext() {
