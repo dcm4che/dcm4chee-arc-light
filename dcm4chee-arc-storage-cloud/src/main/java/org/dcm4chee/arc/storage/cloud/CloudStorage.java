@@ -53,10 +53,12 @@ import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.io.Payload;
 import org.jclouds.io.payloads.InputStreamPayload;
+import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -71,16 +73,24 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class CloudStorage extends AbstractStorage {
 
-    private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
+    /** Specify the base directory where provider starts its file operations - must exists */
+    public static final String PROPERTY_BASEDIR = "jclouds.filesystem.basedir";
 
+    private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
+    private static final Uploader DEFAULT_UPLOADER = new Uploader() {
+        @Override
+        public void upload(BlobStoreContext context, InputStream in, BlobStore blobStore, String container, String storagePath) throws IOException {
+            Payload payload = new InputStreamPayload(in);
+            Blob blob = blobStore.blobBuilder(storagePath).payload(payload).build();
+            blobStore.putBlob(container, blob);
+        }
+    };
     private final Device device;
     private final AttributesFormat pathFormat;
     private final String container;
     private final BlobStoreContext context;
 
-    /** Specify the base directory where provider starts its file operations - must exists */
-    public static final String PROPERTY_BASEDIR = "jclouds.filesystem.basedir";
-
+    private final Uploader uploader;
 
     @Override
     public WriteContext createWriteContext() {
@@ -93,25 +103,31 @@ public class CloudStorage extends AbstractStorage {
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         container = descriptor.getProperty("container", DEFAULT_CONTAINER);
 
-        String part = descriptor.getStorageURI().getSchemeSpecificPart();
-        int endApi = part.indexOf(':');
-        String api = part.substring(0, endApi);
-        String endpoint = part.substring(endApi + 1);
+        String api = descriptor.getStorageURI().getSchemeSpecificPart();
+        String endpoint = null;
+        int endApi = api.indexOf(':');
+        if (endApi != -1) {
+            endpoint = api.substring(endApi + 1);
+            api = api.substring(0, endApi);
+        }
+        this.uploader = api.equals("aws-s3") ? new AWS_S3Uploader() : DEFAULT_UPLOADER;
         ContextBuilder ctxBuilder = ContextBuilder.newBuilder(api);
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
             ctxBuilder.credentials(identity, descriptor.getProperty("credential", null));
         Properties overrides = new Properties();
-        if ("filesystem".equals(api))
-            overrides.setProperty(PROPERTY_BASEDIR, Paths.get(URI.create(endpoint)).toString());
-        else
-            ctxBuilder.endpoint(endpoint);
-        for (Map.Entry<String, String> entry : descriptor.getProperties().entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith("jclouds."))
-                overrides.setProperty(key, entry.getValue());
-        }
+        if (endpoint != null)
+            if ("filesystem".equals(api))
+                overrides.setProperty(PROPERTY_BASEDIR, Paths.get(URI.create(endpoint)).toString());
+            else
+                ctxBuilder.endpoint(endpoint);
+            for (Map.Entry<String, String> entry : descriptor.getProperties().entrySet()) {
+                String key = entry.getKey();
+                if (key.startsWith("jclouds."))
+                    overrides.setProperty(key, entry.getValue());
+            }
         ctxBuilder.overrides(overrides);
+        ctxBuilder.modules(Collections.singleton(new SLF4JLoggingModule()));
         context = ctxBuilder.buildView(BlobStoreContext.class);
     }
 
@@ -159,9 +175,7 @@ public class CloudStorage extends AbstractStorage {
         } catch (ContainerNotFoundException e) {
             blobStore.createContainerInLocation(null, container);
         }
-        Payload payload = new InputStreamPayload(in);
-        Blob blob = blobStore.blobBuilder(storagePath).payload(payload).build();
-        blobStore.putBlob(container, blob);
+        uploader.upload(context, in, blobStore, container, storagePath);
         ctx.setStoragePath(storagePath);
     }
 
