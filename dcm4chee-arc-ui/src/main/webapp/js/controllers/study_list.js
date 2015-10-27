@@ -49,7 +49,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
         .then(function (res) {
             series.instances = res.data.map(function(attrs, index) {
                 var numberOfFrames = valueOf(attrs['00280008']),
-                    gspsQueryParams = createGSPSQueryParams(attrs);
+                    gspsQueryParams = createGSPSQueryParams(attrs),
+                    video = isVideo(attrs);
                 return {
                     offset: offset + index,
                     attrs: attrs,
@@ -59,9 +60,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                         seriesUID: attrs['0020000E'].Value[0],
                         objectUID: attrs['00080018'].Value[0]
                     },
+                    video: video,
                     numberOfFrames: numberOfFrames,
                     gspsQueryParams: gspsQueryParams,
-                    views: createArray(numberOfFrames || gspsQueryParams.length || 1),
+                    views: createArray(video || numberOfFrames || gspsQueryParams.length || 1),
                     view: 1
                 };
             });
@@ -140,6 +142,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
         return params;
     }
     function renderURL(inst) {
+        if (inst.video)
+            return wadoURL(inst.wadoQueryParams, { contentType: 'video/mpeg' });
         if (inst.numberOfFrames)
             return wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg', frameNumber: inst.view });
         if (inst.gspsQueryParams.length)
@@ -175,6 +179,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
             })
         }
         return queryParams;
+    }
+    function isVideo(attrs) {
+        var sopClass = valueOf(attrs['00080016']);
+        return [
+            '1.2.840.10008.5.1.4.1.1.77.1.1.1',
+            '1.2.840.10008.5.1.4.1.1.77.1.2.1',
+            '1.2.840.10008.5.1.4.1.1.77.1.4.1']
+            .indexOf(sopClass) != -1 ? 1 : 0;
     }
     function valuesOf(attr) {
         return attr && attr.Value;
