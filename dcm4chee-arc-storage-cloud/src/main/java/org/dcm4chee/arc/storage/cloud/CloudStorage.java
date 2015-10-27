@@ -79,7 +79,8 @@ public class CloudStorage extends AbstractStorage {
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
     private static final Uploader DEFAULT_UPLOADER = new Uploader() {
         @Override
-        public void upload(BlobStoreContext context, InputStream in, BlobStore blobStore, String container, String storagePath) throws IOException {
+        public void upload(BlobStoreContext context, InputStream in, BlobStore blobStore, String container,
+                           String storagePath) throws IOException {
             Payload payload = new InputStreamPayload(in);
             Blob blob = blobStore.blobBuilder(storagePath).payload(payload).build();
             blobStore.putBlob(container, blob);

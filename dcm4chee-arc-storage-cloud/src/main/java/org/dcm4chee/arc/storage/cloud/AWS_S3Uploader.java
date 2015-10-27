@@ -153,18 +153,14 @@ class AWS_S3Uploader extends InputStream implements Uploader {
         String uploadId = client.initiateMultipartUpload(container,
                 ObjectMetadataBuilder.create().key(storagePath).build());
         Map<Integer, String> parts = new HashMap<>();
+        int partNumber = 1;
         do {
-            uploadPart(client, container, storagePath, uploadId, parts);
+            parts.put(partNumber, client.uploadPart(container, storagePath, partNumber, uploadId, createPayload()));
+            partNumber++;
         } while (fillBuffers(in));
         if (count > 0)
-            uploadPart(client, container, storagePath, uploadId, parts);
+            parts.put(partNumber, client.uploadPart(container, storagePath, partNumber, uploadId, createPayload()));
         client.completeMultipartUpload(container, storagePath, uploadId, parts);
-    }
-
-    private void uploadPart(AWSS3Client client, String container, String storagePath, String uploadId,
-                            Map<Integer, String> parts) {
-        int partNumber = parts.size() + 1;
-        parts.put(partNumber, client.uploadPart(container, storagePath, partNumber, uploadId, createPayload()));
     }
 
 }
