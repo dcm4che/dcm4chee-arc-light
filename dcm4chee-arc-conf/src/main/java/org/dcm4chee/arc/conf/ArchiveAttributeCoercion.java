@@ -59,6 +59,7 @@ public class ArchiveAttributeCoercion {
     private String[] aeTitles = {};
     private String[] hostNames = {};
     private String xsltStylesheetURI;
+    private boolean noKeywords;
 
     public ArchiveAttributeCoercion(String commonName) {
         this.commonName = commonName;
@@ -124,6 +125,14 @@ public class ArchiveAttributeCoercion {
         this.xsltStylesheetURI = xsltStylesheetURI;
     }
 
+    public boolean isNoKeywords() {
+        return noKeywords;
+    }
+
+    public void setNoKeywords(boolean noKeywords) {
+        this.noKeywords = noKeywords;
+    }
+
     public boolean match(String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
         return this.role == role && this.dimse == dimse
                 && isEmptyOrContains(hostNames, hostName)
@@ -152,6 +161,7 @@ public class ArchiveAttributeCoercion {
                 + ", hostNames=" + Arrays.toString(hostNames)
                 + ", cuids=" + Arrays.toString(sopClasses)
                 + ", xslturi=" + xsltStylesheetURI
+                + ", noKeywords=" + noKeywords
                 + "]";
     }
 }

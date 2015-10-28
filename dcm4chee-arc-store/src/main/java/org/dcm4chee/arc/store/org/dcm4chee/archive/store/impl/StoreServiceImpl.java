@@ -120,7 +120,9 @@ class StoreServiceImpl implements StoreService {
             Attributes modified = ctx.getCoercedAttributes();
             String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
             Templates tpls = TemplatesCache.getDefault().get(uri);
-            new XSLTAttributesCoercion(tpls, null).coerce(attrs, modified);
+            new XSLTAttributesCoercion(tpls, null)
+                    .includeKeyword(!coercion.isNoKeywords())
+                    .coerce(attrs, modified);
         }
     }
 

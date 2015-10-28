@@ -771,6 +771,7 @@ class ArchiveDeviceFactory {
         coercion.setRole(role);
         coercion.setDIMSE(dimse);
         coercion.setXSLTStylesheetURI(xsltURI);
+        coercion.setNoKeywords(true);
         return coercion;
     }
 

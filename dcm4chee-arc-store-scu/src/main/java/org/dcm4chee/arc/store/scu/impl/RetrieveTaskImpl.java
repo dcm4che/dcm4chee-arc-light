@@ -56,6 +56,7 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.transform.Templates;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -146,7 +147,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
             try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 DataWriter data = new TranscoderDataWriter(transcoder,
-                        new MergeAttributesCoercion(inst.getAttributes(), coerce(cuid)));
+                        new MergeAttributesCoercion(inst.getAttributes(), coercion(cuid)));
                 outstandingRSP.add(inst);
                 if (ctx.getMoveOriginatorAETitle() != null) {
                     storeas.cstore(cuid, iuid, priority,
@@ -164,15 +165,16 @@ final class RetrieveTaskImpl implements RetrieveTask {
         }
     }
 
-    private AttributesCoercion coerce(String cuid) throws Exception {
+    private AttributesCoercion coercion(String cuid) throws Exception {
         ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
                 hostName, storeas.getRemoteAET(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ, cuid);
         if (coercion == null)
             return null;
         LOG.debug("{}: Apply {}", storeas, coercion);
-        return new XSLTAttributesCoercion(
-                TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI())),
-                null);
+        String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
+        Templates tpls = TemplatesCache.getDefault().get(uri);
+        return new XSLTAttributesCoercion(tpls, null)
+                .includeKeyword(!coercion.isNoKeywords());
     }
 
     private void writeFinalRSP() {

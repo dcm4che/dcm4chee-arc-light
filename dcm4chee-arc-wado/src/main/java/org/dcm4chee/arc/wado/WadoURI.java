@@ -210,7 +210,7 @@ public class WadoURI {
 
         Object entity;
         try {
-            MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coerce(ctx, inst));
+            MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
             if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
                 mimeType = MediaTypes.APPLICATION_DICOM_TYPE;
                 entity = new DicomObjectOutput(service.openTranscoder(ctx, inst, tsuids(), true), coerce);
@@ -223,16 +223,17 @@ public class WadoURI {
         return Response.ok(entity, mimeType).build();
     }
 
-    private AttributesCoercion coerce(RetrieveContext ctx, InstanceLocations inst) throws Exception {
+    private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) throws Exception {
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
         ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
                 request.getRemoteHost(), null, TransferCapability.Role.SCP, Dimse.C_STORE_RQ, inst.getSopClassUID());
         if (coercion == null)
             return null;
         LOG.debug("{}: apply {}", this, coercion);
-        return new XSLTAttributesCoercion(
-                TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI())),
-                null);
+        String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
+        Templates tpls = TemplatesCache.getDefault().get(uri);
+        return new XSLTAttributesCoercion(tpls, null)
+                .includeKeyword(!coercion.isNoKeywords());
     }
 
     private ApplicationEntity getApplicationEntity() {

@@ -884,6 +884,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmAETitle", coercion.getAETitles());
         LdapUtils.storeNotEmpty(attrs, "dcmSOPClass", coercion.getSOPClasses());
         LdapUtils.storeNotNull(attrs, "dcmURI", coercion.getXSLTStylesheetURI());
+        LdapUtils.storeNotDef(attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
         return attrs;
     }
@@ -904,6 +905,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setAETitles(LdapUtils.stringArray(attrs.get("dcmAETitle")));
                 coercion.setSOPClasses(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
                 coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                coercion.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 coercions.add(coercion);
             }
@@ -940,6 +942,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmAETitle", prev.getAETitles(), coercion.getAETitles());
         LdapUtils.storeDiff(mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
         LdapUtils.storeDiff(mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI());
+        LdapUtils.storeDiff(mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
         return mods;
     }

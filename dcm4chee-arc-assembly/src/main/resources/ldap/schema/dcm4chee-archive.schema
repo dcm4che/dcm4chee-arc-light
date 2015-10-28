@@ -233,6 +233,12 @@ attributetype ( 1.2.840.10008.15.110.3.39 NAME 'dcmHostname'
    SUBSTR caseIgnoreSubstringsMatch
    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.40 NAME 'dcmNoKeywords'
+  DESC 'Indicates if keywords shall be omitted in generated DICOM XML or JSON presentations; false if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -371,4 +377,5 @@ objectclass ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmRulePriority $
     dcmAETitle $
     dcmHostname $
-    dcmSOPClass ) )
+    dcmSOPClass $
+    dcmNoKeywords ) )

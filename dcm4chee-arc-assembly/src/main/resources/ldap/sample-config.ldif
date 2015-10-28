@@ -989,6 +989,7 @@ dcmDIMSE: C_STORE_RQ
 dcmAETitle: ENSURE_PID
 dicomTransferRole: SCU
 objectClass: dcmArchiveAttributeCoercion
+dcmNoKeywords: TRUE
 dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl
 cn: Ensure PID
 
@@ -997,6 +998,7 @@ dcmDIMSE: C_STORE_RQ
 dcmAETitle: NULLIFY_PN
 dicomTransferRole: SCP
 objectClass: dcmArchiveAttributeCoercion
+dcmNoKeywords: TRUE
 dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl
 cn: Nullify PN
 
