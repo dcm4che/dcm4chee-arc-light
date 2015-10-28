@@ -19,6 +19,7 @@ class StoreContextImpl implements StoreContext {
     private String receiveTranferSyntaxUID;
     private String storeTranferSyntaxUID;
     private Attributes attributes;
+    private Attributes coercedAttributes;
     private WriteContext writeContext;
     private String studyInstanceUID;
     private String seriesInstanceUID;
@@ -96,6 +97,7 @@ class StoreContextImpl implements StoreContext {
         this.sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
         this.sopClassUID = attrs.getString(Tag.SOPClassUID);
         this.attributes = attrs;
+        this.coercedAttributes = new Attributes(attrs.bigEndian());
     }
 
     @Override
@@ -108,4 +110,8 @@ class StoreContextImpl implements StoreContext {
         this.writeContext = writeContext;
     }
 
+    @Override
+    public Attributes getCoercedAttributes() {
+        return coercedAttributes;
+    }
 }

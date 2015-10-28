@@ -31,6 +31,8 @@ public interface StoreContext {
 
     void setAttributes(Attributes dataset);
 
+    Attributes getCoercedAttributes();
+
     String getStudyInstanceUID();
 
     String getSeriesInstanceUID();

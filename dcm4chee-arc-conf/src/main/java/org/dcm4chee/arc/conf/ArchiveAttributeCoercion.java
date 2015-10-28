@@ -43,6 +43,8 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 
+import java.util.Arrays;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
@@ -130,12 +132,26 @@ public class ArchiveAttributeCoercion {
     }
 
     private static boolean isEmptyOrContains(Object[] a, Object o) {
-        if (o == null || a.length == 0)
+        if (a.length == 0)
             return true;
 
-        for (Object o1 : a)
-            if (o1.equals(o))
-                return true;
+        if (o != null)
+            for (Object o1 : a)
+                if (o1.equals(o))
+                    return true;
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "ArchiveAttributeCoercion[cn=" + commonName
+                + ", priority=" + priority
+                + ", DIMSE=" + dimse
+                + ", role=" + role
+                + ", aets=" + Arrays.toString(aeTitles)
+                + ", hostNames=" + Arrays.toString(hostNames)
+                + ", cuids=" + Arrays.toString(sopClasses)
+                + ", xslturi=" + xsltStylesheetURI
+                + "]";
     }
 }

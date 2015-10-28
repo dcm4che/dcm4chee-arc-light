@@ -46,6 +46,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
@@ -103,20 +104,24 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Override
     public RetrieveTask newRetrieveTaskSTORE(RetrieveContext ctx) throws DicomServiceException {
-        return new RetrieveTaskImpl(null, openAssociation(ctx), null, null, ctx);
+        return new RetrieveTaskImpl(ctx, openAssociation(ctx));
     }
 
     @Override
     public RetrieveTask newRetrieveTaskMOVE(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
-        return new RetrieveTaskImpl(as, openAssociation(ctx), pc, rq, ctx);
+        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, openAssociation(ctx));
+        retrieveTask.setRequestAssociation(Dimse.C_MOVE_RQ, as, pc, rq);
+        return retrieveTask;
     }
 
     @Override
     public RetrieveTask newRetrieveTaskGET(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
-        return new RetrieveTaskImpl(as, as, pc, rq, ctx);
+        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, as);
+        retrieveTask.setRequestAssociation(Dimse.C_GET_RQ, as, pc, rq);
+        return retrieveTask;
     }
 }

@@ -73,9 +73,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class CloudStorage extends AbstractStorage {
 
-    /** Specify the base directory where provider starts its file operations - must exists */
-    public static final String PROPERTY_BASEDIR = "jclouds.filesystem.basedir";
-
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
     private static final Uploader DEFAULT_UPLOADER = new Uploader() {
         @Override
@@ -116,17 +113,14 @@ public class CloudStorage extends AbstractStorage {
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
             ctxBuilder.credentials(identity, descriptor.getProperty("credential", null));
-        Properties overrides = new Properties();
         if (endpoint != null)
-            if ("filesystem".equals(api))
-                overrides.setProperty(PROPERTY_BASEDIR, Paths.get(URI.create(endpoint)).toString());
-            else
-                ctxBuilder.endpoint(endpoint);
-            for (Map.Entry<String, String> entry : descriptor.getProperties().entrySet()) {
-                String key = entry.getKey();
-                if (key.startsWith("jclouds."))
-                    overrides.setProperty(key, entry.getValue());
-            }
+            ctxBuilder.endpoint(endpoint);
+        Properties overrides = new Properties();
+        for (Map.Entry<String, String> entry : descriptor.getProperties().entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith("jclouds."))
+                overrides.setProperty(key, entry.getValue());
+        }
         ctxBuilder.overrides(overrides);
         ctxBuilder.modules(Collections.singleton(new SLF4JLoggingModule()));
         context = ctxBuilder.buildView(BlobStoreContext.class);

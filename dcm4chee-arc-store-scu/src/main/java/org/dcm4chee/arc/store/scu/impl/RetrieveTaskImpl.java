@@ -40,15 +40,17 @@
 
 package org.dcm4chee.arc.store.scu.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.MergeAttributesCoercion;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.slf4j.Logger;
@@ -70,33 +72,37 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
     static final Logger LOG = LoggerFactory.getLogger(RetrieveTaskImpl.class);
 
-    private final Dimse dimserq;
-    private final Association rqas;
+    private final RetrieveContext ctx;
     private final Association storeas;
-    private final PresentationContext pc;
-    private final Attributes rqCmd;
-    private final int msgId;
-    private final boolean pendingRSP;
-    private final int pendingRSPInterval;
+    private final ArchiveAEExtension aeExt;
+    private final String hostName;
+    private Dimse dimserq;
+    private Association rqas;
+    private PresentationContext pc;
+    private Attributes rqCmd;
+    private int msgId;
+    private boolean pendingRSP;
+    private int pendingRSPInterval;
     private final Collection<InstanceLocations> outstandingRSP =
             Collections.synchronizedCollection(new ArrayList<InstanceLocations>());
-    private final RetrieveContext ctx;
     private volatile boolean canceled;
     private ScheduledFuture<?> writePendingRSP;
 
-    RetrieveTaskImpl(Association rqas, Association storeas, PresentationContext pc, Attributes rqCmd,
-                     RetrieveContext ctx) {
-        this.dimserq = rqas == null ? null : rqas == storeas ? Dimse.C_GET_RQ : Dimse.C_MOVE_RQ;
-        this.rqas = rqas;
+    RetrieveTaskImpl(RetrieveContext ctx, Association storeas) {
+        this.ctx = ctx;
         this.storeas = storeas;
+        this.aeExt = ctx.getArchiveAEExtension();
+        this.hostName = storeas.getSocket().getInetAddress().getHostName();
+    }
+
+    void setRequestAssociation(Dimse dimserq, Association rqas, PresentationContext pc, Attributes rqCmd) {
+        this.dimserq = dimserq;
+        this.rqas = rqas;
         this.pc = pc;
         this.rqCmd = rqCmd;
-        this.msgId = rqCmd != null ? rqCmd.getInt(Tag.MessageID, 0) : 0;
-        this.ctx = ctx;
-        this.pendingRSP =
-                dimserq == Dimse.C_GET_RQ && ctx.getArchiveAEExtension().sendPendingCGet();
-        this.pendingRSPInterval =
-                dimserq == Dimse.C_MOVE_RQ ? ctx.getArchiveAEExtension().sendPendingCMoveInterval() : 0;
+        this.msgId = rqCmd.getInt(Tag.MessageID, 0);
+        this.pendingRSP = dimserq == Dimse.C_GET_RQ && aeExt.sendPendingCGet();
+        this.pendingRSPInterval = dimserq == Dimse.C_MOVE_RQ ? aeExt.sendPendingCMoveInterval() : 0;
     }
 
     @Override
@@ -140,7 +146,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
             try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 DataWriter data = new TranscoderDataWriter(transcoder,
-                        new MergeAttributesCoercion(inst.getAttributes()));
+                        new MergeAttributesCoercion(inst.getAttributes(), coerce(cuid)));
                 outstandingRSP.add(inst);
                 if (ctx.getMoveOriginatorAETitle() != null) {
                     storeas.cstore(cuid, iuid, priority,
@@ -156,6 +162,17 @@ final class RetrieveTaskImpl implements RetrieveTask {
             ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
             LOG.info("{}: failed to send {} to {}:", rqas, inst, ctx.getDestinationAETitle(), e);
         }
+    }
+
+    private AttributesCoercion coerce(String cuid) throws Exception {
+        ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
+                hostName, storeas.getRemoteAET(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ, cuid);
+        if (coercion == null)
+            return null;
+        LOG.debug("{}: Apply {}", storeas, coercion);
+        return new XSLTAttributesCoercion(
+                TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI())),
+                null);
     }
 
     private void writeFinalRSP() {

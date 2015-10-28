@@ -45,16 +45,22 @@ import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Dimse;
+import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.validation.constraints.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.imageio.ImageIO;
@@ -94,6 +100,8 @@ import java.util.Iterator;
 @NotAllowedIfNotPresent(paramName = "presentationUID", notAllowed = "presentationSeriesUID")
 @NotAllowedIfPresent(paramName = "presentationUID", notAllowed = { "windowWidth", "windowCenter" })
 public class WadoURI {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WadoURI.class);
 
     @Inject
     private RetrieveService service;
@@ -178,11 +186,12 @@ public class WadoURI {
 
     @Override
     public String toString() {
-        return request.getQueryString();
+        return request.getRequestURI() + '?' + request.getQueryString();
     }
 
     @GET
     public Response get() {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         RetrieveContext ctx = service.newRetrieveContextWADO(
                 request, getApplicationEntity(), studyUID, seriesUID, objectUID);
         if (!service.calculateMatches(ctx))
@@ -199,19 +208,31 @@ public class WadoURI {
         if (mimeType == null)
             throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
 
-        MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes());
         Object entity;
         try {
+            MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coerce(ctx, inst));
             if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
                 mimeType = MediaTypes.APPLICATION_DICOM_TYPE;
                 entity = new DicomObjectOutput(service.openTranscoder(ctx, inst, tsuids(), true), coerce);
             } else {
                 entity = entityOf(ctx, inst, objectType, mimeType, coerce);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new WebApplicationException(e);
         }
         return Response.ok(entity, mimeType).build();
+    }
+
+    private AttributesCoercion coerce(RetrieveContext ctx, InstanceLocations inst) throws Exception {
+        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
+        ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
+                request.getRemoteHost(), null, TransferCapability.Role.SCP, Dimse.C_STORE_RQ, inst.getSopClassUID());
+        if (coercion == null)
+            return null;
+        LOG.debug("{}: apply {}", this, coercion);
+        return new XSLTAttributesCoercion(
+                TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI())),
+                null);
     }
 
     private ApplicationEntity getApplicationEntity() {
@@ -489,4 +510,5 @@ public class WadoURI {
                     (int) Math.ceil((bottom - top) * rows));
         }
     }
+
 }

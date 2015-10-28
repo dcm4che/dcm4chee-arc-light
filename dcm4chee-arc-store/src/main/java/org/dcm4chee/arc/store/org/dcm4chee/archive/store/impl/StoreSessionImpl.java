@@ -92,4 +92,9 @@ class StoreSessionImpl implements StoreSession {
     public void close() throws IOException {
         SafeClose.close(storage);
     }
+
+    @Override
+    public String toString() {
+        return as.toString();
+    }
 }

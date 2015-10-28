@@ -6,9 +6,15 @@ import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.imageio.codec.TransferSyntaxType;
 import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveCompressionRule;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Patient;
@@ -26,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.xml.transform.Templates;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,14 +77,14 @@ class StoreServiceImpl implements StoreService {
                 transcoder.setIncludeFileMetaInformation(true);
                 transcoder.transcode(new TranscoderHandler(ctx));
             }
-
+            coerceAttributes(ctx);
             UpdateDBResult result = ejb.updateDB(ctx);
             location = result.getLocation();
             if (location != null) {
                 Series series = location.getInstance().getSeries();
                 WriteContext writeContext = ctx.getWriteContext();
                 Storage storage = writeContext.getStorage();
-                updateAttributes(writeContext.getAttributes(), series);
+                updateAttributes(ctx, series);
                 storage.commitStorage(writeContext);
                 ctx.getStoreSession().cacheSeries(series);
                 storeEvent.fire(ctx);
@@ -99,16 +106,36 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void updateAttributes(Attributes attrs, Series series) {
+    private void coerceAttributes(StoreContext ctx) throws Exception {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAttributeCoercion coercion = session.getArchiveAEExtension().findAttributeCoercion(
+                session.getRemoteHostName(),
+                session.getRemoteApplicationEntityTitle(),
+                TransferCapability.Role.SCU,
+                Dimse.C_STORE_RQ,
+                ctx.getSopClassUID());
+        if (coercion != null) {
+            LOG.debug("{}: Apply {}", session, coercion);
+            Attributes attrs = ctx.getAttributes();
+            Attributes modified = ctx.getCoercedAttributes();
+            String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
+            Templates tpls = TemplatesCache.getDefault().get(uri);
+            new XSLTAttributesCoercion(tpls, null).coerce(attrs, modified);
+        }
+    }
+
+    private void updateAttributes(StoreContext ctx, Series series) {
+        Attributes attrs = ctx.getAttributes();
+        Attributes modified = ctx.getCoercedAttributes();
         Study study = series.getStudy();
         Patient patient = study.getPatient();
         Attributes seriesAttrs = series.getAttributes();
         Attributes studyAttrs = study.getAttributes();
         Attributes patAttrs = patient.getAttributes();
         Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, attrs);
-        attrs.addAll(patAttrs);
-        attrs.addAll(studyAttrs);
-        attrs.addAll(seriesAttrs);
+        attrs.update(patAttrs, modified);
+        attrs.update(studyAttrs, modified);
+        attrs.update(seriesAttrs, modified);
     }
 
     private Storage getStorage(StoreContext ctx) {

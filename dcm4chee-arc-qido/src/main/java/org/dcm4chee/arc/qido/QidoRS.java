@@ -161,7 +161,7 @@ public class QidoRS {
 
     @Override
     public String toString() {
-        return request.getQueryString();
+        return request.getRequestURI() + '?' + request.getQueryString();
     }
 
     @GET
@@ -271,6 +271,7 @@ public class QidoRS {
     private Response search(String method, QueryRetrieveLevel2 qrlevel,
                             String studyInstanceUID, String seriesInstanceUID, int[] includetags, Output output)
             throws Exception {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(queryAttrs, studyInstanceUID, seriesInstanceUID, includetags);
         Query query = service.createQuery(qrlevel, ctx);
