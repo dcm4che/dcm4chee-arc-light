@@ -51,11 +51,16 @@ import java.util.Date;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  */
 @Entity
-@Table(name = "location")
+@Table(name = "location", indexes = @Index(columnList = "storage_id,status"))
+@NamedQueries({
+        @NamedQuery(name = Location.FIND_BY_STORAGE_ID_AND_STATUS,
+                query = "select l from Location l where l.storageID=?1 and l.status=?2")
+})
 public class Location {
 
+    public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
 
-    public enum Status { OK }
+    public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

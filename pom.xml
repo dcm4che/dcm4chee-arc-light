@@ -339,6 +339,7 @@
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arc-storage-cloud</module>
+    <module>dcm4chee-arc-delete</module>
   </modules>
 
   <profiles>

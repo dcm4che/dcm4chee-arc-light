@@ -18,6 +18,8 @@ public final class StorageDescriptor {
     private String[] retrieveAETitles = {};
     private Availability instanceAvailability;
     private final Map<String, String> properties = new HashMap<>();
+    private Duration deletionPollingInterval;
+    private int deletionTaskSize = 100;
 
     public StorageDescriptor(String storageID) {
         this(storageID, null);
@@ -77,6 +79,22 @@ public final class StorageDescriptor {
         this.instanceAvailability = instanceAvailability;
     }
 
+    public Duration getDeletionPollingInterval() {
+        return deletionPollingInterval;
+    }
+
+    public void setDeletionPollingInterval(Duration deletionPollingInterval) {
+        this.deletionPollingInterval = deletionPollingInterval;
+    }
+
+    public int getDeletionTaskSize() {
+        return deletionTaskSize;
+    }
+
+    public void setDeletionTaskSize(int deletionTaskSize) {
+        this.deletionTaskSize = deletionTaskSize;
+    }
+
     public void setProperty(String name, String value) {
         properties.put(name, value);
     }
@@ -109,6 +127,8 @@ public final class StorageDescriptor {
                 ", digestAlg=" + digestAlgorithm +
                 ", retrieveAETs=" + retrieveAETitles +
                 ", availability=" + instanceAvailability +
+                ", delPollIntervall=" + deletionPollingInterval +
+                ", delTaskSize=" + deletionTaskSize +
                 ", properties=" + properties +
                 '}';
     }

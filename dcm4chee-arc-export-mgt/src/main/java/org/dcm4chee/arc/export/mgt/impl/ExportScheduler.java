@@ -8,9 +8,6 @@ import org.dcm4chee.arc.conf.Duration;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -20,9 +17,6 @@ import java.util.concurrent.TimeUnit;
  */
 @ApplicationScoped
 public class ExportScheduler {
-
-    @PersistenceContext(unitName="dcm4chee-arc")
-    private EntityManager em;
 
     @Inject
     private Device device;
@@ -50,8 +44,8 @@ public class ExportScheduler {
     private void start() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         pollingIntervall = arcDev.getExportTaskPollingInterval();
-        final int fetchSize = arcDev.getExportTaskFetchSize();
         if (pollingIntervall != null) {
+            final int fetchSize = arcDev.getExportTaskFetchSize();
             task = device.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {

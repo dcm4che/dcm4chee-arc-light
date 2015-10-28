@@ -488,6 +488,7 @@ dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomThisNodeCertificateReference: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmSendPendingCGet: TRUE
+dcmExportTaskFetchSize: 2
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.11
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.59
@@ -862,13 +863,15 @@ dcmEntity: MPPS
 objectClass: dcmAttributeFilter
 
 dn: dcmStorageID=fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
-dcmInstanceAvailability: ONLINE
 dcmRetrieveAET: DCM4CHEE
 dcmRetrieveAET: DCM4CHEE_ADMIN
+dcmDeletionTaskSize: 10
+dcmStorageID: fs1
+dcmInstanceAvailability: ONLINE
+dcmDeletionPollingInterval: PT5M
+objectClass: dcmStorage
 dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}
 dcmDigestAlgorithm: MD5
-objectClass: dcmStorage
-dcmStorageID: fs1
 dcmURI: file:///var/local/dcm4chee-arc/fs1/
 
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com

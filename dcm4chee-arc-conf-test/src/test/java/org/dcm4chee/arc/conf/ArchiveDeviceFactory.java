@@ -619,6 +619,9 @@ class ArchiveDeviceFactory {
     static final String EXPORTER_ID = "STORESCP";
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
     private static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
+    private static final int EXPORT_TASK_FETCH_SIZE = 2;
+    private static final Duration DELETION_POLLING_INTERVAL = Duration.parse("PT5M");
+    private static final int DELETION_TASK_SIZE = 10;
 
     private final KeyStore keyStore;
     private final DicomConfiguration config;
@@ -843,6 +846,8 @@ class ArchiveDeviceFactory {
         storageDescriptor.setRetrieveAETitles("DCM4CHEE", "DCM4CHEE_ADMIN");
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
+        storageDescriptor.setDeletionPollingInterval(DELETION_POLLING_INTERVAL);
+        storageDescriptor.setDeletionTaskSize(DELETION_TASK_SIZE);
         ext.addStorageDescriptor(storageDescriptor);
 
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
@@ -857,6 +862,7 @@ class ArchiveDeviceFactory {
         exportDescriptor.setAETitle("DCM4CHEE");
         ext.addExporterDescriptor(exportDescriptor);
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
+        ext.setExportTaskFetchSize(EXPORT_TASK_FETCH_SIZE);
 
         ExportRule exportRule = new ExportRule("Forward to STORESCP");
         exportRule.getConditions().setSendingAETitle("FORWARD");
