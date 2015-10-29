@@ -60,7 +60,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String queryRetrieveViewID;
     private boolean queryMatchUnknown = true;
     private boolean sendPendingCGet;
-    private int sendPendingCMoveInterval;
+    private Duration sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
@@ -162,11 +162,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.sendPendingCGet = sendPendingCGet;
     }
 
-    public int getSendPendingCMoveInterval() {
+    public Duration getSendPendingCMoveInterval() {
         return sendPendingCMoveInterval;
     }
 
-    public void setSendPendingCMoveInterval(int sendPendingCMoveInterval) {
+    public void setSendPendingCMoveInterval(Duration sendPendingCMoveInterval) {
         this.sendPendingCMoveInterval = sendPendingCMoveInterval;
     }
 

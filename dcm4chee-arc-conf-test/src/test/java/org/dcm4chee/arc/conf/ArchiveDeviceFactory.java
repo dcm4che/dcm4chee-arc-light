@@ -614,14 +614,14 @@ class ArchiveDeviceFactory {
     static final URI STORAGE_URI = URI.create("file:///var/local/dcm4chee-arc/fs1/");
     static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
     static final boolean SEND_PENDING_C_GET = true;
-    static final int SEND_PENDING_C_MOVE_INTERVAL = 5;
+    static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final String EXPORTER_ID = "STORESCP";
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
-    private static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
-    private static final int EXPORT_TASK_FETCH_SIZE = 2;
-    private static final Duration DELETION_POLLING_INTERVAL = Duration.parse("PT5M");
-    private static final int DELETION_TASK_SIZE = 10;
+    static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
+    static final int EXPORT_TASK_FETCH_SIZE = 2;
+    static final Duration DELETION_POLLING_INTERVAL = Duration.parse("PT5M");
+    static final int DELETION_TASK_SIZE = 10;
 
     private final KeyStore keyStore;
     private final DicomConfiguration config;

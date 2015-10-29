@@ -51,6 +51,7 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.slf4j.Logger;
@@ -83,7 +84,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
     private Attributes rqCmd;
     private int msgId;
     private boolean pendingRSP;
-    private int pendingRSPInterval;
+    private Duration pendingRSPInterval;
     private final Collection<InstanceLocations> outstandingRSP =
             Collections.synchronizedCollection(new ArrayList<InstanceLocations>());
     private volatile boolean canceled;
@@ -103,7 +104,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
         this.rqCmd = rqCmd;
         this.msgId = rqCmd.getInt(Tag.MessageID, 0);
         this.pendingRSP = dimserq == Dimse.C_GET_RQ && aeExt.sendPendingCGet();
-        this.pendingRSPInterval = dimserq == Dimse.C_MOVE_RQ ? aeExt.sendPendingCMoveInterval() : 0;
+        this.pendingRSPInterval = dimserq == Dimse.C_MOVE_RQ ? aeExt.sendPendingCMoveInterval() : null;
     }
 
     @Override
@@ -218,7 +219,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
     private void startWritePendingRSP() {
         if (pendingRSP)
             writePendingRSP();
-        if (pendingRSPInterval > 0)
+        if (pendingRSPInterval != null)
             writePendingRSP = rqas.getApplicationEntity().getDevice()
                     .scheduleAtFixedRate(
                             new Runnable() {
@@ -227,7 +228,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
                                     writePendingRSP();
                                 }
                             },
-                            0, pendingRSPInterval, TimeUnit.SECONDS);
+                            0, pendingRSPInterval.getSeconds(), TimeUnit.SECONDS);
     }
 
     private void stopWritePendingRSP() {

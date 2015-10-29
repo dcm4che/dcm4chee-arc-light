@@ -476,7 +476,7 @@ dicomAuthorizedNodeCertificateReference: dicomDeviceName=getscu,cn=Devices,cn=DI
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=hl7snd,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dicomInstalled: TRUE
-dcmSendPendingCMoveInterval: 5
+dcmSendPendingCMoveInterval: PT5S
 dcmQidoMaxNumberOfResults: 1000
 dicomManufacturer: dcm4che.org
 dcmBulkDataSpoolDirectory: ${jboss.server.temp.dir}

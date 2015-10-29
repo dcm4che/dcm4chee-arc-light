@@ -60,7 +60,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean queryMatchUnknown;
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
-    private int sendPendingCMoveInterval;
+    private Duration sendPendingCMoveInterval;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String[] mppsForwardDestinations;
@@ -157,16 +157,16 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isSendPendingCGet();
     }
 
-    public int getSendPendingCMoveInterval() {
+    public Duration getSendPendingCMoveInterval() {
         return sendPendingCMoveInterval;
     }
 
-    public void setSendPendingCMoveInterval(int sendPendingCMoveInterval) {
+    public void setSendPendingCMoveInterval(Duration sendPendingCMoveInterval) {
         this.sendPendingCMoveInterval = sendPendingCMoveInterval;
     }
 
-    public int sendPendingCMoveInterval() {
-        return sendPendingCMoveInterval > 0
+    public Duration sendPendingCMoveInterval() {
+        return sendPendingCMoveInterval != null
                 ? sendPendingCMoveInterval
                 : getArchiveDeviceExtension().getSendPendingCMoveInterval();
     }
