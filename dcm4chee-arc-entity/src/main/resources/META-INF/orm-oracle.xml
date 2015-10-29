@@ -46,11 +46,11 @@
   <access>FIELD</access>
 
   <entity class="org.dcm4chee.arc.entity.AttributesBlob">
-    <sequence-generator name="attrs_pk_seq" sequence-name="attrs_pk_seq" allocation-size="1"/>
+    <sequence-generator name="dicomattrs_pk_seq" sequence-name="dicomattrs_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="attrs_pk_seq"/>
+        <generated-value strategy="SEQUENCE" generator="dicomattrs_pk_seq"/>
       </id>
       <basic name="encodedAttributes" optional="false">
         <column name="attrs" column-definition="blob"/>
