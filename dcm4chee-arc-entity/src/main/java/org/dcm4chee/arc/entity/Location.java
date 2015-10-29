@@ -54,11 +54,14 @@ import java.util.Date;
 @Table(name = "location", indexes = @Index(columnList = "storage_id,status"))
 @NamedQueries({
         @NamedQuery(name = Location.FIND_BY_STORAGE_ID_AND_STATUS,
-                query = "select l from Location l where l.storageID=?1 and l.status=?2")
+                query = "select l from Location l where l.storageID=?1 and l.status=?2"),
+        @NamedQuery(name = Location.FIND_BY_INSTANCE,
+                query = "select l from Location l where l.instance=?1")
 })
 public class Location {
 
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
+    public static final String FIND_BY_INSTANCE = "Location.FindByInstance";
 
     public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 
@@ -98,7 +101,7 @@ public class Location {
     private Status status;
 
     @ManyToOne
-    @JoinColumn(name = "instance_fk", updatable = false)
+    @JoinColumn(name = "instance_fk", updatable = true)
     private Instance instance;
 
     public static final class Builder {

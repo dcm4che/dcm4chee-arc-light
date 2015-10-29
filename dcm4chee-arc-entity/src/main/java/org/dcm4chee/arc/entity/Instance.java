@@ -63,13 +63,17 @@ import java.util.Date;
 @NamedQuery(
     name=Instance.FIND_BY_SOP_IUID,
     query="select i from Instance i " +
+            "where i.sopInstanceUID = ?1"),
+@NamedQuery(
+    name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID,
+    query="select i from Instance i " +
             "join i.series se " +
             "join se.study st " +
             "where st.studyInstanceUID = ?1 " +
             "and se.seriesInstanceUID = ?2 " +
             "and i.sopInstanceUID = ?3"),
 @NamedQuery(
-    name=Instance.FIND_BY_SOP_IUID_EAGER,
+    name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID_EAGER,
     query="select i from Instance i " +
             "join fetch i.series se " +
             "join fetch se.study st " +
@@ -85,7 +89,11 @@ import java.util.Date;
             "join fetch p.attributesBlob " +
             "where st.studyInstanceUID = ?1 " +
             "and se.seriesInstanceUID = ?2 " +
-            "and i.sopInstanceUID = ?3")
+            "and i.sopInstanceUID = ?3"),
+@NamedQuery(
+    name=Instance.COUNT_INSTANCES_OF_SERIES,
+    query="select count(i) from Instance i " +
+            "where i.series = ?1")
 })
 @Entity
 @Table(name = "instance",
@@ -105,8 +113,10 @@ import java.util.Date;
     })
 public class Instance {
 
-    public static final String FIND_BY_SOP_IUID = "findBySopIUID";
-    public static final String FIND_BY_SOP_IUID_EAGER = "findBySopIUIDEager";
+    public static final String FIND_BY_SOP_IUID = "Instance.findBySopIUID";
+    public static final String FIND_BY_STUDY_SERIES_SOP_IUID = "Instance.findByStudySeriesSopIUID";
+    public static final String FIND_BY_STUDY_SERIES_SOP_IUID_EAGER = "Instance.findByStudySeriesSopIUIDEager";
+    public static final String COUNT_INSTANCES_OF_SERIES = "Instance.countInstancesOfSeries";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

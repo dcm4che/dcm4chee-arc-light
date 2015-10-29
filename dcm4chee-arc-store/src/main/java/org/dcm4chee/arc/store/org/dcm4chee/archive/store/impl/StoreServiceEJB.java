@@ -43,14 +43,11 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 import org.dcm4che3.data.*;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.CircularPatientMergeException;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.code.CodeService;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
 import org.dcm4chee.arc.patient.PatientService;
@@ -65,7 +62,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -91,14 +90,104 @@ public class StoreServiceEJB {
     public UpdateDBResult updateDB(StoreContext ctx) {
         UpdateDBResult result = new UpdateDBResult();
         Instance prevInstance = findInstance(ctx);
-        if (prevInstance != null)
-            return result;
+        if (prevInstance != null) {
+            LOG.info("{}: Found previous received {}", ctx.getStoreSession(), prevInstance);
+            switch (ctx.getStoreSession().getArchiveAEExtension().overwritePolicy()) {
+                case NEVER:
+                    logIgnoreReceivedInstance(ctx, "{}: Ignore received Instance[iuid={}]");
+                    return result;
+                case SAME_SOURCE:
+                case SAME_SOURCE_AND_SERIES:
+                    if (!isSameSource(ctx, prevInstance)) {
+                        logIgnoreReceivedInstance(ctx, "{}: Ignore received Instance[iuid={}] from different source");
+                        return result;
+                    }
+            }
+            List<Location> locations = findLocations(prevInstance);
+            if (containsWithEqualDigest(locations, ctx.getWriteContext().getDigest())) {
+                logIgnoreReceivedInstance(ctx, "{}: Ignore received Instance[iuid={}] with equal digest");
+                return result;
+            }
+            LOG.info("{}: Replace previous received {}", ctx.getStoreSession(), prevInstance);
+            deleteLocations(locations);
+            deleteInstance(prevInstance, ctx);
+        }
 
         Instance instance = createInstance(ctx);
         Location location = createLocation(ctx, instance);
         deleteQueryAttributes(instance);
         result.setLocation(location);
         return result;
+    }
+
+    private void logIgnoreReceivedInstance(StoreContext ctx, String format) {
+        LOG.info(format, ctx.getStoreSession(), ctx.getSopInstanceUID());
+    }
+
+    private void deleteInstance(Instance instance, StoreContext ctx) {
+        Series series = instance.getSeries();
+        Study study = series.getStudy();
+        em.remove(instance);
+        boolean sameStudy = ctx.getStudyInstanceUID().equals(study.getStudyInstanceUID());
+        boolean sameSeries = sameStudy && ctx.getSeriesInstanceUID().equals(series.getSeriesInstanceUID());
+        if (!sameSeries) {
+            deleteQueryAttributes(instance);
+            if (deleteSeriesIfEmpty(series, ctx) && !sameStudy)
+                deleteStudyIfEmpty(study, ctx);
+        }
+    }
+
+    private boolean deleteStudyIfEmpty(Study study, StoreContext ctx) {
+        if (em.createNamedQuery(Series.COUNT_SERIES_OF_STUDY, Long.class)
+                .setParameter(1, study)
+                .getSingleResult() != 0L)
+            return false;
+
+        LOG.info("{}: Delete {}", ctx.getStoreSession(), study);
+        em.remove(study);
+        return true;
+    }
+
+    private boolean deleteSeriesIfEmpty(Series series, StoreContext ctx) {
+        if (em.createNamedQuery(Instance.COUNT_INSTANCES_OF_SERIES, Long.class)
+                .setParameter(1, series)
+                .getSingleResult() != 0L)
+            return false;
+
+        LOG.info("{}: Delete {}", ctx.getStoreSession(), series);
+        em.remove(series);
+        return true;
+    }
+
+    private void deleteLocations(List<Location> locations) {
+        for (Location location : locations) {
+            location.setInstance(null);
+            location.setStatus(Location.Status.TO_DELETE);
+        }
+    }
+
+    private List<Location> findLocations(Instance inst) {
+        return em.createNamedQuery(Location.FIND_BY_INSTANCE, Location.class)
+                .setParameter(1, inst)
+                .getResultList();
+    }
+
+    private boolean containsWithEqualDigest(List<Location> locations, byte[] digest) {
+        if (digest == null)
+            return false;
+
+        for (Location location : locations) {
+            byte[] digest2 = location.getDigest();
+            if (digest2 != null && Arrays.equals(digest, digest2))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isSameSource(StoreContext ctx, Instance prevInstance) {
+        String sourceAET = ctx.getStoreSession().getRemoteApplicationEntityTitle();
+        String prevSourceAET = prevInstance.getSeries().getSourceAET();
+        return sourceAET != null && sourceAET.equals(prevSourceAET);
     }
 
     private void deleteQueryAttributes(Instance instance) {
@@ -163,11 +252,19 @@ public class StoreServiceEJB {
 
     private Instance findInstance(StoreContext ctx) {
         try {
-            return em.createNamedQuery(Instance.FIND_BY_SOP_IUID, Instance.class)
-                .setParameter(1, ctx.getStudyInstanceUID())
-                .setParameter(2, ctx.getSeriesInstanceUID())
-                .setParameter(3, ctx.getSopInstanceUID())
-                .getSingleResult();
+            switch (ctx.getStoreSession().getArchiveAEExtension().overwritePolicy()) {
+                case ALWAYS:
+                case SAME_SOURCE:
+                    return em.createNamedQuery(Instance.FIND_BY_SOP_IUID, Instance.class)
+                            .setParameter(1, ctx.getSopInstanceUID())
+                            .getSingleResult();
+                default:
+                    return em.createNamedQuery(Instance.FIND_BY_STUDY_SERIES_SOP_IUID, Instance.class)
+                            .setParameter(1, ctx.getStudyInstanceUID())
+                            .setParameter(2, ctx.getSeriesInstanceUID())
+                            .setParameter(3, ctx.getSopInstanceUID())
+                            .getSingleResult();
+            }
         } catch (NoResultException e) {
             return null;
         }
@@ -187,6 +284,7 @@ public class StoreServiceEJB {
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
         study.setPatient(patient);
+        LOG.info("{}: Create {}", ctx.getStoreSession(), study);
         em.persist(study);
         return study;
     }
@@ -202,6 +300,7 @@ public class StoreServiceEJB {
         setRequestAttributes(series, attrs, fuzzyStr);
         series.setSourceAET(session.getRemoteApplicationEntityTitle());
         series.setStudy(study);
+        LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         em.persist(series);
         return series;
     }
@@ -229,6 +328,7 @@ public class StoreServiceEJB {
         instance.setAvailability(availability != null ? availability : Availability.ONLINE);
 
         instance.setSeries(series);
+        LOG.info("{}: Create {}", ctx.getStoreSession(), instance);
         em.persist(instance);
         return instance;
     }

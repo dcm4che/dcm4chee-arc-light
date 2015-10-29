@@ -212,6 +212,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.42 NAME 'dcmDeletionTaskSize'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.43 NAME 'dcmOverwritePolicy'
+  DESC 'Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -220,6 +225,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorageID $
     dcmQueryRetrieveViewID )
   MAY (
+    dcmOverwritePolicy $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
     dcmPersonNameComponentOrderInsensitiveMatching $
@@ -239,6 +245,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   SUP top AUXILIARY
   MAY (
     dcmStorageID $
+    dcmOverwritePolicy $
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $

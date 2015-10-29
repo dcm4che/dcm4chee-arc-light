@@ -56,6 +56,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String fuzzyAlgorithmClass;
 
     private String storageID;
+    private OverwritePolicy overwritePolicy;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
     private boolean queryMatchUnknown = true;
@@ -112,6 +113,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         } catch (Exception e) {
             throw new IllegalArgumentException(s);
         }
+    }
+
+    public OverwritePolicy getOverwritePolicy() {
+        return overwritePolicy;
+    }
+
+    public void setOverwritePolicy(OverwritePolicy overwritePolicy) {
+        this.overwritePolicy = overwritePolicy;
     }
 
     public String getBulkDataSpoolDirectory() {
@@ -373,6 +382,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
         storageID = arcdev.storageID;
+        overwritePolicy = arcdev.overwritePolicy;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         queryRetrieveViewID = arcdev.queryRetrieveViewID;
         queryMatchUnknown = arcdev.queryMatchUnknown;

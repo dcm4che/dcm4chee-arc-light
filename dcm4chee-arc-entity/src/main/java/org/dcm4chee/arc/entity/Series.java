@@ -76,7 +76,11 @@ import java.util.Date;
             "join fetch st.attributesBlob " +
             "join fetch p.attributesBlob " +
             "where st.studyInstanceUID = ?1 " +
-            "and se.seriesInstanceUID = ?2")
+            "and se.seriesInstanceUID = ?2"),
+@NamedQuery(
+    name=Series.COUNT_SERIES_OF_STUDY,
+    query="select count(se) from Series se " +
+            "where se.study = ?1")
 })
 @Entity
 @Table(name = "series",
@@ -100,6 +104,7 @@ public class Series {
 
     public static final java.lang.String FIND_BY_SERIES_IUID = "Series.findBySeriesIUID";
     public static final java.lang.String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
+    public static final java.lang.String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

@@ -822,6 +822,7 @@ class ArchiveDeviceFactory {
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
         ext.setStorageID(STORAGE_ID);
+        ext.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
         ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);

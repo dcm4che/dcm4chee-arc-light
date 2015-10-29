@@ -55,6 +55,7 @@ import java.util.*;
  */
 public class ArchiveAEExtension extends AEExtension {
     private String storageID;
+    private OverwritePolicy overwritePolicy;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
     private Boolean queryMatchUnknown;
@@ -81,6 +82,20 @@ public class ArchiveAEExtension extends AEExtension {
         return storageID != null
                 ? storageID
                 : getArchiveDeviceExtension().getStorageID();
+    }
+
+    public OverwritePolicy getOverwritePolicy() {
+        return overwritePolicy;
+    }
+
+    public void setOverwritePolicy(OverwritePolicy overwritePolicy) {
+        this.overwritePolicy = overwritePolicy;
+    }
+
+    public OverwritePolicy overwritePolicy() {
+        return overwritePolicy != null
+                ? overwritePolicy
+                : StringUtils.maskNull(getArchiveDeviceExtension().getOverwritePolicy(), OverwritePolicy.NEVER);
     }
 
     public String getBulkDataSpoolDirectory() {
@@ -279,6 +294,7 @@ public class ArchiveAEExtension extends AEExtension {
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         storageID = aeExt.storageID;
+        overwritePolicy = aeExt.overwritePolicy;
         bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;
         queryRetrieveViewID = aeExt.queryRetrieveViewID;
         queryMatchUnknown = aeExt.queryMatchUnknown;
