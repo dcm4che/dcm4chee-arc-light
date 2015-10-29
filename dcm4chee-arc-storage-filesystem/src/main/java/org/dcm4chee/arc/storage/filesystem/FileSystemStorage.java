@@ -45,6 +45,8 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +60,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * @since Jul 2015
  */
 public class FileSystemStorage extends AbstractStorage {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FileSystemStorage.class);
 
     private final URI rootURI;
     private final AttributesFormat pathFormat;
@@ -99,6 +103,23 @@ public class FileSystemStorage extends AbstractStorage {
     public void deleteObject(String storagePath) throws IOException {
         Path path = Paths.get(rootURI.resolve(storagePath));
         Files.delete(path);
+        deleteEmptyDirectories(path);
+    }
+
+    private void deleteEmptyDirectories(Path path) {
+        Path rootPath = Paths.get(rootURI);
+        Path dirPath = path.getParent();
+        while (!dirPath.equals(rootPath)) {
+            try {
+                Files.delete(path);
+            } catch (DirectoryNotEmptyException ignore) {
+                break;
+            } catch (IOException e) {
+                LOG.warn("Failed to delete directory {}", path, e);
+                break;
+            }
+            dirPath = dirPath.getParent();
+        }
     }
 
     @Override

@@ -104,7 +104,7 @@ public class Deleter {
     private void start(final StorageDescriptor desc) {
         Duration pollingIntervall = desc.getDeletionPollingInterval();
         if (pollingIntervall != null) {
-            ScheduledFuture<?> task = device.scheduleAtFixedRate(new Runnable() {
+            ScheduledFuture<?> task = device.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
                     try {
