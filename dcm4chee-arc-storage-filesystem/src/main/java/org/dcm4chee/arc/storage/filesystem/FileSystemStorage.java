@@ -103,7 +103,7 @@ public class FileSystemStorage extends AbstractStorage {
     public void deleteObject(String storagePath) throws IOException {
         Path path = Paths.get(rootURI.resolve(storagePath));
         Files.delete(path);
-        deleteEmptyDirectories(path.getParent());
+        deleteEmptyDirectories(path);
     }
 
     private void deleteEmptyDirectories(Path path) {
@@ -111,7 +111,7 @@ public class FileSystemStorage extends AbstractStorage {
         Path dirPath = path.getParent();
         while (!dirPath.equals(rootPath)) {
             try {
-                Files.delete(path);
+                Files.delete(dirPath);
             } catch (DirectoryNotEmptyException ignore) {
                 break;
             } catch (IOException e) {

@@ -73,7 +73,10 @@ import java.util.List;
 @Stateless
 public class StoreServiceEJB {
 
-    static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
+    private static final String IGNORE = "{}: Ignore received Instance[studyUID={},seriesUID={},objectUID={}]";
+    private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source";
+    private static final String IGNORE_WITH_EQUAL_DIGEST = IGNORE + " with equal digest";
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -94,18 +97,18 @@ public class StoreServiceEJB {
             LOG.info("{}: Found previous received {}", ctx.getStoreSession(), prevInstance);
             switch (ctx.getStoreSession().getArchiveAEExtension().overwritePolicy()) {
                 case NEVER:
-                    logIgnoreReceivedInstance(ctx, "{}: Ignore received Instance[iuid={}]");
+                    logIgnoreReceivedInstance(ctx, IGNORE);
                     return result;
                 case SAME_SOURCE:
                 case SAME_SOURCE_AND_SERIES:
                     if (!isSameSource(ctx, prevInstance)) {
-                        logIgnoreReceivedInstance(ctx, "{}: Ignore received Instance[iuid={}] from different source");
+                        logIgnoreReceivedInstance(ctx, IGNORE_FROM_DIFFERENT_SOURCE);
                         return result;
                     }
             }
             List<Location> locations = findLocations(prevInstance);
             if (containsWithEqualDigest(locations, ctx.getWriteContext().getDigest())) {
-                logIgnoreReceivedInstance(ctx, "{}: Ignore received Instance[iuid={}] with equal digest");
+                logIgnoreReceivedInstance(ctx, IGNORE_WITH_EQUAL_DIGEST);
                 return result;
             }
             LOG.info("{}: Replace previous received {}", ctx.getStoreSession(), prevInstance);
@@ -121,7 +124,10 @@ public class StoreServiceEJB {
     }
 
     private void logIgnoreReceivedInstance(StoreContext ctx, String format) {
-        LOG.info(format, ctx.getStoreSession(), ctx.getSopInstanceUID());
+        LOG.info(format, ctx.getStoreSession(),
+                ctx.getStudyInstanceUID(),
+                ctx.getSeriesInstanceUID(),
+                ctx.getSopInstanceUID());
     }
 
     private void deleteInstance(Instance instance, StoreContext ctx) {
@@ -284,8 +290,8 @@ public class StoreServiceEJB {
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
         study.setPatient(patient);
-        LOG.info("{}: Create {}", ctx.getStoreSession(), study);
         em.persist(study);
+        LOG.info("{}: Create {}", ctx.getStoreSession(), study);
         return study;
     }
 
@@ -300,8 +306,8 @@ public class StoreServiceEJB {
         setRequestAttributes(series, attrs, fuzzyStr);
         series.setSourceAET(session.getRemoteApplicationEntityTitle());
         series.setStudy(study);
-        LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         em.persist(series);
+        LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
     }
 
@@ -328,8 +334,8 @@ public class StoreServiceEJB {
         instance.setAvailability(availability != null ? availability : Availability.ONLINE);
 
         instance.setSeries(series);
-        LOG.info("{}: Create {}", ctx.getStoreSession(), instance);
         em.persist(instance);
+        LOG.info("{}: Create {}", ctx.getStoreSession(), instance);
         return instance;
     }
 
