@@ -53,7 +53,7 @@
         <generated-value strategy="SEQUENCE" generator="dicomattrs_pk_seq"/>
       </id>
       <basic name="encodedAttributes" optional="false">
-        <column name="attrs" column-definition="blob"/>
+        <column name="attrs" column-definition="${blob}"/>
       </basic>
     </attributes>
   </entity>

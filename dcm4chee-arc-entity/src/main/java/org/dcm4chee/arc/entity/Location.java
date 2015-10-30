@@ -88,7 +88,7 @@ public class Location {
     private String transferSyntaxUID;
 
     @Basic(optional = true)
-    @Column(name = "size", updatable = false)
+    @Column(name = "object_size", updatable = false)
     private long size;
 
     @Basic(optional = true)
