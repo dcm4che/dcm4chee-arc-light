@@ -53,6 +53,7 @@ public class DefaultReadContext implements ReadContext {
     private long size;
     private String studyInstanceUID;
     private MessageDigest messageDigest;
+    private byte[] digest;
 
     public DefaultReadContext(Storage storage) {
         this.storage = storage;
@@ -100,7 +101,10 @@ public class DefaultReadContext implements ReadContext {
 
     @Override
     public byte[] getDigest() {
-        return messageDigest != null ? messageDigest.digest() : null;
+        if (digest == null && messageDigest != null)
+            digest = messageDigest.digest();
+
+        return digest;
     }
 
     @Override
