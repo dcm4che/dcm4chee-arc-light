@@ -1,0 +1,1 @@
+/subsystem=datasources/jdbc-driver=db2:add(driver-name=db2,driver-module-name=com.ibm.db2)
