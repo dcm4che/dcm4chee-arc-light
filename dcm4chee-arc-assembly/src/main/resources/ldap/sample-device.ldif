@@ -1,0 +1,41 @@
+version: 1
+# LDIF for adding a Device providing one Application Entity available on one Network connection
+# Adjust Base DN (dc=example,dc=com), Device name (SAMPLE_DEVICE), AE Title (SAMPLE_AET),
+# Hostname (sample.host.name) and Port number before import it into the LDAP server
+
+# Unique AE Title
+# (will fail if there is already an object for the same AE Title)
+dn: dicomAETitle=SAMPLE_AET,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=example,dc=com
+objectClass: dicomUniqueAETitle
+dicomAETitle: SAMPLE_AET
+
+# Device
+dn: dicomDeviceName=SAMPLE_DEVICE,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+objectClass: dicomDevice
+dicomDeviceName: SAMPLE_DEVICE
+dicomInstalled: TRUE
+
+# Network Connection
+dn: cn=dicom,dicomDeviceName=SAMPLE_DEVICE,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+objectClass: dicomNetworkConnection
+cn: dicom
+dicomHostname: sample.host.name
+dicomPort: 12345
+
+# Network Connection (secure)
+# dn: cn=dicom-tls,dicomDeviceName=SAMPLE_DEVICE,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+# cn: dicom-tls
+# objectClass: dicomNetworkConnection
+# dicomHostname: sample.host.name
+# dicomPort: 23456
+# dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+# dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+
+# Network Application Entity
+dn: dicomAETitle=SAMPLE_AET,dicomDeviceName=SAMPLE_DEVICE,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+objectClass: dicomNetworkAE
+dicomAETitle: SAMPLE_AET
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=SAMPLE_DEVICE,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+# dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=SAMPLE_DEVICE,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dicomAssociationInitiator: TRUE
+dicomAssociationAcceptor: TRUE
