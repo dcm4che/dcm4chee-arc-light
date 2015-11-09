@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.query.scp;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
@@ -94,6 +95,8 @@ public class ArchiveQueryTask extends BasicQueryTask {
 
     @Override
     protected Attributes adjust(Attributes match) {
-        return query.adjust(match);
+        Attributes adjust = query.adjust(match);
+        adjust.addSelected(keys, null, Tag.QueryRetrieveLevel);
+        return adjust;
     }
 }
