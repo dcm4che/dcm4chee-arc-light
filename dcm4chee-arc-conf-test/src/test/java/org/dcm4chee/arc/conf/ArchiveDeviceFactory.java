@@ -706,12 +706,14 @@ class ArchiveDeviceFactory {
 
         Connection dicom = new Connection("dicom", "localhost", 11112);
         dicom.setBindAddress("0.0.0.0");
+        dicom.setClientBindAddress("0.0.0.0");
         dicom.setMaxOpsInvoked(0);
         dicom.setMaxOpsPerformed(0);
         device.addConnection(dicom);
 
         Connection dicomTLS = new Connection("dicom-tls", "localhost", 2762);
         dicomTLS.setBindAddress("0.0.0.0");
+        dicomTLS.setClientBindAddress("0.0.0.0");
         dicomTLS.setMaxOpsInvoked(0);
         dicomTLS.setMaxOpsPerformed(0);
         dicomTLS.setTlsCipherSuites(
@@ -796,11 +798,13 @@ class ArchiveDeviceFactory {
 
         Connection hl7 = new Connection("hl7", "localhost", 2575);
         hl7.setBindAddress("0.0.0.0");
+        hl7.setClientBindAddress("0.0.0.0");
         hl7.setProtocol(Connection.Protocol.HL7);
         device.addConnection(hl7);
 
         Connection hl7TLS = new Connection("hl7-tls", "localhost", 12575);
         hl7TLS.setBindAddress("0.0.0.0");
+        hl7TLS.setClientBindAddress("0.0.0.0");
         hl7TLS.setProtocol(Connection.Protocol.HL7);
         hl7TLS.setTlsCipherSuites(
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
