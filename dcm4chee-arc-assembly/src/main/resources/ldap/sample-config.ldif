@@ -1031,6 +1031,51 @@ dcmShowInstancesRejectedByCode: (113037, DCM, "Rejected for Patient Safety Reaso
 dcmShowInstancesRejectedByCode: (113038, DCM, "Incorrect Modality Worklist Entry")
 dcmShowInstancesRejectedByCode: (113039, DCM, "Data Retention Policy Expired")
 
+dn: dcmRejectionNoteID=revokeRejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmRejectionNoteCode: (REVOKE_REJECTION, 99DCM4CHEE, "Restore rejected Instances")
+dcmRejectionNoteID: revokeRejection
+dcmRevokeRejection: TRUE
+objectClass: dcmRejectionNote
+dcmOverwritePreviousRejection: (110514, DCM, "Incorrect worklist entry selected")
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
+dcmOverwritePreviousRejection: (113039, DCM, "Data Retention Policy Expired")
+
+dn: dcmRejectionNoteID=rejectedForQualityReasons,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmRejectionNoteCode: (113001, DCM, "Rejected for Quality Reasons")
+dcmRejectionNoteID: rejectedForQualityReasons
+dcmAcceptPreviousRejectedInstance: IGNORE
+objectClass: dcmRejectionNote
+
+dn: dcmRejectionNoteID=dataRetentionPolicyExpired,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmRejectionNoteCode: (113039, DCM, "Data Retention Policy Expired")
+dcmRejectionNoteID: dataRetentionPolicyExpired
+dcmDeletionTaskSize: 10
+dcmAcceptPreviousRejectedInstance: RESTORE
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
+dcmDeletionPollingInterval: PT5M
+objectClass: dcmRejectionNote
+dcmDeleteRejectedInstanceDelay: PT5M
+dcmDeleteRejectionNoteDelay: PT5M
+
+dn: dcmRejectionNoteID=rejectedForPatientSafetyReasons,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
+dcmRejectionNoteID: rejectedForPatientSafetyReasons
+dcmAcceptPreviousRejectedInstance: REJECT
+objectClass: dcmRejectionNote
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+
+dn: dcmRejectionNoteID=incorrectModalityWorklistEntry,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
+dcmRejectionNoteCode: (113038, DCM, "Incorrect Modality Worklist Entry")
+dcmRejectionNoteID: incorrectModalityWorklistEntry
+dcmAcceptPreviousRejectedInstance: REJECT
+objectClass: dcmRejectionNote
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 hl7DefaultCharacterSet: 8859/1
 objectClass: hl7Application

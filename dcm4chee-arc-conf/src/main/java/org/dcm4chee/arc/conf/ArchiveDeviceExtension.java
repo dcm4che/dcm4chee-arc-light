@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Code;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
@@ -63,29 +64,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean sendPendingCGet;
     private Duration sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching;
+    private int qidoMaxNumberOfResults;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String patientUpdateTemplateURI;
     private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
+
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
 
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
 
     private QueryRetrieveView[] queryRetrieveViews = {};
-
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
+    private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private Duration exportTaskPollingInterval;
+
     private int exportTaskFetchSize = 5;
-
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
-    private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
 
+    private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private transient FuzzyStr fuzzyStr;
-    private int qidoMaxNumberOfResults;
 
     public String getFuzzyAlgorithmClass() {
         return fuzzyAlgorithmClass;
@@ -304,6 +306,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exporterDescriptorMap.remove(exporterID);
     }
 
+    public void addExporterDescriptor(ExporterDescriptor destination) {
+        exporterDescriptorMap.put(destination.getExporterID(), destination);
+    }
+
+    public Collection<ExporterDescriptor> getExporterDescriptors() {
+        return exporterDescriptorMap.values();
+    }
+
     public int getExportTaskFetchSize() {
         return exportTaskFetchSize;
     }
@@ -318,14 +328,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setExportTaskPollingInterval(Duration exportTaskPollingInterval) {
         this.exportTaskPollingInterval = exportTaskPollingInterval;
-    }
-
-    public void addExporterDescriptor(ExporterDescriptor destination) {
-        exporterDescriptorMap.put(destination.getExporterID(), destination);
-    }
-
-    public Collection<ExporterDescriptor> getExporterDescriptors() {
-        return exporterDescriptorMap.values();
     }
 
     public void removeExportRule(ExportRule rule) {
@@ -376,6 +378,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return attributeCoercions;
     }
 
+    public RejectionNote getRejectionNote(String rjNoteID) {
+        return rejectionNoteMap.get(rjNoteID);
+    }
+
+    public RejectionNote getRejectionNote(Code code) {
+        for (RejectionNote rjNote : rejectionNoteMap.values()) {
+            if (rjNote.getRejectionNoteCode().equalsIgnoreMeaning(code))
+                return rjNote;
+        }
+        return null;
+    }
+
+    public RejectionNote removeRejectionNote(String rjNoteID) {
+        return rejectionNoteMap.remove(rjNoteID);
+    }
+
+    public void addRejectionNote(RejectionNote rjNote) {
+        rejectionNoteMap.put(rjNote.getRejectionNoteID(), rjNote);
+    }
+
+    public Collection<RejectionNote> getRejectionNotes() {
+        return rejectionNoteMap.values();
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -413,5 +439,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         compressionRules.addAll(arcdev.compressionRules);
         attributeCoercions.clear();
         attributeCoercions.addAll(arcdev.attributeCoercions);
+        rejectionNoteMap.clear();
+        rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
     }
 }

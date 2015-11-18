@@ -180,6 +180,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
         storeAttributeCoercions(arcDev.getAttributeCoercions(), deviceDN);
         storeQueryRetrieveViews(deviceDN, arcDev);
+        storeRejectNotes(deviceDN, arcDev);
     }
 
     @Override
@@ -197,6 +198,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
         loadAttributeCoercions(arcdev.getAttributeCoercions(), deviceDN);
         loadQueryRetrieveViews(arcdev, deviceDN);
+        loadRejectNotes(arcdev, deviceDN);
     }
 
     @Override
@@ -216,6 +218,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeExportRules(aa.getExportRules(), bb.getExportRules(), deviceDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
         mergeQueryRetrieveViews(aa, bb, deviceDN);
+        mergeRejectNotes(aa, bb, deviceDN);
     }
 
     @Override
@@ -969,6 +972,99 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             if (coercion.getCommonName().equals(cn))
                 return coercion;
         return null;
+    }
+
+    private void storeRejectNotes(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+        for (RejectionNote rejectionNote : arcDev.getRejectionNotes()) {
+            String id = rejectionNote.getRejectionNoteID();
+            config.createSubcontext(
+                    LdapUtils.dnOf("dcmRejectionNoteID", id, deviceDN),
+                    storeTo(rejectionNote, new BasicAttributes(true)));
+        }
+    }
+
+    private Attributes storeTo(RejectionNote rjNote, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmRejectionNote");
+        attrs.put("dcmRejectionNoteID", rjNote.getRejectionNoteID());
+        LdapUtils.storeNotNull(attrs, "dcmRejectionNoteCode", rjNote.getRejectionNoteCode());
+        LdapUtils.storeNotDef(attrs, "dcmRevokeRejection", rjNote.isRevokeRejection(), false);
+        LdapUtils.storeNotNull(attrs, "dcmAcceptPreviousRejectedInstance", rjNote.getAcceptPreviousRejectedInstance());
+        LdapUtils.storeNotEmpty(attrs, "dcmOverwritePreviousRejection", rjNote.getOverwritePreviousRejection());
+        LdapUtils.storeNotNull(attrs, "dcmDeleteRejectedInstanceDelay", rjNote.getDeleteRejectedInstanceDelay());
+        LdapUtils.storeNotNull(attrs, "dcmDeleteRejectionNoteDelay", rjNote.getDeleteRejectionNoteDelay());
+        LdapUtils.storeNotNull(attrs, "dcmDeletionPollingInterval", rjNote.getDeletionPollingInterval());
+        LdapUtils.storeNotDef(attrs, "dcmDeletionTaskSize", rjNote.getDeletionTaskSize(), 100);
+        return attrs;
+    }
+
+    private void loadRejectNotes(ArchiveDeviceExtension arcdev, String deviceDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmRejectionNote)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                RejectionNote rjNote = new RejectionNote(LdapUtils.stringValue(attrs.get("dcmRejectionNoteID"), null));
+                rjNote.setRejectionNoteCode(LdapUtils.codeValue(attrs.get("dcmRejectionNoteCode")));
+                rjNote.setRevokeRejection(LdapUtils.booleanValue(attrs.get("dcmRevokeRejection"), false));
+                rjNote.setAcceptPreviousRejectedInstance(LdapUtils.enumValue(
+                        RejectionNote.AcceptPreviousRejectedInstance.class,
+                        attrs.get("dcmAcceptPreviousRejectedInstance"),
+                        null));
+                rjNote.setOverwritePreviousRejection(LdapUtils.codeArray(attrs.get("dcmOverwritePreviousRejection")));
+                rjNote.setDeleteRejectedInstanceDelay(
+                        toDuration(LdapUtils.stringValue(attrs.get("dcmDeleteRejectedInstanceDelay"), null)));
+                rjNote.setDeleteRejectionNoteDelay(
+                        toDuration(LdapUtils.stringValue(attrs.get("dcmDeleteRejectionNoteDelay"), null)));
+                rjNote.setDeletionPollingInterval(
+                        toDuration(LdapUtils.stringValue(attrs.get("dcmDeletionPollingInterval"), null)));
+                rjNote.setDeletionTaskSize(LdapUtils.intValue(attrs.get("dcmDeletionTaskSize"), 100));
+                arcdev.addRejectionNote(rjNote);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void mergeRejectNotes(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+            throws NamingException {
+        for (RejectionNote entry : prev.getRejectionNotes()) {
+            String rjNoteID = entry.getRejectionNoteID();
+            if (arcDev.getRejectionNote(rjNoteID) == null)
+                config.destroySubcontext(LdapUtils.dnOf("dcmRejectionNoteID", rjNoteID, deviceDN));
+        }
+        for (RejectionNote entryNew : arcDev.getRejectionNotes()) {
+            String rjNoteID = entryNew.getRejectionNoteID();
+            String dn = LdapUtils.dnOf("dcmRejectionNoteID", rjNoteID, deviceDN);
+            RejectionNote entryOld = prev.getRejectionNote(rjNoteID);
+            if (entryOld == null) {
+                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
+            } else{
+                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
+            }
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(RejectionNote prev, RejectionNote rjNote,
+                                              ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmRejectionNoteCode", prev.getRejectionNoteCode(), rjNote.getRejectionNoteCode());
+        LdapUtils.storeDiff(mods, "dcmRevokeRejection", prev.isRevokeRejection(), rjNote.isRevokeRejection(), false);
+        LdapUtils.storeDiff(mods, "dcmAcceptPreviousRejectedInstance",
+                prev.getAcceptPreviousRejectedInstance(),
+                rjNote.getAcceptPreviousRejectedInstance());
+        LdapUtils.storeDiff(mods, "dcmOverwritePreviousRejection",
+                prev.getOverwritePreviousRejection(),
+                rjNote.getOverwritePreviousRejection());
+        LdapUtils.storeDiff(mods, "dcmDeleteRejectedInstanceDelay",
+                prev.getDeleteRejectedInstanceDelay(),
+                rjNote.getDeleteRejectedInstanceDelay());
+        LdapUtils.storeDiff(mods, "dcmDeleteRejectionNoteDelay",
+                prev.getDeleteRejectionNoteDelay(),
+                rjNote.getDeleteRejectionNoteDelay());
+        LdapUtils.storeDiff(mods, "dcmDeletionPollingInterval",
+                prev.getDeletionPollingInterval(),
+                rjNote.getDeletionPollingInterval());
+        LdapUtils.storeDiff(mods, "dcmDeletionTaskSize", prev.getDeletionTaskSize(), rjNote.getDeletionTaskSize(), 100);
+        return mods;
     }
 
 }

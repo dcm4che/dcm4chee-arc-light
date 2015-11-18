@@ -622,6 +622,8 @@ class ArchiveDeviceFactory {
     static final int EXPORT_TASK_FETCH_SIZE = 2;
     static final Duration DELETION_POLLING_INTERVAL = Duration.parse("PT5M");
     static final int DELETION_TASK_SIZE = 10;
+    static final Duration DELETE_REJECTED_INSTANCE_DELAY = Duration.parse("PT5M");
+    static final Duration DELETE_REJECTION_NOTE_DELAY = Duration.parse("PT5M");
 
     private final KeyStore keyStore;
     private final DicomConfiguration config;
@@ -887,6 +889,39 @@ class ArchiveDeviceFactory {
                 "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID));
         ext.addAttributeCoercion(createAttributeCoercion(
                 "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN));
+
+        ext.addRejectionNote(createRejectionNote("rejectedForQualityReasons", REJECTED_FOR_QUALITY_REASONS,
+                RejectionNote.AcceptPreviousRejectedInstance.IGNORE, null, null));
+        ext.addRejectionNote(createRejectionNote("rejectedForPatientSafetyReasons", REJECT_FOR_PATIENT_SAFETY_REASONS,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT, null, null, REJECTED_FOR_QUALITY_REASONS));
+        ext.addRejectionNote(createRejectionNote("incorrectModalityWorklistEntry", INCORRECT_MODALITY_WORKLIST_ENTRY,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT, null, null,
+                REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS));
+        ext.addRejectionNote(createRejectionNote("dataRetentionPolicyExpired", DATA_RETENTION_POLICY_EXPIRED,
+                RejectionNote.AcceptPreviousRejectedInstance.RESTORE,
+                DELETE_REJECTED_INSTANCE_DELAY, DELETE_REJECTION_NOTE_DELAY,
+                REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY));
+        ext.addRejectionNote(createRejectionNote("revokeRejection", REVOKE_REJECTION, null, null, null,
+                REJECTION_CODES));
+    }
+
+    private static RejectionNote createRejectionNote(
+            String rejectionNoteID, Code rejectionNoteCode,
+            RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
+            Duration deleteRejectedInstanceDelay, Duration deleteRejectionNoteDelay,
+            Code... overwritePreviousRejection) {
+        RejectionNote rejectionNote = new RejectionNote(rejectionNoteID);
+        rejectionNote.setRejectionNoteCode(rejectionNoteCode);
+        rejectionNote.setRevokeRejection(rejectionNoteCode == REVOKE_REJECTION);
+        rejectionNote.setAcceptPreviousRejectedInstance(acceptPreviousRejectedInstance);
+        rejectionNote.setDeleteRejectedInstanceDelay(deleteRejectedInstanceDelay);
+        rejectionNote.setDeleteRejectionNoteDelay(deleteRejectionNoteDelay);
+        rejectionNote.setOverwritePreviousRejection(overwritePreviousRejection);
+        if (deleteRejectedInstanceDelay != null) {
+            rejectionNote.setDeletionPollingInterval(DELETION_POLLING_INTERVAL);
+            rejectionNote.setDeletionTaskSize(DELETION_TASK_SIZE);
+        }
+        return rejectionNote;
     }
 
     private static ApplicationEntity createAE(String aet, String description,
