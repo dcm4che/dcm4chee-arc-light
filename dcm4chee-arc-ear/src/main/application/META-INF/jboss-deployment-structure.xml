@@ -46,6 +46,7 @@
             <module name="org.dcm4che.audit" export="TRUE"/>
             <module name="org.dcm4che.conf.api" export="TRUE"/>
             <module name="org.dcm4che.conf.api-hl7" export="TRUE"/>
+            <module name="org.dcm4che.conf.json" export="TRUE"/>
             <module name="org.dcm4che.conf.ldap" export="TRUE"/>
             <module name="org.dcm4che.conf.ldap-audit" export="TRUE"/>
             <module name="org.dcm4che.conf.ldap-hl7" export="TRUE"/>

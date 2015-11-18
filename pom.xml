@@ -111,6 +111,12 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
+      <artifactId>dcm4che-conf-json</artifactId>
+      <version>${dcm4che.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
       <artifactId>dcm4che-conf-ldap</artifactId>
       <version>${dcm4che.version}</version>
       <scope>provided</scope>
@@ -340,6 +346,7 @@
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arc-storage-cloud</module>
     <module>dcm4chee-arc-delete</module>
+    <module>dcm4chee-arc-conf-rs</module>
   </modules>
 
   <profiles>
