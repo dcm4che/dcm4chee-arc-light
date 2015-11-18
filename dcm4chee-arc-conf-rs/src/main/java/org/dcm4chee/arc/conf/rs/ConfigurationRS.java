@@ -46,6 +46,7 @@ import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.json.JsonConfiguration;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.DeviceInfo;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -86,10 +87,43 @@ public class ConfigurationRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
+                JsonGenerator w = Json.createGenerator(out);
+                jsonConf.writeTo(device, w);
+                w.flush();
+            }
+        };
+    }
+
+    @GET
+    @Path("/")
+    @Produces("application/json")
+    public StreamingOutput listDevices() throws Exception {
+        final DeviceInfo[] deviceInfos = conf.listDeviceInfos(null);
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
                 JsonGenerator gen = Json.createGenerator(out);
-                jsonConf.writeTo(device, gen);
+                gen.writeStartArray();
+                for (DeviceInfo device : deviceInfos) {
+                    gen.writeStartObject();
+                    gen.write("dicomDeviceName", device.getDeviceName());
+                    JsonConfiguration.writeNotNullTo("dicomDescription", device.getDescription(), gen);
+                    JsonConfiguration.writeNotNullTo("dicomManufacturer", device.getManufacturer(), gen);
+                    JsonConfiguration.writeNotNullTo("dicomManufacturerModelName",
+                            device.getManufacturerModelName(), gen);
+                    JsonConfiguration.writeNotEmptyTo("dicomSoftwareVersion", device.getSoftwareVersions(), gen);
+                    JsonConfiguration.writeNotNullTo("dicomStationName", device.getStationName(), gen);
+                    JsonConfiguration.writeNotEmptyTo("dicomInstitutionDepartmentName",
+                            device.getInstitutionalDepartmentNames(), gen);
+                    JsonConfiguration.writeNotEmptyTo("dicomPrimaryDeviceType",
+                            device.getPrimaryDeviceTypes(), gen);
+                    gen.write("dicomInstalled", device.getInstalled());
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
                 gen.flush();
             }
         };
     }
+
 }
