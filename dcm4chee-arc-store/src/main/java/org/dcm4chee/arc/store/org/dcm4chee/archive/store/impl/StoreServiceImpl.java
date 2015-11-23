@@ -89,6 +89,8 @@ class StoreServiceImpl implements StoreService {
                 ctx.getStoreSession().cacheSeries(series);
                 storeEvent.fire(ctx);
             }
+        } catch (DicomServiceException e) {
+            throw e;
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         } finally {

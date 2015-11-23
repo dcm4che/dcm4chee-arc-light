@@ -383,10 +383,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public RejectionNote getRejectionNote(Code code) {
-        for (RejectionNote rjNote : rejectionNoteMap.values()) {
-            if (rjNote.getRejectionNoteCode().equalsIgnoreMeaning(code))
-                return rjNote;
-        }
+        if (code != null)
+            for (RejectionNote rjNote : rejectionNoteMap.values()) {
+                if (rjNote.getRejectionNoteCode().equalsIgnoreMeaning(code))
+                    return rjNote;
+            }
         return null;
     }
 

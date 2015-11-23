@@ -94,6 +94,13 @@ public class RejectionNote {
         return overwritePreviousRejection;
     }
 
+    public boolean canOverwritePreviousRejection(Code code) {
+        for (Code code1 : overwritePreviousRejection)
+            if (code1.equalsIgnoreMeaning(code))
+                return true;
+        return false;
+    }
+
     public void setOverwritePreviousRejection(Code[] overwritePreviousRejection) {
         this.overwritePreviousRejection = overwritePreviousRejection;
     }
