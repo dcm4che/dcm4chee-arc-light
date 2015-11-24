@@ -203,9 +203,13 @@ public class StoreServiceEJB {
             throw new DicomServiceException(REJECTION_FAILED_CLASS_INSTANCE_CONFLICT,
                     "Failed to reject Instance[uid=" + objectUID + "] - class-instance conflict");
         CodeEntity prevRjNoteCode = inst.getRejectionNoteCode();
-        if (prevRjNoteCode != null && !rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
-            throw new DicomServiceException(REJECTION_FAILED_ALREADY_REJECTED,
-                    "Failed to reject Instance[uid=" + objectUID + "] - already rejected");
+        if (prevRjNoteCode != null) {
+            if (rejectionCode != null && rejectionCode.getPk() == prevRjNoteCode.getPk())
+                return inst;
+            if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
+                throw new DicomServiceException(REJECTION_FAILED_ALREADY_REJECTED,
+                        "Failed to reject Instance[uid=" + objectUID + "] - already rejected");
+        }
         inst.setRejectionNoteCode(rejectionCode);
         if (rejectionCode != null)
             LOG.info("{}: Reject {} by {}", ctx.getStoreSession(), inst, rejectionCode.getCode());

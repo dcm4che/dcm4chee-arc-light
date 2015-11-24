@@ -78,5 +78,8 @@ public interface QueryService {
     SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam);
 
     Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyInstanceUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
+            String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
+
+    Attributes getStudyAttributesWithSOPInstanceRefs(
+            String studyUID, String seriesUID, String objectUID, ApplicationEntity ae);
 }

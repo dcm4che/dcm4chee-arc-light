@@ -47,9 +47,12 @@ import org.dcm4che3.data.Code;
  * @since Nov 2015
  */
 public class RejectionNote {
+
     public enum AcceptPreviousRejectedInstance { REJECT, RESTORE, IGNORE }
     private final String rejectionNoteID;
     private Code rejectionNoteCode;
+    private int seriesNumber;
+    private int instanceNumber;
     private boolean revokeRejection;
     private AcceptPreviousRejectedInstance acceptPreviousRejectedInstance;
     private Code[] overwritePreviousRejection = {};
@@ -72,6 +75,22 @@ public class RejectionNote {
 
     public void setRejectionNoteCode(Code rejectionNoteCode) {
         this.rejectionNoteCode = rejectionNoteCode;
+    }
+
+    public int getSeriesNumber() {
+        return seriesNumber;
+    }
+
+    public void setSeriesNumber(int seriesNumber) {
+        this.seriesNumber = seriesNumber;
+    }
+
+    public int getInstanceNumber() {
+        return instanceNumber;
+    }
+
+    public void setInstanceNumber(int instanceNumber) {
+        this.instanceNumber = instanceNumber;
     }
 
     public boolean isRevokeRejection() {

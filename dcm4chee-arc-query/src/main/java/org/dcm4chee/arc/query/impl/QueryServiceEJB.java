@@ -45,6 +45,7 @@ import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
@@ -176,20 +177,35 @@ public class QueryServiceEJB {
     }
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyInstanceUID, QueryParam queryParam, Collection<Attributes> seriesAttrs) {
-        Attributes attrs = getStudyAttributes(studyInstanceUID);
-        Attributes refStudy = new Attributes(2);
-        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
-        refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
-        attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(refStudy);
-        HashMap<Long, Sequence> seriesMap = new HashMap<>();
+            String studyUID, String seriesUID, String objectUID, QueryParam queryParam,
+            Collection<Attributes> seriesAttrs) {
+        Attributes attrs = getStudyAttributes(studyUID);
+        if (attrs == null)
+            return null;
+
+        BooleanBuilder predicate = new BooleanBuilder(QStudy.study.studyInstanceUID.eq(studyUID));
+        if (seriesUID != null) {
+            predicate.and(QSeries.series.seriesInstanceUID.eq(seriesUID));
+            if (objectUID != null)
+                predicate.and(QInstance.instance.sopInstanceUID.eq(objectUID));
+        }
+        hideRejectedInstancesAndRejectionNotes(predicate, queryParam);
         List<Tuple> tuples = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(SOP_REFS_OF_STUDY)
                 .from(QInstance.instance)
                 .join(QInstance.instance.series, QSeries.series)
                 .join(QSeries.series.study, QStudy.study)
-                .where(createPredicate(QStudy.study.studyInstanceUID.eq(studyInstanceUID), queryParam))
+                .where(predicate)
                 .fetch();
+
+        if (tuples.isEmpty())
+            return attrs;
+
+        Attributes refStudy = new Attributes(2);
+        attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(refStudy);
+        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
+        refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+        HashMap<Long, Sequence> seriesMap = new HashMap<>();
         for (Tuple tuple : tuples) {
             Long seriesPk = tuple.get(QSeries.series.pk);
             Sequence refSOPSeq = seriesMap.get(seriesPk);
@@ -204,8 +220,8 @@ public class QueryServiceEJB {
                     seriesAttrs.add(getSeriesAttributes(seriesPk));
             }
             Attributes refSOP = new Attributes(2);
-            refSOP.setString(Tag.SOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
-            refSOP.setString(Tag.SOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
+            refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
+            refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
             refSOPSeq.add(refSOP);
         }
         return attrs;
@@ -220,6 +236,8 @@ public class QueryServiceEJB {
                 .join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob)
                 .where(QStudy.study.studyInstanceUID.eq(studyInstanceUID))
                 .fetchOne();
+        if (result == null)
+            return null;
         Attributes patAttrs = AttributesBlob.decodeAttributes(
                 result.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         Attributes studyAttrs = AttributesBlob.decodeAttributes(
@@ -240,21 +258,21 @@ public class QueryServiceEJB {
                 .fetchOne(), null);
     }
 
-    Predicate createPredicate(Predicate initial, QueryParam queryParam) {
-        BooleanBuilder builder = new BooleanBuilder(initial);
-        builder.and(QueryBuilder.hideRejectedInstance(queryParam));
-        builder.and(QueryBuilder.hideRejectionNote(queryParam));
-        return builder;
+    void hideRejectedInstancesAndRejectionNotes(BooleanBuilder predicate, QueryParam queryParam) {
+        predicate.and(QueryBuilder.hideRejectedInstance(queryParam));
+        predicate.and(QueryBuilder.hideRejectionNote(queryParam));
     }
 
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam) {
         StudyQueryAttributesBuilder builder = new StudyQueryAttributesBuilder();
+        BooleanBuilder predicate = new BooleanBuilder(QSeries.series.study.pk.eq(studyPk));
+        hideRejectedInstancesAndRejectionNotes(predicate, queryParam);
         try (
             CloseableIterator<Tuple> results = new HibernateQuery<Void>(em.unwrap(Session.class))
                     .select(CALC_STUDY_QUERY_ATTRS)
                     .from(QInstance.instance)
                     .innerJoin(QInstance.instance.series, QSeries.series)
-                    .where(createPredicate(QSeries.series.study.pk.eq(studyPk), queryParam))
+                    .where(predicate)
                     .iterate()) {
 
             while (results.hasNext()) {
@@ -268,14 +286,15 @@ public class QueryServiceEJB {
         return queryAttrs;
     }
 
-    public SeriesQueryAttributes calculateSeriesQueryAttributes(
-            Long seriesPk, QueryParam queryParam) {
+    public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam) {
         SeriesQueryAttributesBuilder builder = new SeriesQueryAttributesBuilder();
+        BooleanBuilder predicate = new BooleanBuilder(QInstance.instance.series.pk.eq(seriesPk));
+        hideRejectedInstancesAndRejectionNotes(predicate, queryParam);
         try (
             CloseableIterator<Tuple> results = new HibernateQuery<Void>(em.unwrap(Session.class))
                     .select(CALC_SERIES_QUERY_ATTRS)
                     .from(QInstance.instance)
-                    .where(createPredicate(QInstance.instance.series.pk.eq(seriesPk), queryParam))
+                    .where(predicate)
                     .iterate()) {
 
             while (results.hasNext()) {
@@ -307,7 +326,6 @@ public class QueryServiceEJB {
                     availability = availability1;
             }
         }
-
     }
 
     private static String[] intersection(String[] ss1, String[] ss2) {

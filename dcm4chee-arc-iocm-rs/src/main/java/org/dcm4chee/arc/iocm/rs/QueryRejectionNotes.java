@@ -38,42 +38,60 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.store;
+package org.dcm4chee.arc.iocm.rs;
 
+import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.Study;
-import org.dcm4chee.arc.storage.Storage;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.RejectionNote;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.Closeable;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Oct 2015
  */
-public interface StoreSession extends Closeable {
-    Association getAssociation();
+@Path("reject")
+@RequestScoped
+public class QueryRejectionNotes {
 
-    HttpServletRequest getHttpRequest();
+    @Inject
+    private Device device;
 
-    ApplicationEntity getLocalApplicationEntity();
-
-    ArchiveAEExtension getArchiveAEExtension();
-
-    Storage getStorage();
-
-    void setStorage(Storage storage);
-
-    String getRemoteApplicationEntityTitle();
-
-    String getRemoteHostName();
-
-    Study getCachedStudy(String studyInstanceUID);
-
-    Series getCachedSeries(String studyInstanceUID, String seriesIUID);
-
-    void cacheSeries(Series series);
+    @GET
+    @Produces("application/json")
+    public StreamingOutput query() throws Exception {
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                Writer w = new OutputStreamWriter(out, "UTF-8");
+                int count = 0;
+                w.write('[');
+                for (RejectionNote rjNote : device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNotes()) {
+                    Code code = rjNote.getRejectionNoteCode();
+                    if (count++ > 0)
+                        w.write(',');
+                    w.write("{\"codeValue\":\"");
+                    w.write(code.getCodeValue());
+                    w.write("\",\"codingSchemeDesignator\":\"");
+                    w.write(code.getCodingSchemeDesignator());
+                    w.write("\",\"codeMeaning\":\"");
+                    w.write(code.getCodeMeaning());
+                    w.write("\"}");
+                }
+                w.write(']');
+                w.flush();
+            }
+        };
+    }
 }

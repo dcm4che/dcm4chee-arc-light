@@ -156,8 +156,15 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyInstanceUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
+            String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyInstanceUID, newQueryParam(ae, false, false), seriesAttrs);
+                studyUID, null, null, newQueryParam(ae, false, false), seriesAttrs);
+    }
+
+    @Override
+    public Attributes getStudyAttributesWithSOPInstanceRefs(
+            String studyUID, String seriesUID, String objectUID, ApplicationEntity ae) {
+        return ejb.getStudyAttributesWithSOPInstanceRefs(
+                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false), null);
     }
 }

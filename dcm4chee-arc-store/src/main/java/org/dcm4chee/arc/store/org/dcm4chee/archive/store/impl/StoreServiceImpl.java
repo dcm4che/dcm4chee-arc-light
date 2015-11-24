@@ -2,16 +2,15 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.imageio.codec.TransferSyntaxType;
 import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Dimse;
-import org.dcm4che3.net.Status;
-import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +61,11 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
+    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae) {
+        return new StoreSessionImpl(httpRequest, ae);
+    }
+
+    @Override
     public StoreContext newStoreContext(StoreSession session) {
         return new StoreContextImpl(session);
     }
@@ -80,29 +85,58 @@ class StoreServiceImpl implements StoreService {
             coerceAttributes(ctx);
             UpdateDBResult result = ejb.updateDB(ctx);
             location = result.getLocation();
-            if (location != null) {
-                Series series = location.getInstance().getSeries();
-                WriteContext writeContext = ctx.getWriteContext();
-                Storage storage = writeContext.getStorage();
-                updateAttributes(ctx, series);
-                storage.commitStorage(writeContext);
-                ctx.getStoreSession().cacheSeries(series);
-                storeEvent.fire(ctx);
-            }
+            postUpdateDB(ctx, location);
         } catch (DicomServiceException e) {
             throw e;
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         } finally {
-            if (location == null) {
-                WriteContext writeCtx = ctx.getWriteContext();
-                if (writeCtx != null && writeCtx.getStoragePath() != null) {
-                    Storage storage = writeCtx.getStorage();
-                    try {
-                        storage.revokeStorage(writeCtx);
-                    } catch (IOException e) {
-                        LOG.warn("Failed to revoke storage", e);
-                    }
+            cleanup(ctx, location);
+        }
+    }
+
+    private void postUpdateDB(StoreContext ctx, Location location) throws IOException {
+        if (location != null) {
+            Series series = location.getInstance().getSeries();
+            WriteContext writeContext = ctx.getWriteContext();
+            Storage storage = writeContext.getStorage();
+            updateAttributes(ctx, series);
+            storage.commitStorage(writeContext);
+            ctx.getStoreSession().cacheSeries(series);
+            storeEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public void store(StoreContext ctx, Attributes attrs) throws IOException {
+        ctx.setAttributes(attrs);
+        Location location = null;
+        try {
+            try ( DicomOutputStream dos = new DicomOutputStream(openOutputStream(ctx), UID.ExplicitVRLittleEndian) ) {
+                dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
+            }
+            coerceAttributes(ctx);
+            UpdateDBResult result = ejb.updateDB(ctx);
+            location = result.getLocation();
+            postUpdateDB(ctx, location);
+        } catch (DicomServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        } finally {
+            cleanup(ctx, location);
+        }
+    }
+
+    private static void cleanup(StoreContext ctx, Location location) {
+        if (location == null) {
+            WriteContext writeCtx = ctx.getWriteContext();
+            if (writeCtx != null && writeCtx.getStoragePath() != null) {
+                Storage storage = writeCtx.getStorage();
+                try {
+                    storage.revokeStorage(writeCtx);
+                } catch (IOException e) {
+                    LOG.warn("Failed to revoke storage", e);
                 }
             }
         }
@@ -169,14 +203,19 @@ class StoreServiceImpl implements StoreService {
                 transcoder.setCompressParams(compressionRule.getImageWriteParams());
                 storeContext.setStoreTranferSyntax(compressionRule.getTransferSyntax());
             }
-            Storage storage = getStorage(storeContext);
-            WriteContext writeCtx = storage.createWriteContext();
-            writeCtx.setAttributes(dataset);
-            writeCtx.setStudyInstanceUID(dataset.getString(Tag.StudyInstanceUID));
-            writeCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
-            storeContext.setWriteContext(writeCtx);
-            return storage.openOutputStream(writeCtx);
+            return openOutputStream(storeContext);
         }
+
+    }
+
+    private OutputStream openOutputStream(StoreContext storeContext) throws IOException {
+        Storage storage = getStorage(storeContext);
+        WriteContext writeCtx = storage.createWriteContext();
+        writeCtx.setAttributes(storeContext.getAttributes());
+        writeCtx.setStudyInstanceUID(storeContext.getStudyInstanceUID());
+        writeCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
+        storeContext.setWriteContext(writeCtx);
+        return storage.openOutputStream(writeCtx);
     }
 
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {

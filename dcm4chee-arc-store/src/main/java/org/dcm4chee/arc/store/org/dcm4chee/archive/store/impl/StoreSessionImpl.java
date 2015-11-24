@@ -10,6 +10,7 @@ import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.StoreSession;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,8 @@ import java.util.Map;
  * @since Jul 2015
  */
 class StoreSessionImpl implements StoreSession {
-    private final Association as;
+    private Association as;
+    private HttpServletRequest httpRequest;
     private final ApplicationEntity ae;
     private Storage storage;
     private Study cachedStudy;
@@ -30,9 +32,19 @@ class StoreSessionImpl implements StoreSession {
         this.ae = as.getApplicationEntity();
     }
 
+    public StoreSessionImpl(HttpServletRequest httpRequest, ApplicationEntity ae) {
+        this.httpRequest = httpRequest;
+        this.ae = ae;
+    }
+
     @Override
     public Association getAssociation() {
         return as;
+    }
+
+    @Override
+    public HttpServletRequest getHttpRequest() {
+        return httpRequest;
     }
 
     @Override
@@ -57,12 +69,12 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String getRemoteApplicationEntityTitle() {
-        return as.getRemoteAET();
+        return as != null ? as.getRemoteAET() : null;
     }
 
     @Override
     public String getRemoteHostName() {
-        return as.getSocket().getInetAddress().getHostName();
+        return httpRequest != null ? httpRequest.getRemoteHost() : as.getSocket().getInetAddress().getHostName();
     }
 
     @Override
@@ -96,6 +108,9 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String toString() {
-        return as.toString();
+        if (as != null)
+            return as.toString();
+
+        return httpRequest.getRemoteUser() + '@' + httpRequest.getRemoteHost() + "->" + ae.getAETitle();
     }
 }
