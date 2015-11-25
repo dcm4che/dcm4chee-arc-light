@@ -62,7 +62,7 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-ear</artifactId>
-      <classifier>${db}</classifier>
+      <classifier>${classifier}</classifier>
       <version>${project.version}</version>
       <type>ear</type>
     </dependency>
@@ -134,4 +134,27 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>unsecure</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <classifier>${db}</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>secure</id>
+      <properties>
+        <classifier>${db}-secure</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>secure-ui</id>
+      <properties>
+        <classifier>${db}-secure-ui</classifier>
+      </properties>
+    </profile>
+  </profiles>
 </project>

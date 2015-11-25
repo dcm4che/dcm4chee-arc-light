@@ -60,7 +60,6 @@
         <version>2.1.1</version>
         <configuration>
           <warSourceIncludes>
-            WEB-INF/web.xml,
             index.html,
             css/app.css,
             js/**,
@@ -70,9 +69,37 @@
             bower_components/bootstrap/dist/css/bootstrap.min.css,
             bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.*
           </warSourceIncludes>
+          <classifier>${classifier}</classifier>
+          <webXml>${webXml}</webXml>
         </configuration>
       </plugin>
     </plugins>
-
   </build>
+
+  <profiles>
+    <profile>
+      <id>unsecure</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
+        <classifier>unsecure</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>secure</id>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
+        <classifier>secure</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>secure-ui</id>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
+        <classifier>secure</classifier>
+      </properties>
+    </profile>
+  </profiles>
 </project>
