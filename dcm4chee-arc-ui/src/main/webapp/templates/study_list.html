@@ -11,6 +11,13 @@
         </select>
     </div>
     <div class="form-group">
+        <label for="reject">Reject:</label>
+        <select id="reject" ng-model="reject">
+            <option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}"
+                    value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.cn}}</option>
+        </select>
+    </div>
+    <div class="form-group">
         <label for="limit">Page Size:</label>
         <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
     </div>
@@ -113,6 +120,9 @@
                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
+                <a ng-click="rejectStudy(study)" href="" title="Reject Study">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
                 <!--
                 <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
                     <span class="glyphicon glyphicon-save"></span>
@@ -166,6 +176,9 @@
                 <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
+                <a ng-click="rejectSeries(series)" href="" title="Reject Series">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
                 <!--
                 <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
                     <span class="glyphicon glyphicon-save"></span>
@@ -215,6 +228,9 @@
             <td>
                 <a ng-click="instance.showAttributes = !instance.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
+                </a>
+                <a ng-click="rejectInstance(instance)" href="" title="Reject Instance">
+                    <span class="glyphicon glyphicon-trash"></span>
                 </a>
                 <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
                     <span class="glyphicon glyphicon-save"></span>

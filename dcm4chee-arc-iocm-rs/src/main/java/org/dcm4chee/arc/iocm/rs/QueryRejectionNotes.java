@@ -81,7 +81,9 @@ public class QueryRejectionNotes {
                     Code code = rjNote.getRejectionNoteCode();
                     if (count++ > 0)
                         w.write(',');
-                    w.write("{\"codeValue\":\"");
+                    w.write("{\"cn\":\"");
+                    w.write(rjNote.getRejectionNoteID());
+                    w.write("\",\"codeValue\":\"");
                     w.write(code.getCodeValue());
                     w.write("\",\"codingSchemeDesignator\":\"");
                     w.write(code.getCodingSchemeDesignator());

@@ -5,12 +5,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.limit = 20;
     $scope.aes = [];
     $scope.aet = null;
+    $scope.rjnotes = [];
+    $scope.reject = null;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
     $scope.queryStudies = function(offset) {
         QidoService.queryStudies(
-            qidoURL(),
+            rsURL(),
             createQueryParams(offset, createStudyFilterParams())
         ).then(function (res) {
             $scope.studies = res.data.map(function(attrs, index) {
@@ -25,12 +27,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     };
     $scope.querySeries = function(study, offset) {
         QidoService.querySeries(
-            qidoURL(),
+            rsURL(),
             study.attrs['0020000D'].Value[0],
             createQueryParams(offset, { orderby: 'SeriesNumber'})
         ).then(function (res) {
             study.series = res.data.map(function(attrs, index) {
                 return {
+                    study: study,
                     offset: offset + index,
                     attrs: attrs,
                     instances: null,
@@ -41,7 +44,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     };
     $scope.queryInstances = function (series, offset) {
         QidoService.queryInstances(
-            qidoURL(),
+            rsURL(),
             series.attrs['0020000D'].Value[0],
             series.attrs['0020000E'].Value[0],
             createQueryParams(offset, { orderby: 'InstanceNumber'})
@@ -52,6 +55,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                     gspsQueryParams = createGSPSQueryParams(attrs),
                     video = isVideo(attrs);
                 return {
+                    series: series,
                     offset: offset + index,
                     attrs: attrs,
                     showAttributes: false,
@@ -67,6 +71,21 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                     view: 1
                 };
             });
+        });
+    };
+    $scope.rejectStudy = function(study) {
+        $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
+            $scope.queryStudies($scope.studies[0].offset);
+        });
+    };
+    $scope.rejectSeries = function(series) {
+        $http.get(seriesURL(series.attrs) + '/reject/' + $scope.reject).then(function (res) {
+            $scope.querySeries(series.study, series.study.series[0].offset);
+        });
+    };
+    $scope.rejectInstance = function(instance) {
+        $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
+            $scope.queryInstances(instance.series, instance.series.instances[0].offset);
         });
     };
     $scope.downloadURL = function (inst, transferSyntax) {
@@ -113,8 +132,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.nextOffset = function(objs) {
         return objs[0].offset + $scope.limit;
     };
-    function qidoURL() {
+    function rsURL() {
         return "../aets/" + $scope.aet + "/rs";
+    }
+    function studyURL(attrs) {
+        return rsURL() + "/studies/" + attrs['0020000D'].Value[0];
+    }
+    function seriesURL(attrs) {
+        return studyURL(attrs) + "/series/" + attrs['0020000E'].Value[0];
+    }
+    function instanceURL(attrs) {
+        return seriesURL(attrs) + "/instances/" + attrs['00080018'].Value[0];
     }
     function createStudyFilterParams() {
         var filter = angular.extend({}, $scope.filter);
@@ -204,7 +232,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
         $http.get("../aets").then(function (res) {
             $scope.aes = res.data;
             $scope.aet = res.data[0].title;
-        })
+        });
+        $http.get("../reject").then(function (res) {
+            $scope.rjnotes = res.data;
+            $scope.reject = res.data[0].codeValue + '^' + res.data[0].codingSchemeDesignator;
+        });
     }
     init();
 });
