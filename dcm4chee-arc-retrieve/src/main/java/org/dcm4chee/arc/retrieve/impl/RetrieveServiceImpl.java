@@ -281,7 +281,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs(), false));
         predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs(), false));
         predicate.and(QueryBuilder.uidsPredicate(QInstance.instance.sopInstanceUID, ctx.getSopInstanceUIDs(), false));
-        predicate.and(QueryBuilder.hideRejectedInstance(ctx.getHideRejectionNotesWithCode(),
+        predicate.and(QueryBuilder.hideRejectedInstance(ctx.getShowInstancesRejectedByCode(),
                 ctx.isHideNotRejectedInstances()));
         predicate.and(QueryBuilder.hideRejectionNode(ctx.getHideRejectionNotesWithCode()));
         return query.where(predicate);
