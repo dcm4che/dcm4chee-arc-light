@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,40 +38,52 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.delete.impl;
+package org.dcm4chee.arc;
 
-import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
 
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.List;
+import javax.annotation.Resource;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @since Nov 2015
  */
-@Stateless
-public class DeleterEJB {
+public abstract class Scheduler implements Runnable {
 
-    @PersistenceContext(unitName="dcm4chee-arc")
-    private EntityManager em;
+    volatile private long pollingIntervalInSeconds;
+    volatile private ScheduledFuture<?> running;
 
-    public List<Location> findLocationsToDelete(String storageID, int limit) {
-        return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
-                .setParameter(1, storageID)
-                .setParameter(2, Location.Status.TO_DELETE)
-                .setMaxResults(limit)
-                .getResultList();
+    @Resource
+    private ManagedScheduledExecutorService scheduledExecutor;
+
+    public void start() {
+        Duration pollingInterval = getPollingInterval();
+        if (pollingInterval != null) {
+            pollingIntervalInSeconds = pollingInterval.getSeconds();
+            running = scheduledExecutor.scheduleWithFixedDelay(this, 0, pollingIntervalInSeconds, TimeUnit.SECONDS);
+        }
     }
 
-    public void failedToDelete(Location location) {
-        location.setStatus(Location.Status.FAILED_TO_DELETE);
-        em.merge(location);
+    public void stop() {
+        if (running != null) {
+            running.cancel(false);
+            running = null;
+            pollingIntervalInSeconds = 0;
+        }
     }
 
-    public void remove(Location location) {
-        em.remove(em.merge(location));
+    public void reload() {
+        Duration pollingInterval = getPollingInterval();
+        if (pollingInterval == null || pollingIntervalInSeconds != pollingInterval.getSeconds()) {
+            stop();
+            start();
+        }
     }
+
+    protected abstract Duration getPollingInterval();
+
 }

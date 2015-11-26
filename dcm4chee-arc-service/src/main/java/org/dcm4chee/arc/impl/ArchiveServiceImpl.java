@@ -49,6 +49,7 @@ import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceRegistry;
 import org.dcm4chee.arc.ArchiveService;
 import org.dcm4chee.arc.ArchiveServiceEvent;
+import org.dcm4chee.arc.Scheduler;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -78,6 +79,9 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Inject
     private Instance<HL7Service> hl7Services;
+
+    @Inject
+    private Instance<Scheduler> schedulers;
 
     @Inject
     private Device device;
@@ -142,6 +146,7 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Override
     public void start() throws Exception {
+        for (Scheduler scheduler : schedulers) scheduler.start();
         device.bindConnections();
         status = Status.STARTED;
         archiveServiceEvent.fire(ArchiveServiceEvent.STARTED);
@@ -149,6 +154,7 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Override
     public void stop() {
+        for (Scheduler scheduler : schedulers) scheduler.stop();
         device.unbindConnections();
         status = Status.STOPPED;
         archiveServiceEvent.fire(ArchiveServiceEvent.STOPPED);
@@ -162,6 +168,7 @@ public class ArchiveServiceImpl implements ArchiveService {
     @Override
     public void reload() throws Exception {
         deviceProducer.reloadConfiguration();
+        for (Scheduler scheduler : schedulers) scheduler.reload();
         device.rebindConnections();
         archiveServiceEvent.fire(ArchiveServiceEvent.RELOADED);
     }

@@ -45,7 +45,6 @@ import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
 
-import java.net.URI;
 import java.util.*;
 
 /**
@@ -70,23 +69,24 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String patientUpdateTemplateURI;
     private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
+    private Duration exportTaskPollingInterval;
+    private int exportTaskFetchSize = 5;
+    private Duration deleteRejectedPollingInterval;
+    private int deleteRejectedFetchSize = 100;
+    private Duration purgeStoragePollingInterval;
+    private int purgeStorageFetchSize = 100;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
-
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
-
     private QueryRetrieveView[] queryRetrieveViews = {};
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
-    private Duration exportTaskPollingInterval;
-
-    private int exportTaskFetchSize = 5;
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
-
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
+
     private transient FuzzyStr fuzzyStr;
 
     public String getFuzzyAlgorithmClass() {
@@ -242,6 +242,54 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.qidoMaxNumberOfResults = qidoMaxNumberOfResults;
     }
 
+    public int getExportTaskFetchSize() {
+        return exportTaskFetchSize;
+    }
+
+    public void setExportTaskFetchSize(int exportTaskFetchSize) {
+        this.exportTaskFetchSize = exportTaskFetchSize;
+    }
+
+    public Duration getExportTaskPollingInterval() {
+        return exportTaskPollingInterval;
+    }
+
+    public void setExportTaskPollingInterval(Duration exportTaskPollingInterval) {
+        this.exportTaskPollingInterval = exportTaskPollingInterval;
+    }
+
+    public Duration getDeleteRejectedPollingInterval() {
+        return deleteRejectedPollingInterval;
+    }
+
+    public void setDeleteRejectedPollingInterval(Duration deleteRejectedPollingInterval) {
+        this.deleteRejectedPollingInterval = deleteRejectedPollingInterval;
+    }
+
+    public int getDeleteRejectedFetchSize() {
+        return deleteRejectedFetchSize;
+    }
+
+    public void setDeleteRejectedFetchSize(int deleteRejectedFetchSize) {
+        this.deleteRejectedFetchSize = deleteRejectedFetchSize;
+    }
+
+    public Duration getPurgeStoragePollingInterval() {
+        return purgeStoragePollingInterval;
+    }
+
+    public void setPurgeStoragePollingInterval(Duration purgeStoragePollingInterval) {
+        this.purgeStoragePollingInterval = purgeStoragePollingInterval;
+    }
+
+    public int getPurgeStorageFetchSize() {
+        return purgeStorageFetchSize;
+    }
+
+    public void setPurgeStorageFetchSize(int purgeStorageFetchSize) {
+        this.purgeStorageFetchSize = purgeStorageFetchSize;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters.get(entity);
     }
@@ -314,22 +362,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exporterDescriptorMap.values();
     }
 
-    public int getExportTaskFetchSize() {
-        return exportTaskFetchSize;
-    }
-
-    public void setExportTaskFetchSize(int exportTaskFetchSize) {
-        this.exportTaskFetchSize = exportTaskFetchSize;
-    }
-
-    public Duration getExportTaskPollingInterval() {
-        return exportTaskPollingInterval;
-    }
-
-    public void setExportTaskPollingInterval(Duration exportTaskPollingInterval) {
-        this.exportTaskPollingInterval = exportTaskPollingInterval;
-    }
-
     public void removeExportRule(ExportRule rule) {
         exportRules.remove(rule);
     }
@@ -396,7 +428,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void addRejectionNote(RejectionNote rjNote) {
-        rejectionNoteMap.put(rjNote.getRejectionNoteID(), rjNote);
+        rejectionNoteMap.put(rjNote.getRejectionNoteLabel(), rjNote);
     }
 
     public Collection<RejectionNote> getRejectionNotes() {
@@ -424,6 +456,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
+        exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
+        exportTaskFetchSize = arcdev.exportTaskFetchSize;
+        deleteRejectedPollingInterval = arcdev.deleteRejectedPollingInterval;
+        deleteRejectedFetchSize = arcdev.deleteRejectedFetchSize;
+        purgeStoragePollingInterval = arcdev.purgeStoragePollingInterval;
+        purgeStorageFetchSize = arcdev.purgeStorageFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();
@@ -432,8 +470,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queueDescriptorMap.putAll(arcdev.queueDescriptorMap);
         exporterDescriptorMap.clear();
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
-        exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
-        exportTaskFetchSize = arcdev.exportTaskFetchSize;
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
         compressionRules.clear();

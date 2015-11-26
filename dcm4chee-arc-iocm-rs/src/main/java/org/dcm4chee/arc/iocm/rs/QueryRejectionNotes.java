@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.data.Code;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
@@ -81,8 +80,8 @@ public class QueryRejectionNotes {
                     Code code = rjNote.getRejectionNoteCode();
                     if (count++ > 0)
                         w.write(',');
-                    w.write("{\"cn\":\"");
-                    w.write(rjNote.getRejectionNoteID());
+                    w.write("{\"label\":\"");
+                    w.write(rjNote.getRejectionNoteLabel());
                     w.write("\",\"codeValue\":\"");
                     w.write(code.getCodeValue());
                     w.write("\",\"codingSchemeDesignator\":\"");

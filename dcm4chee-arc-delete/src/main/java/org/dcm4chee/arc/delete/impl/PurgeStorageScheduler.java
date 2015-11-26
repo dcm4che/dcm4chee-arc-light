@@ -41,7 +41,7 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.ArchiveServiceEvent;
+import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
@@ -52,23 +52,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
  */
 @ApplicationScoped
-public class Deleter {
+public class PurgeStorageScheduler extends Scheduler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Deleter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PurgeStorageScheduler.class);
 
     @Inject
     private Device device;
@@ -79,48 +74,28 @@ public class Deleter {
     @Inject
     private StorageFactory storageFactory;
 
-    private final HashMap<String,Task> tasks = new HashMap<>();
-
-    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        switch (event) {
-            case STARTED:
-                start();
-                break;
-            case STOPPED:
-                stop();
-                break;
-            case RELOADED:
-                reload();
-                break;
-        }
-    }
-
-    private void start() {
+    @Override
+    protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        for (StorageDescriptor desc : arcDev.getStorageDescriptors())
-            start(desc);
+        return arcDev.getPurgeStoragePollingInterval();
     }
 
-    private void start(final StorageDescriptor desc) {
-        Duration pollingIntervall = desc.getDeletionPollingInterval();
-        if (pollingIntervall != null) {
-            ScheduledFuture<?> task = device.scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (deleteNext(desc))
-                            ;
-                    } catch (IOException e) {
-                        LOG.error("Failed to delete objects from {}", desc.getStorageURI(), e);
-                    }
-                }
-            }, 0, pollingIntervall.getSeconds(), TimeUnit.SECONDS);
-            tasks.put(desc.getStorageID(), new Task(desc.getStorageID(), pollingIntervall, task));
+    @Override
+    public void run() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int fetchSize = arcDev.getPurgeStorageFetchSize();
+        for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
+            try {
+                while (deleteNext(desc, fetchSize))
+                    ;
+            } catch (IOException e) {
+                LOG.error("Failed to delete objects from {}", desc.getStorageURI(), e);
+            }
         }
     }
 
-    private boolean deleteNext(StorageDescriptor desc) throws IOException {
-        List<Location> locations = ejb.findLocationsToDelete(desc);
+    private boolean deleteNext(StorageDescriptor desc, int fetchSize) throws IOException {
+        List<Location> locations = ejb.findLocationsToDelete(desc.getStorageID(), fetchSize);
         if (locations.isEmpty())
             return false;
 
@@ -136,42 +111,7 @@ public class Deleter {
                 }
             }
         }
-        return locations.size() == desc.getDeletionTaskSize();
-    }
-
-    private void stop() {
-        for(Iterator<Task> it = tasks.values().iterator(); it.hasNext();) {
-            Task next = it.next();
-            next.task.cancel(false);
-            it.remove();
-        }
-    }
-
-    private void reload() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        for(Iterator<Task> it = tasks.values().iterator(); it.hasNext();) {
-            Task next = it.next();
-            StorageDescriptor desc = arcDev.getStorageDescriptor(next.storageID);
-            if (desc == null || !next.pollingIntervall.equals(desc.getDeletionPollingInterval())) {
-                next.task.cancel(false);
-                it.remove();
-            }
-        }
-        for (StorageDescriptor desc : arcDev.getStorageDescriptors())
-            if (!tasks.containsKey(desc.getStorageID()))
-                start(desc);
-    }
-
-    private static class Task {
-        String storageID;
-        Duration pollingIntervall;
-        ScheduledFuture<?> task;
-
-        public Task(String storageID, Duration pollingIntervall, ScheduledFuture<?> task) {
-            this.storageID = storageID;
-            this.pollingIntervall = pollingIntervall;
-            this.task = task;
-        }
+        return locations.size() == fetchSize;
     }
 
 }

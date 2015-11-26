@@ -91,6 +91,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotNull(attrs, "dcmExportTaskPollingInterval", ext.getExportTaskPollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmExportTaskFetchSize", ext.getExportTaskFetchSize(), 5);
+        LdapUtils.storeNotNull(attrs, "dcmPurgeStoragePollingInterval", ext.getPurgeStoragePollingInterval());
+        LdapUtils.storeNotDef(attrs, "dcmPurgeStorageFetchSize", ext.getPurgeStorageFetchSize(), 100);
+        LdapUtils.storeNotNull(attrs, "dcmDeleteRejectedPollingInterval", ext.getDeleteRejectedPollingInterval());
+        LdapUtils.storeNotDef(attrs, "dcmDeleteRejectedFetchSize", ext.getDeleteRejectedFetchSize(), 100);
     }
 
     @Override
@@ -121,6 +125,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setExportTaskPollingInterval(
                 toDuration(LdapUtils.stringValue(attrs.get("dcmExportTaskPollingInterval"), null)));
         ext.setExportTaskFetchSize(LdapUtils.intValue(attrs.get("dcmExportTaskFetchSize"), 5));
+        ext.setPurgeStoragePollingInterval(
+                toDuration(LdapUtils.stringValue(attrs.get("dcmPurgeStoragePollingInterval"), null)));
+        ext.setPurgeStorageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeStorageFetchSize"), 100));
+        ext.setDeleteRejectedPollingInterval(
+                toDuration(LdapUtils.stringValue(attrs.get("dcmDeleteRejectedPollingInterval"), null)));
+        ext.setDeleteRejectedFetchSize(LdapUtils.intValue(attrs.get("dcmDeleteRejectedFetchSize"), 100));
     }
 
     @Override
@@ -162,6 +172,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getExportTaskPollingInterval(), bb.getExportTaskPollingInterval());
         LdapUtils.storeDiff(mods, "dcmExportTaskFetchSize",
                 aa.getExportTaskFetchSize(), bb.getExportTaskFetchSize(), 5);
+        LdapUtils.storeDiff(mods, "dcmPurgeStoragePollingInterval",
+                aa.getPurgeStoragePollingInterval(), bb.getPurgeStoragePollingInterval());
+        LdapUtils.storeDiff(mods, "dcmPurgeStorageFetchSize",
+                aa.getPurgeStorageFetchSize(), bb.getPurgeStorageFetchSize(), 100);
+        LdapUtils.storeDiff(mods, "dcmDeleteRejectedPollingInterval",
+                aa.getDeleteRejectedPollingInterval(), bb.getDeleteRejectedPollingInterval());
+        LdapUtils.storeDiff(mods, "dcmDeleteRejectedFetchSize",
+                aa.getDeleteRejectedFetchSize(), bb.getDeleteRejectedFetchSize(), 100);
     }
 
     @Override
@@ -431,8 +449,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm());
         LdapUtils.storeNotNull(attrs, "dcmInstanceAvailability", descriptor.getInstanceAvailability());
         LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
-        LdapUtils.storeNotNull(attrs, "dcmDeletionPollingInterval", descriptor.getDeletionPollingInterval());
-        LdapUtils.storeNotDef(attrs, "dcmDeletionTaskSize", descriptor.getDeletionTaskSize(), 100);
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         return attrs;
     }
@@ -457,9 +473,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
                 desc.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
-                desc.setDeletionPollingInterval(
-                        toDuration(LdapUtils.stringValue(attrs.get("dcmDeletionPollingInterval"), null)));
-                desc.setDeletionTaskSize(LdapUtils.intValue(attrs.get("dcmDeletionTaskSize"), 100));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 arcdev.addStorageDescriptor(desc);
             }
@@ -495,9 +508,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability());
         LdapUtils.storeDiff(mods, "dcmRetrieveAET", prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
-        LdapUtils.storeDiff(mods, "dcmDeletionPollingInterval",
-                prev.getDeletionPollingInterval(), desc.getDeletionPollingInterval());
-        LdapUtils.storeDiff(mods, "dcmDeletionTaskSize", prev.getDeletionTaskSize(), desc.getDeletionTaskSize(), 100);
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         return mods;
     }
@@ -976,24 +986,22 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void storeRejectNotes(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
         for (RejectionNote rejectionNote : arcDev.getRejectionNotes()) {
-            String id = rejectionNote.getRejectionNoteID();
+            String id = rejectionNote.getRejectionNoteLabel();
             config.createSubcontext(
-                    LdapUtils.dnOf("dcmRejectionNoteID", id, deviceDN),
+                    LdapUtils.dnOf("dcmRejectionNoteLabel", id, deviceDN),
                     storeTo(rejectionNote, new BasicAttributes(true)));
         }
     }
 
     private Attributes storeTo(RejectionNote rjNote, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmRejectionNote");
-        attrs.put("dcmRejectionNoteID", rjNote.getRejectionNoteID());
+        attrs.put("dcmRejectionNoteLabel", rjNote.getRejectionNoteLabel());
         LdapUtils.storeNotNull(attrs, "dcmRejectionNoteCode", rjNote.getRejectionNoteCode());
         LdapUtils.storeNotDef(attrs, "dcmRevokeRejection", rjNote.isRevokeRejection(), false);
         LdapUtils.storeNotNull(attrs, "dcmAcceptPreviousRejectedInstance", rjNote.getAcceptPreviousRejectedInstance());
         LdapUtils.storeNotEmpty(attrs, "dcmOverwritePreviousRejection", rjNote.getOverwritePreviousRejection());
         LdapUtils.storeNotNull(attrs, "dcmDeleteRejectedInstanceDelay", rjNote.getDeleteRejectedInstanceDelay());
         LdapUtils.storeNotNull(attrs, "dcmDeleteRejectionNoteDelay", rjNote.getDeleteRejectionNoteDelay());
-        LdapUtils.storeNotNull(attrs, "dcmDeletionPollingInterval", rjNote.getDeletionPollingInterval());
-        LdapUtils.storeNotDef(attrs, "dcmDeletionTaskSize", rjNote.getDeletionTaskSize(), 100);
         return attrs;
     }
 
@@ -1003,7 +1011,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                RejectionNote rjNote = new RejectionNote(LdapUtils.stringValue(attrs.get("dcmRejectionNoteID"), null));
+                RejectionNote rjNote = new RejectionNote(LdapUtils.stringValue(attrs.get("dcmRejectionNoteLabel"), null));
                 rjNote.setRejectionNoteCode(LdapUtils.codeValue(attrs.get("dcmRejectionNoteCode")));
                 rjNote.setRevokeRejection(LdapUtils.booleanValue(attrs.get("dcmRevokeRejection"), false));
                 rjNote.setAcceptPreviousRejectedInstance(LdapUtils.enumValue(
@@ -1015,9 +1023,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         toDuration(LdapUtils.stringValue(attrs.get("dcmDeleteRejectedInstanceDelay"), null)));
                 rjNote.setDeleteRejectionNoteDelay(
                         toDuration(LdapUtils.stringValue(attrs.get("dcmDeleteRejectionNoteDelay"), null)));
-                rjNote.setDeletionPollingInterval(
-                        toDuration(LdapUtils.stringValue(attrs.get("dcmDeletionPollingInterval"), null)));
-                rjNote.setDeletionTaskSize(LdapUtils.intValue(attrs.get("dcmDeletionTaskSize"), 100));
                 arcdev.addRejectionNote(rjNote);
             }
         } finally {
@@ -1028,13 +1033,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private void mergeRejectNotes(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
         for (RejectionNote entry : prev.getRejectionNotes()) {
-            String rjNoteID = entry.getRejectionNoteID();
+            String rjNoteID = entry.getRejectionNoteLabel();
             if (arcDev.getRejectionNote(rjNoteID) == null)
-                config.destroySubcontext(LdapUtils.dnOf("dcmRejectionNoteID", rjNoteID, deviceDN));
+                config.destroySubcontext(LdapUtils.dnOf("dcmRejectionNoteLabel", rjNoteID, deviceDN));
         }
         for (RejectionNote entryNew : arcDev.getRejectionNotes()) {
-            String rjNoteID = entryNew.getRejectionNoteID();
-            String dn = LdapUtils.dnOf("dcmRejectionNoteID", rjNoteID, deviceDN);
+            String rjNoteID = entryNew.getRejectionNoteLabel();
+            String dn = LdapUtils.dnOf("dcmRejectionNoteLabel", rjNoteID, deviceDN);
             RejectionNote entryOld = prev.getRejectionNote(rjNoteID);
             if (entryOld == null) {
                 config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
@@ -1060,10 +1065,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmDeleteRejectionNoteDelay",
                 prev.getDeleteRejectionNoteDelay(),
                 rjNote.getDeleteRejectionNoteDelay());
-        LdapUtils.storeDiff(mods, "dcmDeletionPollingInterval",
-                prev.getDeletionPollingInterval(),
-                rjNote.getDeletionPollingInterval());
-        LdapUtils.storeDiff(mods, "dcmDeletionTaskSize", prev.getDeletionTaskSize(), rjNote.getDeletionTaskSize(), 100);
         return mods;
     }
 

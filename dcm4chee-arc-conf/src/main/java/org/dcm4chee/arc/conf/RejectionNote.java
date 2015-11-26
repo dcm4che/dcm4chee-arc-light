@@ -49,7 +49,7 @@ import org.dcm4che3.data.Code;
 public class RejectionNote {
 
     public enum AcceptPreviousRejectedInstance { REJECT, RESTORE, IGNORE }
-    private final String rejectionNoteID;
+    private final String rejectionNoteLabel;
     private Code rejectionNoteCode;
     private int seriesNumber;
     private int instanceNumber;
@@ -58,15 +58,13 @@ public class RejectionNote {
     private Code[] overwritePreviousRejection = {};
     private Duration deleteRejectedInstanceDelay;
     private Duration deleteRejectionNoteDelay;
-    private Duration deletionPollingInterval;
-    private int deletionTaskSize = 100;
 
-    public RejectionNote(String rejectionNoteID) {
-        this.rejectionNoteID = rejectionNoteID;
+    public RejectionNote(String rejectionNoteLabel) {
+        this.rejectionNoteLabel = rejectionNoteLabel;
     }
 
-    public String getRejectionNoteID() {
-        return rejectionNoteID;
+    public String getRejectionNoteLabel() {
+        return rejectionNoteLabel;
     }
 
     public Code getRejectionNoteCode() {
@@ -138,21 +136,5 @@ public class RejectionNote {
 
     public void setDeleteRejectionNoteDelay(Duration deleteRejectionNoteDelay) {
         this.deleteRejectionNoteDelay = deleteRejectionNoteDelay;
-    }
-
-    public Duration getDeletionPollingInterval() {
-        return deletionPollingInterval;
-    }
-
-    public void setDeletionPollingInterval(Duration deletionPollingInterval) {
-        this.deletionPollingInterval = deletionPollingInterval;
-    }
-
-    public int getDeletionTaskSize() {
-        return deletionTaskSize;
-    }
-
-    public void setDeletionTaskSize(int deletionTaskSize) {
-        this.deletionTaskSize = deletionTaskSize;
     }
 }

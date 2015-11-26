@@ -514,7 +514,6 @@ class ArchiveDeviceFactory {
     static final Code REVOKE_REJECTION =
             new Code("REVOKE_REJECTION", "99DCM4CHEE", null, "Restore rejected Instances");
     static final Code[] REJECTION_CODES = {
-            INCORRECT_WORKLIST_ENTRY_SELECTED,
             REJECTED_FOR_QUALITY_REASONS,
             REJECT_FOR_PATIENT_SAFETY_REASONS,
             INCORRECT_MODALITY_WORKLIST_ENTRY,
@@ -620,8 +619,10 @@ class ArchiveDeviceFactory {
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final int EXPORT_TASK_FETCH_SIZE = 2;
-    static final Duration DELETION_POLLING_INTERVAL = Duration.parse("PT5M");
-    static final int DELETION_TASK_SIZE = 10;
+    static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.parse("PT5M");
+    static final int PURGE_STORAGE_FETCH_SIZE = 10;
+    static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
+    static final int DELETE_REJECTED_FETCH_SIZE = 10;
     static final Duration DELETE_REJECTED_INSTANCE_DELAY = Duration.parse("PT5M");
     static final Duration DELETE_REJECTION_NOTE_DELAY = Duration.parse("PT5M");
 
@@ -840,6 +841,12 @@ class ArchiveDeviceFactory {
         ext.setPatientUpdateTemplateURI(HL7_ADT2DCM_XSL);
         ext.setUnzipVendorDataToURI(UNZIP_VENDOR_DATA);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
+        ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
+        ext.setExportTaskFetchSize(EXPORT_TASK_FETCH_SIZE);
+        ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
+        ext.setPurgeStorageFetchSize(PURGE_STORAGE_FETCH_SIZE);
+        ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
+        ext.setDeleteRejectedFetchSize(DELETE_REJECTED_FETCH_SIZE);
 
         ext.setAttributeFilter(Entity.Patient, new AttributeFilter(PATIENT_ATTRS));
         ext.setAttributeFilter(Entity.Study, new AttributeFilter(STUDY_ATTRS));
@@ -853,8 +860,6 @@ class ArchiveDeviceFactory {
         storageDescriptor.setRetrieveAETitles("DCM4CHEE", "DCM4CHEE_ADMIN");
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
-        storageDescriptor.setDeletionPollingInterval(DELETION_POLLING_INTERVAL);
-        storageDescriptor.setDeletionTaskSize(DELETION_TASK_SIZE);
         ext.addStorageDescriptor(storageDescriptor);
 
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
@@ -868,8 +873,6 @@ class ArchiveDeviceFactory {
         exportDescriptor.setQueueName("Export1");
         exportDescriptor.setAETitle("DCM4CHEE");
         ext.addExporterDescriptor(exportDescriptor);
-        ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
-        ext.setExportTaskFetchSize(EXPORT_TASK_FETCH_SIZE);
 
         ExportRule exportRule = new ExportRule("Forward to STORESCP");
         exportRule.getConditions().setSendingAETitle("FORWARD");
@@ -890,38 +893,33 @@ class ArchiveDeviceFactory {
         ext.addAttributeCoercion(createAttributeCoercion(
                 "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN));
 
-        ext.addRejectionNote(createRejectionNote("rejectedForQualityReasons", REJECTED_FOR_QUALITY_REASONS,
-                RejectionNote.AcceptPreviousRejectedInstance.IGNORE, null, null));
-        ext.addRejectionNote(createRejectionNote("rejectedForPatientSafetyReasons", REJECT_FOR_PATIENT_SAFETY_REASONS,
-                RejectionNote.AcceptPreviousRejectedInstance.REJECT, null, null, REJECTED_FOR_QUALITY_REASONS));
-        ext.addRejectionNote(createRejectionNote("incorrectModalityWorklistEntry", INCORRECT_MODALITY_WORKLIST_ENTRY,
-                RejectionNote.AcceptPreviousRejectedInstance.REJECT, null, null,
+        ext.addRejectionNote(createRejectionNote("Quality", REJECTED_FOR_QUALITY_REASONS,
+                RejectionNote.AcceptPreviousRejectedInstance.IGNORE));
+        ext.addRejectionNote(createRejectionNote("Patient Safety", REJECT_FOR_PATIENT_SAFETY_REASONS,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT,
+                REJECTED_FOR_QUALITY_REASONS));
+        ext.addRejectionNote(createRejectionNote("Incorrect MWL Entry", INCORRECT_MODALITY_WORKLIST_ENTRY,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS));
-        ext.addRejectionNote(createRejectionNote("dataRetentionPolicyExpired", DATA_RETENTION_POLICY_EXPIRED,
+        RejectionNote retentionExpired = createRejectionNote("Retention Expired", DATA_RETENTION_POLICY_EXPIRED,
                 RejectionNote.AcceptPreviousRejectedInstance.RESTORE,
-                DELETE_REJECTED_INSTANCE_DELAY, DELETE_REJECTION_NOTE_DELAY,
-                REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY));
-        ext.addRejectionNote(createRejectionNote("revokeRejection", REVOKE_REJECTION, null, null, null,
+                REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
+        retentionExpired.setDeleteRejectedInstanceDelay(DELETE_REJECTED_INSTANCE_DELAY);
+        retentionExpired.setDeleteRejectionNoteDelay(DELETE_REJECTION_NOTE_DELAY);
+        ext.addRejectionNote(retentionExpired);
+        ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
                 REJECTION_CODES));
     }
 
-    private static RejectionNote createRejectionNote(
-            String rejectionNoteID, Code rejectionNoteCode,
+    private static RejectionNote createRejectionNote(String rejectionNoteLabel, Code rejectionNoteCode,
             RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
-            Duration deleteRejectedInstanceDelay, Duration deleteRejectionNoteDelay,
             Code... overwritePreviousRejection) {
-        RejectionNote rejectionNote = new RejectionNote(rejectionNoteID);
-        rejectionNote.setRejectionNoteCode(rejectionNoteCode);
-        rejectionNote.setRevokeRejection(rejectionNoteCode == REVOKE_REJECTION);
-        rejectionNote.setAcceptPreviousRejectedInstance(acceptPreviousRejectedInstance);
-        rejectionNote.setDeleteRejectedInstanceDelay(deleteRejectedInstanceDelay);
-        rejectionNote.setDeleteRejectionNoteDelay(deleteRejectionNoteDelay);
-        rejectionNote.setOverwritePreviousRejection(overwritePreviousRejection);
-        if (deleteRejectedInstanceDelay != null) {
-            rejectionNote.setDeletionPollingInterval(DELETION_POLLING_INTERVAL);
-            rejectionNote.setDeletionTaskSize(DELETION_TASK_SIZE);
-        }
-        return rejectionNote;
+        RejectionNote rjNote = new RejectionNote(rejectionNoteLabel);
+        rjNote.setRejectionNoteCode(rejectionNoteCode);
+        rjNote.setRevokeRejection(rejectionNoteCode == REVOKE_REJECTION);
+        rjNote.setAcceptPreviousRejectedInstance(acceptPreviousRejectedInstance);
+        rjNote.setOverwritePreviousRejection(overwritePreviousRejection);
+        return rjNote;
     }
 
     private static ApplicationEntity createAE(String aet, String description,
