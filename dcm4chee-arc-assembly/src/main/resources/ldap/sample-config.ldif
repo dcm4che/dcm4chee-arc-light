@@ -1040,8 +1040,6 @@ objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
 dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
-dcmDeleteRejectedInstanceDelay: PT5M
-dcmDeleteRejectionNoteDelay: PT5M
 
 dn: dcmRejectionNoteLabel=Patient Safety,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=example,dc=com
 dcmRejectionNoteLabel: Patient Safety

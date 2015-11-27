@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.impl;
 
+import org.dcm4che3.conf.api.ApplicationEntityCache;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.service.HL7Service;
@@ -82,6 +84,9 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Inject
     private Instance<Scheduler> schedulers;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     @Inject
     private Device device;
@@ -170,6 +175,7 @@ public class ArchiveServiceImpl implements ArchiveService {
         deviceProducer.reloadConfiguration();
         for (Scheduler scheduler : schedulers) scheduler.reload();
         device.rebindConnections();
+        aeCache.clear();
         archiveServiceEvent.fire(ArchiveServiceEvent.RELOADED);
     }
 

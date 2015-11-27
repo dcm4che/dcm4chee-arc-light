@@ -904,8 +904,8 @@ class ArchiveDeviceFactory {
         RejectionNote retentionExpired = createRejectionNote("Retention Expired", DATA_RETENTION_POLICY_EXPIRED,
                 RejectionNote.AcceptPreviousRejectedInstance.RESTORE,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
-        retentionExpired.setDeleteRejectedInstanceDelay(DELETE_REJECTED_INSTANCE_DELAY);
-        retentionExpired.setDeleteRejectionNoteDelay(DELETE_REJECTION_NOTE_DELAY);
+//        retentionExpired.setDeleteRejectedInstanceDelay(DELETE_REJECTED_INSTANCE_DELAY);
+//        retentionExpired.setDeleteRejectionNoteDelay(DELETE_REJECTION_NOTE_DELAY);
         ext.addRejectionNote(retentionExpired);
         ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
                 REJECTION_CODES));

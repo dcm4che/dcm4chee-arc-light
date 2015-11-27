@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,38 +40,29 @@
 
 package org.dcm4chee.arc.delete.impl;
 
-import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.entity.Location;
+import org.dcm4che3.data.Code;
+import org.dcm4chee.arc.delete.DeletionService;
 
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @since Nov 2015
  */
-@Stateless
-public class DeleterEJB {
+@ApplicationScoped
+public class DeletionServiceImpl implements DeletionService {
 
-    @PersistenceContext(unitName="dcm4chee-arc")
-    private EntityManager em;
+    @Inject
+    private DeletionServiceEJB ejb;
 
-    public List<Location> findLocationsToDelete(String storageID, int limit) {
-        return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
-                .setParameter(1, storageID)
-                .setParameter(2, Location.Status.TO_DELETE)
-                .setMaxResults(limit)
-                .getResultList();
-    }
-
-    public void failedToDelete(Location location) {
-        location.setStatus(Location.Status.FAILED_TO_DELETE);
-        em.merge(location);
-    }
-
-    public void remove(Location location) {
-        em.remove(em.merge(location));
+    @Override
+    public int deleteRejectedInstances(Code rejectionCode, int fetchSize) {
+        int total = 0;
+        int deleted;
+        do {
+            total += deleted = ejb.deleteRejectedInstancesAndRejectionNotes(rejectionCode, fetchSize);
+        } while (deleted == fetchSize);
+        return total;
     }
 }

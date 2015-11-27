@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,30 +40,29 @@
 
 package org.dcm4chee.arc.delete.impl;
 
+import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.storage.Storage;
-import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.util.List;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
  */
 @ApplicationScoped
-public class PurgeStorageScheduler extends Scheduler {
+public class DeleteRejectedInstancesScheduler extends Scheduler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PurgeStorageScheduler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeleteRejectedInstancesScheduler.class);
 
     @Inject
     private Device device;
@@ -71,47 +70,32 @@ public class PurgeStorageScheduler extends Scheduler {
     @Inject
     private DeletionServiceEJB ejb;
 
-    @Inject
-    private StorageFactory storageFactory;
-
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getPurgeStoragePollingInterval();
+        return arcDev.getDeleteRejectedPollingInterval();
     }
 
     @Override
     public void run() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int fetchSize = arcDev.getPurgeStorageFetchSize();
-        for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
-            try {
-                while (deleteNext(desc, fetchSize))
-                    ;
-            } catch (IOException e) {
-                LOG.error("Failed to delete objects from {}", desc.getStorageURI(), e);
-            }
+        int fetchSize = arcDev.getDeleteRejectedFetchSize();
+        for (RejectionNote rjNote : arcDev.getRejectionNotes()) {
+            Code rjCode = rjNote.getRejectionNoteCode();
+            delete(Location.FIND_BY_REJECTION_CODE_BEFORE, rjCode, rjNote.getDeleteRejectedInstanceDelay(), fetchSize);
+            delete(Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE, rjCode, rjNote.getDeleteRejectionNoteDelay(), fetchSize);
         }
     }
 
-    private boolean deleteNext(StorageDescriptor desc, int fetchSize) throws IOException {
-        List<Location> locations = ejb.findLocationsToDelete(desc.getStorageID(), fetchSize);
-        if (locations.isEmpty())
-            return false;
+    private void delete(String queryName, Code rjCode, Duration delay, int fetchSize) {
+        if (delay == null)
+            return;
 
-        try (Storage storage = storageFactory.getStorage(desc)) {
-            for (Location location : locations) {
-                try {
-                    storage.deleteObject(location.getStoragePath());
-                    ejb.remove(location);
-                    LOG.info("Successfully delete {} from {}", location, desc.getStorageURI());
-                } catch (IOException e) {
-                    ejb.failedToDelete(location);
-                    LOG.warn("Failed to delete {} from {}", location, desc.getStorageURI(), e);
-                }
-            }
-        }
-        return locations.size() == fetchSize;
+        Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
+        int deleted;
+        do {
+            deleted = ejb.deleteRejectedInstancesOrRejectionNotesBefore(queryName, rjCode, before, fetchSize);
+        } while (deleted == fetchSize);
     }
 
 }

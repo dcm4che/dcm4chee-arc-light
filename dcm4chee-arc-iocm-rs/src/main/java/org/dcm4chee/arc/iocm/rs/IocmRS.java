@@ -133,7 +133,7 @@ public class IocmRS {
 
     private void reject(String method, String studyUID, String seriesUID, String objectUID,
                         String codeValue, String designator) throws IOException {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = getApplicationEntity();
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
