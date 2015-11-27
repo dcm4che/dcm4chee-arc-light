@@ -11,15 +11,18 @@
         </select>
     </div>
     <div class="form-group">
+        <label for="limit">Page Size:</label>
+        <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
+    </div>
+    <div class="form-group">
         <label for="reject">Reject:</label>
         <select id="reject" ng-model="reject">
             <option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}"
                     value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
         </select>
-    </div>
-    <div class="form-group">
-        <label for="limit">Page Size:</label>
-        <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
+        <a ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently">
+            <span class="glyphicon glyphicon-remove"></span>
+        </a>
     </div>
     <br/>
     <div class="form-group">

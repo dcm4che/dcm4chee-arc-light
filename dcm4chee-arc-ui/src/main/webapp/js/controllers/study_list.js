@@ -6,7 +6,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.aes = [];
     $scope.aet = null;
     $scope.rjnotes = [];
-    $scope.reject = "113039^DCM";
+    $scope.rjnote = null;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
@@ -86,6 +86,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.rejectInstance = function(instance) {
         $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
             $scope.queryInstances(instance.series, instance.series.instances[0].offset);
+        });
+    };
+    $scope.deleteRejectedInstances = function() {
+        $http.delete('../reject/' + $scope.reject).then(function (res) {
         });
     };
     $scope.downloadURL = function (inst, transferSyntax) {
@@ -235,6 +239,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
         });
         $http.get("../reject").then(function (res) {
             $scope.rjnotes = res.data;
+            $scope.reject = res.data[0].codeValue + "^" + res.data[0].codingSchemeDesignator;
         });
     }
     init();
