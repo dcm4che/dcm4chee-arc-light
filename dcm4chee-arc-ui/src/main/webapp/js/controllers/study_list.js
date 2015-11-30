@@ -1,6 +1,7 @@
 "use strict";
 
 myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService) {
+    $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
     $scope.limit = 20;
     $scope.aes = [];
