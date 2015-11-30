@@ -239,8 +239,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
             $scope.aet = res.data[0].title;
         });
         $http.get("../reject").then(function (res) {
-            $scope.rjnotes = res.data;
-            $scope.reject = res.data[0].codeValue + "^" + res.data[0].codingSchemeDesignator;
+            var rjnotes = res.data;
+            for (var i = 0; i < rjnotes.length; i++) {
+                var item = rjnotes[i];
+                if (item.codeValue === "113039" && item.codingSchemeDesignator === "DCM") {
+                    rjnotes[i] = rjnotes[0];
+                    rjnotes[0] = item;
+                    break;
+                }
+            }
+            $scope.rjnotes = rjnotes;
+            $scope.reject = rjnotes[0].codeValue + "^" + rjnotes[0].codingSchemeDesignator;
         });
     }
     init();
