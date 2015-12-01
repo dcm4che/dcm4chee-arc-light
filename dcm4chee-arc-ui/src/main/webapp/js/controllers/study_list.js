@@ -4,9 +4,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
     $scope.limit = 20;
-    $scope.aes = [];
+    $scope.aes;
     $scope.aet = null;
-    $scope.rjnotes = [];
+    $scope.rjnotes;
     $scope.rjnote = null;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: '', to: ''};
@@ -233,24 +233,36 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
             a.push(i);
         return a;
     }
-    function init() {
-        $http.get("../aets").then(function (res) {
-            $scope.aes = res.data;
-            $scope.aet = res.data[0].title;
-        });
-        $http.get("../reject").then(function (res) {
-            var rjnotes = res.data;
-            for (var i = 0; i < rjnotes.length; i++) {
-                var item = rjnotes[i];
-                if (item.codeValue === "113039" && item.codingSchemeDesignator === "DCM") {
-                    rjnotes[i] = rjnotes[0];
-                    rjnotes[0] = item;
-                    break;
-                }
-            }
-            $scope.rjnotes = rjnotes;
-            $scope.reject = rjnotes[0].codeValue + "^" + rjnotes[0].codingSchemeDesignator;
-        });
+    function initAETs(retries) {
+        $http.get("../aets").then(
+            function (res) {
+                $scope.aes = res.data;
+                $scope.aet = res.data[0].title;
+            },
+            function (res) {
+                if (retries)
+                    initAETs(retries-1);
+            });
     }
-    init();
+    function initRjNotes(retries) {
+        $http.get("../reject").then(
+            function (res) {
+                var rjnotes = res.data;
+                rjnotes.sort(function (a, b) {
+                    if (a.codeValue === "113039" && a.codingSchemeDesignator === "DCM")
+                        return -1;
+                    if (b.codeValue === "113039" && b.codingSchemeDesignator === "DCM")
+                        return 1;
+                    return 0;
+                });
+                $scope.rjnotes = rjnotes;
+                $scope.reject = rjnotes[0].codeValue + "^" + rjnotes[0].codingSchemeDesignator;
+            },
+            function (res) {
+                if (retries)
+                    initRjNotes(retries-1);
+            });
+    }
+    initAETs(1);
+    initRjNotes(1);
 });
