@@ -85,29 +85,32 @@ public class ArchiveDeviceConfigurationTest {
 
     @Test
     public void testPersist() throws Exception {
-        for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
-            String aet = ArchiveDeviceFactory.OTHER_AES[i];
-            config.registerAETitle(aet);
-            config.persist(factory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i],
-                    ArchiveDeviceFactory.OTHER_ISSUER[i],
-                    ArchiveDeviceFactory.OTHER_INST_CODES[i],
-                    aet, "localhost",
-                    ArchiveDeviceFactory.OTHER_PORTS[i << 1],
-                    ArchiveDeviceFactory.OTHER_PORTS[(i << 1) + 1]));
+        boolean sampleConfig = Boolean.getBoolean("sampleConfig");
+        if (sampleConfig) {
+            for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
+                String aet = ArchiveDeviceFactory.OTHER_AES[i];
+                config.registerAETitle(aet);
+                config.persist(factory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i],
+                        ArchiveDeviceFactory.OTHER_ISSUER[i],
+                        ArchiveDeviceFactory.OTHER_INST_CODES[i],
+                        aet, "localhost",
+                        ArchiveDeviceFactory.OTHER_PORTS[i << 1],
+                        ArchiveDeviceFactory.OTHER_PORTS[(i << 1) + 1]));
+            }
+            hl7Config.registerHL7Application(ArchiveDeviceFactory.PIX_MANAGER);
+            for (int i = ArchiveDeviceFactory.OTHER_AES.length; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++)
+                config.persist(factory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i]));
+            config.persist(factory.createHL7Device("hl7rcv",
+                    ArchiveDeviceFactory.SITE_A,
+                    ArchiveDeviceFactory.INST_A,
+                    ArchiveDeviceFactory.PIX_MANAGER,
+                    "localhost", 2576, 12576));
         }
-        hl7Config.registerHL7Application(ArchiveDeviceFactory.PIX_MANAGER);
-        for (int i = ArchiveDeviceFactory.OTHER_AES.length; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++)
-            config.persist(factory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i]));
-        config.persist(factory.createHL7Device("hl7rcv",
-                ArchiveDeviceFactory.SITE_A,
-                ArchiveDeviceFactory.INST_A,
-                ArchiveDeviceFactory.PIX_MANAGER,
-                "localhost", 2576, 12576));
         Device arrDevice = factory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
         config.persist(arrDevice);
         config.registerAETitle("DCM4CHEE");
 
-        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice);
+        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, sampleConfig);
         config.persist(arc);
         ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
         assertNotNull(ae);

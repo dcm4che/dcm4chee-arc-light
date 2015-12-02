@@ -704,7 +704,7 @@ class ArchiveDeviceFactory {
         hl7app.addConnection(hl7TLS);
         return device;
     }
-    public Device createArchiveDevice(String name, Device arrDevice) throws Exception {
+    public Device createArchiveDevice(String name, Device arrDevice, boolean sampleConfig) throws Exception {
         Device device = new Device(name);
 
         Connection dicom = new Connection("dicom", "localhost", 11112);
@@ -714,18 +714,21 @@ class ArchiveDeviceFactory {
         dicom.setMaxOpsPerformed(0);
         device.addConnection(dicom);
 
-        Connection dicomTLS = new Connection("dicom-tls", "localhost", 2762);
-        dicomTLS.setBindAddress("0.0.0.0");
-        dicomTLS.setClientBindAddress("0.0.0.0");
-        dicomTLS.setMaxOpsInvoked(0);
-        dicomTLS.setMaxOpsPerformed(0);
-        dicomTLS.setTlsCipherSuites(
-                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
-                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-        device.addConnection(dicomTLS);
+        Connection dicomTLS = null;
+        if (sampleConfig) {
+            dicomTLS = new Connection("dicom-tls", "localhost", 2762);
+            dicomTLS.setBindAddress("0.0.0.0");
+            dicomTLS.setClientBindAddress("0.0.0.0");
+            dicomTLS.setMaxOpsInvoked(0);
+            dicomTLS.setMaxOpsPerformed(0);
+            dicomTLS.setTlsCipherSuites(
+                    Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                    Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+            device.addConnection(dicomTLS);
+        }
 
-        addArchiveDeviceExtension(device);
-        addHL7DeviceExtension(device);
+        addArchiveDeviceExtension(device, sampleConfig);
+        addHL7DeviceExtension(device, sampleConfig);
         addAuditLogger(device, arrDevice);
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
@@ -738,9 +741,10 @@ class ArchiveDeviceFactory {
         device.setKeyStorePin("secret");
         device.setThisNodeCertificates(config.deviceRef(name),
                 (X509Certificate) keyStore.getCertificate(name));
-        for (String other : OTHER_DEVICES)
-            device.setAuthorizedNodeCertificates(config.deviceRef(other),
-                    (X509Certificate) keyStore.getCertificate(other));
+        if (sampleConfig)
+            for (String other : OTHER_DEVICES)
+                device.setAuthorizedNodeCertificates(config.deviceRef(other),
+                        (X509Certificate) keyStore.getCertificate(other));
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true));
@@ -795,24 +799,9 @@ class ArchiveDeviceFactory {
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
     }
 
-    private static void addHL7DeviceExtension(Device device) {
+    private static void addHL7DeviceExtension(Device device, boolean sampleConfig) {
         HL7DeviceExtension ext = new HL7DeviceExtension();
         device.addDeviceExtension(ext);
-
-        Connection hl7 = new Connection("hl7", "localhost", 2575);
-        hl7.setBindAddress("0.0.0.0");
-        hl7.setClientBindAddress("0.0.0.0");
-        hl7.setProtocol(Connection.Protocol.HL7);
-        device.addConnection(hl7);
-
-        Connection hl7TLS = new Connection("hl7-tls", "localhost", 12575);
-        hl7TLS.setBindAddress("0.0.0.0");
-        hl7TLS.setClientBindAddress("0.0.0.0");
-        hl7TLS.setProtocol(Connection.Protocol.HL7);
-        hl7TLS.setTlsCipherSuites(
-                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
-                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-        device.addConnection(hl7TLS);
 
         HL7Application hl7App = new HL7Application("*");
         ArchiveHL7ApplicationExtension hl7AppExt = new ArchiveHL7ApplicationExtension();
@@ -820,11 +809,28 @@ class ArchiveDeviceFactory {
         hl7App.setAcceptedMessageTypes(HL7_MESSAGE_TYPES);
         hl7App.setHL7DefaultCharacterSet("8859/1");
         ext.addHL7Application(hl7App);
+
+        Connection hl7 = new Connection("hl7", "localhost", 2575);
+        hl7.setBindAddress("0.0.0.0");
+        hl7.setClientBindAddress("0.0.0.0");
+        hl7.setProtocol(Connection.Protocol.HL7);
+        device.addConnection(hl7);
         hl7App.addConnection(hl7);
-        hl7App.addConnection(hl7TLS);
+
+        if (sampleConfig) {
+            Connection hl7TLS = new Connection("hl7-tls", "localhost", 12575);
+            hl7TLS.setBindAddress("0.0.0.0");
+            hl7TLS.setClientBindAddress("0.0.0.0");
+            hl7TLS.setProtocol(Connection.Protocol.HL7);
+            hl7TLS.setTlsCipherSuites(
+                    Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                    Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+            device.addConnection(hl7TLS);
+            hl7App.addConnection(hl7TLS);
+        }
     }
 
-    private static void addArchiveDeviceExtension(Device device) {
+    private static void addArchiveDeviceExtension(Device device, boolean sampleConfig) {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
@@ -865,34 +871,6 @@ class ArchiveDeviceFactory {
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
             ext.addQueueDescriptor(descriptor);
 
-        ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
-        exportDescriptor.setExportURI(EXPORT_URI);
-        exportDescriptor.setSchedules(
-                ScheduleExpression.valueOf("hour=18-6 dayOfWeek=*"),
-                ScheduleExpression.valueOf("hour=* dayOfWeek=0,6"));
-        exportDescriptor.setQueueName("Export1");
-        exportDescriptor.setAETitle("DCM4CHEE");
-        ext.addExporterDescriptor(exportDescriptor);
-
-        ExportRule exportRule = new ExportRule("Forward to STORESCP");
-        exportRule.getConditions().setSendingAETitle("FORWARD");
-        exportRule.getConditions().setCondition("Modality", "CT|MR");
-        exportRule.setEntity(Entity.Series);
-        exportRule.setExportDelay(Duration.parse("PT1M"));
-        exportRule.setExporterIDs(EXPORTER_ID);
-        ext.addExportRule(exportRule);
-
-        ext.addCompressionRule(JPEG_BASELINE);
-        ext.addCompressionRule(JPEG_EXTENDED);
-        ext.addCompressionRule(JPEG_LOSSLESS);
-        ext.addCompressionRule(JPEG_LS);
-        ext.addCompressionRule(JPEG_2000);
-
-        ext.addAttributeCoercion(createAttributeCoercion(
-                "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID));
-        ext.addAttributeCoercion(createAttributeCoercion(
-                "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN));
-
         ext.addRejectionNote(createRejectionNote("Quality", REJECTED_FOR_QUALITY_REASONS,
                 RejectionNote.AcceptPreviousRejectedInstance.IGNORE));
         ext.addRejectionNote(createRejectionNote("Patient Safety", REJECT_FOR_PATIENT_SAFETY_REASONS,
@@ -904,11 +882,39 @@ class ArchiveDeviceFactory {
         RejectionNote retentionExpired = createRejectionNote("Retention Expired", DATA_RETENTION_POLICY_EXPIRED,
                 RejectionNote.AcceptPreviousRejectedInstance.RESTORE,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
-//        retentionExpired.setDeleteRejectedInstanceDelay(DELETE_REJECTED_INSTANCE_DELAY);
-//        retentionExpired.setDeleteRejectionNoteDelay(DELETE_REJECTION_NOTE_DELAY);
         ext.addRejectionNote(retentionExpired);
         ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
                 REJECTION_CODES));
+
+        if (sampleConfig) {
+            ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
+            exportDescriptor.setExportURI(EXPORT_URI);
+            exportDescriptor.setSchedules(
+                    ScheduleExpression.valueOf("hour=18-6 dayOfWeek=*"),
+                    ScheduleExpression.valueOf("hour=* dayOfWeek=0,6"));
+            exportDescriptor.setQueueName("Export1");
+            exportDescriptor.setAETitle("DCM4CHEE");
+            ext.addExporterDescriptor(exportDescriptor);
+
+            ExportRule exportRule = new ExportRule("Forward to STORESCP");
+            exportRule.getConditions().setSendingAETitle("FORWARD");
+            exportRule.getConditions().setCondition("Modality", "CT|MR");
+            exportRule.setEntity(Entity.Series);
+            exportRule.setExportDelay(Duration.parse("PT1M"));
+            exportRule.setExporterIDs(EXPORTER_ID);
+            ext.addExportRule(exportRule);
+
+            ext.addCompressionRule(JPEG_BASELINE);
+            ext.addCompressionRule(JPEG_EXTENDED);
+            ext.addCompressionRule(JPEG_LOSSLESS);
+            ext.addCompressionRule(JPEG_LS);
+            ext.addCompressionRule(JPEG_2000);
+
+            ext.addAttributeCoercion(createAttributeCoercion(
+                    "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID));
+            ext.addAttributeCoercion(createAttributeCoercion(
+                    "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN));
+        }
     }
 
     private static RejectionNote createRejectionNote(String rejectionNoteLabel, Code rejectionNoteCode,
@@ -927,26 +933,28 @@ class ArchiveDeviceFactory {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
-        ae.addConnection(dicomTLS);
+        if (dicomTLS != null)
+            ae.addConnection(dicomTLS);
 
         ArchiveAEExtension aeExt = new ArchiveAEExtension();
         ae.addAEExtension(aeExt);
         ae.setAssociationAcceptor(true);
         ae.setAssociationInitiator(true);
-        if (storeSCP)
-            for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
-                addTCs(ae, null, SCP, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
-        for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
-            addTCs(ae, null, SCU, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
+        addTC(ae, null, SCP, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
+        addTC(ae, null, SCU, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
         addTCs(ae, EnumSet.allOf(QueryOption.class), SCP, QUERY_CUIDS, UID.ImplicitVRLittleEndian);
         addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
 //        addTC(ae, null, SCP, UID.CompositeInstanceRetrieveWithoutBulkDataGET, UID.ImplicitVRLittleEndian);
-        addTC(ae, null, SCP, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
-        addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
-        addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
-//        addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
-        addTC(ae, null, SCP, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
-        addTC(ae, null, SCU, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
+        for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
+            addTCs(ae, null, SCU, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
+        if (storeSCP) {
+            for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
+                addTCs(ae, null, SCP, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
+            addTC(ae, null, SCP, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
+            addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
+            addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
+//            addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
+        }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         return ae;
     }
