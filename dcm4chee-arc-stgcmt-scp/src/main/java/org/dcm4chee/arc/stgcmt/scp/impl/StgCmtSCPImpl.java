@@ -89,7 +89,7 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
     @Override
     public Outcome sendNEventReport(String localAET, String remoteAET, Attributes eventInfo)
             throws Exception  {
-            ApplicationEntity localAE = device.getApplicationEntity(localAET);
+            ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
             AAssociateRQ aarq = mkAAssociateRQ(localAE);
             Association as = localAE.connect(remoteAE, aarq);
