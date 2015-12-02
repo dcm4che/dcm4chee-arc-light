@@ -85,7 +85,7 @@ public class DeleteRejected {
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator)
             throws Exception {
-        LOG.info("Process GET {} from {}@{}",
+        LOG.info("Process DELETE {} from {}@{}",
                 request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Code code = new Code(codeValue, designator, null, "?");
