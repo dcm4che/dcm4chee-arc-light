@@ -55,6 +55,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Reader;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -106,6 +107,18 @@ public class ConfigurationRS {
                 gen.flush();
             }
         };
+    }
+
+    @PUT
+    @Path("/{DeviceName}")
+    @Consumes("application/json")
+    public void createOrUpdateDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
+        Device device = jsonConf.loadDeviceFrom(Json.createParser(content));
+        try {
+            conf.merge(device);
+        } catch (ConfigurationNotFoundException e) {
+            conf.persist(device);
+        }
     }
 
 }
