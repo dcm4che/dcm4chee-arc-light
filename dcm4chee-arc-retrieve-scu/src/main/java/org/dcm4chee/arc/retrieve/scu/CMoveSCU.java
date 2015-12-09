@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,61 +38,22 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve.scp;
+package org.dcm4chee.arc.retrieve.scu;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.BasicCMoveSCP;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
-import org.dcm4chee.arc.store.scu.CStoreSCU;
-
-import javax.inject.Inject;
-import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2015
+ * @since Dec 2015
  */
-class CommonCMoveSCP extends BasicCMoveSCP {
+public interface CMoveSCU {
 
-    private final EnumSet<QueryRetrieveLevel2> qrLevels;
-
-    @Inject
-    private RetrieveService retrieveService;
-
-    @Inject
-    private CStoreSCU storeSCU;
-
-    @Inject
-    private CMoveSCU moveSCU;
-
-    public CommonCMoveSCP(String sopClass, EnumSet<QueryRetrieveLevel2> qrLevels) {
-        super(sopClass);
-        this.qrLevels = qrLevels;
-    }
-
-    @Override
-    protected RetrieveTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
-            throws DicomServiceException {
-        EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
-        QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
-                keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
-        RetrieveContext ctx = retrieveService.newRetrieveContextMOVE(as, rq, qrLevel, keys);
-        if (!retrieveService.calculateMatches(ctx)) {
-            String retrieveAET = ctx.getArchiveAEExtension().fallbackCMoveSCP();
-            return retrieveAET != null
-                    ? moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys, retrieveAET)
-                    : null;
-        }
-
-        return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
-    }
+    RetrieveTask newForwardRetrieveTask(
+            ApplicationEntity proxyAE, Association proxyAS, PresentationContext pc, Attributes rq, Attributes keys,
+            String retrieveAET) throws DicomServiceException;
 }

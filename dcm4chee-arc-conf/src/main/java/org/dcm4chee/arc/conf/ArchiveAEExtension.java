@@ -65,6 +65,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String[] mppsForwardDestinations;
+    private String fallbackCMoveSCP;
     private int qidoMaxNumberOfResults;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -228,6 +229,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getMppsForwardDestinations();
     }
 
+    public String getFallbackCMoveSCP() {
+        return fallbackCMoveSCP;
+    }
+
+    public void setFallbackCMoveSCP(String fallbackCMoveSCP) {
+        this.fallbackCMoveSCP = fallbackCMoveSCP;
+    }
+
+    public String fallbackCMoveSCP() {
+        return fallbackCMoveSCP != null
+                ? fallbackCMoveSCP
+                : getArchiveDeviceExtension().getFallbackCMoveSCP();
+    }
+
     public int getQidoMaxNumberOfResults() {
         return qidoMaxNumberOfResults;
     }
@@ -303,6 +318,8 @@ public class ArchiveAEExtension extends AEExtension {
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
+        mppsForwardDestinations = aeExt.mppsForwardDestinations;
+        fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);

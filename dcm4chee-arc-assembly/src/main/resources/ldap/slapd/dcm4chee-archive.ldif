@@ -263,6 +263,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.52 NAME 'dcmDeleteRejectedFetchSize'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.53 NAME 'dcmFallbackCMoveSCP'
+  DESC 'AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -282,6 +286,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmWadoSR2TextTemplateURI $
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
+    dcmFallbackCMoveSCP $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
     dcmPurgeStoragePollingInterval $
@@ -305,7 +310,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
     dcmQidoMaxNumberOfResults $
-    dcmFwdMppsDestination ) )
+    dcmFwdMppsDestination $
+    dcmFallbackCMoveSCP ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
   SUP top STRUCTURAL

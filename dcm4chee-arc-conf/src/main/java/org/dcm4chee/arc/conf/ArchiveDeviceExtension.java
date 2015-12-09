@@ -69,6 +69,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String patientUpdateTemplateURI;
     private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
+    private String fallbackCMoveSCP;
     private Duration exportTaskPollingInterval;
     private int exportTaskFetchSize = 5;
     private Duration deleteRejectedPollingInterval;
@@ -232,6 +233,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setMppsForwardDestinations(String... mppsForwardDestinations) {
         this.mppsForwardDestinations = mppsForwardDestinations;
+    }
+
+    public String getFallbackCMoveSCP() {
+        return fallbackCMoveSCP;
+    }
+
+    public void setFallbackCMoveSCP(String fallbackCMoveSCP) {
+        this.fallbackCMoveSCP = fallbackCMoveSCP;
     }
 
     public int getQidoMaxNumberOfResults() {
@@ -456,6 +465,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
+        fallbackCMoveSCP = arcdev.fallbackCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
         exportTaskFetchSize = arcdev.exportTaskFetchSize;
         deleteRejectedPollingInterval = arcdev.deleteRejectedPollingInterval;
