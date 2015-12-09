@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.json.JsonConfiguration;
@@ -114,6 +115,10 @@ public class ConfigurationRS {
     @Consumes("application/json")
     public void createOrUpdateDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
         Device device = jsonConf.loadDeviceFrom(Json.createParser(content));
+        if (!device.getDeviceName().equals(deviceName))
+            throw new WebApplicationException(
+                    "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
+                    Response.Status.BAD_REQUEST);
         try {
             conf.merge(device);
         } catch (ConfigurationNotFoundException e) {
@@ -121,4 +126,14 @@ public class ConfigurationRS {
         }
     }
 
-}
+    @DELETE
+    @Path("/{DeviceName}")
+    public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
+        try {
+            conf.removeDevice(deviceName);
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+    }
+
+ }
