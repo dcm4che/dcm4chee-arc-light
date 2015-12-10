@@ -69,6 +69,13 @@
 
   </properties>
 
+  <distributionManagement>
+    <repository>
+      <id>www.dcm4che.org</id>
+      <name>dcm4che Repository</name>
+      <url>scp://www.dcm4che.org:443/home/maven2</url>
+    </repository>
+  </distributionManagement>
   <repositories>
     <repository>
       <id>www.dcm4che.org</id>
@@ -350,6 +357,16 @@
     <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-retrieve-scu</module>
   </modules>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh</artifactId>
+        <version>2.10</version>
+      </extension>
+    </extensions>
+  </build>
 
   <profiles>
     <profile>
