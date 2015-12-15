@@ -74,4 +74,6 @@ public interface RetrieveService {
             throws IOException;
 
     DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException;
+
+    Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx);
 }

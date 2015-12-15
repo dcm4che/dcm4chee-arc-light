@@ -54,6 +54,8 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.code.CodeCache;
@@ -186,14 +188,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public boolean calculateMatches(RetrieveContext ctx)  {
-        Collection<InstanceLocations> matches = calculateMatchesA(ctx);
-        ctx.setMatches(matches);
-        return !matches.isEmpty();
-    }
-
-    private Collection<InstanceLocations> calculateMatchesA(RetrieveContext ctx) {
         StatelessSession session = openStatelessSession();
-        ArrayList<InstanceLocations> matches = new ArrayList<>();
+        Collection<InstanceLocations> matches = ctx.getMatches();
         try {
             HashMap<Long,InstanceLocations> instMap = new HashMap<>();
             HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
@@ -220,7 +216,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                 }
                 match.getLocations().add(loadLocation(tuple));
             }
-            return matches;
+            ctx.setNumberOfMatches(matches.size());
+            return !matches.isEmpty();
         } finally {
             session.close();
         }
@@ -310,6 +307,40 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException {
         return openLocationInputStream(ctx, inst).getDicomInputStream();
+    }
+
+    @Override
+    public Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx) {
+        String localAET = ctx.getLocalApplicationEntity().getAETitle();
+        ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
+        Collection<InstanceLocations> matches = ctx.getMatches();
+        Collection<InstanceLocations> remoteMatches = new ArrayList<>(matches.size());
+        Iterator<InstanceLocations> iter = matches.iterator();
+        while (iter.hasNext()) {
+            InstanceLocations match = iter.next();
+            if (!isAccessable(match, arcDev, localAET)) {
+                iter.remove();
+                remoteMatches.add(match);
+            }
+        }
+        return remoteMatches;
+    }
+
+    private boolean isAccessable(InstanceLocations match, ArchiveDeviceExtension arcDev, String localAET) {
+        for (Location location : match.getLocations()) {
+            StorageDescriptor desc = arcDev.getStorageDescriptor(location.getStorageID());
+            if (desc != null && contains(desc.getRetrieveAETitles(), localAET))
+                return true;
+        }
+        return false;
+    }
+
+    private static boolean contains(Object[] a, Object o) {
+        for (Object a1 : a) {
+            if (a1.equals(o))
+                return true;
+        }
+        return false;
     }
 
     private LocationDicomInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)

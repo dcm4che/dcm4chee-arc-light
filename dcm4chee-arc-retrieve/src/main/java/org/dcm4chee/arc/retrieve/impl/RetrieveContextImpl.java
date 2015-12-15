@@ -76,7 +76,8 @@ public class RetrieveContextImpl implements RetrieveContext {
     private String[] studyInstanceUIDs = {};
     private String[] seriesInstanceUIDs = {};
     private String[] sopInstanceUIDs = {};
-    private Collection<InstanceLocations> matches;
+    private int numberOfMatches;
+    private final Collection<InstanceLocations> matches = new ArrayList<>();
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
     private final Collection<String> failedSOPInstanceUIDs =
@@ -203,8 +204,13 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public void setMatches(Collection<InstanceLocations> matches) {
-        this.matches = matches;
+    public int getNumberOfMatches() {
+        return numberOfMatches;
+    }
+
+    @Override
+    public void setNumberOfMatches(int numberOfMatches) {
+        this.numberOfMatches = numberOfMatches;
     }
 
     @Override
@@ -244,8 +250,7 @@ public class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public int remaining() {
-        Collection<InstanceLocations> tmp = matches;
-        return tmp != null ?  tmp.size() - completed() - warning() - failed() : -1;
+        return numberOfMatches - completed() - warning() - failed();
     }
 
     @Override

@@ -49,19 +49,27 @@ import org.dcm4che3.net.service.BasicCMoveSCP;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.EnumSet;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 class CommonCMoveSCP extends BasicCMoveSCP {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommonCMoveSCP.class);
 
     private final EnumSet<QueryRetrieveLevel2> qrLevels;
 
@@ -93,6 +101,61 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                     : null;
         }
 
+        Collection<InstanceLocations> remoteMatches = retrieveService.removeNotAccessableMatches(ctx);
+        if (ctx.getMatches().isEmpty()) {
+            String retrieveAET = calculateRetrieveAET(remoteMatches, ctx, as);
+            return moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys, retrieveAET);
+        }
+
+        if (!remoteMatches.isEmpty()) {
+            LOG.warn("{}: {} of {} requested objects not locally accessable",
+                    as, remoteMatches, ctx.getNumberOfMatches());
+            for (InstanceLocations remoteMatch : remoteMatches)
+                ctx.addFailedSOPInstanceUID(remoteMatch.getSopInstanceUID());
+        }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
+    }
+
+    private String calculateRetrieveAET(Collection<InstanceLocations> matches, RetrieveContext ctx, Association as) {
+        ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
+        Map<String,Collection<InstanceLocations>> map = new HashMap<>();
+        for (InstanceLocations match : matches) {
+            for (String aet : retrieveAETsOf(match, arcDev)) {
+                Collection<InstanceLocations> matchesAtRetrieveAET = map.get(aet);
+                if (matchesAtRetrieveAET == null) {
+                    matchesAtRetrieveAET = new ArrayList<>();
+                    map.put(aet, matchesAtRetrieveAET);
+                }
+                matchesAtRetrieveAET.add(match);
+            }
+        }
+        Iterator<Map.Entry<String, Collection<InstanceLocations>>> iter = map.entrySet().iterator();
+        Map.Entry<String, Collection<InstanceLocations>> entry = iter.next();
+        while (entry.getValue().size() < matches.size()) {
+            while (iter.hasNext()) {
+                Map.Entry<String, Collection<InstanceLocations>> next = iter.next();
+                if (entry.getValue().size() < next.getValue().size()) {
+                    entry = next;
+                    break;
+                }
+            }
+        }
+        int notRetrieveable = ctx.getNumberOfMatches() - entry.getValue().size();
+        if (notRetrieveable > 0) {
+            LOG.warn("{}: {} of {} requested objects not retrieveable from {}",
+                    as, notRetrieveable, ctx.getNumberOfMatches(), entry.getKey());
+        }
+        return entry.getKey();
+    }
+
+    private Collection<String> retrieveAETsOf(InstanceLocations match, ArchiveDeviceExtension arcDev) {
+        ArrayList<String> aets = new ArrayList<>();
+        for (Location location : match.getLocations()) {
+            StorageDescriptor desc = arcDev.getStorageDescriptor(location.getStorageID());
+            if (desc != null)
+                for (String aet : desc.getRetrieveAETitles())
+                    aets.add(aet);
+        }
+        return aets;
     }
 }

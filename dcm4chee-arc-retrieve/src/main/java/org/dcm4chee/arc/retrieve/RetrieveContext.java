@@ -99,7 +99,9 @@ public interface RetrieveContext extends Closeable {
 
     Collection<InstanceLocations> getMatches();
 
-    void setMatches(Collection<InstanceLocations> matches);
+    int getNumberOfMatches();
+
+    void setNumberOfMatches(int numberOfMatches);
 
     int completed();
 
