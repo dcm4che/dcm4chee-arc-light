@@ -70,12 +70,12 @@ public class CStoreSCUImpl implements CStoreSCU {
     @Inject
     private IApplicationEntityCache aeCache;
 
-    private Association openAssociation(RetrieveContext ctx)
+    private Association openAssociation(RetrieveContext ctx, String callingAET)
             throws DicomServiceException {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(ctx.getDestinationAETitle());
             ApplicationEntity localAE = ctx.getLocalApplicationEntity();
-            return localAE.connect(remoteAE, createAARQ(ctx));
+            return localAE.connect(remoteAE, createAARQ(ctx, callingAET));
         } catch (ConfigurationNotFoundException e) {
             throw new DicomServiceException(Status.MoveDestinationUnknown,
                     "Unknown Destination: " + ctx.getDestinationAETitle());
@@ -84,8 +84,9 @@ public class CStoreSCUImpl implements CStoreSCU {
         }
     }
 
-    private AAssociateRQ createAARQ(RetrieveContext ctx) {
+    private AAssociateRQ createAARQ(RetrieveContext ctx, String callingAET) {
         AAssociateRQ aarq = new AAssociateRQ();
+        aarq.setCallingAET(callingAET);
         for (InstanceLocations inst : ctx.getMatches()) {
             String cuid = inst.getSopClassUID();
             if (!aarq.containsPresentationContextFor(cuid)) {
@@ -104,14 +105,14 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Override
     public RetrieveTask newRetrieveTaskSTORE(RetrieveContext ctx) throws DicomServiceException {
-        return new RetrieveTaskImpl(ctx, openAssociation(ctx));
+        return new RetrieveTaskImpl(ctx, openAssociation(ctx, ctx.getLocalApplicationEntity().getAETitle()));
     }
 
     @Override
     public RetrieveTask newRetrieveTaskMOVE(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
-        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, openAssociation(ctx));
+        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, openAssociation(ctx, as.getCalledAET()));
         retrieveTask.setRequestAssociation(Dimse.C_MOVE_RQ, as, pc, rq);
         return retrieveTask;
     }

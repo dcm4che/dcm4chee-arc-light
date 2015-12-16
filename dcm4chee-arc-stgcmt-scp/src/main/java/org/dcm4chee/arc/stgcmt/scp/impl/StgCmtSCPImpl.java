@@ -91,7 +91,7 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
             throws Exception  {
             ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
-            AAssociateRQ aarq = mkAAssociateRQ(localAE);
+            AAssociateRQ aarq = mkAAssociateRQ(localAE, localAET);
             Association as = localAE.connect(remoteAE, aarq);
             try {
                 int successful = sequenceSizeOf(eventInfo, Tag.ReferencedSOPSequence);
@@ -118,8 +118,9 @@ class StgCmtSCPImpl extends AbstractDicomService implements StgCmtSCP {
         return seq != null ? seq.size() : 0;
     }
 
-    private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE) {
+    private AAssociateRQ mkAAssociateRQ(ApplicationEntity localAE, String localAET) {
         AAssociateRQ aarq = new AAssociateRQ();
+        aarq.setCallingAET(localAET);
         TransferCapability tc = localAE.getTransferCapabilityFor(UID.StorageCommitmentPushModelSOPClass,
                 TransferCapability.Role.SCP);
         aarq.addPresentationContext(new PresentationContext(1, UID.StorageCommitmentPushModelSOPClass,
