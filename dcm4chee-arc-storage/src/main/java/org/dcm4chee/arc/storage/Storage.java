@@ -18,6 +18,8 @@ public interface Storage extends Closeable {
 
     ReadContext createReadContext();
 
+    boolean isAccessable();
+
     OutputStream openOutputStream(WriteContext ctx) throws IOException;
 
     void commitStorage(WriteContext ctx) throws IOException;

@@ -77,11 +77,17 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
+    public boolean isAccessable() {
+        return true;
+    }
+
+    @Override
     public void close() throws IOException {
     }
 
     @Override
     public OutputStream openOutputStream(final WriteContext ctx) throws IOException {
+        checkAccessable();
         OutputStream stream = openOutputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
             stream = new DigestOutputStream(stream, ctx.getMessageDigest());
@@ -114,6 +120,11 @@ public abstract class AbstractStorage implements Storage {
         };
     }
 
+    private void checkAccessable() throws IOException {
+        if (!isAccessable())
+            throw new IOException(descriptor.getStorageURI() + " not accessable");
+    }
+
     protected abstract OutputStream openOutputStreamA(WriteContext ctx) throws IOException;
 
     protected void beforeOutputStreamClosed(WriteContext ctx, OutputStream stream) throws IOException {}
@@ -131,6 +142,7 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public InputStream openInputStream(final ReadContext ctx) throws IOException {
+        checkAccessable();
         InputStream stream = openInputStreamA(ctx);
         if (ctx.getMessageDigest() != null) {
             stream = new DigestInputStream(stream, ctx.getMessageDigest());

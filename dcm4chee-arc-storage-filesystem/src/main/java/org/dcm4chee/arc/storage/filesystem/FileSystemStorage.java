@@ -65,16 +65,24 @@ public class FileSystemStorage extends AbstractStorage {
 
     private final URI rootURI;
     private final AttributesFormat pathFormat;
+    private final Path checkMountFilePath;
 
     public FileSystemStorage(StorageDescriptor descriptor) {
         super(descriptor);
         rootURI = ensureTrailingSlash(descriptor.getStorageURI());
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
+        String checkMountFile = descriptor.getProperty("checkMountFile", null);
+        checkMountFilePath = checkMountFile != null ?  Paths.get(rootURI.resolve(checkMountFile)) : null;
     }
 
     private URI ensureTrailingSlash(URI uri) {
         String s = uri.toString();
         return (s.charAt(s.length()-1) == '/') ? uri : URI.create(s + '/');
+    }
+
+    @Override
+    public boolean isAccessable() {
+        return checkMountFilePath == null || Files.notExists(checkMountFilePath);
     }
 
     @Override
