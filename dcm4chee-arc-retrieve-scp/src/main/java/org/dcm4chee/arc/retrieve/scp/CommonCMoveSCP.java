@@ -103,11 +103,11 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         }
 
         String altCMoveSCP = ctx.getArchiveAEExtension().alternativeCMoveSCP();
-        if (altCMoveSCP != null && !altCMoveSCP.equals(as.getCallingAET())) {
+        if (altCMoveSCP != null) {
             Collection<InstanceLocations> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
             if (ctx.getMatches().isEmpty()) {
                 return moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys,
-                        ctx.getLocalApplicationEntity().getAETitle(), altCMoveSCP);
+                        as.getCallingAET(), altCMoveSCP);
             }
 
             if (!notAccessable.isEmpty()) {
