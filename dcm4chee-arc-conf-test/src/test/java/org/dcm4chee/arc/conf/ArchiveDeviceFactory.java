@@ -490,8 +490,7 @@ class ArchiveDeviceFactory {
     static final String[] QUERY_CUIDS = {
             UID.PatientRootQueryRetrieveInformationModelFIND,
             UID.StudyRootQueryRetrieveInformationModelFIND,
-            UID.PatientStudyOnlyQueryRetrieveInformationModelFINDRetired,
-            UID.ModalityWorklistInformationModelFIND
+            UID.PatientStudyOnlyQueryRetrieveInformationModelFINDRetired
     };
     static final String[] RETRIEVE_CUIDS = {
             UID.PatientRootQueryRetrieveInformationModelGET,
@@ -623,8 +622,6 @@ class ArchiveDeviceFactory {
     static final int PURGE_STORAGE_FETCH_SIZE = 10;
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
     static final int DELETE_REJECTED_FETCH_SIZE = 10;
-    static final Duration DELETE_REJECTED_INSTANCE_DELAY = Duration.parse("PT5M");
-    static final Duration DELETE_REJECTION_NOTE_DELAY = Duration.parse("PT5M");
 
     private final KeyStore keyStore;
     private final DicomConfiguration config;
@@ -735,7 +732,7 @@ class ArchiveDeviceFactory {
 
         device.setManufacturer("dcm4che.org");
         device.setManufacturerModelName("dcm4chee-arc");
-        device.setSoftwareVersions("5.0.0");
+        device.setSoftwareVersions("5.0.1");
         device.setKeyStoreURL(DCM4CHEE_ARC_KEY_JKS);
         device.setKeyStoreType("JKS");
         device.setKeyStorePin("secret");
@@ -747,11 +744,11 @@ class ArchiveDeviceFactory {
                         (X509Certificate) keyStore.getCertificate(other));
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
-                dicom, dicomTLS, HIDE_REJECTED_VIEW, true));
+                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true));
         device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", "Show instances rejected for Quality Reasons",
-                dicom, dicomTLS, REGULAR_USE_VIEW, false));
+                dicom, dicomTLS, REGULAR_USE_VIEW, false, true));
         device.addApplicationEntity(createAE("DCM4CHEE_TRASH", "Show rejected instances only",
-                dicom, dicomTLS, TRASH_VIEW, false));
+                dicom, dicomTLS, TRASH_VIEW, false, false));
 
         return device;
     }
@@ -930,7 +927,8 @@ class ArchiveDeviceFactory {
     }
 
     private static ApplicationEntity createAE(String aet, String description,
-            Connection dicom, Connection dicomTLS, QueryRetrieveView qrView, boolean storeSCP) {
+            Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
+            boolean storeSCP, boolean storeSCU) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -944,17 +942,17 @@ class ArchiveDeviceFactory {
         addTC(ae, null, SCP, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
         addTC(ae, null, SCU, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
         addTCs(ae, EnumSet.allOf(QueryOption.class), SCP, QUERY_CUIDS, UID.ImplicitVRLittleEndian);
-        addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
-//        addTC(ae, null, SCP, UID.CompositeInstanceRetrieveWithoutBulkDataGET, UID.ImplicitVRLittleEndian);
-        for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
-            addTCs(ae, null, SCU, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
+        if (storeSCU) {
+            addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
+            for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
+                addTCs(ae, null, SCU, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i + 1]);
+        }
         if (storeSCP) {
             for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
                 addTCs(ae, null, SCP, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
             addTC(ae, null, SCP, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
-//            addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         return ae;
