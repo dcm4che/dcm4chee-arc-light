@@ -863,6 +863,7 @@ class ArchiveDeviceFactory {
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURI(STORAGE_URI);
         storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
+        storageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
         storageDescriptor.setRetrieveAETitles("DCM4CHEE", "DCM4CHEE_ADMIN");
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);

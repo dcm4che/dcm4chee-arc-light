@@ -83,6 +83,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmSendPendingCGet", ext.isSendPendingCGet(), false);
         LdapUtils.storeNotNull(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval());
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP());
+        LdapUtils.storeNotNull(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP());
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
@@ -117,6 +118,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setSendPendingCMoveInterval(
                 toDuration(LdapUtils.stringValue(attrs.get("dcmSendPendingCMoveInterval"), null)));
         ext.setFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCP"), null));
+        ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
@@ -157,6 +159,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmSendPendingCMoveInterval",
                 aa.getSendPendingCMoveInterval(), bb.getSendPendingCMoveInterval());
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP());
+        LdapUtils.storeDiff(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP());
         LdapUtils.storeDiff(mods, "dcmWadoSR2HtmlTemplateURI",
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI());
         LdapUtils.storeDiff(mods, "dcmWadoSR2TextTemplateURI",
@@ -259,6 +262,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmSendPendingCGet", ext.getSendPendingCGet());
         LdapUtils.storeNotNull(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval());
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP());
+        LdapUtils.storeNotNull(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP());
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
@@ -283,6 +287,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setSendPendingCMoveInterval(
                 toDuration(LdapUtils.stringValue(attrs.get("dcmSendPendingCMoveInterval"), null)));
         ext.setFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCP"), null));
+        ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
@@ -309,6 +314,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmSendPendingCMoveInterval",
                 aa.getSendPendingCMoveInterval(), bb.getSendPendingCMoveInterval());
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP());
+        LdapUtils.storeDiff(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP());
         LdapUtils.storeDiff(mods, "dcmWadoSR2HtmlTemplateURI",
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI());
         LdapUtils.storeDiff(mods, "dcmWadoSR2TextTemplateURI",

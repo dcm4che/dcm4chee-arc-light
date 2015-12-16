@@ -40,8 +40,6 @@
 
 package org.dcm4chee.arc.retrieve.scu.impl;
 
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
@@ -69,18 +67,19 @@ public class CMoveSCUImpl implements CMoveSCU {
     @Override
     public RetrieveTask newForwardRetrieveTask(
             ApplicationEntity localAE, Association as, PresentationContext pc, Attributes rq, Attributes keys,
-            String retrieveAET) throws DicomServiceException {
+            String callingAET, String retrieveAET) throws DicomServiceException {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(retrieveAET);
-            return new ForwardRetrieveTask(as, pc, rq, keys, localAE.connect(remoteAE, createAARQ(as, pc)));
+            return new ForwardRetrieveTask(as, pc, rq, keys,
+                    localAE.connect(remoteAE, createAARQ(as, pc, callingAET)));
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
     }
 
-    private AAssociateRQ createAARQ(Association as, PresentationContext pc) {
+    private AAssociateRQ createAARQ(Association as, PresentationContext pc, String callingAET) {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(as.getCallingAET());
+        aarq.setCallingAET(callingAET);
         aarq.addPresentationContext(as.getAAssociateRQ().getPresentationContext(pc.getPCID()));
         return aarq;
     }

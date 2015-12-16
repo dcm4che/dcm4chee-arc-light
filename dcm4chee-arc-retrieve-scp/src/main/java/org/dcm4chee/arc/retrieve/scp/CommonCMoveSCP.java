@@ -97,65 +97,27 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         if (!retrieveService.calculateMatches(ctx)) {
             String retrieveAET = ctx.getArchiveAEExtension().fallbackCMoveSCP();
             return retrieveAET != null
-                    ? moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys, retrieveAET)
+                    ? moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys,
+                        as.getCallingAET(), retrieveAET)
                     : null;
         }
 
-        Collection<InstanceLocations> remoteMatches = retrieveService.removeNotAccessableMatches(ctx);
-        if (ctx.getMatches().isEmpty()) {
-            String retrieveAET = calculateRetrieveAET(remoteMatches, ctx, as);
-            return moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys, retrieveAET);
-        }
+        String altCMoveSCP = ctx.getArchiveAEExtension().alternativeCMoveSCP();
+        if (altCMoveSCP != null && !altCMoveSCP.equals(as.getCallingAET())) {
+            Collection<InstanceLocations> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
+            if (ctx.getMatches().isEmpty()) {
+                return moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys,
+                        ctx.getLocalApplicationEntity().getAETitle(), altCMoveSCP);
+            }
 
-        if (!remoteMatches.isEmpty()) {
-            LOG.warn("{}: {} of {} requested objects not locally accessable",
-                    as, remoteMatches, ctx.getNumberOfMatches());
-            for (InstanceLocations remoteMatch : remoteMatches)
-                ctx.addFailedSOPInstanceUID(remoteMatch.getSopInstanceUID());
+            if (!notAccessable.isEmpty()) {
+                LOG.warn("{}: {} of {} requested objects not locally accessable",
+                        as, notAccessable.size(), ctx.getNumberOfMatches());
+                for (InstanceLocations remoteMatch : notAccessable)
+                    ctx.addFailedSOPInstanceUID(remoteMatch.getSopInstanceUID());
+            }
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
     }
 
-    private String calculateRetrieveAET(Collection<InstanceLocations> matches, RetrieveContext ctx, Association as) {
-        ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
-        Map<String,Collection<InstanceLocations>> map = new HashMap<>();
-        for (InstanceLocations match : matches) {
-            for (String aet : retrieveAETsOf(match, arcDev)) {
-                Collection<InstanceLocations> matchesAtRetrieveAET = map.get(aet);
-                if (matchesAtRetrieveAET == null) {
-                    matchesAtRetrieveAET = new ArrayList<>();
-                    map.put(aet, matchesAtRetrieveAET);
-                }
-                matchesAtRetrieveAET.add(match);
-            }
-        }
-        Iterator<Map.Entry<String, Collection<InstanceLocations>>> iter = map.entrySet().iterator();
-        Map.Entry<String, Collection<InstanceLocations>> entry = iter.next();
-        while (entry.getValue().size() < matches.size()) {
-            while (iter.hasNext()) {
-                Map.Entry<String, Collection<InstanceLocations>> next = iter.next();
-                if (entry.getValue().size() < next.getValue().size()) {
-                    entry = next;
-                    break;
-                }
-            }
-        }
-        int notRetrieveable = ctx.getNumberOfMatches() - entry.getValue().size();
-        if (notRetrieveable > 0) {
-            LOG.warn("{}: {} of {} requested objects not retrieveable from {}",
-                    as, notRetrieveable, ctx.getNumberOfMatches(), entry.getKey());
-        }
-        return entry.getKey();
-    }
-
-    private Collection<String> retrieveAETsOf(InstanceLocations match, ArchiveDeviceExtension arcDev) {
-        ArrayList<String> aets = new ArrayList<>();
-        for (Location location : match.getLocations()) {
-            StorageDescriptor desc = arcDev.getStorageDescriptor(location.getStorageID());
-            if (desc != null)
-                for (String aet : desc.getRetrieveAETitles())
-                    aets.add(aet);
-        }
-        return aets;
-    }
 }

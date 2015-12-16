@@ -311,33 +311,23 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx) {
-        String localAET = ctx.getLocalApplicationEntity().getAETitle();
         ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
         Collection<InstanceLocations> matches = ctx.getMatches();
-        Collection<InstanceLocations> remoteMatches = new ArrayList<>(matches.size());
+        Collection<InstanceLocations> notAccessable = new ArrayList<>(matches.size());
         Iterator<InstanceLocations> iter = matches.iterator();
         while (iter.hasNext()) {
             InstanceLocations match = iter.next();
-            if (!isAccessable(match, arcDev, localAET)) {
+            if (!isAccessable(arcDev, match)) {
                 iter.remove();
-                remoteMatches.add(match);
+                notAccessable.add(match);
             }
         }
-        return remoteMatches;
+        return notAccessable;
     }
 
-    private boolean isAccessable(InstanceLocations match, ArchiveDeviceExtension arcDev, String localAET) {
+    private boolean isAccessable(ArchiveDeviceExtension arcDev, InstanceLocations match) {
         for (Location location : match.getLocations()) {
-            StorageDescriptor desc = arcDev.getStorageDescriptor(location.getStorageID());
-            if (desc != null && contains(desc.getRetrieveAETitles(), localAET))
-                return true;
-        }
-        return false;
-    }
-
-    private static boolean contains(Object[] a, Object o) {
-        for (Object a1 : a) {
-            if (a1.equals(o))
+            if (arcDev.getStorageDescriptor(location.getStorageID()) != null)
                 return true;
         }
         return false;

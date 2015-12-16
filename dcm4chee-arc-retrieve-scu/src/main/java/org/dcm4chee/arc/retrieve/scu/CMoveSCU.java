@@ -54,6 +54,7 @@ import org.dcm4che3.net.service.RetrieveTask;
 public interface CMoveSCU {
 
     RetrieveTask newForwardRetrieveTask(
-            ApplicationEntity proxyAE, Association proxyAS, PresentationContext pc, Attributes rq, Attributes keys,
-            String retrieveAET) throws DicomServiceException;
+            ApplicationEntity proxyAE, Association proxyAS, PresentationContext pc,
+            Attributes rq, Attributes keys,
+            String callingAET, String retrieveAET) throws DicomServiceException;
 }

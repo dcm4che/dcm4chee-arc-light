@@ -70,13 +70,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
     private String fallbackCMoveSCP;
+    private String alternativeCMoveSCP;
     private Duration exportTaskPollingInterval;
     private int exportTaskFetchSize = 5;
     private Duration deleteRejectedPollingInterval;
     private int deleteRejectedFetchSize = 100;
     private Duration purgeStoragePollingInterval;
-    private int purgeStorageFetchSize = 100;
 
+    private int purgeStorageFetchSize = 100;
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
     private QueryRetrieveView[] queryRetrieveViews = {};
@@ -86,8 +87,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
-    private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
 
+    private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private transient FuzzyStr fuzzyStr;
 
     public String getFuzzyAlgorithmClass() {
@@ -241,6 +242,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFallbackCMoveSCP(String fallbackCMoveSCP) {
         this.fallbackCMoveSCP = fallbackCMoveSCP;
+    }
+
+    public String getAlternativeCMoveSCP() {
+        return alternativeCMoveSCP;
+    }
+
+    public void setAlternativeCMoveSCP(String alternativeCMoveSCP) {
+        this.alternativeCMoveSCP = alternativeCMoveSCP;
     }
 
     public int getQidoMaxNumberOfResults() {
@@ -466,6 +475,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queryRetrieveViews = arcdev.queryRetrieveViews;
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
         fallbackCMoveSCP = arcdev.fallbackCMoveSCP;
+        alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
         exportTaskFetchSize = arcdev.exportTaskFetchSize;
         deleteRejectedPollingInterval = arcdev.deleteRejectedPollingInterval;
