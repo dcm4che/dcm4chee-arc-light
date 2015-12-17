@@ -15,9 +15,11 @@ import java.util.regex.Pattern;
  */
 public class Conditions {
 
+    private static final String ReceivingApplicationEntityTitle = "ReceivingApplicationEntityTitle";
     private static final String SendingApplicationEntityTitle = "SendingApplicationEntityTitle";
     private static final String SendingHostname = "SendingHostname";
 
+    private Pattern receivingAETPattern;
     private Pattern sendingAETPattern;
     private Pattern sendingHostnamePattern;
     private final Map<String, Pattern> map = new HashMap<>();
@@ -29,6 +31,10 @@ public class Conditions {
                 throw new IllegalArgumentException(s);
             setCondition(s.substring(0, index), s.substring(index+1));
         }
+    }
+
+    public void setReceivingAETitle(String value) {
+        setCondition(ReceivingApplicationEntityTitle, value);
     }
 
     public void setSendingAETitle(String value) {
@@ -52,7 +58,13 @@ public class Conditions {
         return map;
     }
 
-    public boolean match(String hostName, String sendingAET, Attributes attrs) {
+    public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
+        if (receivingAET != null && receivingAETPattern != null && !receivingAETPattern.matcher(receivingAET).matches())
+            return false;
+
+        if (sendingAET != null && sendingAETPattern != null && !sendingAETPattern.matcher(sendingAET).matches())
+            return false;
+
         if (sendingAET != null && sendingAETPattern != null && !sendingAETPattern.matcher(sendingAET).matches())
             return false;
 
@@ -62,7 +74,9 @@ public class Conditions {
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
             String tagPath = entry.getKey();
             Pattern pattern = entry.getValue();
-            if (!tagPath.equals(SendingApplicationEntityTitle) && !tagPath.equals(SendingHostname)
+            if (!tagPath.equals(ReceivingApplicationEntityTitle) &&
+                    !tagPath.equals(SendingApplicationEntityTitle) &&
+                    !tagPath.equals(SendingHostname)
                     && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0))
                 return false;
         }

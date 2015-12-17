@@ -67,7 +67,9 @@ public interface StoreSession extends Closeable {
 
     void setStorage(Storage storage);
 
-    String getRemoteApplicationEntityTitle();
+    String getCalledAET();
+
+    String getCallingAET();
 
     String getRemoteHostName();
 

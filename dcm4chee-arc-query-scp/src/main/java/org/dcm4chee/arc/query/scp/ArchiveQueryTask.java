@@ -95,6 +95,8 @@ public class ArchiveQueryTask extends BasicQueryTask {
 
     @Override
     protected Attributes adjust(Attributes match) {
+        if (match == null)
+            return null;
         Attributes adjust = query.adjust(match);
         adjust.addSelected(keys, null, Tag.QueryRetrieveLevel);
         return adjust;

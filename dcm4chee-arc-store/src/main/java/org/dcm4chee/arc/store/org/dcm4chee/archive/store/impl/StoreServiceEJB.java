@@ -298,7 +298,7 @@ public class StoreServiceEJB {
     }
 
     private boolean isSameSource(StoreContext ctx, Instance prevInstance) {
-        String sourceAET = ctx.getStoreSession().getRemoteApplicationEntityTitle();
+        String sourceAET = ctx.getStoreSession().getCallingAET();
         String prevSourceAET = prevInstance.getSeries().getSourceAET();
         return sourceAET != null && sourceAET.equals(prevSourceAET);
     }
@@ -434,7 +434,7 @@ public class StoreServiceEJB {
         series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr);
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
-        series.setSourceAET(session.getRemoteApplicationEntityTitle());
+        series.setSourceAET(session.getCallingAET());
         series.setStudy(study);
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);

@@ -1,7 +1,6 @@
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
@@ -146,7 +145,7 @@ class StoreServiceImpl implements StoreService {
         StoreSession session = ctx.getStoreSession();
         ArchiveAttributeCoercion coercion = session.getArchiveAEExtension().findAttributeCoercion(
                 session.getRemoteHostName(),
-                session.getRemoteApplicationEntityTitle(),
+                session.getCallingAET(),
                 TransferCapability.Role.SCU,
                 Dimse.C_STORE_RQ,
                 ctx.getSopClassUID());
@@ -228,9 +227,10 @@ class StoreServiceImpl implements StoreService {
 
         StoreSession session = storeContext.getStoreSession();
         String hostname = session.getRemoteHostName();
-        String aet = session.getRemoteApplicationEntityTitle();
+        String callingAET = session.getCallingAET();
+        String calledAET = session.getCalledAET();
         ArchiveCompressionRule rule = session.getArchiveAEExtension()
-                .findCompressionRule(hostname, aet, storeContext.getAttributes());
+                .findCompressionRule(hostname, callingAET, calledAET, storeContext.getAttributes());
         if (rule != null && imageDescriptor.isMultiframeWithEmbeddedOverlays()) {
             LOG.info("Compression of multi-frame image with embedded overlays not supported");
             return null;

@@ -68,8 +68,13 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public String getRemoteApplicationEntityTitle() {
-        return as != null ? as.getRemoteAET() : null;
+    public String getCalledAET() {
+        return as != null ? as.getCalledAET() : ae.getAETitle();
+    }
+
+    @Override
+    public String getCallingAET() {
+        return as != null ? as.getCallingAET() : null;
     }
 
     @Override
