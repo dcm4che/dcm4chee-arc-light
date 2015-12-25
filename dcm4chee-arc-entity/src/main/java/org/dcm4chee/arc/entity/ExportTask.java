@@ -10,11 +10,11 @@ import java.util.Date;
 @Entity
 @Table(name = "export_task",
     uniqueConstraints = @UniqueConstraint(columnNames = {"exporter_id", "study_iuid", "series_iuid", "sop_iuid"}),
-    indexes = @Index(columnList = "scheduled_time")
+    indexes = @Index(columnList = "device_name, scheduled_time")
 )
 @NamedQueries({
-        @NamedQuery(name = ExportTask.FIND_SCHEDULED,
-                query = "select o from ExportTask o where o.scheduledTime < current_timestamp"),
+        @NamedQuery(name = ExportTask.FIND_SCHEDULED_BY_DEVICE_NAME,
+                query = "select o from ExportTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp"),
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID,
                 query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2"),
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID,
@@ -26,8 +26,8 @@ import java.util.Date;
 })
 public class ExportTask {
 
-    public static final String FIND_SCHEDULED =
-            "ExportTask.FindScheduled";
+    public static final String FIND_SCHEDULED_BY_DEVICE_NAME =
+            "ExportTask.FindScheduledByDeviceName";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID =
             "ExportTask.FindByExporterIDAndStudyIUID";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID =
@@ -43,6 +43,10 @@ public class ExportTask {
     @Version
     @Column(name = "version")
     private long version;
+
+    @Basic(optional = false)
+    @Column(name = "device_name")
+    private String deviceName;
 
     @Basic(optional = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -67,6 +71,14 @@ public class ExportTask {
 
     public long getPk() {
         return pk;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
     public Date getScheduledTime() {

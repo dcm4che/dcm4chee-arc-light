@@ -87,6 +87,7 @@ public class ExportManagerEJB {
             task.setScheduledTime(scheduledTime);
         } catch (NoResultException nre) {
             ExportTask task = new ExportTask();
+            task.setDeviceName(device.getDeviceName());
             task.setExporterID(exporterID);
             task.setStudyInstanceUID(studyInstanceUID);
             task.setSeriesInstanceUID("*");
@@ -109,6 +110,7 @@ public class ExportManagerEJB {
             task.setScheduledTime(scheduledTime);
         } catch (NoResultException nre) {
             ExportTask task = new ExportTask();
+            task.setDeviceName(device.getDeviceName());
             task.setExporterID(exporterID);
             task.setStudyInstanceUID(studyInstanceUID);
             task.setSeriesInstanceUID(seriesInstanceUID);
@@ -132,6 +134,7 @@ public class ExportManagerEJB {
             task.setScheduledTime(scheduledTime);
         } catch (NoResultException nre) {
             ExportTask task = new ExportTask();
+            task.setDeviceName(device.getDeviceName());
             task.setExporterID(exporterID);
             task.setStudyInstanceUID(studyInstanceUID);
             task.setSeriesInstanceUID(seriesInstanceUID);
@@ -152,7 +155,8 @@ public class ExportManagerEJB {
 
     public int scheduleExportTasks(int fetchSize) {
         final List<ExportTask> resultList = em.createNamedQuery(
-                ExportTask.FIND_SCHEDULED, ExportTask.class)
+                ExportTask.FIND_SCHEDULED_BY_DEVICE_NAME, ExportTask.class)
+                .setParameter(1, device.getDeviceName())
                 .setMaxResults(fetchSize)
                 .getResultList();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
