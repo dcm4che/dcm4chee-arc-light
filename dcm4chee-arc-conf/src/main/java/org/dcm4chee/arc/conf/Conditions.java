@@ -51,6 +51,8 @@ public class Conditions {
             sendingHostnamePattern = pattern;
         else if (tagPath.equals(SendingApplicationEntityTitle))
             sendingAETPattern = pattern;
+        else if (tagPath.equals(ReceivingApplicationEntityTitle))
+            receivingAETPattern = pattern;
         map.put(tagPath, pattern);
     }
 
