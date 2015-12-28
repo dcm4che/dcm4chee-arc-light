@@ -48,8 +48,8 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
+import org.dcm4chee.arc.retrieve.scu.ForwardRetrieveTask;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -65,13 +65,13 @@ public class CMoveSCUImpl implements CMoveSCU {
     private IApplicationEntityCache aeCache;
 
     @Override
-    public RetrieveTask newForwardRetrieveTask(
+    public ForwardRetrieveTask newForwardRetrieveTask(
             ApplicationEntity localAE, Association as, PresentationContext pc, Attributes rq, Attributes keys,
-            String callingAET, String retrieveAET) throws DicomServiceException {
+            String callingAET, String retrieveAET, boolean bwdRSPs) throws DicomServiceException {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(retrieveAET);
-            return new ForwardRetrieveTask(as, pc, rq, keys,
-                    localAE.connect(remoteAE, createAARQ(as, pc, callingAET)));
+            return new ForwardRetrieveTaskImpl(as, pc, rq, keys,
+                    localAE.connect(remoteAE, createAARQ(as, pc, callingAET)), bwdRSPs);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }

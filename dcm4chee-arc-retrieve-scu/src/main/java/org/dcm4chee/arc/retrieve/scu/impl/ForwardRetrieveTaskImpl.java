@@ -46,6 +46,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.retrieve.scu.ForwardRetrieveTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +56,9 @@ import java.io.IOException;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Dec 2015
  */
-public class ForwardRetrieveTask implements RetrieveTask {
+public class ForwardRetrieveTaskImpl implements ForwardRetrieveTask {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ForwardRetrieveTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForwardRetrieveTaskImpl.class);
 
     private final PresentationContext pc;
     private final Attributes rqCmd;
@@ -67,10 +68,12 @@ public class ForwardRetrieveTask implements RetrieveTask {
     private final Association rqas;
     private final Association fwdas;
     private final CMoveRSPHandler rspHandler;
-    private boolean finished;
+    private final boolean bwdRSPs;
+    private Attributes finalMoveRSP;
+    private Attributes finalMoveRSPData;
 
-    public ForwardRetrieveTask(Association rqas, PresentationContext pc, Attributes rqCmd, Attributes keys,
-                               Association fwdas) {
+    public ForwardRetrieveTaskImpl(Association rqas, PresentationContext pc, Attributes rqCmd, Attributes keys,
+                                   Association fwdas, boolean bwdRSPs) {
         this.rqas = rqas;
         this.fwdas = fwdas;
         this.pc = pc;
@@ -79,6 +82,17 @@ public class ForwardRetrieveTask implements RetrieveTask {
         this.msgId = rqCmd.getInt(Tag.MessageID, 0);
         this.cuid = rqCmd.getString(Tag.AffectedSOPClassUID);
         this.rspHandler = new CMoveRSPHandler(msgId);
+        this.bwdRSPs = bwdRSPs;
+    }
+
+    @Override
+    public Attributes getFinalMoveRSP() {
+        return finalMoveRSP;
+    }
+
+    @Override
+    public Attributes getFinalMoveRSPData() {
+        return finalMoveRSPData;
     }
 
     @Override
@@ -92,13 +106,19 @@ public class ForwardRetrieveTask implements RetrieveTask {
 
     @Override
     public void run() {
+        if (finalMoveRSP != null) {
+            rqas.tryWriteDimseRSP(pc, finalMoveRSP, finalMoveRSPData);
+            return;
+        }
         rqas.addCancelRQHandler(msgId, this);
         try {
             forwardMoveRQ();
             waitForFinalMoveRSP();
         } catch (DicomServiceException e) {
             Attributes rsp = e.mkRSP(0x8021, msgId);
-            rqas.tryWriteDimseRSP(pc, rsp);
+            finalMoveRSP = rsp;
+            if (bwdRSPs)
+                rqas.tryWriteDimseRSP(pc, rsp);
         } finally {
             releaseAssociation();
             rqas.removeCancelRQHandler(msgId);
@@ -118,7 +138,7 @@ public class ForwardRetrieveTask implements RetrieveTask {
     private void waitForFinalMoveRSP() throws DicomServiceException {
         try {
             synchronized (rspHandler) {
-                while (!finished)
+                while (finalMoveRSP == null)
                     rspHandler.wait();
             }
         } catch (InterruptedException e) {
@@ -143,15 +163,17 @@ public class ForwardRetrieveTask implements RetrieveTask {
         @Override
         public void onDimseRSP(Association as, Attributes cmd, Attributes data) {
             super.onDimseRSP(as, cmd, data);
-            try {
-                rqas.writeDimseRSP(pc, cmd, data);
-            } catch (IOException e) {
-                LOG.warn("{}: Unable to backward C-MOVE RSP on association to {}", rqas, rqas.getRemoteAET(), e);
-            }
+            if (bwdRSPs)
+                try {
+                    rqas.writeDimseRSP(pc, cmd, data);
+                } catch (IOException e) {
+                    LOG.warn("{}: Unable to backward C-MOVE RSP on association to {}", rqas, rqas.getRemoteAET(), e);
+                }
 
             if (!Status.isPending(cmd.getInt(Tag.Status, -1))) {
                 synchronized (this) {
-                    finished = true;
+                    finalMoveRSP = cmd;
+                    finalMoveRSPData = data;
                     notify();
                 }
             }
