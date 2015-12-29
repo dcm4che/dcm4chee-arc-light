@@ -1,0 +1,29 @@
+# Sample configuration for forwarding of received instances
+
+# The Export Rule specifies on which entity level the export shall be triggered, how long the export shall be
+# delayed after the receive of the last instance of the entity, and optionally additional conditions which
+# have to be matched by the instance to trigger the export
+dn: cn=Forward to STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmExportRule
+cn: Forward to STORESCP
+dcmEntity: Series
+dcmDuration: PT1M
+dcmExporterID: STORESCP
+# Only export CT and MR Series received by DCM4CHEE from FORWARD between Monday and Friday
+#dcmProperty: ReceivingApplicationEntityTitle=DCM4CHEE
+#dcmProperty: SendingApplicationEntityTitle=FORWARD
+#dcmProperty: Modality=CT|MR
+#dcmSchedule: dayOfWeek=1-5
+
+# The Exporter object, referenced by the Export Rule via the Exporter ID, specifies the type and destination
+# of the export, which local AE shall perform the forward, and which JMS Queue shall be used to queue Export
+# Tasks ready to be performed, and optionally to defer the export to specified times
+dn: dcmExporterID=STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmExporter
+dcmExporterID: STORESCP
+dcmURI: dicom:STORESCP
+dicomAETitle: DCM4CHEE
+dcmQueueName: Export1
+# defer export after business hours (between 6 pm and 6 am, or at any time on Saturday and Sunday)
+#dcmSchedule: hour=18-6 dayOfWeek=*
+#dcmSchedule: hour=* dayOfWeek=0,6
