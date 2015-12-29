@@ -56,5 +56,5 @@ public interface CMoveSCU {
     ForwardRetrieveTask newForwardRetrieveTask(
             ApplicationEntity proxyAE, Association proxyAS, PresentationContext pc,
             Attributes rq, Attributes keys,
-            String callingAET, String retrieveAET, boolean bwdRSPs) throws DicomServiceException;
+            String callingAET, String retrieveAET, boolean bwdRSPs, boolean fwdCancel) throws DicomServiceException;
 }

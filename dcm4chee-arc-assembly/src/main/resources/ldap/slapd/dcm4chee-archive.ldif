@@ -266,11 +266,23 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.52 NAME 'dcmDeleteRejectedFetchSize'
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.53 NAME 'dcmFallbackCMoveSCP'
   DESC 'AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.54 NAME 'dcmAltCMoveSCP'
   DESC 'AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.55 NAME 'dcmFallbackCMoveSCPDestination'
+  DESC 'AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.56 NAME 'dcmFallbackCMoveSCPLevel'
+  DESC 'Retrieve Level in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP. Enumerated values: STUDY, SERIES. Use original Retrieve Level if absent'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -291,6 +303,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
     dcmFallbackCMoveSCP $
+    dcmFallbackCMoveSCPDestination $
+    dcmFallbackCMoveSCPLevel $
     dcmAltCMoveSCP $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
@@ -317,6 +331,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
     dcmFallbackCMoveSCP $
+    dcmFallbackCMoveSCPDestination $
+    dcmFallbackCMoveSCPLevel $
     dcmAltCMoveSCP ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'

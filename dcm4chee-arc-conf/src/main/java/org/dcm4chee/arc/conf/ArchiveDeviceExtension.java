@@ -42,6 +42,7 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.DeviceExtension;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
 
@@ -70,6 +71,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
     private String fallbackCMoveSCP;
+    private String fallbackCMoveSCPDestination;
+    private MoveForwardLevel fallbackCMoveSCPLevel;
     private String alternativeCMoveSCP;
     private Duration exportTaskPollingInterval;
     private int exportTaskFetchSize = 5;
@@ -242,6 +245,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFallbackCMoveSCP(String fallbackCMoveSCP) {
         this.fallbackCMoveSCP = fallbackCMoveSCP;
+    }
+
+    public String getFallbackCMoveSCPDestination() {
+        return fallbackCMoveSCPDestination;
+    }
+
+    public void setFallbackCMoveSCPDestination(String fallbackCMoveSCPDestination) {
+        this.fallbackCMoveSCPDestination = fallbackCMoveSCPDestination;
+    }
+
+    public MoveForwardLevel getFallbackCMoveSCPLevel() {
+        return fallbackCMoveSCPLevel;
+    }
+
+    public void setFallbackCMoveSCPLevel(MoveForwardLevel fallbackCMoveSCPLevel) {
+        this.fallbackCMoveSCPLevel = fallbackCMoveSCPLevel;
     }
 
     public String getAlternativeCMoveSCP() {
@@ -475,6 +494,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queryRetrieveViews = arcdev.queryRetrieveViews;
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
         fallbackCMoveSCP = arcdev.fallbackCMoveSCP;
+        fallbackCMoveSCPDestination = arcdev.fallbackCMoveSCPDestination;
+        fallbackCMoveSCPLevel = arcdev.fallbackCMoveSCPLevel;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
         exportTaskFetchSize = arcdev.exportTaskFetchSize;

@@ -66,6 +66,8 @@ public class ArchiveAEExtension extends AEExtension {
     private String wadoSR2TextTemplateURI;
     private String[] mppsForwardDestinations;
     private String fallbackCMoveSCP;
+    private String fallbackCMoveSCPDestination;
+    private MoveForwardLevel fallbackCMoveSCPLevel;
     private String alternativeCMoveSCP;
     private int qidoMaxNumberOfResults;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -244,6 +246,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackCMoveSCP();
     }
 
+    public String getFallbackCMoveSCPDestination() {
+        return fallbackCMoveSCPDestination;
+    }
+
+    public void setFallbackCMoveSCPDestination(String fallbackCMoveSCPDestination) {
+        this.fallbackCMoveSCPDestination = fallbackCMoveSCPDestination;
+    }
+
+    public String fallbackCMoveSCPDestination() {
+        return fallbackCMoveSCPDestination != null
+                ? fallbackCMoveSCPDestination
+                : getArchiveDeviceExtension().getFallbackCMoveSCPDestination();
+    }
+
+    public MoveForwardLevel getFallbackCMoveSCPLevel() {
+        return fallbackCMoveSCPLevel;
+    }
+
+    public void setFallbackCMoveSCPLevel(MoveForwardLevel fallbackCMoveSCPLevel) {
+        this.fallbackCMoveSCPLevel = fallbackCMoveSCPLevel;
+    }
+
+    public MoveForwardLevel fallbackCMoveSCPLevel() {
+        return fallbackCMoveSCPLevel != null
+                ? fallbackCMoveSCPLevel
+                : getArchiveDeviceExtension().getFallbackCMoveSCPLevel();
+    }
+
     public String getAlternativeCMoveSCP() {
         return alternativeCMoveSCP;
     }
@@ -335,6 +365,8 @@ public class ArchiveAEExtension extends AEExtension {
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
         mppsForwardDestinations = aeExt.mppsForwardDestinations;
         fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
+        fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
+        fallbackCMoveSCPLevel = aeExt.fallbackCMoveSCPLevel;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         exportRules.clear();

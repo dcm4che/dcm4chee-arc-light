@@ -69,11 +69,12 @@ public class ForwardRetrieveTaskImpl implements ForwardRetrieveTask {
     private final Association fwdas;
     private final CMoveRSPHandler rspHandler;
     private final boolean bwdRSPs;
+    private final boolean fwdCancel;
     private Attributes finalMoveRSP;
     private Attributes finalMoveRSPData;
 
     public ForwardRetrieveTaskImpl(Association rqas, PresentationContext pc, Attributes rqCmd, Attributes keys,
-                                   Association fwdas, boolean bwdRSPs) {
+                                   Association fwdas, boolean bwdRSPs, boolean fwdCancel) {
         this.rqas = rqas;
         this.fwdas = fwdas;
         this.pc = pc;
@@ -83,6 +84,7 @@ public class ForwardRetrieveTaskImpl implements ForwardRetrieveTask {
         this.cuid = rqCmd.getString(Tag.AffectedSOPClassUID);
         this.rspHandler = new CMoveRSPHandler(msgId);
         this.bwdRSPs = bwdRSPs;
+        this.fwdCancel = fwdCancel;
     }
 
     @Override
@@ -106,11 +108,8 @@ public class ForwardRetrieveTaskImpl implements ForwardRetrieveTask {
 
     @Override
     public void run() {
-        if (finalMoveRSP != null) {
-            rqas.tryWriteDimseRSP(pc, finalMoveRSP, finalMoveRSPData);
-            return;
-        }
-        rqas.addCancelRQHandler(msgId, this);
+        if (fwdCancel)
+            rqas.addCancelRQHandler(msgId, this);
         try {
             forwardMoveRQ();
             waitForFinalMoveRSP();
@@ -121,7 +120,8 @@ public class ForwardRetrieveTaskImpl implements ForwardRetrieveTask {
                 rqas.tryWriteDimseRSP(pc, rsp);
         } finally {
             releaseAssociation();
-            rqas.removeCancelRQHandler(msgId);
+            if (fwdCancel)
+                rqas.removeCancelRQHandler(msgId);
         }
     }
 

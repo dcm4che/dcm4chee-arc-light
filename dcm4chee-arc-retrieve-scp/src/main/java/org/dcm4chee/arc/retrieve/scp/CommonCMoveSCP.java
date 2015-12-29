@@ -47,11 +47,8 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.BasicCMoveSCP;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.net.service.*;
+import org.dcm4chee.arc.conf.MoveForwardLevel;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -97,22 +94,34 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
         RetrieveContext ctx = retrieveService.newRetrieveContextMOVE(as, rq, qrLevel, keys);
         if (!retrieveService.calculateMatches(ctx)) {
-            String[] retrieveAET = StringUtils.split(ctx.getArchiveAEExtension().fallbackCMoveSCP(), ':');
-            switch (retrieveAET.length) {
-                case 0:
-                    return null;
-                case 1:
-                    return moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys,
-                            as.getCallingAET(), retrieveAET[0], true);
-            }
+            String retrieveAET = ctx.getArchiveAEExtension().fallbackCMoveSCP();
+            if (retrieveAET == null)
+                return null;
 
+            String destination = ctx.getArchiveAEExtension().fallbackCMoveSCPDestination();
+            if (destination == null)
+                return moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys,
+                    as.getCallingAET(), retrieveAET, true, true);
+
+            MoveForwardLevel moveForwardLevel = ctx.getArchiveAEExtension().fallbackCMoveSCPLevel();
             ForwardRetrieveTask retrieveTask = moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc,
-                    changeMoveDestination(rq, retrieveAET[1]), keys, as.getCallingAET(), retrieveAET[0], false);
+                    changeMoveDestination(rq, destination),
+                    changeQueryRetrieveLevel(keys, moveForwardLevel),
+                    as.getCallingAET(), retrieveAET, false, false);
             retrieveTask.run();
-            int retrieveTaskStatus = retrieveTask.getFinalMoveRSP().getInt(Tag.Status, -1);
-            if (retrieveTaskStatus != Status.Success && retrieveTaskStatus != Status.OneOrMoreFailures)
-                return retrieveTask; // will backward final response
+            Attributes finalMoveRSP = retrieveTask.getFinalMoveRSP();
+            int finalMoveRSPStatus = finalMoveRSP.getInt(Tag.Status, -1);
+            if (finalMoveRSPStatus != Status.Success && finalMoveRSPStatus != Status.OneOrMoreFailures)
+                throw (new DicomServiceException(finalMoveRSPStatus, finalMoveRSP.getString(Tag.ErrorComment))
+                        .setDataset(retrieveTask.getFinalMoveRSPData()));
 
+            if (finalMoveRSPStatus == Status.OneOrMoreFailures) {
+                int failed = finalMoveRSP.getInt(Tag.NumberOfFailedSuboperations, 0);
+                int total = failed
+                        + finalMoveRSP.getInt(Tag.NumberOfCompletedSuboperations, 0)
+                        + finalMoveRSP.getInt(Tag.NumberOfWarningSuboperations, 0);
+                LOG.warn("{}: Failed to retrieve {} of {} objects from {}", as, failed, total, retrieveAET);
+            }
             if (!retrieveService.calculateMatches(ctx))
                 return null;
         }
@@ -122,7 +131,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             Collection<InstanceLocations> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
             if (ctx.getMatches().isEmpty()) {
                 return moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys,
-                        as.getCallingAET(), altCMoveSCP, true);
+                        as.getCallingAET(), altCMoveSCP, true, true);
             }
 
             if (!notAccessable.isEmpty()) {
@@ -133,6 +142,10 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             }
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
+    }
+
+    private Attributes changeQueryRetrieveLevel(Attributes keys, MoveForwardLevel moveForwardLevel) {
+        return moveForwardLevel != null ? moveForwardLevel.changeQueryRetrieveLevel(keys) : keys;
     }
 
     private Attributes changeMoveDestination(Attributes rq, String newMoveDest) {

@@ -67,11 +67,11 @@ public class CMoveSCUImpl implements CMoveSCU {
     @Override
     public ForwardRetrieveTask newForwardRetrieveTask(
             ApplicationEntity localAE, Association as, PresentationContext pc, Attributes rq, Attributes keys,
-            String callingAET, String retrieveAET, boolean bwdRSPs) throws DicomServiceException {
+            String callingAET, String retrieveAET, boolean bwdRSPs, boolean fwdCancel) throws DicomServiceException {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(retrieveAET);
             return new ForwardRetrieveTaskImpl(as, pc, rq, keys,
-                    localAE.connect(remoteAE, createAARQ(as, pc, callingAET)), bwdRSPs);
+                    localAE.connect(remoteAE, createAARQ(as, pc, callingAET)), bwdRSPs, fwdCancel);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
