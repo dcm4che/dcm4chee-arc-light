@@ -82,7 +82,7 @@ class CommonCFindSCP extends BasicCFindSCP {
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
-        return new ArchiveQueryTask(as, pc, rq, keys, queryService.createQuery(qrLevel, ctx));
+        return new ArchiveQueryTask(as, pc, rq, keys, queryService.createQuery(qrLevel, ctx), qrLevel);
     }
 
     private Attributes createReturnKeys(Attributes keys) {

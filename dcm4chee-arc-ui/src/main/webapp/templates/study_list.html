@@ -94,14 +94,14 @@
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasPrev(studies)"
-                        ng-click="queryStudies(prevOffset(studies))"
+                        ng-disabled="page == 0"
+                        ng-click="queryStudies(page-1)"
                         title="Previous Studies">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasNext(studies)"
-                        ng-click="queryStudies(nextOffset(studies))"
+                        ng-disabled="(page+1) >= offsets.length"
+                        ng-click="queryStudies(page+1)"
                         title="Next Studies">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -119,7 +119,7 @@
     </thead>
     <tbody>
         <tr ng-repeat-start="study in studies">
-            <td rowspan="{{studyRowspan(study)}}" ng-bind="study.offset+1+'.'"></td>
+            <td rowspan="{{studyRowspan(study)}}" ng-bind="study.index+1+'.'"></td>
             <td>
                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
@@ -153,14 +153,14 @@
         <tr ng-show="study.series">
             <th colspan="2">
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasPrev(study.series)"
-                        ng-click="querySeries(study, prevOffset(study.series))"
+                        ng-disabled="study.page == 0"
+                        ng-click="querySeries(study, study.page-1)"
                         title="Previous Series">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasNext(study.series)"
-                        ng-click="querySeries(study, nextOffset(study.series))"
+                        ng-disabled="(study.page+1) >= study.offsets.length"
+                        ng-click="querySeries(study, study.page+1)"
                         title="Next Series">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -175,7 +175,7 @@
             <th>#I</th>
         </tr>
         <tr ng-repeat-start="series in study.series">
-            <td rowspan="{{seriesRowspan(series)}}" ng-bind="series.offset+1+'.'"></td>
+            <td rowspan="{{seriesRowspan(series)}}" ng-bind="series.index+1+'.'"></td>
             <td>
                 <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
@@ -208,14 +208,14 @@
         <tr ng-show="series.instances">
             <th colspan="2">
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasPrev(series.instances)"
-                        ng-click="queryInstances(series, prevOffset(series.instances))"
+                        ng-disabled="series.page == 0"
+                        ng-click="queryInstances(series, series.page-1)"
                         title="Previous Instances">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasNext(series.instances)"
-                        ng-click="queryInstances(series, nextOffset(series.instances))"
+                        ng-disabled="(series.page+1) >= series.offsets.length"
+                        ng-click="queryInstances(series, series.page+1)"
                         title="Next Instances">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -228,7 +228,7 @@
             <th>#F</th>
         </tr>
         <tr ng-repeat-start="instance in series.instances">
-            <td rowspan="{{instanceRowspan(instance)}}" ng-bind="instance.offset+1+'.'"></td>
+            <td rowspan="{{instanceRowspan(instance)}}" ng-bind="instance.index+1+'.'"></td>
             <td>
                 <a ng-click="instance.showAttributes = !instance.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>

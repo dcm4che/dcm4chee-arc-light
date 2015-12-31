@@ -47,6 +47,7 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicQueryTask;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.query.Query;
 
 /**
@@ -56,11 +57,13 @@ import org.dcm4chee.arc.query.Query;
 public class ArchiveQueryTask extends BasicQueryTask {
 
     private final Query query;
+    private final QueryRetrieveLevel2 qrLevel;
 
-    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query)
-            throws DicomServiceException {
+    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query,
+                            QueryRetrieveLevel2 qrLevel) throws DicomServiceException {
         super(as, pc, rq, keys);
         this.query = query;
+        this.qrLevel = qrLevel;
         try {
             query.initQuery();
             query.executeQuery();
@@ -99,6 +102,12 @@ public class ArchiveQueryTask extends BasicQueryTask {
             return null;
         Attributes adjust = query.adjust(match);
         adjust.addSelected(keys, null, Tag.QueryRetrieveLevel);
+        switch (qrLevel) {
+            case STUDY:
+                return (adjust.getInt(Tag.NumberOfStudyRelatedInstances, -1) == 0) ? null : adjust;
+            case SERIES:
+                return (adjust.getInt(Tag.NumberOfSeriesRelatedInstances, -1) == 0) ? null : adjust;
+        }
         return adjust;
     }
 }

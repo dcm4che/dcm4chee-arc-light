@@ -115,24 +115,22 @@ class SeriesQuery extends AbstractQuery {
         Long seriesPk = results.get(QSeries.series.pk);
         Integer numberOfInstancesI = results.get(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances);
         int numberOfSeriesRelatedInstances;
-        String retrieveAETs;
-        Availability availability;
+        String retrieveAETs = "";
+        Availability availability = Availability.UNAVAILABLE;
         if (numberOfInstancesI != null) {
             numberOfSeriesRelatedInstances = numberOfInstancesI;
-            if (numberOfSeriesRelatedInstances == 0)
-                return null;
-
-            retrieveAETs = results.get(QSeriesQueryAttributes.seriesQueryAttributes.retrieveAETs);
-            availability = results.get(QSeriesQueryAttributes.seriesQueryAttributes.availability);
+            if (numberOfSeriesRelatedInstances != 0) {
+                retrieveAETs = results.get(QSeriesQueryAttributes.seriesQueryAttributes.retrieveAETs);
+                availability = results.get(QSeriesQueryAttributes.seriesQueryAttributes.availability);
+            }
         } else {
             SeriesQueryAttributes seriesView = context.getQueryService()
                     .calculateSeriesQueryAttributes(seriesPk, context.getQueryParam());
             numberOfSeriesRelatedInstances = seriesView.getNumberOfInstances();
-            if (numberOfSeriesRelatedInstances == 0)
-                return null;
-
-            retrieveAETs = seriesView.getRawRetrieveAETs();
-            availability = seriesView.getAvailability();
+            if (numberOfSeriesRelatedInstances != 0) {
+                retrieveAETs = seriesView.getRawRetrieveAETs();
+                availability = seriesView.getAvailability();
+            }
         }
 
         if (!studyPk.equals(this.studyPk)) {
