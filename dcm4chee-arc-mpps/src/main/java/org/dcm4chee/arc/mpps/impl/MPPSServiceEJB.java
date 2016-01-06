@@ -56,8 +56,6 @@ import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.mpps.MPPSContext;
-import org.dcm4chee.arc.patient.CircularPatientMergeException;
-import org.dcm4chee.arc.patient.NonUniquePatientException;
 import org.dcm4chee.arc.patient.PatientService;
 
 import javax.ejb.Stateless;
@@ -92,7 +90,8 @@ public class MPPSServiceEJB {
         Attributes attrs = ctx.getAttributes();
         MPPS mpps = new MPPS();
         mpps.setSopInstanceUID(ctx.getSopInstanceUID());
-        mpps.setPatient(findOrCreatePatient(attrs));
+        Patient pat = patientService.findOrCreatePatient(ctx, attrs);
+        mpps.setPatient(pat);
         mpps.setDiscontinuationReasonCode(discontinuationReasonCodeOf(attrs));
         mpps.setAttributes(attrs, filter);
         em.persist(mpps);
@@ -122,17 +121,6 @@ public class MPPSServiceEJB {
         } catch (NoResultException e) {
             throw new DicomServiceException(Status.NoSuchObjectInstance);
         }
-    }
-
-    private Patient findOrCreatePatient(Attributes attrs) {
-        try {
-            Patient patient = patientService.findPatient(attrs, true);
-            if (patient != null)
-                return patient;
-        } catch (NonUniquePatientException | CircularPatientMergeException e) {
-
-        }
-        return patientService.createPatient(attrs);
     }
 
     private CodeEntity discontinuationReasonCodeOf(Attributes attrs) {

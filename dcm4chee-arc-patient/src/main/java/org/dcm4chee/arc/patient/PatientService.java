@@ -41,7 +41,10 @@
 package org.dcm4chee.arc.patient;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4chee.arc.entity.Patient;
+
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -49,12 +52,15 @@ import org.dcm4chee.arc.entity.Patient;
  */
 public interface PatientService {
 
-    Patient findPatient(Attributes attrs, boolean followMergedWith)
-            throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException;
+    List<Patient> findPatients(IDWithIssuer pid);
 
-    Patient createPatient(Attributes attrs);
+    Patient createPatient(IDWithIssuer pid, Attributes attrs);
 
-    Patient updatePatient(Attributes attrs) throws NonUniquePatientException, PatientMergedException;
+    Patient updatePatient(IDWithIssuer pid, Attributes attrs)
+            throws NonUniquePatientException, PatientMergedException;
 
-    Patient mergePatient(Attributes attrs, Attributes mrg) throws NonUniquePatientException, PatientMergedException;
+    Patient mergePatient(IDWithIssuer pid, Attributes attrs, IDWithIssuer mrgPid, Attributes mrgAttrs)
+            throws NonUniquePatientException, PatientMergedException;
+
+    Patient findOrCreatePatient(Object ctx, Attributes attrs);
 }

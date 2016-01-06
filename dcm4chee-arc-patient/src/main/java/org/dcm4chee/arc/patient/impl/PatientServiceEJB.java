@@ -51,9 +51,10 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
-import org.dcm4chee.arc.patient.CircularPatientMergeException;
 import org.dcm4chee.arc.patient.PatientMergedException;
 import org.dcm4chee.arc.patient.PatientService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -70,6 +71,8 @@ import java.util.List;
 @Stateless
 public class PatientServiceEJB implements PatientService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PatientServiceEJB.class);
+
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -80,44 +83,18 @@ public class PatientServiceEJB implements PatientService {
     private Device device;
 
     @Override
-    public Patient findPatient(Attributes attrs, boolean followMergedWith)
-            throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException {
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(attrs);
-        if (idWithIssuer == null)
-            throw new NonUniquePatientException("No Patient ID in received object");
-
+    public List<Patient> findPatients(IDWithIssuer pid) {
         List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID_EAGER, Patient.class)
-                .setParameter(1, idWithIssuer.getID())
+                .setParameter(1, pid.getID())
                 .getResultList();
-        Issuer issuer = idWithIssuer.getIssuer();
+        Issuer issuer = pid.getIssuer();
         removeNonMatchingIssuer(list, issuer);
-        if (list.isEmpty())
-            return null;
-
         if (list.size() > 1) {
             if (issuer != null) {
                 removeWithoutIssuer(list);
-                if (list.size() == 1)
-                    return list.get(0);
             }
-            throw new NonUniquePatientException("Multiple Patients with ID " + idWithIssuer);
         }
-        Patient pat = list.get(0);
-        Patient mergedWith = pat.getMergedWith();
-        if (mergedWith != null) {
-            if (!followMergedWith)
-                throw new PatientMergedException("" + pat + " merged with " + mergedWith);
-
-            HashSet<Long> patPks = new HashSet<>();
-            do {
-                if (!patPks.add(mergedWith.getPk()))
-                    throw new CircularPatientMergeException("" + pat + "circular merged");
-
-                pat = mergedWith;
-                mergedWith = pat.getMergedWith();
-            } while (mergedWith != null);
-        }
-        return pat;
+        return list;
     }
 
     private void removeWithoutIssuer(List<Patient> list) {
@@ -139,21 +116,35 @@ public class PatientServiceEJB implements PatientService {
     }
 
     @Override
-    public Patient createPatient(Attributes attrs) {
+    public Patient createPatient(IDWithIssuer pid, Attributes attrs) {
         Patient patient = new Patient();
         patient.setAttributes(attrs, getAttributeFilter(), getFuzzyStr());
-        patient.setPatientID(createPatientID(IDWithIssuer.pidOf(attrs)));
+        patient.setPatientID(createPatientID(pid));
         em.persist(patient);
         return patient;
     }
 
     @Override
-    public Patient updatePatient(Attributes newAttrs) throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(newAttrs, false);
+    public Patient updatePatient(IDWithIssuer pid, Attributes newAttrs)
+            throws NonUniquePatientException, PatientMergedException {
+        Patient pat = findPatient(pid);
         if (pat == null)
-            return createPatient(newAttrs);
+            return createPatient(pid, newAttrs);
 
         updatePatient(pat, newAttrs);
+        return pat;
+    }
+
+    private Patient findPatient(IDWithIssuer pid)
+            throws NonUniquePatientException, PatientMergedException {
+        List<Patient> list = findPatients(pid);
+        if (list.size() > 1)
+            throw new NonUniquePatientException("Multiple Patients with ID " + pid);
+        Patient pat = list.get(0);
+        Patient mergedWith = pat.getMergedWith();
+        if (mergedWith != null)
+            throw new PatientMergedException("" + pat + " merged with " + mergedWith);
+
         return pat;
     }
 
@@ -164,22 +155,62 @@ public class PatientServiceEJB implements PatientService {
     }
 
     @Override
-    public Patient mergePatient(Attributes newAttrs, Attributes mrg)
+    public Patient mergePatient(IDWithIssuer pid, Attributes newAttrs, IDWithIssuer mrgpid, Attributes mrg)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(newAttrs, false);
+        Patient pat = findPatient(pid);
         if (pat == null)
-            pat = createPatient(newAttrs);
+            pat = createPatient(pid, newAttrs);
         else {
             updatePatient(pat, newAttrs);
         }
-        Patient prev = findPatient(mrg, false);
+        Patient prev = findPatient(mrgpid);
         if (prev == null)
-            prev = createPatient(mrg);
+            prev = createPatient(mrgpid, mrg);
         else {
             moveStudies(prev, pat);
             moveMPPS(prev, pat);
         }
         prev.setMergedWith(pat);
+        return pat;
+    }
+
+    @Override
+    public Patient findOrCreatePatient(Object ctx, Attributes attrs) {
+        IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
+        Patient pat = findPatient(ctx, pid);
+        return pat != null ? pat : createPatient(pid, attrs);
+    }
+
+    private Patient findPatient(Object ctx, IDWithIssuer pid) {
+        if (pid == null) {
+            LOG.info("{}: No Patient ID in received object", ctx);
+            return null;
+        }
+
+        List<Patient> list = findPatients(pid);
+        if (list.isEmpty())
+            return null;
+
+        if (list.size() > 1) {
+            LOG.info("{}: Multiple Patients with ID: {}", ctx, pid);
+            return null;
+        }
+
+        Patient pat = list.get(0);
+        Patient mergedWith = pat.getMergedWith();
+        if (mergedWith == null)
+            return pat;
+
+        HashSet<Long> patPks = new HashSet<>();
+        do {
+            if (!patPks.add(mergedWith.getPk())) {
+                LOG.warn("{}: Detected circular merged {}", ctx, pid);
+                return null;
+            }
+
+            pat = mergedWith;
+            mergedWith = pat.getMergedWith();
+        } while (mergedWith != null);
         return pat;
     }
 

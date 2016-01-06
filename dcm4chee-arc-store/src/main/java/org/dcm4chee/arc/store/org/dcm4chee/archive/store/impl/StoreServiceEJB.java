@@ -48,8 +48,6 @@ import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
-import org.dcm4chee.arc.patient.CircularPatientMergeException;
-import org.dcm4chee.arc.patient.NonUniquePatientException;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -65,6 +63,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -323,24 +322,14 @@ public class StoreServiceEJB {
         if (series == null) {
             Study study = findStudy(ctx);
             if (study == null) {
-                Patient patient = findPatient(ctx);
-                if (patient == null) {
-                    patient = createPatient(ctx);
-                }
-                study = createStudy(ctx, patient);
+                Patient pat = patientService.findOrCreatePatient(ctx.getStoreSession(), ctx.getAttributes());
+                study = createStudy(ctx, pat);
             }
             series = createSeries(ctx, study);
         }
         return createInstance(ctx, series, conceptNameCode);
     }
 
-    private Patient findPatient(StoreContext ctx) {
-        try {
-            return patientService.findPatient(ctx.getAttributes(), true);
-        } catch (NonUniquePatientException | CircularPatientMergeException e) {
-            return null;
-        }
-    }
 
     private Study findStudy(StoreContext ctx) {
         StoreSession storeSession = ctx.getStoreSession();
@@ -404,10 +393,6 @@ public class StoreServiceEJB {
         } catch (NoResultException e) {
             return null;
         }
-    }
-
-    private Patient createPatient(StoreContext ctx) {
-        return patientService.createPatient(ctx.getAttributes());
     }
 
     private Study createStudy(StoreContext ctx, Patient patient) {

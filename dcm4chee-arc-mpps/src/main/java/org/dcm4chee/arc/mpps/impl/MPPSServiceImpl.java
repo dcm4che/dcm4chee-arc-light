@@ -61,7 +61,7 @@ public class MPPSServiceImpl implements MPPSService {
 
     @Override
     public MPPSContext newMPPSContext(Association as) {
-        return new MPPSContextImpl(as.getApplicationEntity());
+        return new MPPSContextImpl(as);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
@@ -41,13 +42,21 @@ class PatientUpdateService extends DefaultHL7Service {
         try {
             String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
             Attributes attrs = SAXTransformer.transform(msg, off, len, hl7cs, getTemplate(hl7App));
+            IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
+            if (pid == null)
+                throw new HL7Exception(HL7Exception.AR, "Missing PID-3");
             Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
             if (mrg == null) {
-                patientService.updatePatient(attrs);
+                patientService.updatePatient(pid, attrs);
             } else {
-                patientService.mergePatient(attrs, mrg);
+                IDWithIssuer mrgpid = IDWithIssuer.pidOf(mrg);
+                if (mrgpid == null)
+                    throw new HL7Exception(HL7Exception.AR, "Missing MRG-1");
+                patientService.mergePatient(pid, attrs, mrgpid, mrg);
             }
             return super.onMessage(hl7App, conn, s, msh, msg, off, len, mshlen);
+        } catch (HL7Exception e) {
+            throw e;
         } catch (Exception e) {
             throw new HL7Exception(HL7Exception.AE, e);
         }
