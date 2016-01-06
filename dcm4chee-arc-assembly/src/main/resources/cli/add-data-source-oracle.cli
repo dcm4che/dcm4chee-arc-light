@@ -1,0 +1,4 @@
+/subsystem=datasources/jdbc-driver=oracle:add(driver-name=oracle,driver-module-name=com.oracle)
+data-source add --name=pacsds --driver-name=oracle --jndi-name=java:/PacsDS \
+--connection-url=jdbc:oracle:thin:@<host>:1521:<database-name> \
+--user-name=<user-name> --password=<user-password>

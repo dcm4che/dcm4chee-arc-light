@@ -1,1 +1,0 @@
-/subsystem=datasources/jdbc-driver=psql:add(driver-module-name=org.postgresql,driver-name=psql)
