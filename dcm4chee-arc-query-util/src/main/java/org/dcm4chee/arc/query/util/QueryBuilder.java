@@ -275,6 +275,8 @@ public class QueryBuilder {
         }
         builder.and(modalitiesInStudy(keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase(), matchUnknown));
         builder.and(code(QStudy.study.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence), matchUnknown));
+        builder.and(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances.isNull()
+                .or(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances.ne(0)));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
         builder.and(wildCard(QStudy.study.studyCustomAttribute1,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), matchUnknown, true));
@@ -282,7 +284,6 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), matchUnknown, true));
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), matchUnknown, true));
-
     }
 
     public static HibernateQuery<Tuple> applySeriesLevelJoins(
