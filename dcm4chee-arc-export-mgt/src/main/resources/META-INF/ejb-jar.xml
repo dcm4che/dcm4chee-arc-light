@@ -19,7 +19,7 @@
         </activation-config-property>
         <activation-config-property>
           <activation-config-property-name>maxSession</activation-config-property-name>
-          <activation-config-property-value>1</activation-config-property-value>
+          <activation-config-property-value>5</activation-config-property-value>
         </activation-config-property>
       </activation-config>
     </message-driven>
