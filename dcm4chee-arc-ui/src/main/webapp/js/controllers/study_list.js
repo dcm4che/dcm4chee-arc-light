@@ -3,8 +3,7 @@
 myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
-    $scope.page = 0;
-    $scope.offsets = [0];
+    $scope.moreStudies = false;
     $scope.limit = 20;
     $scope.aes;
     $scope.aet = null;
@@ -13,30 +12,55 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
-    $scope.queryStudies = function(page) {
-        $scope.page = page;
-        while ($scope.offsets.length > (page+1))
-            $scope.offsets.pop();
-        $scope.studies = [];
-        queryStudies($scope.offsets[$scope.page], $scope.page * $scope.limit);
+    $scope.queryStudies = function(offset) {
+        if (offset < 0) offset = 0;
+        QidoService.queryStudies(
+            rsURL(),
+            createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
+        ).then(function (res) {
+            $scope.studies = res.data.map(function (attrs, index) {
+                return {
+                        offset: offset + index,
+                        moreSeries: false,
+                        attrs: attrs,
+                        series: null,
+                        showAttributes: false
+                };
+            });
+            if ($scope.moreStudies = ($scope.studies.length > $scope.limit)) {
+                $scope.studies.pop();
+            }
+        });
     };
-    $scope.querySeries = function(study, page) {
-        study.page = page;
-        while (study.offsets.length > (page+1))
-            study.offsets.pop();
-        study.series = [];
-        querySeries(study, study.offsets[study.page], study.page * $scope.limit);
+    $scope.querySeries = function(study, offset) {
+        if (offset < 0) offset = 0;
+        QidoService.querySeries(
+            rsURL(),
+            study.attrs['0020000D'].Value[0],
+            createQueryParams(offset, $scope.limit+1, { orderby: 'SeriesNumber'})
+        ).then(function (res) {
+            study.series = res.data.map(function (attrs, index) {
+                return {
+                        study: study,
+                        offset: offset + index,
+                        moreInstances: false,
+                        attrs: attrs,
+                        instances: null,
+                        showAttributes: false
+                };
+            });
+            if (study.moreSeries = (study.series.length > $scope.limit)) {
+                study.series.pop();
+            }
+        });
     };
-    $scope.queryInstances = function (series, page) {
-        series.page = page;
-        while (series.offsets.length > (page+1))
-            series.offsets.pop();
-        var offset = page * $scope.limit;
+    $scope.queryInstances = function (series, offset) {
+        if (offset < 0) offset = 0;
         QidoService.queryInstances(
             rsURL(),
             series.attrs['0020000D'].Value[0],
             series.attrs['0020000E'].Value[0],
-            createQueryParams(offset, $scope.limit, { orderby: 'InstanceNumber'})
+            createQueryParams(offset, $scope.limit+1, { orderby: 'InstanceNumber'})
         )
         .then(function (res) {
             series.instances = res.data.map(function(attrs, index) {
@@ -45,7 +69,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                     video = isVideo(attrs);
                 return {
                     series: series,
-                    index: offset + index,
+                    offset: offset + index,
                     attrs: attrs,
                     showAttributes: false,
                     wadoQueryParams: {
@@ -60,14 +84,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                     view: 1
                 };
             });
-            if (series.instances.length == $scope.limit) {
-                series.offsets.push(offset + $scope.limit);
+            if (series.moreInstances = (series.instances.length > $scope.limit)) {
+                series.instances.pop();
             }
         });
     };
     $scope.rejectStudy = function(study) {
         $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
-            $scope.queryStudies($scope.offsets[$scope.page], $scope.page * $scope.limit);
+            $scope.queryStudies($scope.studies[0].offset);
         });
     };
     $scope.rejectSeries = function(series) {
@@ -115,78 +139,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     };
     $scope.instanceRowspan = function(instance) {
         return instance.showAttributes ? 2 : 1;
-    };
-    $scope.hasNext = function(objs) {
-        return objs && (objs.length === $scope.limit);
-    };
-    $scope.hasPrev = function(objs) {
-        return objs && objs.length && objs[0].offset;
-    };
-    $scope.prevOffset = function(objs) {
-        return Math.max(0, objs[0].offset - $scope.limit);
-    };
-    $scope.nextOffset = function(objs) {
-        return objs[0].offset + $scope.limit;
-    };
-    function queryStudies(offset, index_offset) {
-        var limit = $scope.limit - $scope.studies.length;
-        QidoService.queryStudies(
-            rsURL(),
-            createQueryParams(offset, limit, createStudyFilterParams())
-        ).then(function (res) {
-            var removed = 0;
-            var index = index_offset;
-            res.data.forEach(function (attrs) {
-                if (attrs['00201208'].Value[0] == 0) {
-                    removed++;
-                } else {
-                    $scope.studies.push({
-                        index: index++,
-                        offsets: [0],
-                        page: 0,
-                        attrs: attrs,
-                        series: null,
-                        showAttributes: false
-                    });
-                }
-            });
-            if ($scope.studies.length == $scope.limit) {
-                $scope.offsets.push(offset + limit);
-            } else if (removed > 0 && res.data.length == limit) {
-                queryStudies(offset + limit, index);
-            }
-        });
-    };
-    function querySeries(study, offset, index_offset) {
-        var limit = $scope.limit - study.series.length;
-        QidoService.querySeries(
-            rsURL(),
-            study.attrs['0020000D'].Value[0],
-            createQueryParams(offset, limit, { orderby: 'SeriesNumber'})
-        ).then(function (res) {
-            var removed = 0;
-            var index = index_offset;
-            res.data.forEach(function (attrs) {
-                if (attrs['00201209'].Value[0] == 0) {
-                    removed++;
-                } else {
-                    study.series.push({
-                        study: study,
-                        index: index++,
-                        offsets: [0],
-                        page: 0,
-                        attrs: attrs,
-                        instances: null,
-                        showAttributes: false
-                    });
-                }
-            });
-            if (study.series.length == $scope.limit) {
-                study.offsets.push(offset + limit);
-            } else if (removed > 0 && res.data.length == limit) {
-                querySeries(study, offset + limit, index);
-            }
-        });
     };
     function rsURL() {
         return "../aets/" + $scope.aet + "/rs";

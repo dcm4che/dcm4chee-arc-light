@@ -60,7 +60,10 @@ abstract class AbstractQuery implements Query {
     protected final StatelessSession session;
     private HibernateQuery<Tuple> query;
     private Iterator<Tuple> results;
-    boolean hasOffset;
+    private long offset;
+    private long limit;
+    private int rejected;
+    private int matches;
 
     public AbstractQuery(QueryContext context, StatelessSession session) {
         this.context = context;
@@ -83,7 +86,9 @@ abstract class AbstractQuery implements Query {
     @Override
     public void executeQuery() {
         checkQuery();
-        results = hasOffset ? query.fetch().iterator() : query.iterate();
+        rejected = 0;
+        matches = 0;
+        results = offset > 0 ? query.fetch().iterator() : query.iterate();
     }
 
     @Override
@@ -96,13 +101,14 @@ abstract class AbstractQuery implements Query {
     public void limit(long limit) {
         checkQuery();
         query.limit(limit);
+        this.limit = limit;
     }
 
     @Override
     public void offset(long offset) {
         checkQuery();
         query.offset(offset);
-        hasOffset = true;
+        this.offset = offset;
     }
 
     @Override
@@ -113,12 +119,22 @@ abstract class AbstractQuery implements Query {
 
     @Override
     public boolean hasMoreMatches() {
+        boolean hasNext = results.hasNext();
+        if (hasNext || rejected == 0 || limit != matches)
+            return hasNext;
+
+        offset(offset + matches - rejected);
+        limit(rejected);
+        executeQuery();
         return results.hasNext();
     }
 
     @Override
     public Attributes nextMatch() {
         Attributes attrs = toAttributes(results.next());
+        matches++;
+        if (attrs == null)
+            rejected++;
         return attrs;
     }
 

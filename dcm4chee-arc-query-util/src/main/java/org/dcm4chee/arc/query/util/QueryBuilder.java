@@ -328,6 +328,8 @@ public class QueryBuilder {
         builder.and(requestAttributes(keys.getNestedDataset(Tag.RequestAttributesSequence), queryParam));
         builder.and(code(QSeries.series.institutionCode, keys.getNestedDataset(Tag.InstitutionCodeSequence),
                 matchUnknown));
+        builder.and(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances.isNull()
+                .or(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances.ne(0)));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Series);
         builder.and(wildCard(QSeries.series.seriesCustomAttribute1,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), matchUnknown, true));

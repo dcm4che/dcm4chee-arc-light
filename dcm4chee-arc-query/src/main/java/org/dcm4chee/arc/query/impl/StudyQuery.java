@@ -105,31 +105,33 @@ class StudyQuery extends AbstractQuery {
         Long studyPk = results.get(QStudy.study.pk);
         Integer numberOfInstancesI = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
         int numberOfStudyRelatedInstances;
-        int numberOfStudyRelatedSeries = 0;
-        String modalitiesInStudy = "";
-        String sopClassesInStudy = "";
-        String retrieveAETs = "";
-        Availability availability = Availability.UNAVAILABLE;
+        int numberOfStudyRelatedSeries;
+        String modalitiesInStudy;
+        String sopClassesInStudy;
+        String retrieveAETs;
+        Availability availability;
         if (numberOfInstancesI != null) {
             numberOfStudyRelatedInstances = numberOfInstancesI;
-            if (numberOfStudyRelatedInstances != 0) {
-                numberOfStudyRelatedSeries = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfSeries);
-                modalitiesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy);
-                sopClassesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.sopClassesInStudy);
-                retrieveAETs = results.get(QStudyQueryAttributes.studyQueryAttributes.retrieveAETs);
-                availability = results.get(QStudyQueryAttributes.studyQueryAttributes.availability);
+            if (numberOfStudyRelatedInstances == 0) {
+                return null;
             }
+            numberOfStudyRelatedSeries = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfSeries);
+            modalitiesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy);
+            sopClassesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.sopClassesInStudy);
+            retrieveAETs = results.get(QStudyQueryAttributes.studyQueryAttributes.retrieveAETs);
+            availability = results.get(QStudyQueryAttributes.studyQueryAttributes.availability);
         } else {
             StudyQueryAttributes studyView = context.getQueryService()
                     .calculateStudyQueryAttributes(studyPk, context.getQueryParam());
             numberOfStudyRelatedInstances = studyView.getNumberOfInstances();
-            if (numberOfStudyRelatedInstances != 0) {
-                numberOfStudyRelatedSeries = studyView.getNumberOfSeries();
-                modalitiesInStudy = studyView.getRawModalitiesInStudy();
-                sopClassesInStudy = studyView.getRawSOPClassesInStudy();
-                retrieveAETs = studyView.getRawRetrieveAETs();
-                availability = studyView.getAvailability();
+            if (numberOfStudyRelatedInstances == 0) {
+                return null;
             }
+            numberOfStudyRelatedSeries = studyView.getNumberOfSeries();
+            modalitiesInStudy = studyView.getRawModalitiesInStudy();
+            sopClassesInStudy = studyView.getRawSOPClassesInStudy();
+            retrieveAETs = studyView.getRawRetrieveAETs();
+            availability = studyView.getAvailability();
         }
         Attributes studyAttrs = AttributesBlob.decodeAttributes(
                 results.get(QueryBuilder.studyAttributesBlob.encodedAttributes), null);
