@@ -1,9 +1,9 @@
 DCM4CHEE Archive 5.x
 ====================
-Sources: https://github.com/dcm4che/dcm4chee-arc-light
-Binaries: https://sourceforge.net/projects/dcm4che/files/dcm4chee-arc-light
-Issue Tracker:  https://github.com/dcm4che/dcm4chee-arc-light/issues
-Wiki:  https://github.com/dcm4che/dcm4chee-arc-light/wiki
+Sources: https://github.com/dcm4che/dcm4chee-arc-light   
+Binaries: https://sourceforge.net/projects/dcm4che/files/dcm4chee-arc-light   
+Issue Tracker:  https://github.com/dcm4che/dcm4chee-arc-light/issues   
+Wiki:  https://github.com/dcm4che/dcm4chee-arc-light/wiki   
 
 DICOM Archive Java EE application running in WildFly.
 
