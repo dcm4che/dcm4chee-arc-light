@@ -17,15 +17,6 @@ One major improvement to 2.x is the use of LDAP as central configuration,
 compliant to the DICOM Application Configuration Management Profile,
 specified in [DICOM 2015, Part 15, Annex H][1].
 
-Version 5.0.1 supports DICOM and HL7 Services required for
-compliance with IHE Radiology Workflow Integration Profiles:
-
-- [Scheduled Workflow (SWF)][2]
-- [Patient Information Reconciliation (PIR)][3]
-- [Imaging Object Change Management (IOCM)][4]
-
-for IHE Actor _Image Manager/Archive_.
-
 In long term, 5.x will provide the functionality of 2.x, and there will
 be migration tools to upgrade existing installations of 2.x to 5.x.
 
@@ -65,6 +56,3 @@ License
 * [Mozilla Public License Version 1.1](http://www.mozilla.org/MPL/1.1/)
 
 [1]: http://dicom.nema.org/medical/dicom/current/output/chtml/part15/chapter_H.html
-[2]: http://wiki.ihe.net/index.php?title=Scheduled_Workflow
-[3]: http://wiki.ihe.net/index.php?title=Patient_Information_Reconciliation
-[4]: http://wiki.ihe.net/index.php?title=Imaging_Object_Change_Management
