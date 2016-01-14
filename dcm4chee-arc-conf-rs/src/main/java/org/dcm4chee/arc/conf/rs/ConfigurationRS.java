@@ -114,7 +114,7 @@ public class ConfigurationRS {
     @Path("/{DeviceName}")
     @Consumes("application/json")
     public void createOrUpdateDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
-        Device device = jsonConf.loadDeviceFrom(Json.createParser(content));
+        Device device = jsonConf.loadDeviceFrom(Json.createParser(content), null);
         if (!device.getDeviceName().equals(deviceName))
             throw new WebApplicationException(
                     "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
