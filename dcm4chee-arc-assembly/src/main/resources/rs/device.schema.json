@@ -177,7 +177,7 @@
       "description": "network connections of the device",
       "type": "array",
       "items": {
-        "$ref": "networkConnections.schema.json"
+        "$ref": "networkConnection.schema.json"
       }
     },
     "dicomNetworkAE": {
@@ -281,7 +281,7 @@
       }
     },
     "dcmAuditLogger": {
-      "$ref": "auditRecordRepository.schema.json"
+      "$ref": "auditLogger.schema.json"
     },
     "dcmAuditRecordRepository": {
       "$ref": "auditRecordRepository.schema.json"
