@@ -1,0 +1,224 @@
+{
+  "title": "Audit Logger",
+  "description": "Audit Logger related information",
+  "type": "object",
+  "required": [
+    "dicomNetworkConnectionReference",
+    "dcmAuditRecordRepositoryDeviceReference"
+  ],
+  "properties": {
+    "dicomNetworkConnectionReference": {
+      "title": "Network Connection Reference",
+      "description": "The JSON Pointers to the Network Connection objects used by this Audit Logger",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditRecordRepositoryDeviceName": {
+      "title": "Audit Record Repository Device Name",
+      "description": "Device Name of Audit Record Repository to which Audit Messages are sent",
+      "type": "string"
+    },
+    "dcmAuditSourceID": {
+      "title": "Source ID",
+      "description": "RFC 3881 Audit Source ID; device name if absent",
+      "type": "string"
+    },
+    "dcmAuditEnterpriseSiteID": {
+      "title": "Enterprise Site ID",
+      "description": "RFC 3881 Audit Enterprise Site ID; value 'dicomInstitutionName' is replaced by the institution name of the DICOM device",
+      "type": "string"
+    },
+    "dcmAuditSourceTypeCode": {
+      "title": "Source Type Code",
+      "description": "RFC 3881 Audit Source Type Code; value 'dicomPrimaryDeviceType' is replaced by the primary type of the DICOM device",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditFacility": {
+      "title": "Syslog Facility",
+      "description": "RFC 5424 Syslog Facility value of audit message: 0-23; 10 (authpriv) if absent",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 13
+    },
+    "dcmAuditSuccessSeverity": {
+      "title": "Syslog Severity - Success",
+      "description": "RFC 5424 Syslog Severity of audit message with Event Outcome Indicator 0 (Success); 5 (notice) if absent",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 7
+    },
+    "dcmAuditMinorFailureSeverity": {
+      "title": "Syslog Severity - Failure",
+      "description": "RFC 5424 Syslog Severity of audit message with Event Outcome Indicator 4 (Minor failure); 4 (warning) if absent",
+      "type": "string"
+    },
+    "dcmAuditSeriousFailureSeverity": {
+      "title": "Syslog Severity - Failure",
+      "description": "RFC 5424 Syslog Severity of audit message with Event Outcome Indicator 8 (Serious failure); 3 (err) if absent",
+      "type": "string"
+    },
+    "dcmAuditMajorFailureSeverity": {
+      "title": "Syslog Severity - Major",
+      "description": "RFC 5424 Syslog Severity of audit message with Event Outcome Indicator 12 (Major failure); 2 (crit) if absent",
+      "type": "string"
+    },
+    "dcmAuditApplicationName": {
+      "title": "Syslog Application Name",
+      "description": "RFC 5424 Syslog APP-NAME of audit message; Audit Source ID if absent",
+      "type": "string"
+    },
+    "dcmAuditMessageID": {
+      "title": "Syslog Message ID",
+      "description": "RFC 5424 Syslog MSGID of audit message; DICOM+RFC3881 if absent",
+      "type": "string"
+    },
+    "dcmAuditMessageEncoding": {
+      "title": "Message Encoding",
+      "description": "Character encoding of RFC 5424 Syslog MSG part of audit message; UTF-8 if absent",
+      "type": "string"
+    },
+    "dcmAuditMessageBOM": {
+      "title": "Message BOM",
+      "description": "Enable/disable Unicode BOM prefix of RFC 5424 Syslog MSG part of audit message; include BOM if absent",
+      "type": "boolean"
+    },
+    "dcmAuditTimestampInUTC": {
+      "title": "Timestamp in UTC",
+      "description": "Specify if RFC 5424 Syslog TIMESTAMP and the Event Date/Time of the audit message are specified in Coordinated Universal Time or in Local Time; use Local Time zone if absent",
+      "type": "boolean"
+    },
+    "dcmAuditMessageFormatXML": {
+      "title": "Message Format XML",
+      "description": "Specify whether or not the XML audit message is formatted with linefeeds and indentation; disabled if absent",
+      "type": "boolean"
+    },
+    "dcmAuditMessageSchemaURI": {
+      "title": "Message Schema URI",
+      "description": "URI of DICOM Audit Message Schema referenced in audit message",
+      "type": "string"
+    },
+    "dcmAuditIncludeInstanceUID": {
+      "title": "Include Instance UIDs",
+      "description": "Indicates if Audit Log Message should contain optional Instance UIDs",
+      "type": "boolean"
+    },
+    "dcmAuditLoggerSpoolDirectoryURI": {
+      "title": "Spool Directory URI",
+      "description": "URI of spool directory used to store messages which could not delivered to the record repository; use system temporary directory if absent",
+      "type": "string"
+    },
+    "dcmAuditLoggerRetryInterval": {
+      "title": "Retry Interval",
+      "description": "Retry interval in s to re-sent messages which could not delivered to the record repository; do no retry to re-sent messages if absent",
+      "type": "string"
+    },
+    "dicomInstalled": {
+      "title": "installed",
+      "description": "True if the Audit Logger is installed on network. If not present, information about the installed status of the Audit Logger is inherited from the device",
+      "type": "boolean"
+    },
+    "dcmAuditSuppressCriteria": {
+      "title": "Audit Suppress Criteria",
+      "description": "Audit Suppress Criteria",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "cn"
+        ],
+        "properties": {
+          "cn": {
+            "title": "Name",
+            "description": "Arbitrary/Meaningful name of the Audit Suppress Criteria",
+            "type": "string"
+          },
+          "dcmAuditEventID": {
+            "title": "Audit Event ID",
+            "description": "RFC 3881 Audit Event ID code and codeSystemName in format (CV, CSD, \"CM\")",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dcmAuditEventTypeCode": {
+            "title": "Audit Event Type Code",
+            "description": "RFC 3881 Audit Event Type code in format (CV, CSD, \"CM\")",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dcmAuditEventActionCode": {
+            "title": "Event Action Code",
+            "description": "RFC 3881 Audit Event Action Type code. Enumerated values: C, R, U, D, E",
+            "type": "array",
+            "items": {
+              "enum": [
+                "C",
+                "R",
+                "U",
+                "D",
+                "E"
+              ]
+            }
+          },
+          "dcmAuditEventOutcomeIndicator": {
+            "title": "Event Outcome Indicator",
+            "description": "RFC 3881 Audit Event Outcome Indicator. Enumerated values: 0, 4, 8, 12",
+            "type": "array",
+            "items": {
+              "enum": [
+                "0",
+                "4",
+                "8",
+                "12"
+              ]
+            }
+          },
+          "dcmAuditUserID": {
+            "title": "User ID",
+            "description": "RFC 3881 Audit Active Participant User ID",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dcmAuditAlternativeUserID": {
+            "title": "Alternative User ID",
+            "description": "RFC 3881 Audit Active Participant Alternative User ID",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dcmAuditUserRoleIDCode": {
+            "title": "User Role ID Code",
+            "description": "RFC 3881 Audit Active Participant User Role ID code in format (CV, CSD, \"CM\")",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dcmAuditNetworkAccessPointID": {
+            "title": "Network Access Point ID",
+            "description": "RFC 3881 Audit Active Participant Network Access Point ID",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dcmAuditUserIsRequestor": {
+            "title": "User is Requestor",
+            "description": "Indicates if Active Participant is initiator/requestor of the Audit Event as specified by RFC 3881",
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

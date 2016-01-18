@@ -1,0 +1,464 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "dcm4chee-arc-light",
+    "version": "5.0.1"
+  },
+  "host": "localhost:8080",
+  "basePath": "/dcm4chee-arc",
+  "schemes": [
+    "http"
+  ],
+  "tags": [
+    {
+      "name": "CTRL-RS",
+      "description": "Start/Stop/Reload Archive"
+    },
+    {
+      "name": "CONFIG-RS",
+      "description": "Configuration Access"
+    },
+    {
+      "name": "QUEUE-RS",
+      "description": "Queue Management"
+    }
+  ],
+  "paths": {
+    "/ctrl/start": {
+      "get": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Start Archive",
+        "operationId": "start",
+        "responses": {
+          "204": {
+            "description": "archive started"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/ctrl/stop": {
+      "get": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Stop Archive",
+        "operationId": "stop",
+        "responses": {
+          "204": {
+            "description": "archive stopped"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/ctrl/reload": {
+      "get": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Reload Archive Configuration",
+        "operationId": "reload",
+        "responses": {
+          "204": {
+            "description": "configuration reloaded"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/ctrl/status": {
+      "get": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Get Archive Status",
+        "operationId": "status",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "archive status",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/devices": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "list configured devices",
+        "operationId": "listDevices",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "device list",
+            "schema": {
+              "$ref": "deviceList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/devices/{deviceName}": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "get device",
+        "operationId": "getDevice",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "name of device to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "device.schema.json"
+            }
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "create or update device",
+        "operationId": "createOrUpdateDevice",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "name of device to return",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "new or updated device",
+            "required": true,
+            "schema": {
+              "$ref": "device.schema.json"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "deviceName in path does not match device name in body"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/queue": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "list configured queues",
+        "operationId": "listQueues",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "queue list",
+            "schema": {
+              "$ref": "queueList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "list messages in queue",
+        "operationId": "listMessages",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "queueName",
+            "in": "path",
+            "description": "name of queue",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of messages to filter by: SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED",
+            "type": "string"
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "maximum update date of messages to filter by. Format: YYYY-MM-DD",
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped messages before first message in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of messages in returned list",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "messageList.schema.json"
+            }
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "delete messages in queue",
+        "operationId": "deleteMessages",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "queueName",
+            "in": "path",
+            "description": "name of queue",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of messages to filter by: SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED",
+            "type": "string"
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "maximum update date of messages to filter by. Format: YYYY-MM-DD",
+            "type": "string",
+            "format": "date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Deleted"
+            }
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/{messageID}": {
+      "delete": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "delete message",
+        "operationId": "deleteMessage",
+        "parameters": [
+          {
+            "name": "queueName",
+            "in": "path",
+            "description": "name of queue",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "description": "id of message",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Message not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/{messageID}/cancel": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "cancel message",
+        "operationId": "cancelMessage",
+        "parameters": [
+          {
+            "name": "queueName",
+            "in": "path",
+            "description": "name of queue",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "description": "id of message",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Message not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/{messageID}/reschedule": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "reschedule message",
+        "operationId": "rescheduleMessage",
+        "parameters": [
+          {
+            "name": "queueName",
+            "in": "path",
+            "description": "name of queue",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "description": "id of message",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Message not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Status": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "title": "status",
+          "description": "status of archive, STARTED|STOPPED",
+          "type": "string"
+        }
+      }
+    },
+    "Deleted": {
+      "type": "object",
+      "required": [
+        "deleted"
+      ],
+      "properties": {
+        "deleted": {
+          "title": "deleted",
+          "description": "number of deleted messages",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

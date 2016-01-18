@@ -38,9 +38,16 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.conf.rs;
+package org.dcm4chee.arc.conf.json;
 
 import org.dcm4che3.conf.json.JsonConfiguration;
+import org.dcm4che3.conf.json.audit.JsonAuditLoggerConfiguration;
+import org.dcm4che3.conf.json.audit.JsonAuditRecordRepositoryConfiguration;
+import org.dcm4che3.conf.json.hl7.JsonHL7Configuration;
+import org.dcm4che3.conf.json.imageio.JsonImageReaderConfiguration;
+import org.dcm4che3.conf.json.imageio.JsonImageWriterConfiguration;
+import org.dcm4chee.arc.conf.json.JsonArchivHL7Configuration;
+import org.dcm4chee.arc.conf.json.JsonArchiveConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -54,7 +61,16 @@ public class JsonConfigurationProducer {
 
     @Produces
     @ApplicationScoped
-    public JsonConfiguration newJsonConfiguration() {
-        return new JsonConfiguration();
+    public static JsonConfiguration newJsonConfiguration() {
+        JsonConfiguration config = new JsonConfiguration();
+        config.addJsonConfigurationExtension(new JsonAuditLoggerConfiguration());
+        config.addJsonConfigurationExtension(new JsonAuditRecordRepositoryConfiguration());
+        config.addJsonConfigurationExtension(new JsonImageReaderConfiguration());
+        config.addJsonConfigurationExtension(new JsonImageWriterConfiguration());
+        JsonHL7Configuration hl7Config = new JsonHL7Configuration();
+        hl7Config.addHL7ConfigurationExtension(new JsonArchivHL7Configuration());
+        config.addJsonConfigurationExtension(hl7Config);
+        config.addJsonConfigurationExtension(new JsonArchiveConfiguration());
+        return config;
     }
 }

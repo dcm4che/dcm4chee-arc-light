@@ -317,6 +317,7 @@
     <module>dcm4chee-arc-code</module>
     <module>dcm4chee-arc-conf</module>
     <module>dcm4chee-arc-conf-data</module>
+    <module>dcm4chee-arc-conf-json</module>
     <module>dcm4chee-arc-conf-ldap</module>
     <module>dcm4chee-arc-conf-test</module>
     <module>dcm4chee-arc-ctrl</module>

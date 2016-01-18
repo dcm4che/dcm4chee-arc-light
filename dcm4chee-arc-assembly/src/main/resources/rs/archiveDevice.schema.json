@@ -1,0 +1,9 @@
+{
+  "title": "Archive Device",
+  "description": "DICOM Archive Device related information",
+  "type": "object",
+  "required": [
+  ],
+  "properties": {
+  }
+}

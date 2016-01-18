@@ -40,19 +40,38 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
+import org.dcm4che3.conf.json.ConfigurationDelegate;
+import org.dcm4che3.conf.json.JsonConfiguration;
+import org.dcm4che3.conf.json.audit.JsonAuditLoggerConfiguration;
+import org.dcm4che3.conf.json.audit.JsonAuditRecordRepositoryConfiguration;
+import org.dcm4che3.conf.json.hl7.JsonHL7Configuration;
+import org.dcm4che3.conf.json.imageio.JsonImageReaderConfiguration;
+import org.dcm4che3.conf.json.imageio.JsonImageWriterConfiguration;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.SSLManagerFactory;
 import org.dcm4che3.util.ResourceLocator;
+import org.dcm4chee.arc.conf.json.JsonConfigurationProducer;
 import org.dcm4chee.arc.conf.ldap.LdapArchiveConfigurationFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 
 import static org.junit.Assert.assertEquals;
@@ -116,6 +135,32 @@ public class ArchiveDeviceConfigurationTest {
         assertNotNull(ae);
         assertDeviceEquals(arc, ae.getDevice());
     }
+
+    @Test
+    public void testJsonPersist() throws Exception {
+        Device arrDevice = factory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
+        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, false);
+        JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
+        Path path = Paths.get("target/device.json");
+        try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
+              JsonGenerator gen = Json.createGenerator(w)) {
+            jsonConfig.writeTo(arc, gen);
+        }
+        Device arc2;
+        try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
+            arc2 = jsonConfig.loadDeviceFrom(Json.createParser(reader), configDelegate);
+        }
+//        assertDeviceEquals(arc, arc2);
+    }
+
+    private final ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
+        @Override
+        public Device findDevice(String name) throws ConfigurationException {
+            if (!name.equals("syslog"))
+                throw new ConfigurationNotFoundException("Unknown Device: " + name);
+            return factory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
+        }
+    };
 
     private void assertDeviceEquals(Device expected, Device actual) {
         assertEquals(expected.getDeviceName(), actual.getDeviceName());

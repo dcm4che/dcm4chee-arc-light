@@ -57,6 +57,7 @@
         <include>cli/add-jms-queues.cli</include>
         <include>configuration/dcm4chee-arc/ldap.properties</include>
         <include>ldap/**</include>
+        <include>rs/**</include>
       </includes>
       <lineEnding>dos</lineEnding>
       <filtered>true</filtered>

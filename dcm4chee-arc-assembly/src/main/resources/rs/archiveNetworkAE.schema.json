@@ -1,0 +1,9 @@
+{
+  "title": "Archive Network AE",
+  "description": "DICOM Archive Network AE related information",
+  "type": "object",
+  "required": [
+  ],
+  "properties": {
+  }
+}
