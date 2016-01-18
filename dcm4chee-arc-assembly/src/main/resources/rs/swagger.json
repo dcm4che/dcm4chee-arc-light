@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "dcm4chee-arc-light",
-    "version": "5.0.1"
+    "version": "5.0"
   },
   "host": "localhost:8080",
   "basePath": "/dcm4chee-arc",
@@ -239,8 +239,15 @@
           {
             "name": "status",
             "in": "query",
-            "description": "status of messages to filter by: SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED",
-            "type": "string"
+            "description": "status of messages to filter by",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
           },
           {
             "name": "updatedBefore",
@@ -297,8 +304,15 @@
           {
             "name": "status",
             "in": "query",
-            "description": "status of messages to filter by: SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED",
-            "type": "string"
+            "description": "status of messages to filter by",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
           },
           {
             "name": "updatedBefore",
@@ -442,8 +456,11 @@
       "properties": {
         "status": {
           "title": "status",
-          "description": "status of archive, STARTED|STOPPED",
-          "type": "string"
+          "description": "status of archive",
+          "enum": [
+            "STARTED",
+            "STOPPED"
+          ]
         }
       }
     },
