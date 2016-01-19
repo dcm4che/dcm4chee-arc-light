@@ -240,6 +240,7 @@
             "name": "status",
             "in": "query",
             "description": "status of messages to filter by",
+            "type": "string",
             "enum": [
               "SCHEDULED",
               "IN PROCESS",
@@ -305,6 +306,7 @@
             "name": "status",
             "in": "query",
             "description": "status of messages to filter by",
+            "type": "string",
             "enum": [
               "SCHEDULED",
               "IN PROCESS",
@@ -480,6 +482,7 @@
         "status": {
           "title": "status",
           "description": "status of archive",
+          "type": "string",
           "enum": [
             "STARTED",
             "STOPPED"
