@@ -2,8 +2,89 @@
   "title": "Archive Network AE",
   "description": "DICOM Archive Network AE related information",
   "type": "object",
-  "required": [
-  ],
   "properties": {
+    "dcmStorageID": {
+      "title": "Storage ID",
+      "description": "Storage ID",
+      "type": "string"
+    },
+    "dcmOverwritePolicy": {
+      "title": "Overwrite Policy",
+      "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmQueryRetrieveViewID": {
+      "title": "Query/Retrieve View ID",
+      "description": "Query/Retrieve View Identifier",
+      "type": "string"
+    },
+    "dcmBulkDataSpoolDirectory": {
+      "title": "Bulk Data Spool Directory",
+      "description": "Path to Bulk Data Spool Directory",
+      "type": "string"
+    },
+    "dcmQueryMatchUnknown": {
+      "title": "Query Match Unknown",
+      "description": "Indicates if missing Attributes or zero-length Attribute values in stored entities shall considered unknown and all matching against it shall be considered a successful match; enabled if absent",
+      "type": "boolean"
+    },
+    "dcmPersonNameComponentOrderInsensitiveMatching": {
+      "title": "Person Name Component Order Insensitive Matching",
+      "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names; disabled if absent",
+      "type": "boolean"
+    },
+    "dcmSendPendingCGet": {
+      "title": "Send Pending C-Get",
+      "description": "Enables pending C-GET responses; disabled if absent",
+      "type": "boolean"
+    },
+    "dcmSendPendingCMoveInterval": {
+      "title": "Send Pending C-Move Interval",
+      "description": "Interval of pending C-MOVE responses in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent",
+      "type": "string"
+    },
+    "dcmWadoSR2HtmlTemplateURI": {
+      "title": "Wado SR2 Html Template URI",
+      "description": "Specifies URI for the style sheet used to render structured reports to html",
+      "type": "string"
+    },
+    "dcmWadoSR2TextTemplateURI": {
+      "title": "Wado SR2 Text Template URI",
+      "description": "Specifies URI for the style sheet used to render structured reports to plain text",
+      "type": "string"
+    },
+    "dcmQidoMaxNumberOfResults": {
+      "title": "Qido Max Number Of Results",
+      "description": "Maximal number of return results by QIDO-RS Service. 0 (=unlimited) if absent",
+      "type": "integer"
+    },
+    "dcmFwdMppsDestination": {
+      "title": "Mpps Forward Destination",
+      "description": "Destination to forward MPPS N-CREATE RQ and N-SET RQ",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmFallbackCMoveSCP": {
+      "title": "Fallback C-Move SCP",
+      "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPDestination": {
+      "title": "Fallback C-Move SCP Destination",
+      "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPLevel": {
+      "title": "Fallback C-Move SCP Level",
+      "description": "Retrieve Level in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP. Enumerated values: STUDY, SERIES. Use original Retrieve Level if absent",
+      "type": "array",
+      "items" : { "type": "integer" }
+    },
+    "dcmAltCMoveSCP": {
+      "title": "AltCMoveSCP",
+      "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
+      "type": "string"
+    }
   }
 }

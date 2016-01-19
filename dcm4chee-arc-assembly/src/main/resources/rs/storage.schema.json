@@ -1,0 +1,50 @@
+{
+  "title": "Archive Storage",
+  "description": "Storage Descriptor",
+  "type": "object",
+  "required": [
+    "dcmStorageID",
+    "dcmURI"
+  ],
+  "properties": {
+    "dcmStorageID": {
+      "title": "Storage ID",
+      "description": "Storage ID",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "Storage URI",
+      "description": "RFC2079: Uniform Resource Identifier",
+      "type": "string"
+    },
+    "dcmDigestAlgorithm": {
+      "title": "Digest Algorithm",
+      "description": "Algorithm for generation of check sums: 'MD5' or 'SHA-1'",
+      "type": "string"
+    },
+    "dcmRetrieveAET": {
+      "title": "Retrieve AE Title",
+      "description": "AE Title associated with Storage System",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmInstanceAvailability": {
+      "title": "Instance Availability",
+      "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmProperty": {
+      "title": "Storage Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

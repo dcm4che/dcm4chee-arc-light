@@ -1,0 +1,38 @@
+{
+  "title": "Archive Attribute List",
+  "description": "Attributes stored in the database",
+  "type": "object",
+  "required": [
+    "dcmEntity",
+    "dcmTag"
+  ],
+  "properties": {
+    "dcmEntity": {
+      "title": "Attribute Entity",
+      "description": "Entity of the Attribute Filter or Export Rule ('Patient', 'Study', 'Series', 'Instance', 'MPPS').",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmTag": {
+      "title": "Attribute Tag",
+      "description": "DICOM Tag as hex string",
+      "type": "array",
+      "items" : { "type": "integer" }
+    },
+    "dcmCustomAttribute1": {
+      "title": "Custom Attribute 1",
+      "description": "Custom Attribute 1",
+      "type": "string"
+    },
+    "dcmCustomAttribute2": {
+      "title": "Custom Attribute 2",
+      "description": "Custom Attribute 2",
+      "type": "string"
+    },
+    "dcmCustomAttribute3": {
+      "title": "Custom Attribute 3",
+      "description": "Custom Attribute 3",
+      "type": "string"
+    }
+  }
+}
