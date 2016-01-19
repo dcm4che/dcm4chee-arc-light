@@ -1,0 +1,43 @@
+{
+  "title": "Export Rule",
+  "description": "Export Rule",
+  "type": "object",
+  "required": [
+    "dcmEntity",
+    "dcmExporterID"
+  ],
+  "properties": {
+    "dcmEntity": {
+      "title": "Attribute Entity",
+      "description": "Entity of the Attribute Filter or Export Rule ('Patient', 'Study', 'Series', 'Instance', 'MPPS').",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmExporterID": {
+      "title": "Exporter ID",
+      "description": "Exporter ID",
+      "type": "string"
+    },
+    "dcmProperty": {
+      "title": "Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSchedule": {
+      "title": "Schedule",
+      "description": "Schedule Expression in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmDuration": {
+      "title": "Duration",
+      "description": "Duration in ISO-8601 duration format PnDTnHnMn.nS",
+      "type": "string"
+    }
+  }
+}

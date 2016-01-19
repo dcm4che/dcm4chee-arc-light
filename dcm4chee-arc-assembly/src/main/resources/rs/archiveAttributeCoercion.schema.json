@@ -1,0 +1,71 @@
+{
+  "title": "Archive Attribute Coercion",
+  "description": "Archive Attribute Coercion of received/sent DIMSE",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmDIMSE",
+    "dicomTransferRole",
+    "dcmURI"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Archive Compression Rule",
+      "type": "string"
+    },
+    "dcmDIMSE": {
+      "title": "DIMSE",
+      "description": "DIMSE: 'C_STORE_RQ', 'C_FIND_RQ', 'C_FIND_RSP'",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomTransferRole": {
+      "title": "DICOM Transfer Role",
+      "description": "Transfer role (either 'SCU' or 'SCP')",
+      "type": ""
+    },
+    "dcmURI": {
+      "title": "URI",
+      "description": "RFC2079: Uniform Resource Identifier",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "Rule Priority",
+      "description": "Rule Priority. 0 if absent.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmAETitle": {
+      "title": "AE Title",
+      "description": "Application Entity (AE) title",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmHostname": {
+      "title": "Host Name",
+      "description": "DNS hostname",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSOPClass": {
+      "title": "SOP Class UID",
+      "description": "A SOP Class UID",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmNoKeywords": {
+      "title": "No Keywords",
+      "description": "Indicates if keywords shall be omitted in generated DICOM XML or JSON presentations; false if absent",
+      "type": "boolean"
+    }
+  }
+}

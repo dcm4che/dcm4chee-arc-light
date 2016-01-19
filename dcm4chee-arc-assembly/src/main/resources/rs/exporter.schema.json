@@ -14,7 +14,7 @@
       "type": "string"
     },
     "dcmURI": {
-      "title": "Storage URI",
+      "title": "URI",
       "description": "RFC2079: Uniform Resource Identifier",
       "type": "string"
     },
