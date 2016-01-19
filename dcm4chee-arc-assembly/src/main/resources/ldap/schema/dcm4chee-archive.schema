@@ -163,7 +163,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.27 NAME 'dcmJndiName'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.28 NAME 'dcmExporterID'
-  DESC 'Storage ID'
+  DESC 'Exporter ID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 

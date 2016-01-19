@@ -1,5 +1,5 @@
 {
-  "title": "Archive Queue",
+  "title": "Queue",
   "description": "Managed JMS Queue",
   "type": "object",
   "required": [

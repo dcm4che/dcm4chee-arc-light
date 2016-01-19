@@ -1,0 +1,48 @@
+{
+  "title": "Exporter Descriptor",
+  "description": "Exporter Descriptor",
+  "type": "object",
+  "required": [
+    "dcmExporterID",
+    "dcmURI",
+    "dcmQueueName"
+  ],
+  "properties": {
+    "dcmExporterID": {
+      "title": "Exporter ID",
+      "description": "Exporter ID",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "Storage URI",
+      "description": "RFC2079: Uniform Resource Identifier",
+      "type": "string"
+    },
+    "dcmQueueName": {
+      "title": "Queue Name",
+      "description": "JMS Queue Name",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "Application Entity (AE) title",
+      "description": "Application Entity (AE) title",
+      "type": "string"
+    },
+    "dcmSchedule": {
+      "title": "Schedule",
+      "description": "Schedule Expression in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmProperty": {
+      "title": "Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

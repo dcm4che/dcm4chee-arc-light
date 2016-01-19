@@ -1,5 +1,5 @@
 {
-  "title": "Archive Attribute List",
+  "title": "Attribute List",
   "description": "Attributes stored in the database",
   "type": "object",
   "required": [
