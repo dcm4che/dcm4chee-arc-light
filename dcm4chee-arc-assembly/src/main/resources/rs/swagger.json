@@ -21,6 +21,26 @@
     {
       "name": "QUEUE-RS",
       "description": "Queue Management"
+    },
+    {
+      "name": "QIDO-RS",
+      "description": "Query based on ID for DICOM Objects by RESTful Services",
+      "externalDocs": {
+        "description": "DICOM PS3.18",
+        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
+      }
+    },
+    {
+      "name": "WADO-URI",
+      "description": "Web Access to DICOM Objects by URI",
+      "externalDocs": {
+        "description": "DICOM PS3.18",
+        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
+      }
+    },
+    {
+      "name": "IOCM-RS",
+      "description": "Imaging Object Change Management"
     }
   ],
   "paths": {
@@ -451,7 +471,10 @@
     "/aets": {
       "get": {
         "tags": [
-          "CONFIG-RS"
+          "CONFIG-RS",
+          "QIDO-RS",
+          "WADO-URI",
+          "IOCM-RS"
         ],
         "summary": "list Archive AE Titles",
         "operationId": "listArchiveAETs",
@@ -464,6 +487,237 @@
             "schema": {
               "$ref": "aets.schema.json"
             }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "get": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "reject study",
+        "operationId": "rejectStudy",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Study Instance UID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "study not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "get": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "reject series",
+        "operationId": "rejectSeries",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Study Instance UID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "seriesUID",
+            "in": "path",
+            "description": "Series Instance UID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "series not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "get": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "reject instance",
+        "operationId": "rejectInstance",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Study Instance UID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "seriesUID",
+            "in": "path",
+            "description": "Series Instance UID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "objectUID",
+            "in": "path",
+            "description": "SOP Instance UID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "instance not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/reject": {
+      "get": {
+        "tags": [
+          "CONFIG-RS",
+          "IOCM-RS"
+        ],
+        "summary": "list Rejection Notes",
+        "operationId": "listRejectionNotes",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Rejection Notes",
+            "schema": {
+              "$ref": "rejectionNotes.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/reject/{codeValue}^{codingSchemeDesignator}": {
+      "delete": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "delete rejected instances permanently",
+        "operationId": "deleteRejectedInstancesPermanently",
+        "parameters": [
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no rejection note with specified codeValue and codingSchemeDesignator configured"
           },
           "default": {
             "description": "unexpected error"

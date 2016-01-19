@@ -1,0 +1,34 @@
+{
+  "title": "Rejection Notes",
+  "type": "array",
+  "items": {
+    "required": [
+      "label",
+      "codeValue",
+      "codingSchemeDesignator",
+      "codeMeaning"
+    ],
+    "properties": {
+      "label": {
+        "title": "Label",
+        "description": "Label of Rejection Note",
+        "type": "string"
+      },
+      "codeValue": {
+        "title": "Code Value",
+        "description": "Code Value of Rejection Note",
+        "type": "string"
+      },
+      "codingSchemeDesignator": {
+        "title": "Coding Scheme Designator",
+        "description": "Coding Scheme Designator of Rejection Note",
+        "type": "string"
+      },
+      "codeMeaning": {
+        "title": "Code Meaning",
+        "description": "Code Meaning of Rejection Note",
+        "type": "string"
+      }
+    }
+  }
+}
