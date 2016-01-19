@@ -1,0 +1,52 @@
+{
+  "title": "Rejection Note",
+  "description": "Specifies behavior on Rejection Note Stored",
+  "type": "object",
+  "required": [
+    "dcmRejectionNoteLabel",
+    "dcmRejectionNoteCode"
+  ],
+  "properties": {
+    "dcmRejectionNoteLabel": {
+      "title": "Rejection Note Label",
+      "description": "Rejection Note Label",
+      "type": "string"
+    },
+    "dcmRejectionNoteCode": {
+      "title": "dcmRejectionNoteCode",
+      "description": "Specifies Document Title of Rejection Note in format (CV, CSD, 'CM')",
+      "type": "string"
+    },
+    "dcmRevokeRejection": {
+      "title": "Revoke Rejection",
+      "description": "Specifies if a particular Rejection Note is actually used to revoke the rejection of the referenced instances; disabled if absent.",
+      "type": "boolean"
+    },
+    "dcmAcceptPreviousRejectedInstance": {
+      "title": "Accept Previous Rejected Instance",
+      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note. Enumerated values: REJECT, RESTORE, IGNORE. REJECT if absent.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmOverwritePreviousRejection": {
+      "title": "Overwrite Previous Rejection",
+      "description": "Specifies Document Title of previous Rejection Note in format (CV, CSD, 'CM') which may be overwritten by that Rejection Note",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmDeleteRejectedInstanceDelay": {
+      "title": "Delete Rejected Instance Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which instances rejected by a particular Rejection Note are deleted. Infinite if absent.",
+      "type": "string"
+    },
+    "dcmDeleteRejectionNoteDelay": {
+      "title": "Delete Rejection Note Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which particular Rejection Notes are deleted. Infinite if absent.",
+      "type": "string"
+    }
+  }
+}
