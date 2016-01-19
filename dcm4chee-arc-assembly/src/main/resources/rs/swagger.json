@@ -366,7 +366,7 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "Message not found"
+            "description": "message not found"
           },
           "default": {
             "description": "unexpected error"
@@ -402,7 +402,7 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "Message not found"
+            "description": "message not found"
           },
           "default": {
             "description": "unexpected error"
@@ -438,7 +438,30 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "Message not found"
+            "description": "message not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "list Archive AE Titles",
+        "operationId": "listArchiveAETs",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Archive AE Titles",
+            "schema": {
+              "$ref": "aets.schema.json"
+            }
           },
           "default": {
             "description": "unexpected error"

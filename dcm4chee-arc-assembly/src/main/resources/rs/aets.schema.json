@@ -1,0 +1,21 @@
+{
+  "title": "AE Titles",
+  "type": "array",
+  "items": {
+    "required": [
+      "name"
+    ],
+    "properties": {
+      "name": {
+        "title": "AE Title",
+        "description": "Unique AE title for this Network AE",
+        "type": "string"
+      },
+      "description": {
+        "title": "AE Description",
+        "description": "Unconstrained text description of the application entity",
+        "type": "string"
+      }
+    }
+  }
+}
