@@ -11,8 +11,10 @@ import java.util.Map;
  * @since Jul 2015
  */
 public final class StorageDescriptor {
+    public StorageDescriptor() {
+    }
 
-    private final String storageID;
+    private String storageID;
     private URI storageURI;
     private String digestAlgorithm;
     private String[] retrieveAETitles = {};
@@ -20,7 +22,12 @@ public final class StorageDescriptor {
     private final Map<String, String> properties = new HashMap<>();
 
     public StorageDescriptor(String storageID) {
-        this(storageID, null);
+//        this(storageID, null);
+        setStorageID(storageID);
+    }
+
+    public void setStorageID (String storageID) {
+        this.storageID = storageID;
     }
 
     public StorageDescriptor(String storageID, URI storageURI) {

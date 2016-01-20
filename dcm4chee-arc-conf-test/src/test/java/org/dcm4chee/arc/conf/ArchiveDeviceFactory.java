@@ -41,10 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.conf.api.DicomConfiguration;
-import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Issuer;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
+import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
 import org.dcm4che3.net.*;
@@ -781,13 +778,18 @@ class ArchiveDeviceFactory {
     }
 
     private static ArchiveAttributeCoercion createAttributeCoercion(
-            String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI) {
+            String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI, ArchiveDeviceConfigurationTest.ConfigType configType) {
         ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
         coercion.setAETitles(aet);
         coercion.setRole(role);
         coercion.setDIMSE(dimse);
         coercion.setXSLTStylesheetURI(xsltURI);
         coercion.setNoKeywords(true);
+        if (configType == configType.TEST) {
+            coercion.setPriority(3);
+            coercion.setHostNames("localhost", "testenv");
+            coercion.setSOPClasses(UID.MPEG2, UID.JPEG2000);
+        }
         return coercion;
     }
 
@@ -873,6 +875,13 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.Instance, new AttributeFilter(INSTANCE_ATTRS));
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
 
+//        if (configType == configType.TEST) {
+//            System.out.println(ext.getAttributeFilter(Entity.MPPS).getSelection());
+//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute1(ValueSelector.valueOf("customAttribute1"));
+//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute2(ValueSelector.valueOf("customAttribute2"));
+//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("customAttribute3"));
+//        }
+
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURI(STORAGE_URI);
         storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
@@ -886,21 +895,21 @@ class ArchiveDeviceFactory {
             ext.addQueueDescriptor(descriptor);
 
         ext.addRejectionNote(createRejectionNote("Quality", REJECTED_FOR_QUALITY_REASONS,
-                RejectionNote.AcceptPreviousRejectedInstance.IGNORE));
+                RejectionNote.AcceptPreviousRejectedInstance.IGNORE, configType));
         ext.addRejectionNote(createRejectionNote("Patient Safety", REJECT_FOR_PATIENT_SAFETY_REASONS,
-                RejectionNote.AcceptPreviousRejectedInstance.REJECT,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT, configType,
                 REJECTED_FOR_QUALITY_REASONS));
         ext.addRejectionNote(createRejectionNote("Incorrect MWL Entry", INCORRECT_MODALITY_WORKLIST_ENTRY,
-                RejectionNote.AcceptPreviousRejectedInstance.REJECT,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT, configType,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS));
         RejectionNote retentionExpired = createRejectionNote("Retention Expired", DATA_RETENTION_POLICY_EXPIRED,
-                RejectionNote.AcceptPreviousRejectedInstance.RESTORE,
+                RejectionNote.AcceptPreviousRejectedInstance.RESTORE, configType,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
         ext.addRejectionNote(retentionExpired);
         ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
-                REJECTION_CODES));
+                configType, REJECTION_CODES));
 
-        if (configType == configType.SAMPLE) {
+        if (configType == configType.SAMPLE || configType == configType.TEST) {
             ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
             exportDescriptor.setExportURI(EXPORT_URI);
             exportDescriptor.setSchedules(
@@ -908,6 +917,9 @@ class ArchiveDeviceFactory {
                     ScheduleExpression.valueOf("hour=* dayOfWeek=0,6"));
             exportDescriptor.setQueueName("Export1");
             exportDescriptor.setAETitle("DCM4CHEE");
+            if (configType == configType.TEST) {
+                exportDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            }
             ext.addExporterDescriptor(exportDescriptor);
 
             ExportRule exportRule = new ExportRule("Forward to STORESCP");
@@ -916,6 +928,9 @@ class ArchiveDeviceFactory {
             exportRule.setEntity(Entity.Series);
             exportRule.setExportDelay(Duration.parse("PT1M"));
             exportRule.setExporterIDs(EXPORTER_ID);
+            if (configType == configType.TEST) {
+                exportRule.setSchedules(ScheduleExpression.valueOf("hour=3 dayOfWeek=2"));
+            }
             ext.addExportRule(exportRule);
 
             ext.addCompressionRule(JPEG_BASELINE);
@@ -925,20 +940,25 @@ class ArchiveDeviceFactory {
             ext.addCompressionRule(JPEG_2000);
 
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID));
+                    "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, configType));
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN));
+                    "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, configType));
         }
     }
 
     private static RejectionNote createRejectionNote(String rejectionNoteLabel, Code rejectionNoteCode,
-            RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
-            Code... overwritePreviousRejection) {
+                                                     RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
+                                                     ArchiveDeviceConfigurationTest.ConfigType configType, Code... overwritePreviousRejection) {
         RejectionNote rjNote = new RejectionNote(rejectionNoteLabel);
         rjNote.setRejectionNoteCode(rejectionNoteCode);
         rjNote.setRevokeRejection(rejectionNoteCode == REVOKE_REJECTION);
         rjNote.setAcceptPreviousRejectedInstance(acceptPreviousRejectedInstance);
         rjNote.setOverwritePreviousRejection(overwritePreviousRejection);
+        if (configType == configType.TEST) {
+            rjNote.setDeleteRejectedInstanceDelay(Duration.parse("PT5M"));
+            rjNote.setDeleteRejectionNoteDelay(Duration.parse("PT9M"));
+            rjNote.setAcceptPreviousRejectedInstance(RejectionNote.AcceptPreviousRejectedInstance.IGNORE);
+        }
         return rjNote;
     }
 

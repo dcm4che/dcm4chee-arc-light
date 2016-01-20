@@ -25,7 +25,7 @@
     "dicomTransferRole": {
       "title": "DICOM Transfer Role",
       "description": "Transfer role (either 'SCU' or 'SCP')",
-      "type": ""
+      "type": "string"
     },
     "dcmURI": {
       "title": "URI",

@@ -16,7 +16,8 @@
     "dcmExporterID": {
       "title": "Exporter ID",
       "description": "Exporter ID",
-      "type": "string"
+      "type": "array",
+      "items" : { "type": "string" }
     },
     "dcmProperty": {
       "title": "Property",

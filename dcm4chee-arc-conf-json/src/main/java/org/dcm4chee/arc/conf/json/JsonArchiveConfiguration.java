@@ -51,6 +51,8 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.*;
 
 import javax.json.stream.JsonParser;
+import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -93,6 +95,89 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
         writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
         writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
+//        writeAttributeFilters(writer, arcDev);
+        writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
+        writeExporterDescriptor(writer, arcDev.getExporterDescriptors());
+        writeExportRule(writer, arcDev.getExportRules());
+        writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
+        writeRejectionNote(writer, arcDev.getRejectionNotes());
+        writer.writeEnd();
+    }
+
+    protected void writeStorageDescriptor(JsonWriter writer, Collection<StorageDescriptor> storageDescriptorList) {
+        writer.writeStartArray("dcmStorage");
+        for (StorageDescriptor st : storageDescriptorList) {
+            writer.writeStartObject();
+            writer.writeNotNull("dcmStorageID", st.getStorageID());
+            writer.writeNotNull("dcmURI", st.getStorageURI());
+            writer.writeNotNull("dcmDigestAlgorithm", st.getDigestAlgorithm());
+            writer.writeNotEmpty("dcmRetrieveAET", st.getRetrieveAETitles());
+            writer.writeNotNull("dcmInstanceAvailability", st.getInstanceAvailability());
+            writer.writeNotNull("dcmProperty", st.getProperty("checkMountFile", "NO_MOUNT"));
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeExporterDescriptor (JsonWriter writer, Collection<ExporterDescriptor> exportDescriptorList) {
+        writer.writeStartArray("dcmExporter");
+        for (ExporterDescriptor ed : exportDescriptorList) {
+            writer.writeStartObject();
+            writer.writeNotNull("dcmExporterID", ed.getExporterID());
+            writer.writeNotNull("dcmURI", ed.getExportURI());
+            writer.writeNotNull("dcmQueueName", ed.getQueueName());
+            writer.writeNotNull("dicomAETitle", ed.getAETitle());
+            writer.writeNotEmpty("dcmSchedule", ed.getSchedules());
+            writer.writeNotNull("dcmProperty", ed.getProperty("checkMountFile", "NO_MOUNT"));
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeExportRule(JsonWriter writer, Collection<ExportRule> exportRuleList) {
+        writer.writeStartArray("dcmExportRule");
+        for (ExportRule er : exportRuleList) {
+            writer.writeStartObject();
+            writer.writeNotNull("dcmEntity", er.getEntity());
+            writer.writeNotEmpty("dcmExporterID", er.getExporterIDs());
+            writer.writeNotEmpty("dcmSchedule", er.getSchedules());
+            writer.writeNotNull("dcmDuration", er.getExportDelay());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeArchiveAttributeCoercion (JsonWriter writer, Collection<ArchiveAttributeCoercion> archiveAttributeCoercionList) {
+        writer.writeStartArray("dcmArchiveAttributeCoercion");
+        for (ArchiveAttributeCoercion aac : archiveAttributeCoercionList) {
+            writer.writeStartObject();
+            writer.writeNotNull("cn", aac.getCommonName());
+            writer.writeNotNull("dcmDIMSE", aac.getDIMSE());
+            writer.writeNotNull("dcmTransferRole", aac.getRole());
+            writer.writeNotNull("dcmURI", aac.getXSLTStylesheetURI());
+            writer.writeNotNull("dcmRulePriority", aac.getPriority());
+            writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
+            writer.writeNotEmpty("dcmHostname", aac.getHostNames());
+            writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
+            writer.writeNotNull("dcmNoKeywords", aac.isNoKeywords());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeRejectionNote (JsonWriter writer, Collection<RejectionNote> rejectionNoteList) {
+        writer.writeStartArray("dcmRejectionNote");
+        for (RejectionNote rn : rejectionNoteList) {
+            writer.writeStartObject();
+            writer.writeNotNull("dcmRejectionNoteLabel", rn.getRejectionNoteLabel());
+            writer.writeNotNull("dcmRejectionNoteCode", rn.getRejectionNoteCode());
+            writer.writeNotNull("dcmRevokeRejection", rn.isRevokeRejection());
+            writer.writeNotNull("dcmAcceptPreviousRejectedInstance", rn.getAcceptPreviousRejectedInstance().toString());
+            writer.writeNotEmpty("dcmOverwritePreviousRejection", rn.getOverwritePreviousRejection());
+            writer.writeNotNull("dcmDeleteRejectedInstanceDelay", rn.getDeleteRejectedInstanceDelay());
+            writer.writeNotNull("dcmDeleteRejectionNoteDelay", rn.getDeleteRejectionNoteDelay());
+            writer.writeEnd();
+        }
         writer.writeEnd();
     }
 
@@ -218,6 +303,41 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmUnzipVendorDataToURI":
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());
                     break;
+                case "dcmStorage":
+                    StorageDescriptor st = new StorageDescriptor(arcDev.getStorageID());
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "dcmStorageID":
+                                    st.setStorageID(reader.stringValue());
+                                    break;
+                                case  "dcmURI":
+                                    st.setStorageURI(URI.create(reader.stringValue()));
+                                    break;
+                                case "dcmDigestAlgorithm":
+                                    st.setDigestAlgorithm(reader.stringValue());
+                                    break;
+                                case "dcmRetrieveAET":
+                                    st.setRetrieveAETitles(reader.stringArray());
+                                    break;
+                                case "dcmInstanceAvailability":
+                                    st.setInstanceAvailability(Availability.valueOf(reader.stringValue()));
+                                    break;
+                                case "dcmProperty":
+                                    st.setProperty("checkMountFile", reader.stringValue());
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+                    }
+                    reader.expect(JsonParser.Event.END_ARRAY);
+                    arcDev.addStorageDescriptor(st);
+                    break;
                 default:
                     reader.skipUnknownProperty();
             }
@@ -241,7 +361,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     private void loadFrom(ArchiveAEExtension arcAE, JsonReader reader) {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
-                //TODO
                 case "dcmStorageID":
                     arcAE.setStorageID(reader.stringValue());
                     break;
