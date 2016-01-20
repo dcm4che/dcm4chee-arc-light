@@ -74,6 +74,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -148,15 +149,15 @@ public class ArchiveDeviceConfigurationTest {
         Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, ConfigType.TEST);
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
         Path path = Paths.get("target/device.json");
-//        try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
-//              JsonGenerator gen = Json.createGenerator(w)) {
-//            jsonConfig.writeTo(arc, gen);
-//        }
+        try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
+              JsonGenerator gen = Json.createGenerator(w)) {
+            jsonConfig.writeTo(arc, gen);
+        }
         Device arc2;
         try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
             arc2 = jsonConfig.loadDeviceFrom(Json.createParser(reader), configDelegate);
         }
-//        assertDeviceEquals(arc, arc2);
+        assertDeviceEquals(arc, arc2);
     }
 
     private final ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
@@ -185,14 +186,52 @@ public class ArchiveDeviceConfigurationTest {
             return;
         assertNotNull(actual);
         assertEquals(expected.getStorageID(), actual.getStorageID());
+        assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
+        assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
+        assertEquals(expected.getBulkDataSpoolDirectory(), actual.getBulkDataSpoolDirectory());
+        assertEquals(expected.getQueryMatchUnknown(), actual.getQueryMatchUnknown());
+        assertEquals(expected.getPersonNameComponentOrderInsensitiveMatching(), actual.getPersonNameComponentOrderInsensitiveMatching());
+        assertEquals(expected.getSendPendingCGet(), actual.getSendPendingCGet());
+        assertEquals(expected.getSendPendingCMoveInterval(), actual.getSendPendingCMoveInterval());
+        assertEquals(expected.getWadoSR2HtmlTemplateURI(), actual.getWadoSR2HtmlTemplateURI());
+        assertEquals(expected.getWadoSR2TextTemplateURI(), actual.getWadoSR2TextTemplateURI());
+        assertEquals(expected.getQidoMaxNumberOfResults(), actual.getQidoMaxNumberOfResults());
+        assertArrayEquals(expected.getMppsForwardDestinations(), actual.getMppsForwardDestinations());
+        assertEquals(expected.getFallbackCMoveSCP(), actual.getFallbackCMoveSCP());
+        assertEquals(expected.getFallbackCMoveSCPDestination(), actual.getFallbackCMoveSCPDestination());
+        assertEquals(expected.getFallbackCMoveSCPLevel(), actual.getFallbackCMoveSCPLevel());
+        assertEquals(expected.getAlternativeCMoveSCP(), actual.getAlternativeCMoveSCP());
     }
 
     private void assertEqualsArchiveDeviceExtension(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
         assertNotNull(actual);
         assertEquals(expected.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID),
                 actual.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID));
-        assertEquals(expected.isSendPendingCGet(), actual.isQueryMatchUnknown());
+        assertEquals(expected.getFuzzyAlgorithmClass(), actual.getFuzzyAlgorithmClass());
+        assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
+        assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
+        assertEquals(expected.getBulkDataSpoolDirectory(), actual.getBulkDataSpoolDirectory());
+        assertEquals(expected.isQueryMatchUnknown(), actual.isQueryMatchUnknown());
+        assertEquals(expected.isPersonNameComponentOrderInsensitiveMatching(), actual.isPersonNameComponentOrderInsensitiveMatching());
+        assertEquals(expected.isSendPendingCGet(), actual.isSendPendingCGet());
         assertEquals(expected.getSendPendingCMoveInterval(), actual.getSendPendingCMoveInterval());
+        assertArrayEquals(expected.getWadoSupportedSRClasses(), actual.getWadoSupportedSRClasses());
+        assertEquals(expected.getWadoSR2HtmlTemplateURI(), actual.getWadoSR2HtmlTemplateURI());
+        assertEquals(expected.getWadoSR2TextTemplateURI(), actual.getWadoSR2TextTemplateURI());
+        assertEquals(expected.getQidoMaxNumberOfResults(), actual.getQidoMaxNumberOfResults());
+        assertArrayEquals(expected.getMppsForwardDestinations(), actual.getMppsForwardDestinations());
+        assertEquals(expected.getFallbackCMoveSCP(), actual.getFallbackCMoveSCP());
+        assertEquals(expected.getFallbackCMoveSCPDestination(), actual.getFallbackCMoveSCPDestination());
+        assertEquals(expected.getFallbackCMoveSCPLevel(), actual.getFallbackCMoveSCPLevel());
+        assertEquals(expected.getAlternativeCMoveSCP(), actual.getAlternativeCMoveSCP());
+        assertEquals(expected.getExportTaskPollingInterval(), actual.getExportTaskPollingInterval());
+        assertEquals(expected.getExportTaskFetchSize(), actual.getExportTaskFetchSize());
+        assertEquals(expected.getPurgeStoragePollingInterval(), actual.getPurgeStoragePollingInterval());
+        assertEquals(expected.getPurgeStorageFetchSize(), actual.getPurgeStorageFetchSize());
+        assertEquals(expected.getDeleteRejectedPollingInterval(), actual.getDeleteRejectedPollingInterval());
+        assertEquals(expected.getDeleteRejectedFetchSize(), actual.getDeleteRejectedFetchSize());
+        assertEquals(expected.getPatientUpdateTemplateURI(), actual.getPatientUpdateTemplateURI());
+        assertEquals(expected.getUnzipVendorDataToURI(), actual.getUnzipVendorDataToURI());
     }
 
     private void cleanUp() throws Exception {

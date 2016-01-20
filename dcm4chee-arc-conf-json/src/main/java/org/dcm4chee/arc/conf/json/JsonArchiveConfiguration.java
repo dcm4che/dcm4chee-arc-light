@@ -55,6 +55,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2016
  */
 public class JsonArchiveConfiguration extends JsonConfigurationExtension {
@@ -102,7 +103,22 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             return;
 
         writer.writeStartObject("dcmArchiveNetworkAE");
-        //TODO
+        writer.writeNotNull("dcmStorageID", arcAE.getStorageID());
+        writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy().toString());
+        writer.writeNotNull("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID());
+        writer.writeNotNull("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory());
+        writer.writeNotDef("dcmQueryMatchUnknown", arcAE.getQueryMatchUnknown(), true);
+        writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching", arcAE.getPersonNameComponentOrderInsensitiveMatching(), false);
+        writer.writeNotDef("dcmSendPendingCGet", arcAE.getSendPendingCGet(), false);
+        writer.writeNotNull("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval().toString());
+        writer.writeNotNull("dcmWadoSR2HtmlTemplateURI", arcAE.getWadoSR2HtmlTemplateURI());
+        writer.writeNotNull("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI());
+        writer.writeNotDef("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults(), 0);
+        writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
+        writer.writeNotNull("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP());
+        writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
+        writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcAE.getFallbackCMoveSCPLevel().toString());
+        writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
         writer.writeEnd();
     }
 
@@ -124,18 +140,17 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader, List<Connection> conns) {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
-                //TODO
                 case "dcmFuzzyAlgorithmClass":
                     arcDev.setFuzzyAlgorithmClass(reader.stringValue());
                     break;
                 case "dcmStorageID":
                     arcDev.setStorageID(reader.stringValue());
                     break;
-                case "dcmQueryRetrieveViewID":
-                    arcDev.setQueryRetrieveViewID(reader.stringValue());
-                    break;
                 case "dcmOverwritePolicy":
                     arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmQueryRetrieveViewID":
+                    arcDev.setQueryRetrieveViewID(reader.stringValue());
                     break;
                 case "dcmBulkDataSpoolDirectory":
                     arcDev.setBulkDataSpoolDirectory(reader.stringValue());
@@ -227,6 +242,54 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
                 //TODO
+                case "dcmStorageID":
+                    arcAE.setStorageID(reader.stringValue());
+                    break;
+                case "dcmQueryRetrieveViewID":
+                    arcAE.setQueryRetrieveViewID(reader.stringValue());
+                    break;
+                case "dcmOverwritePolicy":
+                    arcAE.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmBulkDataSpoolDirectory":
+                    arcAE.setBulkDataSpoolDirectory(reader.stringValue());
+                    break;
+                case "dcmQueryMatchUnknown":
+                    arcAE.setQueryMatchUnknown(reader.booleanValue());
+                    break;
+                case "dcmPersonNameComponentOrderInsensitiveMatching":
+                    arcAE.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
+                    break;
+                case "dcmSendPendingCGet":
+                    arcAE.setSendPendingCGet(reader.booleanValue());
+                    break;
+                case "dcmSendPendingCMoveInterval":
+                    arcAE.setSendPendingCMoveInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmWadoSR2HtmlTemplateURI":
+                    arcAE.setWadoSR2HtmlTemplateURI(reader.stringValue());
+                    break;
+                case "dcmWadoSR2TextTemplateURI":
+                    arcAE.setWadoSR2TextTemplateURI(reader.stringValue());
+                    break;
+                case "dcmQidoMaxNumberOfResults":
+                    arcAE.setQidoMaxNumberOfResults(reader.intValue());
+                    break;
+                case "dcmFwdMppsDestination":
+                    arcAE.setMppsForwardDestinations(reader.stringArray());
+                    break;
+                case "dcmFallbackCMoveSCP":
+                    arcAE.setFallbackCMoveSCP(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPDestination":
+                    arcAE.setFallbackCMoveSCPDestination(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPLevel":
+                    arcAE.setFallbackCMoveSCPLevel(MoveForwardLevel.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAltCMoveSCP":
+                    arcAE.setAlternativeCMoveSCP(reader.stringValue());
+                    break;
                 default:
                     reader.skipUnknownProperty();
             }

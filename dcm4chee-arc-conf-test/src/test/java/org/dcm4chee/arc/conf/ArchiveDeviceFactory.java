@@ -751,11 +751,11 @@ class ArchiveDeviceFactory {
                         (X509Certificate) keyStore.getCertificate(other));
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
-                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true));
+                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, configType));
         device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", "Show instances rejected for Quality Reasons",
-                dicom, dicomTLS, REGULAR_USE_VIEW, false, true));
+                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, configType));
         device.addApplicationEntity(createAE("DCM4CHEE_TRASH", "Show rejected instances only",
-                dicom, dicomTLS, TRASH_VIEW, false, false));
+                dicom, dicomTLS, TRASH_VIEW, false, false, configType));
 
         return device;
     }
@@ -943,8 +943,8 @@ class ArchiveDeviceFactory {
     }
 
     private static ApplicationEntity createAE(String aet, String description,
-            Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
-            boolean storeSCP, boolean storeSCU) {
+                                              Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
+                                              boolean storeSCP, boolean storeSCU, ArchiveDeviceConfigurationTest.ConfigType configType) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -971,6 +971,23 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
+        if (configType == configType.TEST) {
+            aeExt.setStorageID(STORAGE_ID);
+            aeExt.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
+            aeExt.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
+            aeExt.setQueryMatchUnknown(false);
+            aeExt.setPersonNameComponentOrderInsensitiveMatching(true);
+            aeExt.setSendPendingCGet(SEND_PENDING_C_GET);
+            aeExt.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);
+            aeExt.setWadoSR2HtmlTemplateURI(DSR2HTML_XSL);
+            aeExt.setWadoSR2TextTemplateURI(DSR2TEXT_XSL);
+            aeExt.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
+            aeExt.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
+            aeExt.setFallbackCMoveSCPDestination("DCM4CHEE");
+            aeExt.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
+            aeExt.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
+            aeExt.setAlternativeCMoveSCP("DCM4CHEE");
+        }
         return ae;
     }
 
