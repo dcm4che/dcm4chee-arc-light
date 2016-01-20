@@ -73,7 +73,8 @@
     "dcmQidoMaxNumberOfResults": {
       "title": "Qido Max Number Of Results",
       "description": "Maximal number of return results by QIDO-RS Service. 0 (=unlimited) if absent",
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0
     },
     "dcmFwdMppsDestination": {
       "title": "Mpps Forward Destination",
@@ -98,7 +99,7 @@
       "items" : { "type": "integer" }
     },
     "dcmAltCMoveSCP": {
-      "title": "AltCMoveSCP",
+      "title": "Alternative C-Move SCP",
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
       "type": "string"
     },
@@ -111,7 +112,7 @@
       "title": "Export Task Fetch Size",
       "description": "Maximal number of Export Tasks scheduled in one transaction; 5 if absent",
       "type": "integer",
-      "maximum": 5
+      "minimum": 5
     },
     "dcmPurgeStoragePollingInterval": {
       "title": "Purge Storage Polling Interval",
@@ -122,7 +123,7 @@
       "title": "Purge Storage Fetch Size",
       "description": "Maximal number of objects to delete in one task; 100 if absent",
       "type": "integer",
-      "maximum": 100
+      "minimum": 100
     },
     "dcmDeleteRejectedPollingInterval": {
       "title": "Delete Rejected Polling Interval",
@@ -133,7 +134,7 @@
       "title": "dcmDeleteRejectedFetchSize",
       "description": "Maximal number of rejected instances to delete from the DB in one task; 100 if absent",
       "type": "integer",
-      "maximum": 100
+      "minimum": 100
     },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",

@@ -61,10 +61,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
     private boolean queryMatchUnknown = true;
-    private boolean sendPendingCGet;
+    private boolean sendPendingCGet = false;
     private Duration sendPendingCMoveInterval;
-    private boolean personNameComponentOrderInsensitiveMatching;
-    private int qidoMaxNumberOfResults;
+    private boolean personNameComponentOrderInsensitiveMatching = false;
+    private int qidoMaxNumberOfResults = 0;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String patientUpdateTemplateURI;

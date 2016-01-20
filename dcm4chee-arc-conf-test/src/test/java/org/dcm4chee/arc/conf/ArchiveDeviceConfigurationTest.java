@@ -102,10 +102,16 @@ public class ArchiveDeviceConfigurationTest {
         config.close();
     }
 
+    enum ConfigType {
+        INIT,
+        SAMPLE,
+        TEST
+    }
+
     @Test
     public void testPersist() throws Exception {
-        boolean sampleConfig = Boolean.getBoolean("sampleConfig");
-        if (sampleConfig) {
+        ConfigType configType = ConfigType.valueOf(System.getProperty("configType", "INIT"));
+        if (configType == ConfigType.SAMPLE) {
             for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
                 String aet = ArchiveDeviceFactory.OTHER_AES[i];
                 config.registerAETitle(aet);
@@ -129,7 +135,7 @@ public class ArchiveDeviceConfigurationTest {
         config.persist(arrDevice);
         config.registerAETitle("DCM4CHEE");
 
-        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, sampleConfig);
+        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, ConfigType.SAMPLE);
         config.persist(arc);
         ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
         assertNotNull(ae);
@@ -139,13 +145,13 @@ public class ArchiveDeviceConfigurationTest {
     @Test
     public void testJsonPersist() throws Exception {
         Device arrDevice = factory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
-        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, false);
+        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, ConfigType.TEST);
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
         Path path = Paths.get("target/device.json");
-        try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
-              JsonGenerator gen = Json.createGenerator(w)) {
-            jsonConfig.writeTo(arc, gen);
-        }
+//        try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
+//              JsonGenerator gen = Json.createGenerator(w)) {
+//            jsonConfig.writeTo(arc, gen);
+//        }
         Device arc2;
         try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
             arc2 = jsonConfig.loadDeviceFrom(Json.createParser(reader), configDelegate);

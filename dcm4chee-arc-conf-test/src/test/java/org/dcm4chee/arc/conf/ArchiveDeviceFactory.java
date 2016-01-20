@@ -537,6 +537,13 @@ class ArchiveDeviceFactory {
             HIDE_REJECTED_VIEW,
             REGULAR_USE_VIEW,
             TRASH_VIEW};
+
+    static final String[] MPPS_FORWARD_DESTINATIONS = {
+            "MPPSCP",
+            "OTHER_MPPSCP",
+            "MPPSCP2"
+    };
+
     static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
             "JPEG 8-bit Lossy",
             new Conditions(
@@ -701,7 +708,7 @@ class ArchiveDeviceFactory {
         hl7app.addConnection(hl7TLS);
         return device;
     }
-    public Device createArchiveDevice(String name, Device arrDevice, boolean sampleConfig) throws Exception {
+    public Device createArchiveDevice(String name, Device arrDevice, ArchiveDeviceConfigurationTest.ConfigType configType) throws Exception {
         Device device = new Device(name);
 
         Connection dicom = new Connection("dicom", "localhost", 11112);
@@ -712,7 +719,7 @@ class ArchiveDeviceFactory {
         device.addConnection(dicom);
 
         Connection dicomTLS = null;
-        if (sampleConfig) {
+        if (configType == configType.SAMPLE) {
             dicomTLS = new Connection("dicom-tls", "localhost", 2762);
             dicomTLS.setBindAddress("0.0.0.0");
             dicomTLS.setClientBindAddress("0.0.0.0");
@@ -724,8 +731,8 @@ class ArchiveDeviceFactory {
             device.addConnection(dicomTLS);
         }
 
-        addArchiveDeviceExtension(device, sampleConfig);
-        addHL7DeviceExtension(device, sampleConfig);
+        addArchiveDeviceExtension(device, configType);
+        addHL7DeviceExtension(device, configType);
         addAuditLogger(device, arrDevice);
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
@@ -738,7 +745,7 @@ class ArchiveDeviceFactory {
         device.setKeyStorePin("secret");
         device.setThisNodeCertificates(config.deviceRef(name),
                 (X509Certificate) keyStore.getCertificate(name));
-        if (sampleConfig)
+        if (configType == configType.SAMPLE)
             for (String other : OTHER_DEVICES)
                 device.setAuthorizedNodeCertificates(config.deviceRef(other),
                         (X509Certificate) keyStore.getCertificate(other));
@@ -796,7 +803,7 @@ class ArchiveDeviceFactory {
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
     }
 
-    private static void addHL7DeviceExtension(Device device, boolean sampleConfig) {
+    private static void addHL7DeviceExtension(Device device, ArchiveDeviceConfigurationTest.ConfigType configType) {
         HL7DeviceExtension ext = new HL7DeviceExtension();
         device.addDeviceExtension(ext);
 
@@ -814,7 +821,7 @@ class ArchiveDeviceFactory {
         device.addConnection(hl7);
         hl7App.addConnection(hl7);
 
-        if (sampleConfig) {
+        if (configType == configType.SAMPLE) {
             Connection hl7TLS = new Connection("hl7-tls", "localhost", 12575);
             hl7TLS.setBindAddress("0.0.0.0");
             hl7TLS.setClientBindAddress("0.0.0.0");
@@ -827,7 +834,7 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static void addArchiveDeviceExtension(Device device, boolean sampleConfig) {
+    private static void addArchiveDeviceExtension(Device device, ArchiveDeviceConfigurationTest.ConfigType configType) {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
@@ -835,6 +842,15 @@ class ArchiveDeviceFactory {
         ext.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
+        if (configType == configType.TEST) {
+            ext.setQueryMatchUnknown(false);
+            ext.setPersonNameComponentOrderInsensitiveMatching(true);
+            ext.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
+            ext.setFallbackCMoveSCP("QRSCP");
+            ext.setFallbackCMoveSCPDestination("DCM4CHEE");
+            ext.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
+            ext.setAlternativeCMoveSCP("DCM4CHEE");
+        }
         ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
         ext.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);
@@ -884,7 +900,7 @@ class ArchiveDeviceFactory {
         ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
                 REJECTION_CODES));
 
-        if (sampleConfig) {
+        if (configType == configType.SAMPLE) {
             ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
             exportDescriptor.setExportURI(EXPORT_URI);
             exportDescriptor.setSchedules(

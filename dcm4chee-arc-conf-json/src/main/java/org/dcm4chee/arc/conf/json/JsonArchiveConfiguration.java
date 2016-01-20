@@ -48,8 +48,7 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.*;
 
 import javax.json.stream.JsonParser;
 import java.util.List;
@@ -67,7 +66,32 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             return;
 
         writer.writeStartObject("dcmArchiveDevice");
-        //TODO
+        writer.writeNotNull("dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass());
+        writer.writeNotNull("dcmStorageID", arcDev.getStorageID());
+        writer.writeNotNull("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID());
+        writer.writeNotNull("dcmOverwritePolicy", arcDev.getOverwritePolicy().toString());
+        writer.writeNotNull("dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
+        writer.writeNotDef("dcmQueryMatchUnknown", arcDev.isQueryMatchUnknown(), true);
+        writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching", arcDev.isPersonNameComponentOrderInsensitiveMatching(), false);
+        writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
+        writer.writeNotNull("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval().toString());
+        writer.writeNotEmpty("dcmWadoSupportedSRClasses", arcDev.getWadoSupportedSRClasses());
+        writer.writeNotNull("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI());
+        writer.writeNotNull("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI());
+        writer.writeNotDef("dcmQidoMaxNumberOfResults", arcDev.getQidoMaxNumberOfResults(), 0);
+        writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
+        writer.writeNotNull("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP());
+        writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination());
+        writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcDev.getFallbackCMoveSCPLevel().toString());
+        writer.writeNotNull("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP());
+        writer.writeNotNull("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval().toString());
+        writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 5);
+        writer.writeNotNull("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval().toString());
+        writer.writeNotDef("dcmPurgeStorageFetchSize", arcDev.getPurgeStorageFetchSize(), 100);
+        writer.writeNotNull("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval().toString());
+        writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
+        writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
+        writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
         writer.writeEnd();
     }
 
@@ -101,6 +125,84 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
                 //TODO
+                case "dcmFuzzyAlgorithmClass":
+                    arcDev.setFuzzyAlgorithmClass(reader.stringValue());
+                    break;
+                case "dcmStorageID":
+                    arcDev.setStorageID(reader.stringValue());
+                    break;
+                case "dcmQueryRetrieveViewID":
+                    arcDev.setQueryRetrieveViewID(reader.stringValue());
+                    break;
+                case "dcmOverwritePolicy":
+                    arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmBulkDataSpoolDirectory":
+                    arcDev.setBulkDataSpoolDirectory(reader.stringValue());
+                    break;
+                case "dcmQueryMatchUnknown":
+                    arcDev.setQueryMatchUnknown(reader.booleanValue());
+                    break;
+                case "dcmPersonNameComponentOrderInsensitiveMatching":
+                    arcDev.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
+                    break;
+                case "dcmSendPendingCGet":
+                    arcDev.setSendPendingCGet(reader.booleanValue());
+                    break;
+                case "dcmSendPendingCMoveInterval":
+                    arcDev.setSendPendingCMoveInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmWadoSupportedSRClasses":
+                    arcDev.setWadoSupportedSRClasses(reader.stringArray());
+                    break;
+                case "dcmWadoSR2HtmlTemplateURI":
+                    arcDev.setWadoSR2HtmlTemplateURI(reader.stringValue());
+                    break;
+                case "dcmWadoSR2TextTemplateURI":
+                    arcDev.setWadoSR2TextTemplateURI(reader.stringValue());
+                    break;
+                case "dcmQidoMaxNumberOfResults":
+                    arcDev.setQidoMaxNumberOfResults(reader.intValue());
+                    break;
+                case "dcmFwdMppsDestination":
+                    arcDev.setMppsForwardDestinations(reader.stringArray());
+                    break;
+                case "dcmFallbackCMoveSCP":
+                    arcDev.setFallbackCMoveSCP(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPDestination":
+                    arcDev.setFallbackCMoveSCPDestination(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPLevel":
+                    arcDev.setFallbackCMoveSCPLevel(MoveForwardLevel.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAltCMoveSCP":
+                    arcDev.setAlternativeCMoveSCP(reader.stringValue());
+                    break;
+                case "dcmExportTaskPollingInterval":
+                    arcDev.setExportTaskPollingInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmExportTaskFetchSize":
+                    arcDev.setExportTaskFetchSize(reader.intValue());
+                    break;
+                case "dcmPurgeStoragePollingInterval":
+                    arcDev.setPurgeStoragePollingInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmPurgeStorageFetchSize":
+                    arcDev.setPurgeStorageFetchSize(reader.intValue());
+                    break;
+                case "dcmDeleteRejectedPollingInterval":
+                    arcDev.setDeleteRejectedPollingInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmDeleteRejectedFetchSize":
+                    arcDev.setDeleteRejectedFetchSize(reader.intValue());
+                    break;
+                case "hl7PatientUpdateTemplateURI":
+                    arcDev.setPatientUpdateTemplateURI(reader.stringValue());
+                    break;
+                case "dcmUnzipVendorDataToURI":
+                    arcDev.setUnzipVendorDataToURI(reader.stringValue());
+                    break;
                 default:
                     reader.skipUnknownProperty();
             }
