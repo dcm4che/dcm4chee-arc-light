@@ -51,7 +51,6 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.util.Property;
 
-import javax.json.Json;
 import javax.json.stream.JsonParser;
 import java.net.URI;
 import java.util.Collection;
