@@ -367,6 +367,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return storageDescriptorMap.values();
     }
 
+    public Collection<AttributeFilter> getAttributeFilters() {
+        return attributeFilters.values();
+    }
+
     public QueueDescriptor getQueueDescriptor(String queueName) {
         return queueDescriptorMap.get(queueName);
     }

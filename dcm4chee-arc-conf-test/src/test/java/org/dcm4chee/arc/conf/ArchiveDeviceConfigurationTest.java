@@ -149,10 +149,10 @@ public class ArchiveDeviceConfigurationTest {
         Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, ConfigType.TEST);
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
         Path path = Paths.get("target/device.json");
-//        try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
-//              JsonGenerator gen = Json.createGenerator(w)) {
-//            jsonConfig.writeTo(arc, gen);
-//        }
+        try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
+              JsonGenerator gen = Json.createGenerator(w)) {
+            jsonConfig.writeTo(arc, gen);
+        }
         Device arc2;
         try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
             arc2 = jsonConfig.loadDeviceFrom(Json.createParser(reader), configDelegate);

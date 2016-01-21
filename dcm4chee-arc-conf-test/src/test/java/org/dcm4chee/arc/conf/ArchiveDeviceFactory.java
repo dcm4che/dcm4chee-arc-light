@@ -875,12 +875,23 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.Instance, new AttributeFilter(INSTANCE_ATTRS));
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
 
-//        if (configType == configType.TEST) {
-//            System.out.println(ext.getAttributeFilter(Entity.MPPS).getSelection());
-//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute1(ValueSelector.valueOf("customAttribute1"));
-//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute2(ValueSelector.valueOf("customAttribute2"));
-//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("customAttribute3"));
-//        }
+        if (configType == configType.TEST) {
+//            ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("00080050"));
+//            ext.getAttributeFilter(Entity.Patient).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute"));
+//            ext.getAttributeFilter(Entity.Patient).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute"));
+//            ext.getAttributeFilter(Entity.Study).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute"));
+//            ext.getAttributeFilter(Entity.Study).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute customAttribute2"));
+//            ext.getAttributeFilter(Entity.Study).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute customAttribute3"));
+//            ext.getAttributeFilter(Entity.Series).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute customAttribute1"));
+//            ext.getAttributeFilter(Entity.Series).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute customAttribute2"));
+//            ext.getAttributeFilter(Entity.Series).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute customAttribute3"));
+//            ext.getAttributeFilter(Entity.Instance).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute customAttribute1"));
+//            ext.getAttributeFilter(Entity.Instance).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute customAttribute2"));
+//            ext.getAttributeFilter(Entity.Instance).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute customAttribute3"));
+//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute customAttribute1"));
+//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute customAttribute2"));
+//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute customAttribute3"));
+        }
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURI(STORAGE_URI);

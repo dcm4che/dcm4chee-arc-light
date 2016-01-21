@@ -9,17 +9,26 @@ import java.util.Map;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
  */
+
 public class ExporterDescriptor {
 
-    private final String exporterID;
+    public ExporterDescriptor() {
+    }
+
+//    private final String exporterID;
+    private String exporterID;
     private URI exportURI;
     private String queueName;
     private String aeTitle;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
+//    public ExporterDescriptor(String exporterID) {
+//        this(exporterID, null);
+//    }
+
     public ExporterDescriptor(String exporterID) {
-        this(exporterID, null);
+        setExporterID(exporterID);
     }
 
     public ExporterDescriptor(String exporterID, URI exportURI) {
@@ -31,6 +40,10 @@ public class ExporterDescriptor {
         return exporterID;
     }
 
+    public void setExporterID(String exporterID) {
+        this.exporterID = exporterID;
+        this.exportURI = null;
+    }
 
     public URI getExportURI() {
         return exportURI;

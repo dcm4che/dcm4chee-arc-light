@@ -8,7 +8,12 @@ public class QueueDescriptor {
 
     private static final int DEFAULT_RETRY_DELAY = 60;
 
-    private final String queueName;
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
+    //    private final String queueName;
+    private  String queueName;
     private String jndiName;
     private String description;
     private int maxRetries = 0;
@@ -16,8 +21,15 @@ public class QueueDescriptor {
     private Duration maxRetryDelay;
     private int retryDelayMultiplier = 100;
 
+//    public QueueDescriptor(String queueName) {
+//        this.queueName = queueName;
+//    }
+
     public QueueDescriptor(String queueName) {
-        this.queueName = queueName;
+        setQueueName(queueName);
+    }
+
+    public QueueDescriptor() {
     }
 
     public String getQueueName() {

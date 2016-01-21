@@ -45,10 +45,11 @@ import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Connection;
-import org.dcm4che3.net.Device;
+import org.dcm4che3.data.ValueSelector;
+import org.dcm4che3.net.*;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4che3.data.Code;
+import org.dcm4che3.util.Property;
 
 import javax.json.stream.JsonParser;
 import java.net.URI;
@@ -95,12 +96,33 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
         writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
         writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
-//        writeAttributeFilters(writer, arcDev);
+        writeAttributeFilters(writer, arcDev.getAttributeFilters());
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
+        writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
+        writeQueue(writer, arcDev.getQueueDescriptors());
         writeExporterDescriptor(writer, arcDev.getExporterDescriptors());
         writeExportRule(writer, arcDev.getExportRules());
+        writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
+        writer.writeEnd();
+    }
+
+    protected void writeAttributeFilters(JsonWriter writer, Collection<AttributeFilter> attrFilterList) {
+        writer.writeStartArray("dcmAttributeFilter");
+        for (AttributeFilter af : attrFilterList) {
+            writer.writeStartObject();
+//            writer.writeNotEmpty("dcmEntity");
+            Integer[] selection = new Integer[af.getSelection().length];
+            for (int i = 0; i < af.getSelection().length; i++) {
+                selection[i] = Integer.valueOf(af.getSelection()[i]);
+            }
+            writer.writeNotEmpty("dcmTag", selection);
+            writer.writeNotNull("dcmCustomAttribute1", af.getCustomAttribute1());
+            writer.writeNotNull("dcmCustomAttribute2", af.getCustomAttribute2());
+            writer.writeNotNull("dcmCustomAttribute3", af.getCustomAttribute3());
+            writer.writeEnd();
+        }
         writer.writeEnd();
     }
 
@@ -114,6 +136,35 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmRetrieveAET", st.getRetrieveAETitles());
             writer.writeNotNull("dcmInstanceAvailability", st.getInstanceAvailability());
             writer.writeNotNull("dcmProperty", st.getProperty("checkMountFile", "NO_MOUNT"));
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeQueryRetrieve(JsonWriter writer, QueryRetrieveView[] queryRetrieveViewList) {
+        writer.writeStartArray("dcmQueryRetrieveView");
+        for (QueryRetrieveView qrv : queryRetrieveViewList) {
+            writer.writeStartObject();
+            writer.writeNotNull("dcmQueryRetrieveViewID", qrv.getViewID());
+            writer.writeNotEmpty("dcmShowInstancesRejectedByCode", qrv.getShowInstancesRejectedByCodes());
+            writer.writeNotEmpty("dcmHideRejectionNoteWithCode", qrv.getHideRejectionNotesWithCodes());
+            writer.writeNotDef("dcmHideNotRejectedInstances", qrv.isHideNotRejectedInstances(), false);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeQueue(JsonWriter writer, Collection<QueueDescriptor> queueDescriptorsList) {
+        writer.writeStartArray("dcmQueue");
+        for (QueueDescriptor qd : queueDescriptorsList) {
+            writer.writeStartObject();
+            writer.writeNotNull("dcmQueueName", qd.getQueueName());
+            writer.writeNotNull("dcmJndiName", qd.getJndiName());
+            writer.writeNotNull("dicomDescription", qd.getDescription());
+            writer.writeNotDef("dcmMaxRetries", qd.getMaxRetries(), 0);
+            writer.writeNotNull("dcmRetryDelay", qd.getRetryDelay());
+            writer.writeNotNull("dcmMaxRetryDelay", qd.getMaxRetryDelay());
+            writer.writeNotDef("dcmRetryDelayMultiplier", qd.getRetryDelayMultiplier(), 100);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -147,15 +198,29 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
+    protected void writeArchiveCompressionRules(JsonWriter writer, Collection<ArchiveCompressionRule> archiveCompressionRuleList) {
+        writer.writeStartArray("dcmArchiveCompressionRule");
+        for (ArchiveCompressionRule acr : archiveCompressionRuleList) {
+            writer.writeStartObject();
+            writer.writeNotNull("cn", acr.getCommonName());
+            writer.writeNotNull("dicomTransferSyntax", acr.getTransferSyntax());
+            writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
+//            writer.writeNotEmpty("dcmProperty", acr.get);
+            writer.writeNotEmpty("dcmImageWriteParam", acr.getImageWriteParams());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
     protected void writeArchiveAttributeCoercion (JsonWriter writer, Collection<ArchiveAttributeCoercion> archiveAttributeCoercionList) {
         writer.writeStartArray("dcmArchiveAttributeCoercion");
         for (ArchiveAttributeCoercion aac : archiveAttributeCoercionList) {
             writer.writeStartObject();
             writer.writeNotNull("cn", aac.getCommonName());
             writer.writeNotNull("dcmDIMSE", aac.getDIMSE());
-            writer.writeNotNull("dcmTransferRole", aac.getRole());
+            writer.writeNotNull("dicomTransferRole", aac.getRole());
             writer.writeNotNull("dcmURI", aac.getXSLTStylesheetURI());
-            writer.writeNotNull("dcmRulePriority", aac.getPriority());
+            writer.writeNotDef("dcmRulePriority", aac.getPriority(), 0);
             writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
             writer.writeNotEmpty("dcmHostname", aac.getHostNames());
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
@@ -303,6 +368,40 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmUnzipVendorDataToURI":
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());
                     break;
+                case "dcmAttributeFilter":
+                    AttributeFilter af = new AttributeFilter();
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "dcmEntity":
+//                                    af.setentity
+                                    reader.skipUnknownProperty();
+                                    break;
+                                case "dcmTag":
+//                                    af.setSelection(reader.stringArray());
+                                    reader.skipUnknownProperty();
+                                    break;
+                                case "dcmCustomAttribute1":
+                                    af.setCustomAttribute1(ValueSelector.valueOf(reader.stringValue()));
+                                    break;
+                                case "dcmCustomAttribute2":
+                                    af.setCustomAttribute2(ValueSelector.valueOf(reader.stringValue()));
+                                    break;
+                                case "dcmCustomAttribute3":
+                                    af.setCustomAttribute3(ValueSelector.valueOf(reader.stringValue()));
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+
+                    }
+                    reader.expect(JsonParser.Event.END_ARRAY);
+                    break;
                 case "dcmStorage":
                     StorageDescriptor st = new StorageDescriptor(arcDev.getStorageID());
                     reader.next();
@@ -334,9 +433,263 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                             }
                         }
                         reader.expect(JsonParser.Event.END_OBJECT);
+                        arcDev.addStorageDescriptor(st);
                     }
                     reader.expect(JsonParser.Event.END_ARRAY);
-                    arcDev.addStorageDescriptor(st);
+                    break;
+                case "dcmQueryRetrieveView":
+                    QueryRetrieveView qrv = new QueryRetrieveView();
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "dcmQueryRetrieveViewID":
+                                    qrv.setViewID(reader.stringValue());
+                                    break;
+                                case "dcmShowInstancesRejectedByCode":
+//                                    qrv.setShowInstancesRejectedByCodes(new Code[]{new Code(reader.stringValue())});
+                                    reader.skipUnknownProperty();
+                                    break;
+                                case "dcmHideRejectionNoteWithCode":
+//                                    qrv.setHideRejectionNotesWithCodes(new Code[]{new Code(reader.stringValue())});
+                                    reader.skipUnknownProperty();
+                                    break;
+                                case "dcmHideNotRejectedInstances":
+                                    qrv.setHideNotRejectedInstances(reader.booleanValue());
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+                        arcDev.setQueryRetrieveViews(qrv);
+                    }
+                    break;
+                case "dcmQueue":
+                    QueueDescriptor qd = new QueueDescriptor();
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "dcmQueueName":
+                                    qd.setQueueName(reader.stringValue());
+                                    break;
+                                case "dcmJndiName":
+                                    qd.setJndiName(reader.stringValue());
+                                    break;
+                                case "dicomDescription":
+                                    qd.setDescription(reader.stringValue());
+                                    break;
+                                case "dcmMaxRetries":
+                                    qd.setMaxRetries(reader.intValue());
+                                    break;
+                                case "dcmRetryDelay":
+                                    qd.setRetryDelay(Duration.parse(reader.stringValue()));
+                                    break;
+                                case "dcmMaxRetryDelay":
+                                    qd.setMaxRetryDelay(Duration.parse(reader.stringValue()));
+                                    break;
+                                case "dcmRetryDelayMultiplier":
+                                    qd.setRetryDelayMultiplier(reader.intValue());
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+                        arcDev.addQueueDescriptor(qd);
+                    }
+                    reader.expect(JsonParser.Event.END_ARRAY);
+                    break;
+                case "dcmExporter":
+                    ExporterDescriptor ed = new ExporterDescriptor();
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "dcmExporterID":
+                                    ed.setExporterID(reader.stringValue());
+                                    break;
+                                case "dcmURI":
+                                    ed.setExportURI(URI.create(reader.stringValue()));
+                                    break;
+                                case "dcmQueueName":
+                                    ed.setQueueName(reader.stringValue());
+                                    break;
+                                case "dicomAETitle":
+                                    ed.setAETitle(reader.stringValue());
+                                    break;
+//                                case "dcmSchedule":
+//                                    ed.setSchedules(ScheduleExpression.valueOf(reader.stringArray()));
+//                                    break;
+                                case "dcmProperty":
+                                    ed.setProperty("checkMountFile", reader.stringValue());
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+                        arcDev.addExporterDescriptor(ed);
+                    }
+                    reader.expect(JsonParser.Event.END_ARRAY);
+                    break;
+                case "dcmExportRule":
+                    ExportRule er = new ExportRule();
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "cn":
+                                    er.setCommonName(reader.stringValue());
+                                    break;
+                                case "dcmEntity":
+                                    er.setEntity(Entity.valueOf(reader.stringValue()));
+                                    break;
+                                case "dcmExporterID":
+                                    er.setExporterIDs(reader.stringArray());
+                                    break;
+//                                case "dcmProperty":
+//
+//                                    break;
+//                                case "dcmSchedule":
+//                                    er.setSchedules(ScheduleExpression.valueOf(reader.stringValue()));
+//                                    break;
+                                case "dcmDuration":
+                                    er.setExportDelay(Duration.parse(reader.stringValue()));
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+                        arcDev.addExportRule(er);
+                    }
+                    reader.expect(JsonParser.Event.END_ARRAY);
+                    break;
+                case "dcmArchiveCompressionRule":
+                    ArchiveCompressionRule acr = new ArchiveCompressionRule();
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "cn":
+                                    acr.setCommonName(reader.stringValue());
+                                    break;
+                                case "dicomTransferSyntax":
+                                    acr.setTransferSyntax(reader.stringValue());
+                                    break;
+                                case "dcmRulePriority":
+                                    acr.setPriority(reader.intValue());
+                                    break;
+                                case "dcmProperty":
+//                                    acr.setproperty
+                                    reader.skipUnknownProperty();
+                                    break;
+                                case "dcmImageWriteParam":
+                                    acr.setImageWriteParams(Property.valueOf(reader.stringArray()));
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+                        arcDev.addCompressionRule(acr);
+                    }
+                    reader.expect(JsonParser.Event.END_ARRAY);
+                    break;
+                case "dcmArchiveAttributeCoercion":
+                    ArchiveAttributeCoercion aac = new ArchiveAttributeCoercion();
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "cn":
+                                    aac.setCommonName(reader.stringValue());
+                                    break;
+                                case "dcmDIMSE":
+                                    aac.setDIMSE(Dimse.valueOf(reader.stringValue()));
+                                    break;
+                                case "dicomTransferRole":
+                                    aac.setRole(TransferCapability.Role.valueOf(reader.stringValue()));
+                                    break;
+                                case "dcmURI":
+                                    aac.setXSLTStylesheetURI(reader.stringValue());
+                                    break;
+                                case "dcmRulePriority":
+                                    aac.setPriority(reader.intValue());
+                                    break;
+                                case "dcmAETitle":
+                                    aac.setAETitles(reader.stringArray());
+                                    break;
+                                case "dcmHostname":
+                                    aac.setHostNames(reader.stringArray());
+                                    break;
+                                case "dcmSOPClass":
+                                    aac.setSOPClasses(reader.stringArray());
+                                    break;
+                                case "dcmNoKeywords":
+                                    aac.setNoKeywords(reader.booleanValue());
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+                        arcDev.addAttributeCoercion(aac);
+                    }
+                    reader.expect(JsonParser.Event.END_ARRAY);
+                    break;
+                case "dcmRejectionNote":
+                    RejectionNote rn = new RejectionNote();
+                    reader.next();
+                    reader.expect(JsonParser.Event.START_ARRAY);
+                    while (reader.next() == JsonParser.Event.START_OBJECT) {
+                        reader.expect(JsonParser.Event.START_OBJECT);
+                        while (reader.next() == JsonParser.Event.KEY_NAME) {
+                            switch (reader.getString()) {
+                                case "dcmRejectionNoteLabel":
+                                    rn.setRejectionNoteLabel(reader.stringValue());
+                                    break;
+                                case "dcmRejectionNoteCode":
+                                    rn.setRejectionNoteCode(new Code(reader.stringValue()));
+                                    break;
+                                case "dcmRevokeRejection":
+                                    rn.setRevokeRejection(reader.booleanValue());
+                                    break;
+                                case "dcmAcceptPreviousRejectedInstance":
+                                    rn.setAcceptPreviousRejectedInstance(RejectionNote.AcceptPreviousRejectedInstance.valueOf(reader.stringValue()));
+                                    break;
+                                case "dcmOverwritePreviousRejection":
+//                                    rn.setOverwritePreviousRejection(Code[] reader.stringArray());
+                                    reader.skipUnknownProperty();
+                                    break;
+                                case "dcmDeleteRejectedInstanceDelay":
+                                    rn.setDeleteRejectedInstanceDelay(Duration.parse(reader.stringValue()));
+                                    break;
+                                case "dcmDeleteRejectionNoteDelay":
+                                    rn.setDeleteRejectionNoteDelay(Duration.parse(reader.stringValue()));
+                                    break;
+                                default:
+                                    reader.skipUnknownProperty();
+                            }
+                        }
+                        reader.expect(JsonParser.Event.END_OBJECT);
+                        arcDev.addRejectionNote(rn);
+                    }
+                    reader.expect(JsonParser.Event.END_ARRAY);
                     break;
                 default:
                     reader.skipUnknownProperty();

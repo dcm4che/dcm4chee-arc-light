@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.dcm4che3.data.Code;
 
 /**
@@ -48,8 +49,13 @@ import org.dcm4che3.data.Code;
  */
 public class RejectionNote {
 
+    public RejectionNote() {
+    }
+
     public enum AcceptPreviousRejectedInstance { REJECT, RESTORE, IGNORE }
-    private final String rejectionNoteLabel;
+
+    //    private final String rejectionNoteLabel;
+    private String rejectionNoteLabel;
     private Code rejectionNoteCode;
     private int seriesNumber;
     private int instanceNumber;
@@ -59,12 +65,20 @@ public class RejectionNote {
     private Duration deleteRejectedInstanceDelay;
     private Duration deleteRejectionNoteDelay;
 
+//    public RejectionNote(String rejectionNoteLabel) {
+//        this.rejectionNoteLabel = rejectionNoteLabel;
+//    }
+
     public RejectionNote(String rejectionNoteLabel) {
-        this.rejectionNoteLabel = rejectionNoteLabel;
+        setRejectionNoteLabel(rejectionNoteLabel);
     }
 
     public String getRejectionNoteLabel() {
         return rejectionNoteLabel;
+    }
+
+    public void setRejectionNoteLabel(String rejectionNoteLabel) {
+        this.rejectionNoteLabel = rejectionNoteLabel;
     }
 
     public Code getRejectionNoteCode() {

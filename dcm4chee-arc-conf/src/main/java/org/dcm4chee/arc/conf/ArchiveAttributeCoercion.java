@@ -51,7 +51,8 @@ import java.util.Arrays;
  */
 public class ArchiveAttributeCoercion {
 
-    private final String commonName;
+    //    private final String commonName;
+    private String commonName;
     private int priority;
     private Dimse dimse;
     private TransferCapability.Role role;
@@ -61,12 +62,23 @@ public class ArchiveAttributeCoercion {
     private String xsltStylesheetURI;
     private boolean noKeywords;
 
+//    public ArchiveAttributeCoercion(String commonName) {
+//        this.commonName = commonName;
+//    }
+
+    public ArchiveAttributeCoercion() {
+    }
+
     public ArchiveAttributeCoercion(String commonName) {
-        this.commonName = commonName;
+        setCommonName(commonName);
     }
 
     public String getCommonName() {
         return commonName;
+    }
+
+    public void setCommonName(String commonName) {
+        this.commonName = commonName;
     }
 
     public int getPriority() {

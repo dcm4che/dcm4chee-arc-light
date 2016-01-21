@@ -49,7 +49,7 @@ public class QueryRetrieveView {
     private String viewID;
     private Code[] showInstancesRejectedByCode = {};
     private Code[] hideRejectionNotesWithCode = {};
-    private boolean hideNotRejectedInstances;
+    private boolean hideNotRejectedInstances = false;
 
     public final String getViewID() {
         return viewID;
