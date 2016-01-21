@@ -74,12 +74,22 @@ import java.util.Date;
             "left join fetch st.referringPhysicianName " +
             "join fetch st.attributesBlob " +
             "join fetch p.attributesBlob " +
-            "where st.studyInstanceUID = ?1")
+            "where st.studyInstanceUID = ?1"),
+@NamedQuery(
+    name=Study.FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME,
+    query="select st.pk from Study st " +
+            "where st.scatteredStorage = false and exists ( " +
+            "select l from Location l where l.instance.series.study = st and l.storageID = ?1) " +
+            "order by st.accessTime"),
+@NamedQuery(
+    name=Study.UPDATE_ACCESS_TIME,
+    query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1")
 })
 @Entity
 @Table(name = "study",
     uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
     indexes = {
+        @Index(columnList = "access_time"),
         @Index(columnList = "study_date"),
         @Index(columnList = "study_time"),
         @Index(columnList = "accession_no"),
@@ -93,6 +103,8 @@ public class Study {
     public static final String FIND_BY_PATIENT = "Study.findByPatient";
     public static final String FIND_BY_STUDY_IUID = "Study.findByStudyIUID";
     public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
+    public static final String FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME = "Study.findPkByStorageIDOrderByAccessTime";
+    public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -112,6 +124,15 @@ public class Study {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_time")
     private Date updatedTime;
+
+    @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "access_time")
+    private Date accessTime;
+
+    @Basic(optional = false)
+    @Column(name = "scattered_storage")
+    private boolean scatteredStorage;
 
     @Basic(optional = false)
     @Column(name = "study_iuid", updatable = false)
@@ -190,11 +211,14 @@ public class Study {
         Date now = new Date();
         createdTime = now;
         updatedTime = now;
+        accessTime = now;
     }
 
     @PreUpdate
     public void onPreUpdate() {
-        updatedTime = new Date();
+        Date now = new Date();
+        updatedTime = now;
+        accessTime = now;
     }
 
     public long getPk() {
@@ -207,6 +231,22 @@ public class Study {
 
     public Date getUpdatedTime() {
         return updatedTime;
+    }
+
+    public Date getAccessTime() {
+        return accessTime;
+    }
+
+    public void setAccessTime(Date accessTime) {
+        this.accessTime = accessTime;
+    }
+
+    public boolean isScatteredStorage() {
+        return scatteredStorage;
+    }
+
+    public void setScatteredStorage(boolean scatteredStorage) {
+        this.scatteredStorage = scatteredStorage;
     }
 
     public String getStudyInstanceUID() {

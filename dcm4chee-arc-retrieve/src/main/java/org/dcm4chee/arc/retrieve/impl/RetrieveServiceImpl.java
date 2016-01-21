@@ -55,7 +55,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.code.CodeCache;
@@ -101,6 +101,8 @@ public class RetrieveServiceImpl implements RetrieveService {
     };
 
     static final Expression<?>[] PATIENT_STUDY_SERIES_ATTRS = {
+            QStudy.study.pk,
+            QStudy.study.accessTime,
             QueryBuilder.seriesAttributesBlob.encodedAttributes,
             QueryBuilder.studyAttributesBlob.encodedAttributes,
             QueryBuilder.patientAttributesBlob.encodedAttributes
@@ -114,6 +116,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Inject
     private CodeCache codeCache;
+
+    @Inject
+    private RetrieveServiceEJB ejb;
 
     StatelessSession openStatelessSession() {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
@@ -193,6 +198,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         try {
             HashMap<Long,InstanceLocations> instMap = new HashMap<>();
             HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
+            HashMap<Long,Date> studyAccessTimeMap = new HashMap<>();
             for (Tuple tuple : createQuery(ctx, session).fetch()) {
                 Long instPk = tuple.get(QInstance.instance.pk);
                 InstanceLocations match = instMap.get(instPk);
@@ -200,8 +206,9 @@ public class RetrieveServiceImpl implements RetrieveService {
                     Long seriesPk = tuple.get(QSeries.series.pk);
                     Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
                     if (seriesAttrs == null) {
-                        seriesAttrs = getSeriesAttributes(session, seriesPk);
-                        seriesAttrsMap.put(seriesPk, seriesAttrs);
+                        SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
+                        studyAccessTimeMap.put(seriesAttributes.studyPk, seriesAttributes.accessTime);
+                        seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
                     }
                     Attributes instAttrs = AttributesBlob.decodeAttributes(
                             tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
@@ -216,10 +223,25 @@ public class RetrieveServiceImpl implements RetrieveService {
                 }
                 match.getLocations().add(loadLocation(tuple));
             }
+            updateStudyAccessTime(ctx, studyAccessTimeMap);
             ctx.setNumberOfMatches(matches.size());
             return !matches.isEmpty();
         } finally {
             session.close();
+        }
+    }
+
+    private void updateStudyAccessTime(RetrieveContext ctx, HashMap<Long, Date> studyAccessTimeMap) {
+        Duration maxAccessTimeStaleness = ctx.getArchiveAEExtension().getArchiveDeviceExtension()
+                .getMaxAccessTimeStaleness();
+        if (maxAccessTimeStaleness == null)
+            return;
+
+        long now = System.currentTimeMillis();
+        long minAccessTime = now - maxAccessTimeStaleness.getSeconds() * 1000;
+        for (Map.Entry<Long, Date> studyAccessTime : studyAccessTimeMap.entrySet()) {
+            if (studyAccessTime.getValue().getTime() < minAccessTime)
+                ejb.updateStudyAccessTime(studyAccessTime.getKey());
         }
     }
 
@@ -235,7 +257,19 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .build();
     }
 
-    private Attributes getSeriesAttributes(StatelessSession session, Long seriesPk) {
+    private static class SeriesAttributes {
+        final Attributes attrs;
+        final Long studyPk;
+        final Date accessTime;
+
+        SeriesAttributes(Attributes attrs, Long studyPk, Date accessTime) {
+            this.attrs = attrs;
+            this.studyPk = studyPk;
+            this.accessTime = accessTime;
+        }
+    }
+
+    private SeriesAttributes getSeriesAttributes(StatelessSession session, Long seriesPk) {
         Tuple tuple = new HibernateQuery<Void>(session).select(PATIENT_STUDY_SERIES_ATTRS)
                 .from(QSeries.series)
                 .join(QSeries.series.attributesBlob, QueryBuilder.seriesAttributesBlob)
@@ -245,6 +279,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob)
                 .where(QSeries.series.pk.eq(seriesPk))
                 .fetchOne();
+        Long studyPk = tuple.get(QStudy.study.pk);
+        Date accessTime = tuple.get(QStudy.study.accessTime);
         Attributes patAttrs = AttributesBlob.decodeAttributes(
                 tuple.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         Attributes studyAttrs = AttributesBlob.decodeAttributes(
@@ -256,7 +292,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
-        return attrs;
+        return new SeriesAttributes(attrs, studyPk, accessTime);
 }
 
     private HibernateQuery<Tuple> createQuery(RetrieveContext ctx, StatelessSession session) {

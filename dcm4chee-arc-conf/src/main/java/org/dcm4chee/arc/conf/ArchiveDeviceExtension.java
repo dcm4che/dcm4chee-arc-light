@@ -42,7 +42,6 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.DeviceExtension;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
 
@@ -79,8 +78,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration deleteRejectedPollingInterval;
     private int deleteRejectedFetchSize = 100;
     private Duration purgeStoragePollingInterval;
-
     private int purgeStorageFetchSize = 100;
+    private int deleteStudyBatchSize = 10;
+    private Duration maxAccessTimeStaleness;
+
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
     private QueryRetrieveView[] queryRetrieveViews = {};
@@ -327,6 +328,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.purgeStorageFetchSize = purgeStorageFetchSize;
     }
 
+    public int getDeleteStudyBatchSize() {
+        return deleteStudyBatchSize;
+    }
+
+    public void setDeleteStudyBatchSize(int deleteStudyBatchSize) {
+        this.deleteStudyBatchSize = deleteStudyBatchSize;
+    }
+
+    public Duration getMaxAccessTimeStaleness() {
+        return maxAccessTimeStaleness;
+    }
+
+    public void setMaxAccessTimeStaleness(Duration maxAccessTimeStaleness) {
+        this.maxAccessTimeStaleness = maxAccessTimeStaleness;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters.get(entity);
     }
@@ -507,6 +524,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deleteRejectedFetchSize = arcdev.deleteRejectedFetchSize;
         purgeStoragePollingInterval = arcdev.purgeStoragePollingInterval;
         purgeStorageFetchSize = arcdev.purgeStorageFetchSize;
+        deleteStudyBatchSize = arcdev.deleteStudyBatchSize;
+        maxAccessTimeStaleness = arcdev.maxAccessTimeStaleness;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();

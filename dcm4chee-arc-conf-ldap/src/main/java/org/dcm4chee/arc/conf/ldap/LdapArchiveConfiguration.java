@@ -99,6 +99,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmPurgeStorageFetchSize", ext.getPurgeStorageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmDeleteRejectedPollingInterval", ext.getDeleteRejectedPollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmDeleteRejectedFetchSize", ext.getDeleteRejectedFetchSize(), 100);
+        LdapUtils.storeNotDef(attrs, "dcmDeleteStudyBatchSize", ext.getDeleteStudyBatchSize(), 10);
+        LdapUtils.storeNotNull(attrs, "dcmMaxAccessTimeStaleness", ext.getMaxAccessTimeStaleness());
     }
 
     @Override
@@ -140,6 +142,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeleteRejectedPollingInterval(
                 toDuration(LdapUtils.stringValue(attrs.get("dcmDeleteRejectedPollingInterval"), null)));
         ext.setDeleteRejectedFetchSize(LdapUtils.intValue(attrs.get("dcmDeleteRejectedFetchSize"), 100));
+        ext.setDeleteStudyBatchSize(LdapUtils.intValue(attrs.get("dcmDeleteStudyBatchSize"), 10));
+        ext.setMaxAccessTimeStaleness(toDuration(LdapUtils.stringValue(attrs.get("dcmMaxAccessTimeStaleness"), null)));
     }
 
     @Override
@@ -195,6 +199,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getDeleteRejectedPollingInterval(), bb.getDeleteRejectedPollingInterval());
         LdapUtils.storeDiff(mods, "dcmDeleteRejectedFetchSize",
                 aa.getDeleteRejectedFetchSize(), bb.getDeleteRejectedFetchSize(), 100);
+        LdapUtils.storeDiff(mods, "dcmDeleteStudyBatchSize",
+                aa.getDeleteStudyBatchSize(), bb.getDeleteStudyBatchSize(), 10);
+        LdapUtils.storeDiff(mods, "dcmMaxAccessTimeStaleness",
+                aa.getMaxAccessTimeStaleness(), bb.getMaxAccessTimeStaleness());
     }
 
     @Override
@@ -479,6 +487,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm());
         LdapUtils.storeNotNull(attrs, "dcmInstanceAvailability", descriptor.getInstanceAvailability());
         LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
+        LdapUtils.storeNotNull(attrs, "dcmMinUsableSpace", descriptor.getMinUsableSpace());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         return attrs;
     }
@@ -503,6 +512,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
                 desc.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
+                desc.setMinUsableSpace(LdapUtils.stringValue(attrs.get("dcmMinUsableSpace"), null));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 arcdev.addStorageDescriptor(desc);
             }
@@ -538,6 +548,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability());
         LdapUtils.storeDiff(mods, "dcmRetrieveAET", prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
+        LdapUtils.storeDiff(mods, "dcmMinUsableSpace", prev.getMinUsableSpace(), desc.getMinUsableSpace());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         return mods;
     }

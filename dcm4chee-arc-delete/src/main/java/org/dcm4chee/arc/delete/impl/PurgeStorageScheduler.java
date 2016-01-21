@@ -46,6 +46,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
@@ -84,17 +85,61 @@ public class PurgeStorageScheduler extends Scheduler {
     public void run() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getPurgeStorageFetchSize();
+        int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
-            try {
-                while (deleteNext(desc, fetchSize))
-                    ;
-            } catch (IOException e) {
-                LOG.error("Failed to delete objects from {}", desc.getStorageURI(), e);
-            }
+            int deletedStudies = 0;
+            do {
+                try {
+                    deletedStudies = deleteStudiesIfOutOfSpace(desc, deleteStudyBatchSize);
+                } catch (IOException e) {
+                    LOG.error("Failed to delete studies from {}", desc.getStorageURI(), e);
+                }
+                try {
+                    while (deleteNextObjectsFromStorage(desc, fetchSize))
+                        ;
+                } catch (IOException e) {
+                    LOG.error("Failed to delete objects from {}", desc.getStorageURI(), e);
+                }
+            } while (deletedStudies == deleteStudyBatchSize);
         }
     }
 
-    private boolean deleteNext(StorageDescriptor desc, int fetchSize) throws IOException {
+    private int deleteStudiesIfOutOfSpace(StorageDescriptor desc, int fetchSize) throws IOException {
+        if (desc.getMinUsableSpace() == null)
+            return 0;
+
+        try (Storage storage = storageFactory.getStorage(desc)) {
+            long usableSpace = storage.getUsableSpace();
+            if (usableSpace > desc.getMinUsableSpaceInBytes())
+                return 0;
+
+            int deleted = 0;
+            int failed = 0;
+            String storageID = desc.getStorageID();
+            do {
+                List<Long> studyPks = ejb.findStudiesForDeletionOnStorage(storageID, fetchSize - deleted);
+                if (studyPks.isEmpty()) {
+                    if (deleted == 0)
+                        LOG.warn("No studies for deletion found on {} - UsableSpace[{}] > MinUsableSpace[{}]!");
+
+                    return deleted;
+                }
+                failed = 0;
+                for (Long studyPk : studyPks) {
+                    Study study = ejb.removeStudyOnStorage(studyPk, storageID);
+                    if (study != null) {
+                        deleted++;
+                        LOG.info("Successfully delete {} from {}", study, desc.getStorageURI());
+                    } else {
+                        failed++;
+                    }
+                }
+            } while (failed > 0);
+            return deleted;
+        }
+    }
+
+    private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) throws IOException {
         List<Location> locations = ejb.findLocationsToDelete(desc.getStorageID(), fetchSize);
         if (locations.isEmpty())
             return false;
@@ -103,7 +148,7 @@ public class PurgeStorageScheduler extends Scheduler {
             for (Location location : locations) {
                 try {
                     storage.deleteObject(location.getStoragePath());
-                    ejb.remove(location);
+                    ejb.removeLocation(location);
                     LOG.info("Successfully delete {} from {}", location, desc.getStorageURI());
                 } catch (IOException e) {
                     ejb.failedToDelete(location);

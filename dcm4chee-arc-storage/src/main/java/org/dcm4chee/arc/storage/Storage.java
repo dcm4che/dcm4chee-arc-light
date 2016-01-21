@@ -22,6 +22,8 @@ public interface Storage extends Closeable {
 
     OutputStream openOutputStream(WriteContext ctx) throws IOException;
 
+    long getUsableSpace() throws IOException;
+
     void commitStorage(WriteContext ctx) throws IOException;
 
     void revokeStorage(WriteContext ctx) throws IOException;

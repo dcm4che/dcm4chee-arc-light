@@ -43,15 +43,14 @@ package org.dcm4chee.arc.delete.impl;
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.entity.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -59,6 +58,8 @@ import java.util.List;
  */
 @Stateless
 public class DeletionServiceEJB {
+
+    static final Logger LOG = LoggerFactory.getLogger(DeletionServiceEJB.class);
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -74,13 +75,38 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
+    public List<Long> findStudiesForDeletionOnStorage(String storageID, int limit) {
+        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME, Long.class)
+                .setParameter(1, storageID)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     public void failedToDelete(Location location) {
         location.setStatus(Location.Status.FAILED_TO_DELETE);
         em.merge(location);
     }
 
-    public void remove(Location location) {
+    public void removeLocation(Location location) {
         em.remove(em.merge(location));
+    }
+
+    public Study removeStudyOnStorage(Long studyPk, String storageID) {
+        List<String> storageIDs = em.createNamedQuery(Location.FIND_STORAGE_IDS_BY_STUDY_PK, String.class)
+                .setParameter(1, studyPk)
+                .getResultList();
+        if (storageIDs.size() > 1) {
+            Study study = em.find(Study.class, studyPk);
+            study.setScatteredStorage(true);
+            LOG.info("objects of {} scattered over Storages{} - will not be deleted", study, storageIDs);
+            return null;
+        }
+        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
+                .setParameter(1, studyPk)
+                .getResultList();
+        List<Study> deleteWholeStudy = new ArrayList<>(1);
+        deleteInstances(locations, deleteWholeStudy);
+        return deleteWholeStudy.get(0);
     }
 
     public int deleteRejectedInstancesAndRejectionNotes(Code rejectionCode, int limit) {
@@ -89,7 +115,7 @@ public class DeletionServiceEJB {
                 .setParameter(1, codeEntity)
                 .setMaxResults(limit)
                 .getResultList();
-        return deleteInstances(locations);
+        return deleteInstances(locations, null);
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
@@ -100,10 +126,10 @@ public class DeletionServiceEJB {
                 .setParameter(2, before)
                 .setMaxResults(limit)
                 .getResultList();
-        return deleteInstances(locations);
+        return deleteInstances(locations, null);
     }
 
-    private int deleteInstances(List<Location> locations) {
+    private int deleteInstances(List<Location> locations, List<Study> deleteWholeStudy) {
         if (locations.isEmpty())
             return 0;
 
@@ -121,22 +147,25 @@ public class DeletionServiceEJB {
             em.remove(inst);
         }
         HashMap<Long,Study> studies = new HashMap<>();
-        ArrayList<Study> studiesCheckForDelete = new ArrayList<>();
+        HashSet<Long> nonEmptyStudies = new HashSet<>();
         for (Series ser : series.values()) {
             Study study = ser.getStudy();
             studies.put(study.getPk(), study);
             deleteSeriesQueryAttributes(ser);
-            if (countInstancesOfSeries(ser) == 0) {
+            if (deleteWholeStudy != null || countInstancesOfSeries(ser) == 0) {
                 em.remove(ser);
-                studiesCheckForDelete.add(study);
+            } else {
+                nonEmptyStudies.add(study.getPk());
             }
         }
-        for (Study study : studies.values())
+        for (Study study : studies.values()) {
             deleteStudyQueryAttributes(study);
-
-        for (Study study : studiesCheckForDelete) {
-            if (countSeriesOfStudy(study) == 0)
+            if (deleteWholeStudy != null) {
+                deleteWholeStudy.add(study);
                 em.remove(study);
+            } else if (!nonEmptyStudies.contains(study.getPk()) && countSeriesOfStudy(study) == 0) {
+                em.remove(study);
+            }
         }
         return insts.size();
     }

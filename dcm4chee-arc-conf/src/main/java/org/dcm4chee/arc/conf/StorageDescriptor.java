@@ -19,7 +19,10 @@ public final class StorageDescriptor {
     private String digestAlgorithm;
     private String[] retrieveAETitles = {};
     private Availability instanceAvailability;
+    private String minUsableSpace;
     private final Map<String, String> properties = new HashMap<>();
+
+    private long minUsableSpaceInBytes = -1;
 
     public StorageDescriptor(String storageID) {
 //        this(storageID, null);
@@ -84,6 +87,15 @@ public final class StorageDescriptor {
         this.instanceAvailability = instanceAvailability;
     }
 
+    public String getMinUsableSpace() {
+        return minUsableSpace;
+    }
+
+    public void setMinUsableSpace(String minUsableSpace) {
+        this.minUsableSpaceInBytes = minUsableSpace != null ? BinaryPrefix.parse(minUsableSpace) : -1L;
+        this.minUsableSpace = minUsableSpace;
+    }
+
     public void setProperty(String name, String value) {
         properties.put(name, value);
     }
@@ -116,7 +128,12 @@ public final class StorageDescriptor {
                 ", digestAlg=" + digestAlgorithm +
                 ", retrieveAETs=" + retrieveAETitles +
                 ", availability=" + instanceAvailability +
+                ", minUsableSpace=" + minUsableSpace +
                 ", properties=" + properties +
                 '}';
+    }
+
+    public long getMinUsableSpaceInBytes() {
+        return minUsableSpaceInBytes;
     }
 }
