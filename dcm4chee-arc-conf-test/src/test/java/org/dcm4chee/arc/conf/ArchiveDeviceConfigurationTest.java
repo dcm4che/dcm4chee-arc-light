@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.conf.api.AttributeCoercion;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
@@ -74,9 +73,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -115,7 +112,7 @@ public class ArchiveDeviceConfigurationTest {
 
     @Test
     public void testPersist() throws Exception {
-        ConfigType configType = ConfigType.valueOf(System.getProperty("configType", "INIT"));
+        ConfigType configType = ConfigType.valueOf(System.getProperty("configType", ConfigType.INIT.toString()));
         if (configType == ConfigType.SAMPLE) {
             for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
                 String aet = ArchiveDeviceFactory.OTHER_AES[i];
@@ -209,8 +206,6 @@ public class ArchiveDeviceConfigurationTest {
 
     private void assertEqualsArchiveDeviceExtension(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
         assertNotNull(actual);
-//        assertEquals(expected.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID),
-//                actual.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID));
         assertEquals(expected.getStorageID(), actual.getStorageID());
         assertEquals(expected.getFuzzyAlgorithmClass(), actual.getFuzzyAlgorithmClass());
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
@@ -240,6 +235,9 @@ public class ArchiveDeviceConfigurationTest {
         assertEquals(expected.getPatientUpdateTemplateURI(), actual.getPatientUpdateTemplateURI());
         assertEquals(expected.getUnzipVendorDataToURI(), actual.getUnzipVendorDataToURI());
         assertChildren(expected, actual);
+        assertExportRule(expected, actual);
+        assertArchiveCompressionRule(expected, actual);
+        assertAttributeCoercion(expected, actual);
     }
 
     private String[] toStrings(Map<String, ?> props) {
@@ -291,6 +289,7 @@ public class ArchiveDeviceConfigurationTest {
             assertEquals(expectedQD.getMaxRetryDelay(), actualQD.getMaxRetryDelay());
             assertEquals(expectedQD.getRetryDelayMultiplier(), actualQD.getRetryDelayMultiplier());
         }
+
         for (ExporterDescriptor ed : expected.getExporterDescriptors()) {
             ExporterDescriptor expectedED = expected.getExporterDescriptor(ed.getExporterID());
             ExporterDescriptor actualED = actual.getExporterDescriptor(ed.getExporterID());
@@ -301,9 +300,9 @@ public class ArchiveDeviceConfigurationTest {
             assertArrayEquals(expectedED.getSchedules(), actualED.getSchedules());
             assertArrayEquals(toStrings(expectedED.getProperties()), toStrings(actualED.getProperties()));
         }
-//        for (ExportRule er : expected.getExportRules()) {
-//
-//        }
+
+
+
 //collections.sort,, comparator
 //        for (ArchiveCompressionRule acr : expected.getCompressionRules()) {
 //
@@ -322,6 +321,75 @@ public class ArchiveDeviceConfigurationTest {
             assertArrayEquals(expectedRN.getOverwritePreviousRejection(), actualRN.getOverwritePreviousRejection());
             assertEquals(expectedRN.getDeleteRejectedInstanceDelay(), actualRN.getDeleteRejectedInstanceDelay());
             assertEquals(expectedRN.getDeleteRejectionNoteDelay(), actualRN.getDeleteRejectionNoteDelay());
+        }
+    }
+
+    private void assertExportRule(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
+        List<ExportRule> expectedERList = new ArrayList<>(expected.getExportRules());
+        List<ExportRule> actualERList = new ArrayList<>(actual.getExportRules());
+        Comparator<ExportRule> exportRule = new Comparator<ExportRule>() {
+            @Override
+            public int compare(ExportRule expectedER, ExportRule actualER) {
+                return expectedER.hashCode() - actualER.hashCode();
+            }
+        };
+        Collections.sort(expectedERList, exportRule);
+        Collections.sort(actualERList, exportRule);
+        for (int i = 0; i < expectedERList.size(); i++) {
+            ExportRule expectedER = expectedERList.get(i);
+            ExportRule actualER = actualERList.get(i);
+            assertEquals(expectedER.getCommonName(), actualER.getCommonName());
+            assertEquals(expectedER.getEntity(), actualER.getEntity());
+            assertArrayEquals(expectedER.getExporterIDs(), actualER.getExporterIDs());
+            assertEquals(expectedER.getConditions().toString(), actualER.getConditions().toString());
+            assertArrayEquals(expectedER.getSchedules(), actualER.getSchedules());
+            assertEquals(expectedER.getExportDelay(), actualER.getExportDelay());
+        }
+    }
+
+    private void assertArchiveCompressionRule(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
+        List<ArchiveCompressionRule> expectedACRList = new ArrayList<>(expected.getCompressionRules());
+        List<ArchiveCompressionRule> actualACRList = new ArrayList<>(actual.getCompressionRules());
+        Comparator<ArchiveCompressionRule> archiveCompressionRule = new Comparator<ArchiveCompressionRule>() {
+            @Override
+            public int compare(ArchiveCompressionRule expectedACR, ArchiveCompressionRule actualACR) {
+                return expectedACR.getPriority() - actualACR.getPriority();
+            }
+        };
+        Collections.sort(expectedACRList, archiveCompressionRule);
+        Collections.sort(actualACRList, archiveCompressionRule);
+        for (int i = 0; i < expectedACRList.size(); i++) {
+            ArchiveCompressionRule expectedACR = expectedACRList.get(i);
+            ArchiveCompressionRule actualACR = actualACRList.get(i);
+            assertEquals(expectedACR.getCommonName(), actualACR.getCommonName());
+            assertEquals(expectedACR.getTransferSyntax(), actualACR.getTransferSyntax());
+            assertEquals(expectedACR.getPriority(), actualACR.getPriority());
+            assertEquals(expectedACR.getConditions().toString(), actualACR.getConditions().toString());
+            assertArrayEquals(expectedACR.getImageWriteParams(), actualACR.getImageWriteParams());
+        }
+    }
+
+    private void assertAttributeCoercion(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
+        List<ArchiveAttributeCoercion> expectedAACList = new ArrayList<>(expected.getAttributeCoercions());
+        List<ArchiveAttributeCoercion> actualAACList = new ArrayList<>(actual.getAttributeCoercions());
+        Comparator<ArchiveAttributeCoercion> archiveAttributeCoercion = new Comparator<ArchiveAttributeCoercion>() {
+            @Override
+            public int compare(ArchiveAttributeCoercion expectedAAC, ArchiveAttributeCoercion actualAAC) {
+                return expectedAAC.hashCode() - actualAAC.hashCode();
+            }
+        };
+        Collections.sort(expectedAACList, archiveAttributeCoercion);
+        Collections.sort(actualAACList, archiveAttributeCoercion);
+        for (int i = 0; i < expectedAACList.size(); i++) {
+            ArchiveAttributeCoercion expectedAAC = expectedAACList.get(i);
+            ArchiveAttributeCoercion actualAAC = actualAACList.get(i);
+            assertEquals(expectedAAC.getCommonName(), actualAAC.getCommonName());
+            assertEquals(expectedAAC.getXSLTStylesheetURI(), actualAAC.getXSLTStylesheetURI());
+            assertEquals(expectedAAC.getPriority(), actualAAC.getPriority());
+            assertArrayEquals(expectedAAC.getAETitles(), actualAAC.getAETitles());
+            assertArrayEquals(expectedAAC.getHostNames(), actualAAC.getHostNames());
+            assertArrayEquals(expectedAAC.getSOPClasses(), actualAAC.getSOPClasses());
+            assertEquals(expectedAAC.isNoKeywords(), actualAAC.isNoKeywords());
         }
     }
 

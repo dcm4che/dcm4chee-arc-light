@@ -3,10 +3,16 @@
   "description": "Export Rule",
   "type": "object",
   "required": [
+    "cn",
     "dcmEntity",
     "dcmExporterID"
   ],
   "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Export Rule",
+      "type": "string"
+    },
     "dcmEntity": {
       "title": "Attribute Entity",
       "description": "Entity of the Attribute Filter or Export Rule ('Patient', 'Study', 'Series', 'Instance', 'MPPS').",

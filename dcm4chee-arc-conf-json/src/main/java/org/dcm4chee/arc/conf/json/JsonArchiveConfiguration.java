@@ -203,8 +203,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmExportRule");
         for (ExportRule er : exportRuleList) {
             writer.writeStartObject();
+            writer.writeNotNull("cn", er.getCommonName());
             writer.writeNotNull("dcmEntity", er.getEntity());
             writer.writeNotEmpty("dcmExporterID", er.getExporterIDs());
+            writer.writeNotEmpty("dcmProperty", toStrings(er.getConditions().getMap()));
             writer.writeNotEmpty("dcmSchedule", er.getSchedules());
             writer.writeNotNull("dcmDuration", er.getExportDelay());
             writer.writeEnd();
