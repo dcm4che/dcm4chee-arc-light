@@ -300,17 +300,7 @@ public class ArchiveDeviceConfigurationTest {
             assertArrayEquals(expectedED.getSchedules(), actualED.getSchedules());
             assertArrayEquals(toStrings(expectedED.getProperties()), toStrings(actualED.getProperties()));
         }
-
-
-
-//collections.sort,, comparator
-//        for (ArchiveCompressionRule acr : expected.getCompressionRules()) {
-//
-//        }
-//        for(AttributeCoercion ac : expected.getAttributeCoercions()) {
-//            AttributeCoercion expectedAC = ac.
-//        }
-
+        
         for (RejectionNote rn : expected.getRejectionNotes()) {
             RejectionNote expectedRN = expected.getRejectionNote(rn.getRejectionNoteLabel());
             RejectionNote actualRN = actual.getRejectionNote(rn.getRejectionNoteLabel());
