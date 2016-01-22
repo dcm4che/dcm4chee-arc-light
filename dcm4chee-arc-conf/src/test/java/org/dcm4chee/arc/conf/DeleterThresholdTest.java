@@ -40,52 +40,35 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.util.StringUtils;
+import org.junit.Test;
 
-import java.util.Calendar;
+import java.util.Arrays;
+import java.util.GregorianCalendar;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2016
  */
-public class DeleterThreshold implements Comparable<DeleterThreshold> {
-    private final String value;
-    private final ScheduleExpression schedule;
-    private final long minUsableSpace;
+public class DeleterThresholdTest {
 
-    public DeleterThreshold(String s) {
-        this.value = s;
-        String[] split1 = StringUtils.split(value, ']');
-        switch (split1.length) {
-            case 1:
-                this.schedule = null;
-                break;
-            case 2:
-                String[] split2 = StringUtils.split(split1[0], '[');
-                if (split2.length == 2) {
-                    this.schedule = ScheduleExpression.valueOf(split2[split2.length - 1]);
-                    break;
-                }
-            default:
-                throw new IllegalArgumentException(s);
-        }
-        this.minUsableSpace = BinaryPrefix.parse(split1[split1.length-1]);
+    @Test
+    public void testCompare() throws Exception {
+        DeleterThreshold threshold1 = new DeleterThreshold("10_[hour=18-6]10GB");
+        DeleterThreshold threshold2 = new DeleterThreshold("20_[dayOfWeek=0,6]10GB");
+        DeleterThreshold threshold3 = new DeleterThreshold("1GB");
+        DeleterThreshold[] thresholds = { threshold3, threshold2, threshold1 };
+        Arrays.sort(thresholds);
+        assertSame(threshold1, thresholds[0]);
+        assertSame(threshold2, thresholds[1]);
+        assertSame(threshold3, thresholds[2]);
     }
 
-    public boolean match(Calendar cal) {
-        return schedule == null || schedule.contains(cal);
-    }
-
-    public long getMinUsableDiskSpace() {
-        return minUsableSpace;
-    }
-
-    public String toString() {
-        return value;
-    }
-
-    @Override
-    public int compareTo(DeleterThreshold o) {
-        return schedule != null ? o.schedule != null ? value.compareTo(o.value) : -1 : o.schedule != null ? 1 : 0;
+    @Test
+    public void testMatch() throws Exception {
+        DeleterThreshold threshold = new DeleterThreshold("10_[hour=18-6]10GB");
+        assertFalse(threshold.match(new GregorianCalendar(2015, 9, 8, 10, 0)));
+        assertTrue(threshold.match(new GregorianCalendar(2015, 9, 8, 18, 0)));
     }
 }

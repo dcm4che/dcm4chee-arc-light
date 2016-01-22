@@ -98,10 +98,10 @@ public final class StorageDescriptor {
 
     public void setDeleterThresholdsFromStrings(String... ss) {
         deleterThresholds.clear();
-        Arrays.sort(ss);
         for (String s : ss) {
             deleterThresholds.add(new DeleterThreshold(s));
         }
+        Collections.sort(deleterThresholds);
     }
 
     public long getMinUsableSpace(Calendar cal) {
