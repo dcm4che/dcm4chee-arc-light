@@ -3,29 +3,26 @@ package org.dcm4chee.arc.conf;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
  */
 public final class StorageDescriptor {
-    public StorageDescriptor() {
-    }
-
     private String storageID;
     private URI storageURI;
     private String digestAlgorithm;
     private String[] retrieveAETitles = {};
     private Availability instanceAvailability;
-    private String minUsableSpace;
+
+    private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
 
-    private long minUsableSpaceInBytes = -1;
+    public StorageDescriptor() {
+    }
 
     public StorageDescriptor(String storageID) {
-//        this(storageID, null);
         setStorageID(storageID);
     }
 
@@ -87,13 +84,32 @@ public final class StorageDescriptor {
         this.instanceAvailability = instanceAvailability;
     }
 
-    public String getMinUsableSpace() {
-        return minUsableSpace;
+    public boolean hasDeleterThresholds() {
+        return !deleterThresholds.isEmpty();
     }
 
-    public void setMinUsableSpace(String minUsableSpace) {
-        this.minUsableSpaceInBytes = minUsableSpace != null ? BinaryPrefix.parse(minUsableSpace) : -1L;
-        this.minUsableSpace = minUsableSpace;
+    public String[] getDeleterThresholdsAsStrings() {
+        String[] ss = new String[deleterThresholds.size()];
+        for (int i = 0; i < ss.length; i++) {
+            ss[i] = deleterThresholds.get(i).toString();
+        }
+        return ss;
+    }
+
+    public void setDeleterThresholdsFromStrings(String... ss) {
+        deleterThresholds.clear();
+        Arrays.sort(ss);
+        for (String s : ss) {
+            deleterThresholds.add(new DeleterThreshold(s));
+        }
+    }
+
+    public long getMinUsableSpace(Calendar cal) {
+        for (DeleterThreshold deleterThreshold : deleterThresholds) {
+            if (deleterThreshold.match(cal))
+                return deleterThreshold.getMinUsableDiskSpace();
+        }
+        return -1L;
     }
 
     public void setProperty(String name, String value) {
@@ -128,12 +144,8 @@ public final class StorageDescriptor {
                 ", digestAlg=" + digestAlgorithm +
                 ", retrieveAETs=" + retrieveAETitles +
                 ", availability=" + instanceAvailability +
-                ", minUsableSpace=" + minUsableSpace +
+                ", deleterThresholds=" + deleterThresholds +
                 ", properties=" + properties +
                 '}';
-    }
-
-    public long getMinUsableSpaceInBytes() {
-        return minUsableSpaceInBytes;
     }
 }

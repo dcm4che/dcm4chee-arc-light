@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -90,7 +91,7 @@ public class PurgeStorageScheduler extends Scheduler {
             int deletedStudies = 0;
             do {
                 try {
-                    deletedStudies = deleteStudiesIfOutOfSpace(desc, deleteStudyBatchSize);
+                    deletedStudies = deleteStudiesIfDeleterThresholdExceeded(desc, deleteStudyBatchSize);
                 } catch (IOException e) {
                     LOG.error("Failed to delete studies from {}", desc.getStorageURI(), e);
                 }
@@ -104,39 +105,40 @@ public class PurgeStorageScheduler extends Scheduler {
         }
     }
 
-    private int deleteStudiesIfOutOfSpace(StorageDescriptor desc, int fetchSize) throws IOException {
-        if (desc.getMinUsableSpace() == null)
+    private int deleteStudiesIfDeleterThresholdExceeded(StorageDescriptor desc, int fetchSize) throws IOException {
+        if (!desc.hasDeleterThresholds())
             return 0;
 
+        long minUsableSpace = desc.getMinUsableSpace(Calendar.getInstance());
+        if (minUsableSpace == -1L)
+            return 0;
+
+        long usableSpace;
         try (Storage storage = storageFactory.getStorage(desc)) {
-            long usableSpace = storage.getUsableSpace();
-            if (usableSpace > desc.getMinUsableSpaceInBytes())
-                return 0;
-
-            int deleted = 0;
-            int failed = 0;
-            String storageID = desc.getStorageID();
-            do {
-                List<Long> studyPks = ejb.findStudiesForDeletionOnStorage(storageID, fetchSize - deleted);
-                if (studyPks.isEmpty()) {
-                    if (deleted == 0)
-                        LOG.warn("No studies for deletion found on {} - UsableSpace[{}] > MinUsableSpace[{}]!");
-
-                    return deleted;
-                }
-                failed = 0;
-                for (Long studyPk : studyPks) {
-                    Study study = ejb.removeStudyOnStorage(studyPk, storageID);
-                    if (study != null) {
-                        deleted++;
-                        LOG.info("Successfully delete {} from {}", study, desc.getStorageURI());
-                    } else {
-                        failed++;
-                    }
-                }
-            } while (failed > 0);
-            return deleted;
+            usableSpace = storage.getUsableSpace();
         }
+        if (usableSpace > minUsableSpace)
+            return 0;
+
+        String storageID = desc.getStorageID();
+        int deleted = 0;
+        do {
+            List<Long> studyPks = ejb.findStudiesForDeletionOnStorage(storageID, fetchSize);
+            if (studyPks.isEmpty()) {
+                LOG.warn("No studies for deletion found on {} - usableSpace[{}] > minUsableSpace[{}]!",
+                        desc.getStorageURI(), usableSpace, minUsableSpace);
+
+                return 0;
+            }
+            for (Long studyPk : studyPks) {
+                Study study = ejb.removeStudyOnStorage(studyPk, storageID);
+                if (study != null) {
+                    deleted++;
+                    LOG.info("Successfully delete {} on {} from database", study, desc.getStorageURI());
+                }
+            }
+        } while (deleted == 0);
+        return deleted;
     }
 
     private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) throws IOException {

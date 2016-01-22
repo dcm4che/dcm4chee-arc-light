@@ -11,11 +11,6 @@ import java.util.Arrays;
  */
 public class ArchiveCompressionRule {
 
-    public ArchiveCompressionRule() {
-    }
-
-//    private final String commonName;
-
     private String commonName;
 
     private int priority;
@@ -26,9 +21,8 @@ public class ArchiveCompressionRule {
 
     private Property[] imageWriteParams = {};
 
-//    public ArchiveCompressionRule(String commonName) {
-//        this.commonName = commonName;
-//    }
+    public ArchiveCompressionRule() {
+    }
 
     public ArchiveCompressionRule(String commonName) {
         setCommonName(commonName);

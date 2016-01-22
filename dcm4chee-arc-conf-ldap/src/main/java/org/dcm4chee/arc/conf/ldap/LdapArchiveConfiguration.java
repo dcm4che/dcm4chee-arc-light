@@ -487,7 +487,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm());
         LdapUtils.storeNotNull(attrs, "dcmInstanceAvailability", descriptor.getInstanceAvailability());
         LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
-        LdapUtils.storeNotNull(attrs, "dcmMinUsableSpace", descriptor.getMinUsableSpace());
+        LdapUtils.storeNotEmpty(attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         return attrs;
     }
@@ -512,7 +512,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
                 desc.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
-                desc.setMinUsableSpace(LdapUtils.stringValue(attrs.get("dcmMinUsableSpace"), null));
+                desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 arcdev.addStorageDescriptor(desc);
             }
@@ -548,7 +548,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability());
         LdapUtils.storeDiff(mods, "dcmRetrieveAET", prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
-        LdapUtils.storeDiff(mods, "dcmMinUsableSpace", prev.getMinUsableSpace(), desc.getMinUsableSpace());
+        LdapUtils.storeDiff(mods, "dcmDeleterThreshold",
+                prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         return mods;
     }
