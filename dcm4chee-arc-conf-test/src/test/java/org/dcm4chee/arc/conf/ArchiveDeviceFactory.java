@@ -853,6 +853,7 @@ class ArchiveDeviceFactory {
             ext.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
             ext.setAlternativeCMoveSCP("DCM4CHEE");
             ext.setDeleteStudyBatchSize(20);
+            ext.setDeletePatientOnDeleteLastStudy(true);
             ext.setMaxAccessTimeStaleness(Duration.parse("PT5M"));
         }
         ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);

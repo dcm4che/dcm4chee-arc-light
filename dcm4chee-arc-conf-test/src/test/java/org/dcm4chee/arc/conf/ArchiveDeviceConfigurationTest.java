@@ -229,6 +229,7 @@ public class ArchiveDeviceConfigurationTest {
         assertEquals(expected.getPurgeStoragePollingInterval(), actual.getPurgeStoragePollingInterval());
         assertEquals(expected.getPurgeStorageFetchSize(), actual.getPurgeStorageFetchSize());
         assertEquals(expected.getDeleteStudyBatchSize(), actual.getDeleteStudyBatchSize());
+        assertEquals(expected.isDeletePatientOnDeleteLastStudy(), actual.isDeletePatientOnDeleteLastStudy());
         assertEquals(expected.getDeleteRejectedPollingInterval(), actual.getDeleteRejectedPollingInterval());
         assertEquals(expected.getDeleteRejectedFetchSize(), actual.getDeleteRejectedFetchSize());
         assertEquals(expected.getMaxAccessTimeStaleness(), actual.getMaxAccessTimeStaleness());
