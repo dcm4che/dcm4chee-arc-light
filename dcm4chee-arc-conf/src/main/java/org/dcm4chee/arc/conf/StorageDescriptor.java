@@ -142,7 +142,7 @@ public final class StorageDescriptor {
                 "storageID=" + storageID +
                 ", storageURI=" + storageURI +
                 ", digestAlg=" + digestAlgorithm +
-                ", retrieveAETs=" + retrieveAETitles +
+                ", retrieveAETs=" + Arrays.toString(retrieveAETitles) +
                 ", availability=" + instanceAvailability +
                 ", deleterThresholds=" + deleterThresholds +
                 ", properties=" + properties +
