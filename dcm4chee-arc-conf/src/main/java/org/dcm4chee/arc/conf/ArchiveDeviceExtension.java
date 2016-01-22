@@ -80,6 +80,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration purgeStoragePollingInterval;
     private int purgeStorageFetchSize = 100;
     private int deleteStudyBatchSize = 10;
+    private boolean deletePatientOnDeleteLastStudy = false;
     private Duration maxAccessTimeStaleness;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -336,6 +337,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.deleteStudyBatchSize = deleteStudyBatchSize;
     }
 
+    public boolean isDeletePatientOnDeleteLastStudy() {
+        return deletePatientOnDeleteLastStudy;
+    }
+
+    public void setDeletePatientOnDeleteLastStudy(boolean deletePatientOnDeleteLastStudy) {
+        this.deletePatientOnDeleteLastStudy = deletePatientOnDeleteLastStudy;
+    }
+
     public Duration getMaxAccessTimeStaleness() {
         return maxAccessTimeStaleness;
     }
@@ -525,6 +534,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeStoragePollingInterval = arcdev.purgeStoragePollingInterval;
         purgeStorageFetchSize = arcdev.purgeStorageFetchSize;
         deleteStudyBatchSize = arcdev.deleteStudyBatchSize;
+        deletePatientOnDeleteLastStudy = arcdev.deletePatientOnDeleteLastStudy;
         maxAccessTimeStaleness = arcdev.maxAccessTimeStaleness;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);

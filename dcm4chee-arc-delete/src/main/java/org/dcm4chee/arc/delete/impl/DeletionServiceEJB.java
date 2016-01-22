@@ -91,7 +91,7 @@ public class DeletionServiceEJB {
         em.remove(em.merge(location));
     }
 
-    public Study removeStudyOnStorage(Long studyPk, String storageID) {
+    public Study removeStudyOnStorage(Long studyPk, String storageID, boolean deletePatient) {
         List<String> storageIDs = em.createNamedQuery(Location.FIND_STORAGE_IDS_BY_STUDY_PK, String.class)
                 .setParameter(1, studyPk)
                 .getResultList();
@@ -105,7 +105,7 @@ public class DeletionServiceEJB {
                 .setParameter(1, studyPk)
                 .getResultList();
         List<Study> deleteWholeStudy = new ArrayList<>(1);
-        deleteInstances(locations, deleteWholeStudy);
+        deleteInstances(locations, deleteWholeStudy, deletePatient);
         return deleteWholeStudy.get(0);
     }
 
@@ -115,7 +115,7 @@ public class DeletionServiceEJB {
                 .setParameter(1, codeEntity)
                 .setMaxResults(limit)
                 .getResultList();
-        return deleteInstances(locations, null);
+        return deleteInstances(locations, null, false);
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
@@ -126,10 +126,10 @@ public class DeletionServiceEJB {
                 .setParameter(2, before)
                 .setMaxResults(limit)
                 .getResultList();
-        return deleteInstances(locations, null);
+        return deleteInstances(locations, null, false);
     }
 
-    private int deleteInstances(List<Location> locations, List<Study> deleteWholeStudy) {
+    private int deleteInstances(List<Location> locations, List<Study> deleteWholeStudy, boolean deletePatient) {
         if (locations.isEmpty())
             return 0;
 
@@ -143,31 +143,58 @@ public class DeletionServiceEJB {
         HashMap<Long,Series> series = new HashMap<>();
         for (Instance inst : insts.values()) {
             Series ser = inst.getSeries();
-            series.put(ser.getPk(), ser);
+            if (!series.containsKey(ser.getPk())) {
+                series.put(ser.getPk(), ser);
+                deleteSeriesQueryAttributes(ser);
+            }
             em.remove(inst);
         }
         HashMap<Long,Study> studies = new HashMap<>();
-        HashSet<Long> nonEmptyStudies = new HashSet<>();
         for (Series ser : series.values()) {
             Study study = ser.getStudy();
-            studies.put(study.getPk(), study);
-            deleteSeriesQueryAttributes(ser);
+            if (!studies.containsKey(study.getPk())) {
+                studies.put(study.getPk(), study);
+                deleteStudyQueryAttributes(study);
+            }
             if (deleteWholeStudy != null || countInstancesOfSeries(ser) == 0) {
                 em.remove(ser);
             } else {
-                nonEmptyStudies.add(study.getPk());
+                studies.put(study.getPk(), null);
             }
         }
+        Patient patient = null;
         for (Study study : studies.values()) {
-            deleteStudyQueryAttributes(study);
+            if (study == null)
+                continue;
+
             if (deleteWholeStudy != null) {
                 deleteWholeStudy.add(study);
-                em.remove(study);
-            } else if (!nonEmptyStudies.contains(study.getPk()) && countSeriesOfStudy(study) == 0) {
-                em.remove(study);
+            } else if (countSeriesOfStudy(study) > 0) {
+                deletePatient = false;
+                continue;
             }
+            if (patient == null && deletePatient)
+                patient = study.getPatient();
+            em.remove(study);
+        }
+        if (patient != null) {
+            deletePatient(patient);
         }
         return insts.size();
+    }
+
+    private void deletePatient(Patient patient) {
+        if (em.createNamedQuery(Patient.COUNT_BY_MERGED_WITH, Long.class)
+                .setParameter(1, patient)
+                .getSingleResult() > 0) {
+             return;
+        }
+        List<MPPS> mppsList = em.createNamedQuery(MPPS.FIND_BY_PATIENT, MPPS.class)
+                .setParameter(1, patient)
+                .getResultList();
+        for (MPPS mpps : mppsList)
+            em.remove(mpps);
+        em.remove(patient);
     }
 
     private long countSeriesOfStudy(Study study) {

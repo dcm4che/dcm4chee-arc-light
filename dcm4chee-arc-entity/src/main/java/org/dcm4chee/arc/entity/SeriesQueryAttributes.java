@@ -51,14 +51,14 @@ import javax.persistence.*;
  */
 @NamedQuery(
     name = SeriesQueryAttributes.DELETE_FOR_SERIES,
-    query = "delete from SeriesQueryAttributes where series = ?1"
+    query = "delete from SeriesQueryAttributes a where a.series = ?1"
 )
 @Entity
 @Table(name = "series_query_attrs", uniqueConstraints =
     @UniqueConstraint(columnNames = { "view_id", "series_fk" }))
 public class SeriesQueryAttributes {
 
-    public static final String DELETE_FOR_SERIES = "deleteForSeries";
+    public static final String DELETE_FOR_SERIES = "SeriesQueryAttributes.deleteForSeries";
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pk")

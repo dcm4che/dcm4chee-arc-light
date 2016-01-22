@@ -100,6 +100,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmDeleteRejectedPollingInterval", ext.getDeleteRejectedPollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmDeleteRejectedFetchSize", ext.getDeleteRejectedFetchSize(), 100);
         LdapUtils.storeNotDef(attrs, "dcmDeleteStudyBatchSize", ext.getDeleteStudyBatchSize(), 10);
+        LdapUtils.storeNotDef(attrs, "dcmDeletePatientOnDeleteLastStudy",
+                ext.isDeletePatientOnDeleteLastStudy(), false);
         LdapUtils.storeNotNull(attrs, "dcmMaxAccessTimeStaleness", ext.getMaxAccessTimeStaleness());
     }
 
@@ -143,6 +145,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 toDuration(LdapUtils.stringValue(attrs.get("dcmDeleteRejectedPollingInterval"), null)));
         ext.setDeleteRejectedFetchSize(LdapUtils.intValue(attrs.get("dcmDeleteRejectedFetchSize"), 100));
         ext.setDeleteStudyBatchSize(LdapUtils.intValue(attrs.get("dcmDeleteStudyBatchSize"), 10));
+        ext.setDeletePatientOnDeleteLastStudy(
+                LdapUtils.booleanValue(attrs.get("dcmDeletePatientOnDeleteLastStudy"), false));
         ext.setMaxAccessTimeStaleness(toDuration(LdapUtils.stringValue(attrs.get("dcmMaxAccessTimeStaleness"), null)));
     }
 
@@ -203,6 +207,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getDeleteStudyBatchSize(), bb.getDeleteStudyBatchSize(), 10);
         LdapUtils.storeDiff(mods, "dcmMaxAccessTimeStaleness",
                 aa.getMaxAccessTimeStaleness(), bb.getMaxAccessTimeStaleness());
+        LdapUtils.storeDiff(mods, "dcmDeletePatientOnDeleteLastStudy",
+                aa.isDeletePatientOnDeleteLastStudy(), bb.isDeletePatientOnDeleteLastStudy(), false);
     }
 
     @Override

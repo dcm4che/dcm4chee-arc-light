@@ -74,7 +74,15 @@ import java.util.*;
             "left join fetch p.patientName " +
             "left join fetch p.patientName " +
             "join fetch p.attributesBlob " +
-            "where p.patientName.familyName = ?1")
+            "where p.patientName.familyName = ?1"),
+@NamedQuery(
+    name=Patient.FIND_BY_MERGED_WITH,
+    query="select p from Patient p " +
+            "where p.mergedWith = ?1"),
+@NamedQuery(
+    name=Patient.COUNT_BY_MERGED_WITH,
+    query="select count(p) from Patient p " +
+            "where p.mergedWith = ?1")
 })
 @Entity
 @Table(name = "patient",
@@ -92,6 +100,8 @@ public class Patient {
     public static final String FIND_BY_PATIENT_ID_EAGER = "Patient.findByPatientIDEager";
     public static final String FIND_BY_PATIENT_FAMILY_NAME = "Patient.findByPatientFamilyName";
     public static final String FIND_BY_PATIENT_FAMILY_NAME_EAGER = "Patient.findByPatientFamilyNameEager";
+    public static final String FIND_BY_MERGED_WITH = "Patient.findByMergedWith";
+    public static final String COUNT_BY_MERGED_WITH = "Patient.CountByMergedWith";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -222,7 +232,7 @@ public class Patient {
         this.patientID = patientID;
     }
 
-   public Attributes getAttributes() throws BlobCorruptedException {
+    public Attributes getAttributes() throws BlobCorruptedException {
         return attributesBlob.getAttributes();
     }
 

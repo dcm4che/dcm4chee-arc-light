@@ -51,14 +51,14 @@ import javax.persistence.*;
  */
 @NamedQuery(
     name = StudyQueryAttributes.DELETE_FOR_STUDY,
-    query = "delete from StudyQueryAttributes where study = ?1"
+    query = "delete from StudyQueryAttributes a where a.study = ?1"
 )
 @Entity
 @Table(name = "study_query_attrs", uniqueConstraints =
     @UniqueConstraint(columnNames = { "view_id", "study_fk" }))
 public class StudyQueryAttributes {
 
-    public static final String DELETE_FOR_STUDY = "deleteForStudy";
+    public static final String DELETE_FOR_STUDY = "StudyQueryAttributes.deleteForStudy";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

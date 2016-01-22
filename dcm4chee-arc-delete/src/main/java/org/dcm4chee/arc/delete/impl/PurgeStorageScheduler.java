@@ -87,11 +87,12 @@ public class PurgeStorageScheduler extends Scheduler {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getPurgeStorageFetchSize();
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
+        boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
             int deletedStudies = 0;
             do {
                 try {
-                    deletedStudies = deleteStudiesIfDeleterThresholdExceeded(desc, deleteStudyBatchSize);
+                    deletedStudies = deleteStudiesIfDeleterThresholdExceeded(desc, deleteStudyBatchSize, deletePatient);
                 } catch (IOException e) {
                     LOG.error("Failed to delete studies from {}", desc.getStorageURI(), e);
                 }
@@ -105,7 +106,8 @@ public class PurgeStorageScheduler extends Scheduler {
         }
     }
 
-    private int deleteStudiesIfDeleterThresholdExceeded(StorageDescriptor desc, int fetchSize) throws IOException {
+    private int deleteStudiesIfDeleterThresholdExceeded(StorageDescriptor desc, int fetchSize, boolean deletePatient)
+            throws IOException {
         if (!desc.hasDeleterThresholds())
             return 0;
 
@@ -131,7 +133,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 return 0;
             }
             for (Long studyPk : studyPks) {
-                Study study = ejb.removeStudyOnStorage(studyPk, storageID);
+                Study study = ejb.removeStudyOnStorage(studyPk, storageID, deletePatient);
                 if (study != null) {
                     deleted++;
                     LOG.info("Successfully delete {} on {} from database", study, desc.getStorageURI());
