@@ -852,6 +852,8 @@ class ArchiveDeviceFactory {
             ext.setFallbackCMoveSCPDestination("DCM4CHEE");
             ext.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
             ext.setAlternativeCMoveSCP("DCM4CHEE");
+            ext.setDeleteStudyBatchSize(20);
+            ext.setMaxAccessTimeStaleness(Duration.parse("PT5M"));
         }
         ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
@@ -876,21 +878,21 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
 
         if (configType == configType.TEST) {
-//            ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("00080050"));
-//            ext.getAttributeFilter(Entity.Patient).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute"));
-//            ext.getAttributeFilter(Entity.Patient).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute"));
-//            ext.getAttributeFilter(Entity.Study).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute"));
-//            ext.getAttributeFilter(Entity.Study).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute customAttribute2"));
-//            ext.getAttributeFilter(Entity.Study).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute customAttribute3"));
-//            ext.getAttributeFilter(Entity.Series).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute customAttribute1"));
-//            ext.getAttributeFilter(Entity.Series).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute customAttribute2"));
-//            ext.getAttributeFilter(Entity.Series).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute customAttribute3"));
-//            ext.getAttributeFilter(Entity.Instance).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute customAttribute1"));
-//            ext.getAttributeFilter(Entity.Instance).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute customAttribute2"));
-//            ext.getAttributeFilter(Entity.Instance).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute customAttribute3"));
-//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute customAttribute1"));
-//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute customAttribute2"));
-//            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute customAttribute3"));
+            ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
+            ext.getAttributeFilter(Entity.Patient).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
+            ext.getAttributeFilter(Entity.Patient).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
+            ext.getAttributeFilter(Entity.Study).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
+            ext.getAttributeFilter(Entity.Study).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
+            ext.getAttributeFilter(Entity.Study).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
+            ext.getAttributeFilter(Entity.Series).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
+            ext.getAttributeFilter(Entity.Series).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
+            ext.getAttributeFilter(Entity.Series).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
+            ext.getAttributeFilter(Entity.Instance).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
+            ext.getAttributeFilter(Entity.Instance).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
+            ext.getAttributeFilter(Entity.Instance).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
+            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
+            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
+            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
         }
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
@@ -900,6 +902,9 @@ class ArchiveDeviceFactory {
         storageDescriptor.setRetrieveAETitles("DCM4CHEE", "DCM4CHEE_ADMIN");
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
+        if (configType == configType.TEST) {
+            storageDescriptor.setDeleterThresholdsFromStrings("1GB", "1TB");
+        }
         ext.addStorageDescriptor(storageDescriptor);
 
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)

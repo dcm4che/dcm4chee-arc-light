@@ -53,8 +53,10 @@ import org.dcm4che3.util.Property;
 
 import javax.json.stream.JsonParser;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -78,7 +80,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmQueryMatchUnknown", arcDev.isQueryMatchUnknown(), true);
         writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching", arcDev.isPersonNameComponentOrderInsensitiveMatching(), false);
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
-        writer.writeNotNull("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval().toString());
+        writer.writeNotNull("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval());
         writer.writeNotEmpty("dcmWadoSupportedSRClasses", arcDev.getWadoSupportedSRClasses());
         writer.writeNotNull("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI());
         writer.writeNotNull("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI());
@@ -86,17 +88,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
         writer.writeNotNull("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination());
-        writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcDev.getFallbackCMoveSCPLevel().toString());
+        writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcDev.getFallbackCMoveSCPLevel());
         writer.writeNotNull("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP());
-        writer.writeNotNull("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval().toString());
+        writer.writeNotNull("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval());
         writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 5);
-        writer.writeNotNull("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval().toString());
+        writer.writeNotNull("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval());
         writer.writeNotDef("dcmPurgeStorageFetchSize", arcDev.getPurgeStorageFetchSize(), 100);
-        writer.writeNotNull("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval().toString());
+        writer.writeNotDef("dcmDeleteStudyBatchSize", arcDev.getDeleteStudyBatchSize(), 10);
+        writer.writeNotDef("dcmDeletePatientOnDeleteLastStudy", arcDev.isDeletePatientOnDeleteLastStudy(), false);
+        writer.writeNotNull("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval());
         writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
+        writer.writeNotNull("dcmMaxAccessTimeStaleness", arcDev.getMaxAccessTimeStaleness());
         writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
         writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
-        writeAttributeFilters(writer, arcDev.getAttributeFilters());
+        writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
         writeQueue(writer, arcDev.getQueueDescriptors());
@@ -108,19 +113,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    protected void writeAttributeFilters(JsonWriter writer, Collection<AttributeFilter> attrFilterList) {
+    protected void writeAttributeFilters(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmAttributeFilter");
-        for (AttributeFilter af : attrFilterList) {
+        for (Entity entity : Entity.values()) {
             writer.writeStartObject();
-//            writer.writeNotEmpty("dcmEntity");
-            Integer[] selection = new Integer[af.getSelection().length];
-            for (int i = 0; i < af.getSelection().length; i++) {
-                selection[i] = Integer.valueOf(af.getSelection()[i]);
+            writer.writeNotNull("dcmEntity", entity.name());
+            Integer[] selection = new Integer[arcDev.getAttributeFilter(entity).getSelection().length];
+            for (int i = 0; i < arcDev.getAttributeFilter(entity).getSelection().length; i++) {
+                selection[i] = Integer.valueOf(arcDev.getAttributeFilter(entity).getSelection()[i]);
             }
             writer.writeNotEmpty("dcmTag", selection);
-            writer.writeNotNull("dcmCustomAttribute1", af.getCustomAttribute1());
-            writer.writeNotNull("dcmCustomAttribute2", af.getCustomAttribute2());
-            writer.writeNotNull("dcmCustomAttribute3", af.getCustomAttribute3());
+            writer.writeNotNull("dcmCustomAttribute1", arcDev.getAttributeFilter(entity).getCustomAttribute1());
+            writer.writeNotNull("dcmCustomAttribute2", arcDev.getAttributeFilter(entity).getCustomAttribute2());
+            writer.writeNotNull("dcmCustomAttribute3", arcDev.getAttributeFilter(entity).getCustomAttribute3());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -135,10 +140,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmDigestAlgorithm", st.getDigestAlgorithm());
             writer.writeNotEmpty("dcmRetrieveAET", st.getRetrieveAETitles());
             writer.writeNotNull("dcmInstanceAvailability", st.getInstanceAvailability());
-            writer.writeNotNull("dcmProperty", st.getProperty("checkMountFile", "NO_MOUNT"));
+            writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
+            writer.writeNotEmpty("dcmProperty", descriptorProperties(st.getProperties()));
             writer.writeEnd();
         }
         writer.writeEnd();
+    }
+
+    private String[] descriptorProperties(Map<String, ?> props) {
+        String[] ss = new String[props.size()];
+        int i = 0;
+        for (Map.Entry<String, ?> entry : props.entrySet())
+            ss[i++] = entry.getKey() + '=' + entry.getValue();
+        return ss;
     }
 
     protected void writeQueryRetrieve(JsonWriter writer, QueryRetrieveView[] queryRetrieveViewList) {
@@ -179,7 +193,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmQueueName", ed.getQueueName());
             writer.writeNotNull("dicomAETitle", ed.getAETitle());
             writer.writeNotEmpty("dcmSchedule", ed.getSchedules());
-            writer.writeNotNull("dcmProperty", ed.getProperty("checkMountFile", "NO_MOUNT"));
+            writer.writeNotEmpty("dcmProperty", descriptorProperties(ed.getProperties()));
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -205,11 +219,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("cn", acr.getCommonName());
             writer.writeNotNull("dicomTransferSyntax", acr.getTransferSyntax());
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
-//            writer.writeNotEmpty("dcmProperty", acr.get);
+            writer.writeNotEmpty("dcmProperty", toStrings(acr.getConditions().getMap()));
             writer.writeNotEmpty("dcmImageWriteParam", acr.getImageWriteParams());
             writer.writeEnd();
         }
         writer.writeEnd();
+    }
+
+    private String[] toStrings(Map<String, ?> props) {
+        String[] ss = new String[props.size()];
+        int i = 0;
+        for (Map.Entry<String, ?> entry : props.entrySet())
+            ss[i++] = entry.getKey() + '=' + entry.getValue();
+        return ss;
     }
 
     protected void writeArchiveAttributeCoercion (JsonWriter writer, Collection<ArchiveAttributeCoercion> archiveAttributeCoercionList) {
@@ -237,7 +259,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmRejectionNoteLabel", rn.getRejectionNoteLabel());
             writer.writeNotNull("dcmRejectionNoteCode", rn.getRejectionNoteCode());
             writer.writeNotNull("dcmRevokeRejection", rn.isRevokeRejection());
-            writer.writeNotNull("dcmAcceptPreviousRejectedInstance", rn.getAcceptPreviousRejectedInstance().toString());
+            writer.writeNotNull("dcmAcceptPreviousRejectedInstance", rn.getAcceptPreviousRejectedInstance());
             writer.writeNotEmpty("dcmOverwritePreviousRejection", rn.getOverwritePreviousRejection());
             writer.writeNotNull("dcmDeleteRejectedInstanceDelay", rn.getDeleteRejectedInstanceDelay());
             writer.writeNotNull("dcmDeleteRejectionNoteDelay", rn.getDeleteRejectionNoteDelay());
@@ -254,20 +276,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
         writer.writeStartObject("dcmArchiveNetworkAE");
         writer.writeNotNull("dcmStorageID", arcAE.getStorageID());
-        writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy().toString());
+        writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy());
         writer.writeNotNull("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory());
-        writer.writeNotDef("dcmQueryMatchUnknown", arcAE.getQueryMatchUnknown(), true);
-        writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching", arcAE.getPersonNameComponentOrderInsensitiveMatching(), false);
-        writer.writeNotDef("dcmSendPendingCGet", arcAE.getSendPendingCGet(), false);
-        writer.writeNotNull("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval().toString());
+        writer.writeNotNull("dcmQueryMatchUnknown", arcAE.getQueryMatchUnknown());
+        writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching", arcAE.getPersonNameComponentOrderInsensitiveMatching());
+        writer.writeNotNull("dcmSendPendingCGet", arcAE.getSendPendingCGet());
+        writer.writeNotNull("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval());
         writer.writeNotNull("dcmWadoSR2HtmlTemplateURI", arcAE.getWadoSR2HtmlTemplateURI());
         writer.writeNotNull("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI());
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults(), 0);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
         writer.writeNotNull("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
-        writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcAE.getFallbackCMoveSCPLevel().toString());
+        writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcAE.getFallbackCMoveSCPLevel());
         writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
         writer.writeEnd();
     }
@@ -356,11 +378,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmPurgeStorageFetchSize":
                     arcDev.setPurgeStorageFetchSize(reader.intValue());
                     break;
+                case "dcmDeleteStudyBatchSize":
+                    arcDev.setDeleteStudyBatchSize(reader.intValue());
+                    break;
+                case "dcmDeletePatientOnDeleteLastStudy":
+                    arcDev.setDeletePatientOnDeleteLastStudy(reader.booleanValue());
+                    break;
                 case "dcmDeleteRejectedPollingInterval":
                     arcDev.setDeleteRejectedPollingInterval(Duration.parse(reader.stringValue()));
                     break;
                 case "dcmDeleteRejectedFetchSize":
                     arcDev.setDeleteRejectedFetchSize(reader.intValue());
+                    break;
+                case "dcmMaxAccessTimeStaleness":
+                    arcDev.setMaxAccessTimeStaleness(Duration.parse(reader.stringValue()));
                     break;
                 case "hl7PatientUpdateTemplateURI":
                     arcDev.setPatientUpdateTemplateURI(reader.stringValue());
@@ -369,7 +400,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
-                    loadAttriuteFilterListFrom(arcDev, reader);
+                    loadAttributeFilterListFrom(arcDev, reader);
                     break;
                 case "dcmStorage":
                     loadStorageDescriptorFrom(arcDev, reader);
@@ -401,21 +432,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         }
     }
 
-    private void loadAttriuteFilterListFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        AttributeFilter af = new AttributeFilter();
+    private void loadAttributeFilterListFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
+        Entity entity = null;
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            AttributeFilter af = new AttributeFilter();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmEntity":
-//                                    af.setentity
-                        reader.skipUnknownProperty();
+                        entity = Entity.valueOf(reader.stringValue());
                         break;
                     case "dcmTag":
-//                                    af.setSelection(reader.stringArray());
-                        reader.skipUnknownProperty();
+                        af.setSelection(tags(reader.stringArray()));
                         break;
                     case "dcmCustomAttribute1":
                         af.setCustomAttribute1(ValueSelector.valueOf(reader.stringValue()));
@@ -431,16 +461,25 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
+            arcDev.setAttributeFilter(entity, af);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
+    private int[] tags(String[] tagsAsStringArray) {
+        int[] selection = new int[tagsAsStringArray.length];
+        for (int i = 0; i < tagsAsStringArray.length; i++) {
+            selection[i] = Integer.parseInt(tagsAsStringArray[i]);
+        }
+        return selection;
+    }
+
     private void loadStorageDescriptorFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        StorageDescriptor st = new StorageDescriptor(arcDev.getStorageID());
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            StorageDescriptor st = new StorageDescriptor(arcDev.getStorageID());
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmStorageID":
@@ -458,8 +497,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmInstanceAvailability":
                         st.setInstanceAvailability(Availability.valueOf(reader.stringValue()));
                         break;
+                    case "dcmDeleterThreshold":
+                        st.setDeleterThresholdsFromStrings(reader.stringArray());
+                        break;
                     case "dcmProperty":
-                        st.setProperty("checkMountFile", reader.stringValue());
+                        st.setProperties(reader.stringArray());
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -472,23 +514,22 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadQueryRetrieveViewFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        QueryRetrieveView qrv = new QueryRetrieveView();
+        Collection<QueryRetrieveView> qrviews = new ArrayList<>();
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            QueryRetrieveView qrv = new QueryRetrieveView();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmQueryRetrieveViewID":
                         qrv.setViewID(reader.stringValue());
                         break;
                     case "dcmShowInstancesRejectedByCode":
-//                                    qrv.setShowInstancesRejectedByCodes(new Code[]{new Code(reader.stringValue())});
-                        reader.skipUnknownProperty();
+                        qrv.setShowInstancesRejectedByCodes(reader.codeArray());
                         break;
                     case "dcmHideRejectionNoteWithCode":
-//                                    qrv.setHideRejectionNotesWithCodes(new Code[]{new Code(reader.stringValue())});
-                        reader.skipUnknownProperty();
+                        qrv.setHideRejectionNotesWithCodes(reader.codeArray());
                         break;
                     case "dcmHideNotRejectedInstances":
                         qrv.setHideNotRejectedInstances(reader.booleanValue());
@@ -498,16 +539,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.setQueryRetrieveViews(qrv);
+            qrviews.add(qrv);
         }
+        arcDev.setQueryRetrieveViews(qrviews.toArray(new QueryRetrieveView[0]));
+        reader.expect(JsonParser.Event.END_ARRAY);
     }
 
     private void loadQueueDescriptorFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        QueueDescriptor qd = new QueueDescriptor();
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            QueueDescriptor qd = new QueueDescriptor();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmQueueName":
@@ -542,11 +585,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadExporterDescriptorFrom(ArchiveDeviceExtension arcDev, JsonReader reader){
-        ExporterDescriptor ed = new ExporterDescriptor();
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            ExporterDescriptor ed = new ExporterDescriptor();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmExporterID":
@@ -561,11 +604,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dicomAETitle":
                         ed.setAETitle(reader.stringValue());
                         break;
-//                                case "dcmSchedule":
-//                                    ed.setSchedules(ScheduleExpression.valueOf(reader.stringArray()));
-//                                    break;
+                    case "dcmSchedule":
+                        ed.setSchedules(scheduleExpressions(reader.stringArray()));
+                        break;
                     case "dcmProperty":
-                        ed.setProperty("checkMountFile", reader.stringValue());
+                        ed.setProperties(reader.stringArray());
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -577,12 +620,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
+    private ScheduleExpression[] scheduleExpressions(String[] scheduleExpressionAsStringArray) {
+        ScheduleExpression[] se = new ScheduleExpression[scheduleExpressionAsStringArray.length];
+        for (int i = 0; i < scheduleExpressionAsStringArray.length; i++) {
+            se[i] = ScheduleExpression.valueOf(scheduleExpressionAsStringArray[i]);
+        }
+        return se;
+    }
+
     private void loadExportRuleFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        ExportRule er = new ExportRule();
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            ExportRule er = new ExportRule();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "cn":
@@ -594,12 +645,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmExporterID":
                         er.setExporterIDs(reader.stringArray());
                         break;
-//                                case "dcmProperty":
-//
-//                                    break;
-//                                case "dcmSchedule":
-//                                    er.setSchedules(ScheduleExpression.valueOf(reader.stringValue()));
-//                                    break;
+                    case "dcmProperty":
+                        er.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    case "dcmSchedule":
+                        er.setSchedules(scheduleExpressions(reader.stringArray()));
+                        break;
                     case "dcmDuration":
                         er.setExportDelay(Duration.parse(reader.stringValue()));
                         break;
@@ -614,11 +665,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadArchiveCompressionRuleFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        ArchiveCompressionRule acr = new ArchiveCompressionRule();
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            ArchiveCompressionRule acr = new ArchiveCompressionRule();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "cn":
@@ -631,8 +682,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         acr.setPriority(reader.intValue());
                         break;
                     case "dcmProperty":
-//                                    acr.setproperty
-                        reader.skipUnknownProperty();
+                        acr.setConditions(new Conditions(reader.stringArray()));
                         break;
                     case "dcmImageWriteParam":
                         acr.setImageWriteParams(Property.valueOf(reader.stringArray()));
@@ -648,11 +698,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadArchiveAttributeCoercionFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        ArchiveAttributeCoercion aac = new ArchiveAttributeCoercion();
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            ArchiveAttributeCoercion aac = new ArchiveAttributeCoercion();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "cn":
@@ -693,11 +743,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadRejectionNoteFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        RejectionNote rn = new RejectionNote();
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
+            RejectionNote rn = new RejectionNote();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmRejectionNoteLabel":
@@ -713,8 +763,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         rn.setAcceptPreviousRejectedInstance(RejectionNote.AcceptPreviousRejectedInstance.valueOf(reader.stringValue()));
                         break;
                     case "dcmOverwritePreviousRejection":
-//                                    rn.setOverwritePreviousRejection(Code[] reader.stringArray());
-                        reader.skipUnknownProperty();
+                        rn.setOverwritePreviousRejection(overwritePreviousRejection(reader.stringArray()));
                         break;
                     case "dcmDeleteRejectedInstanceDelay":
                         rn.setDeleteRejectedInstanceDelay(Duration.parse(reader.stringValue()));
@@ -730,6 +779,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             arcDev.addRejectionNote(rn);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private Code[] overwritePreviousRejection(String[] overwritePreviousRejectionAsStringArray) {
+        Code[] overwritePreviousRejectionCodes = new Code[overwritePreviousRejectionAsStringArray.length];
+        for (int i = 0; i < overwritePreviousRejectionAsStringArray.length; i++) {
+            overwritePreviousRejectionCodes[i] = new Code(overwritePreviousRejectionAsStringArray[i]);
+        }
+        return overwritePreviousRejectionCodes;
     }
 
     @Override

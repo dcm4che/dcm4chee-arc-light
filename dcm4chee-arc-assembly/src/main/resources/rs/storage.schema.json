@@ -38,6 +38,14 @@
         "type": "string"
       }
     },
+    "dcmDeleterThreshold": {
+      "title": "Deleter Threshold",
+      "description": "Minimal Usable Space on Storage System. If present, studies are deleted from the Storage System, if the usable space fall below that value. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "dcmProperty": {
       "title": "Storage Property",
       "description": "Property in format <name>=<value>",

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.conf.api.AttributeCoercion;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
@@ -73,6 +74,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -157,7 +161,7 @@ public class ArchiveDeviceConfigurationTest {
         try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
             arc2 = jsonConfig.loadDeviceFrom(Json.createParser(reader), configDelegate);
         }
-//        assertDeviceEquals(arc, arc2);
+        assertDeviceEquals(arc, arc2);
     }
 
     private final ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
@@ -172,7 +176,7 @@ public class ArchiveDeviceConfigurationTest {
     private void assertDeviceEquals(Device expected, Device actual) {
         assertEquals(expected.getDeviceName(), actual.getDeviceName());
         assertEqualsArchiveDeviceExtension(expected.getDeviceExtension(ArchiveDeviceExtension.class),
-                expected.getDeviceExtension(ArchiveDeviceExtension.class));
+                actual.getDeviceExtension(ArchiveDeviceExtension.class));
         assertAEEquals(expected.getApplicationEntity("DCM4CHEE"), actual.getApplicationEntity("DCM4CHEE"));
     }
 
@@ -205,8 +209,9 @@ public class ArchiveDeviceConfigurationTest {
 
     private void assertEqualsArchiveDeviceExtension(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
         assertNotNull(actual);
-        assertEquals(expected.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID),
-                actual.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID));
+//        assertEquals(expected.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID),
+//                actual.getStorageDescriptor(ArchiveDeviceFactory.STORAGE_ID));
+        assertEquals(expected.getStorageID(), actual.getStorageID());
         assertEquals(expected.getFuzzyAlgorithmClass(), actual.getFuzzyAlgorithmClass());
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
         assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
@@ -228,10 +233,96 @@ public class ArchiveDeviceConfigurationTest {
         assertEquals(expected.getExportTaskFetchSize(), actual.getExportTaskFetchSize());
         assertEquals(expected.getPurgeStoragePollingInterval(), actual.getPurgeStoragePollingInterval());
         assertEquals(expected.getPurgeStorageFetchSize(), actual.getPurgeStorageFetchSize());
+        assertEquals(expected.getDeleteStudyBatchSize(), actual.getDeleteStudyBatchSize());
         assertEquals(expected.getDeleteRejectedPollingInterval(), actual.getDeleteRejectedPollingInterval());
         assertEquals(expected.getDeleteRejectedFetchSize(), actual.getDeleteRejectedFetchSize());
+        assertEquals(expected.getMaxAccessTimeStaleness(), actual.getMaxAccessTimeStaleness());
         assertEquals(expected.getPatientUpdateTemplateURI(), actual.getPatientUpdateTemplateURI());
         assertEquals(expected.getUnzipVendorDataToURI(), actual.getUnzipVendorDataToURI());
+        assertChildren(expected, actual);
+    }
+
+    private String[] toStrings(Map<String, ?> props) {
+        String[] ss = new String[props.size()];
+        int i = 0;
+        for (Map.Entry<String, ?> entry : props.entrySet())
+            ss[i++] = entry.getKey() + '=' + entry.getValue();
+        return ss;
+    }
+
+    private void assertChildren(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
+        for (Entity entity : Entity.values()) {
+            AttributeFilter expectedAF = expected.getAttributeFilter(entity);
+            AttributeFilter actualAF = actual.getAttributeFilter(entity);
+            assertArrayEquals(expectedAF.getSelection(), actualAF.getSelection());
+            assertEquals(expectedAF.getCustomAttribute1().toString(), actualAF.getCustomAttribute1().toString());
+            assertEquals(expectedAF.getCustomAttribute2().toString(), actualAF.getCustomAttribute2().toString());
+            assertEquals(expectedAF.getCustomAttribute3().toString(), actualAF.getCustomAttribute3().toString());
+        }
+        for (StorageDescriptor sd : expected.getStorageDescriptors()) {
+            StorageDescriptor expectedSD = expected.getStorageDescriptor(sd.getStorageID());
+            StorageDescriptor actualSD = actual.getStorageDescriptor(sd.getStorageID());
+            assertEquals(expectedSD.getStorageID(), actualSD.getStorageID());
+            assertEquals(expectedSD.getStorageURI(), actualSD.getStorageURI());
+            assertEquals(expectedSD.getDigestAlgorithm(), actualSD.getDigestAlgorithm());
+            assertArrayEquals(expectedSD.getRetrieveAETitles(), actualSD.getRetrieveAETitles());
+            assertEquals(expectedSD.getInstanceAvailability(), actualSD.getInstanceAvailability());
+            assertArrayEquals(expectedSD.getDeleterThresholdsAsStrings(), actualSD.getDeleterThresholdsAsStrings());
+            assertArrayEquals(toStrings(expectedSD.getProperties()), toStrings(actualSD.getProperties()));
+        }
+
+        for (QueryRetrieveView qrv : actual.getQueryRetrieveViews()) {
+            QueryRetrieveView expectedQRV = expected.getQueryRetrieveView(qrv.getViewID());
+            QueryRetrieveView actualQRV = actual.getQueryRetrieveView(qrv.getViewID());
+            assertEquals(expectedQRV.getViewID(), actualQRV.getViewID());
+            assertArrayEquals(expectedQRV.getShowInstancesRejectedByCodes(), actualQRV.getShowInstancesRejectedByCodes());
+            assertArrayEquals(expectedQRV.getHideRejectionNotesWithCodes(), actualQRV.getHideRejectionNotesWithCodes());
+            assertEquals(expectedQRV.isHideNotRejectedInstances(), actualQRV.isHideNotRejectedInstances());
+        }
+
+        for (QueueDescriptor qd : expected.getQueueDescriptors()) {
+            QueueDescriptor expectedQD = expected.getQueueDescriptor(qd.getQueueName());
+            QueueDescriptor actualQD = actual.getQueueDescriptor(qd.getQueueName());
+            assertEquals(expectedQD.getQueueName(), actualQD.getQueueName());
+            assertEquals(expectedQD.getJndiName(), actualQD.getJndiName());
+            assertEquals(expectedQD.getDescription(), actualQD.getDescription());
+            assertEquals(expectedQD.getMaxRetries(), actualQD.getMaxRetries());
+            assertEquals(expectedQD.getRetryDelay(), actualQD.getRetryDelay());
+            assertEquals(expectedQD.getMaxRetryDelay(), actualQD.getMaxRetryDelay());
+            assertEquals(expectedQD.getRetryDelayMultiplier(), actualQD.getRetryDelayMultiplier());
+        }
+        for (ExporterDescriptor ed : expected.getExporterDescriptors()) {
+            ExporterDescriptor expectedED = expected.getExporterDescriptor(ed.getExporterID());
+            ExporterDescriptor actualED = actual.getExporterDescriptor(ed.getExporterID());
+            assertEquals(expectedED.getExporterID(), actualED.getExporterID());
+            assertEquals(expectedED.getExportURI(), actualED.getExportURI());
+            assertEquals(expectedED.getQueueName(), actualED.getQueueName());
+            assertEquals(expectedED.getAETitle(), actualED.getAETitle());
+            assertArrayEquals(expectedED.getSchedules(), actualED.getSchedules());
+            assertArrayEquals(toStrings(expectedED.getProperties()), toStrings(actualED.getProperties()));
+        }
+//        for (ExportRule er : expected.getExportRules()) {
+//
+//        }
+//collections.sort,, comparator
+//        for (ArchiveCompressionRule acr : expected.getCompressionRules()) {
+//
+//        }
+//        for(AttributeCoercion ac : expected.getAttributeCoercions()) {
+//            AttributeCoercion expectedAC = ac.
+//        }
+
+        for (RejectionNote rn : expected.getRejectionNotes()) {
+            RejectionNote expectedRN = expected.getRejectionNote(rn.getRejectionNoteLabel());
+            RejectionNote actualRN = actual.getRejectionNote(rn.getRejectionNoteLabel());
+            assertEquals(expectedRN.getRejectionNoteCode(), actualRN.getRejectionNoteCode());
+            assertEquals(expectedRN.getRejectionNoteLabel(), actualRN.getRejectionNoteLabel());
+            assertEquals(expectedRN.isRevokeRejection(), actualRN.isRevokeRejection());
+            assertEquals(expectedRN.getAcceptPreviousRejectedInstance(), actualRN.getAcceptPreviousRejectedInstance());
+            assertArrayEquals(expectedRN.getOverwritePreviousRejection(), actualRN.getOverwritePreviousRejection());
+            assertEquals(expectedRN.getDeleteRejectedInstanceDelay(), actualRN.getDeleteRejectedInstanceDelay());
+            assertEquals(expectedRN.getDeleteRejectionNoteDelay(), actualRN.getDeleteRejectionNoteDelay());
+        }
     }
 
     private void cleanUp() throws Exception {

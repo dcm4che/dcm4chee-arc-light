@@ -355,7 +355,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.59 NAME 'dcmMaxAccessTimeStaleness'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.60 NAME 'dcmDeletePatientOnDeleteLastStudy'
-  DESC 'Specifies if a Patient shall be deleted on deletation of its last study; disabled if absent.'
+  DESC 'Specifies if a Patient shall be deleted on deletion of its last study; disabled if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )

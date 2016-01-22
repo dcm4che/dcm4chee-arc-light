@@ -125,16 +125,32 @@
       "type": "integer",
       "minimum": 100
     },
+    "dcmDeleteStudyBatchSize": {
+      "title": "Delete Study Batch Size",
+      "description": "number of studies to delete from the Storage System, if the usable space fall below configured Usable Space, before checking the usable space again; 10 if absent",
+      "type": "integer",
+      "minimum": 10
+    },
+    "dcmDeletePatientOnDeleteLastStudy": {
+      "title": "Delete Patient On Delete Last Study",
+      "description": "Specifies if a Patient shall be deleted on deletion of its last study; disabled if absent.",
+      "type": "boolean"
+    },
     "dcmDeleteRejectedPollingInterval": {
       "title": "Delete Rejected Polling Interval",
       "description": "Polling Interval for deleting rejected instances from the DB in ISO-8601 duration format PnDTnHnMn.nS",
       "type": "string"
     },
     "dcmDeleteRejectedFetchSize": {
-      "title": "dcmDeleteRejectedFetchSize",
+      "title": "Delete Rejected Fetch Size",
       "description": "Maximal number of rejected instances to delete from the DB in one task; 100 if absent",
       "type": "integer",
       "minimum": 100
+    },
+    "dcmMaxAccessTimeStaleness": {
+      "title": "Maximum Access Time Staleness",
+      "description": "Maximal staleness of recorded study accession time in ISO-8601 duration format PnDTnHnMn.nS. update of the access time disabled, if absent.",
+      "type": "string"
     },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",

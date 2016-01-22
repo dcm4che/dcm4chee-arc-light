@@ -64,7 +64,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration sendPendingCMoveInterval;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
-    private String[] mppsForwardDestinations;
+    private String[] mppsForwardDestinations = {};
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
     private MoveForwardLevel fallbackCMoveSCPLevel;
