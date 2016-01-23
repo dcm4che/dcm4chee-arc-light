@@ -298,10 +298,19 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.59 NAME 'dcmMaxAccessTimeStaleness'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.60 NAME 'dcmDeletePatientOnDeleteLastStudy'
-  DESC 'Specifies if a Patient shall be deleted on deletation of its last study; disabled if absent.'
+  DESC 'Specifies if a Patient shall be deleted on deletion of its last study; disabled if absent.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.61 NAME 'dcmStoreAccessControlID'
+  DESC 'AccessContolID assigned to Studies received by this AE'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.62 NAME 'dcmAccessControlID'
+  DESC 'AccessContolIDs assigned to Query/Retrieve requests received by this AE'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -341,6 +350,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   SUP top AUXILIARY
   MAY (
     dcmStorageID $
+    dcmStoreAccessControlID $
+    dcmAccessControlID $
     dcmOverwritePolicy $
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $

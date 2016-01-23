@@ -72,6 +72,10 @@ public class QueryParam {
         return arcAE.getApplicationEntity().getAETitle();
     }
 
+    public String[] getAccessControlIDs() {
+        return arcAE.getAccessControlIDs();
+    }
+
     public boolean isMatchUnknown() {
         return arcAE.queryMatchUnknown();
     }

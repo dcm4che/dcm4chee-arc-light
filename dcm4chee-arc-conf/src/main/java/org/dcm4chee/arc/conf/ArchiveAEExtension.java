@@ -55,6 +55,8 @@ import java.util.*;
  */
 public class ArchiveAEExtension extends AEExtension {
     private String storageID;
+    private String storeAccessControlID;
+    private String[] accessControlIDs = {};
     private OverwritePolicy overwritePolicy;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
@@ -86,6 +88,22 @@ public class ArchiveAEExtension extends AEExtension {
         return storageID != null
                 ? storageID
                 : getArchiveDeviceExtension().getStorageID();
+    }
+
+    public String getStoreAccessControlID() {
+        return storeAccessControlID;
+    }
+
+    public void setStoreAccessControlID(String storeAccessControlID) {
+        this.storeAccessControlID = storeAccessControlID;
+    }
+
+    public String[] getAccessControlIDs() {
+        return accessControlIDs;
+    }
+
+    public void setAccessControlIDs(String[] accessControlIDs) {
+        this.accessControlIDs = accessControlIDs;
     }
 
     public OverwritePolicy getOverwritePolicy() {
@@ -353,6 +371,9 @@ public class ArchiveAEExtension extends AEExtension {
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
+        storageID = aeExt.storageID;
+        storeAccessControlID = aeExt.storeAccessControlID;
+        accessControlIDs = aeExt.accessControlIDs;
         storageID = aeExt.storageID;
         overwritePolicy = aeExt.overwritePolicy;
         bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;

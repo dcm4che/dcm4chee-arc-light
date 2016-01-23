@@ -57,6 +57,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -254,6 +255,7 @@ public class QueryBuilder {
     public static void addStudyLevelPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam) {
         boolean matchUnknown = queryParam.isMatchUnknown();
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
+        builder.and(accessControl(queryParam.getAccessControlIDs()));
         builder.and(uidsPredicate(QStudy.study.studyInstanceUID, keys.getStrings(Tag.StudyInstanceUID), false));
         builder.and(wildCard(QStudy.study.studyID, keys.getString(Tag.StudyID, "*"), matchUnknown, false));
         builder.and(MatchDateTimeRange.rangeMatch(
@@ -284,6 +286,16 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), matchUnknown, true));
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), matchUnknown, true));
+    }
+
+    public static Predicate accessControl(String[] accessControlIDs) {
+        if (accessControlIDs.length == 0)
+            return null;
+
+        String[] a = new String[accessControlIDs.length + 1];
+        a[0] = "*";
+        System.arraycopy(accessControlIDs, 0, a, 1, accessControlIDs.length);
+        return QStudy.study.accessControlID.in(accessControlIDs);
     }
 
     public static HibernateQuery<Tuple> applySeriesLevelJoins(

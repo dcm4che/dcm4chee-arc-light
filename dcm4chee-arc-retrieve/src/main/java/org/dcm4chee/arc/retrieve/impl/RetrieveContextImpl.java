@@ -66,7 +66,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RetrieveContextImpl implements RetrieveContext {
     private final RetrieveService retrieveService;
-    private final ApplicationEntity ae;
+    private final ArchiveAEExtension arcAE;
     private final QueryRetrieveView qrView;
     private int priority = Priority.NORMAL;
     private int moveOriginatorMessageID;
@@ -89,8 +89,8 @@ public class RetrieveContextImpl implements RetrieveContext {
 
     public RetrieveContextImpl(RetrieveService retrieveService, ApplicationEntity ae) {
         this.retrieveService = retrieveService;
-        this.ae = ae;
-        this.qrView = getArchiveAEExtension().getQueryRetrieveView();
+        this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        this.qrView = arcAE.getQueryRetrieveView();
     }
 
     @Override
@@ -100,12 +100,17 @@ public class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public ApplicationEntity getLocalApplicationEntity() {
-        return ae;
+        return arcAE.getApplicationEntity();
     }
 
     @Override
     public ArchiveAEExtension getArchiveAEExtension() {
-        return ae.getAEExtension(ArchiveAEExtension.class);
+        return arcAE;
+    }
+
+    @Override
+    public String[] getAccessControlIDs() {
+        return arcAE.getAccessControlIDs();
     }
 
     @Override

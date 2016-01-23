@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 
 import javax.persistence.*;
@@ -90,6 +91,7 @@ import java.util.Date;
     uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
     indexes = {
         @Index(columnList = "access_time"),
+        @Index(columnList = "access_control_id"),
         @Index(columnList = "study_date"),
         @Index(columnList = "study_time"),
         @Index(columnList = "accession_no"),
@@ -170,8 +172,9 @@ public class Study {
     @Column(name = "study_custom3")
     private String studyCustomAttribute3;
 
+    @Basic(optional = false)
     @Column(name = "access_control_id")
-    private String accessControlID;
+    private String accessControlID = "*";
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -306,11 +309,11 @@ public class Study {
     }
 
     public String getAccessControlID() {
-        return accessControlID;
+        return StringUtils.nullify(accessControlID, "*");
     }
 
     public void setAccessControlID(String accessControlID) {
-        this.accessControlID = accessControlID;
+        this.accessControlID = StringUtils.maskNull(accessControlID, "*");
     }
 
     public Collection<CodeEntity> getProcedureCodes() {

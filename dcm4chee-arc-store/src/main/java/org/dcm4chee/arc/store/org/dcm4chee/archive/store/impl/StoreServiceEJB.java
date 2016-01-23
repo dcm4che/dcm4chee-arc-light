@@ -397,10 +397,12 @@ public class StoreServiceEJB {
 
     private Study createStudy(StoreContext ctx, Patient patient) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
         Attributes attrs = ctx.getAttributes();
         Study study = new Study();
+        study.setAccessControlID(arcAE.getStoreAccessControlID());
         study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), fuzzyStr);
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);

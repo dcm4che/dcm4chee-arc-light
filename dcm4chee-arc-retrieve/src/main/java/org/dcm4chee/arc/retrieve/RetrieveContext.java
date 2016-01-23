@@ -61,6 +61,8 @@ public interface RetrieveContext extends Closeable {
 
     ArchiveAEExtension getArchiveAEExtension();
 
+    String[] getAccessControlIDs();
+
     QueryRetrieveView getQueryRetrieveView();
 
     boolean isHideNotRejectedInstances();

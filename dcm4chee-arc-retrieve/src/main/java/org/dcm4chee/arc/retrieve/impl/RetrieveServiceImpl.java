@@ -311,6 +311,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QueryBuilder.patientIDPredicate(pids, false));
+        predicate.and(QueryBuilder.accessControl(ctx.getAccessControlIDs()));
         predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs(), false));
         predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs(), false));
         predicate.and(QueryBuilder.uidsPredicate(QInstance.instance.sopInstanceUID, ctx.getSopInstanceUIDs(), false));
