@@ -118,11 +118,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (Entity entity : Entity.values()) {
             writer.writeStartObject();
             writer.writeNotNull("dcmEntity", entity.name());
-            Integer[] selection = new Integer[arcDev.getAttributeFilter(entity).getSelection().length];
-            for (int i = 0; i < arcDev.getAttributeFilter(entity).getSelection().length; i++) {
-                selection[i] = Integer.valueOf(arcDev.getAttributeFilter(entity).getSelection()[i]);
-            }
-            writer.writeNotEmpty("dcmTag", selection);
+            writer.writeNotEmpty("dcmTag", arcDev.getAttributeFilter(entity).getSelection());
             writer.writeNotNull("dcmCustomAttribute1", arcDev.getAttributeFilter(entity).getCustomAttribute1());
             writer.writeNotNull("dcmCustomAttribute2", arcDev.getAttributeFilter(entity).getCustomAttribute2());
             writer.writeNotNull("dcmCustomAttribute3", arcDev.getAttributeFilter(entity).getCustomAttribute3());
@@ -447,7 +443,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         entity = Entity.valueOf(reader.stringValue());
                         break;
                     case "dcmTag":
-                        af.setSelection(tags(reader.stringArray()));
+                        af.setSelection(reader.intArray());
                         break;
                     case "dcmCustomAttribute1":
                         af.setCustomAttribute1(ValueSelector.valueOf(reader.stringValue()));
@@ -466,14 +462,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             arcDev.setAttributeFilter(entity, af);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
-    }
-
-    private int[] tags(String[] tagsAsStringArray) {
-        int[] selection = new int[tagsAsStringArray.length];
-        for (int i = 0; i < tagsAsStringArray.length; i++) {
-            selection[i] = Integer.parseInt(tagsAsStringArray[i]);
-        }
-        return selection;
     }
 
     private void loadStorageDescriptorFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {

@@ -66,6 +66,11 @@ import static org.dcm4che3.net.TransferCapability.Role.SCU;
  * @since Jul 2015
  */
 class ArchiveDeviceFactory {
+    enum ConfigType {
+        INIT,
+        SAMPLE,
+        TEST
+    }
     static final String[] OTHER_DEVICES = {
             "dcmqrscp",
             "stgcmtscu",
@@ -705,7 +710,7 @@ class ArchiveDeviceFactory {
         hl7app.addConnection(hl7TLS);
         return device;
     }
-    public Device createArchiveDevice(String name, Device arrDevice, ArchiveDeviceConfigurationTest.ConfigType configType) throws Exception {
+    public Device createArchiveDevice(String name, Device arrDevice, ConfigType configType) throws Exception {
         Device device = new Device(name);
 
         Connection dicom = new Connection("dicom", "localhost", 11112);
@@ -778,7 +783,7 @@ class ArchiveDeviceFactory {
     }
 
     private static ArchiveAttributeCoercion createAttributeCoercion(
-            String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI, ArchiveDeviceConfigurationTest.ConfigType configType) {
+            String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI, ConfigType configType) {
         ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
         coercion.setAETitles(aet);
         coercion.setRole(role);
@@ -805,7 +810,7 @@ class ArchiveDeviceFactory {
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
     }
 
-    private static void addHL7DeviceExtension(Device device, ArchiveDeviceConfigurationTest.ConfigType configType) {
+    private static void addHL7DeviceExtension(Device device, ConfigType configType) {
         HL7DeviceExtension ext = new HL7DeviceExtension();
         device.addDeviceExtension(ext);
 
@@ -836,7 +841,7 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static void addArchiveDeviceExtension(Device device, ArchiveDeviceConfigurationTest.ConfigType configType) {
+    private static void addArchiveDeviceExtension(Device device, ConfigType configType) {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
@@ -965,7 +970,7 @@ class ArchiveDeviceFactory {
 
     private static RejectionNote createRejectionNote(String rejectionNoteLabel, Code rejectionNoteCode,
                                                      RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
-                                                     ArchiveDeviceConfigurationTest.ConfigType configType, Code... overwritePreviousRejection) {
+                                                     ConfigType configType, Code... overwritePreviousRejection) {
         RejectionNote rjNote = new RejectionNote(rejectionNoteLabel);
         rjNote.setRejectionNoteCode(rejectionNoteCode);
         rjNote.setRevokeRejection(rejectionNoteCode == REVOKE_REJECTION);
@@ -981,7 +986,7 @@ class ArchiveDeviceFactory {
 
     private static ApplicationEntity createAE(String aet, String description,
                                               Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
-                                              boolean storeSCP, boolean storeSCU, ArchiveDeviceConfigurationTest.ConfigType configType) {
+                                              boolean storeSCP, boolean storeSCU, ConfigType configType) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -1041,4 +1046,5 @@ class ArchiveDeviceFactory {
         tc.setQueryOptions(queryOpts);
         ae.addTransferCapability(tc);
     }
+
 }

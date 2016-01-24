@@ -46,11 +46,6 @@ import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
-import org.dcm4che3.conf.json.audit.JsonAuditLoggerConfiguration;
-import org.dcm4che3.conf.json.audit.JsonAuditRecordRepositoryConfiguration;
-import org.dcm4che3.conf.json.hl7.JsonHL7Configuration;
-import org.dcm4che3.conf.json.imageio.JsonImageReaderConfiguration;
-import org.dcm4che3.conf.json.imageio.JsonImageWriterConfiguration;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
@@ -66,8 +61,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -104,16 +97,12 @@ public class ArchiveDeviceConfigurationTest {
         config.close();
     }
 
-    enum ConfigType {
-        INIT,
-        SAMPLE,
-        TEST
-    }
-
     @Test
     public void testPersist() throws Exception {
-        ConfigType configType = ConfigType.valueOf(System.getProperty("configType", ConfigType.INIT.toString()));
-        if (configType == ConfigType.SAMPLE) {
+        ArchiveDeviceFactory.ConfigType configType =
+                ArchiveDeviceFactory.ConfigType.valueOf(
+                        System.getProperty("configType", ArchiveDeviceFactory.ConfigType.INIT.name()));
+        if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE) {
             for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
                 String aet = ArchiveDeviceFactory.OTHER_AES[i];
                 config.registerAETitle(aet);
@@ -137,7 +126,7 @@ public class ArchiveDeviceConfigurationTest {
         config.persist(arrDevice);
         config.registerAETitle("DCM4CHEE");
 
-        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, ConfigType.SAMPLE);
+        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, configType);
         config.persist(arc);
         ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
         assertNotNull(ae);
@@ -147,7 +136,7 @@ public class ArchiveDeviceConfigurationTest {
     @Test
     public void testJsonPersist() throws Exception {
         Device arrDevice = factory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
-        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, ConfigType.TEST);
+        Device arc = factory.createArchiveDevice("dcm4chee-arc", arrDevice, ArchiveDeviceFactory.ConfigType.TEST);
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
         Path path = Paths.get("target/device.json");
         try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
@@ -254,9 +243,9 @@ public class ArchiveDeviceConfigurationTest {
             AttributeFilter expectedAF = expected.getAttributeFilter(entity);
             AttributeFilter actualAF = actual.getAttributeFilter(entity);
             assertArrayEquals(expectedAF.getSelection(), actualAF.getSelection());
-            assertEquals(expectedAF.getCustomAttribute1().toString(), actualAF.getCustomAttribute1().toString());
-            assertEquals(expectedAF.getCustomAttribute2().toString(), actualAF.getCustomAttribute2().toString());
-            assertEquals(expectedAF.getCustomAttribute3().toString(), actualAF.getCustomAttribute3().toString());
+            assertEquals(expectedAF.getCustomAttribute1(), actualAF.getCustomAttribute1());
+            assertEquals(expectedAF.getCustomAttribute2(), actualAF.getCustomAttribute2());
+            assertEquals(expectedAF.getCustomAttribute3(), actualAF.getCustomAttribute3());
         }
         for (StorageDescriptor sd : expected.getStorageDescriptors()) {
             StorageDescriptor expectedSD = expected.getStorageDescriptor(sd.getStorageID());

@@ -74,13 +74,15 @@ public class LdapArchiveConfigurationFactory {
     private static final String LDAP_PROPERTIES = "ldap.properties";
     private static final String JBOSS_SERVER_CONFIG_DIR = "jboss.server.config.dir";
 
-    private static final LdapDicomConfigurationExtension[] configExts = {
-            new LdapAuditLoggerConfiguration(),
-            new LdapAuditRecordRepositoryConfiguration(),
-            new LdapImageReaderConfiguration(),
-            new LdapImageWriterConfiguration(),
-            new LdapArchiveConfiguration(),
-            newLdapHL7Configuration()
+    private static final LdapDicomConfigurationExtension[] configExts() {
+        return new LdapDicomConfigurationExtension[]{
+                new LdapAuditLoggerConfiguration(),
+                new LdapAuditRecordRepositoryConfiguration(),
+                new LdapImageReaderConfiguration(),
+                new LdapImageWriterConfiguration(),
+                new LdapArchiveConfiguration(),
+                newLdapHL7Configuration()
+        };
     };
 
     @Resource(lookup="java:app/AppName")
@@ -104,7 +106,7 @@ public class LdapArchiveConfigurationFactory {
     public static LdapDicomConfiguration newLdapDicomConfiguration(Hashtable<?, ?> env)
             throws ConfigurationException {
         LdapDicomConfiguration config = new LdapDicomConfiguration(env);
-        for (LdapDicomConfigurationExtension ext : configExts) {
+        for (LdapDicomConfigurationExtension ext : configExts()) {
             config.addDicomConfigurationExtension(ext);
         }
         return config;
