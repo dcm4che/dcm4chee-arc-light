@@ -237,7 +237,7 @@ class Assert {
             assertEquals(expectedACR.getCommonName(), actualACR.getCommonName());
             assertEquals(expectedACR.getTransferSyntax(), actualACR.getTransferSyntax());
             assertEquals(expectedACR.getPriority(), actualACR.getPriority());
-            assertEquals(expectedACR.getConditions().toString(), actualACR.getConditions().toString());
+            assertEquals(expectedACR.getConditions(), actualACR.getConditions());
             assertArrayEquals(expectedACR.getImageWriteParams(), actualACR.getImageWriteParams());
         }
     }

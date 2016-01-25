@@ -107,4 +107,12 @@ public class Conditions {
     public String toString() {
         return map.toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Conditions))
+            return false;
+
+        return toString().equals(obj.toString());
+    }
 }
