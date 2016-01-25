@@ -248,7 +248,7 @@ class Assert {
         Comparator<ArchiveAttributeCoercion> archiveAttributeCoercion = new Comparator<ArchiveAttributeCoercion>() {
             @Override
             public int compare(ArchiveAttributeCoercion expectedAAC, ArchiveAttributeCoercion actualAAC) {
-                return expectedAAC.hashCode() - actualAAC.hashCode();
+                return expectedAAC.getPriority() - actualAAC.getPriority();
             }
         };
         Collections.sort(expectedAACList, archiveAttributeCoercion);
