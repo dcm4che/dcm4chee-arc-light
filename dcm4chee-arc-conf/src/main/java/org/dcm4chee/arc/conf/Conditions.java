@@ -7,6 +7,7 @@ import org.dcm4che3.util.TagUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 /**
@@ -22,7 +23,7 @@ public class Conditions {
     private Pattern receivingAETPattern;
     private Pattern sendingAETPattern;
     private Pattern sendingHostnamePattern;
-    private final Map<String, Pattern> map = new HashMap<>();
+    private final Map<String, Pattern> map = new TreeMap<>();
 
     public Conditions(String... props) {
          for (String s : props) {

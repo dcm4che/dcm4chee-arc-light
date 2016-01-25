@@ -77,7 +77,7 @@ import static org.junit.Assert.assertNotNull;
 public class ArchiveDeviceJsonConfigurationTest {
 
     @Test
-    public void testJsrsist() throws Exception {
+    public void testJsonPersist() throws Exception {
         Device arrDevice = ArchiveDeviceFactory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
         Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice,
                 ArchiveDeviceFactory.ConfigType.TEST);
