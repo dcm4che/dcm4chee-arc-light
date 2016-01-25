@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
@@ -54,8 +53,6 @@ import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.dcm4che3.util.Property;
 
 import java.net.URI;
-import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 import java.util.EnumSet;
 
 import static org.dcm4che3.net.TransferCapability.Role.SCP;
@@ -632,15 +629,7 @@ class ArchiveDeviceFactory {
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
     static final int DELETE_REJECTED_FETCH_SIZE = 10;
 
-    private final KeyStore keyStore;
-    private final DicomConfiguration config;
-
-    public ArchiveDeviceFactory(KeyStore keyStore, DicomConfiguration config) {
-        this.keyStore = keyStore;
-        this.config = config;
-    }
-
-    public Device createARRDevice(String name, Connection.Protocol protocol, int port) {
+    public static Device createARRDevice(String name, Connection.Protocol protocol, int port) {
         Device arrDevice = new Device(name);
         AuditRecordRepository arr = new AuditRecordRepository();
         arrDevice.addDeviceExtension(arr);
@@ -651,17 +640,15 @@ class ArchiveDeviceFactory {
         return arrDevice ;
     }
 
-    public Device createDevice(String name) throws Exception {
+    public static Device createDevice(String name) throws Exception {
         return init(new Device(name), null, null);
     }
 
-    public Device createDevice(String name, Issuer issuer, Code institutionCode) throws Exception {
+    public static Device createDevice(String name, Issuer issuer, Code institutionCode) throws Exception {
         return init(new Device(name), issuer, institutionCode);
     }
 
-    private Device init(Device device, Issuer issuer, Code institutionCode) throws Exception {
-        String name = device.getDeviceName();
-        device.setThisNodeCertificates(config.deviceRef(name), (X509Certificate) keyStore.getCertificate(name));
+    private static Device init(Device device, Issuer issuer, Code institutionCode) throws Exception {
         device.setIssuerOfPatientID(issuer);
         device.setIssuerOfAccessionNumber(issuer);
         if (institutionCode != null) {
@@ -671,7 +658,7 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public Device createDevice(String name, Issuer issuer, Code institutionCode, String aet,
+    public static Device createDevice(String name, Issuer issuer, Code institutionCode, String aet,
                                String host, int port, int tlsPort) throws Exception {
         Device device = init(new Device(name), issuer, institutionCode);
         ApplicationEntity ae = new ApplicationEntity(aet);
@@ -689,7 +676,7 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public Device createHL7Device(String name, Issuer issuer, Code institutionCode, String appName,
+    public static Device createHL7Device(String name, Issuer issuer, Code institutionCode, String appName,
                                      String host, int port, int tlsPort) throws Exception {
         Device device = new Device(name);
         HL7DeviceExtension hl7Device = new HL7DeviceExtension();
@@ -710,7 +697,7 @@ class ArchiveDeviceFactory {
         hl7app.addConnection(hl7TLS);
         return device;
     }
-    public Device createArchiveDevice(String name, Device arrDevice, ConfigType configType) throws Exception {
+    public static Device createArchiveDevice(String name, Device arrDevice, ConfigType configType) throws Exception {
         Device device = new Device(name);
 
         Connection dicom = new Connection("dicom", "localhost", 11112);
@@ -745,12 +732,6 @@ class ArchiveDeviceFactory {
         device.setKeyStoreURL(DCM4CHEE_ARC_KEY_JKS);
         device.setKeyStoreType("JKS");
         device.setKeyStorePin("secret");
-        device.setThisNodeCertificates(config.deviceRef(name),
-                (X509Certificate) keyStore.getCertificate(name));
-        if (configType == configType.SAMPLE)
-            for (String other : OTHER_DEVICES)
-                device.setAuthorizedNodeCertificates(config.deviceRef(other),
-                        (X509Certificate) keyStore.getCertificate(other));
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, configType));
