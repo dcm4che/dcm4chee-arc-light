@@ -86,7 +86,7 @@ public class ArchiveDeviceConfigurationTest {
     public void testPersist() throws Exception {
         ArchiveDeviceFactory.ConfigType configType =
                 ArchiveDeviceFactory.ConfigType.valueOf(
-                        System.getProperty("configType", ArchiveDeviceFactory.ConfigType.INIT.name()));
+                        System.getProperty("configType", ArchiveDeviceFactory.ConfigType.DEFAULT.name()));
         if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE) {
             for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
                 String aet = ArchiveDeviceFactory.OTHER_AES[i];

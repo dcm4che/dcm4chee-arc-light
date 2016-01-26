@@ -65,7 +65,7 @@ import static org.dcm4che3.net.TransferCapability.Role.SCU;
  */
 class ArchiveDeviceFactory {
     enum ConfigType {
-        INIT,
+        DEFAULT,
         SAMPLE,
         TEST
     }
@@ -438,8 +438,7 @@ class ArchiveDeviceFactory {
     static final String[] SR_TSUIDS = {
             UID.ImplicitVRLittleEndian,
             UID.ExplicitVRLittleEndian,
-            UID.DeflatedExplicitVRLittleEndian,
-            UID.ExplicitVRBigEndianRetired,
+            UID.DeflatedExplicitVRLittleEndian
     };
 
     static final String[] OTHER_CUIDS = {
@@ -534,7 +533,11 @@ class ArchiveDeviceFactory {
             UID.PrivateSiemensCTMRVolumeStorage,
             UID.PrivateTomTecAnnotationStorage
     };
-    static final String[] OTHER_TSUIDS = SR_TSUIDS;
+
+    static final String[] OTHER_TSUIDS = {
+            UID.ImplicitVRLittleEndian,
+            UID.ExplicitVRLittleEndian
+    };
 
     static final String[][] CUIDS_TSUIDS = {
             IMAGE_CUIDS, IMAGE_TSUIDS,
@@ -1071,7 +1074,6 @@ class ArchiveDeviceFactory {
             aeExt.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
             aeExt.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
             aeExt.setFallbackCMoveSCPDestination("DCM4CHEE");
-            aeExt.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
             aeExt.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
             aeExt.setAlternativeCMoveSCP("DCM4CHEE");
         }
