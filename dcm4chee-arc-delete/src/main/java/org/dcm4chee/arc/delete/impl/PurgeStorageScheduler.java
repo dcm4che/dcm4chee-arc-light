@@ -153,7 +153,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 try {
                     storage.deleteObject(location.getStoragePath());
                     ejb.removeLocation(location);
-                    LOG.info("Successfully delete {} from {}", location, desc.getStorageURI());
+                    LOG.debug("Successfully delete {} from {}", location, desc.getStorageURI());
                 } catch (IOException e) {
                     ejb.failedToDelete(location);
                     LOG.warn("Failed to delete {} from {}", location, desc.getStorageURI(), e);
