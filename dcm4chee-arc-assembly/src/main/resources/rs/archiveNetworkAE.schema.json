@@ -22,8 +22,14 @@
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
       "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.",
-      "type": "array",
-      "items" : { "type": "string" }
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "SAME_SOURCE",
+        "SAME_SERIES",
+        "SAME_SOURCE_AND_SERIES"
+      ]
     },
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
@@ -89,8 +95,12 @@
     "dcmFallbackCMoveSCPLevel": {
       "title": "Fallback C-Move SCP Level",
       "description": "Retrieve Level in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP. Enumerated values: STUDY, SERIES. Use original Retrieve Level if absent",
-      "type": "array",
-      "items" : { "type": "integer" }
+      "type": "string",
+      "enum": [
+        "STUDY",
+        "SERIES",
+        "IMAGE"
+      ]
     },
     "dcmAltCMoveSCP": {
       "title": "AltCMoveSCP",

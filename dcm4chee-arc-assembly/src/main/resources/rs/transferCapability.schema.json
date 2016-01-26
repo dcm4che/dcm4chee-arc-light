@@ -21,6 +21,7 @@
     "dicomTransferRole": {
       "title": "Transfer Role",
       "description": "Either SCU or SCP",
+      "type": "string",
       "enum": [
         "SCP",
         "SCU"

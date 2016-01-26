@@ -10,8 +10,14 @@
     "dcmEntity": {
       "title": "Attribute Entity",
       "description": "Entity of the Attribute Filter or Export Rule ('Patient', 'Study', 'Series', 'Instance', 'MPPS').",
-      "type": "array",
-      "items" : { "type": "string" }
+      "type": "string",
+      "enum": [
+        "Patient",
+        "Study",
+        "Series",
+        "Instance",
+        "MPPS"
+      ]
     },
     "dcmTag": {
       "title": "Attribute Tag",

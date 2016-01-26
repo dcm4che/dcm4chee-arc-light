@@ -25,10 +25,11 @@
     "dcmPatchJPEGLS": {
       "title": "Patch JPEG-LS",
       "description": "Patch JPEG-LS before decompressing: JAI2ISO, ISO2JAI or ISO2JAI_IF_APP_OR_COM",
+      "type": "string",
       "enum": [
-        "JAI2ISO",
-        "ISO2JAI",
-        "ISO2JAI_IF_APP_OR_COM"
+          "JAI2ISO",
+          "ISO2JAI",
+          "ISO2JAI_IF_APP_OR_COM"
       ]
     }
   }

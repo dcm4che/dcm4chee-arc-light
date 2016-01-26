@@ -48,11 +48,12 @@
         "dcmProtocol": {
           "title": "Protocol",
           "description": "Protocol of Network Connection: DICOM, HL7, SYSLOG_TLS or SYSLOG_UDP; DICOM if absent",
+          "type": "string",
           "enum": [
-            "DICOM",
-            "HL7",
-            "SYSLOG_TLS",
-            "SYSLOG_UDP"
+              "DICOM",
+              "HL7",
+              "SYSLOG_TLS",
+              "SYSLOG_UDP"
           ]
         },
         "dcmHTTPProxy": {
@@ -68,7 +69,8 @@
         "dcmTLSProtocol": {
           "title": "TLS Protocol",
           "description": "The Supported TLS Protocols; TLSv1, SSLv3 if absent",
-          "type": [
+          "type": "string",
+          "enum": [
             "TLSv1",
             "SSLv3"
           ]

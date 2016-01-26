@@ -26,8 +26,14 @@
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
       "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.",
-      "type": "array",
-      "items" : { "type": "string" }
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "SAME_SOURCE",
+        "SAME_SERIES",
+        "SAME_SOURCE_AND_SERIES"
+      ]
     },
     "dcmBulkDataSpoolDirectory": {
       "title": "Bulk Data Spool Directory",
@@ -95,8 +101,12 @@
     "dcmFallbackCMoveSCPLevel": {
       "title": "Fallback C-Move SCP Level",
       "description": "Retrieve Level in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP. Enumerated values: STUDY, SERIES. Use original Retrieve Level if absent",
-      "type": "array",
-      "items" : { "type": "integer" }
+      "type": "string",
+      "enum": [
+        "STUDY",
+        "SERIES",
+        "IMAGE"
+      ]
     },
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
@@ -161,6 +171,33 @@
       "title": "Unzip Vendor Data To URI",
       "description": "Specifies URI of directory into which ZIP stream in Device Vendor Data attribute will be extracted",
       "type": "string"
+    },
+    "dcmAttributeFilter": {
+      "$ref": "attributeFilter.schema.json"
+    },
+    "dcmStorage": {
+      "$ref": "storage.schema.json"
+    },
+    "dcmQueryRetrieveView": {
+      "$ref": "queryRetrieveView.dchema.json"
+    },
+    "dcmQueue": {
+      "$ref": "queue.schema.json"
+    },
+    "dcmExporter": {
+      "$ref": "exporter.schema.json"
+    },
+    "dcmExportRule": {
+      "$ref": "dcmExportRule"
+    },
+    "dcmArchiveCompressionRule": {
+      "$ref": "archiveCompressionRule.schema.json"
+    },
+    "dcmArchiveAttributeCoercion": {
+      "$ref": "archiveAttributeCoercion.schema.json"
+    },
+    "dcmRejectionNote": {
+      "$ref": "rejectionNote.schema.json"
     }
   }
 }

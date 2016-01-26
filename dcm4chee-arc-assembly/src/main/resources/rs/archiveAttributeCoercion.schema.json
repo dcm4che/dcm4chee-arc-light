@@ -17,10 +17,12 @@
     "dcmDIMSE": {
       "title": "DIMSE",
       "description": "DIMSE: 'C_STORE_RQ', 'C_FIND_RQ', 'C_FIND_RSP'",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "type": "string",
+      "enum": [
+        "C_STORE_RQ",
+        "C_FIND_RQ",
+        "C_FIND_RSP"
+      ]
     },
     "dicomTransferRole": {
       "title": "DICOM Transfer Role",

@@ -25,13 +25,14 @@
       "status": {
         "title": "Message Status",
         "description": "status of message",
+        "type": "string",
         "enum": [
-          "SCHEDULED",
-          "IN PROCESS",
-          "COMPLETED",
-          "WARNING",
-          "FAILED",
-          "CANCELED"
+            "SCHEDULED",
+            "IN PROCESS",
+            "COMPLETED",
+            "WARNING",
+            "FAILED",
+            "CANCELED"
         ]
       },
       "failures": {

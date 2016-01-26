@@ -260,6 +260,7 @@ class Assert {
             ArchiveAttributeCoercion expectedAAC = expectedAACList.get(i);
             ArchiveAttributeCoercion actualAAC = actualAACList.get(i);
             assertEquals(expectedAAC.getCommonName(), actualAAC.getCommonName());
+            assertEquals(expectedAAC.getDIMSE(), actualAAC.getDIMSE());
             assertEquals(expectedAAC.getXSLTStylesheetURI(), actualAAC.getXSLTStylesheetURI());
             assertEquals(expectedAAC.getPriority(), actualAAC.getPriority());
             assertArrayEquals(expectedAAC.getAETitles(), actualAAC.getAETitles());
