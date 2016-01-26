@@ -49,6 +49,7 @@ import static org.junit.Assert.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2016
  */
 class Assert {
@@ -69,6 +70,8 @@ class Assert {
             return;
         assertNotNull(actual);
         assertEquals(expected.getStorageID(), actual.getStorageID());
+        assertEquals(expected.getStoreAccessControlID(), actual.getStoreAccessControlID());
+        assertArrayEquals(expected.getAccessControlIDs(), actual.getAccessControlIDs());
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
         assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
         assertEquals(expected.getBulkDataSpoolDirectory(), actual.getBulkDataSpoolDirectory());

@@ -8,6 +8,17 @@
       "description": "Storage ID",
       "type": "string"
     },
+    "dcmStoreAccessControlID": {
+      "title": "Store Access Control ID",
+      "description": "Access Contol ID assigned to Studies received by this AE",
+      "type": "string"
+    },
+    "dcmAccessControlID": {
+      "title": "Access Control ID",
+      "description": "Access Contol IDs assigned to Query/Retrieve requests received by this AE",
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
       "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.",

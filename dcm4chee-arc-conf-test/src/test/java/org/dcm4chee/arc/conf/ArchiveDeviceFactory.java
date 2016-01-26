@@ -60,6 +60,7 @@ import static org.dcm4che3.net.TransferCapability.Role.SCU;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 class ArchiveDeviceFactory {
@@ -543,6 +544,11 @@ class ArchiveDeviceFactory {
             "MPPSCP2"
     };
 
+    static final String[] ACCESS_CONTROL_IDS = {
+            "Customer1",
+            "Customer2"
+    };
+
     static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
             "JPEG 8-bit Lossy",
             new Conditions(
@@ -996,6 +1002,8 @@ class ArchiveDeviceFactory {
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         if (configType == configType.TEST) {
             aeExt.setStorageID(STORAGE_ID);
+            aeExt.setStoreAccessControlID("Graz");
+            aeExt.setAccessControlIDs(ACCESS_CONTROL_IDS);
             aeExt.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
             aeExt.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
             aeExt.setQueryMatchUnknown(false);

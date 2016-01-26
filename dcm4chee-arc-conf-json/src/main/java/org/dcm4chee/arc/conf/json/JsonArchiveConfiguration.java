@@ -274,6 +274,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
         writer.writeStartObject("dcmArchiveNetworkAE");
         writer.writeNotNull("dcmStorageID", arcAE.getStorageID());
+        writer.writeNotNull("dcmStoreAccessControlID", arcAE.getStoreAccessControlID());
+        writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
         writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy());
         writer.writeNotNull("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory());
@@ -799,11 +801,17 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStorageID":
                     arcAE.setStorageID(reader.stringValue());
                     break;
-                case "dcmQueryRetrieveViewID":
-                    arcAE.setQueryRetrieveViewID(reader.stringValue());
+                case "dcmStoreAccessControlID":
+                    arcAE.setStoreAccessControlID(reader.stringValue());
+                    break;
+                case "dcmAccessControlID":
+                    arcAE.setAccessControlIDs(reader.stringArray());
                     break;
                 case "dcmOverwritePolicy":
                     arcAE.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmQueryRetrieveViewID":
+                    arcAE.setQueryRetrieveViewID(reader.stringValue());
                     break;
                 case "dcmBulkDataSpoolDirectory":
                     arcAE.setBulkDataSpoolDirectory(reader.stringValue());
