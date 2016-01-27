@@ -121,7 +121,7 @@ public class PurgeStorageScheduler extends Scheduler {
             return 0L;
 
         try (Storage storage = storageFactory.getStorage(desc)) {
-            return Math.max(0L, storage.getUsableSpace() - minUsableSpace);
+            return Math.max(0L, minUsableSpace - storage.getUsableSpace());
         } catch (IOException e) {
             LOG.warn("Failed to determine usable space on {}", desc.getStorageURI(), e);
             return 0;
