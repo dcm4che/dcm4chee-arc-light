@@ -43,6 +43,7 @@ package org.dcm4chee.arc.delete.impl;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Location;
@@ -56,6 +57,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -89,12 +91,18 @@ public class PurgeStorageScheduler extends Scheduler {
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
-            int deletedStudies = 0;
-            do {
-                try {
-                    deletedStudies = deleteStudiesIfDeleterThresholdExceeded(desc, deleteStudyBatchSize, deletePatient);
-                } catch (IOException e) {
-                    LOG.error("Failed to delete studies from {}", desc.getStorageURI(), e);
+            long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
+            long deleteSize = deleteSize(desc, minUsableSpace);
+            List<Long> studyPks = Collections.emptyList();
+            if (deleteSize > 0L) {
+                LOG.info("Usable Space on {} below {} - start deleting {}", desc.getStorageURI(),
+                        BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
+            }
+            for (int i = 0; i == 0 || deleteSize > 0L; i++) {
+                if (deleteSize > 0) {
+                    studyPks = deleteStudy(studyPks, desc, deleteStudyBatchSize, deletePatient);
+                    if (studyPks == null)
+                        deleteSize = 0L;
                 }
                 try {
                     while (deleteNextObjectsFromStorage(desc, fetchSize))
@@ -102,45 +110,35 @@ public class PurgeStorageScheduler extends Scheduler {
                 } catch (IOException e) {
                     LOG.error("Failed to delete objects from {}", desc.getStorageURI(), e);
                 }
-            } while (deletedStudies == deleteStudyBatchSize);
+                if (deleteSize > 0L)
+                    deleteSize = deleteSize(desc, minUsableSpace);
+            } while (deleteSize > 0L);
         }
     }
 
-    private int deleteStudiesIfDeleterThresholdExceeded(StorageDescriptor desc, int fetchSize, boolean deletePatient)
-            throws IOException {
-        if (!desc.hasDeleterThresholds())
-            return 0;
+    private long deleteSize(StorageDescriptor desc, long minUsableSpace) {
+        if (minUsableSpace < 0L)
+            return 0L;
 
-        long minUsableSpace = desc.getMinUsableSpace(Calendar.getInstance());
-        if (minUsableSpace == -1L)
-            return 0;
-
-        long usableSpace;
         try (Storage storage = storageFactory.getStorage(desc)) {
-            usableSpace = storage.getUsableSpace();
-        }
-        if (usableSpace > minUsableSpace)
+            return Math.max(0L, storage.getUsableSpace() - minUsableSpace);
+        } catch (IOException e) {
+            LOG.warn("Failed to determine usable space on {}", desc.getStorageURI(), e);
             return 0;
+        }
+    }
 
-        String storageID = desc.getStorageID();
-        int deleted = 0;
+    private List<Long> deleteStudy(List<Long> studyPks, StorageDescriptor desc, int fetchSize, boolean deletePatient) {
         do {
-            List<Long> studyPks = ejb.findStudiesForDeletionOnStorage(storageID, fetchSize);
             if (studyPks.isEmpty()) {
-                LOG.warn("No studies for deletion found on {} - usableSpace[{}] > minUsableSpace[{}]!",
-                        desc.getStorageURI(), usableSpace, minUsableSpace);
-
-                return 0;
-            }
-            for (Long studyPk : studyPks) {
-                Study study = ejb.removeStudyOnStorage(studyPk, storageID, deletePatient);
-                if (study != null) {
-                    deleted++;
-                    LOG.info("Successfully delete {} on {} from database", study, desc.getStorageURI());
+                studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+                if (studyPks.isEmpty()) {
+                    LOG.warn("No studies for deletion found on {}", desc.getStorageURI());
+                    return null;
                 }
             }
-        } while (deleted == 0);
-        return deleted;
+        } while (!ejb.removeStudyOnStorage(studyPks.remove(0), deletePatient));
+        return studyPks;
     }
 
     private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) throws IOException {

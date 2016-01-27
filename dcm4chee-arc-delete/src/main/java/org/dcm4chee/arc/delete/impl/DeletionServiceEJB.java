@@ -42,6 +42,7 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +92,7 @@ public class DeletionServiceEJB {
         em.remove(em.merge(location));
     }
 
-    public Study removeStudyOnStorage(Long studyPk, String storageID, boolean deletePatient) {
+    public boolean removeStudyOnStorage(Long studyPk, boolean deletePatient) {
         List<String> storageIDs = em.createNamedQuery(Location.FIND_STORAGE_IDS_BY_STUDY_PK, String.class)
                 .setParameter(1, studyPk)
                 .getResultList();
@@ -99,14 +100,15 @@ public class DeletionServiceEJB {
             Study study = em.find(Study.class, studyPk);
             study.setScatteredStorage(true);
             LOG.info("objects of {} scattered over Storages{} - will not be deleted", study, storageIDs);
-            return null;
+            return false;
         }
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                 .setParameter(1, studyPk)
                 .getResultList();
         List<Study> deleteWholeStudy = new ArrayList<>(1);
         deleteInstances(locations, deleteWholeStudy, deletePatient);
-        return deleteWholeStudy.get(0);
+        LOG.info("Successfully delete {} on Storage{} from database", deleteWholeStudy.get(0), storageIDs);
+        return true;
     }
 
     public int deleteRejectedInstancesAndRejectionNotes(Code rejectionCode, int limit) {
