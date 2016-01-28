@@ -80,6 +80,8 @@ class StoreServiceImpl implements StoreService {
                         ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
                 transcoder.setIncludeFileMetaInformation(true);
                 transcoder.transcode(new TranscoderHandler(ctx));
+            } catch (Exception e) {
+                throw new DicomServiceException(Status.ProcessingFailure, e);
             }
             coerceAttributes(ctx);
             UpdateDBResult result = ejb.updateDB(ctx);
