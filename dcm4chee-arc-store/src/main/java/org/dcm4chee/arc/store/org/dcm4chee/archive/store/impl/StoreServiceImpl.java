@@ -27,6 +27,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -117,7 +118,13 @@ class StoreServiceImpl implements StoreService {
                 dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
             }
             coerceAttributes(ctx);
-            UpdateDBResult result = ejb.updateDB(ctx);
+            UpdateDBResult result;
+            try {
+                result = ejb.updateDB(ctx);
+            } catch (Exception e) {
+                LOG.info("Failed to update DB - retry", e);
+                result = ejb.updateDB(ctx);
+            }
             location = result.getLocation();
             postUpdateDB(ctx, location);
         } catch (DicomServiceException e) {
