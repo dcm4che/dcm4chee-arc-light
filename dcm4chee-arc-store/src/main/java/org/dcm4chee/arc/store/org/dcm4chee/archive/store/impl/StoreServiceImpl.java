@@ -82,6 +82,7 @@ class StoreServiceImpl implements StoreService {
                 transcoder.setIncludeFileMetaInformation(true);
                 transcoder.transcode(new TranscoderHandler(ctx));
             } catch (Exception e) {
+                LOG.warn("{}: Failed to encode received object:", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
             coerceAttributes(ctx);
