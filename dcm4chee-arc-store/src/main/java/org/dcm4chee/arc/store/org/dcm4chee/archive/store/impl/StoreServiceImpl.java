@@ -86,7 +86,13 @@ class StoreServiceImpl implements StoreService {
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
             coerceAttributes(ctx);
-            UpdateDBResult result = ejb.updateDB(ctx);
+            UpdateDBResult result;
+            try {
+                result = ejb.updateDB(ctx);
+            } catch (Exception e) {
+                LOG.info("Failed to update DB - retry", e);
+                result = ejb.updateDB(ctx);
+            }
             location = result.getLocation();
             postUpdateDB(ctx, location);
         } catch (DicomServiceException e) {
