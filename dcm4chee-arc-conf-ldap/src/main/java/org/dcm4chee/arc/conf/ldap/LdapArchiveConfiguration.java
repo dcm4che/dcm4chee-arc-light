@@ -264,6 +264,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeExportDescriptors(aa, bb, deviceDN);
         mergeExportRules(aa.getExportRules(), bb.getExportRules(), deviceDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
+        mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
         mergeQueryRetrieveViews(aa, bb, deviceDN);
         mergeRejectNotes(aa, bb, deviceDN);
     }
@@ -859,6 +860,27 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+
+    private void mergeAttributeCoercions(
+            Collection<ArchiveAttributeCoercion> prevCoercions,
+            Collection<ArchiveAttributeCoercion> coercions,
+            String parentDN) throws NamingException {
+        for (ArchiveAttributeCoercion prev : prevCoercions) {
+            String cn = prev.getCommonName();
+            if (findAttributeCoercionByCN(coercions, cn) == null)
+                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+        }
+        for (ArchiveAttributeCoercion coercion : coercions) {
+            String cn = coercion.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            ArchiveAttributeCoercion prev = findAttributeCoercionByCN(prevCoercions, cn);
+            if (prev == null)
+                config.createSubcontext(dn, storeTo(coercion, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prev, coercion, new ArrayList<ModificationItem>()));
+        }
+    }
+
     private List<ModificationItem> storeDiffs(
             ArchiveCompressionRule prev, ArchiveCompressionRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
@@ -997,25 +1019,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void mergeAttributeCoercions(
-            Collection<ArchiveAttributeCoercion> prevCoercions,
-            Collection<ArchiveAttributeCoercion> coercions,
-            String parentDN) throws NamingException {
-        for (ArchiveAttributeCoercion prev : prevCoercions) {
-            String cn = prev.getCommonName();
-            if (findAttributeCoercionByCN(coercions, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
-        }
-        for (ArchiveAttributeCoercion coercion : coercions) {
-            String cn = coercion.getCommonName();
-            String dn = LdapUtils.dnOf("cn", cn, parentDN);
-            ArchiveAttributeCoercion prev = findAttributeCoercionByCN(prevCoercions, cn);
-            if (prev == null)
-                config.createSubcontext(dn, storeTo(coercion, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prev, coercion, new ArrayList<ModificationItem>()));
-        }
-    }
 
     private List<ModificationItem> storeDiffs(
             ArchiveAttributeCoercion prev, ArchiveAttributeCoercion coercion, ArrayList<ModificationItem> mods) {

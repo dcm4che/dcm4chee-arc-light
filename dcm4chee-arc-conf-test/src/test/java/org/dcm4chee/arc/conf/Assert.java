@@ -206,7 +206,7 @@ class Assert {
         Comparator<ExportRule> exportRule = new Comparator<ExportRule>() {
             @Override
             public int compare(ExportRule expectedER, ExportRule actualER) {
-                return expectedER.hashCode() - actualER.hashCode();
+                return expectedER.getCommonName().compareTo(actualER.getCommonName());
             }
         };
         Collections.sort(expectedERList, exportRule);
@@ -229,7 +229,7 @@ class Assert {
         Comparator<ArchiveCompressionRule> archiveCompressionRule = new Comparator<ArchiveCompressionRule>() {
             @Override
             public int compare(ArchiveCompressionRule expectedACR, ArchiveCompressionRule actualACR) {
-                return expectedACR.getPriority() - actualACR.getPriority();
+                return expectedACR.getCommonName().compareTo(actualACR.getCommonName());
             }
         };
         Collections.sort(expectedACRList, archiveCompressionRule);
@@ -251,7 +251,7 @@ class Assert {
         Comparator<ArchiveAttributeCoercion> archiveAttributeCoercion = new Comparator<ArchiveAttributeCoercion>() {
             @Override
             public int compare(ArchiveAttributeCoercion expectedAAC, ArchiveAttributeCoercion actualAAC) {
-                return expectedAAC.getPriority() - actualAAC.getPriority();
+                return expectedAAC.getCommonName().compareTo(actualAAC.getCommonName());
             }
         };
         Collections.sort(expectedAACList, archiveAttributeCoercion);
