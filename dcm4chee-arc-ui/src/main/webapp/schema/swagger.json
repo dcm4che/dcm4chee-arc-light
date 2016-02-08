@@ -41,6 +41,10 @@
     {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
+    },
+    {
+      "name": "ECHO-RS",
+      "description": "DICOM Verification"
     }
   ],
   "paths": {
@@ -474,7 +478,8 @@
           "CONFIG-RS",
           "QIDO-RS",
           "WADO-URI",
-          "IOCM-RS"
+          "IOCM-RS",
+          "ECHO-RS"
         ],
         "summary": "list Archive AE Titles",
         "operationId": "listArchiveAETs",
@@ -494,7 +499,46 @@
         }
       }
     },
-    "/aets/{aet}/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/echo/{remoteAET}": {
+      "get": {
+        "tags": [
+          "ECHO-RS"
+        ],
+        "summary": "verify",
+        "operationId": "verify",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "remoteAET",
+            "in": "path",
+            "description": "Remote AE Title",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verification Result",
+            "schema": {
+              "$ref": "echo.schema.json"
+            }
+          },
+          "404": {
+            "description": "Remote AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "get": {
         "tags": [
           "IOCM-RS"
@@ -544,7 +588,7 @@
         }
       }
     },
-    "/aets/{aet}/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "get": {
         "tags": [
           "IOCM-RS"
@@ -601,7 +645,7 @@
         }
       }
     },
-    "/aets/{aet}/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "get": {
         "tags": [
           "IOCM-RS"

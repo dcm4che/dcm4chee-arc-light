@@ -357,6 +357,7 @@
     <module>dcm4chee-arc-conf-rs</module>
     <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-retrieve-scu</module>
+    <module>dcm4chee-arc-echo-rs</module>
   </modules>
 
   <build>

@@ -1,0 +1,213 @@
+/*
+ * *** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is part of dcm4che, an implementation of DICOM(TM) in
+ * Java(TM), hosted at https://github.com/gunterze/dcm4che.
+ *
+ * The Initial Developer of the Original Code is
+ * J4Care.
+ * Portions created by the Initial Developer are Copyright (C) 2013
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ * See @authors listed below
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * *** END LICENSE BLOCK *****
+ */
+
+package org.dcm4chee.arc.echo.rs;
+
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
+import org.dcm4che3.conf.api.DicomConfiguration;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.net.*;
+import org.dcm4che3.net.pdu.AAssociateRJ;
+import org.dcm4che3.net.pdu.AAssociateRQ;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.security.GeneralSecurityException;
+
+/**
+ * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @since Feb 2016
+ */
+@RequestScoped
+@Path("aets/{AETitle}/echo/{RemoteAET}")
+public class EchoRS {
+
+    @Inject
+    private DicomConfiguration conf;
+
+    @Inject
+    private Device device;
+
+    @PathParam("AETitle")
+    private String aet;
+
+    @PathParam("RemoteAET")
+    private String remoteAET;
+
+    @Context
+    private HttpServletRequest request;
+
+    private ApplicationEntity getApplicationEntity() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(
+                    "No such Application Entity: " + aet,
+                    Response.Status.SERVICE_UNAVAILABLE);
+        return ae;
+    }
+
+    private ApplicationEntity getRemoteApplicationEntity() throws ConfigurationException {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(
+                    "No such Application Entity: " + aet,
+                    Response.Status.SERVICE_UNAVAILABLE);
+        try {
+            return conf.findApplicationEntity(remoteAET);
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(
+                    "No such Application Entity configured: " + remoteAET,
+                    Response.Status.NOT_FOUND);
+        }
+    }
+
+    private AAssociateRQ createAARQ() {
+        AAssociateRQ aarq = new AAssociateRQ();
+        aarq.setCallingAET(aet);
+        aarq.addPresentationContextFor(UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
+        return aarq;
+    }
+
+    @GET
+    @Produces("application/json")
+    public StreamingOutput echo() throws Exception {
+        ApplicationEntity ae = getApplicationEntity();
+        ApplicationEntity remote = getRemoteApplicationEntity();
+        Association as = null;
+        long t1, t2;
+        Result result = new Result();
+        try {
+            t1 = System.currentTimeMillis();
+            as = ae.connect(remote, createAARQ());
+            t2 = System.currentTimeMillis();
+            result.connectionTime = Long.toString(t2-t1);
+            try {
+                DimseRSP rsp = as.cecho();
+                try {
+                    rsp.next();
+                    t1 = System.currentTimeMillis();
+                    result.echoTime = Long.toString(t1-t2);
+                } catch (IOException e) {
+                    result.error(Result.Status.FailedToSendCEchoRQ, e);
+                }
+            } catch (IOException e) {
+                result.error(Result.Status.FailedToReceiveCEchoRSP, e);
+            }
+        } catch (AAssociateRJ e) {
+            result.error(Result.Status.AssociationRejected, e);
+        } catch (IOException e) {
+            result.error(Result.Status.FailedToConnect, e);
+        } finally {
+            if (as != null) {
+                try {
+                    t1 = System.currentTimeMillis();
+                    as.release();
+                    t2 = System.currentTimeMillis();
+                    result.releaseTime = Long.toString(t2-t1);
+                } catch (IOException e) {
+                    result.error(Result.Status.FailedToRelease, e);
+                }
+            }
+        }
+        return result;
+    }
+
+    private static class Result implements StreamingOutput {
+        enum Status {
+            Success,
+            FailedToConnect,
+            AssociationRejected,
+            FailedToSendCEchoRQ,
+            FailedToReceiveCEchoRSP,
+            FailedToRelease
+        };
+
+        Status status = Status.Success;
+        IOException exception;
+        String connectionTime;
+        String echoTime;
+        String releaseTime;
+
+        void error(Status status, IOException e) {
+            if (exception == null) {
+                this.status = status;
+                this.exception = e;
+            }
+        }
+
+        @Override
+        public void write(OutputStream out) throws IOException {
+            Writer w = new OutputStreamWriter(out, "UTF-8");
+            w.write("{\"status\":");
+            w.write(Integer.toString(status.ordinal()));
+            w.write(",\"statusAsString\":\"");
+            w.write(status.name());
+            if (exception != null) {
+                w.write("\",\"errorMessage\":\"");
+                w.write(exception.toString().replace('"','\''));
+            }
+            w.write('"');
+            if (connectionTime != null) {
+                w.write(",\"connectionTime\":");
+                w.write(connectionTime);
+            }
+            if (echoTime != null) {
+                w.write(",\"echoTime\":");
+                w.write(echoTime);
+            }
+            if (releaseTime != null) {
+                w.write(",\"releaseTime\":");
+                w.write(releaseTime);
+            }
+            w.write('}');
+            w.flush();
+        }
+    }
+}

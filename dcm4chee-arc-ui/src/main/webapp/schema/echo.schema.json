@@ -1,0 +1,48 @@
+{
+  "title": "Verification Result",
+  "type": "object",
+    "required": [
+      "status",
+      "statusAsString"
+    ],
+    "properties": {
+      "status": {
+        "title": "Status",
+        "description": "Status Code",
+        "type": "integer"
+      },
+      "statusAsString": {
+        "title": "Status Name",
+        "description": "Status Name",
+        "type": "string",
+        "enum": [
+          "Success",
+          "FailedToConnect",
+          "AssociationRejected",
+          "FailedToSendCEchoRQ",
+          "FailedToReceiveCEchoRSP",
+          "FailedToRelease"
+        ]
+      },
+      "errorMessage": {
+        "title": "ErrorMessage",
+        "description": "Error Message",
+        "type": "integer"
+      },
+      "connectionTime": {
+        "title": "ConnectionTime",
+        "description": "Connection Time in ms",
+        "type": "integer"
+      },
+      "echoTime": {
+        "title": "EchoTime",
+        "description": "Echo Time in ms",
+        "type": "integer"
+      },
+      "releaseTime": {
+        "title": "releaseTime",
+        "description": "Release Time in ms",
+        "type": "integer"
+      }
+    }
+}
