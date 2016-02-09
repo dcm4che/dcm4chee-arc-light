@@ -45,6 +45,7 @@ import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.pdu.AAbort;
 import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 
@@ -59,7 +60,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.security.GeneralSecurityException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -135,15 +135,15 @@ public class EchoRS {
                     t1 = System.currentTimeMillis();
                     result.echoTime = Long.toString(t1-t2);
                 } catch (IOException e) {
-                    result.error(Result.Status.FailedToSendCEchoRQ, e);
+                    result.error(Result.Code.FailedToSendCEchoRQ, e);
                 }
             } catch (IOException e) {
-                result.error(Result.Status.FailedToReceiveCEchoRSP, e);
+                result.error(Result.Code.FailedToReceiveCEchoRSP, e);
             }
         } catch (AAssociateRJ e) {
-            result.error(Result.Status.AssociationRejected, e);
+            result.error(Result.Code.AssociationRejected, e);
         } catch (IOException e) {
-            result.error(Result.Status.FailedToConnect, e);
+            result.error(Result.Code.FailedToConnect, e);
         } finally {
             if (as != null) {
                 try {
@@ -152,7 +152,7 @@ public class EchoRS {
                     t2 = System.currentTimeMillis();
                     result.releaseTime = Long.toString(t2-t1);
                 } catch (IOException e) {
-                    result.error(Result.Status.FailedToRelease, e);
+                    result.error(Result.Code.FailedToRelease, e);
                 }
             }
         }
@@ -160,24 +160,34 @@ public class EchoRS {
     }
 
     private static class Result implements StreamingOutput {
-        enum Status {
-            Success,
-            FailedToConnect,
-            AssociationRejected,
-            FailedToSendCEchoRQ,
-            FailedToReceiveCEchoRSP,
-            FailedToRelease
+        enum Code {
+            Success(null),
+            FailedToConnect("Failed to connect: "),
+            AssociationRejected("Association rejected: "),
+            FailedToSendCEchoRQ("Failed to send C-ECHO-RSP: "),
+            FailedToReceiveCEchoRSP("Failed to receive C-ECHO-RSP: "),
+            FailedToRelease("Failed to release association: ");
+
+            final String prefix;
+
+            Code(String prefix) {
+                this.prefix = prefix;
+            }
+
+            String errorMessage(IOException ex) {
+                return prefix + ((ex instanceof AAssociateRJ || ex instanceof AAbort) ? ex.getMessage() : ex);
+            }
         };
 
-        Status status = Status.Success;
+        Code code = Code.Success;
         IOException exception;
         String connectionTime;
         String echoTime;
         String releaseTime;
 
-        void error(Status status, IOException e) {
+        void error(Code code, IOException e) {
             if (exception == null) {
-                this.status = status;
+                this.code = code;
                 this.exception = e;
             }
         }
@@ -185,15 +195,13 @@ public class EchoRS {
         @Override
         public void write(OutputStream out) throws IOException {
             Writer w = new OutputStreamWriter(out, "UTF-8");
-            w.write("{\"status\":");
-            w.write(Integer.toString(status.ordinal()));
-            w.write(",\"statusAsString\":\"");
-            w.write(status.name());
+            w.write("{\"result\":");
+            w.write(Integer.toString(code.ordinal()));
             if (exception != null) {
-                w.write("\",\"errorMessage\":\"");
-                w.write(exception.toString().replace('"','\''));
+                w.write(",\"errorMessage\":\"");
+                w.write(code.errorMessage(exception));
+                w.write('"');
             }
-            w.write('"');
             if (connectionTime != null) {
                 w.write(",\"connectionTime\":");
                 w.write(connectionTime);

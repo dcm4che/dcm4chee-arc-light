@@ -6,23 +6,10 @@
       "statusAsString"
     ],
     "properties": {
-      "status": {
-        "title": "Status",
-        "description": "Status Code",
+      "result": {
+        "title": "Result",
+        "description": "Result (0=Success, 1=FailedToConnect, 2=AssociationRejected, 3=FailedToSendCEchoRQ, 4=FailedToSendCEchoRQ, 5=FailedToReceiveCEchoRSP, 6=FailedToRelease)",
         "type": "integer"
-      },
-      "statusAsString": {
-        "title": "Status Name",
-        "description": "Status Name",
-        "type": "string",
-        "enum": [
-          "Success",
-          "FailedToConnect",
-          "AssociationRejected",
-          "FailedToSendCEchoRQ",
-          "FailedToReceiveCEchoRSP",
-          "FailedToRelease"
-        ]
       },
       "errorMessage": {
         "title": "ErrorMessage",
