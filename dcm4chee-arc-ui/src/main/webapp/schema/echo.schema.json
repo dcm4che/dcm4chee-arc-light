@@ -2,8 +2,7 @@
   "title": "Verification Result",
   "type": "object",
     "required": [
-      "status",
-      "statusAsString"
+      "result"
     ],
     "properties": {
       "result": {
