@@ -138,8 +138,12 @@ public class PatientServiceEJB implements PatientService {
     private Patient findPatient(IDWithIssuer pid)
             throws NonUniquePatientException, PatientMergedException {
         List<Patient> list = findPatients(pid);
+        if (list.isEmpty())
+            return null;
+
         if (list.size() > 1)
             throw new NonUniquePatientException("Multiple Patients with ID " + pid);
+
         Patient pat = list.get(0);
         Patient mergedWith = pat.getMergedWith();
         if (mergedWith != null)
