@@ -7,7 +7,7 @@
     "properties": {
       "result": {
         "title": "Result",
-        "description": "Result (0=Success, 1=FailedToConnect, 2=AssociationRejected, 3=FailedToSendCEchoRQ, 4=FailedToSendCEchoRQ, 5=FailedToReceiveCEchoRSP, 6=FailedToRelease)",
+        "description": "Result (0=Success, 1=IncompatibleConnection, 2=FailedToConnect, 3=AssociationRejected, 4=FailedToSendCEchoRQ, 5=FailedToSendCEchoRQ, 6=FailedToReceiveCEchoRSP, 7=FailedToRelease)",
         "type": "integer"
       },
       "errorMessage": {

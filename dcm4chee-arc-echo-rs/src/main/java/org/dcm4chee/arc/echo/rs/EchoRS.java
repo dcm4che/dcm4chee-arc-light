@@ -140,6 +140,8 @@ public class EchoRS {
             } catch (IOException e) {
                 result.error(Result.Code.FailedToReceiveCEchoRSP, e);
             }
+        } catch (IncompatibleConnectionException e) {
+            result.error(Result.Code.IncompatibleConnection, e);
         } catch (AAssociateRJ e) {
             result.error(Result.Code.AssociationRejected, e);
         } catch (IOException e) {
@@ -162,6 +164,7 @@ public class EchoRS {
     private static class Result implements StreamingOutput {
         enum Code {
             Success(null),
+            IncompatibleConnection("Incompatible Connection: "),
             FailedToConnect("Failed to connect: "),
             AssociationRejected("Association rejected: "),
             FailedToSendCEchoRQ("Failed to send C-ECHO-RSP: "),
@@ -174,18 +177,25 @@ public class EchoRS {
                 this.prefix = prefix;
             }
 
-            String errorMessage(IOException ex) {
-                return prefix + ((ex instanceof AAssociateRJ || ex instanceof AAbort) ? ex.getMessage() : ex);
+            String errorMessage(Exception ex) {
+                return prefix + (
+                        (ex instanceof IncompatibleConnectionException
+                                || ex instanceof AAssociateRJ
+                                || ex instanceof AAbort
+                        )
+                                ? ex.getMessage()
+                                : ex
+                );
             }
-        };
+        }
 
         Code code = Code.Success;
-        IOException exception;
+        Exception exception;
         String connectionTime;
         String echoTime;
         String releaseTime;
 
-        void error(Code code, IOException e) {
+        void error(Code code, Exception e) {
             if (exception == null) {
                 this.code = code;
                 this.exception = e;
