@@ -26,7 +26,7 @@
         "type": "integer"
       },
       "releaseTime": {
-        "title": "releaseTime",
+        "title": "ReleaseTime",
         "description": "Release Time in ms",
         "type": "integer"
       }
