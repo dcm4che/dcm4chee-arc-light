@@ -13,7 +13,7 @@
       "errorMessage": {
         "title": "ErrorMessage",
         "description": "Error Message",
-        "type": "integer"
+        "type": "string"
       },
       "connectionTime": {
         "title": "ConnectionTime",
