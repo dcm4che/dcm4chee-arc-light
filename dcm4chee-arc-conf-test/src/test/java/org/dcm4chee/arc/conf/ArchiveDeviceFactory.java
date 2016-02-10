@@ -704,6 +704,7 @@ class ArchiveDeviceFactory {
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final String EXPORTER_ID = "STORESCP";
+    static final String EXPORTER_DESC = "Export to STORESCP";
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final int EXPORT_TASK_FETCH_SIZE = 2;
@@ -711,6 +712,9 @@ class ArchiveDeviceFactory {
     static final int PURGE_STORAGE_FETCH_SIZE = 10;
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
     static final int DELETE_REJECTED_FETCH_SIZE = 10;
+    static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
+    static final Duration AUDIT_POLLING_INTERVAL = Duration.parse("PT1M");
+    static final Duration AUDIT_AGGREGATE_DURATION = Duration.parse("PT1M");
 
     public static Device createARRDevice(String name, Connection.Protocol protocol, int port) {
         Device arrDevice = new Device(name);
@@ -940,6 +944,9 @@ class ArchiveDeviceFactory {
         ext.setPurgeStorageFetchSize(PURGE_STORAGE_FETCH_SIZE);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
         ext.setDeleteRejectedFetchSize(DELETE_REJECTED_FETCH_SIZE);
+        ext.setAuditSpoolDirectory(AUDIT_SPOOL_DIR);
+        ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
+        ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
 
         ext.setAttributeFilter(Entity.Patient, new AttributeFilter(PATIENT_ATTRS));
         ext.setAttributeFilter(Entity.Study, new AttributeFilter(STUDY_ATTRS));
@@ -997,6 +1004,7 @@ class ArchiveDeviceFactory {
 
         if (configType == configType.SAMPLE || configType == configType.TEST) {
             ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
+            exportDescriptor.setDescription(EXPORTER_DESC);
             exportDescriptor.setExportURI(EXPORT_URI);
             exportDescriptor.setSchedules(
                     ScheduleExpression.valueOf("hour=18-6 dayOfWeek=*"),

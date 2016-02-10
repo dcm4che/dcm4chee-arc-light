@@ -371,6 +371,24 @@ attributetype ( 1.2.40.0.13.1.15.110.3.62 NAME 'dcmAccessControlID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
 
+attributetype ( 1.2.40.0.13.1.15.110.3.63 NAME 'dcmAuditSpoolDirectory'
+  DESC 'Path to Audit Service Spool Directory used to aggregate Audit Messages. Audit Message aggregation disabled, if absent.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.64 NAME 'dcmAuditPollingInterval'
+  DESC 'Polling Interval for aggregating Audit Messages in ISO-8601 duration format PnDTnHnMn.nS. Audit Message aggregation disabled, if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.65 NAME 'dcmAuditAggregateDuration'
+  DESC 'Audit Message Aggregation Duration in ISO-8601 duration format PnDTnHnMn.nS. Audit Message aggregation disabled, if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -403,6 +421,9 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDeleteRejectedPollingInterval $
     dcmDeleteRejectedFetchSize $
     dcmMaxAccessTimeStaleness $
+    dcmAuditSpoolDirectory $
+    dcmAuditPollingInterval $
+    dcmAuditAggregateDuration $
     hl7PatientUpdateTemplateURI $
     dcmUnzipVendorDataToURI ) )
 

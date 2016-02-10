@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.ActiveParticipant;
-import org.dcm4che3.audit.AuditMessage;
-import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.audit.EventIdentification;
+import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -58,6 +55,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
 
@@ -84,32 +82,38 @@ public class AuditService {
     }
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event, Principal user) {
+        EventTypeCode eventTypeCode = null;
+        switch (event.getType()) {
+            case STARTED:
+                eventTypeCode = AuditMessages.EventTypeCode.ApplicationStart;
+                break;
+            case STOPPED:
+                eventTypeCode = AuditMessages.EventTypeCode.ApplicationStop;
+                break;
+            case RELOADED:
+                return;
+        }
+
         Calendar timestamp = log().timeStamp();
-        ArchiveServiceEvent.Type type = event.getType();
         HttpServletRequest request = event.getRequest();
         AuditMessage msg = new AuditMessage();
         EventIdentification ei = new EventIdentification();
         ei.setEventID(AuditMessages.EventID.ApplicationActivity);
-        if (type.equals(type.STARTED)) {
-            ei.getEventTypeCode().add(AuditMessages.EventTypeCode.ApplicationStart);
-            ei.setEventActionCode("E");
-            ei.setEventOutcomeIndicator("0");
-        }
-        if (type.equals(type.STOPPED)) {
-            ei.getEventTypeCode().add(AuditMessages.EventTypeCode.ApplicationStop);
-            ei.setEventActionCode("E");
-            ei.setEventOutcomeIndicator("0");
-        }
+        ei.getEventTypeCode().add(eventTypeCode);
         ei.setEventDateTime(timestamp);
         msg.setEventIdentification(ei);
         ActiveParticipant apApplication = new ActiveParticipant();
         apApplication.getRoleIDCode().add(AuditMessages.RoleIDCode.Application);
         apApplication.setUserID(device.getDeviceName());
-        String aeTitle = "";
+        StringBuilder aets = new StringBuilder();
         for (ApplicationEntity ae : device.getApplicationEntities()) {
-            aeTitle += ae.getAETitle() + ";";
+            if (aets.length() == 0)
+                aets.append("AETITLE=");
+            else
+                aets.append(';');
+            aets.append(ae.getAETitle());
         }
-        apApplication.setAlternativeUserID(aeTitle);
+        apApplication.setAlternativeUserID(aets.toString());
         apApplication.setUserIsRequestor(false);
         msg.getActiveParticipant().add(apApplication);
 
@@ -128,16 +132,14 @@ public class AuditService {
             msg.getActiveParticipant().add(apUser);
         }
 
+        emitAuditMessage(timestamp, msg);
+    }
+
+    private void emitAuditMessage(Calendar timestamp, AuditMessage msg) {
         try {
             log().write(timestamp, msg);
-        } catch (IncompatibleConnectionException icc) {
-            LOG.info("Incompatible Connection Exception : " + icc.getMessage());
-        }
-        catch (GeneralSecurityException gse) {
-            LOG.info("General Security Exception : " + gse.getMessage());
-        }
-        catch (IOException io) {
-            LOG.info("IO Exception : " + io.getMessage());
+        } catch (Exception e) {
+            LOG.warn("Failed to emit audit message", e);
         }
     }
 
@@ -147,6 +149,10 @@ public class AuditService {
         String sendingAET = session.getCallingAET();
         String receivingAET = session.getCalledAET();
         Attributes attrs = ctx.getAttributes();
+        //TODO
+    }
+
+    public void aggregateAuditMessage(Path path) {
         //TODO
     }
 }

@@ -45,6 +45,7 @@ import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.net.*;
 import org.dcm4chee.arc.conf.*;
@@ -99,6 +100,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval());
         writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
         writer.writeNotNull("dcmMaxAccessTimeStaleness", arcDev.getMaxAccessTimeStaleness());
+        writer.writeNotNull("dcmAuditSpoolDirectory", arcDev.getAuditSpoolDirectory());
+        writer.writeNotNull("dcmAuditPollingInterval", arcDev.getAuditPollingInterval());
+        writer.writeNotNull("dcmAuditAggregateDuration", arcDev.getAuditAggregateDuration());
         writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
         writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
         writeAttributeFilters(writer, arcDev);
@@ -392,6 +396,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMaxAccessTimeStaleness":
                     arcDev.setMaxAccessTimeStaleness(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmAuditSpoolDirectory":
+                    arcDev.setAuditSpoolDirectory(reader.stringValue());
+                    break;
+                case "dcmAuditPollingInterval":
+                    arcDev.setAuditPollingInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmAuditAggregateDuration":
+                    arcDev.setAuditAggregateDuration(Duration.parse(reader.stringValue()));
                     break;
                 case "hl7PatientUpdateTemplateURI":
                     arcDev.setPatientUpdateTemplateURI(reader.stringValue());

@@ -39,11 +39,13 @@ dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
 dcmOverwritePolicy: SAME_SOURCE
 dcmQueryRetrieveViewID: hideRejected
 dicomSoftwareVersion: 5.0.1
+dcmAuditAggregateDuration: PT1M
 dcmStorageID: fs1
 objectClass: dicomDevice
 objectClass: dcmDevice
 objectClass: dcmArchiveDevice
 objectClass: pkiUser
+dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmKeyStoreType: JKS
 dcmPurgeStoragePollingInterval: PT5M
@@ -54,6 +56,7 @@ dicomManufacturer: dcm4che.org
 dcmDeleteRejectedPollingInterval: PT5M
 dcmBulkDataSpoolDirectory: ${jboss.server.temp.dir}
 dicomDeviceName: dcm4chee-arc
+dcmAuditPollingInterval: PT1M
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmExportTaskPollingInterval: PT1M

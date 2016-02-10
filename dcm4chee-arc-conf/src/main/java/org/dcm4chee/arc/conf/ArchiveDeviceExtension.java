@@ -82,6 +82,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int deleteStudyBatchSize = 10;
     private boolean deletePatientOnDeleteLastStudy = false;
     private Duration maxAccessTimeStaleness;
+    private String auditSpoolDirectory;
+    private Duration auditPollingInterval;
+    private Duration auditAggregateDuration;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -353,6 +356,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.maxAccessTimeStaleness = maxAccessTimeStaleness;
     }
 
+    public String getAuditSpoolDirectory() {
+        return auditSpoolDirectory;
+    }
+
+    public void setAuditSpoolDirectory(String auditSpoolDirectory) {
+        this.auditSpoolDirectory = auditSpoolDirectory;
+    }
+
+    public Duration getAuditPollingInterval() {
+        return auditPollingInterval;
+    }
+
+    public void setAuditPollingInterval(Duration auditPollingInterval) {
+        this.auditPollingInterval = auditPollingInterval;
+    }
+
+    public Duration getAuditAggregateDuration() {
+        return auditAggregateDuration;
+    }
+
+    public void setAuditAggregateDuration(Duration auditAggregateDuration) {
+        this.auditAggregateDuration = auditAggregateDuration;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters.get(entity);
     }
@@ -536,6 +563,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deleteStudyBatchSize = arcdev.deleteStudyBatchSize;
         deletePatientOnDeleteLastStudy = arcdev.deletePatientOnDeleteLastStudy;
         maxAccessTimeStaleness = arcdev.maxAccessTimeStaleness;
+        auditSpoolDirectory = arcdev.auditSpoolDirectory;
+        auditPollingInterval = arcdev.auditPollingInterval;
+        auditAggregateDuration = arcdev.auditAggregateDuration;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();

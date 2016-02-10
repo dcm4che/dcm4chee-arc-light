@@ -38,7 +38,6 @@ public class ExporterDescriptor {
 
     public void setExporterID(String exporterID) {
         this.exporterID = exporterID;
-        this.exportURI = null;
     }
 
     public URI getExportURI() {
@@ -47,6 +46,14 @@ public class ExporterDescriptor {
 
     public void setExportURI(URI exportURI) {
         this.exportURI = exportURI;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getQueueName() {
@@ -106,6 +113,4 @@ public class ExporterDescriptor {
                 ", properties=" + properties +
                 '}';
     }
-
-
 }
