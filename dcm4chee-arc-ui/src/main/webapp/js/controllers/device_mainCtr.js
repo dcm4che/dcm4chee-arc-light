@@ -741,7 +741,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     };
 
     $scope.showEcho = function(){
-      return (selectedElement == 'networkae' && !$scope.showCancel);
+      return ($scope.selectedElement == 'networkae' && !$scope.showCancel);
     };
 });
 

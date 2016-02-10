@@ -90,9 +90,9 @@
             bower_components/angular-schema-form/dist/bootstrap-decorator.min.js,
             bower_components/angular-loading-bar/build/loading-bar.min.js,
             bower_components/angular-loading-bar/build/loading-bar.min.css,
-            lib/vex-2.2.1/js/vex.combined.min.js,
-            lib/vex-2.2.1/css/vex.css,
-            lib/vex-2.2.1/css/vex-theme-os.css
+            node_modules/vex-js/js/vex.combined.min.js,
+            node_modules/vex-js/css/vex.css,
+            node_modules/vex-js/css/vex-theme-os.css
           </warSourceIncludes>
           <classifier>${classifier}</classifier>
           <webXml>${webXml}</webXml>
