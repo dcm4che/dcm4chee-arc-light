@@ -45,15 +45,6 @@
             </configuration>
           </execution>
           <execution>
-            <id>npm install vex-js</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>install --prefix=src/main/webapp vex-js</arguments>
-            </configuration>
-          </execution>
-          <execution>
             <id>bower install</id>
             <goals>
               <goal>bower</goal>
@@ -90,9 +81,9 @@
             bower_components/angular-schema-form/dist/bootstrap-decorator.min.js,
             bower_components/angular-loading-bar/build/loading-bar.min.js,
             bower_components/angular-loading-bar/build/loading-bar.min.css,
-            node_modules/vex-js/js/vex.combined.min.js,
-            node_modules/vex-js/css/vex.css,
-            node_modules/vex-js/css/vex-theme-os.css
+            bower_components/vex/js/vex.combined.min.js,
+            bower_components/vex/css/vex.css,
+            bower_components/vex/css/vex-theme-os.css
           </warSourceIncludes>
           <classifier>${classifier}</classifier>
           <webXml>${webXml}</webXml>

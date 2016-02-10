@@ -1,6 +1,6 @@
 {
   "name": "dcm4chee-arc-ui",
-  "private":  true,
+  "private": true,
   "version": "0.0.1",
   "homepage": "https://github.com/dcm4che/dcm4chee-arc-light",
   "authors": [
@@ -11,6 +11,21 @@
   "dependencies": {
     "angular": "~1.4.5",
     "angular-route": "~1.4.5",
-    "bootstrap": "~3.3.5"
+    "bootstrap": "~3.3.5",
+    "vex": "~2.3.3",
+    "tv4": "~1.2.7",
+    "angular-loading-bar": "~0.8.0",
+    "angular-sanitize": "~1.5.0",
+    "angular-schema-form": "~0.8.12",
+    "angular-touch": "~1.5.0",
+    "jquery": "~2.2.0",
+    "jsondiffpatch": "~0.1.38",
+    "objectpath": "~1.2.1"
+  },
+  "resolutions": {
+    "tv4": "~1.0.15",
+    "angular": "1.5.0",
+    "angular-touch": "~1.5.0",
+    "objectpath": "~1.1.0"
   }
 }

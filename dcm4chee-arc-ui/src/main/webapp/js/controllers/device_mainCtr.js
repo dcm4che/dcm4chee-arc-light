@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService) {
+myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse) {
 
     $scope.activeMenu             = "device_menu";
     $scope.showSave               = false;
@@ -497,6 +497,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.toggle = function(element) {
         //If the activeMenu and element are the same that meens that the user clicked again on the elment, so he wants to close it
         $log.debug("validForm in toggle=",$scope.validForm);
+        $log.debug("validForm in activeMenu=",$scope.activeMenu);
+        $log.debug("element=",element);
         if($scope.validForm){
 
           if ($scope.activeMenu == element) {
@@ -505,6 +507,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
               $scope.activeMenu = element;
           }
         }
+        $log.debug("validForm in 2activeMenu=",$scope.activeMenu);
     };
 
     //Warn if the user want to leav the page without saving the changes
@@ -712,7 +715,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   }
               }
             }catch(e){
-              $log.error("e=",e);
+              // $log.error("e=",e);
               DeviceService.msg($scope, {
                   "title": "Error",
                   "text": "Something went wrong, echo didn't work!",

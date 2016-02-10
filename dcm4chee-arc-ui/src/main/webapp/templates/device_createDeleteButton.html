@@ -1,6 +1,6 @@
-<div class="more_menu" ng-click="$parent.toggle('{{part}}')"  ng-swipe-left="$parent.toggle('transfarecap')" ng-swipe-right="activeMenu = ''">
+<div class="more_menu" ng-click="$parent.toggle(part)"  ng-swipe-left="$parent.toggle(part)" ng-swipe-right="$parent.activeMenu = ''">
 	<div class="delete_create_buttons">
-		<div class="create {{part}}" ng-click="$parent.createPart('{{part}}')" title="{{createText}}"></div>
-		<div class="delete {{part}}" ng-click="$parent.deletePart('{{part}}')" title="{{deleteText}}"></div>
+		<div class="create {{part}}" ng-click="$parent.createPart(part)" title="{{createText}}"></div>
+		<div class="delete {{part}}" ng-click="$parent.deletePart(part)" title="{{deleteText}}"></div>
 	</div>
 </div>
