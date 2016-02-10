@@ -1,66 +1,50 @@
 "use strict";
 
 myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService) {
-    $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
-    $scope.moreStudies = false;
     $scope.limit = 20;
-    $scope.aes;
+    $scope.aes = [];
     $scope.aet = null;
-    $scope.rjnotes;
-    $scope.rjnote = null;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
     $scope.queryStudies = function(offset) {
-        if (offset < 0) offset = 0;
         QidoService.queryStudies(
-            rsURL(),
-            createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
+            qidoURL(),
+            createQueryParams(offset, createStudyFilterParams())
         ).then(function (res) {
-            $scope.studies = res.data.map(function (attrs, index) {
+            $scope.studies = res.data.map(function(attrs, index) {
                 return {
-                        offset: offset + index,
-                        moreSeries: false,
-                        attrs: attrs,
-                        series: null,
-                        showAttributes: false
+                    offset: offset + index,
+                    attrs: attrs,
+                    series: null,
+                    showAttributes: false
                 };
             });
-            if ($scope.moreStudies = ($scope.studies.length > $scope.limit)) {
-                $scope.studies.pop();
-            }
         });
     };
     $scope.querySeries = function(study, offset) {
-        if (offset < 0) offset = 0;
         QidoService.querySeries(
-            rsURL(),
+            qidoURL(),
             study.attrs['0020000D'].Value[0],
-            createQueryParams(offset, $scope.limit+1, { orderby: 'SeriesNumber'})
+            createQueryParams(offset, { orderby: 'SeriesNumber'})
         ).then(function (res) {
-            study.series = res.data.map(function (attrs, index) {
+            study.series = res.data.map(function(attrs, index) {
                 return {
-                        study: study,
-                        offset: offset + index,
-                        moreInstances: false,
-                        attrs: attrs,
-                        instances: null,
-                        showAttributes: false
-                };
+                    offset: offset + index,
+                    attrs: attrs,
+                    instances: null,
+                    showAttributes: false
+                 };
             });
-            if (study.moreSeries = (study.series.length > $scope.limit)) {
-                study.series.pop();
-            }
         });
     };
     $scope.queryInstances = function (series, offset) {
-        if (offset < 0) offset = 0;
         QidoService.queryInstances(
-            rsURL(),
+            qidoURL(),
             series.attrs['0020000D'].Value[0],
             series.attrs['0020000E'].Value[0],
-            createQueryParams(offset, $scope.limit+1, { orderby: 'InstanceNumber'})
+            createQueryParams(offset, { orderby: 'InstanceNumber'})
         )
         .then(function (res) {
             series.instances = res.data.map(function(attrs, index) {
@@ -68,7 +52,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                     gspsQueryParams = createGSPSQueryParams(attrs),
                     video = isVideo(attrs);
                 return {
-                    series: series,
                     offset: offset + index,
                     attrs: attrs,
                     showAttributes: false,
@@ -84,28 +67,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                     view: 1
                 };
             });
-            if (series.moreInstances = (series.instances.length > $scope.limit)) {
-                series.instances.pop();
-            }
-        });
-    };
-    $scope.rejectStudy = function(study) {
-        $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
-            $scope.queryStudies($scope.studies[0].offset);
-        });
-    };
-    $scope.rejectSeries = function(series) {
-        $http.get(seriesURL(series.attrs) + '/reject/' + $scope.reject).then(function (res) {
-            $scope.querySeries(series.study, series.study.series[0].offset);
-        });
-    };
-    $scope.rejectInstance = function(instance) {
-        $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
-            $scope.queryInstances(instance.series, instance.series.instances[0].offset);
-        });
-    };
-    $scope.deleteRejectedInstances = function() {
-        $http.delete('../reject/' + $scope.reject).then(function (res) {
         });
     };
     $scope.downloadURL = function (inst, transferSyntax) {
@@ -140,17 +101,20 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.instanceRowspan = function(instance) {
         return instance.showAttributes ? 2 : 1;
     };
-    function rsURL() {
+    $scope.hasNext = function(objs) {
+        return objs && (objs.length === $scope.limit);
+    };
+    $scope.hasPrev = function(objs) {
+        return objs && objs.length && objs[0].offset;
+    };
+    $scope.prevOffset = function(objs) {
+        return Math.max(0, objs[0].offset - $scope.limit);
+    };
+    $scope.nextOffset = function(objs) {
+        return objs[0].offset + $scope.limit;
+    };
+    function qidoURL() {
         return "../aets/" + $scope.aet + "/rs";
-    }
-    function studyURL(attrs) {
-        return rsURL() + "/studies/" + attrs['0020000D'].Value[0];
-    }
-    function seriesURL(attrs) {
-        return studyURL(attrs) + "/series/" + attrs['0020000E'].Value[0];
-    }
-    function instanceURL(attrs) {
-        return seriesURL(attrs) + "/instances/" + attrs['00080018'].Value[0];
     }
     function createStudyFilterParams() {
         var filter = angular.extend({}, $scope.filter);
@@ -165,11 +129,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
         if (value.length)
             filter[key] = value;
     }
-    function createQueryParams(offset, limit, filter) {
+    function createQueryParams(offset, filter) {
         var params = {
             includefield: 'all',
             offset: offset,
-            limit: limit
+            limit: $scope.limit
         };
         angular.forEach(filter, function(value, key) {
             if (value)
@@ -236,36 +200,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
             a.push(i);
         return a;
     }
-    function initAETs(retries) {
-        $http.get("../aets").then(
-            function (res) {
-                $scope.aes = res.data;
-                $scope.aet = res.data[0].title;
-            },
-            function (res) {
-                if (retries)
-                    initAETs(retries-1);
-            });
+    function init() {
+        $http.get("../aets").then(function (res) {
+            $scope.aes = res.data;
+            $scope.aet = res.data[0].title;
+        })
     }
-    function initRjNotes(retries) {
-        $http.get("../reject").then(
-            function (res) {
-                var rjnotes = res.data;
-                rjnotes.sort(function (a, b) {
-                    if (a.codeValue === "113039" && a.codingSchemeDesignator === "DCM")
-                        return -1;
-                    if (b.codeValue === "113039" && b.codingSchemeDesignator === "DCM")
-                        return 1;
-                    return 0;
-                });
-                $scope.rjnotes = rjnotes;
-                $scope.reject = rjnotes[0].codeValue + "^" + rjnotes[0].codingSchemeDesignator;
-            },
-            function (res) {
-                if (retries)
-                    initRjNotes(retries-1);
-            });
-    }
-    initAETs(1);
-    initRjNotes(1);
+    init();
 });

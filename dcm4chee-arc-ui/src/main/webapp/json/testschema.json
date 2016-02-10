@@ -1,0 +1,75 @@
+{
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "First and Last name",
+      "minLength": 4
+    },
+    "age": {
+      "type": "integer",
+      "default": 25,
+      "minimum": 18,
+      "maximum": 99
+    },
+    "favorite_color": {
+      "type": "string",
+      "format": "color",
+      "title": "favorite color"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female"
+      ]
+    },
+    "location": {
+      "type": "object",
+      "title": "Location",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "citystate": {
+          "type": "string",
+          "description": "This is generated automatically from the previous two fields",
+          "template": "{{city}}, {{state}}",
+          "watch": {
+            "city": "location.city",
+            "state": "location.state"
+          }
+        }
+      }
+    },
+    "pets": {
+      "type": "array",
+      "format": "table",
+      "title": "Pets",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "title": "Pet",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "cat",
+              "dog",
+              "bird",
+              "reptile",
+              "other"
+            ]
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

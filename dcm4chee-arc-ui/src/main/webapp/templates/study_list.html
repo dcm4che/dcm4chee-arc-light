@@ -1,9 +1,3 @@
-<ul class="nav nav-tabs">
-    <li role="presentation" class="active"><a href="#/studies">Studies</a></li>
-    <li role="presentation"><a href="#/queues">Queues</a></li>
-    <li role="presentation"><a href="#/ctrl">Control</a></li>
-    <li role="presentation"><a ng-href="{{logoutUrl}}">Logout</a></li>
-</ul>
 <div class="form-inline">
     <div class="form-group">
         <label for="aet">AET:</label>
@@ -14,16 +8,6 @@
     <div class="form-group">
         <label for="limit">Page Size:</label>
         <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
-    </div>
-    <div class="form-group">
-        <label for="reject">Reject:</label>
-        <select id="reject" ng-model="reject">
-            <option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}"
-                    value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
-        </select>
-        <a ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently">
-            <span class="glyphicon glyphicon-remove"></span>
-        </a>
     </div>
     <br/>
     <div class="form-group">
@@ -94,14 +78,14 @@
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="studies[0].offset==0"
-                        ng-click="queryStudies(studies[0].offset-limit)"
+                        ng-disabled="!hasPrev(studies)"
+                        ng-click="queryStudies(prevOffset(studies))"
                         title="Previous Studies">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!moreStudies"
-                        ng-click="queryStudies(studies[0].offset+limit)"
+                        ng-disabled="!hasNext(studies)"
+                        ng-click="queryStudies(nextOffset(studies))"
                         title="Next Studies">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -123,9 +107,6 @@
             <td>
                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
-                </a>
-                <a ng-click="rejectStudy(study)" href="" title="Reject Study">
-                    <span class="glyphicon glyphicon-trash"></span>
                 </a>
                 <!--
                 <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
@@ -150,17 +131,17 @@
                 <attribute-list attrs="study.attrs"></attribute-list>
             </td>
         </tr>
-        <tr ng-show="study.series && study.series.length">
+        <tr ng-show="study.series">
             <th colspan="2">
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="study.series[0].offset==0"
-                        ng-click="querySeries(study, study.series[0].offset-limit)"
+                        ng-disabled="!hasPrev(study.series)"
+                        ng-click="querySeries(study, prevOffset(study.series))"
                         title="Previous Series">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!study.moreSeries"
-                        ng-click="querySeries(study, study.series[0].offset+limit)"
+                        ng-disabled="!hasNext(study.series)"
+                        ng-click="querySeries(study, nextOffset(study.series))"
                         title="Next Series">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -179,9 +160,6 @@
             <td>
                 <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
-                </a>
-                <a ng-click="rejectSeries(series)" href="" title="Reject Series">
-                    <span class="glyphicon glyphicon-trash"></span>
                 </a>
                 <!--
                 <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
@@ -205,17 +183,17 @@
                 <attribute-list attrs="series.attrs"></attribute-list>
             </td>
         </tr>
-        <tr ng-show="series.instances && series.instances.length">
+        <tr ng-show="series.instances">
             <th colspan="2">
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="series.instances[0].offset==0"
-                        ng-click="queryInstances(series, series.instances[0].offset-limit)"
+                        ng-disabled="!hasPrev(series.instances)"
+                        ng-click="queryInstances(series, prevOffset(series.instances))"
                         title="Previous Instances">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!series.moreInstances"
-                        ng-click="queryInstances(series, series.instances[0].offset+limit)"
+                        ng-disabled="!hasNext(series.instances)"
+                        ng-click="queryInstances(series, nextOffset(series.instances))"
                         title="Next Instances">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -232,9 +210,6 @@
             <td>
                 <a ng-click="instance.showAttributes = !instance.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
-                </a>
-                <a ng-click="rejectInstance(instance)" href="" title="Reject Instance">
-                    <span class="glyphicon glyphicon-trash"></span>
                 </a>
                 <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
                     <span class="glyphicon glyphicon-save"></span>

@@ -1,0 +1,42 @@
+<div id="selects_part">
+	<div>
+		<h3>Select device part to edit</h3>
+		<label>Edit rest of device</label>
+		<div id="showDeviceForm" class="btn ng-cloak" ng-class="{active_dropbox:selectedElement == 'device'}" ng-click='selectElement("device")' ng-cloak>{{wholeDevice.dicomDeviceName}}</div>
+	</div>
+	<div>
+		<label>Select dicom Network Connection to edit or delete:</label>
+		<select 
+			class="form-control" 
+			ng-class="{active_dropbox:selectedElement == 'connection',active_menu:activeMenu == 'connection'}" 
+			ng-click='selectElement("connection")' 
+			name="connection" 
+			ng-model="selectedDicomNetworkConnection" 
+			ng-change='selectElement("connection")'
+			ng-options="obj.cn as obj.cn for obj in wholeDevice.dicomNetworkConnection track by obj.cn">
+		</select>
+		<create-delete-button 
+			part="connection" 
+			create-text="Create new network connection" 
+			delete-text="Delete selected network connection">
+		</create-delete-button>
+	</div>
+	<div>	
+		<label>Select Network AE to edit or delete:</label>
+		<select 
+			class="form-control" 
+			ng-class="{active_dropbox:selectedElement == 'networkae',active_menu:activeMenu == 'networkae'}" 
+			name="networkae" 
+			ng-model="selectedNetworkAE" 
+			ng-change='selectElement("networkae")' 
+			ng-click='selectElement("networkae")'
+			ng-options="obj.dicomAETitle as obj.dicomAETitle for obj in wholeDevice.dicomNetworkAE track by obj.dicomAETitle">
+		</select>
+		<create-delete-button 
+			part="networkae" 
+			create-text="Create new Network AE" 
+			delete-text="Delete selected Network AE">
+		</create-delete-button>
+	</div>
+	<div id="SelectDicomTransferCapability"></div>
+</div>

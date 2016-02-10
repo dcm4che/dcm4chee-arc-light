@@ -1,0 +1,60 @@
+{
+   "dicomDeviceName":"dcmqrscp",
+   "dicomIssuerOfPatientID":"Site B&1.2.40.0.13.1.1.999.222.2222&ISO",
+   "dicomIssuerOfAccessionNumber":"Site B&1.2.40.0.13.1.1.999.222.2222&ISO",
+   "dicomInstitutionName":[
+      "Site B"
+   ],
+   "dicomInstitutionCode":[
+      "(222.2222, 99DCM4CHEE, \"Site B\")"
+   ],
+   "dicomThisNodeCertificateReference":[
+      "dicomDeviceName=dcmqrscp,cn=Devices,cn=DICOM Configuration,dc=nodomain"
+   ],
+   "dicomInstalled":true,
+   "dicomNetworkConnection":[
+      {
+         "cn":"dicom",
+         "dicomHostname":"localhost",
+         "dicomPort":11113,
+         "dcmNetworkConnection":{
+
+         }
+      },
+      {
+         "cn":"dicom-tls",
+         "dicomHostname":"localhost",
+         "dicomPort":2763,
+         "dicomTLSCipherSuite":[
+            "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "SSL_RSA_WITH_3DES_EDE_CBC_SHA"
+         ],
+         "dcmNetworkConnection":{
+            "dcmTLSProtocol":[
+               "TLSv1",
+               "SSLv3"
+            ]
+         }
+      }
+   ],
+   "dicomNetworkAE":[
+      {
+         "dicomAETitle":"DCMQRSCP",
+         "dicomAssociationInitiator":true,
+         "dicomAssociationAcceptor":true,
+         "dicomNetworkConnectionReference":[
+            "/dicomNetworkConnection/0",
+            "/dicomNetworkConnection/1"
+         ],
+         "dicomTransferCapability":[
+
+         ],
+         "dcmNetworkAE":{
+
+         }
+      }
+   ],
+   "dcmDevice":{
+
+   }
+}

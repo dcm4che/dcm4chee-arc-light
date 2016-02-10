@@ -1,7 +1,6 @@
 "use strict";
 
 myApp.controller('ArchiveCtrl', function ($scope, $http) {
-    $scope.logoutUrl = myApp.logoutUrl();
     $scope.status = null;
     $scope.message = '';
     $scope.fetchStatus = function() {

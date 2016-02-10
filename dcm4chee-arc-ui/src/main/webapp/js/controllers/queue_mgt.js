@@ -1,7 +1,6 @@
 "use strict";
 
 myApp.controller('QueueMgtCtrl', function ($scope, $http, QmgtService) {
-    $scope.logoutUrl = myApp.logoutUrl();
     $scope.matches = [];
     $scope.limit = 20;
     $scope.queues = [];

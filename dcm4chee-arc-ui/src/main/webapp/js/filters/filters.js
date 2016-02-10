@@ -81,5 +81,3 @@ myApp.filter("attributeNameOf", function() {
     };
 });
 
-
-

@@ -1,0 +1,17 @@
+{
+	  "name": "Test",
+	  "age": 25,
+	  "favorite_color": "#000000",
+	  "gender": "male",
+	  "location": {
+	    "city": "Tetovo",
+	    "state": "Shqiperi",
+	    "citystate": " "
+	  },
+	  "pets": [
+	    {
+	      "type": "dog",
+	      "name": "Xhoni"
+	    }
+	  ]
+}

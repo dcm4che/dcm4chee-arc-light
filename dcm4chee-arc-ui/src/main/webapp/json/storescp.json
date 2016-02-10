@@ -1,0 +1,54 @@
+{
+   "dicomDeviceName":"storescp",
+   "dicomIssuerOfPatientID":"Site A&1.2.40.0.13.1.1.999.111.1111&ISO",
+   "dicomIssuerOfAccessionNumber":"Site A&1.2.40.0.13.1.1.999.111.1111&ISO",
+   "dicomThisNodeCertificateReference":[
+      "dicomDeviceName=storescp,cn=Devices,cn=DICOM Configuration,dc=nodomain"
+   ],
+   "dicomInstalled":true,
+   "dicomNetworkConnection":[
+      {
+         "cn":"dicom",
+         "dicomHostname":"localhost",
+         "dicomPort":11115,
+         "dcmNetworkConnection":{
+
+         }
+      },
+      {
+         "cn":"dicom-tls",
+         "dicomHostname":"localhost",
+         "dicomPort":2766,
+         "dicomTLSCipherSuite":[
+            "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "SSL_RSA_WITH_3DES_EDE_CBC_SHA"
+         ],
+         "dcmNetworkConnection":{
+            "dcmTLSProtocol":[
+               "TLSv1",
+               "SSLv3"
+            ]
+         }
+      }
+   ],
+   "dicomNetworkAE":[
+      {
+         "dicomAETitle":"STORESCP",
+         "dicomAssociationInitiator":true,
+         "dicomAssociationAcceptor":true,
+         "dicomNetworkConnectionReference":[
+            "/dicomNetworkConnection/0",
+            "/dicomNetworkConnection/1"
+         ],
+         "dicomTransferCapability":[
+
+         ],
+         "dcmNetworkAE":{
+
+         }
+      }
+   ],
+   "dcmDevice":{
+
+   }
+}
