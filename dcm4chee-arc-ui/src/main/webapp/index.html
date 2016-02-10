@@ -14,13 +14,13 @@
 </head>
 <body ng-controller="MainController">
 <div class="background"></div>
-<div class="glyphicon glyphicon-align-justify toggle-button out"></div>
-<ul class="nav">
-<div class="glyphicon glyphicon-align-justify toggle-button"></div>
-    <li role="presentation" ng-class="getClass('/studies')"><a href="#studies">Studies</a></li>
-    <li role="presentation" ng-class="getClass('/queues')"><a href="#/queues">Queues</a></li>
-    <li role="presentation" ng-class="getClass('/ctrl')"><a href="#/ctrl">Control</a></li>
-    <li role="presentation" ng-class="getClass('/devices')"><a href="#/devices">Devices</a></li>
+<div class="glyphicon glyphicon-align-justify toggle-button out" ng-click="toggleMenu()" ng-show="!showMenu"></div>
+<ul class="nav slideInLeft animated" ng-show="showMenu">
+<div class="glyphicon glyphicon-align-justify toggle-button" ng-click="toggleMenu()"></div>
+    <li role="presentation" ng-class="getClass('/studies')" ng-click="toggleMenu()"><a href="#studies">Studies</a></li>
+    <li role="presentation" ng-class="getClass('/queues')" ng-click="toggleMenu()"><a href="#/queues">Queues</a></li>
+    <li role="presentation" ng-class="getClass('/ctrl')" ng-click="toggleMenu()"><a href="#/ctrl">Control</a></li>
+    <li role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li>
 </ul>
 <img src="img/logo.png" class="logo">
 <div class="main_content" ng-view>

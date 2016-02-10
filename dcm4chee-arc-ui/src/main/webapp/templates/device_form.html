@@ -3,14 +3,13 @@
 	<div ng-show="selectedElement == 'connection'" class="ng-cloak" sf-schema="dicomNetConnSchema" sf-form="dicomNetConnForm" sf-model="dicomNetConnModel" ng-cloak></div>
 	<div ng-show="selectedElement == 'networkae'" class="ng-cloak" sf-schema="networkAeSchema" sf-form="networkAeForm" sf-model="networkAeModel" ng-cloak>
 	</div>
-	<hr>
+	<hr  ng-show="showEcho()">
 	<div ng-show="showEcho()" class="echo col-md-12">
 		<h4>Send echo to Network AE</h4>
 		<div class="echo_block col-md-12">
 			<div class="col-md-6">
 				<span>Select one AET:</span>
 				<select 
-					class=""
 					name="aet" 
 					ng-model="selectedAet" 
 					ng-options="obj.title as obj.title for obj in aets track by obj.title">

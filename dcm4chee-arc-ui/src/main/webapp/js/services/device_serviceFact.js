@@ -275,6 +275,20 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		}
 	};
 
+	var addEmptyArrayFieldsPrivate = function($scope){
+    	$log.debug("in addEmptyArrayFields",$scope.wholeDevice);
+    	if($scope.wholeDevice && $schema.properties){
+        	addEmptyArrayToModel($scope.wholeDevice, $schema.properties);
+        	if($scope.wholeDevice.dicomNetworkAE){
+	        	angular.forEach($scope.wholeDevice.dicomNetworkAE, function(k, i){
+	        		if($scope.wholeDevice.dicomNetworkAE[i] && $schema.properties.dicomNetworkAE.items.properties){
+	        			addEmptyArrayToModel($scope.wholeDevice.dicomNetworkAE[i], $schema.properties.dicomNetworkAE.items.properties);
+	        		}$schema.properties.dicomNetworkAE.items.properties
+	        	});
+        	}
+    	}
+	};
+
 	return{
 
 		/*
@@ -659,6 +673,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	                    $scope.saved = true;
 	                    cfpLoadingBar.complete();
 	                    $scope.showCancel = false;
+	                    addEmptyArrayFieldsPrivate($scope);
 					    msg($scope,{
 					          "title":"Info",
 					          "text":"Changes saved successfully!",
@@ -697,11 +712,9 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		                "text": "A new device with the name "+$scope.wholeDevice.dicomDeviceName+" created successfully!",
 		                "status": "info"
 		            });
-              //   	msg($scope, {
-		            //     "title": "Info",
-		            //     "text": "Trying to delet the old device...",
-		            //     "status": "info"
-		            // });
+		            
+		            addEmptyArrayFieldsPrivate($scope);
+
                 	$http
                 	// .delete("../devices/" + $scope.devicename)
                 	.delete("../devices/" + $scope.currentDevice)
@@ -827,17 +840,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
         *$scope (Object) angularjs scope
         */
         addEmptyArrayFields : function($scope){
-        	$log.debug("in addEmptyArrayFields");
-        	if($scope.wholeDevice && $schema.properties){
-	        	addEmptyArrayToModel($scope.wholeDevice, $schema.properties);
-	        	if($scope.wholeDevice.dicomNetworkAE){
-		        	angular.forEach($scope.wholeDevice.dicomNetworkAE, function(k, i){
-		        		if($scope.wholeDevice.dicomNetworkAE[i] && $schema.properties.dicomNetworkAE.items.properties){
-		        			addEmptyArrayToModel($scope.wholeDevice.dicomNetworkAE[i], $schema.properties.dicomNetworkAE.items.properties);
-		        		}$schema.properties.dicomNetworkAE.items.properties
-		        	});
-	        	}
-        	}
+        	addEmptyArrayFieldsPrivate($scope);
         }
 
 	}

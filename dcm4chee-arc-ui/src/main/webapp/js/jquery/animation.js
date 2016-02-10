@@ -1,9 +1,9 @@
 $(function() {
 	//TODO make an angular solution for that
-	$(".toggle-button,ul.nav a").click(function(){
-		$("ul.nav").toggle(300);
-		$(".toggle-button.out").toggle(100);
-	});
+	// $(".toggle-button,ul.nav a").click(function(){
+	// 	$("ul.nav").toggle(300);
+	// 	$(".toggle-button.out").toggle(100);
+	// });
 	//Nice to have: detect different shortcuts, key typping
 	// $(document).keypress(function(e){
 	// 	console.log("e=",e);

@@ -28,7 +28,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     */
     window.addEventListener("beforeunload", function(e) {
         // if (!DeviceService.equalJSON($scope.wholeDevice, $scope.wholeDeviceCopy)) {
-        if (!$scope.saved) {
+        if ($scope.saved === false) {
 
             var confirmationMessage = 'It looks like you have been editing something. ' + 'If you leave before saving, your changes will be lost.';
 
@@ -37,6 +37,17 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }
     });
 
+    //Warn if the user want to leav the page without saving the changes
+    $scope.$on('$locationChangeStart', function(event) {
+        $log.debug("check changes=", DeviceService.equalJSON($scope.wholeDevice, $scope.wholeDeviceCopy));
+        $log.debug("$scope.saved=",$scope.saved);
+        if ($scope.saved === false) {
+            var answer = confirm("Are you sure you want to leave this page without saving changes?")
+            if (!answer) {
+                event.preventDefault();
+            }
+        }
+    });
 
     $scope.selectElement = function(element) {
         $log.debug("in selectElement, $scope.devicename=",$scope.devicename);
@@ -461,6 +472,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         // }
         //$log.debug();
         DeviceService.addEmptyArrayFields($scope);
+        $log.debug("in wholeDevice=",$scope.wholeDevice);
         cfpLoadingBar.complete();
     };
 
@@ -510,28 +522,14 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $log.debug("validForm in 2activeMenu=",$scope.activeMenu);
     };
 
-    //Warn if the user want to leav the page without saving the changes
-    $scope.$on('$locationChangeStart', function(event) {
-        $log.debug("check changes=", DeviceService.equalJSON($scope.wholeDevice, $scope.wholeDeviceCopy));
-        if (!$scope.saved) {
-            var answer = confirm("Are you sure you want to leave this page without saving changes?")
-            if (!answer) {
-                event.preventDefault();
-            }
-        }
-    });
+
 
     /*
     *Check if it was saved
     */
     $scope.savedCheck = function(e){
-      // $log.debug("e=",e);
-      // $log.debug("e.target=",(e.target.className == "create "+$scope.selectedElement));
       $log.debug("savecheck editMode=",$scope.editMode,"$scope.deletPartProcess=",$scope.deletPartProcess);
-      // $log.debug("selectedElement=",$scope.selectedElement);
-      // $log.debug("$(e.target).closest('.form_content').length<1=",$(e.target).closest('.form_content').length);
-      // $log.debug("(e.target.className == 'create '+$scope.selectedElement)=",(e.target.className == "create "+$scope.selectedElement));
-      // $log.debug("selectedElement=",$scope.selectedElement);
+
       if($scope.editMode && $(e.target).closest('.form_content').length<1 && !(e.target.className == "create "+$scope.selectedElement)){
         $log.debug("validate");
         $scope.validForm = DeviceService.validateForm($scope).valid;
@@ -744,7 +742,13 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     };
 
     $scope.showEcho = function(){
-      return ($scope.selectedElement == 'networkae' && !$scope.showCancel);
+      if($scope.selectedElement == 'networkae' && !$scope.showCancel){
+        setTimeout(function(){
+          return true;
+        }, 3000);
+      }else{
+        return false;
+      }
     };
 });
 

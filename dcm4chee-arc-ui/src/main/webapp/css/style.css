@@ -32,7 +32,6 @@ ul.nav {
   background: rgba(0, 0, 0, 0.74) none repeat scroll 0 0;
   box-shadow: 10px 10px 10px #959292;
   color: white;
-  display: none;
   height: 100%;
   left: 0;
   position: fixed;
@@ -330,6 +329,11 @@ device and create an other one with the new name*/
   -webkit-animation-duration: 400ms;
   animation-duration: 400ms;
   -moz-animation-duration: 400ms; }
+
+.animated.nav {
+  -webkit-animation-duration: 300ms;
+  animation-duration: 300ms;
+  -moz-animation-duration: 300ms; }
 
 .echo {
   border: 1px solid #ccc;

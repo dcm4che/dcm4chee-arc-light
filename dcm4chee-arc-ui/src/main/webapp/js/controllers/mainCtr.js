@@ -9,5 +9,14 @@ myApp.controller('MainController', function ($scope,$location) {
 		}
 			  
 	};
+
+    $scope.toggleMenu = function(){
+      console.log("showMenu=",$scope.showMenu);
+      if($scope.showMenu){
+        $scope.showMenu = false;
+      }else{
+        $scope.showMenu = true;
+      }
+    };
 	
 });
