@@ -40,13 +40,17 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.ArchiveServiceEvent;
+import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreSession;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 
 /**
@@ -64,7 +68,17 @@ public class AuditService {
     }
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
+        ArchiveServiceEvent.Type type = event.getType();
+        HttpServletRequest request = event.getRequest();
         //TODO
-        System.out.println("event=" + event);
+    }
+
+    public void onStore(@Observes StoreContext ctx) {
+        StoreSession session = ctx.getStoreSession();
+        String hostname = session.getRemoteHostName();
+        String sendingAET = session.getCallingAET();
+        String receivingAET = session.getCalledAET();
+        Attributes attrs = ctx.getAttributes();
+        //TODO
     }
 }
