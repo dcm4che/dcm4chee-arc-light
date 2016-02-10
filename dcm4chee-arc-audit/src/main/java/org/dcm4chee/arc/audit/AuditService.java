@@ -40,8 +40,14 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.ActiveParticipant;
+import org.dcm4che3.audit.AuditMessage;
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.EventIdentification;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.IncompatibleConnectionException;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.store.StoreContext;
@@ -51,14 +57,24 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.Principal;
+
+import java.util.Calendar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2016
  */
 @ApplicationScoped
 public class AuditService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
 
     @Inject
     private Device device;
@@ -67,10 +83,62 @@ public class AuditService {
         return device.getDeviceExtension(AuditLogger.class);
     }
 
-    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
+    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event, Principal user) {
+        Calendar timestamp = log().timeStamp();
         ArchiveServiceEvent.Type type = event.getType();
         HttpServletRequest request = event.getRequest();
-        //TODO
+        AuditMessage msg = new AuditMessage();
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(AuditMessages.EventID.ApplicationActivity);
+        if (type.equals(type.STARTED)) {
+            ei.getEventTypeCode().add(AuditMessages.EventTypeCode.ApplicationStart);
+            ei.setEventActionCode("E");
+            ei.setEventOutcomeIndicator("0");
+        }
+        if (type.equals(type.STOPPED)) {
+            ei.getEventTypeCode().add(AuditMessages.EventTypeCode.ApplicationStop);
+            ei.setEventActionCode("E");
+            ei.setEventOutcomeIndicator("0");
+        }
+        ei.setEventDateTime(timestamp);
+        msg.setEventIdentification(ei);
+        ActiveParticipant apApplication = new ActiveParticipant();
+        apApplication.getRoleIDCode().add(AuditMessages.RoleIDCode.Application);
+        apApplication.setUserID(device.getDeviceName());
+        String aeTitle = "";
+        for (ApplicationEntity ae : device.getApplicationEntities()) {
+            aeTitle += ae.getAETitle() + ";";
+        }
+        apApplication.setAlternativeUserID(aeTitle);
+        apApplication.setUserIsRequestor(false);
+        msg.getActiveParticipant().add(apApplication);
+
+        if (request != null) {
+            ActiveParticipant apUser = new ActiveParticipant();
+            apUser.getRoleIDCode().add(AuditMessages.RoleIDCode.ApplicationLauncher);
+            if (null == request.getRemoteUser()) {
+                apUser.setUserID(request.getRemoteAddr());
+                apUser.setNetworkAccessPointTypeCode("2");
+                apUser.setNetworkAccessPointID(request.getRemoteAddr());
+            }
+            if (null != request.getRemoteUser()) {
+                apUser.setUserID(request.getRemoteUser());
+            }
+            apUser.setUserIsRequestor(true);
+            msg.getActiveParticipant().add(apUser);
+        }
+
+        try {
+            log().write(timestamp, msg);
+        } catch (IncompatibleConnectionException icc) {
+            LOG.info("Incompatible Connection Exception : " + icc.getMessage());
+        }
+        catch (GeneralSecurityException gse) {
+            LOG.info("General Security Exception : " + gse.getMessage());
+        }
+        catch (IOException io) {
+            LOG.info("IO Exception : " + io.getMessage());
+        }
     }
 
     public void onStore(@Observes StoreContext ctx) {
