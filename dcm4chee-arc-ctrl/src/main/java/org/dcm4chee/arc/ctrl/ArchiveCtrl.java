@@ -44,9 +44,11 @@ import org.dcm4chee.arc.ArchiveService;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -59,28 +61,31 @@ public class ArchiveCtrl {
     @Inject
     private ArchiveService service;
 
+    @Context
+    private HttpServletRequest request;
+
     @GET
     @Path("start")
     public void start() throws Exception {
-        service.start();
+        service.start(request);
     }
 
     @GET
     @Path("stop")
     public void stop() {
-        service.stop();
+        service.stop(request);
     }
 
     @GET
     @Path("reload")
     public void reload() throws Exception {
-        service.reload();
+        service.reload(request);
     }
 
     @GET
     @Path("status")
     @Produces("application/json")
     public String status() {
-        return "{\"status\":\"" + service.status() + "\"}";
+        return "{\"status\":\"" + service.status(request) + "\"}";
     }
 }

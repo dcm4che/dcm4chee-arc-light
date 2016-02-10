@@ -40,10 +40,36 @@
 
 package org.dcm4chee.arc;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2015
  */
-public enum ArchiveServiceEvent {
-     STARTED, STOPPED, RELOADED
+public class ArchiveServiceEvent {
+
+    public enum Type { STARTED, STOPPED, RELOADED };
+
+    private final Type type;
+    private final HttpServletRequest request;
+
+    public ArchiveServiceEvent(Type type, HttpServletRequest request) {
+        this.type = type;
+        this.request = request;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
+    @Override
+    public String toString() {
+        return "ArchiveServiceEvent[" + type + (
+                request != null ? ", " + request.getRemoteUser() + '@' + request.getRemoteHost() + ']'
+                    : ']');
+    }
 }

@@ -23,6 +23,11 @@
       "description": "JMS Queue Name",
       "type": "string"
     },
+    "dicomDescription": {
+      "title": "Exporter Description",
+      "description": "Unconstrained text description of the exporter",
+      "type": "string"
+    },
     "dicomAETitle": {
       "title": "Application Entity (AE) title",
       "description": "Application Entity (AE) title",

@@ -12,20 +12,16 @@ import java.util.Map;
 
 public class ExporterDescriptor {
 
-    public ExporterDescriptor() {
-    }
-
-//    private final String exporterID;
     private String exporterID;
+    private String description;
     private URI exportURI;
     private String queueName;
     private String aeTitle;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
-//    public ExporterDescriptor(String exporterID) {
-//        this(exporterID, null);
-//    }
+    public ExporterDescriptor() {
+    }
 
     public ExporterDescriptor(String exporterID) {
         setExporterID(exporterID);

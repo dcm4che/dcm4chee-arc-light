@@ -63,8 +63,8 @@ public class AuditService {
         return device.getDeviceExtension(AuditLogger.class);
     }
 
-    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event, Principal user) {
+    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
         //TODO
-        System.out.println("event=" + event + ", user=" + user);
+        System.out.println("event=" + event);
     }
 }

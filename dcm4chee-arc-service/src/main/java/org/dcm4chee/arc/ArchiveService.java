@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2015
@@ -48,11 +50,11 @@ public interface ArchiveService {
 
     enum Status { STARTED, STOPPED }
 
-    void start() throws Exception;
+    void start(HttpServletRequest request) throws Exception;
 
-    void stop();
+    void stop(HttpServletRequest request);
 
-    Status status();
+    Status status(HttpServletRequest request);
 
-    void reload() throws Exception;
+    void reload(HttpServletRequest request) throws Exception;
 }

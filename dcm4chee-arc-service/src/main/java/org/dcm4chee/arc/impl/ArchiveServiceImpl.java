@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.impl;
 
-import org.dcm4che3.conf.api.ApplicationEntityCache;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
@@ -63,7 +62,7 @@ import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import java.io.File;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -126,7 +125,7 @@ public class ArchiveServiceImpl implements ArchiveService {
             if (hl7Extension != null) {
                 hl7Extension.setHL7MessageListener(hl7ServiceRegistry);
             }
-            start();
+            start(null);
         } catch (RuntimeException re) {
             destroy();
             throw re;
@@ -138,7 +137,7 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @PreDestroy
     public void destroy() {
-        stop();
+        stop(null);
 
         serviceRegistry.removeDicomService(echoscp);
         for (DicomService service : dicomServices) {
@@ -150,33 +149,33 @@ public class ArchiveServiceImpl implements ArchiveService {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start(HttpServletRequest request) throws Exception {
         for (Scheduler scheduler : schedulers) scheduler.start();
         device.bindConnections();
         status = Status.STARTED;
-        archiveServiceEvent.fire(ArchiveServiceEvent.STARTED);
+        archiveServiceEvent.fire(new ArchiveServiceEvent(ArchiveServiceEvent.Type.STARTED, request));
     }
 
     @Override
-    public void stop() {
+    public void stop(HttpServletRequest request) {
         for (Scheduler scheduler : schedulers) scheduler.stop();
         device.unbindConnections();
         status = Status.STOPPED;
-        archiveServiceEvent.fire(ArchiveServiceEvent.STOPPED);
+        archiveServiceEvent.fire(new ArchiveServiceEvent(ArchiveServiceEvent.Type.STOPPED, request));
     }
 
     @Override
-    public Status status() {
+    public Status status(HttpServletRequest request) {
         return status;
     }
 
     @Override
-    public void reload() throws Exception {
+    public void reload(HttpServletRequest request) throws Exception {
         deviceProducer.reloadConfiguration();
         for (Scheduler scheduler : schedulers) scheduler.reload();
         device.rebindConnections();
         aeCache.clear();
-        archiveServiceEvent.fire(ArchiveServiceEvent.RELOADED);
+        archiveServiceEvent.fire(new ArchiveServiceEvent(ArchiveServiceEvent.Type.RELOADED, request));
     }
 
 }
