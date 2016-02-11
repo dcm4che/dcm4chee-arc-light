@@ -603,7 +603,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.deviceModel      = {};
                 $scope.wholeDevice      = {};
                 $scope.validForm        = true;
+                $scope.showSave         = false;
                 angular.element(document.getElementById("add_dropdowns")).html("");
+                angular.element(document.getElementById("add_edit_area")).html("");
                 break;
             case "connection":
                 if($scope.dicomNetConnModel.cn){
@@ -743,9 +745,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
     $scope.showEcho = function(){
       if($scope.selectedElement == 'networkae' && !$scope.showCancel){
-        setTimeout(function(){
-          return true;
-        }, 3000);
+        return true;
       }else{
         return false;
       }
