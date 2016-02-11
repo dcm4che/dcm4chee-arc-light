@@ -111,7 +111,7 @@ public class AuditService {
         ei.setEventID(AuditMessages.EventID.ApplicationActivity);
         ei.getEventTypeCode().add(eventTypeCode);
         ei.setEventActionCode(AuditMessages.EventActionCode.Execute);
-        ei.setEventOutcomeIndicator("0");
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
         ei.setEventDateTime(timestamp);
         msg.setEventIdentification(ei);
         ActiveParticipant apApplication = new ActiveParticipant();
@@ -132,13 +132,9 @@ public class AuditService {
         if (request != null) {
             ActiveParticipant apUser = new ActiveParticipant();
             apUser.getRoleIDCode().add(AuditMessages.RoleIDCode.ApplicationLauncher);
-            if (null == request.getRemoteUser()) {
-                apUser.setUserID(request.getRemoteAddr());
-                apUser.setNetworkAccessPointTypeCode("2");
-            }
-            if (null != request.getRemoteUser()) {
-                apUser.setUserID(request.getRemoteUser());
-            }
+            String remoteUser = request.getRemoteUser();
+            apUser.setUserID(remoteUser != null ? remoteUser : request.getRemoteAddr());
+            apUser.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
             apUser.setNetworkAccessPointID(request.getRemoteAddr());
             apUser.setUserIsRequestor(true);
             msg.getActiveParticipant().add(apUser);

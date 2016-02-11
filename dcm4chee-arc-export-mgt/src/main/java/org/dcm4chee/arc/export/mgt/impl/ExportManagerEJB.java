@@ -3,6 +3,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExportTask;
+import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -28,7 +29,7 @@ import java.util.Map;
  * @since Oct 2015
  */
 @Stateless
-public class ExportManagerEJB {
+public class ExportManagerEJB implements ExportManager {
 
     static final Logger LOG = LoggerFactory.getLogger(ExportManagerEJB.class);
 
@@ -41,6 +42,7 @@ public class ExportManagerEJB {
     @Inject
     private QueueManager queueManager;
 
+    @Override
     public void onStore(@Observes StoreContext ctx) {
         StoreSession session = ctx.getStoreSession();
         String hostname = session.getRemoteHostName();
@@ -153,6 +155,7 @@ public class ExportManagerEJB {
         return cal.getTime();
     }
 
+    @Override
     public int scheduleExportTasks(int fetchSize) {
         final List<ExportTask> resultList = em.createNamedQuery(
                 ExportTask.FIND_SCHEDULED_BY_DEVICE_NAME, ExportTask.class)
@@ -161,20 +164,32 @@ public class ExportManagerEJB {
                 .getResultList();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (ExportTask exportTask : resultList) {
-            ExporterDescriptor desc = arcDev.getExporterDescriptor(exportTask.getExporterID());
-            queueManager.scheduleMessage(desc.getQueueName(), createMessage(exportTask));
+            scheduleExportTask(
+                    exportTask.getStudyInstanceUID(),
+                    exportTask.getSeriesInstanceUID(),
+                    exportTask.getSopInstanceUID(),
+                    arcDev.getExporterDescriptor(exportTask.getExporterID()));
             em.remove(exportTask);
         }
         return resultList.size();
     }
 
-    private ObjectMessage createMessage(ExportTask exportTask) {
+    @Override
+    public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter) {
+        queueManager.scheduleMessage(exporter.getQueueName(),
+                createMessage(studyUID, seriesUID, objectUID, exporter.getExporterID()));
+    }
+
+    private ObjectMessage createMessage(String studyUID, String seriesUID, String objectUID, String exporterID) {
         ObjectMessage msg = queueManager.createObjectMessage("");
         try {
-            msg.setStringProperty("ExporterID", exportTask.getExporterID());
-            msg.setStringProperty("StudyInstanceUID", exportTask.getStudyInstanceUID());
-            msg.setStringProperty("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
-            msg.setStringProperty("SopInstanceUID", exportTask.getSopInstanceUID());
+            msg.setStringProperty("ExporterID", exporterID);
+            msg.setStringProperty("StudyInstanceUID", studyUID);
+            if (seriesUID != null) {
+                msg.setStringProperty("SeriesInstanceUID", seriesUID);
+                if (objectUID != null)
+                    msg.setStringProperty("SopInstanceUID", objectUID);
+            }
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

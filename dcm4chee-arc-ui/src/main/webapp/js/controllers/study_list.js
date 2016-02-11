@@ -7,6 +7,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.limit = 20;
     $scope.aes;
     $scope.aet = null;
+    $scope.exporters;
+    $scope.exporterID = null;
     $scope.rjnotes;
     $scope.rjnote = null;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
@@ -88,6 +90,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                 series.instances.pop();
             }
         });
+    };
+    $scope.exportStudy = function(study) {
+        $http.get(studyURL(study.attrs) + '/export/' + $scope.exporterID);
+    };
+    $scope.exportSeries = function(series) {
+        $http.get(seriesURL(series.attrs) + '/export/' + $scope.exporterID);
+    };
+    $scope.exportInstance = function(instance) {
+        $http.get(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
     };
     $scope.rejectStudy = function(study) {
         $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
@@ -247,6 +258,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                     initAETs(retries-1);
             });
     }
+    function initExporters(retries) {
+        $http.get("../export").then(
+            function (res) {
+                $scope.exporters = res.data;
+                $scope.exporterID = res.data[0].id;
+            },
+            function (res) {
+                if (retries)
+                    initExporters(retries-1);
+            });
+    }
     function initRjNotes(retries) {
         $http.get("../reject").then(
             function (res) {
@@ -267,5 +289,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
             });
     }
     initAETs(1);
+    initExporters(1);
     initRjNotes(1);
 });
