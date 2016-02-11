@@ -48,10 +48,34 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             }
         }
     });
+    $scope.changeElement = function(element){
+              if ($scope.selectedNetworkAE != undefined && !$scope.selectedTransfCap && $scope.devicename == "CHANGE_ME") {
+                // $log.debug("in if transfare put in dome");
+                  DeviceService
+                  .addDirectiveToDom(
+                      $scope, 
+                      "SelectDicomTransferCapability",
+                      "<div select-transfare-capability></div>"
+                  );
+              }
+              if($scope.devicename == "CHANGE_ME"){
+                  // $timeout(function() {
+                    DeviceService
+                    .addDirectiveToDom(
+                        $scope, 
+                        "add_edit_area",
+                        "<div edit-area></div>"
+                    );
+              }
+              if ($scope.selectedDicomNetworkConnection != undefined) {
 
+                $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
+                $scope.networkAeForm = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
+              }  
+    };
     $scope.selectElement = function(element) {
-        $log.debug("in selectElement, $scope.devicename=",$scope.devicename);
-        $log.debug("selectedTransfCap=",$scope.selectedTransfCap);
+        // $log.debug("in selectElement, $scope.devicename=",$scope.devicename);
+        // $log.debug("selectedTransfCap=",$scope.selectedTransfCap);
         if(
             (
                 element === "device"        ||
@@ -75,30 +99,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             $scope.lastBorder       = "active_border";
             $scope.showSave         = true;
 
-            if ($scope.selectedDicomNetworkConnection != undefined) {
 
-                $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
-                $scope.networkAeForm = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
-            }
-
-            if ($scope.selectedNetworkAE != undefined && !$scope.selectedTransfCap && $scope.devicename == "CHANGE_ME") {
-              $log.debug("in if transfare put in dome");
-                DeviceService
-                .addDirectiveToDom(
-                    $scope, 
-                    "SelectDicomTransferCapability",
-                    "<div select-transfare-capability></div>"
-                );
-            }
-            if($scope.devicename == "CHANGE_ME"){
-                $timeout(function() {
-                    $scope.
-                    $apply(function() {
-                        angular.element(document.getElementById('add_edit_area'))
-                               .html($compile("<div edit-area></div>")($scope));
-                    });
-                });
-            }
+//
         }
         cfpLoadingBar.complete();
     };
@@ -508,18 +510,18 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     //Toggle function to show / hide the delete and create buttons for sub parts of device
     $scope.toggle = function(element) {
         //If the activeMenu and element are the same that meens that the user clicked again on the elment, so he wants to close it
-        $log.debug("validForm in toggle=",$scope.validForm);
-        $log.debug("validForm in activeMenu=",$scope.activeMenu);
-        $log.debug("element=",element);
-        if($scope.validForm){
+        // $log.debug("validForm in toggle=",$scope.validForm);
+        // $log.debug("validForm in activeMenu=",$scope.activeMenu);
+        // $log.debug("element=",element);
+        // if($scope.validForm){
 
-          if ($scope.activeMenu == element) {
+          if ($scope.activeMenu && $scope.activeMenu === element) {
               $scope.activeMenu = "";
           } else {
               $scope.activeMenu = element;
           }
-        }
-        $log.debug("validForm in 2activeMenu=",$scope.activeMenu);
+        // }
+        // $log.debug("validForm in 2activeMenu=",$scope.activeMenu);
     };
 
 
@@ -744,7 +746,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     };
 
     $scope.showEcho = function(){
-      if($scope.selectedElement == 'networkae' && !$scope.showCancel){
+      if($scope.selectedElement == 'networkae' && !$scope.showCancel && $scope.devicenam != "CHANGE_ME"){
         return true;
       }else{
         return false;

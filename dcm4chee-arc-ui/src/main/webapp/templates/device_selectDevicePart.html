@@ -12,7 +12,7 @@
 			ng-click='selectElement("connection")' 
 			name="connection" 
 			ng-model="selectedDicomNetworkConnection" 
-			ng-change='selectElement("connection")'
+			ng-change='changeElement("connection")'
 			ng-options="obj.cn as obj.cn for obj in wholeDevice.dicomNetworkConnection track by obj.cn">
 		</select>
 		<create-delete-button 
@@ -28,7 +28,7 @@
 			ng-class="{active_dropbox:selectedElement == 'networkae',active_menu:activeMenu == 'networkae'}" 
 			name="networkae" 
 			ng-model="selectedNetworkAE" 
-			ng-change='selectElement("networkae")' 
+			ng-change='changeElement("networkae")' 
 			ng-click='selectElement("networkae")'
 			ng-options="obj.dicomAETitle as obj.dicomAETitle for obj in wholeDevice.dicomNetworkAE track by obj.dicomAETitle">
 		</select>

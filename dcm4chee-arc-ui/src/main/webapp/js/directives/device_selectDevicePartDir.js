@@ -7,16 +7,6 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
         link: function(scope,elm,attr) {
             //cfpLoadingBar.start();
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-            //If the user was on the page once, than dont reinitate the whole device
-            // if(!scope.wholeDevice && !scope.wholeDeviceCopy){
-/*                if(scope.currentDevice == "CHANGE_ME"){
-                    scope.wholeDevice = {"dicomDeviceName":"CHANGE_ME"};
-                    scope.currentDevice = scope.wholeDevice.dicomDeviceName;
-                    scope.devicename = scope.wholeDevice.dicomDeviceName;
-                    $log.debug("currentDevice after reset=",scope.currentDevice);
-                }else
-*/
-$log.debug("in selectedDevicepart");
                 if(scope.currentDevice != "CHANGE_ME"){
                     cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
                     $http({
@@ -44,8 +34,15 @@ $log.debug("in selectedDevicepart");
                             $timeout(function() {
                                 scope.
                                 $apply(function() {
-                                    angular.element(document.getElementById('add_edit_area'))
-                                           .html($compile("<div edit-area></div>")(scope));
+                                    // angular.element(document.getElementById('add_edit_area'))
+                                    //        .html($compile("<div edit-area></div>")(scope));
+
+                                    DeviceService
+                                    .addDirectiveToDom(
+                                        scope, 
+                                        "add_edit_area",
+                                        "<div edit-area></div>"
+                                    );
                                 });
                             });
                             cfpLoadingBar.complete();
@@ -55,8 +52,14 @@ $log.debug("in selectedDevicepart");
                                 $log.debug("pos1");
                                 scope.
                                 $apply(function() {
-                                    angular.element(document.getElementById('add_edit_area'))
-                                           .html($compile("<div edit-area></div>")(scope));
+                                    // angular.element(document.getElementById('add_edit_area'))
+                                    //        .html($compile("<div edit-area></div>")(scope));
+                                    DeviceService
+                                    .addDirectiveToDom(
+                                        scope, 
+                                        "add_edit_area",
+                                        "<div edit-area></div>"
+                                    );
                                 });
                             });
                             scope.showSave                  = true;
