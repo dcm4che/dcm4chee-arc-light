@@ -74,8 +74,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
               }  
     };
     $scope.selectElement = function(element) {
-        // $log.debug("in selectElement, $scope.devicename=",$scope.devicename);
-        // $log.debug("selectedTransfCap=",$scope.selectedTransfCap);
         if(
             (
                 element === "device"        ||
@@ -98,9 +96,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             $scope.selectedElement  = element;
             $scope.lastBorder       = "active_border";
             $scope.showSave         = true;
-
-
-//
         }
         cfpLoadingBar.complete();
     };
@@ -117,10 +112,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
               $scope.showDropdownLoader = true;
               $scope.showFormLoader   = true;
           });
-            cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
             $scope.selectedElement = "device";
-            // $scope.middleBorder = "active_border";
-            // $scope.lastBorder = "active_border";
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
             DeviceService
             .addDirectiveToDom(
@@ -128,7 +120,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 "add_dropdowns",
                 "<div select-device-part></div>"
             );
-            cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+            cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
             //cfpLoadingBar.inc();
             //Wait a little bit so the angularjs has time to render the first directive otherwise some input fields are not showing
             
@@ -295,12 +287,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         if (m) {
                             var networkAEKey;
                             var toDeleteKey;
-
                             angular.forEach($scope.wholeDevice.dicomNetworkAE, function(value, key) {
                                 if (value.dicomAETitle == $scope.selectedNetworkAE) {
-
                                     networkAEKey = key;
-
                                     angular.forEach(value.dicomTransferCapability, function(m, k) {
                                         if (m.cn == $scope.selectedTransfCap) {
                                             toDeleteKey = k;
@@ -310,7 +299,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                             });
 
                             $scope.wholeDevice.dicomNetworkAE[networkAEKey].dicomTransferCapability.splice(toDeleteKey, 1);
-                            $scope.networkAeModel     = {};
+                            // $scope.networkAeModel     = {};
+                            // $scope.networkAeForm        = [];
                             $scope.selectedElement    = "";
                             $scope.selectedTransfCap  = null;
                             $scope.lastBorder         = "";

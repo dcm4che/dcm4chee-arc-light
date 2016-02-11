@@ -22,11 +22,6 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     var waitForWholeDevice = setInterval(function(){ 
                         // $log.debug("tiemOut =",timeOut);
                         if(scope.wholeDevice !== undefined){
-                            // if(!scope.wholeDevice.dicomInstitutionCode){
-                            //     scope.wholeDevice["dicomInstitutionCode"] =  [];
-                            //     scope.wholeDevice.dicomInstitutionCode.push(null);
-                            // }
-                            $log.debug("234wholeDevice=",scope.wholeDevice);
                             clearInterval(waitForWholeDevice);
                             scope.deviceModel = scope.wholeDevice;
                         }
