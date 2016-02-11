@@ -44,9 +44,10 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.IncompatibleConnectionException;
 import org.dcm4che3.net.audit.AuditLogger;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 
@@ -54,12 +55,21 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FilePermission;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +91,7 @@ public class AuditService {
         return device.getDeviceExtension(AuditLogger.class);
     }
 
-    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event, Principal user) {
+    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
         EventTypeCode eventTypeCode = null;
         switch (event.getType()) {
             case STARTED:
@@ -100,6 +110,8 @@ public class AuditService {
         EventIdentification ei = new EventIdentification();
         ei.setEventID(AuditMessages.EventID.ApplicationActivity);
         ei.getEventTypeCode().add(eventTypeCode);
+        ei.setEventActionCode(AuditMessages.EventActionCode.Execute);
+        ei.setEventOutcomeIndicator("0");
         ei.setEventDateTime(timestamp);
         msg.setEventIdentification(ei);
         ActiveParticipant apApplication = new ActiveParticipant();
@@ -123,15 +135,14 @@ public class AuditService {
             if (null == request.getRemoteUser()) {
                 apUser.setUserID(request.getRemoteAddr());
                 apUser.setNetworkAccessPointTypeCode("2");
-                apUser.setNetworkAccessPointID(request.getRemoteAddr());
             }
             if (null != request.getRemoteUser()) {
                 apUser.setUserID(request.getRemoteUser());
             }
+            apUser.setNetworkAccessPointID(request.getRemoteAddr());
             apUser.setUserIsRequestor(true);
             msg.getActiveParticipant().add(apUser);
         }
-
         emitAuditMessage(timestamp, msg);
     }
 
@@ -150,9 +161,44 @@ public class AuditService {
         String receivingAET = session.getCalledAET();
         Attributes attrs = ctx.getAttributes();
         //TODO
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String auditSpoolDir = arcDev.getAuditSpoolDirectory();
+        String studyFile = ctx.getStudyInstanceUID() + ".txt";
+        if (auditSpoolDir == null)
+            return;
+
+        Path dir = Paths.get(StringUtils.replaceSystemProperties(auditSpoolDir));
+        if (!Files.isDirectory(dir)) {
+            try {
+                Files.createDirectory(dir);
+            } catch (Exception e) {
+                LOG.warn("Failed to create audit-spool directory " + e);
+            }
+        } else {
+            Path filePath = dir.resolve(studyFile);
+            System.out.println("Path file is " + filePath);
+            System.out.println("check whether file exists" + Files.exists(filePath, new LinkOption[]{LinkOption.NOFOLLOW_LINKS}));
+            if (!Files.exists(filePath, new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
+                try {
+                    Files.createFile(filePath);
+                } catch (Exception e) {
+                    LOG.warn("Failed to create file: " + e);
+                }
+            }
+            try(BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND)){
+                writer.append("SOP Class UID is : " + ctx.getSopClassUID());
+                writer.newLine();
+                writer.append("SOP instance UID is : " + ctx.getSopInstanceUID());
+                writer.newLine();
+                writer.flush();
+            } catch (Exception e) {
+                LOG.warn("Failed to append to file: " + e);
+            }
+        }
     }
 
     public void aggregateAuditMessage(Path path) {
         //TODO
+
     }
 }
