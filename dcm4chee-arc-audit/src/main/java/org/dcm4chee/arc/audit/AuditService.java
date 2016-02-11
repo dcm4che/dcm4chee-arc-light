@@ -56,20 +56,12 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FilePermission;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +131,9 @@ public class AuditService {
             apUser.setUserIsRequestor(true);
             msg.getActiveParticipant().add(apUser);
         }
+        AuditSourceIdentification asi = new AuditSourceIdentification();
+        asi.setAuditSourceID(device.getDeviceName());
+        msg.getAuditSourceIdentification().add(asi);
         emitAuditMessage(timestamp, msg);
     }
 
@@ -156,7 +151,6 @@ public class AuditService {
         String sendingAET = session.getCallingAET();
         String receivingAET = session.getCalledAET();
         Attributes attrs = ctx.getAttributes();
-        //TODO
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String auditSpoolDir = arcDev.getAuditSpoolDirectory();
         String studyFile = ctx.getStudyInstanceUID() + ".txt";
@@ -172,19 +166,30 @@ public class AuditService {
             }
         } else {
             Path filePath = dir.resolve(studyFile);
-            System.out.println("Path file is " + filePath);
-            System.out.println("check whether file exists" + Files.exists(filePath, new LinkOption[]{LinkOption.NOFOLLOW_LINKS}));
             if (!Files.exists(filePath, new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
                 try {
                     Files.createFile(filePath);
+                    try(BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND)){
+                        writer.append("Hostname is :" + hostname);
+                        writer.newLine();
+                        writer.append("Sending AE Title is :" + sendingAET);
+                        writer.newLine();
+                        writer.append("Receiving AE Title is :" + receivingAET);
+                        writer.newLine();
+                        writer.append("Study Instance UID is :" + ctx.getStudyInstanceUID());
+                        writer.newLine();
+                        writer.flush();
+                    } catch (Exception e) {
+                        LOG.warn("Failed to append to file: " + e);
+                    }
                 } catch (Exception e) {
                     LOG.warn("Failed to create file: " + e);
                 }
             }
             try(BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND)){
-                writer.append("SOP Class UID is : " + ctx.getSopClassUID());
+                writer.append("SOP Class UID is :" + ctx.getSopClassUID());
                 writer.newLine();
-                writer.append("SOP instance UID is : " + ctx.getSopInstanceUID());
+                writer.append("SOP instance UID is :" + ctx.getSopInstanceUID());
                 writer.newLine();
                 writer.flush();
             } catch (Exception e) {
@@ -194,7 +199,60 @@ public class AuditService {
     }
 
     public void aggregateAuditMessage(Path path) {
-        //TODO
-
+        System.out.println("path received is " + path);
+        String sender = "";
+        String receiver = "";
+        String remoteHostAddress = "";
+        String studyInstanceUID = "";
+        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            ArrayList lines = new ArrayList();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                if (line.startsWith("Hostname"))
+                    remoteHostAddress = line.substring(line.indexOf(":")+1);
+                if (line.startsWith("Sending"))
+                    sender = line.substring(line.indexOf(":")+1);
+                if (line.startsWith("Receiving"))
+                    receiver = line.substring(line.indexOf(":")+1);
+                if (line.startsWith("Study"))
+                    studyInstanceUID = line.substring(line.indexOf(":")+1);
+                lines.add(line);
+            }
+        } catch (Exception e) {
+            LOG.warn("Exception caught while reading the file : " + e);
+        }
+        AuditMessage msg = new AuditMessage();
+        Calendar timestamp = log().timeStamp();
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(AuditMessages.EventID.DICOMInstancesTransferred);
+        ei.setEventActionCode(AuditMessages.EventActionCode.Create);
+        ei.setEventDateTime(timestamp);
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+        msg.setEventIdentification(ei);
+        ActiveParticipant apSender = new ActiveParticipant();
+        apSender.setUserID(sender);
+        apSender.setUserIsRequestor(true);
+        apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
+        apSender.setNetworkAccessPointID(remoteHostAddress);
+        apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
+        msg.getActiveParticipant().add(apSender);
+        ActiveParticipant apReceiver = new ActiveParticipant();
+        apReceiver.setUserID(receiver);
+        apReceiver.setUserIsRequestor(false);
+        apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
+        msg.getActiveParticipant().add(apReceiver);
+        AuditSourceIdentification asi = new AuditSourceIdentification();
+        asi.setAuditSourceID(device.getDeviceName());
+        msg.getAuditSourceIdentification().add(asi);
+        ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
+        poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+        poiStudy.setParticipantObjectID(studyInstanceUID);
+//        poiStudy.getParticipantObjectDescriptionType().getSOPClass().add(sopclass);
+        msg.getParticipantObjectIdentification().add(poiStudy);
+//        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();           #discuss
+        emitAuditMessage(timestamp, msg);
     }
 }
