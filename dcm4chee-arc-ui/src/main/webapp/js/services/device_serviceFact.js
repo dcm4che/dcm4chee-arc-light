@@ -321,7 +321,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				delete localShema.properties.dicomNetworkAE;
 				delete localShema.properties.dicomNetworkConnection;
 				//return localShema;
-				$log.debug("localSchema",localShema.properties);
+				// $log.debug("localSchema",localShema.properties);
 				angular.forEach(localShema.properties, function(m,i){
 					if(m.type != "array"){
 						endArray.push(i);
@@ -336,7 +336,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					}
 				});
 
-				$log.debug("2endArray=",endArray);
+				// $log.debug("2endArray=",endArray);
 				return endArray;
 			}catch(e){
 				$log.error("Error on splitting the device schema in factory DeviceService.js",e);

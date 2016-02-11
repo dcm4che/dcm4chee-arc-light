@@ -15,15 +15,15 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
                       }).then(function successCallback(response) {
                         cfpLoadingBar.set(cfpLoadingBar.status()+(0.3));
 
-                        var wholeDeviceCopy                 = {};
+                        // var wholeDeviceCopy                 = {};
                             //scope.selectedNetworkConnection = response.data.dicomNetworkConnection;
                             scope.networkae                 = response.data.dicomNetworkAE;
                             scope.wholeDevice               = response.data;
                             DeviceService.addEmptyArrayFields(scope);
                             cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
-                            angular.copy(scope.wholeDevice,wholeDeviceCopy);
+                            // angular.copy(scope.wholeDevice,wholeDeviceCopy);
                             cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
-                            scope.wholeDeviceCopy           = wholeDeviceCopy;
+                            // scope.wholeDeviceCopy           = wholeDeviceCopy;
                             cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
 
                         elm.bind('change', function() {
@@ -48,20 +48,23 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
                             cfpLoadingBar.complete();
                         });
                         elm.find("#showDeviceForm").bind('click', function() {
-                            $timeout(function() {
-                                $log.debug("pos1");
-                                scope.
-                                $apply(function() {
-                                    // angular.element(document.getElementById('add_edit_area'))
-                                    //        .html($compile("<div edit-area></div>")(scope));
-                                    DeviceService
-                                    .addDirectiveToDom(
-                                        scope, 
-                                        "add_edit_area",
-                                        "<div edit-area></div>"
-                                    );
+
+                            if(scope.devicename === "CHANGE_ME"){
+
+                                $timeout(function() {
+                                    // $log.debug("pos1");
+                                    scope.
+                                    $apply(function() {
+                                        DeviceService
+                                        .addDirectiveToDom(
+                                            scope, 
+                                            "add_edit_area",
+                                            "<div edit-area></div>"
+                                        );
+                                    });
                                 });
-                            });
+                            }
+
                             scope.showSave                  = true;
                             scope.lastBorder                = "active_border";
                             cfpLoadingBar.complete();

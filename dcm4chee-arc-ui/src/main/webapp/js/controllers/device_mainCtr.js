@@ -39,7 +39,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
     //Warn if the user want to leav the page without saving the changes
     $scope.$on('$locationChangeStart', function(event) {
-        $log.debug("check changes=", DeviceService.equalJSON($scope.wholeDevice, $scope.wholeDeviceCopy));
+        // $log.debug("check changes=", DeviceService.equalJSON($scope.wholeDevice, $scope.wholeDeviceCopy));
         $log.debug("$scope.saved=",$scope.saved);
         if ($scope.saved === false) {
             var answer = confirm("Are you sure you want to leave this page without saving changes?")
@@ -49,7 +49,32 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }
     });
     $scope.changeElement = function(element){
-              if ($scope.selectedNetworkAE != undefined && !$scope.selectedTransfCap && $scope.devicename == "CHANGE_ME") {
+              cfpLoadingBar.start();
+              if(
+                  (
+                      element === "device"        ||
+                      element === "connection"    && $scope.selectedDicomNetworkConnection  != undefined ||
+                      element === "networkae"     && $scope.selectedNetworkAE               != undefined ||
+                      element === 'transfarecap'  && $scope.selectedTransfCap               != undefined
+                  ) 
+                    &&
+                  (
+                      element != $scope.selectedElement ||
+                      $scope.devicename === "CHANGE_ME"
+                  )&&
+                      $scope.validForm
+              ) {
+                  cfpLoadingBar.start();
+                  if(element === 'networkae'){
+                    $scope.selectedTransfCap  = null;
+                    //$scope.transfareCapModel  = {};
+                  }
+                  $scope.selectedElement  = element;
+                  $scope.lastBorder       = "active_border";
+                  $scope.showSave         = true;
+              }
+              if ($scope.selectedNetworkAE != undefined && !$scope.selectedTransfCap && $scope.devicename === "CHANGE_ME") {
+                $log.debug("in if 1 changeElement");
                 // $log.debug("in if transfare put in dome");
                   DeviceService
                   .addDirectiveToDom(
@@ -58,7 +83,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       "<div select-transfare-capability></div>"
                   );
               }
-              if($scope.devicename == "CHANGE_ME"){
+              if($scope.devicename === "CHANGE_ME"){
+                $log.debug("in if change me changeElement");
                   // $timeout(function() {
                     DeviceService
                     .addDirectiveToDom(
@@ -72,8 +98,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
                 $scope.networkAeForm = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
               }  
+            cfpLoadingBar.complete();
     };
     $scope.selectElement = function(element) {
+        cfpLoadingBar.start();
         if(
             (
                 element === "device"        ||
@@ -88,7 +116,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             )&&
                 $scope.validForm
         ) {
-            cfpLoadingBar.start();
             if(element === 'networkae'){
               $scope.selectedTransfCap  = null;
               //$scope.transfareCapModel  = {};
@@ -108,10 +135,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         cfpLoadingBar.start();
         if ($scope.devicename) {
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
-          setTimeout(function(){ 
-              $scope.showDropdownLoader = true;
-              $scope.showFormLoader   = true;
-          });
+            setTimeout(function(){ 
+                $scope.showDropdownLoader = true;
+                $scope.showFormLoader   = true;
+            });
             $scope.selectedElement = "device";
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
             DeviceService

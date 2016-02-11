@@ -8,18 +8,18 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
     		// cfpLoadingBar.start();
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
 
-
+            $log.debug("in formEditAreaDir");
 			if(scope.selectedElement === "device"){
                 // $log.debug("status=",cfpLoadingBar.status());
-                $log.debug("in formEditArea wholeDevice",scope.wholeDevice);
-                $log.debug("in formEditArea scope.currentDevice=",scope.currentDevice);
+                // $log.debug("in formEditArea wholeDevice",scope.wholeDevice);
+                // $log.debug("in formEditArea scope.currentDevice=",scope.currentDevice);
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
 
 				scope.deviceSchema = DeviceService.getDeviceSchema();
                 //If the wholeDevice is undefined wait for it, otherwaise assigne it to deviceModel
                 if(scope.wholeDevice === undefined || scope.wholeDevice.dicomDeviceName != scope.currentDevice){
                     var timeOut = 0;
-                    var waitForWholeDevice = setInterval(function(){ 
+                    var waitForWholeDevice = setInterval(function(){
                         // $log.debug("tiemOut =",timeOut);
                         if(scope.wholeDevice !== undefined){
                             clearInterval(waitForWholeDevice);
@@ -38,8 +38,12 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     //     scope.wholeDevice["dicomInstitutionCode"] =  [];
                     //     scope.wholeDevice.dicomInstitutionCode.push(null);
                     // }
-                    $log.debug("123wholeDevice=",scope.wholeDevice);
+                    // $log.debug("123wholeDevice=",scope.wholeDevice);
+                    // $log.debug("1deviceModel=",scope.deviceModel);
+                    // if(!scope.deviceModel){
                     scope.deviceModel = scope.wholeDevice;
+                    // }
+                    // $log.debug("2deviceModel=",scope.deviceModel);
                     // setTimeout(function(){
                     //     if(scope.currentDevice == "CHANGE_ME"){
                     //         $log.debug("#dicomDeviceName=",$("#dicomDeviceName"));
@@ -48,8 +52,11 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     // },500);
                 }
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
+                $log.debug("1 scope.deviceForm=",scope.deviceForm);
+
                 scope.deviceForm = DeviceService.getDeviceForm();
-                scope.deviceForm.startEmpty = true;
+                $log.debug("2 scope.deviceForm=",scope.deviceForm);
+                // scope.deviceForm.startEmpty = true;
             }
             
 			//If the first selectbutton was changed than show the NetworkConnection of dhe device
@@ -74,7 +81,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     // scope.networkAeSchema 	= $schema;
                     
                     // $log.debug("networkAeSchema=",scope.networkAeSchema);
-                    $log.debug("networkAeSchema=",DeviceService.getSchemaNetworkAe());
+                    // $log.debug("networkAeSchema=",DeviceService.getSchemaNetworkAe());
                 var networAeToEdit 	        = {};
                 var toEditKey;
 
@@ -88,7 +95,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 scope.transfcap             = scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability;
                 scope.networkAeModel        = scope.wholeDevice.dicomNetworkAE[toEditKey];
                 scope.networkAeForm         = DeviceService.getFormNetworkAe(scope.wholeDevice.dicomNetworkConnection);
-                $log.debug("geetFormNetworkAe=",DeviceService.getFormNetworkAe(scope.wholeDevice.dicomNetworkConnection));
+                // $log.debug("geetFormNetworkAe=",DeviceService.getFormNetworkAe(scope.wholeDevice.dicomNetworkConnection));
 /*                scope.networkAeForm = [
                                         "dicomAETitle",
                                         "select",
@@ -103,8 +110,8 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                                         },
                                         "dicomAssociationInitiator"
                                       ];*/
-                $log.debug("geetFormNetworkAe2=",scope.networkAeForm);
-                $log.debug("wholeDevice=",scope.wholeDevice);
+                // $log.debug("geetFormNetworkAe2=",scope.networkAeForm);
+                // $log.debug("wholeDevice=",scope.wholeDevice);
                 angular.element(document.getElementById('SelectDicomTransferCapability'))
                                    .html($compile("<div select-transfare-capability></div>")(scope));
 
@@ -119,9 +126,9 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
 		            	angular.forEach(scope.wholeDevice.dicomNetworkAE[key1].dicomTransferCapability,function(value,key) {
 		            		if(value.cn === scope.selectedTransfCap){
                                 var model   = scope.wholeDevice.dicomNetworkAE[key1].dicomTransferCapability[key];
-                                $log.debug("transfercap model=",model);
+                                // $log.debug("transfercap model=",model);
                                 scope.transfareCapModel = model;
-		         				$log.debug("transfareCapModel set=",scope.transfareCapModel);
+		         				// $log.debug("transfareCapModel set=",scope.transfareCapModel);
 		            		}
 		            	});
                 	}
