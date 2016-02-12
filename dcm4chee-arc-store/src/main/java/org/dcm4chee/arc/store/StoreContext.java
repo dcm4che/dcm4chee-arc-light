@@ -1,6 +1,10 @@
 package org.dcm4chee.arc.store;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.entity.Instance;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.WriteContext;
 
 /**
@@ -18,6 +22,8 @@ public interface StoreContext {
     String getSopInstanceUID();
 
     void setSopInstanceUID(String string);
+
+    String getMppsInstanceUID();
 
     String getReceiveTranferSyntax();
 
@@ -41,4 +47,19 @@ public interface StoreContext {
 
     void setWriteContext(WriteContext writeContext);
 
+    Location getLocation();
+
+    void setLocation(Location location);
+
+    RejectionNote getRejectionNote();
+
+    void setRejectionNote(RejectionNote rejectionNote);
+
+    Exception getException();
+
+    void setException(Exception ex);
+
+    Instance getPreviousInstance();
+
+    void setPreviousInstance(Instance previousInstance);
 }

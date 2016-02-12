@@ -19,8 +19,16 @@
       "description": "Configuration Access"
     },
     {
-      "name": "QUEUE-RS",
-      "description": "Queue Management"
+      "name": "ECHO-RS",
+      "description": "DICOM Verification"
+    },
+    {
+      "name": "EXPORT-RS",
+      "description": "Export Entity"
+    },
+    {
+      "name": "IOCM-RS",
+      "description": "Imaging Object Change Management"
     },
     {
       "name": "QIDO-RS",
@@ -31,20 +39,16 @@
       }
     },
     {
+      "name": "QUEUE-RS",
+      "description": "Queue Management"
+    },
+    {
       "name": "WADO-URI",
       "description": "Web Access to DICOM Objects by URI",
       "externalDocs": {
         "description": "DICOM PS3.18",
         "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
       }
-    },
-    {
-      "name": "IOCM-RS",
-      "description": "Imaging Object Change Management"
-    },
-    {
-      "name": "ECHO-RS",
-      "description": "DICOM Verification"
     }
   ],
   "paths": {
@@ -479,7 +483,8 @@
           "QIDO-RS",
           "WADO-URI",
           "IOCM-RS",
-          "ECHO-RS"
+          "ECHO-RS",
+          "EXPORT-RS"
         ],
         "summary": "list Archive AE Titles",
         "operationId": "listArchiveAETs",
@@ -531,6 +536,156 @@
           },
           "404": {
             "description": "Remote AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
+      "get": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "export study",
+        "operationId": "exportStudy",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no exporter with specified exporterID configured"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/export/{exporterID}": {
+      "get": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "export series",
+        "operationId": "exportSeries",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "seriesUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no exporter with specified exporterID configured"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/export/{exporterID}": {
+      "get": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "export instance",
+        "operationId": "exportInstance",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "seriesUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "objectUID",
+            "in": "path",
+            "description": "Unique Identifier of the Object",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no exporter with specified exporterID configured"
           },
           "default": {
             "description": "unexpected error"
@@ -865,6 +1020,30 @@
           },
           "404": {
             "description": "object not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/export": {
+      "get": {
+        "tags": [
+          "CONFIG-RS",
+          "EXPORT-RS"
+        ],
+        "summary": "list Exporters",
+        "operationId": "listExporters",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Exporter",
+            "schema": {
+              "$ref": "exporters.schema.json"
+            }
           },
           "default": {
             "description": "unexpected error"

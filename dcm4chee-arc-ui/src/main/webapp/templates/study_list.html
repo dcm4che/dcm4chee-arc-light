@@ -9,6 +9,22 @@
         <label for="limit">Page Size:</label>
         <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
     </div>
+    <div class="form-group">
+        <label for="exporter">Export:</label>
+        <select id="exporter" ng-model="exporterID">
+            <option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="reject">Reject:</label>
+        <select id="reject" ng-model="reject">
+            <option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}"
+                    value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
+        </select>
+        <a ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently">
+            <span class="glyphicon glyphicon-remove"></span>
+        </a>
+    </div>
     <br/>
     <div class="form-group">
         <label for="PatientName">Patient Name:</label>
@@ -108,6 +124,15 @@
                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
+<<<<<<< HEAD
+=======
+                <a ng-click="exportStudy(study)" ng-show="exporterID" href="" title="Export Study">
+                    <span class="glyphicon glyphicon-export"></span>
+                </a>
+                <a ng-click="rejectStudy(study)" href="" title="Reject Study">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+>>>>>>> master
                 <!--
                 <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
                     <span class="glyphicon glyphicon-save"></span>
@@ -161,6 +186,15 @@
                 <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
+<<<<<<< HEAD
+=======
+                <a ng-click="exportSeries(series)" ng-show="exporterID" href="" title="Export Series">
+                    <span class="glyphicon glyphicon-export"></span>
+                </a>
+                <a ng-click="rejectSeries(series)" href="" title="Reject Series">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+>>>>>>> master
                 <!--
                 <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
                     <span class="glyphicon glyphicon-save"></span>
@@ -211,6 +245,15 @@
                 <a ng-click="instance.showAttributes = !instance.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
+<<<<<<< HEAD
+=======
+                <a ng-click="exportInstance(instance)" ng-show="exporterID" href="" title="Export Instance">
+                    <span class="glyphicon glyphicon-export"></span>
+                </a>
+                <a ng-click="rejectInstance(instance)" href="" title="Reject Instance">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+>>>>>>> master
                 <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
                     <span class="glyphicon glyphicon-save"></span>
                 </a>

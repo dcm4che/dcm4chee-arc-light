@@ -162,6 +162,21 @@
       "description": "Maximal staleness of recorded study accession time in ISO-8601 duration format PnDTnHnMn.nS. update of the access time disabled, if absent.",
       "type": "string"
     },
+    "dcmAuditSpoolDirectory": {
+      "title": "Audit Spool Directory",
+      "description": "Path to Audit Service Spool Directory used to aggregate Audit Messages. Audit Message aggregation disabled, if absent.",
+      "type": "string"
+    },
+    "dcmAuditPollingInterval": {
+      "title": "Audit Polling Interval",
+      "description": "Polling Interval for aggregating Audit Messages in ISO-8601 duration format PnDTnHnMn.nS. Audit Message aggregation disabled, if absent.",
+      "type": "string"
+    },
+    "dcmAuditAggregateDuration": {
+      "title": "Audit Aggregate Duration",
+      "description": "Audit Message Aggregation Duration in ISO-8601 duration format PnDTnHnMn.nS. Audit Message aggregation disabled, if absent.",
+      "type": "string"
+    },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",
       "description": "Specifies URI for the style sheet used by HL7v2 Patient Update Service.",

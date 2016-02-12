@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,42 +38,22 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
+package org.dcm4chee.arc.export.mgt;
 
-import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.ExportTask;
+import org.dcm4chee.arc.store.StoreContext;
+
+import javax.enterprise.event.Observes;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2015
+ * @since Feb 2016
  */
-class UpdateDBResult {
-    private Location location;
-    private RejectionNote rejectionNote;
-    private Instance previousInstance;
+public interface ExportManager {
+    void onStore(@Observes StoreContext ctx);
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
+    int scheduleExportTasks(int fetchSize);
 
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setRejectionNote(RejectionNote rejectionNote) {
-        this.rejectionNote = rejectionNote;
-    }
-
-    public RejectionNote getRejectionNote() {
-        return rejectionNote;
-    }
-
-    public void setPreviousInstance(Instance previousInstance) {
-        this.previousInstance = previousInstance;
-    }
-
-    public Instance getPreviousInstance() {
-        return previousInstance;
-    }
+    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter);
 }

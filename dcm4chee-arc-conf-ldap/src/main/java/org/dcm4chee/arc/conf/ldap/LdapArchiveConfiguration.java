@@ -103,6 +103,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmDeletePatientOnDeleteLastStudy",
                 ext.isDeletePatientOnDeleteLastStudy(), false);
         LdapUtils.storeNotNull(attrs, "dcmMaxAccessTimeStaleness", ext.getMaxAccessTimeStaleness());
+        LdapUtils.storeNotNull(attrs, "dcmAuditSpoolDirectory", ext.getAuditSpoolDirectory());
+        LdapUtils.storeNotNull(attrs, "dcmAuditPollingInterval", ext.getAuditPollingInterval());
+        LdapUtils.storeNotNull(attrs, "dcmAuditAggregateDuration", ext.getAuditAggregateDuration());
     }
 
     @Override
@@ -148,6 +151,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeletePatientOnDeleteLastStudy(
                 LdapUtils.booleanValue(attrs.get("dcmDeletePatientOnDeleteLastStudy"), false));
         ext.setMaxAccessTimeStaleness(toDuration(LdapUtils.stringValue(attrs.get("dcmMaxAccessTimeStaleness"), null)));
+        ext.setAuditSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmAuditSpoolDirectory"), null));
+        ext.setAuditPollingInterval(toDuration(LdapUtils.stringValue(attrs.get("dcmAuditPollingInterval"), null)));
+        ext.setAuditAggregateDuration(toDuration(LdapUtils.stringValue(attrs.get("dcmAuditAggregateDuration"), null)));
     }
 
     @Override
@@ -205,10 +211,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getDeleteRejectedFetchSize(), bb.getDeleteRejectedFetchSize(), 100);
         LdapUtils.storeDiff(mods, "dcmDeleteStudyBatchSize",
                 aa.getDeleteStudyBatchSize(), bb.getDeleteStudyBatchSize(), 10);
-        LdapUtils.storeDiff(mods, "dcmMaxAccessTimeStaleness",
-                aa.getMaxAccessTimeStaleness(), bb.getMaxAccessTimeStaleness());
         LdapUtils.storeDiff(mods, "dcmDeletePatientOnDeleteLastStudy",
                 aa.isDeletePatientOnDeleteLastStudy(), bb.isDeletePatientOnDeleteLastStudy(), false);
+        LdapUtils.storeDiff(mods, "dcmMaxAccessTimeStaleness",
+                aa.getMaxAccessTimeStaleness(), bb.getMaxAccessTimeStaleness());
+        LdapUtils.storeDiff(mods, "dcmAuditSpoolDirectory",
+                aa.getAuditSpoolDirectory(), bb.getAuditSpoolDirectory());
+        LdapUtils.storeDiff(mods, "dcmAuditPollingInterval",
+                aa.getAuditPollingInterval(), bb.getAuditPollingInterval());
+        LdapUtils.storeDiff(mods, "dcmAuditAggregateDuration",
+                aa.getAuditAggregateDuration(), bb.getAuditAggregateDuration());
     }
 
     @Override
@@ -662,6 +674,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "dcmExporter");
         attrs.put("dcmExporterID", descriptor.getExporterID());
         LdapUtils.storeNotNull(attrs, "dcmURI", descriptor.getExportURI());
+        LdapUtils.storeNotNull(attrs, "dicomDescription", descriptor.getDescription());
         LdapUtils.storeNotNull(attrs, "dcmQueueName", descriptor.getQueueName());
         LdapUtils.storeNotNull(attrs, "dicomAETitle", descriptor.getAETitle());
         LdapUtils.storeNotEmpty(attrs, "dcmSchedule", descriptor.getSchedules());
@@ -677,6 +690,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 ExporterDescriptor desc = new ExporterDescriptor(LdapUtils.stringValue(attrs.get("dcmExporterID"), null));
                 desc.setExportURI(URI.create(LdapUtils.stringValue(attrs.get("dcmURI"), null)));
+                desc.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
                 desc.setQueueName(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
                 desc.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
                 desc.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
@@ -718,6 +732,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private List<ModificationItem> storeDiffs(ExporterDescriptor prev, ExporterDescriptor desc,
                                               List<ModificationItem> mods) {
         LdapUtils.storeDiff(mods, "dcmURI", prev.getExportURI().toString(), desc.getExportURI().toString());
+        LdapUtils.storeDiff(mods, "dicomDescription", prev.getDescription(), desc.getDescription());
         LdapUtils.storeDiff(mods, "dcmQueueName", prev.getQueueName(), desc.getQueueName());
         LdapUtils.storeDiff(mods, "dicomAETitle", prev.getAETitle(), desc.getAETitle());
         LdapUtils.storeDiff(mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());

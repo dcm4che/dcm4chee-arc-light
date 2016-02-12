@@ -105,6 +105,7 @@ public class StoreServiceEJB {
         UpdateDBResult result = new UpdateDBResult();
         Instance prevInstance = findPreviousInstance(ctx);
         if (prevInstance != null) {
+            result.setPreviousInstance(prevInstance);
             LOG.info("{}: Found previous received {}", session, prevInstance);
             if (prevInstance.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
                     && getRejectionNote(arcDev, prevInstance.getConceptNameCode()) != null)
@@ -158,6 +159,7 @@ public class StoreServiceEJB {
             if (rjNote != null) {
                 boolean revokeRejection = rjNote.isRevokeRejection();
                 rejectInstances(ctx, rjNote, revokeRejection ? null : conceptNameCode);
+                result.setRejectionNote(rjNote);
                 if (revokeRejection)
                     return result;
             }
@@ -180,8 +182,7 @@ public class StoreServiceEJB {
                 for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
                     String classUID = sopRef.getString(Tag.ReferencedSOPClassUID);
                     String objectUID = sopRef.getString(Tag.ReferencedSOPInstanceUID);
-                    inst = rejectInstance(
-                            ctx, studyUID, seriesUID, objectUID, classUID, rjNote, rejectionCode);
+                    inst = rejectInstance(ctx, studyUID, seriesUID, objectUID, classUID, rjNote, rejectionCode);
                 }
                 if (inst != null)
                     deleteSeriesQueryAttributes(inst.getSeries());
@@ -547,6 +548,5 @@ public class StoreServiceEJB {
                 }
             }
     }
-
 
 }

@@ -4,6 +4,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.export.mgt.ExportManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -19,7 +20,7 @@ public class ExportScheduler extends Scheduler {
     private Device device;
 
     @Inject
-    private ExportManagerEJB ejb;
+    private ExportManager ejb;
 
     @Override
     protected Duration getPollingInterval() {

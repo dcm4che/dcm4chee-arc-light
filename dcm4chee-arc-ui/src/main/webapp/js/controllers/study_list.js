@@ -5,6 +5,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.limit = 20;
     $scope.aes = [];
     $scope.aet = null;
+<<<<<<< HEAD
+=======
+    $scope.exporters;
+    $scope.exporterID = null;
+    $scope.rjnotes;
+    $scope.rjnote = null;
+>>>>>>> master
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
@@ -67,6 +74,37 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
                     view: 1
                 };
             });
+            if (series.moreInstances = (series.instances.length > $scope.limit)) {
+                series.instances.pop();
+            }
+        });
+    };
+    $scope.exportStudy = function(study) {
+        $http.get(studyURL(study.attrs) + '/export/' + $scope.exporterID);
+    };
+    $scope.exportSeries = function(series) {
+        $http.get(seriesURL(series.attrs) + '/export/' + $scope.exporterID);
+    };
+    $scope.exportInstance = function(instance) {
+        $http.get(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
+    };
+    $scope.rejectStudy = function(study) {
+        $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
+            $scope.queryStudies($scope.studies[0].offset);
+        });
+    };
+    $scope.rejectSeries = function(series) {
+        $http.get(seriesURL(series.attrs) + '/reject/' + $scope.reject).then(function (res) {
+            $scope.querySeries(series.study, series.study.series[0].offset);
+        });
+    };
+    $scope.rejectInstance = function(instance) {
+        $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
+            $scope.queryInstances(instance.series, instance.series.instances[0].offset);
+        });
+    };
+    $scope.deleteRejectedInstances = function() {
+        $http.delete('../reject/' + $scope.reject).then(function (res) {
         });
     };
     $scope.downloadURL = function (inst, transferSyntax) {
@@ -200,6 +238,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
             a.push(i);
         return a;
     }
+<<<<<<< HEAD
     function init() {
         $http.get("../aets").then(function (res) {
             $scope.aes = res.data;
@@ -207,4 +246,50 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
         })
     }
     init();
+=======
+    function initAETs(retries) {
+        $http.get("../aets").then(
+            function (res) {
+                $scope.aes = res.data;
+                $scope.aet = res.data[0].title;
+            },
+            function (res) {
+                if (retries)
+                    initAETs(retries-1);
+            });
+    }
+    function initExporters(retries) {
+        $http.get("../export").then(
+            function (res) {
+                $scope.exporters = res.data;
+                $scope.exporterID = res.data[0].id;
+            },
+            function (res) {
+                if (retries)
+                    initExporters(retries-1);
+            });
+    }
+    function initRjNotes(retries) {
+        $http.get("../reject").then(
+            function (res) {
+                var rjnotes = res.data;
+                rjnotes.sort(function (a, b) {
+                    if (a.codeValue === "113039" && a.codingSchemeDesignator === "DCM")
+                        return -1;
+                    if (b.codeValue === "113039" && b.codingSchemeDesignator === "DCM")
+                        return 1;
+                    return 0;
+                });
+                $scope.rjnotes = rjnotes;
+                $scope.reject = rjnotes[0].codeValue + "^" + rjnotes[0].codingSchemeDesignator;
+            },
+            function (res) {
+                if (retries)
+                    initRjNotes(retries-1);
+            });
+    }
+    initAETs(1);
+    initExporters(1);
+    initRjNotes(1);
+>>>>>>> master
 });
