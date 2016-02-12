@@ -167,29 +167,34 @@ public class ExportManagerEJB implements ExportManager {
                 .getResultList();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (ExportTask exportTask : resultList) {
+            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
             scheduleExportTask(
                     exportTask.getStudyInstanceUID(),
                     exportTask.getSeriesInstanceUID(),
                     exportTask.getSopInstanceUID(),
-                    arcDev.getExporterDescriptor(exportTask.getExporterID()));
+                    exporter,
+                    exporter.getAETitle());
             em.remove(exportTask);
         }
         return resultList.size();
     }
 
     @Override
-    public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter) {
+    public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
+                                   String aeTitle) {
         queueManager.scheduleMessage(exporter.getQueueName(),
-                createMessage(studyUID, seriesUID, objectUID, exporter.getExporterID()));
+                createMessage(studyUID, seriesUID, objectUID, exporter.getExporterID(), aeTitle));
     }
 
-    private ObjectMessage createMessage(String studyUID, String seriesUID, String objectUID, String exporterID) {
+    private ObjectMessage createMessage(String studyUID, String seriesUID, String objectUID, String exporterID,
+                                        String aeTitle) {
         ObjectMessage msg = queueManager.createObjectMessage("");
         try {
-            msg.setStringProperty("ExporterID", exporterID);
             msg.setStringProperty("StudyInstanceUID", studyUID);
             msg.setStringProperty("SeriesInstanceUID", seriesUID);
             msg.setStringProperty("SopInstanceUID", objectUID);
+            msg.setStringProperty("ExporterID", exporterID);
+            msg.setStringProperty("AETitle", aeTitle);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

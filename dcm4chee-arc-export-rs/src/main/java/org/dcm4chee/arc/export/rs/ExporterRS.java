@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.export.rs;
 
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -73,6 +74,9 @@ public class ExporterRS {
     @Inject
     private ExportManager exportManager;
 
+    @PathParam("AETitle")
+    private String aet;
+
     @Context
     private HttpServletRequest request;
 
@@ -105,11 +109,15 @@ public class ExporterRS {
 
     private void export(String studyUID, String seriesUID, String objectUID, String exporterID) {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException("No such Application Entity: " + aet, Response.Status.SERVICE_UNAVAILABLE);
+
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
-        exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter);
+        exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet);
     }
 }

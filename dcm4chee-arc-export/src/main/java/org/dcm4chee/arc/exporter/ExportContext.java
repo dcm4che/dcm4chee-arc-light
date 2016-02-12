@@ -22,4 +22,8 @@ public interface ExportContext {
     String getSopInstanceUID();
 
     void setSopInstanceUID(String sopInstanceUID);
+
+    String getAETitle();
+
+    void setAETitle(String aeTitle);
 }

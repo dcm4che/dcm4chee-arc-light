@@ -13,6 +13,7 @@ public class DefaultExportContext implements ExportContext {
     private String studyInstanceUID;
     private String seriesInstanceUID;
     private String sopInstanceUID;
+    private String aeTitle;
 
     public DefaultExportContext(Exporter exporter) {
         this.exporter = exporter;
@@ -63,4 +64,13 @@ public class DefaultExportContext implements ExportContext {
         this.sopInstanceUID = sopInstanceUID;
     }
 
+    @Override
+    public String getAETitle() {
+        return aeTitle;
+    }
+
+    @Override
+    public void setAETitle(String aeTitle) {
+        this.aeTitle = aeTitle;
+    }
 }

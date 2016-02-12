@@ -54,6 +54,7 @@ public class ExportManagerMDB implements MessageListener {
             exportContext.setStudyInstanceUID(msg.getStringProperty("StudyInstanceUID"));
             exportContext.setSeriesInstanceUID(msg.getStringProperty("SeriesInstanceUID"));
             exportContext.setSopInstanceUID(msg.getStringProperty("SopInstanceUID"));
+            exportContext.setAETitle(msg.getStringProperty("AETitle"));
             outcome = exporter.export(exportContext);
         } catch (Exception e) {
             LOG.warn("Failed to process {}", msg, e);

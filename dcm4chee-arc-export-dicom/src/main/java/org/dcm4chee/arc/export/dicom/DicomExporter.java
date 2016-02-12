@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class DicomExporter extends AbstractExporter {
 
-    private final ApplicationEntity ae;
+    private final Device device;
     private final RetrieveService retrieveService;
     private final CStoreSCU storeSCU;
     private final String destAET;
@@ -29,7 +29,7 @@ public class DicomExporter extends AbstractExporter {
     protected DicomExporter(ExporterDescriptor descriptor, Device device, RetrieveService retrieveService,
                             CStoreSCU storeSCU, Map<String, RetrieveTask> retrieveTaskMap) {
         super(descriptor);
-        this.ae = device.getApplicationEntity(descriptor.getAETitle());
+        this.device = device;
         this.retrieveService = retrieveService;
         this.storeSCU = storeSCU;
         this.destAET = descriptor.getExportURI().getSchemeSpecificPart();
@@ -38,6 +38,7 @@ public class DicomExporter extends AbstractExporter {
 
     @Override
     public Outcome export(ExportContext exportContext) throws Exception {
+        ApplicationEntity ae = device.getApplicationEntity(exportContext.getAETitle(), true);
         RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTORE(ae,
                 exportContext.getStudyInstanceUID(),
                 exportContext.getSeriesInstanceUID(),
