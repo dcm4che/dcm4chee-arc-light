@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
@@ -58,12 +57,16 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.action.GetPropertyAction;
+
+import static java.security.AccessController.doPrivileged;
 
 
 /**
@@ -75,6 +78,7 @@ import org.slf4j.LoggerFactory;
 public class AuditService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
+    private static final String tmpdir = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
 
     @Inject
     private Device device;
@@ -147,98 +151,79 @@ public class AuditService {
 
     public void onStore(@Observes StoreContext ctx) {
         StoreSession session = ctx.getStoreSession();
-        String hostname = session.getRemoteHostName();
-        String sendingAET = session.getCallingAET();
-        String receivingAET = session.getCalledAET();
-        Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String auditSpoolDir = arcDev.getAuditSpoolDirectory();
-        String studyFile = ctx.getStudyInstanceUID() + ".txt";
-        if (auditSpoolDir == null)
-            return;
-
-        Path dir = Paths.get(StringUtils.replaceSystemProperties(auditSpoolDir));
-        if (!Files.isDirectory(dir)) {
-            try {
-                Files.createDirectory(dir);
-            } catch (Exception e) {
-                LOG.warn("Failed to create audit-spool directory " + e);
-            }
-        } else {
-            Path filePath = dir.resolve(studyFile);
-            if (!Files.exists(filePath, new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
-                try {
-                    Files.createFile(filePath);
-                    try(BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND)){
-                        writer.append("Hostname is :" + hostname);
-                        writer.newLine();
-                        writer.append("Sending AE Title is :" + sendingAET);
-                        writer.newLine();
-                        writer.append("Receiving AE Title is :" + receivingAET);
-                        writer.newLine();
-                        writer.append("Study Instance UID is :" + ctx.getStudyInstanceUID());
-                        writer.newLine();
-                        writer.flush();
-                    } catch (Exception e) {
-                        LOG.warn("Failed to append to file: " + e);
-                    }
-                } catch (Exception e) {
-                    LOG.warn("Failed to create file: " + e);
+        boolean auditAggregate = arcDev.isAuditAggregate();
+        Path dir = Paths.get(
+                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
+        Path file = dir.resolve(
+                "onstore-" + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
+        boolean append = Files.exists(file);
+        try {
+            if (!append)
+                Files.createDirectories(dir);
+            try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                                 append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
+                if (!append) {
+                    writer.append(session.getRemoteHostName())
+                            .append('\\').append(session.getCallingAET())
+                            .append('\\').append(session.getCalledAET())
+                            .append('\\').append(ctx.getStudyInstanceUID());
+                    writer.newLine();
                 }
-            }
-            try(BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND)){
-                writer.append("SOP Class UID is :" + ctx.getSopClassUID());
+                writer.append(ctx.getSopClassUID()).append('\\').append(ctx.getSopInstanceUID());
+                if (ctx.getMppsInstanceUID() != null)
+                    writer.append('\\').append(ctx.getMppsInstanceUID());
                 writer.newLine();
-                writer.append("SOP instance UID is :" + ctx.getSopInstanceUID());
-                writer.newLine();
-                writer.flush();
-            } catch (Exception e) {
-                LOG.warn("Failed to append to file: " + e);
             }
+            if (!auditAggregate)
+                aggregateAuditMessage(file);
+        } catch (IOException e) {
+            LOG.warn("Failed write to Audit Spool File - {} ", file, e);
         }
     }
 
     public void aggregateAuditMessage(Path path) {
-        System.out.println("path received is " + path);
-        String sender = "";
-        String receiver = "";
-        String remoteHostAddress = "";
-        String studyInstanceUID = "";
+        String[] header;
+        HashSet<String> mppsUIDs = new HashSet<>();
+        HashMap<String, List<String>> sopClassMap = new HashMap<>();
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            ArrayList lines = new ArrayList();
+            header = StringUtils.split(reader.readLine(), '\\');
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-                if (line.startsWith("Hostname"))
-                    remoteHostAddress = line.substring(line.indexOf(":")+1);
-                if (line.startsWith("Sending"))
-                    sender = line.substring(line.indexOf(":")+1);
-                if (line.startsWith("Receiving"))
-                    receiver = line.substring(line.indexOf(":")+1);
-                if (line.startsWith("Study"))
-                    studyInstanceUID = line.substring(line.indexOf(":")+1);
-                lines.add(line);
+                String[] uids = StringUtils.split(line, '\\');
+                List<String> iuids = sopClassMap.get(uids[0]);
+                if (iuids == null)
+                    sopClassMap.put(uids[0], iuids = new ArrayList<String>());
+                iuids.add(uids[1]);
+                if (uids.length > 2)
+                    mppsUIDs.add(uids[2]);
             }
         } catch (Exception e) {
-            LOG.warn("Exception caught while reading the file : " + e);
+            LOG.warn("Failed to read Audit Spool File - {} ", path, e);
+            return;
+        }
+        Calendar eventTime = log().timeStamp();
+        try {
+            eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
+        } catch (IOException e) {
+            LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", path, e);
         }
         AuditMessage msg = new AuditMessage();
-        Calendar timestamp = log().timeStamp();
         EventIdentification ei = new EventIdentification();
         ei.setEventID(AuditMessages.EventID.DICOMInstancesTransferred);
         ei.setEventActionCode(AuditMessages.EventActionCode.Create);
-        ei.setEventDateTime(timestamp);
+        ei.setEventDateTime(eventTime);
         ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
         msg.setEventIdentification(ei);
         ActiveParticipant apSender = new ActiveParticipant();
-        apSender.setUserID(sender);
+        apSender.setUserID(header[1]);
         apSender.setUserIsRequestor(true);
         apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
-        apSender.setNetworkAccessPointID(remoteHostAddress);
+        apSender.setNetworkAccessPointID(header[0]);
         apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
         msg.getActiveParticipant().add(apSender);
         ActiveParticipant apReceiver = new ActiveParticipant();
-        apReceiver.setUserID(receiver);
+        apReceiver.setUserID(header[2]);
         apReceiver.setUserIsRequestor(false);
         apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
         msg.getActiveParticipant().add(apReceiver);
@@ -249,10 +234,15 @@ public class AuditService {
         poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
         poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
         poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
-        poiStudy.setParticipantObjectID(studyInstanceUID);
-//        poiStudy.getParticipantObjectDescriptionType().getSOPClass().add(sopclass);
+        poiStudy.setParticipantObjectID(header[3]);
         msg.getParticipantObjectIdentification().add(poiStudy);
-//        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();           #discuss
-        emitAuditMessage(timestamp, msg);
+        //        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();           #discuss
+        //        poiStudy.getParticipantObjectDescriptionType().getSOPClass().add(sopclass);
+        emitAuditMessage(log().timeStamp(), msg);
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            LOG.warn("Failed to delete Audit Spool File - {}", path, e);
+        }
     }
 }

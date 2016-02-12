@@ -380,6 +380,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditAggregateDuration = auditAggregateDuration;
     }
 
+    public boolean isAuditAggregate() {
+        return auditSpoolDirectory != null && auditPollingInterval != null && auditAggregateDuration != null;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters.get(entity);
     }
