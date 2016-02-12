@@ -194,28 +194,26 @@ public class AuditService {
         }
     }
 
-    private void sopClass (String sopClassUID) {
-
-    }
-
     public void aggregateAuditMessage(Path path) {
         String[] header;
         HashSet<String> accNos = new HashSet<>();
         HashSet<String> mppsUIDs = new HashSet<>();
         HashMap<String, List<String>> sopClassMap = new HashMap<>();
+        Integer numOfInstances = new Integer(0);
+        String sopClassUID = "";
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             header = StringUtils.split(reader.readLine(), '\\');
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] uids = StringUtils.split(line, '\\');
                 List<String> iuids = sopClassMap.get(uids[0]);
-//                System.out.println("List<String> iuids = sopClassMap.get(uids[0]) : " + uids[0]);
                 if (iuids == null)
                     sopClassMap.put(uids[0], iuids = new ArrayList<String>());
                 iuids.add(uids[1]);
-//                System.out.println("iuids.add(uids[1]) : " + uids[1]);
+                sopClassUID = uids[0];
+                numOfInstances = Integer.valueOf(uids[1].length());
+                System.out.println("sopClassUID: " + sopClassUID + " numOfInstances: " + numOfInstances);
                 mppsUIDs.add(uids[2]);
-//                    System.out.println("mppsUIDs.add(uids[2]) : " + uids[2]);
                 for (int i = 3; i < uids.length; i++)
                     accNos.add(uids[3]);
             }
@@ -226,7 +224,9 @@ public class AuditService {
         accNos.add(header[4]);
         accNos.remove("");
         mppsUIDs.remove("");
-//        System.out.println("Map mppsUIDs is : " + mppsUIDs);
+        System.out.println("mppsUIDs are : " + mppsUIDs);
+        System.out.println("accNos are : " + accNos);
+        System.out.println("sopClassUID: " + sopClassUID + " numOfInstances: " + numOfInstances);
         Calendar eventTime = log().timeStamp();
         try {
             eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
@@ -260,7 +260,18 @@ public class AuditService {
         poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
         poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
         poiStudy.setParticipantObjectID(header[3]);
-//        poiStudy.getParticipantObjectDescriptionType().getSOPClass().add(sopclass);
+        SOPClass sopClass = AuditMessages.createSOPClass(sopClassUID, numOfInstances);
+//        poiStudy.getParticipantObjectDescriptionType().getSOPClass().add(sopClass);
+//        if (!mppsUIDs.isEmpty()) {
+//            for (String mppsUID : mppsUIDs) {
+//                poiStudy.getParticipantObjectDescriptionType().getMPPS().add(AuditMessages.createMPPS(mppsUID));
+//            }
+//        }
+//        if (accNos.isEmpty()) {
+//            for (String accNum : accNos) {
+//                poiStudy.getParticipantObjectDescriptionType().getAccession().add(AuditMessages.createAccession(StringUtils.maskEmpty(accNum, null)));
+//            }
+//        }
         msg.getParticipantObjectIdentification().add(poiStudy);
         ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
         poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
