@@ -655,12 +655,22 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 			        $scope.showCancel       = false;
 			        $scope.showSave         = false;
 			        $scope.lastBorder       = "";
+			        msg($scope,{
+			          "title":"Info",
+			          "text":"Device deleted successfully!",
+			          "status":"info"
+					});
                 angular.element(document.getElementById("add_dropdowns")).html("");
                     cfpLoadingBar.complete();
                     return true;
                 })
                 .error(function(data, status, headers, config) {
                     $log.error("Error deleting device", status);
+                    msg($scope,{
+			          "title":"error",
+			          "text":"Error deleting device!",
+			          "status":"error"
+			        });
                     cfpLoadingBar.complete();
                     return false;
                 });

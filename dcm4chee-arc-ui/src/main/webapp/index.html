@@ -12,7 +12,7 @@
     <!-- https://daneden.github.io/animate.css/ -->
     <link rel="stylesheet" href="css/animate.css">
 </head>
-<body ng-controller="MainController">
+<body ng-controller="MainController" scroll>
 <div class="background"></div>
 <div class="glyphicon glyphicon-align-justify toggle-button out" ng-click="toggleMenu()" ng-show="!showMenu"></div>
 <ul class="nav slideInLeft animated" ng-show="showMenu">
@@ -24,6 +24,12 @@
 </ul>
 <img src="img/logo.png" class="logo">
 <div class="main_content" ng-view>
+</div>
+<div 
+    class="scroll_up glyphicon glyphicon-menu-up animated" 
+    ng-show="showScrollButton" 
+    ng-class="{fadeIn:showScrollButton, fadeOut:!showScrollButton}"
+    ng-click="scrollUp()">
 </div>
 <!--jQuery-->
 <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -77,9 +83,11 @@
 <script src="js/directives/device_selectDevicePartDir.js"></script>
 <script src="js/directives/device_selectTransferCapabilityDir.js"></script>
 <script src="js/directives/device_createDeleteButtonDir.js"></script>
+<script src="js/directives/scrollDir.js"></script>
 <!-- Services -->
 <script src="js/services/device_serviceFact.js"></script>
 <script src="js/services/qido.js"></script>
 <script src="js/services/qmgt.js"></script>
+
 </body>
 </html>

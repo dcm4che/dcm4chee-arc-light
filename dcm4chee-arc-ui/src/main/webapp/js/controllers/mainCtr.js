@@ -16,5 +16,10 @@ myApp.controller('MainController', function ($scope,$location) {
         $scope.showMenu = true;
       }
     };
+    $scope.scrollUp = function(){
+        $("html, body").animate({
+            scrollTop: 0
+        }, 300);
+    };
 	
 });

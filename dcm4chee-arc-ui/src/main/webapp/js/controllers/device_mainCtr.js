@@ -12,6 +12,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.showDropdownLoader     = false;
     $scope.showFormLoader         = false;
     $scope.validForm              = true;
+    $scope.showScrollButton       = false;
 
     setTimeout(function(){ 
       $scope.$apply(function(){

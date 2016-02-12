@@ -414,3 +414,37 @@ device and create an other one with the new name*/
     	margin-top: 10px;
 	}
 }
+.scroll_up {
+    background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
+    border-radius: 40px;
+    color: white;
+    display: block;
+    font-size: 23px;
+    height: 40px;
+    line-height: 42px;
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    top:auto;
+    text-align: center;
+    vertical-align: middle;
+    width: 40px;
+    z-index: 99999999;
+    cursor: pointer;
+    font-weight: bold;
+}
+/* .scroll_up:target ~ body{
+	-webkit-transform: translateY( 0px);
+    transform: translateY( 0px );
+} */
+/* body{
+	-webkit-transform: translateZ( 0 );
+    transform: translateZ( 0 );
+    -webkit-transition: -webkit-transform 0.6s ease-in-out;
+    transition: transform 0.6s ease-in-out;
+    // -webkit-backface-visibility: hidden;
+    // backface-visibility: hidden;
+} */
+.scroll_up:hover{
+    background: rgba(0, 0, 0, 1) none repeat scroll 0 0;
+}
