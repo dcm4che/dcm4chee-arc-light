@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
@@ -135,9 +137,7 @@ public class AuditService {
             apUser.setUserIsRequestor(true);
             msg.getActiveParticipant().add(apUser);
         }
-        AuditSourceIdentification asi = new AuditSourceIdentification();
-        asi.setAuditSourceID(device.getDeviceName());
-        msg.getAuditSourceIdentification().add(asi);
+        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         emitAuditMessage(timestamp, msg);
     }
 
@@ -151,6 +151,7 @@ public class AuditService {
 
     public void onStore(@Observes StoreContext ctx) {
         StoreSession session = ctx.getStoreSession();
+        Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -162,12 +163,16 @@ public class AuditService {
             if (!append)
                 Files.createDirectories(dir);
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                                 append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
+                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
                 if (!append) {
                     writer.append(session.getRemoteHostName())
                             .append('\\').append(session.getCallingAET())
                             .append('\\').append(session.getCalledAET())
                             .append('\\').append(ctx.getStudyInstanceUID());
+                    if (null != attrs.getString(Tag.PatientID))
+                        writer.append('\\').append(attrs.getString(Tag.PatientID));
+                    if (null != attrs.getString(Tag.PatientName))
+                        writer.append('\\').append(attrs.getString(Tag.PatientName));
                     writer.newLine();
                 }
                 writer.append(ctx.getSopClassUID()).append('\\').append(ctx.getSopInstanceUID());
@@ -182,6 +187,10 @@ public class AuditService {
         }
     }
 
+    private void sopClass (String sopClassUID) {
+
+    }
+
     public void aggregateAuditMessage(Path path) {
         String[] header;
         HashSet<String> mppsUIDs = new HashSet<>();
@@ -192,16 +201,21 @@ public class AuditService {
             while ((line = reader.readLine()) != null) {
                 String[] uids = StringUtils.split(line, '\\');
                 List<String> iuids = sopClassMap.get(uids[0]);
+//                System.out.println("List<String> iuids = sopClassMap.get(uids[0]) : " + uids[0]);
                 if (iuids == null)
                     sopClassMap.put(uids[0], iuids = new ArrayList<String>());
                 iuids.add(uids[1]);
-                if (uids.length > 2)
+//                System.out.println("iuids.add(uids[1]) : " + uids[1]);
+                if (uids.length > 2) {
                     mppsUIDs.add(uids[2]);
+//                    System.out.println("mppsUIDs.add(uids[2]) : " + uids[2]);
+                }
             }
         } catch (Exception e) {
             LOG.warn("Failed to read Audit Spool File - {} ", path, e);
             return;
         }
+//        System.out.println("Map mppsUIDs is : " + mppsUIDs);
         Calendar eventTime = log().timeStamp();
         try {
             eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
@@ -216,28 +230,36 @@ public class AuditService {
         ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
         msg.setEventIdentification(ei);
         ActiveParticipant apSender = new ActiveParticipant();
-        apSender.setUserID(header[1]);
+        apSender.setUserID(header[0]);
+        apSender.setAlternativeUserID("AETITLE=" + header[1]);
         apSender.setUserIsRequestor(true);
         apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
         apSender.setNetworkAccessPointID(header[0]);
         apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
         msg.getActiveParticipant().add(apSender);
         ActiveParticipant apReceiver = new ActiveParticipant();
-        apReceiver.setUserID(header[2]);
+        apReceiver.setUserID(device.getDeviceName());
+        apReceiver.setAlternativeUserID("AETITLE=" + header[2]);
         apReceiver.setUserIsRequestor(false);
         apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
         msg.getActiveParticipant().add(apReceiver);
-        AuditSourceIdentification asi = new AuditSourceIdentification();
-        asi.setAuditSourceID(device.getDeviceName());
-        msg.getAuditSourceIdentification().add(asi);
+        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
         poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
         poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
         poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
         poiStudy.setParticipantObjectID(header[3]);
+//        poiStudy.getParticipantObjectDescriptionType().getSOPClass().add(sopclass);
         msg.getParticipantObjectIdentification().add(poiStudy);
-        //        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();           #discuss
-        //        poiStudy.getParticipantObjectDescriptionType().getSOPClass().add(sopclass);
+        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
+        poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
+        poiPatient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
+        poiPatient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
+        if (null != header[4])
+            poiPatient.setParticipantObjectID(header[4]);
+        if (null != header[5])
+            poiPatient.setParticipantObjectName(header[5]);
+        msg.getParticipantObjectIdentification().add(poiPatient);
         emitAuditMessage(log().timeStamp(), msg);
         try {
             Files.delete(path);
