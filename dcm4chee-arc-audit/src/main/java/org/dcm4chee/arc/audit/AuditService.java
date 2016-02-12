@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -168,16 +169,22 @@ public class AuditService {
                     writer.append(session.getRemoteHostName())
                             .append('\\').append(session.getCallingAET())
                             .append('\\').append(session.getCalledAET())
-                            .append('\\').append(ctx.getStudyInstanceUID());
-                    if (null != attrs.getString(Tag.PatientID))
-                        writer.append('\\').append(attrs.getString(Tag.PatientID));
-                    if (null != attrs.getString(Tag.PatientName))
-                        writer.append('\\').append(attrs.getString(Tag.PatientName));
+                            .append('\\').append(ctx.getStudyInstanceUID())
+                            .append('\\').append(attrs.getString(Tag.AccessionNumber,""))
+                            .append('\\').append(attrs.getString(Tag.PatientID,""))
+                            .append('\\').append(attrs.getString(Tag.PatientName, ""));
                     writer.newLine();
                 }
-                writer.append(ctx.getSopClassUID()).append('\\').append(ctx.getSopInstanceUID());
-                if (ctx.getMppsInstanceUID() != null)
-                    writer.append('\\').append(ctx.getMppsInstanceUID());
+                writer.append(ctx.getSopClassUID())
+                        .append('\\').append(ctx.getSopInstanceUID())
+                        .append('\\').append(StringUtils.maskNull(ctx.getMppsInstanceUID(), ""));
+                Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
+                if (reqAttrs != null)
+                    for (Attributes reqAttr : reqAttrs) {
+                        String accno = reqAttr.getString(Tag.AccessionNumber);
+                        if (accno != null)
+                            writer.append('\\').append(accno);
+                    }
                 writer.newLine();
             }
             if (!auditAggregate)
@@ -193,6 +200,7 @@ public class AuditService {
 
     public void aggregateAuditMessage(Path path) {
         String[] header;
+        HashSet<String> accNos = new HashSet<>();
         HashSet<String> mppsUIDs = new HashSet<>();
         HashMap<String, List<String>> sopClassMap = new HashMap<>();
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
@@ -206,15 +214,18 @@ public class AuditService {
                     sopClassMap.put(uids[0], iuids = new ArrayList<String>());
                 iuids.add(uids[1]);
 //                System.out.println("iuids.add(uids[1]) : " + uids[1]);
-                if (uids.length > 2) {
-                    mppsUIDs.add(uids[2]);
+                mppsUIDs.add(uids[2]);
 //                    System.out.println("mppsUIDs.add(uids[2]) : " + uids[2]);
-                }
+                for (int i = 3; i < uids.length; i++)
+                    accNos.add(uids[3]);
             }
         } catch (Exception e) {
             LOG.warn("Failed to read Audit Spool File - {} ", path, e);
             return;
         }
+        accNos.add(header[4]);
+        accNos.remove("");
+        mppsUIDs.remove("");
 //        System.out.println("Map mppsUIDs is : " + mppsUIDs);
         Calendar eventTime = log().timeStamp();
         try {
@@ -255,10 +266,8 @@ public class AuditService {
         poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
         poiPatient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
         poiPatient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
-        if (null != header[4])
-            poiPatient.setParticipantObjectID(header[4]);
-        if (null != header[5])
-            poiPatient.setParticipantObjectName(header[5]);
+        poiPatient.setParticipantObjectID(StringUtils.maskEmpty(header[5], header[3]));
+        poiPatient.setParticipantObjectName(StringUtils.maskEmpty(header[6], null));
         msg.getParticipantObjectIdentification().add(poiPatient);
         emitAuditMessage(log().timeStamp(), msg);
         try {
