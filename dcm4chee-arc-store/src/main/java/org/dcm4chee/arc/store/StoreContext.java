@@ -19,6 +19,8 @@ public interface StoreContext {
 
     void setSopInstanceUID(String string);
 
+    String getMppsInstanceUID();
+
     String getReceiveTranferSyntax();
 
     void setReceiveTransferSyntax(String transferSyntax);

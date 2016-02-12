@@ -2,6 +2,7 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -23,6 +24,7 @@ class StoreContextImpl implements StoreContext {
     private WriteContext writeContext;
     private String studyInstanceUID;
     private String seriesInstanceUID;
+    private String mppsInstanceUID;
     private Location location;
 
     public StoreContextImpl(StoreSession storeSession) {
@@ -65,6 +67,11 @@ class StoreContextImpl implements StoreContext {
     }
 
     @Override
+    public String getMppsInstanceUID() {
+        return mppsInstanceUID;
+    }
+
+    @Override
     public String getReceiveTranferSyntax() {
         return receiveTranferSyntaxUID;
     }
@@ -96,6 +103,11 @@ class StoreContextImpl implements StoreContext {
         this.seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
         this.sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
         this.sopClassUID = attrs.getString(Tag.SOPClassUID);
+        Attributes ppsRef = attrs.getNestedDataset(Tag.ReferencedPerformedProcedureStepSequence);
+        this.mppsInstanceUID = ppsRef != null
+                && UID.ModalityPerformedProcedureStepSOPClass.equals(ppsRef.getString(Tag.ReferencedSOPClassUID))
+                ? ppsRef.getString(Tag.ReferencedSOPInstanceUID)
+                : null;
         this.attributes = attrs;
         this.coercedAttributes = new Attributes(attrs.bigEndian());
     }
