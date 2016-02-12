@@ -3,6 +3,8 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
+import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -26,6 +28,9 @@ class StoreContextImpl implements StoreContext {
     private String seriesInstanceUID;
     private String mppsInstanceUID;
     private Location location;
+    private RejectionNote rejectionNote;
+    private Instance previousInstance;
+    private Exception exception;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -35,6 +40,7 @@ class StoreContextImpl implements StoreContext {
     public StoreSession getStoreSession() {
         return storeSession;
     }
+
 
     @Override
     public String getSopClassUID() {
@@ -125,5 +131,45 @@ class StoreContextImpl implements StoreContext {
     @Override
     public Attributes getCoercedAttributes() {
         return coercedAttributes;
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public RejectionNote getRejectionNote() {
+        return rejectionNote;
+    }
+
+    @Override
+    public void setRejectionNote(RejectionNote rejectionNote) {
+        this.rejectionNote = rejectionNote;
+    }
+
+    @Override
+    public Exception getException() {
+        return exception;
+    }
+
+    @Override
+    public void setException(Exception exception) {
+        this.exception = exception;
+    }
+
+    @Override
+    public Instance getPreviousInstance() {
+        return previousInstance;
+    }
+
+    @Override
+    public void setPreviousInstance(Instance previousInstance) {
+        this.previousInstance = previousInstance;
     }
 }

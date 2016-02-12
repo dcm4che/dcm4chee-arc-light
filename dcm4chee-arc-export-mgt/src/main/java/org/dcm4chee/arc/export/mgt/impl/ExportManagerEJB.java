@@ -44,6 +44,9 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public void onStore(@Observes StoreContext ctx) {
+        if (ctx.getLocation() == null)
+            return;
+
         StoreSession session = ctx.getStoreSession();
         String hostname = session.getRemoteHostName();
         String sendingAET = session.getCallingAET();

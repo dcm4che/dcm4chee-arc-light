@@ -72,7 +72,6 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
-        Location location = null;
         try {
             try (Transcoder transcoder = new Transcoder(data, ctx.getReceiveTranferSyntax())) {
                 transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
@@ -93,33 +92,37 @@ class StoreServiceImpl implements StoreService {
                 LOG.info("Failed to update DB - retry", e);
                 result = ejb.updateDB(ctx);
             }
-            location = result.getLocation();
-            postUpdateDB(ctx, location);
+            ctx.setLocation(result.getLocation());
+            ctx.setRejectionNote(result.getRejectionNote());
+            ctx.setPreviousInstance(result.getPreviousInstance());
+            postUpdateDB(ctx);
         } catch (DicomServiceException e) {
+            ctx.setException(e);
             throw e;
         } catch (Exception e) {
-            throw new DicomServiceException(Status.ProcessingFailure, e);
+            DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
+            ctx.setException(dse);
+            throw dse;
         } finally {
-            cleanup(ctx, location);
+            storeEvent.fire(ctx);
+            cleanup(ctx);
         }
     }
 
-    private void postUpdateDB(StoreContext ctx, Location location) throws IOException {
-        if (location != null) {
-            Series series = location.getInstance().getSeries();
+    private void postUpdateDB(StoreContext ctx) throws IOException {
+        if (ctx.getLocation() != null) {
+            Series series = ctx.getLocation().getInstance().getSeries();
             WriteContext writeContext = ctx.getWriteContext();
             Storage storage = writeContext.getStorage();
             updateAttributes(ctx, series);
             storage.commitStorage(writeContext);
             ctx.getStoreSession().cacheSeries(series);
-            storeEvent.fire(ctx);
         }
     }
 
     @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
         ctx.setAttributes(attrs);
-        Location location = null;
         try {
             try ( DicomOutputStream dos = new DicomOutputStream(openOutputStream(ctx), UID.ExplicitVRLittleEndian) ) {
                 dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
@@ -132,19 +135,24 @@ class StoreServiceImpl implements StoreService {
                 LOG.info("Failed to update DB - retry", e);
                 result = ejb.updateDB(ctx);
             }
-            location = result.getLocation();
-            postUpdateDB(ctx, location);
+            ctx.setLocation(result.getLocation());
+            ctx.setRejectionNote(result.getRejectionNote());
+            postUpdateDB(ctx);
         } catch (DicomServiceException e) {
+            ctx.setException(e);
             throw e;
         } catch (Exception e) {
-            throw new DicomServiceException(Status.ProcessingFailure, e);
+            DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
+            ctx.setException(dse);
+            throw dse;
         } finally {
-            cleanup(ctx, location);
+            storeEvent.fire(ctx);
+            cleanup(ctx);
         }
     }
 
-    private static void cleanup(StoreContext ctx, Location location) {
-        if (location == null) {
+    private static void cleanup(StoreContext ctx) {
+        if (ctx.getLocation() == null) {
             WriteContext writeCtx = ctx.getWriteContext();
             if (writeCtx != null && writeCtx.getStoragePath() != null) {
                 Storage storage = writeCtx.getStorage();

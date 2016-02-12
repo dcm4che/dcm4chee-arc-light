@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
+import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 
 /**
@@ -48,6 +50,8 @@ import org.dcm4chee.arc.entity.Location;
  */
 class UpdateDBResult {
     private Location location;
+    private RejectionNote rejectionNote;
+    private Instance previousInstance;
 
     public void setLocation(Location location) {
         this.location = location;
@@ -55,5 +59,21 @@ class UpdateDBResult {
 
     public Location getLocation() {
         return location;
+    }
+
+    public void setRejectionNote(RejectionNote rejectionNote) {
+        this.rejectionNote = rejectionNote;
+    }
+
+    public RejectionNote getRejectionNote() {
+        return rejectionNote;
+    }
+
+    public void setPreviousInstance(Instance previousInstance) {
+        this.previousInstance = previousInstance;
+    }
+
+    public Instance getPreviousInstance() {
+        return previousInstance;
     }
 }
