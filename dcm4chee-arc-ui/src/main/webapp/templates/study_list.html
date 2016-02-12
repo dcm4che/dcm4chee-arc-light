@@ -130,7 +130,7 @@
                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
-                <a ng-click="exportStudy(study)" href="" title="Export Study">
+                <a ng-click="exportStudy(study)" ng-show="exporterID" href="" title="Export Study">
                     <span class="glyphicon glyphicon-export"></span>
                 </a>
                 <a ng-click="rejectStudy(study)" href="" title="Reject Study">
@@ -189,7 +189,7 @@
                 <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
-                <a ng-click="exportSeries(series)" href="" title="Export Series">
+                <a ng-click="exportSeries(series)" ng-show="exporterID" href="" title="Export Series">
                     <span class="glyphicon glyphicon-export"></span>
                 </a>
                 <a ng-click="rejectSeries(series)" href="" title="Reject Series">
@@ -245,7 +245,7 @@
                 <a ng-click="instance.showAttributes = !instance.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
-                <a ng-click="exportInstance(instance)" href="" title="Export Instance">
+                <a ng-click="exportInstance(instance)" ng-show="exporterID" href="" title="Export Instance">
                     <span class="glyphicon glyphicon-export"></span>
                 </a>
                 <a ng-click="rejectInstance(instance)" href="" title="Reject Instance">

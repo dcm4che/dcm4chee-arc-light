@@ -185,11 +185,8 @@ public class ExportManagerEJB implements ExportManager {
         try {
             msg.setStringProperty("ExporterID", exporterID);
             msg.setStringProperty("StudyInstanceUID", studyUID);
-            if (seriesUID != null) {
-                msg.setStringProperty("SeriesInstanceUID", seriesUID);
-                if (objectUID != null)
-                    msg.setStringProperty("SopInstanceUID", objectUID);
-            }
+            msg.setStringProperty("SeriesInstanceUID", seriesUID);
+            msg.setStringProperty("SopInstanceUID", objectUID);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

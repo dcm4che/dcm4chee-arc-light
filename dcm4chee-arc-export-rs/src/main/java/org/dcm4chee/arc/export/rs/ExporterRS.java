@@ -81,7 +81,7 @@ public class ExporterRS {
     public void exportStudy(
             @PathParam("StudyUID") String studyUID,
             @PathParam("ExporterID") String exporterID) {
-        export(studyUID, null, null, exporterID);
+        export(studyUID, "*", "*", exporterID);
     }
 
     @GET
@@ -90,7 +90,7 @@ public class ExporterRS {
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ExporterID") String exporterID) {
-        export(studyUID, seriesUID, null, exporterID);
+        export(studyUID, seriesUID, "*", exporterID);
     }
 
     @GET
