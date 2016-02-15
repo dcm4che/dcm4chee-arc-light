@@ -176,6 +176,10 @@ public class AuditService {
                             .append('\\').append(attrs.getString(Tag.AccessionNumber,""))
                             .append('\\').append(attrs.getString(Tag.PatientID,""))
                             .append('\\').append(attrs.getString(Tag.PatientName, ""));
+                    if (ctx.getRejectionNote() != null)
+                        writer.append('\\').append("true");
+                    else
+                        writer.append('\\').append("false");
                     writer.newLine();
                 }
                 writer.append(ctx.getSopClassUID())
@@ -230,25 +234,37 @@ public class AuditService {
         }
         AuditMessage msg = new AuditMessage();
         EventIdentification ei = new EventIdentification();
-        ei.setEventID(AuditMessages.EventID.DICOMInstancesTransferred);
-        ei.setEventActionCode(AuditMessages.EventActionCode.Create);
+        if (header[7].equals("true")) {
+            ei.setEventID(AuditMessages.EventID.DICOMInstancesAccessed);
+            ei.setEventActionCode(AuditMessages.EventActionCode.Delete);
+            ActiveParticipant ap = new ActiveParticipant();
+            ap.setUserID(header[0]);
+            ap.setAlternativeUserID("AETITLE=" + header[1]);
+            ap.setUserIsRequestor(true);
+            ap.setNetworkAccessPointID(header[0]);
+            ap.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
+            msg.getActiveParticipant().add(ap);
+        } else {
+            ei.setEventID(AuditMessages.EventID.DICOMInstancesTransferred);
+            ei.setEventActionCode(AuditMessages.EventActionCode.Create);
+            ActiveParticipant apSender = new ActiveParticipant();
+            apSender.setUserID(header[0]);
+            apSender.setAlternativeUserID("AETITLE=" + header[1]);
+            apSender.setUserIsRequestor(true);
+            apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
+            apSender.setNetworkAccessPointID(header[0]);
+            apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
+            msg.getActiveParticipant().add(apSender);
+            ActiveParticipant apReceiver = new ActiveParticipant();
+            apReceiver.setUserID(device.getDeviceName());
+            apReceiver.setAlternativeUserID("AETITLE=" + header[2]);
+            apReceiver.setUserIsRequestor(false);
+            apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
+            msg.getActiveParticipant().add(apReceiver);
+        }
         ei.setEventDateTime(eventTime);
         ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
         msg.setEventIdentification(ei);
-        ActiveParticipant apSender = new ActiveParticipant();
-        apSender.setUserID(header[0]);
-        apSender.setAlternativeUserID("AETITLE=" + header[1]);
-        apSender.setUserIsRequestor(true);
-        apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
-        apSender.setNetworkAccessPointID(header[0]);
-        apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
-        msg.getActiveParticipant().add(apSender);
-        ActiveParticipant apReceiver = new ActiveParticipant();
-        apReceiver.setUserID(device.getDeviceName());
-        apReceiver.setAlternativeUserID("AETITLE=" + header[2]);
-        apReceiver.setUserIsRequestor(false);
-        apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
-        msg.getActiveParticipant().add(apReceiver);
         msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
         poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
