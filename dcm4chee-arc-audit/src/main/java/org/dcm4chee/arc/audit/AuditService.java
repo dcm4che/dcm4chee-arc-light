@@ -44,12 +44,14 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
+
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 
@@ -151,6 +153,10 @@ public class AuditService {
     }
 
     public void onStore(@Observes StoreContext ctx) {
+        if (null != ctx.getRejectionNote()) {
+            auditInstancesDeleted(ctx);
+            return;
+        }
         if (ctx.getLocation() == null)
             return;
 
@@ -160,15 +166,8 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        Path file;
-        if (null != session.getCallingAET()) {
-            file = dir.resolve(
+        Path file = dir.resolve(
                     "onstore-" + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
-        }
-        else {
-            file = dir.resolve(
-                    "ondelete-" + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
-        }
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -183,10 +182,6 @@ public class AuditService {
                             .append('\\').append(attrs.getString(Tag.AccessionNumber,""))
                             .append('\\').append(attrs.getString(Tag.PatientID,""))
                             .append('\\').append(attrs.getString(Tag.PatientName, ""));
-                    if (ctx.getRejectionNote() != null)
-                        writer.append('\\').append("true");
-                    else
-                        writer.append('\\').append("false");
                     writer.newLine();
                 }
                 writer.append(ctx.getSopClassUID())
@@ -206,6 +201,11 @@ public class AuditService {
         } catch (IOException e) {
             LOG.warn("Failed write to Audit Spool File - {} ", file, e);
         }
+    }
+
+    private void auditInstancesDeleted(StoreContext ctx) {
+        RejectionNote rn = ctx.getRejectionNote();
+        //TODO
     }
 
     public void aggregateAuditMessage(Path path) {
@@ -241,34 +241,22 @@ public class AuditService {
         }
         AuditMessage msg = new AuditMessage();
         EventIdentification ei = new EventIdentification();
-        if (header[7].equals("true")) {
-            ei.setEventID(AuditMessages.EventID.DICOMInstancesAccessed);
-            ei.setEventActionCode(AuditMessages.EventActionCode.Delete);
-            ActiveParticipant ap = new ActiveParticipant();
-            ap.setUserID(header[0]);
-            ap.setAlternativeUserID("AETITLE=" + header[1]);
-            ap.setUserIsRequestor(true);
-            ap.setNetworkAccessPointID(header[0]);
-            ap.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
-            msg.getActiveParticipant().add(ap);
-        } else {
-            ei.setEventID(AuditMessages.EventID.DICOMInstancesTransferred);
-            ei.setEventActionCode(AuditMessages.EventActionCode.Create);
-            ActiveParticipant apSender = new ActiveParticipant();
-            apSender.setUserID(header[0]);
-            apSender.setAlternativeUserID("AETITLE=" + header[1]);
-            apSender.setUserIsRequestor(true);
-            apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
-            apSender.setNetworkAccessPointID(header[0]);
-            apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
-            msg.getActiveParticipant().add(apSender);
-            ActiveParticipant apReceiver = new ActiveParticipant();
-            apReceiver.setUserID(device.getDeviceName());
-            apReceiver.setAlternativeUserID("AETITLE=" + header[2]);
-            apReceiver.setUserIsRequestor(false);
-            apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
-            msg.getActiveParticipant().add(apReceiver);
-        }
+        ei.setEventID(AuditMessages.EventID.DICOMInstancesTransferred);
+        ei.setEventActionCode(AuditMessages.EventActionCode.Create);
+        ActiveParticipant apSender = new ActiveParticipant();
+        apSender.setUserID(header[0]);
+        apSender.setAlternativeUserID("AETITLE=" + header[1]);
+        apSender.setUserIsRequestor(true);
+        apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
+        apSender.setNetworkAccessPointID(header[0]);
+        apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
+        msg.getActiveParticipant().add(apSender);
+        ActiveParticipant apReceiver = new ActiveParticipant();
+        apReceiver.setUserID(device.getDeviceName());
+        apReceiver.setAlternativeUserID("AETITLE=" + header[2]);
+        apReceiver.setUserIsRequestor(false);
+        apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
+        msg.getActiveParticipant().add(apReceiver);
         ei.setEventDateTime(eventTime);
         ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
         msg.setEventIdentification(ei);
