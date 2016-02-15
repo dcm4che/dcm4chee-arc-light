@@ -43,6 +43,9 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Patient;
+
+import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -52,6 +55,7 @@ class UpdateDBResult {
     private Location location;
     private RejectionNote rejectionNote;
     private Instance previousInstance;
+    private Patient patientCreated;
 
     public void setLocation(Location location) {
         this.location = location;
@@ -75,5 +79,13 @@ class UpdateDBResult {
 
     public Instance getPreviousInstance() {
         return previousInstance;
+    }
+
+    public Patient getPatientCreated() {
+        return patientCreated;
+    }
+
+    public void setPatientCreated(Patient patientCreated) {
+        this.patientCreated = patientCreated;
     }
 }

@@ -98,11 +98,10 @@ public class StoreServiceEJB {
     @Inject
     private PatientService patientService;
 
-    public UpdateDBResult updateDB(StoreContext ctx) throws DicomServiceException {
+    public UpdateDBResult updateDB(StoreContext ctx, UpdateDBResult result) throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        UpdateDBResult result = new UpdateDBResult();
         Instance prevInstance = findPreviousInstance(ctx);
         if (prevInstance != null) {
             result.setPreviousInstance(prevInstance);

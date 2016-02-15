@@ -14,7 +14,6 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveCompressionRule;
-import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
@@ -27,10 +26,10 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJBTransactionRolledbackException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import java.io.IOException;
@@ -72,6 +71,7 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
+        UpdateDBResult result = new UpdateDBResult();
         try {
             try (Transcoder transcoder = new Transcoder(data, ctx.getReceiveTranferSyntax())) {
                 transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
@@ -85,17 +85,15 @@ class StoreServiceImpl implements StoreService {
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
             coerceAttributes(ctx);
-            UpdateDBResult result;
             try {
-                result = ejb.updateDB(ctx);
-            } catch (Exception e) {
+                ejb.updateDB(ctx, result);
+            } catch (PersistenceException e) {
                 LOG.info("Failed to update DB - retry", e);
-                result = ejb.updateDB(ctx);
+                UpdateDBResult result2 = new UpdateDBResult();
+                ejb.updateDB(ctx, result2);
+                result = result2;
             }
-            ctx.setLocation(result.getLocation());
-            ctx.setRejectionNote(result.getRejectionNote());
-            ctx.setPreviousInstance(result.getPreviousInstance());
-            postUpdateDB(ctx);
+            postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
@@ -104,14 +102,17 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(dse);
             throw dse;
         } finally {
+            ctx.setLocation(result.getLocation());
+            ctx.setRejectionNote(result.getRejectionNote());
+            ctx.setPreviousInstance(result.getPreviousInstance());
             storeEvent.fire(ctx);
             cleanup(ctx);
         }
     }
 
-    private void postUpdateDB(StoreContext ctx) throws IOException {
-        if (ctx.getLocation() != null) {
-            Series series = ctx.getLocation().getInstance().getSeries();
+    private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
+        if (result.getLocation() != null) {
+            Series series = result.getLocation().getInstance().getSeries();
             WriteContext writeContext = ctx.getWriteContext();
             Storage storage = writeContext.getStorage();
             updateAttributes(ctx, series);
@@ -122,22 +123,24 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
+        UpdateDBResult result = new UpdateDBResult();
         ctx.setAttributes(attrs);
         try {
             try ( DicomOutputStream dos = new DicomOutputStream(openOutputStream(ctx), UID.ExplicitVRLittleEndian) ) {
                 dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
             }
             coerceAttributes(ctx);
-            UpdateDBResult result;
             try {
-                result = ejb.updateDB(ctx);
-            } catch (Exception e) {
+                ejb.updateDB(ctx, result);
+            } catch (PersistenceException e) {
                 LOG.info("Failed to update DB - retry", e);
-                result = ejb.updateDB(ctx);
+                UpdateDBResult result2 = new UpdateDBResult();
+                ejb.updateDB(ctx, result2);
+                result = result2;
             }
             ctx.setLocation(result.getLocation());
             ctx.setRejectionNote(result.getRejectionNote());
-            postUpdateDB(ctx);
+            postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
@@ -146,6 +149,9 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(dse);
             throw dse;
         } finally {
+            ctx.setLocation(result.getLocation());
+            ctx.setRejectionNote(result.getRejectionNote());
+            ctx.setPreviousInstance(result.getPreviousInstance());
             storeEvent.fire(ctx);
             cleanup(ctx);
         }
