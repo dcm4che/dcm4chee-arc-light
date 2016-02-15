@@ -160,8 +160,15 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        Path file = dir.resolve(
-                "onstore-" + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
+        Path file;
+        if (null != session.getCallingAET()) {
+            file = dir.resolve(
+                    "onstore-" + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
+        }
+        else {
+            file = dir.resolve(
+                    "ondelete-" + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
+        }
         boolean append = Files.exists(file);
         try {
             if (!append)
