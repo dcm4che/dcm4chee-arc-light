@@ -205,7 +205,53 @@ public class AuditService {
 
     private void auditInstancesDeleted(StoreContext ctx) {
         RejectionNote rn = ctx.getRejectionNote();
-        //TODO
+        Attributes attrs = ctx.getAttributes();
+        AuditMessage msg = new AuditMessage();
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(AuditMessages.EventID.DICOMInstancesAccessed);
+        ei.setEventActionCode(AuditMessages.EventActionCode.Delete);
+        ei.setEventDateTime(log().timeStamp());
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+        ei.setEventOutcomeDescription(rn.getRejectionNoteLabel());
+        msg.setEventIdentification(ei);
+        ActiveParticipant ap = new ActiveParticipant();
+        ap.setUserID(ctx.getStoreSession().getRemoteHostName());
+        ap.setUserIsRequestor(true);
+        msg.getActiveParticipant().add(ap);
+        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
+        ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
+        poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+        poiStudy.setParticipantObjectID(ctx.getStudyInstanceUID());
+        ParticipantObjectDescriptionType poiStudyDesc = new ParticipantObjectDescriptionType();
+        Sequence currentRequestedProcedureEvidenceSequences = attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence);
+        if (currentRequestedProcedureEvidenceSequences != null) {
+            for (Attributes currentRequestedProcedureEvidenceSequence : currentRequestedProcedureEvidenceSequences ) {
+                Sequence referencedSeriesSequences = currentRequestedProcedureEvidenceSequence.getSequence(Tag.ReferencedSeriesSequence);
+                if (referencedSeriesSequences != null) {
+                    for (Attributes referencedSeriesSequence : referencedSeriesSequences) {
+                        Sequence referencedSOPSequences = referencedSeriesSequence.getSequence(Tag.ReferencedSOPSequence);
+                        if (referencedSOPSequences != null) {
+                            for (Attributes referencedSOPSequence : referencedSOPSequences) {
+                                poiStudyDesc.getSOPClass().add((AuditMessages.createSOPClass(referencedSOPSequence.getString(Tag.ReferencedSOPClassUID), referencedSOPSequences.size())));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        poiStudy.setParticipantObjectDescriptionType(poiStudyDesc);
+        msg.getParticipantObjectIdentification().add(poiStudy);
+        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
+        poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
+        poiPatient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
+        poiPatient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
+        poiPatient.setParticipantObjectID(attrs.getString(Tag.PatientID, ""));
+        poiPatient.setParticipantObjectName(attrs.getString(Tag.PatientName, ""));
+        msg.getParticipantObjectIdentification().add(poiPatient);
+        emitAuditMessage(log().timeStamp(), msg);
+        System.out.println("-------------------Rejected instance message emitted");
     }
 
     public void aggregateAuditMessage(Path path) {
