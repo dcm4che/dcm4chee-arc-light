@@ -153,7 +153,7 @@ public class AuditService {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (null != ctx.getRejectionNote()) {
+        if ((null != ctx.getRejectionNote()) || (null != ctx.getRejectionNote() && null != ctx.getException())) {
             auditInstancesDeleted(ctx);
             return;
         }
@@ -211,8 +211,13 @@ public class AuditService {
         ei.setEventID(AuditMessages.EventID.DICOMInstancesAccessed);
         ei.setEventActionCode(AuditMessages.EventActionCode.Delete);
         ei.setEventDateTime(log().timeStamp());
-        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
-        ei.setEventOutcomeDescription(rn.getRejectionNoteLabel());
+        if (null != ctx.getException()) {
+            ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.MinorFailure);
+            ei.setEventOutcomeDescription(rn.getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage());
+        } else {
+            ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+            ei.setEventOutcomeDescription(rn.getRejectionNoteCode().getCodeMeaning());
+        }
         msg.setEventIdentification(ei);
         ActiveParticipant ap = new ActiveParticipant();
         ap.setUserID(ctx.getStoreSession().getRemoteHostName());
@@ -251,7 +256,6 @@ public class AuditService {
         poiPatient.setParticipantObjectName(attrs.getString(Tag.PatientName, ""));
         msg.getParticipantObjectIdentification().add(poiPatient);
         emitAuditMessage(log().timeStamp(), msg);
-        System.out.println("-------------------Rejected instance message emitted");
     }
 
     public void aggregateAuditMessage(Path path) {

@@ -156,9 +156,9 @@ public class StoreServiceEJB {
         if (conceptNameCode != null && ctx.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)) {
             RejectionNote rjNote = arcDev.getRejectionNote(conceptNameCode.getCode());
             if (rjNote != null) {
+                result.setRejectionNote(rjNote);
                 boolean revokeRejection = rjNote.isRevokeRejection();
                 rejectInstances(ctx, rjNote, revokeRejection ? null : conceptNameCode);
-                result.setRejectionNote(rjNote);
                 if (revokeRejection)
                     return result;
             }
