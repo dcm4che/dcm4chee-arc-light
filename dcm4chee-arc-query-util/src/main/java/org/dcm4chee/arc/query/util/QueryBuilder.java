@@ -333,9 +333,9 @@ public class QueryBuilder {
         builder.and(wildCard(QSeries.series.seriesDescription, keys.getString(Tag.SeriesDescription, "*"),
                 matchUnknown, true));
         builder.and(wildCard(QSeries.series.stationName, keys.getString(Tag.StationName, "*"), matchUnknown, true));
-        builder.and(wildCard(QSeries.series.institutionName, keys.getString(Tag.InstitutionalDepartmentName, "*"),
+        builder.and(wildCard(QSeries.series.institutionalDepartmentName, keys.getString(Tag.InstitutionalDepartmentName, "*"),
                 matchUnknown, true));
-        builder.and(wildCard(QSeries.series.institutionalDepartmentName, keys.getString(Tag.InstitutionName, "*"),
+        builder.and(wildCard(QSeries.series.institutionName, keys.getString(Tag.InstitutionName, "*"),
                 matchUnknown, true));
         builder.and(requestAttributes(keys.getNestedDataset(Tag.RequestAttributesSequence), queryParam));
         builder.and(code(QSeries.series.institutionCode, keys.getNestedDataset(Tag.InstitutionCodeSequence),
