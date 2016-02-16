@@ -99,6 +99,9 @@ public class ArchiveServiceImpl implements ArchiveService {
     @Inject
     private Event<ArchiveServiceEvent> archiveServiceEvent;
 
+    @Inject
+    private ConnectionEventSource connectionEventSource;
+
     private Status status = Status.STOPPED;
 
     private final DicomService echoscp = new BasicCEchoSCP();
@@ -110,7 +113,7 @@ public class ArchiveServiceImpl implements ArchiveService {
     @PostConstruct
     public void init() {
         try {
-//            device.setConnectionMonitor(connectionEventSource);
+            device.setConnectionMonitor(connectionEventSource);
             device.setExecutor(executor);
             device.setScheduledExecutor(scheduledExecutor);
             serviceRegistry.addDicomService(echoscp);

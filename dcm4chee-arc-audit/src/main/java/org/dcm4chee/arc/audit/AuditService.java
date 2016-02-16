@@ -46,10 +46,12 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
+import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.store.StoreContext;
@@ -63,6 +65,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -153,7 +156,7 @@ public class AuditService {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if ((null != ctx.getRejectionNote()) || (null != ctx.getRejectionNote() && null != ctx.getException())) {
+        if ((null != ctx.getRejectionNote())) {
             auditInstancesDeleted(ctx);
             return;
         }
@@ -338,5 +341,42 @@ public class AuditService {
         } catch (IOException e) {
             LOG.warn("Failed to delete Audit Spool File - {}", path, e);
         }
+    }
+
+    public void onConnection(@Observes ConnectionEvent event) {
+        switch (event.getType()) {
+            case ESTABLISHED:
+                onConnectionEstablished(event.getConnection(), event.getRemoteConnection(), event.getSocket());
+                break;
+            case FAILED:
+                onConnectionFailed(event.getConnection(), event.getRemoteConnection(), event.getSocket(),
+                        event.getException());
+                break;
+            case REJECTED:
+                onConnectionRejected(event.getConnection(), event.getSocket(), event.getException());
+                break;
+            case REJECTED_BLACKLISTED:
+                onConnectionRejectedBlacklisted(event.getConnection(), event.getSocket());
+                break;
+            case ACCEPTED:
+                onConnectionAccepted(event.getConnection(), event.getSocket());
+                break;
+        }
+    }
+
+    private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {
+    }
+
+    private void onConnectionFailed(Connection conn, Connection remoteConn, Socket s, Throwable e) {
+        // TODO
+    }
+
+    private void onConnectionRejectedBlacklisted(Connection conn, Socket s) {
+    }
+
+    private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
+    }
+
+    private void onConnectionAccepted(Connection conn, Socket s) {
     }
 }
