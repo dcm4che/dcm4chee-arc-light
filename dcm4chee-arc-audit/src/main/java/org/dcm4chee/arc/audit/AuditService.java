@@ -44,8 +44,6 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
-
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
@@ -53,7 +51,6 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 
@@ -84,12 +81,14 @@ import static java.security.AccessController.doPrivileged;
  */
 @ApplicationScoped
 public class AuditService {
-
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private static final String tmpdir = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
 
     @Inject
     private Device device;
+
+    @Inject
+    private AuditMessagesWriter auditMessagesWriter;
 
     private AuditLogger log() {
         return device.getDeviceExtension(AuditLogger.class);
@@ -107,57 +106,13 @@ public class AuditService {
             case RELOADED:
                 return;
         }
-
-        Calendar timestamp = log().timeStamp();
         HttpServletRequest request = event.getRequest();
-        AuditMessage msg = new AuditMessage();
-        EventIdentification ei = new EventIdentification();
-        ei.setEventID(AuditMessages.EventID.ApplicationActivity);
-        ei.getEventTypeCode().add(eventTypeCode);
-        ei.setEventActionCode(AuditMessages.EventActionCode.Execute);
-        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
-        ei.setEventDateTime(timestamp);
-        msg.setEventIdentification(ei);
-        ActiveParticipant apApplication = new ActiveParticipant();
-        apApplication.getRoleIDCode().add(AuditMessages.RoleIDCode.Application);
-        apApplication.setUserID(device.getDeviceName());
-        StringBuilder aets = new StringBuilder();
-        for (ApplicationEntity ae : device.getApplicationEntities()) {
-            if (aets.length() == 0)
-                aets.append("AETITLE=");
-            else
-                aets.append(';');
-            aets.append(ae.getAETitle());
-        }
-        apApplication.setAlternativeUserID(aets.toString());
-        apApplication.setUserIsRequestor(false);
-        msg.getActiveParticipant().add(apApplication);
-
-        if (request != null) {
-            ActiveParticipant apUser = new ActiveParticipant();
-            apUser.getRoleIDCode().add(AuditMessages.RoleIDCode.ApplicationLauncher);
-            String remoteUser = request.getRemoteUser();
-            apUser.setUserID(remoteUser != null ? remoteUser : request.getRemoteAddr());
-            apUser.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
-            apUser.setNetworkAccessPointID(request.getRemoteAddr());
-            apUser.setUserIsRequestor(true);
-            msg.getActiveParticipant().add(apUser);
-        }
-        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
-        emitAuditMessage(timestamp, msg);
-    }
-
-    private void emitAuditMessage(Calendar timestamp, AuditMessage msg) {
-        try {
-            log().write(timestamp, msg);
-        } catch (Exception e) {
-            LOG.warn("Failed to emit audit message", e);
-        }
+        auditMessagesWriter.auditApplicationActivity(log(), eventTypeCode, request, device);
     }
 
     public void onStore(@Observes StoreContext ctx) {
         if ((null != ctx.getRejectionNote())) {
-            auditInstancesDeleted(ctx);
+            auditMessagesWriter.auditInstancesDeleted(ctx, log());
             return;
         }
         if (ctx.getLocation() == null)
@@ -206,61 +161,6 @@ public class AuditService {
         }
     }
 
-    private void auditInstancesDeleted(StoreContext ctx) {
-        RejectionNote rn = ctx.getRejectionNote();
-        Attributes attrs = ctx.getAttributes();
-        AuditMessage msg = new AuditMessage();
-        EventIdentification ei = new EventIdentification();
-        ei.setEventID(AuditMessages.EventID.DICOMInstancesAccessed);
-        ei.setEventActionCode(AuditMessages.EventActionCode.Delete);
-        ei.setEventDateTime(log().timeStamp());
-        if (null != ctx.getException()) {
-            ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.MinorFailure);
-            ei.setEventOutcomeDescription(rn.getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage());
-        } else {
-            ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
-            ei.setEventOutcomeDescription(rn.getRejectionNoteCode().getCodeMeaning());
-        }
-        msg.setEventIdentification(ei);
-        ActiveParticipant ap = new ActiveParticipant();
-        ap.setUserID(ctx.getStoreSession().getRemoteHostName());
-        ap.setUserIsRequestor(true);
-        msg.getActiveParticipant().add(ap);
-        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
-        ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
-        poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
-        poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
-        poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
-        poiStudy.setParticipantObjectID(ctx.getStudyInstanceUID());
-        ParticipantObjectDescriptionType poiStudyDesc = new ParticipantObjectDescriptionType();
-        Sequence currentRequestedProcedureEvidenceSequences = attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence);
-        if (currentRequestedProcedureEvidenceSequences != null) {
-            for (Attributes currentRequestedProcedureEvidenceSequence : currentRequestedProcedureEvidenceSequences ) {
-                Sequence referencedSeriesSequences = currentRequestedProcedureEvidenceSequence.getSequence(Tag.ReferencedSeriesSequence);
-                if (referencedSeriesSequences != null) {
-                    for (Attributes referencedSeriesSequence : referencedSeriesSequences) {
-                        Sequence referencedSOPSequences = referencedSeriesSequence.getSequence(Tag.ReferencedSOPSequence);
-                        if (referencedSOPSequences != null) {
-                            for (Attributes referencedSOPSequence : referencedSOPSequences) {
-                                poiStudyDesc.getSOPClass().add((AuditMessages.createSOPClass(referencedSOPSequence.getString(Tag.ReferencedSOPClassUID), referencedSOPSequences.size())));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        poiStudy.setParticipantObjectDescriptionType(poiStudyDesc);
-        msg.getParticipantObjectIdentification().add(poiStudy);
-        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
-        poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
-        poiPatient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
-        poiPatient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
-        poiPatient.setParticipantObjectID(attrs.getString(Tag.PatientID, ""));
-        poiPatient.setParticipantObjectName(attrs.getString(Tag.PatientName, ""));
-        msg.getParticipantObjectIdentification().add(poiPatient);
-        emitAuditMessage(log().timeStamp(), msg);
-    }
-
     public void aggregateAuditMessage(Path path) {
         String[] header;
         HashSet<String> accNos = new HashSet<>();
@@ -292,50 +192,7 @@ public class AuditService {
         } catch (IOException e) {
             LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", path, e);
         }
-        AuditMessage msg = new AuditMessage();
-        EventIdentification ei = new EventIdentification();
-        ei.setEventID(AuditMessages.EventID.DICOMInstancesTransferred);
-        ei.setEventActionCode(AuditMessages.EventActionCode.Create);
-        ActiveParticipant apSender = new ActiveParticipant();
-        apSender.setUserID(header[0]);
-        apSender.setAlternativeUserID("AETITLE=" + header[1]);
-        apSender.setUserIsRequestor(true);
-        apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
-        apSender.setNetworkAccessPointID(header[0]);
-        apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
-        msg.getActiveParticipant().add(apSender);
-        ActiveParticipant apReceiver = new ActiveParticipant();
-        apReceiver.setUserID(device.getDeviceName());
-        apReceiver.setAlternativeUserID("AETITLE=" + header[2]);
-        apReceiver.setUserIsRequestor(false);
-        apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
-        msg.getActiveParticipant().add(apReceiver);
-        ei.setEventDateTime(eventTime);
-        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
-        msg.setEventIdentification(ei);
-        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
-        ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
-        poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
-        poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
-        poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
-        poiStudy.setParticipantObjectID(header[3]);
-        ParticipantObjectDescriptionType poiStudyDesc = new ParticipantObjectDescriptionType();
-        for (String accNo : accNos)
-            poiStudyDesc.getAccession().add(AuditMessages.createAccession(accNo));
-        for (String mppsUID : mppsUIDs)
-            poiStudyDesc.getMPPS().add(AuditMessages.createMPPS(mppsUID));
-        for (Map.Entry<String, List<String>> entry : sopClassMap.entrySet())
-            poiStudyDesc.getSOPClass().add(AuditMessages.createSOPClass(entry.getKey(), entry.getValue().size()));
-        poiStudy.setParticipantObjectDescriptionType(poiStudyDesc);
-        msg.getParticipantObjectIdentification().add(poiStudy);
-        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
-        poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
-        poiPatient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
-        poiPatient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
-        poiPatient.setParticipantObjectID(StringUtils.maskEmpty(header[5], "<none>"));
-        poiPatient.setParticipantObjectName(StringUtils.maskEmpty(header[6], null));
-        msg.getParticipantObjectIdentification().add(poiPatient);
-        emitAuditMessage(log().timeStamp(), msg);
+        auditMessagesWriter.auditStudyStored(log(), header, accNos, mppsUIDs, sopClassMap, eventTime, device);
         try {
             Files.delete(path);
         } catch (IOException e) {
@@ -368,13 +225,13 @@ public class AuditService {
     }
 
     private void onConnectionFailed(Connection conn, Connection remoteConn, Socket s, Throwable e) {
-        // TODO
     }
 
     private void onConnectionRejectedBlacklisted(Connection conn, Socket s) {
     }
 
     private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
+        auditMessagesWriter.auditConnectionRejected(log(), s, e);
     }
 
     private void onConnectionAccepted(Connection conn, Socket s) {
