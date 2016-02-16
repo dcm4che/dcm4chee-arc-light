@@ -62,5 +62,5 @@ public interface PatientService {
     Patient mergePatient(IDWithIssuer pid, Attributes attrs, IDWithIssuer mrgPid, Attributes mrgAttrs)
             throws NonUniquePatientException, PatientMergedException;
 
-    Patient findOrCreatePatient(Object ctx, Attributes attrs);
+    Patient findPatient(Object ctx, IDWithIssuer pid);
 }

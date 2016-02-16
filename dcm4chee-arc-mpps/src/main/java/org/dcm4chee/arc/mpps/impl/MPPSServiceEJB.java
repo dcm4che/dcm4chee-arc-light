@@ -42,6 +42,7 @@ package org.dcm4chee.arc.mpps.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.BasicMPPSSCP;
@@ -90,7 +91,11 @@ public class MPPSServiceEJB {
         Attributes attrs = ctx.getAttributes();
         MPPS mpps = new MPPS();
         mpps.setSopInstanceUID(ctx.getSopInstanceUID());
-        Patient pat = patientService.findOrCreatePatient(ctx, attrs);
+        IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
+        Patient pat = patientService.findPatient(ctx, pid);
+        if (pat == null) {
+            pat = patientService.createPatient(pid, attrs);
+        }
         mpps.setPatient(pat);
         mpps.setDiscontinuationReasonCode(discontinuationReasonCodeOf(attrs));
         mpps.setAttributes(attrs, filter);

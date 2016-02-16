@@ -179,13 +179,7 @@ public class PatientServiceEJB implements PatientService {
     }
 
     @Override
-    public Patient findOrCreatePatient(Object ctx, Attributes attrs) {
-        IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
-        Patient pat = findPatient(ctx, pid);
-        return pat != null ? pat : createPatient(pid, attrs);
-    }
-
-    private Patient findPatient(Object ctx, IDWithIssuer pid) {
+    public Patient findPatient(Object ctx, IDWithIssuer pid) {
         if (pid == null) {
             LOG.info("{}: No Patient ID in received object", ctx);
             return null;

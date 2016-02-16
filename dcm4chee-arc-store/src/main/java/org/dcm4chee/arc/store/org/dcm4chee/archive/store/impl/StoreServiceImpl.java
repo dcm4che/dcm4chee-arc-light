@@ -111,14 +111,26 @@ class StoreServiceImpl implements StoreService {
     }
 
     private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
-        if (result.getLocation() != null) {
-            Series series = result.getLocation().getInstance().getSeries();
-            WriteContext writeContext = ctx.getWriteContext();
-            Storage storage = writeContext.getStorage();
-            updateAttributes(ctx, series);
-            storage.commitStorage(writeContext);
-            ctx.getStoreSession().cacheSeries(series);
+        if (result.getLocation() == null)
+            return;
+
+        if (result.getCreatedPatient() != null) {
+            synchronized (this) {
+                try {
+                    ejb.checkDuplicatePatientCreated(ctx, result);
+                } catch (Exception e) {
+                    LOG.warn("{}: Failed to remove duplicate created {}",
+                            ctx.getStoreSession(), result.getCreatedPatient(), e);
+                }
+            }
         }
+
+        Series series = result.getLocation().getInstance().getSeries();
+        WriteContext writeContext = ctx.getWriteContext();
+        Storage storage = writeContext.getStorage();
+        updateAttributes(ctx, series);
+        storage.commitStorage(writeContext);
+        ctx.getStoreSession().cacheSeries(series);
     }
 
     @Override
@@ -138,8 +150,6 @@ class StoreServiceImpl implements StoreService {
                 ejb.updateDB(ctx, result2);
                 result = result2;
             }
-            ctx.setLocation(result.getLocation());
-            ctx.setRejectionNote(result.getRejectionNote());
             postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);

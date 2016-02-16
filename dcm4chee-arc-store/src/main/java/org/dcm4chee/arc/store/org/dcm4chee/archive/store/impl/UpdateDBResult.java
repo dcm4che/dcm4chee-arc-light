@@ -44,8 +44,7 @@ import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Patient;
-
-import java.util.EnumSet;
+import org.dcm4chee.arc.entity.Study;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,7 +54,8 @@ class UpdateDBResult {
     private Location location;
     private RejectionNote rejectionNote;
     private Instance previousInstance;
-    private Patient patientCreated;
+    private Patient createdPatient;
+    private Study createdStudy;
 
     public void setLocation(Location location) {
         this.location = location;
@@ -81,11 +81,19 @@ class UpdateDBResult {
         return previousInstance;
     }
 
-    public Patient getPatientCreated() {
-        return patientCreated;
+    public Patient getCreatedPatient() {
+        return createdPatient;
     }
 
-    public void setPatientCreated(Patient patientCreated) {
-        this.patientCreated = patientCreated;
+    public void setCreatedPatient(Patient createdPatient) {
+        this.createdPatient = createdPatient;
+    }
+
+    public Study getCreatedStudy() {
+        return createdStudy;
+    }
+
+    public void setCreatedStudy(Study createdStudy) {
+        this.createdStudy = createdStudy;
     }
 }

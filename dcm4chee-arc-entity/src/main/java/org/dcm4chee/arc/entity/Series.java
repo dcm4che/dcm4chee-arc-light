@@ -208,7 +208,7 @@ public class Series {
     @JoinColumn(name = "series_fk")
     private Collection<SeriesRequestAttributes> requestAttributes;
 
-    @OneToMany(mappedBy = "series", cascade=CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "series", cascade=CascadeType.ALL)
     private Collection<SeriesQueryAttributes> queryAttributes;
 
     @ManyToOne(optional = false)

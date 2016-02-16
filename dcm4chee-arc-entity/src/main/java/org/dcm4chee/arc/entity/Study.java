@@ -194,7 +194,7 @@ public class Study {
         inverseJoinColumns = @JoinColumn(name = "pcode_fk", referencedColumnName = "pk"))
     private Collection<CodeEntity> procedureCodes;
 
-    @OneToMany(mappedBy = "study", cascade=CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "study", cascade=CascadeType.ALL)
     private Collection<StudyQueryAttributes> queryAttributes;
 
     @ManyToOne(optional = false)

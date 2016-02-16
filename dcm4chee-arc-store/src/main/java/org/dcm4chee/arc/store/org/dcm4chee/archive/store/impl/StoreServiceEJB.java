@@ -63,7 +63,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -164,7 +163,7 @@ public class StoreServiceEJB {
             }
         }
 
-        Instance instance = createInstance(ctx, conceptNameCode);
+        Instance instance = createInstance(ctx, conceptNameCode, result);
         Location location = createLocation(ctx, instance);
         deleteQueryAttributes(instance);
         result.setLocation(location);
@@ -317,13 +316,19 @@ public class StoreServiceEJB {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
-    private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode) {
+    private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result) {
         Series series = findSeries(ctx);
         if (series == null) {
             Study study = findStudy(ctx);
             if (study == null) {
-                Patient pat = patientService.findOrCreatePatient(ctx.getStoreSession(), ctx.getAttributes());
+                IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
+                Patient pat = patientService.findPatient(ctx, pid);
+                if (pat == null) {
+                    pat = patientService.createPatient(pid, ctx.getAttributes());
+                    result.setCreatedPatient(pat);
+                }
                 study = createStudy(ctx, pat);
+                result.setCreatedStudy(study);
             }
             series = createSeries(ctx, study);
         }
@@ -548,4 +553,33 @@ public class StoreServiceEJB {
             }
     }
 
+    public void checkDuplicatePatientCreated(StoreContext ctx, UpdateDBResult result) {
+        IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
+        if (pid == null)
+            return;
+
+        List<Patient> patients = patientService.findPatients(pid);
+        switch (patients.size()) {
+            case 1:
+                return;
+            case 2:
+                break;
+            default:
+                LOG.warn("{}: Multiple({}) Patients with ID {}", ctx.getStoreSession(), patients.size(), pid);
+                return;
+        }
+
+        int index = patients.get(0).getPk() == result.getCreatedPatient().getPk() ? 0 : 1;
+        Patient createdPatient = patients.get(index);
+        Patient otherPatient = patients.get(1-index);
+        if (otherPatient.getMergedWith() != null) {
+            LOG.warn("{}: Keep duplicate created {} because existing {} is circular merged",
+                    ctx.getStoreSession(), createdPatient, otherPatient, pid);
+            return;
+        }
+        LOG.info("{}: Delete duplicate created {}", ctx.getStoreSession(), createdPatient);
+        em.merge(result.getCreatedStudy()).setPatient(otherPatient);
+        em.remove(createdPatient);
+        result.setCreatedPatient(null);
+    }
 }
