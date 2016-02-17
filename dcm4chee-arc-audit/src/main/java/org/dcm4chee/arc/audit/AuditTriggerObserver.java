@@ -42,10 +42,14 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.audit.EventTypeCode;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -93,7 +97,14 @@ public class AuditTriggerObserver {
     }
 
     public void onQuery(@Observes QueryContext ctx) {
-        //TODO
+        Association as = ctx.getAssociation();
+        HttpServletRequest request = ctx.getHttpRequest();
+        Attributes queryKeys = ctx.getQueryKeys();
+        String calledAET = ctx.getCalledAET();
+        String callingAET = ctx.getCallingAET();
+        String remoteHostName = ctx.getRemoteHostName();
+        String sopClassUID = ctx.getSOPClassUID();
+        auditService.auditQuery(as, request, queryKeys, callingAET, calledAET, remoteHostName, sopClassUID);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {

@@ -45,12 +45,16 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -62,6 +66,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -100,8 +105,7 @@ public class AuditService {
     }
 
     public void auditApplicationActivity(EventTypeCode eventTypeCode, HttpServletRequest request) {
-        AuditLogger log = log();
-        Calendar timestamp = log.timeStamp();
+        Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         EventIdentification ei = new EventIdentification();
         ei.setEventID(AuditMessages.EventID.ApplicationActivity);
@@ -135,7 +139,7 @@ public class AuditService {
             apUser.setUserIsRequestor(true);
             msg.getActiveParticipant().add(apUser);
         }
-        msg.getAuditSourceIdentification().add(log.createAuditSourceIdentification());
+        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         emitAuditMessage(timestamp, msg);
     }
 
@@ -192,8 +196,7 @@ public class AuditService {
     }
 
     public void auditInstancesDeleted(StoreContext ctx) {
-        AuditLogger log = log();
-        Calendar timestamp = log.timeStamp();
+        Calendar timestamp = log().timeStamp();
         RejectionNote rn = ctx.getRejectionNote();
         Attributes attrs = ctx.getAttributes();
         AuditMessage msg = new AuditMessage();
@@ -214,7 +217,7 @@ public class AuditService {
         ap.setUserID(ctx.getStoreSession().getRemoteHostName());
         ap.setUserIsRequestor(true);
         msg.getActiveParticipant().add(ap);
-        msg.getAuditSourceIdentification().add(log.createAuditSourceIdentification());
+        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
         poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
         poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
@@ -243,8 +246,7 @@ public class AuditService {
     }
 
     public void auditConnectionRejected(Socket s, Throwable e) {
-        AuditLogger log = log();
-        Calendar timestamp = log.timeStamp();
+        Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         EventIdentification ei = new EventIdentification();
         ei.setEventID(AuditMessages.EventID.SecurityAlert);
@@ -261,7 +263,7 @@ public class AuditService {
         apPerformer.setUserID(s.getRemoteSocketAddress().toString());
         apPerformer.setUserIsRequestor(true);
         msg.getActiveParticipant().add(apPerformer);
-        msg.getAuditSourceIdentification().add(log.createAuditSourceIdentification());
+        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         ParticipantObjectIdentification poi = new ParticipantObjectIdentification();
         poi.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
         poi.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.NodeID);
@@ -337,6 +339,54 @@ public class AuditService {
         } catch (IOException e) {
             LOG.warn("Failed to delete Audit Spool File - {}", path, e);
         }
+    }
+
+    public void auditQuery(Association as, HttpServletRequest request,
+                           Attributes queryKeys, String callingAET, String calledAET,
+                           String remoteHostName, String sopClassUID) {
+        Calendar timestamp = log().timeStamp();
+        AuditMessage msg = new AuditMessage();
+        EventIdentification ei = new EventIdentification();
+        ei.setEventID(AuditMessages.EventID.Query);
+        ei.setEventActionCode(AuditMessages.EventActionCode.Execute);
+        ei.setEventDateTime(timestamp);
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+        msg.setEventIdentification(ei);
+        ActiveParticipant apQueryIssuer = new ActiveParticipant();
+        apQueryIssuer.setUserID(callingAET);
+        apQueryIssuer.setUserIsRequestor(true);
+        apQueryIssuer.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
+        apQueryIssuer.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
+        apQueryIssuer.setNetworkAccessPointID(remoteHostName);
+        msg.getActiveParticipant().add(apQueryIssuer);
+        ActiveParticipant apQueryResponder = new ActiveParticipant();
+        apQueryResponder.setUserID(calledAET);
+        apQueryResponder.setUserIsRequestor(false);
+        apQueryResponder.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
+        msg.getActiveParticipant().add(apQueryResponder);
+        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
+        ParticipantObjectIdentification poi = new ParticipantObjectIdentification();
+        poi.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        poi.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        poi.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID);
+        poi.setParticipantObjectID(sopClassUID);
+        if (request != null) {
+            String queryString = request.getRequestURI() + request.getQueryString();
+            poi.setParticipantObjectQuery(queryString.getBytes());
+        }
+        if (as != null) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            try (DicomOutputStream dos = new DicomOutputStream(bos, UID.ImplicitVRLittleEndian)) {
+                dos.writeDataset(null, queryKeys);
+            } catch (Exception e) {
+                LOG.warn("Failed to create DicomOutputStream : ", e);
+            }
+            byte[] b = bos.toByteArray();
+            poi.setParticipantObjectQuery(b);
+            poi.getParticipantObjectDetail().add(AuditMessages.createParticipantObjectDetail("TransferSyntax", UID.ImplicitVRLittleEndian.getBytes()));
+        }
+        msg.getParticipantObjectIdentification().add(poi);
+        emitAuditMessage(timestamp, msg);
     }
 
     private static class PatientStudyInfo {
