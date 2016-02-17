@@ -46,8 +46,8 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
                             });
                             cfpLoadingBar.complete();
                         });
-                        elm.find("#showDeviceForm").bind('click', function() {
 
+                        elm.find("#showDeviceForm").bind('click', function() {
                             $log.debug("in click");
                             if(scope.devicename === "CHANGE_ME"){
                                 $timeout(function() {

@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $compile) {
+myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $compile, testConstant) {
 
 	/*
 	*The time after how many miliseconds should disapper the message
@@ -297,16 +297,89 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		*/
 		getDeviceSchema : function(){
 			var localShema = {};
-			try{
-				angular.copy($schema,localShema);
+			// $http({
+   //      	method: 'GET',
+   //      	url: 'schema/device.schema.json'
+   //      // url: '../devices'
+		 //    }).then(function successCallback(response) {
+		 //    	$log.debug("old schema=",$schema);
+		 //        $log.debug("new schema=",response.data);
+		 //        angular.copy(response.data,localShema);
+			// 	delete localShema.properties.dicomNetworkAE;
+			// 	delete localShema.properties.dicomNetworkConnection;
+			// 	delete localShema.properties.dcmAuditRecordRepository;
+			// 	delete localShema.properties.hl7Application;
+			// 	delete localShema.properties.dcmImageWriter;
+			// 	delete localShema.properties.dcmImageReader;
+			// 	delete localShema.properties.dcmAuditLogger;
+			// 	delete localShema.properties.dcmArchiveDevice;
+			// 	//Test
+			// 		// delete localShema.properties.dicomDeviceName;
+			// 		delete localShema.properties.dicomDescription;
+			// 		delete localShema.properties.dicomManufacturer;
+			// 		delete localShema.properties.dicomManufacturerModelName;
+			// 		delete localShema.properties.dicomSoftwareVersion;
+			// 		delete localShema.properties.dicomStationName;
+			// 		delete localShema.properties.dicomDeviceSerialNumber;
+			// 		delete localShema.properties.dicomPrimaryDeviceType;
+			// 		delete localShema.properties.dicomInstitutionName;
+			// 		delete localShema.properties.dicomInstitutionCode;
+			// 		delete localShema.properties.dicomInstitutionAddress;
+			// 		delete localShema.properties.dicomInstitutionDepartmentName;
+			// 		delete localShema.properties.dicomIssuerOfPatientID;
+			// 		delete localShema.properties.dicomIssuerOfAccessionNumber;
+			// 		delete localShema.properties.dicomOrderPlacerIdentifier;
+			// 		delete localShema.properties.dicomOrderFillerIdentifier;
+			// 		delete localShema.properties.dicomIssuerOfAdmissionID;
+			// 		delete localShema.properties.dicomIssuerOfServiceEpisodeID;
+			// 		delete localShema.properties.dicomIssuerOfContainerIdentifier;
+			// 		delete localShema.properties.dicomIssuerOfSpecimenIdentifier;
+			// 		delete localShema.properties.dicomAuthorizedNodeCertificateReference;
+			// 		delete localShema.properties.dicomThisNodeCertificateReference;
+			// 		delete localShema.properties.dicomInstalled;
+			// 		delete localShema.properties.dcmDevice;
+			// 	//~Test
+			// 	var localShema2 = {};
+			// 	angular.copy($schema,localShema2);
+			// 	delete localShema2.properties.dicomNetworkAE;
+			// 	delete localShema2.properties.dicomNetworkConnection;
+			// 	$log.debug("localShema2=",localShema2);
+			// 	return localShema2;
+			// 	// return localShema2;
+		 //        // return response.data;
+		 //    }, function errorCallback(response) {
+		 //        $log.error("Error loading device names", response);
+		 //        vex.dialog.alert("Error loading device names, please reload the page and try again!");
+		 //    }); 
+		// setTimeout(function(){
+			var localShema = {};
+			$log.debug("in service testConstant=",testConstant.data);
+				angular.copy(testConstant.data, localShema);
+				$log.debug("in service localShema=",localShema);
+
 				delete localShema.properties.dicomNetworkAE;
 				delete localShema.properties.dicomNetworkConnection;
+				delete localShema.properties.dcmAuditRecordRepository;
+				delete localShema.properties.hl7Application;
+				delete localShema.properties.dcmImageWriter;
+				delete localShema.properties.dcmImageReader;
+				delete localShema.properties.dcmAuditLogger;
+				delete localShema.properties.dcmArchiveDevice;
+
+				$log.debug("in service localShema2=",localShema);
 				return localShema;
 
-			}catch(e){
-				$log.error("Error on splitting the device schema in factory DeviceService.js",e);
-				return {};
-			}
+		// }, 400);
+		// 	try{
+		// 		angular.copy($schema,localShema);
+		// 		delete localShema.properties.dicomNetworkAE;
+		// 		delete localShema.properties.dicomNetworkConnection;
+		// 		return localShema;
+
+		// 	}catch(e){
+		// 		$log.error("Error on splitting the device schema in factory DeviceService.js",e);
+		// 		return {};
+		// 	}
 		},
 
 		/*
@@ -316,10 +389,71 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		getDeviceForm : function(){
 			var localShema 	= {};
 			var endArray 	= [];
-			try{
-				angular.copy($schema,localShema);
+			try{			
+			// 	$http({
+	  //       	method: 'GET',
+	  //       	url: 'schema/device.schema.json'
+	  //       	// url: '../devices'
+			//     }).then(function successCallback(response) {
+			//     	// $log.debug("old schema=",$schema);
+			//      //    $log.debug("new schema=",response.data);
+			//         angular.copy(response.data,localShema);
+			// 		delete localShema.properties.dicomNetworkAE;
+			// 		delete localShema.properties.dicomNetworkConnection;
+			// 		delete localShema.properties.dcmAuditRecordRepository;
+			// 		delete localShema.properties.hl7Application;
+			// 		delete localShema.properties.dcmImageWriter;
+			// 		delete localShema.properties.dcmImageReader;
+			// 		delete localShema.properties.dcmAuditLogger;
+			// 		delete localShema.properties.dcmArchiveDevice;
+			// 		//
+			// 		angular.forEach(localShema.properties, function(m,i){
+			// 			endArray.push(i);
+			// 			// if(m.type != "array"){
+			// 			// 	if(i==="dicomInstalled"){
+			// 			// 		endArray.push({
+			// 			// 			"key":"dicomInstalled",
+			// 			// 			"type":"radios",
+			// 			// 			"titleMap":[
+			// 			// 				{
+			// 			// 					"value": true,
+			// 			// 					"name":"True"
+			// 			// 				},
+			// 			// 				{
+			// 			// 					"value": false,
+			// 			// 					"name":"False"
+			// 			// 				}
+			// 			// 			]
+			// 			// 		});
+			// 			// 	}else{
+			// 			// 		endArray.push(i);
+			// 			// 	}
+			// 			// }else{
+			// 			// 	endArray.push({
+			//    //                       "key":i,
+			//    //                       "add": "Add",
+			//    //                       "itmes":[
+			//    //                          i+"[]"
+			//    //                       ]
+			//    //                      });
+			// 			// }
+			// 		});
+			// 		$log.debug("endarray=",endArray);
+			// 		return [];
+			//         // return response.data;
+			//     }, function errorCallback(response) {
+			//         $log.error("Error loading device names", response);
+			//         vex.dialog.alert("Error loading device names, please reload the page and try again!");
+			//     }); 
+				angular.copy(testConstant.data,localShema);
 				delete localShema.properties.dicomNetworkAE;
 				delete localShema.properties.dicomNetworkConnection;
+				delete localShema.properties.dcmAuditRecordRepository;
+				delete localShema.properties.hl7Application;
+				delete localShema.properties.dcmImageWriter;
+				delete localShema.properties.dcmImageReader;
+				delete localShema.properties.dcmAuditLogger;
+				delete localShema.properties.dcmArchiveDevice;
 				//return localShema;
 				// $log.debug("localSchema",localShema.properties);
 				angular.forEach(localShema.properties, function(m,i){

@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse) {
+myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, testConstant) {
 
     $scope.activeMenu             = "device_menu";
     $scope.showSave               = false;
@@ -13,6 +13,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.showFormLoader         = false;
     $scope.validForm              = true;
     $scope.showScrollButton       = false;
+    // var testConstant = {};
 
     setTimeout(function(){ 
       $scope.$apply(function(){
@@ -37,6 +38,21 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
         }
     });
+
+
+    $http({
+        method: 'GET',
+        url: 'schema/device.schema.json'
+        // url: '../devices'
+    }).then(function successCallback(response) {
+        $log.debug("before testConstant=",testConstant);
+        $log.debug("new schemas=",response.data);
+        testConstant.data = response.data;
+        $log.debug("after testConstant=",testConstant);
+    }, function errorCallback(response) {
+        $log.error("Error loading device names", response);
+        vex.dialog.alert("Error loading device names, please reload the page and try again!");
+    }); 
 
     //Warn if the user want to leav the page without saving the changes
     $scope.$on('$locationChangeStart', function(event) {

@@ -16,6 +16,27 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
 
 				scope.deviceSchema = DeviceService.getDeviceSchema();
+                $log.debug("scope.deviceSchema",scope.deviceSchema);
+                if(!scope.deviceSchema){
+                    // DeviceService.getDeviceSchema();
+                    var timeOut = 0;
+                    var schema  = {};
+                    var waitForShema = setInterval(function(){
+                        // $log.debug("tiemOut =",timeOut);
+                        $log.debug("inwait scheam=",DeviceService.getDeviceSchema());
+                        schema  = DeviceService.getDeviceSchema();
+                        if(schema){
+                            clearInterval(waitForShema);
+                            scope.deviceSchema = schema;
+                        }
+                        if(timeOut > 100){  //If the program is waiting more than 10 sec than break up and show alert
+                            clearInterval(waitForShema);
+                            $log.error("Timeout error!");
+                            vex.dialog.alert("Timeout error, can't get device information, please reload the page and try again!");
+                        }
+                        timeOut++;
+                    }, 100);
+                }
                 //If the wholeDevice is undefined wait for it, otherwaise assigne it to deviceModel
                 if(scope.wholeDevice === undefined || scope.wholeDevice.dicomDeviceName != scope.currentDevice){
                     var timeOut = 0;

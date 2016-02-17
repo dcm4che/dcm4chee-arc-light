@@ -24,7 +24,7 @@ myApp.config(function ($routeProvider) {
     });
 
 });
-
+myApp.value("testConstant", {});
 myApp.logoutUrl = function() {
     var host = location.protocol + "//" + location.host
     return host + "/auth/realms/dcm4che/tokens/logout?redirect_uri="

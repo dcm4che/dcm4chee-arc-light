@@ -28,7 +28,7 @@
 	</div>
 	<div class="col-md-5 {{lastBorder}} form_content">
 		<div class="loader" ng-show="showFormLoader"></div>
-  		<div class="btn save col-md-2" ng-show="showSave" ng-click="save()">Save</div>
+  		<div class="btn save col-md-2" ng-show="showSave" ng-click="save()" ng-dispabled="editDevice.$invalid">Save</div>
   		<div class="btn col-md-2" ng-show="showCancel" ng-click="cancel()">Cancel</div>
 		<div id="add_edit_area"></div>
 	</div>
@@ -43,5 +43,7 @@
 	</li>
 </div>
 <pre style="display:none">
+	editDevicedicomHost:{{editDevice.dicomHostname.$error.required}}
+	editDevice:{{editDevice.$invalid}}
 	{{wholeDevice | json}}
 </pre>
