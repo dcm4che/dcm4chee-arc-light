@@ -58,7 +58,8 @@ import java.util.EnumSet;
  * @since Aug 2015
  */
 public interface QueryService {
-    QueryContext newQueryContextFIND(Association as, EnumSet<QueryOption> queryOpts);
+
+    QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts);
 
     QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, ApplicationEntity ae, boolean fuzzyMatching);
 

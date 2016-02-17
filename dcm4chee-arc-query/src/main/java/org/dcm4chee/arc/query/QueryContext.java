@@ -66,6 +66,8 @@ public interface QueryContext {
 
     String getRemoteHostName();
 
+    String getSOPClassUID();
+
     ArchiveAEExtension getArchiveAEExtension();
 
     Attributes getQueryKeys();

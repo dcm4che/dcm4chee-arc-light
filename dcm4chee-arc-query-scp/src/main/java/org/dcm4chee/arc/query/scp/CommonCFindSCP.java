@@ -73,10 +73,11 @@ class CommonCFindSCP extends BasicCFindSCP {
     @Override
     protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
-        EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
+        String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
+        EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
-        QueryContext ctx = queryService.newQueryContextFIND(as, queryOpts);
+        QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);

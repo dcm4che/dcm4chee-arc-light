@@ -69,6 +69,7 @@ class QueryContextImpl implements QueryContext {
     private Attributes queryKeys;
     private Attributes returnKeys;
     private boolean orderByPatientName;
+    private String sopClassUID;
 
     public QueryContextImpl(HttpServletRequest httpRequest, ApplicationEntity ae, QueryParam queryParam,
                             QueryService queryService) {
@@ -82,14 +83,21 @@ class QueryContextImpl implements QueryContext {
         this.queryParam = queryParam;
     }
 
-    public QueryContextImpl(Association as, ApplicationEntity ae, QueryParam queryParam, QueryServiceImpl queryService) {
+    public QueryContextImpl(Association as, String sopClassUID, ApplicationEntity ae, QueryParam queryParam,
+                            QueryServiceImpl queryService) {
         this(ae, queryParam, queryService);
         this.as = as;
+        this.sopClassUID = sopClassUID;
     }
 
     @Override
     public Association getAssociation() {
         return as;
+    }
+
+    @Override
+    public String getSOPClassUID() {
+        return sopClassUID;
     }
 
     @Override

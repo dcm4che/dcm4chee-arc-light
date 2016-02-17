@@ -89,9 +89,9 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public QueryContext newQueryContextFIND(Association as, EnumSet<QueryOption> queryOpts) {
+    public QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts) {
         ApplicationEntity ae = as.getApplicationEntity();
-        return new QueryContextImpl(as, ae, newQueryParam(ae,
+        return new QueryContextImpl(as, sopClassUID, ae, newQueryParam(ae,
                 queryOpts.contains(QueryOption.DATETIME),
                 queryOpts.contains(QueryOption.FUZZY)),
                 this);
