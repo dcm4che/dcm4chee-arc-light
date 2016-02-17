@@ -64,7 +64,7 @@ import static java.security.AccessController.doPrivileged;
 @ApplicationScoped
 public class AuditTriggerObserver {
     @Inject
-    private AuditMessagesWriter auditMessagesWriter;
+    private AuditService auditService;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
         EventTypeCode eventTypeCode = null;
@@ -79,18 +79,18 @@ public class AuditTriggerObserver {
                 return;
         }
         HttpServletRequest request = event.getRequest();
-        auditMessagesWriter.auditApplicationActivity(eventTypeCode, request);
+        auditService.auditApplicationActivity(eventTypeCode, request);
     }
 
     public void onStore(@Observes StoreContext ctx) {
         if ((null != ctx.getRejectionNote())) {
-            auditMessagesWriter.auditInstancesDeleted(ctx);
+            auditService.auditInstancesDeleted(ctx);
             return;
         }
         if (ctx.getLocation() == null)
             return;
 
-        auditMessagesWriter.auditInstanceStored(ctx);
+        auditService.auditInstanceStored(ctx);
 
     }
 
@@ -125,7 +125,7 @@ public class AuditTriggerObserver {
     }
 
     private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
-        auditMessagesWriter.auditConnectionRejected(s, e);
+        auditService.auditConnectionRejected(s, e);
     }
 
     private void onConnectionAccepted(Connection conn, Socket s) {
