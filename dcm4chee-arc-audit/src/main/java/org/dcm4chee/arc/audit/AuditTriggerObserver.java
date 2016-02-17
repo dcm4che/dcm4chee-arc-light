@@ -43,14 +43,15 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.audit.EventTypeCode;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.scu.RetrieveEnd;
+import org.dcm4chee.arc.store.scu.RetrieveStart;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -105,6 +106,14 @@ public class AuditTriggerObserver {
         String remoteHostName = ctx.getRemoteHostName();
         String sopClassUID = ctx.getSOPClassUID();
         auditService.auditQuery(as, request, queryKeys, callingAET, calledAET, remoteHostName, sopClassUID);
+    }
+
+    public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
+        //TODO
+    }
+
+    public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
+        //TODO
     }
 
     public void onConnection(@Observes ConnectionEvent event) {

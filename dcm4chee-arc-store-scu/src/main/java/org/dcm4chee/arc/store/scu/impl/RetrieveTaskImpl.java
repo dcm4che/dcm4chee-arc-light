@@ -57,6 +57,7 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
 import javax.xml.transform.Templates;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,6 +75,8 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
     static final Logger LOG = LoggerFactory.getLogger(RetrieveTaskImpl.class);
 
+    private final Event<RetrieveContext> retrieveStart;
+    private final Event<RetrieveContext> retrieveEnd;
     private final RetrieveContext ctx;
     private final Association storeas;
     private final ArchiveAEExtension aeExt;
@@ -90,7 +93,10 @@ final class RetrieveTaskImpl implements RetrieveTask {
     private volatile boolean canceled;
     private ScheduledFuture<?> writePendingRSP;
 
-    RetrieveTaskImpl(RetrieveContext ctx, Association storeas) {
+    RetrieveTaskImpl(RetrieveContext ctx, Association storeas,
+                     Event<RetrieveContext> retrieveStart, Event<RetrieveContext> retrieveEnd) {
+        this.retrieveStart = retrieveStart;
+        this.retrieveEnd = retrieveEnd;
         this.ctx = ctx;
         this.storeas = storeas;
         this.aeExt = ctx.getArchiveAEExtension();
@@ -114,8 +120,10 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
     @Override
     public void run() {
-        if (rqas != null)
+        retrieveStart.fire(ctx);
+        if (rqas != null) {
             rqas.addCancelRQHandler(msgId, this);
+        }
         try {
             startWritePendingRSP();
             for (InstanceLocations match : ctx.getMatches()) {
@@ -133,6 +141,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
                 rqas.removeCancelRQHandler(msgId);
             SafeClose.close(ctx);
         }
+        retrieveEnd.fire(ctx);
     }
 
     private void store(InstanceLocations inst) {

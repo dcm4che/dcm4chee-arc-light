@@ -56,8 +56,11 @@ import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
+import org.dcm4chee.arc.store.scu.RetrieveEnd;
+import org.dcm4chee.arc.store.scu.RetrieveStart;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 /**
@@ -69,6 +72,12 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Inject
     private IApplicationEntityCache aeCache;
+
+    @Inject @RetrieveStart
+    private Event<RetrieveContext> retrieveStart;
+
+    @Inject @RetrieveEnd
+    private Event<RetrieveContext> retrieveEnd;
 
     private Association openAssociation(RetrieveContext ctx, String callingAET)
             throws DicomServiceException {
@@ -105,14 +114,16 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Override
     public RetrieveTask newRetrieveTaskSTORE(RetrieveContext ctx) throws DicomServiceException {
-        return new RetrieveTaskImpl(ctx, openAssociation(ctx, ctx.getLocalApplicationEntity().getAETitle()));
+        return new RetrieveTaskImpl(ctx, openAssociation(ctx, ctx.getLocalApplicationEntity().getAETitle()),
+                retrieveStart, retrieveEnd);
     }
 
     @Override
     public RetrieveTask newRetrieveTaskMOVE(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
-        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, openAssociation(ctx, as.getCalledAET()));
+        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, openAssociation(ctx, as.getCalledAET()),
+                retrieveStart, retrieveEnd);
         retrieveTask.setRequestAssociation(Dimse.C_MOVE_RQ, as, pc, rq);
         return retrieveTask;
     }
@@ -121,7 +132,7 @@ public class CStoreSCUImpl implements CStoreSCU {
     public RetrieveTask newRetrieveTaskGET(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
-        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, as);
+        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, as, retrieveStart, retrieveEnd);
         retrieveTask.setRequestAssociation(Dimse.C_GET_RQ, as, pc, rq);
         return retrieveTask;
     }
