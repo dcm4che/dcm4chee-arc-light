@@ -40,20 +40,19 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.EventTypeCode;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.store.StoreContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-
 import java.net.Socket;
-
-import static java.security.AccessController.doPrivileged;
 
 
 /**
@@ -91,7 +90,10 @@ public class AuditTriggerObserver {
             return;
 
         auditService.auditInstanceStored(ctx);
+    }
 
+    public void onQuery(@Observes QueryContext ctx) {
+        //TODO
     }
 
     public void onConnection(@Observes ConnectionEvent event) {

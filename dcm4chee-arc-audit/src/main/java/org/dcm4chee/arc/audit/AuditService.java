@@ -75,6 +75,7 @@ import static java.security.AccessController.doPrivileged;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Feb 2016
  */
 @ApplicationScoped
@@ -220,23 +221,12 @@ public class AuditService {
         poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
         poiStudy.setParticipantObjectID(ctx.getStudyInstanceUID());
         ParticipantObjectDescriptionType poiStudyDesc = new ParticipantObjectDescriptionType();
-        Sequence currentRequestedProcedureEvidenceSequences =
-                attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence);
-        if (currentRequestedProcedureEvidenceSequences != null) {
-            for (Attributes currentRequestedProcedureEvidenceSequence : currentRequestedProcedureEvidenceSequences ) {
-                Sequence referencedSeriesSequences =
-                        currentRequestedProcedureEvidenceSequence.getSequence(Tag.ReferencedSeriesSequence);
-                if (referencedSeriesSequences != null) {
-                    for (Attributes referencedSeriesSequence : referencedSeriesSequences) {
-                        Sequence referencedSOPSequences =
-                                referencedSeriesSequence.getSequence(Tag.ReferencedSOPSequence);
-                        if (referencedSOPSequences != null) {
-                            for (Attributes referencedSOPSequence : referencedSOPSequences) {
-                                poiStudyDesc.getSOPClass().add((AuditMessages.createSOPClass(
-                                        referencedSOPSequence.getString(Tag.ReferencedSOPClassUID), referencedSOPSequences.size())));
-                            }
-                        }
-                    }
+        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
+            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
+                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
+                    poiStudyDesc.getSOPClass().add((AuditMessages.createSOPClass(
+                            sopRef.getString(Tag.ReferencedSOPClassUID),
+                            seriesRef.getSequence(Tag.ReferencedSOPSequence).size())));
                 }
             }
         }

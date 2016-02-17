@@ -57,6 +57,7 @@ import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -78,6 +79,9 @@ class QueryServiceImpl implements QueryService {
 
     @Inject
     private CodeCache codeCache;
+
+    @Inject
+    private Event<QueryContext> queryEvent;
 
     StatelessSession openStatelessSession() {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
@@ -107,6 +111,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx) {
+        queryEvent.fire(ctx);
         switch (qrLevel) {
             case PATIENT:
                 return createPatientQuery(ctx);
