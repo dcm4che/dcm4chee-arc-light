@@ -146,6 +146,18 @@ ul.nav {
 	    float: right;
 	    margin-top: 20px;
 	}
+	
+	.btn-group{
+		.btn{
+			background:white;
+			border:1px solid #ccc;
+			color:black;
+			border-radius: 0;
+		}
+		.btn.active{
+			background:#ccc;
+		}
+	}
 	.save{
 	    margin-left: 10px;
 	}

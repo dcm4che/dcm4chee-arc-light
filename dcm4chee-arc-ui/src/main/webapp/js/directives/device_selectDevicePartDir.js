@@ -20,11 +20,11 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
                             scope.networkae                 = response.data.dicomNetworkAE;
                             scope.wholeDevice               = response.data;
                             DeviceService.addEmptyArrayFields(scope);
-                            cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                            cfpLoadingBar.set(cfpLoadingBar.status()+(0.3));
                             // angular.copy(scope.wholeDevice,wholeDeviceCopy);
-                            cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                            // cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
                             // scope.wholeDeviceCopy           = wholeDeviceCopy;
-                            cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                            // cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
 
                         elm.bind('change', function() {
                             $log.debug("in change selectDevicePart");
@@ -36,7 +36,6 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
                                 $apply(function() {
                                     // angular.element(document.getElementById('add_edit_area'))
                                     //        .html($compile("<div edit-area></div>")(scope));
-
                                     DeviceService
                                     .addDirectiveToDom(
                                         scope, 
@@ -49,8 +48,8 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
                         });
                         elm.find("#showDeviceForm").bind('click', function() {
 
+                            $log.debug("in click");
                             if(scope.devicename === "CHANGE_ME"){
-
                                 $timeout(function() {
                                     // $log.debug("pos1");
                                     scope.

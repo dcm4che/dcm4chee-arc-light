@@ -324,7 +324,24 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				// $log.debug("localSchema",localShema.properties);
 				angular.forEach(localShema.properties, function(m,i){
 					if(m.type != "array"){
-						endArray.push(i);
+						if(i==="dicomInstalled"){
+							endArray.push({
+								"key":"dicomInstalled",
+								"type":"radios",
+								"titleMap":[
+									{
+										"value": true,
+										"name":"True"
+									},
+									{
+										"value": false,
+										"name":"False"
+									}
+								]
+							});
+						}else{
+							endArray.push(i);
+						}
 					}else{
 						endArray.push({
 		                         "key":i,
@@ -418,7 +435,28 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                                 "titleMap": connObject
                         		});
 				}else{
-					form.push(k);
+					if(k==="dicomInstalled"){
+						form.push({
+							"key":"dicomInstalled",
+							"type":"radiobuttons",
+							"allowMultiple":false,
+							"titleMap":[
+								{
+									"name":"Inherit"
+								},
+								{
+									"value": true,
+									"name":"True"
+								},
+								{
+									"value": false,
+									"name":"False"
+								}
+							]
+						});
+					}else{
+						form.push(k);
+					}
 				}
 			});
 
@@ -476,6 +514,35 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				$log.error("Error on splitting the DicomNetworkConnection schema in factory DeviceService.js",e);
 				return {};
 			}
+		},
+		getFormDicomNetworkConn:function(){
+			var endArray = [];
+			angular.forEach($schema.properties.dicomNetworkConnection.items.properties,function(m, i){
+				if(i==="dicomInstalled"){
+					endArray.push({
+						"key":"dicomInstalled",
+						"type":"radiobuttons",
+						"titleMap":[
+							{
+								"name":"Inherit"
+							},
+							{
+								"value": true,
+								"name":"True"
+							},
+							{
+								"value": false,
+								"name":"False"
+							}
+						]
+					});
+				}else{
+					endArray.push(i);
+				}
+			});
+			$log.debug("getformdicomnetworkconn endarray=",endArray);
+			return endArray;
+
 		},
 		getDeviceModel: function(wholeDeviceModel){
 			var localModel = {};
@@ -539,8 +606,8 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		validateForm: function($scope){
 			var validForm = true;
         	var message = "";
-        	$log.debug("$scope.selectedElement",$scope.selectedElement);
-        	$log.debug("wholeDevice=",$scope.wholeDevice);
+        	// $log.debug("$scope.selectedElement",$scope.selectedElement);
+        	// $log.debug("wholeDevice=",$scope.wholeDevice);
 	        switch ($scope.selectedElement) {
 	        	case "device":
 	        		if($scope.deviceModel){
@@ -630,7 +697,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	        };
 		},
         deleteDevice: function($scope) {
-        	$log.debug("want to delete=",$scope.devicename);
+        	// $log.debug("want to delete=",$scope.devicename);
         	cfpLoadingBar.start();
             $http.delete("../devices/" + $scope.devicename)
                 .success(function(data, status, headers, config) {
@@ -683,7 +750,9 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	                    $scope.saved = true;
 	                    cfpLoadingBar.complete();
 	                    $scope.showCancel = false;
-	                    addEmptyArrayFieldsPrivate($scope);
+	                    $log.debug("$scope.devicename=",$scope.devicename);
+	                    $log.debug("$scope.devices=",$scope.devices);
+	                    addEmptyArrayFieldsPrivate($scope); //Add empty array fileds becouse there were cleared before save, if we don't then the array fields will be missing
 					    msg($scope,{
 					          "title":"Info",
 					          "text":"Changes saved successfully!",

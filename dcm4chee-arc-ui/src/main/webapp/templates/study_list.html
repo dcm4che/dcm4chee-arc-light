@@ -94,14 +94,14 @@
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasPrev(studies)"
-                        ng-click="queryStudies(prevOffset(studies))"
+                        ng-disabled="studies[0].offset==0"
+                        ng-click="queryStudies(studies[0].offset-limit)"
                         title="Previous Studies">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasNext(studies)"
-                        ng-click="queryStudies(nextOffset(studies))"
+                        ng-disabled="!moreStudies"
+                        ng-click="queryStudies(studies[0].offset+limit)"
                         title="Next Studies">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -124,15 +124,12 @@
                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
-<<<<<<< HEAD
-=======
                 <a ng-click="exportStudy(study)" ng-show="exporterID" href="" title="Export Study">
                     <span class="glyphicon glyphicon-export"></span>
                 </a>
                 <a ng-click="rejectStudy(study)" href="" title="Reject Study">
                     <span class="glyphicon glyphicon-trash"></span>
                 </a>
->>>>>>> master
                 <!--
                 <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
                     <span class="glyphicon glyphicon-save"></span>
@@ -156,17 +153,17 @@
                 <attribute-list attrs="study.attrs"></attribute-list>
             </td>
         </tr>
-        <tr ng-show="study.series">
+        <tr ng-show="study.series && study.series.length">
             <th colspan="2">
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasPrev(study.series)"
-                        ng-click="querySeries(study, prevOffset(study.series))"
+                        ng-disabled="study.series[0].offset==0"
+                        ng-click="querySeries(study, study.series[0].offset-limit)"
                         title="Previous Series">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasNext(study.series)"
-                        ng-click="querySeries(study, nextOffset(study.series))"
+                        ng-disabled="!study.moreSeries"
+                        ng-click="querySeries(study, study.series[0].offset+limit)"
                         title="Next Series">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -186,15 +183,12 @@
                 <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
-<<<<<<< HEAD
-=======
                 <a ng-click="exportSeries(series)" ng-show="exporterID" href="" title="Export Series">
                     <span class="glyphicon glyphicon-export"></span>
                 </a>
                 <a ng-click="rejectSeries(series)" href="" title="Reject Series">
                     <span class="glyphicon glyphicon-trash"></span>
                 </a>
->>>>>>> master
                 <!--
                 <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
                     <span class="glyphicon glyphicon-save"></span>
@@ -217,17 +211,17 @@
                 <attribute-list attrs="series.attrs"></attribute-list>
             </td>
         </tr>
-        <tr ng-show="series.instances">
+        <tr ng-show="series.instances && series.instances.length">
             <th colspan="2">
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasPrev(series.instances)"
-                        ng-click="queryInstances(series, prevOffset(series.instances))"
+                        ng-disabled="series.instances[0].offset==0"
+                        ng-click="queryInstances(series, series.instances[0].offset-limit)"
                         title="Previous Instances">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!hasNext(series.instances)"
-                        ng-click="queryInstances(series, nextOffset(series.instances))"
+                        ng-disabled="!series.moreInstances"
+                        ng-click="queryInstances(series, series.instances[0].offset+limit)"
                         title="Next Instances">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
@@ -245,15 +239,12 @@
                 <a ng-click="instance.showAttributes = !instance.showAttributes" href="" title="Show Attributes">
                     <span class="glyphicon glyphicon-list"></span>
                 </a>
-<<<<<<< HEAD
-=======
                 <a ng-click="exportInstance(instance)" ng-show="exporterID" href="" title="Export Instance">
                     <span class="glyphicon glyphicon-export"></span>
                 </a>
                 <a ng-click="rejectInstance(instance)" href="" title="Reject Instance">
                     <span class="glyphicon glyphicon-trash"></span>
                 </a>
->>>>>>> master
                 <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
                     <span class="glyphicon glyphicon-save"></span>
                 </a>

@@ -8,7 +8,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
     		// cfpLoadingBar.start();
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
 
-            $log.debug("in formEditAreaDir");
+            // $log.debug("in formEditAreaDir");
 			if(scope.selectedElement === "device"){
                 // $log.debug("status=",cfpLoadingBar.status());
                 // $log.debug("in formEditArea wholeDevice",scope.wholeDevice);
@@ -52,10 +52,10 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     // },500);
                 }
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-                $log.debug("1 scope.deviceForm=",scope.deviceForm);
+                // $log.debug("1 scope.deviceForm=",scope.deviceForm);
 
                 scope.deviceForm = DeviceService.getDeviceForm();
-                $log.debug("2 scope.deviceForm=",scope.deviceForm);
+                // $log.debug("2 scope.deviceForm=",scope.deviceForm);
                 // scope.deviceForm.startEmpty = true;
             }
             
@@ -73,6 +73,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 });
 
                 scope.dicomNetConnModel = scope.wholeDevice.dicomNetworkConnection[index];
+                scope.dicomNetConnForm  = DeviceService.getFormDicomNetworkConn();
             }
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
             if(scope.selectedElement === "networkae" && scope.selectedNetworkAE){
@@ -118,7 +119,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
             }
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
             if(scope.selectedElement === 'transfarecap' && scope.selectedTransfCap){
-                $log.debug("transfarecap schema=",DeviceService.getShemaTransfareCap());
+                // $log.debug("transfarecap schema=",DeviceService.getShemaTransfareCap());
             	scope.transfareCapSchema = DeviceService.getShemaTransfareCap();
                 scope.transfareCapForm   = DeviceService.getFormTransfareCap();
                 angular.forEach(scope.wholeDevice.dicomNetworkAE,function(value1,key1) {

@@ -120,6 +120,13 @@ ul.nav {
     display: block;
     float: right;
     margin-top: 20px; }
+  .form_content .btn-group .btn {
+    background: white;
+    border: 1px solid #ccc;
+    color: black;
+    border-radius: 0; }
+  .form_content .btn-group .btn.active {
+    background: #ccc; }
   .form_content .save {
     margin-left: 10px; }
 

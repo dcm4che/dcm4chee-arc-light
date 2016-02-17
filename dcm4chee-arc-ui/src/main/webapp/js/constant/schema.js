@@ -171,7 +171,8 @@ myApp.constant("$schema",
     "dicomInstalled": {
       "title": "installed",
       "description": "Boolean to indicate whether this device is presently installed on the network",
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "dicomNetworkConnection": {
       "title": "Network Connection",
