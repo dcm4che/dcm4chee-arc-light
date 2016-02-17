@@ -43,15 +43,28 @@ package org.dcm4chee.arc.query;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.query.util.QueryParam;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 public interface QueryContext {
+    Association getAssociation();
+
+    HttpServletRequest getHttpRequest();
+
     ApplicationEntity getLocalApplicationEntity();
+
+    String getCalledAET();
+
+    String getCallingAET();
+
+    String getRemoteHostName();
 
     ArchiveAEExtension getArchiveAEExtension();
 

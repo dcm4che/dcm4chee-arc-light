@@ -311,7 +311,8 @@ public class QidoRS {
 
     private QueryContext newQueryContext(QueryAttributes queryAttrs, String studyInstanceUID,
                                          String seriesInstanceUID, int[] includetags) {
-        QueryContext ctx = service.newQueryContextQIDO(getApplicationEntity(), Boolean.parseBoolean(fuzzymatching));
+        QueryContext ctx = service.newQueryContextQIDO(
+                request, getApplicationEntity(), Boolean.parseBoolean(fuzzymatching));
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)

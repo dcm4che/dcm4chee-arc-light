@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.SeriesQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.EnumSet;
 
@@ -59,7 +60,7 @@ import java.util.EnumSet;
 public interface QueryService {
     QueryContext newQueryContextFIND(Association as, EnumSet<QueryOption> queryOpts);
 
-    QueryContext newQueryContextQIDO(ApplicationEntity ae, boolean fuzzyMatching);
+    QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, ApplicationEntity ae, boolean fuzzyMatching);
 
     Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx);
 

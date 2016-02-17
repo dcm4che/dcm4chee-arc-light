@@ -43,16 +43,25 @@ package org.dcm4chee.arc.query.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
+import org.dcm4che3.net.QueryOption;
+import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryParam;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 class QueryContextImpl implements QueryContext {
+    private Association as;
+    private HttpServletRequest httpRequest;
     private final ApplicationEntity ae;
     private final QueryParam queryParam;
     private final QueryService queryService;
@@ -61,15 +70,51 @@ class QueryContextImpl implements QueryContext {
     private Attributes returnKeys;
     private boolean orderByPatientName;
 
-    public QueryContextImpl(ApplicationEntity ae, QueryParam queryParam, QueryService queryService) {
+    public QueryContextImpl(HttpServletRequest httpRequest, ApplicationEntity ae, QueryParam queryParam,
+                            QueryService queryService) {
+        this(ae, queryParam, queryService);
+        this.httpRequest = httpRequest;
+    }
+
+    private QueryContextImpl(ApplicationEntity ae, QueryParam queryParam, QueryService queryService) {
         this.ae = ae;
         this.queryService = queryService;
         this.queryParam = queryParam;
     }
 
+    public QueryContextImpl(Association as, ApplicationEntity ae, QueryParam queryParam, QueryServiceImpl queryService) {
+        this(ae, queryParam, queryService);
+        this.as = as;
+    }
+
+    @Override
+    public Association getAssociation() {
+        return as;
+    }
+
+    @Override
+    public HttpServletRequest getHttpRequest() {
+        return httpRequest;
+    }
+
     @Override
     public ApplicationEntity getLocalApplicationEntity() {
         return ae;
+    }
+
+    @Override
+    public String getCalledAET() {
+        return as != null ? as.getCalledAET() : ae.getAETitle();
+    }
+
+    @Override
+    public String getCallingAET() {
+        return as != null ? as.getCallingAET() : null;
+    }
+
+    @Override
+    public String getRemoteHostName() {
+        return httpRequest != null ? httpRequest.getRemoteHost() : as.getSocket().getInetAddress().getHostName();
     }
 
     @Override

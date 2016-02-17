@@ -61,6 +61,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.EnumSet;
 
@@ -90,13 +91,15 @@ class QueryServiceImpl implements QueryService {
     @Override
     public QueryContext newQueryContextFIND(Association as, EnumSet<QueryOption> queryOpts) {
         ApplicationEntity ae = as.getApplicationEntity();
-        return new QueryContextImpl(ae, newQueryParam(ae,
-                        queryOpts.contains(QueryOption.DATETIME), queryOpts.contains(QueryOption.FUZZY)), this);
+        return new QueryContextImpl(as, ae, newQueryParam(ae,
+                queryOpts.contains(QueryOption.DATETIME),
+                queryOpts.contains(QueryOption.FUZZY)),
+                this);
     }
 
     @Override
-    public QueryContext newQueryContextQIDO(ApplicationEntity ae, boolean fuzzyMatching) {
-        return new QueryContextImpl(ae, newQueryParam(ae, true, fuzzyMatching), this);
+    public QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, ApplicationEntity ae, boolean fuzzyMatching) {
+        return new QueryContextImpl(httpRequest, ae, newQueryParam(ae, true, fuzzyMatching), this);
     }
 
     private QueryParam newQueryParam(ApplicationEntity ae, boolean datetimeMatching, boolean fuzzyMatching) {
