@@ -55,6 +55,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -386,6 +387,61 @@ public class AuditService {
             poi.getParticipantObjectDetail().add(AuditMessages.createParticipantObjectDetail("TransferSyntax", UID.ImplicitVRLittleEndian.getBytes()));
         }
         msg.getParticipantObjectIdentification().add(poi);
+        emitAuditMessage(timestamp, msg);
+    }
+
+    public void auditDICOMInstancesTransfer(RetrieveContext ctx, boolean isDestRequestor, boolean isLocalRequestor, EventID eventID) {
+        Calendar timestamp = log().timeStamp();
+        AuditMessage msg = new AuditMessage();
+        EventIdentification ei = new EventIdentification();
+        if (eventID.equals(AuditMessages.EventID.BeginTransferringDICOMInstances)) {
+            ei.setEventID(eventID);
+            ei.setEventActionCode(AuditMessages.EventActionCode.Execute);
+        }
+        if (eventID.equals(AuditMessages.EventID.DICOMInstancesTransferred)) {
+            ei.setEventID(eventID);
+            ei.setEventActionCode(AuditMessages.EventActionCode.Read);
+        }
+        ei.setEventDateTime(timestamp);
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+        msg.setEventIdentification(ei);
+        ActiveParticipant apSender = new ActiveParticipant();
+        apSender.setUserID(ctx.getLocalAETitle());
+        apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
+        if (isLocalRequestor)
+            apSender.setUserIsRequestor(true);
+        else
+            apSender.setUserIsRequestor(false);
+        msg.getActiveParticipant().add(apSender);
+        ActiveParticipant apReceiver = new ActiveParticipant();
+        apReceiver.setUserID(ctx.getDestinationAETitle());
+        if (isDestRequestor)
+            apReceiver.setUserIsRequestor(true);
+        else
+            apReceiver.setUserIsRequestor(false);
+        apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
+        msg.getActiveParticipant().add(apReceiver);
+        if (!isDestRequestor && !isLocalRequestor) {
+            ActiveParticipant apMoveOriginator = new ActiveParticipant();
+            apMoveOriginator.setUserID(ctx.getRequestorAET());
+            apMoveOriginator.setUserIsRequestor(true);
+            apSender.setNetworkAccessPointTypeCode(AuditMessages.NetworkAccessPointTypeCode.IPAddress);
+            apSender.setNetworkAccessPointID(ctx.getRequestorHostName());
+            msg.getActiveParticipant().add(apMoveOriginator);
+        }
+        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
+        ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
+        poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+        poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+        poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+//        poiStudy.setParticipantObjectID("");
+        msg.getParticipantObjectIdentification().add(poiStudy);
+        ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
+        poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
+        poiPatient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
+        poiPatient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
+//        poiPatient.setParticipantObjectID("");
+        msg.getParticipantObjectIdentification().add(poiPatient);
         emitAuditMessage(timestamp, msg);
     }
 

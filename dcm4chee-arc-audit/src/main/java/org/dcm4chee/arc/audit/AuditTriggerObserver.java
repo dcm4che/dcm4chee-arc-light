@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.audit.EventTypeCode;
+import org.dcm4che3.audit.EventID;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
@@ -58,6 +59,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.Collection;
 
 
 /**
@@ -109,11 +111,17 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        //TODO
+        boolean isDestRequestor = ctx.isDestinationRequestor();
+        boolean isLocalRequestor = ctx.isLocalRequestor();
+        EventID eid = AuditMessages.EventID.BeginTransferringDICOMInstances;
+        auditService.auditDICOMInstancesTransfer(ctx, isDestRequestor, isLocalRequestor, eid);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        //TODO
+        boolean isDestRequestor = ctx.isDestinationRequestor();
+        boolean isLocalRequestor = ctx.isLocalRequestor();
+        EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
+        auditService.auditDICOMInstancesTransfer(ctx, isDestRequestor, isLocalRequestor, eid);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
