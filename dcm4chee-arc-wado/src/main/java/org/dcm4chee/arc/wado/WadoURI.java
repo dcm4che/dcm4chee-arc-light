@@ -198,8 +198,8 @@ public class WadoURI {
     @GET
     public Response get() {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
-        RetrieveContext ctx = service.newRetrieveContextWADO(
-                request, getApplicationEntity(), studyUID, seriesUID, objectUID);
+        checkAET();
+        RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
         if (!service.calculateMatches(ctx))
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
@@ -242,13 +242,12 @@ public class WadoURI {
                 .includeKeyword(!coercion.isNoKeywords());
     }
 
-    private ApplicationEntity getApplicationEntity() {
+    private void checkAET() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     "No such Application Entity: " + aet,
                     Response.Status.SERVICE_UNAVAILABLE);
-        return ae;
     }
 
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
@@ -285,7 +284,7 @@ public class WadoURI {
                     attrs.getInt(Tag.Rows, 1),
                     attrs.getInt(Tag.Columns, 1)));
         if (presentationUID != null)
-            readParam.setPresentationState(retrievePresentationState(ctx.getLocalApplicationEntity()));
+            readParam.setPresentationState(retrievePresentationState());
 
         ImageWriter imageWriter = getImageWriter(mimeType);
         ImageWriteParam writeParam = imageWriter.getDefaultWriteParam();
@@ -386,9 +385,9 @@ public class WadoURI {
     }
 
 
-    private Attributes retrievePresentationState(ApplicationEntity ae) throws IOException {
+    private Attributes retrievePresentationState() throws IOException {
         RetrieveContext ctx = service.newRetrieveContextWADO(
-                request, ae, studyUID, presentationSeriesUID, presentationUID);
+                request, aet, studyUID, presentationSeriesUID, presentationUID);
         if (!service.calculateMatches(ctx))
             throw new WebApplicationException(
                     "Specified Presentation State does not exist", Response.Status.NOT_FOUND);
@@ -532,10 +531,7 @@ public class WadoURI {
         public void write(OutputStream output) throws IOException, WebApplicationException {
             try {
                 delegate.write(output);
-            } catch (IOException e) {
-                ctx.setException(e);
-                throw e;
-            } catch (WebApplicationException e) {
+            } catch (IOException | WebApplicationException e) {
                 ctx.setException(e);
                 throw e;
             } finally {

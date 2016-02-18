@@ -26,9 +26,6 @@ import java.util.Map;
 public class DicomExporterProvider implements ExporterProvider {
 
     @Inject
-    private Device device;
-
-    @Inject
     private RetrieveService retrieveService;
 
     @Inject
@@ -39,7 +36,7 @@ public class DicomExporterProvider implements ExporterProvider {
 
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new DicomExporter(descriptor, device, retrieveService, storeSCU, retrieveTaskMap);
+        return new DicomExporter(descriptor, retrieveService, storeSCU, retrieveTaskMap);
     }
 
     public void cancelRetrieveTask(@Observes MessageCanceled event) {

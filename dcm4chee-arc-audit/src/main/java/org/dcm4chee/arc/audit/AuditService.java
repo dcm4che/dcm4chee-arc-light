@@ -315,8 +315,10 @@ public class AuditService {
             while ((line = reader.readLine()) != null) {
                 InstanceInfo instanceInfo = new InstanceInfo(line);
                 List<String> iuids = sopClassMap.get(instanceInfo.getField(InstanceInfo.CLASS_UID));
-                if (iuids == null)
-                    sopClassMap.put(instanceInfo.getField(InstanceInfo.CLASS_UID), iuids = new ArrayList<>());
+                if (iuids == null) {
+                    iuids = new ArrayList<>();
+                    sopClassMap.put(instanceInfo.getField(InstanceInfo.CLASS_UID), iuids);
+                }
                 iuids.add(instanceInfo.getField(InstanceInfo.INSTANCE_UID));
                 mppsUIDs.add(instanceInfo.getField(InstanceInfo.MPPS_UID));
                 for (int i = InstanceInfo.ACCESSION_NO; instanceInfo.getField(i) != null; i++)

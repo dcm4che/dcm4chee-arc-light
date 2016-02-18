@@ -72,6 +72,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private HttpServletRequest httpRequest;
     private final RetrieveService retrieveService;
     private final ArchiveAEExtension arcAE;
+    private final String localAETitle;
     private final QueryRetrieveView qrView;
     private int priority = Priority.NORMAL;
     private int moveOriginatorMessageID;
@@ -93,9 +94,10 @@ public class RetrieveContextImpl implements RetrieveContext {
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
-    public RetrieveContextImpl(RetrieveService retrieveService, ApplicationEntity ae) {
+    public RetrieveContextImpl(RetrieveService retrieveService, ApplicationEntity ae, String localAETitle) {
         this.retrieveService = retrieveService;
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        this.localAETitle = localAETitle;
         this.qrView = arcAE.getQueryRetrieveView();
     }
 
@@ -211,7 +213,7 @@ public class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public String getLocalAETitle() {
-        return storeAssociation != null ? storeAssociation.getLocalAET() : getLocalApplicationEntity().getAETitle();
+        return localAETitle;
     }
 
     @Override

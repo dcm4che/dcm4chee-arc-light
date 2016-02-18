@@ -63,10 +63,10 @@ public interface RetrieveService {
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
 
     RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID);
+            HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID);
 
     RetrieveContext newRetrieveContextSTORE(
-            ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, String destAET);
+            String localAET, String studyUID, String seriesUID, String objectUID, String destAET);
 
     boolean calculateMatches(RetrieveContext ctx);
 

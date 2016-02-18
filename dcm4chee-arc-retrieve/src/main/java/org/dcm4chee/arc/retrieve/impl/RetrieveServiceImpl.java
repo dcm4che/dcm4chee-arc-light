@@ -50,8 +50,8 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -115,6 +115,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     private StorageFactory storageFactory;
 
     @Inject
+    private Device device;
+
+    @Inject
     private CodeCache codeCache;
 
     @Inject
@@ -146,9 +149,22 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID) {
-        RetrieveContext ctx = new RetrieveContextImpl(this, ae);
+            HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID) {
+        RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
         ctx.setHttpRequest(request);
+        return ctx;
+    }
+
+    @Override
+    public RetrieveContext newRetrieveContextSTORE(
+            String localAET, String studyUID, String seriesUID, String objectUID, String destAET) {
+        RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
+        ctx.setDestinationAETitle(destAET);
+        return ctx;
+    }
+
+    private RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
+        RetrieveContext ctx = new RetrieveContextImpl(this, device.getApplicationEntity(localAET, true), localAET);
         initCodes(ctx);
         if (studyUID != null)
             ctx.setStudyInstanceUIDs(studyUID);
@@ -159,16 +175,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
-    @Override
-    public RetrieveContext newRetrieveContextSTORE(
-            ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, String destAET) {
-        RetrieveContext ctx = newRetrieveContextWADO(null, ae, studyUID, seriesUID, objectUID);
-        ctx.setDestinationAETitle(destAET);
-        return ctx;
-    }
-
     private RetrieveContext newRetrieveContext(Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
-        RetrieveContext ctx = new RetrieveContextImpl(this, as.getApplicationEntity());
+        RetrieveContext ctx = new RetrieveContextImpl(this, as.getApplicationEntity(), as.getLocalAET());
         ctx.setRequestAssociation(as);
         initCodes(ctx);
         IDWithIssuer pid = IDWithIssuer.pidOf(keys);

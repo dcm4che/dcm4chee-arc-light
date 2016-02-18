@@ -82,14 +82,20 @@ public class CStoreSCUImpl implements CStoreSCU {
     private Association openAssociation(RetrieveContext ctx, String callingAET)
             throws DicomServiceException {
         try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(ctx.getDestinationAETitle());
-            ApplicationEntity localAE = ctx.getLocalApplicationEntity();
-            return localAE.connect(remoteAE, createAARQ(ctx, callingAET));
-        } catch (ConfigurationNotFoundException e) {
-            throw new DicomServiceException(Status.MoveDestinationUnknown,
-                    "Unknown Destination: " + ctx.getDestinationAETitle());
-        } catch (Exception e) {
-            throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
+            try {
+                ApplicationEntity remoteAE = aeCache.findApplicationEntity(ctx.getDestinationAETitle());
+                ApplicationEntity localAE = ctx.getLocalApplicationEntity();
+                return localAE.connect(remoteAE, createAARQ(ctx, callingAET));
+            } catch (ConfigurationNotFoundException e) {
+                throw new DicomServiceException(Status.MoveDestinationUnknown,
+                        "Unknown Destination: " + ctx.getDestinationAETitle());
+            } catch (Exception e) {
+                throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
+            }
+        } catch (DicomServiceException e) {
+            ctx.setException(e);
+            retrieveStart.fire(ctx);
+            throw e;
         }
     }
 
@@ -114,7 +120,7 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Override
     public RetrieveTask newRetrieveTaskSTORE(RetrieveContext ctx) throws DicomServiceException {
-        Association storeas = openAssociation(ctx, ctx.getLocalApplicationEntity().getAETitle());
+        Association storeas = openAssociation(ctx, ctx.getLocalAETitle());
         ctx.setStoreAssociation(storeas);
         return new RetrieveTaskImpl(ctx, storeas, retrieveStart, retrieveEnd);
     }
