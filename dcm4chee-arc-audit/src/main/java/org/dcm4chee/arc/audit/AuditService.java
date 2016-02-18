@@ -42,10 +42,7 @@ package org.dcm4chee.arc.audit;
 
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
+import org.dcm4che3.data.*;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
@@ -54,7 +51,7 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -182,7 +179,7 @@ public class AuditService {
             poiStudyDesc.getMPPS().add(AuditMessages.createMPPS(mppsUID));
         for (Map.Entry<String, List<String>> entry : sopClassMap.entrySet())
             poiStudyDesc.getSOPClass().add(AuditMessages.createSOPClass(entry.getKey(), entry.getValue().size()));
-        poiStudy.setParticipantObjectDescriptionType(poiStudyDesc);
+        poiStudy.getParticipantObjectDescriptionType().add(poiStudyDesc);
         msg.getParticipantObjectIdentification().add(poiStudy);
         ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
         poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
@@ -234,7 +231,7 @@ public class AuditService {
                 }
             }
         }
-        poiStudy.setParticipantObjectDescriptionType(poiStudyDesc);
+        poiStudy.getParticipantObjectDescriptionType().add(poiStudyDesc);
         msg.getParticipantObjectIdentification().add(poiStudy);
         ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
         poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
@@ -432,17 +429,63 @@ public class AuditService {
             msg.getActiveParticipant().add(apMoveOriginator);
         }
         msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
-        ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
-        poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
-        poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
-        poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
-//        poiStudy.setParticipantObjectID("");
-        msg.getParticipantObjectIdentification().add(poiStudy);
+        //Small bug yet to be fixed
+        HashSet<String> sopInstanceUIDs = new HashSet<>();
+        HashSet<String> accessionNos = new HashSet<>();
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+        HashSet<String> patientID = new HashSet<>();
+        HashSet<AccessionNumSopClassInfo> accessionNumSopClassInfos = new HashSet<>();
+        HashMap<String, HashSet<AccessionNumSopClassInfo>> study_accNumSOPClassInfo = new HashMap<>();
+        for (InstanceLocations il : ctx.getMatches()) {
+            Attributes attrs = il.getAttributes();
+            String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+            AccessionNumSopClassInfo accNumSopClassInfo = new AccessionNumSopClassInfo();
+
+            String sopClassUID = attrs.getString(Tag.SOPClassUID);
+
+            if ((sopClassMap.size() > 0) && !sopClassMap.containsKey(sopClassUID))
+                sopInstanceUIDs.clear();
+
+            if (study_accNumSOPClassInfo.size() > 0 && !study_accNumSOPClassInfo.containsKey(studyInstanceUID)) {
+                accessionNumSopClassInfos.clear();
+                sopInstanceUIDs.clear();
+                accessionNos.clear();
+            }
+
+            if (null != attrs.getString(Tag.AccessionNumber))
+                accessionNos.add(attrs.getString(Tag.AccessionNumber));
+            else
+                accessionNos.add("absent");
+            accNumSopClassInfo.setAccNum(accessionNos);
+            sopInstanceUIDs.add(attrs.getString(Tag.SOPInstanceUID));
+            sopClassMap.put(sopClassUID, sopInstanceUIDs);
+            accNumSopClassInfo.setSopClassMap(sopClassMap);
+            accessionNumSopClassInfos.add(accNumSopClassInfo);
+            study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfos);
+            patientID.add(attrs.getString(Tag.PatientID));
+        }
+        for (Map.Entry<String, HashSet<AccessionNumSopClassInfo>> entry : study_accNumSOPClassInfo.entrySet()) {
+            ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
+            poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
+            poiStudy.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Report);
+            poiStudy.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID);
+            poiStudy.setParticipantObjectID(entry.getKey());
+            for (AccessionNumSopClassInfo info : entry.getValue()) {
+                ParticipantObjectDescriptionType poiStudyDesc = new ParticipantObjectDescriptionType();
+                for (String accNum : info.getAccNum())
+                    poiStudyDesc.getAccession().add(AuditMessages.createAccession(accNum));
+                poiStudyDesc.getSOPClass().add(AuditMessages.createSOPClass(
+                        info.getSopClassMap().keySet().toString(), info.getSopClassMap().values().size()));
+                poiStudy.getParticipantObjectDescriptionType().add(poiStudyDesc);
+            }
+            msg.getParticipantObjectIdentification().add(poiStudy);
+        }
         ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
         poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
         poiPatient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);
         poiPatient.setParticipantObjectIDTypeCode(AuditMessages.ParticipantObjectIDTypeCode.PatientNumber);
-//        poiPatient.setParticipantObjectID("");
+        for (String pID : patientID)
+            poiPatient.setParticipantObjectID(pID);
         msg.getParticipantObjectIdentification().add(poiPatient);
         emitAuditMessage(timestamp, msg);
     }
@@ -520,5 +563,31 @@ public class AuditService {
         public String toString() {
             return StringUtils.concat(fields, '\\');
         }
+    }
+
+    private static class AccessionNumSopClassInfo {
+
+
+        public HashSet<String> getAccNum() {
+            return accNum;
+        }
+
+        public void setAccNum(HashSet<String> accNum) {
+            this.accNum = accNum;
+        }
+
+        private HashSet<String> accNum;
+
+
+        public HashMap<String, HashSet<String>> getSopClassMap() {
+            return sopClassMap;
+        }
+
+        public void setSopClassMap(HashMap<String, HashSet<String>> sopClassMap) {
+            this.sopClassMap = sopClassMap;
+        }
+
+        private HashMap<String, HashSet<String>> sopClassMap;
+
     }
 }
