@@ -84,7 +84,9 @@ public class CStoreSCUImpl implements CStoreSCU {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(ctx.getDestinationAETitle());
             ApplicationEntity localAE = ctx.getLocalApplicationEntity();
-            return localAE.connect(remoteAE, createAARQ(ctx, callingAET));
+            Association storeAssociation = localAE.connect(remoteAE, createAARQ(ctx, callingAET));
+            ctx.setStoreAssociation(storeAssociation);
+            return storeAssociation;
         } catch (ConfigurationNotFoundException e) {
             throw new DicomServiceException(Status.MoveDestinationUnknown,
                     "Unknown Destination: " + ctx.getDestinationAETitle());

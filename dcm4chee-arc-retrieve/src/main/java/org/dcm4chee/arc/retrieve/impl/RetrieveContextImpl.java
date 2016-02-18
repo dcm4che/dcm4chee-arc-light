@@ -42,6 +42,7 @@ package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.util.StringUtils;
@@ -53,6 +54,7 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.storage.Storage;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,6 +67,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since Aug 2015
  */
 public class RetrieveContextImpl implements RetrieveContext {
+    private Association requestAssociation;
+    private Association storeAssociation;
+    private HttpServletRequest httpRequest;
     private final RetrieveService retrieveService;
     private final ArchiveAEExtension arcAE;
     private final QueryRetrieveView qrView;
@@ -91,6 +96,36 @@ public class RetrieveContextImpl implements RetrieveContext {
         this.retrieveService = retrieveService;
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         this.qrView = arcAE.getQueryRetrieveView();
+    }
+
+    @Override
+    public Association getRequestAssociation() {
+        return requestAssociation;
+    }
+
+    @Override
+    public void setRequestAssociation(Association requestAssociation) {
+        this.requestAssociation = requestAssociation;
+    }
+
+    @Override
+    public Association getStoreAssociation() {
+        return storeAssociation;
+    }
+
+    @Override
+    public void setStoreAssociation(Association storeAssociation) {
+        this.storeAssociation = storeAssociation;
+    }
+
+    @Override
+    public HttpServletRequest getHttpRequest() {
+        return httpRequest;
+    }
+
+    @Override
+    public void setHttpRequest(HttpServletRequest httpRequest) {
+        this.httpRequest = httpRequest;
     }
 
     @Override
@@ -161,6 +196,42 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setDestinationAETitle(String destinationAETitle) {
         this.destinationAETitle = destinationAETitle;
+    }
+
+    @Override
+    public String getLocalAETitle() {
+        return storeAssociation != null ? storeAssociation.getLocalAET() : getLocalApplicationEntity().getAETitle();
+    }
+
+    @Override
+    public String getRequestorAET() {
+        return requestAssociation != null ? requestAssociation.getRemoteAET() : null;
+    }
+
+    @Override
+    public String getRequestorHostName() {
+        return httpRequest != null
+                ? httpRequest.getRemoteHost()
+                : requestAssociation != null
+                    ? requestAssociation.getSocket().getInetAddress().getHostName()
+                    : null;
+    }
+
+    @Override
+    public String getDestinationHostName() {
+        return httpRequest != null
+                ? httpRequest.getRemoteHost()
+                : storeAssociation.getSocket().getInetAddress().getHostName();
+    }
+
+    @Override
+    public boolean isDestinationRequestor() {
+        return httpRequest != null || requestAssociation == storeAssociation;
+    }
+
+    @Override
+    public boolean isLocalRequestor() {
+        return httpRequest == null && requestAssociation == null;
     }
 
     @Override

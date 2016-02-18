@@ -148,6 +148,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     public RetrieveContext newRetrieveContextWADO(
             HttpServletRequest request, ApplicationEntity ae, String studyUID, String seriesUID, String objectUID) {
         RetrieveContext ctx = new RetrieveContextImpl(this, ae);
+        ctx.setHttpRequest(request);
         initCodes(ctx);
         if (studyUID != null)
             ctx.setStudyInstanceUIDs(studyUID);
@@ -168,6 +169,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private RetrieveContext newRetrieveContext(Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
         RetrieveContext ctx = new RetrieveContextImpl(this, as.getApplicationEntity());
+        ctx.setRequestAssociation(as);
         initCodes(ctx);
         IDWithIssuer pid = IDWithIssuer.pidOf(keys);
         if (pid != null)

@@ -42,11 +42,13 @@ package org.dcm4chee.arc.retrieve;
 
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.storage.Storage;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
 import java.util.Collection;
 
@@ -55,6 +57,18 @@ import java.util.Collection;
  * @since Aug 2015
  */
 public interface RetrieveContext extends Closeable {
+    Association getRequestAssociation();
+
+    void setRequestAssociation(Association requestAssociation);
+
+    Association getStoreAssociation();
+
+    void setStoreAssociation(Association storeAssociation);
+
+    HttpServletRequest getHttpRequest();
+
+    void setHttpRequest(HttpServletRequest httpRequest);
+
     RetrieveService getRetrieveService();
 
     ApplicationEntity getLocalApplicationEntity();
@@ -82,6 +96,18 @@ public interface RetrieveContext extends Closeable {
     String getDestinationAETitle();
 
     void setDestinationAETitle(String destinationAETitle);
+
+    String getLocalAETitle();
+
+    String getRequestorAET();
+
+    String getRequestorHostName();
+
+    String getDestinationHostName();
+
+    boolean isDestinationRequestor();
+
+    boolean isLocalRequestor();
 
     IDWithIssuer[] getPatientIDs();
 
