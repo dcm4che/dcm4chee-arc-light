@@ -56,8 +56,8 @@ import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
-import org.dcm4chee.arc.store.scu.RetrieveEnd;
-import org.dcm4chee.arc.store.scu.RetrieveStart;
+import org.dcm4chee.arc.retrieve.RetrieveEnd;
+import org.dcm4chee.arc.retrieve.RetrieveStart;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -84,9 +84,7 @@ public class CStoreSCUImpl implements CStoreSCU {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(ctx.getDestinationAETitle());
             ApplicationEntity localAE = ctx.getLocalApplicationEntity();
-            Association storeAssociation = localAE.connect(remoteAE, createAARQ(ctx, callingAET));
-            ctx.setStoreAssociation(storeAssociation);
-            return storeAssociation;
+            return localAE.connect(remoteAE, createAARQ(ctx, callingAET));
         } catch (ConfigurationNotFoundException e) {
             throw new DicomServiceException(Status.MoveDestinationUnknown,
                     "Unknown Destination: " + ctx.getDestinationAETitle());
@@ -116,16 +114,18 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Override
     public RetrieveTask newRetrieveTaskSTORE(RetrieveContext ctx) throws DicomServiceException {
-        return new RetrieveTaskImpl(ctx, openAssociation(ctx, ctx.getLocalApplicationEntity().getAETitle()),
-                retrieveStart, retrieveEnd);
+        Association storeas = openAssociation(ctx, ctx.getLocalApplicationEntity().getAETitle());
+        ctx.setStoreAssociation(storeas);
+        return new RetrieveTaskImpl(ctx, storeas, retrieveStart, retrieveEnd);
     }
 
     @Override
     public RetrieveTask newRetrieveTaskMOVE(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
-        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, openAssociation(ctx, as.getCalledAET()),
-                retrieveStart, retrieveEnd);
+        Association storeas = openAssociation(ctx, as.getCalledAET());
+        ctx.setStoreAssociation(storeas);
+        RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, storeas, retrieveStart, retrieveEnd);
         retrieveTask.setRequestAssociation(Dimse.C_MOVE_RQ, as, pc, rq);
         return retrieveTask;
     }
@@ -134,6 +134,7 @@ public class CStoreSCUImpl implements CStoreSCU {
     public RetrieveTask newRetrieveTaskGET(
             Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx)
             throws DicomServiceException {
+        ctx.setStoreAssociation(as);
         RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, as, retrieveStart, retrieveEnd);
         retrieveTask.setRequestAssociation(Dimse.C_GET_RQ, as, pc, rq);
         return retrieveTask;

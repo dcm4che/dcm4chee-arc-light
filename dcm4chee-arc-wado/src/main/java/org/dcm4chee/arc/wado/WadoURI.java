@@ -58,11 +58,13 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.RetrieveWADO;
 import org.dcm4chee.arc.validation.constraints.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriteParam;
@@ -76,6 +78,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import java.awt.*;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -111,6 +114,9 @@ public class WadoURI {
 
     @Inject
     private Device device;
+
+    @Inject @RetrieveWADO
+    private Event<RetrieveContext> retrieveWado;
 
     @PathParam("AETitle")
     private String aet;
@@ -208,7 +214,7 @@ public class WadoURI {
         if (mimeType == null)
             throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
 
-        Object entity;
+        StreamingOutput entity;
         try {
             MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
             if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
@@ -220,7 +226,7 @@ public class WadoURI {
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }
-        return Response.ok(entity, mimeType).build();
+        return Response.ok(new FireRequestWado(ctx, entity), mimeType).build();
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) throws Exception {
@@ -245,7 +251,7 @@ public class WadoURI {
         return ae;
     }
 
-    private Object entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
+    private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
                             MediaType mimeType, MergeAttributesCoercion coerce)
             throws IOException {
         int imageIndex = -1;
@@ -308,7 +314,7 @@ public class WadoURI {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private Object renderSRDocument(RetrieveContext ctx, InstanceLocations inst, MediaType mimeType,
+    private StreamingOutput renderSRDocument(RetrieveContext ctx, InstanceLocations inst, MediaType mimeType,
                                     AttributesCoercion coerce) throws IOException {
         Attributes attrs;
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)){
@@ -336,7 +342,7 @@ public class WadoURI {
         }
     }
 
-    private Object decapsulateVideo(DicomInputStream dis) throws IOException {
+    private StreamingOutput decapsulateVideo(DicomInputStream dis) throws IOException {
         dis.readDataset(-1, Tag.PixelData);
         if (dis.tag() != Tag.PixelData || dis.length() != -1
                 || !dis.readItemHeader() || dis.length() != 0
@@ -346,7 +352,7 @@ public class WadoURI {
         return new StreamCopyOutput(dis, dis.length());
     }
 
-    private Object decapsulateDocument(DicomInputStream dis) throws IOException {
+    private StreamingOutput decapsulateDocument(DicomInputStream dis) throws IOException {
         dis.readDataset(-1, Tag.EncapsulatedDocument);
         if (dis.tag() != Tag.EncapsulatedDocument)
             throw new IOException("No encapsulated document in requested object");
@@ -512,4 +518,29 @@ public class WadoURI {
         }
     }
 
+    private class FireRequestWado implements StreamingOutput {
+
+        private final RetrieveContext ctx;
+        private final StreamingOutput delegate;
+
+        private FireRequestWado(RetrieveContext ctx, StreamingOutput delegate) {
+            this.ctx = ctx;
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void write(OutputStream output) throws IOException, WebApplicationException {
+            try {
+                delegate.write(output);
+            } catch (IOException e) {
+                ctx.setException(e);
+                throw e;
+            } catch (WebApplicationException e) {
+                ctx.setException(e);
+                throw e;
+            } finally {
+                retrieveWado.fire(ctx);
+            }
+        }
+    }
 }

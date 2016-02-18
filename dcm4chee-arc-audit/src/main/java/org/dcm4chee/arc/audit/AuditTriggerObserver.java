@@ -50,9 +50,10 @@ import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveWADO;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.scu.RetrieveEnd;
-import org.dcm4chee.arc.store.scu.RetrieveStart;
+import org.dcm4chee.arc.retrieve.RetrieveEnd;
+import org.dcm4chee.arc.retrieve.RetrieveStart;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -122,6 +123,10 @@ public class AuditTriggerObserver {
         boolean isLocalRequestor = ctx.isLocalRequestor();
         EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
         auditService.auditDICOMInstancesTransfer(ctx, isDestRequestor, isLocalRequestor, eid);
+    }
+
+    public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
+        //TODO
     }
 
     public void onConnection(@Observes ConnectionEvent event) {

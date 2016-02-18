@@ -77,6 +77,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private int moveOriginatorMessageID;
     private String moveOriginatorAETitle;
     private String destinationAETitle;
+    private Exception exception;
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
     private String[] seriesInstanceUIDs = {};
@@ -196,6 +197,16 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setDestinationAETitle(String destinationAETitle) {
         this.destinationAETitle = destinationAETitle;
+    }
+
+    @Override
+    public Exception getException() {
+        return exception;
+    }
+
+    @Override
+    public void setException(Exception exception) {
+        this.exception = exception;
     }
 
     @Override

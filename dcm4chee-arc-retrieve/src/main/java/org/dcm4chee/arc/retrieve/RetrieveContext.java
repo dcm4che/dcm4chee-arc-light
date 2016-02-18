@@ -97,6 +97,10 @@ public interface RetrieveContext extends Closeable {
 
     void setDestinationAETitle(String destinationAETitle);
 
+    Exception getException();
+
+    void setException(Exception exception);
+
     String getLocalAETitle();
 
     String getRequestorAET();
