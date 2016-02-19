@@ -389,7 +389,7 @@ public class AuditService {
         emitAuditMessage(timestamp, msg);
     }
 
-    public void auditDICOMInstancesTransfer(RetrieveContext ctx, boolean isDestRequestor, boolean isLocalRequestor, EventID eventID) {
+    public void auditDICOMInstancesTransfer(RetrieveContext ctx, EventID eventID) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         EventIdentification ei = new EventIdentification();
@@ -402,25 +402,30 @@ public class AuditService {
             ei.setEventActionCode(AuditMessages.EventActionCode.Read);
         }
         ei.setEventDateTime(timestamp);
-        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+        if (eventID.equals(AuditMessages.EventID.BeginTransferringDICOMInstances) && null != ctx.getException()) {
+            ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.MinorFailure);
+            ei.setEventOutcomeDescription(ctx.getException().getMessage());
+        }
+        else
+            ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
         msg.setEventIdentification(ei);
         ActiveParticipant apSender = new ActiveParticipant();
         apSender.setUserID(ctx.getLocalAETitle());
         apSender.getRoleIDCode().add(AuditMessages.RoleIDCode.Source);
-        if (isLocalRequestor)
+        if (ctx.isLocalRequestor())
             apSender.setUserIsRequestor(true);
         else
             apSender.setUserIsRequestor(false);
         msg.getActiveParticipant().add(apSender);
         ActiveParticipant apReceiver = new ActiveParticipant();
         apReceiver.setUserID(ctx.getDestinationAETitle());
-        if (isDestRequestor)
+        if (ctx.isDestinationRequestor())
             apReceiver.setUserIsRequestor(true);
         else
             apReceiver.setUserIsRequestor(false);
         apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
         msg.getActiveParticipant().add(apReceiver);
-        if (!isDestRequestor && !isLocalRequestor) {
+        if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor()) {
             ActiveParticipant apMoveOriginator = new ActiveParticipant();
             apMoveOriginator.setUserID(ctx.getRequestorAET());
             apMoveOriginator.setUserIsRequestor(true);
@@ -430,8 +435,8 @@ public class AuditService {
         }
         msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
 
-        HashSet<String> sopInstanceUIDs = new HashSet<>();
         HashSet<String> accessionNos = new HashSet<>();
+        HashSet<String> sopInstanceUIDs = new HashSet<>();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         HashSet<String> patientID = new HashSet<>();
         HashSet<AccessionNumSopClassInfo> accessionNumSopClassInfos = new HashSet<>();
@@ -440,8 +445,6 @@ public class AuditService {
         for (InstanceLocations il : ctx.getMatches()) {
             Attributes attrs = il.getAttributes();
             String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-
-            String accessionNo = "";
             String sopClassUID = attrs.getString(Tag.SOPClassUID);
 
             if ((sopClassMap.size() > 0) && !sopClassMap.containsKey(sopClassUID))
@@ -454,12 +457,7 @@ public class AuditService {
                 accessionNos.clear();
             }
 
-            if (null != attrs.getString(Tag.AccessionNumber))
-                accessionNo = attrs.getString(Tag.AccessionNumber);
-            else
-                accessionNo = "absent";
-
-            accessionNos.add(accessionNo);
+            accessionNos.add(attrs.getString(Tag.AccessionNumber, ""));
 
             accNumSopClassInfo.setAccNum(accessionNos);
             sopInstanceUIDs.add(attrs.getString(Tag.SOPInstanceUID));
@@ -467,7 +465,6 @@ public class AuditService {
             accNumSopClassInfo.setSopClassMap(sopClassMap);
 
             accessionNumSopClassInfos.add(accNumSopClassInfo);
-
             study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfos);
             patientID.add(attrs.getString(Tag.PatientID));
         }
@@ -487,6 +484,7 @@ public class AuditService {
             }
             msg.getParticipantObjectIdentification().add(poiStudy);
         }
+
         ParticipantObjectIdentification poiPatient = new ParticipantObjectIdentification();
         poiPatient.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.Person);
         poiPatient.setParticipantObjectTypeCodeRole(AuditMessages.ParticipantObjectTypeCodeRole.Patient);

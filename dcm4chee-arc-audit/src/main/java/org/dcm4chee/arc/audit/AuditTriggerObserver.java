@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.audit.EventTypeCode;
 import org.dcm4che3.audit.EventID;
@@ -112,21 +113,18 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        boolean isDestRequestor = ctx.isDestinationRequestor();
-        boolean isLocalRequestor = ctx.isLocalRequestor();
         EventID eid = AuditMessages.EventID.BeginTransferringDICOMInstances;
-        auditService.auditDICOMInstancesTransfer(ctx, isDestRequestor, isLocalRequestor, eid);
+        auditService.auditDICOMInstancesTransfer(ctx, eid);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        boolean isDestRequestor = ctx.isDestinationRequestor();
-        boolean isLocalRequestor = ctx.isLocalRequestor();
         EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
-        auditService.auditDICOMInstancesTransfer(ctx, isDestRequestor, isLocalRequestor, eid);
+        auditService.auditDICOMInstancesTransfer(ctx, eid);
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        //TODO
+        EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
+        auditService.auditDICOMInstancesTransfer(ctx, eid);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
