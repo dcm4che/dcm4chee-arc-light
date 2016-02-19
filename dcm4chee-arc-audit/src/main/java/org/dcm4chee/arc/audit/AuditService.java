@@ -429,38 +429,45 @@ public class AuditService {
             msg.getActiveParticipant().add(apMoveOriginator);
         }
         msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
-        //Small bug yet to be fixed
+
         HashSet<String> sopInstanceUIDs = new HashSet<>();
         HashSet<String> accessionNos = new HashSet<>();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         HashSet<String> patientID = new HashSet<>();
         HashSet<AccessionNumSopClassInfo> accessionNumSopClassInfos = new HashSet<>();
         HashMap<String, HashSet<AccessionNumSopClassInfo>> study_accNumSOPClassInfo = new HashMap<>();
+        AccessionNumSopClassInfo accNumSopClassInfo = new AccessionNumSopClassInfo();
         for (InstanceLocations il : ctx.getMatches()) {
             Attributes attrs = il.getAttributes();
             String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-            AccessionNumSopClassInfo accNumSopClassInfo = new AccessionNumSopClassInfo();
 
+            String accessionNo = "";
             String sopClassUID = attrs.getString(Tag.SOPClassUID);
 
             if ((sopClassMap.size() > 0) && !sopClassMap.containsKey(sopClassUID))
                 sopInstanceUIDs.clear();
 
             if (study_accNumSOPClassInfo.size() > 0 && !study_accNumSOPClassInfo.containsKey(studyInstanceUID)) {
+                sopClassMap.clear();
                 accessionNumSopClassInfos.clear();
                 sopInstanceUIDs.clear();
                 accessionNos.clear();
             }
 
             if (null != attrs.getString(Tag.AccessionNumber))
-                accessionNos.add(attrs.getString(Tag.AccessionNumber));
+                accessionNo = attrs.getString(Tag.AccessionNumber);
             else
-                accessionNos.add("absent");
+                accessionNo = "absent";
+
+            accessionNos.add(accessionNo);
+
             accNumSopClassInfo.setAccNum(accessionNos);
             sopInstanceUIDs.add(attrs.getString(Tag.SOPInstanceUID));
             sopClassMap.put(sopClassUID, sopInstanceUIDs);
             accNumSopClassInfo.setSopClassMap(sopClassMap);
+
             accessionNumSopClassInfos.add(accNumSopClassInfo);
+
             study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfos);
             patientID.add(attrs.getString(Tag.PatientID));
         }
