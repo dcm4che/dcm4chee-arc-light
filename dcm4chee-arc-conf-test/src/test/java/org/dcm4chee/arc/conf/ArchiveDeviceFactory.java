@@ -868,6 +868,7 @@ class ArchiveDeviceFactory {
 
     private static void addAuditLogger(Device device, Device arrDevice) {
         Connection auditUDP = new Connection("audit-udp", "localhost");
+        auditUDP.setClientBindAddress("0.0.0.0");
         auditUDP.setProtocol(Connection.Protocol.SYSLOG_UDP);
         device.addConnection(auditUDP);
 

@@ -1,17 +1,5 @@
 version: 1
 
-dn: cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dicomConfigurationRoot
-cn: DICOM Configuration
-
-dn: cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dicomDevicesRoot
-cn: Devices
-
-dn: cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dicomUniqueAETitlesRegistryRoot
-cn: Unique AE Titles Registry
-
 dn: dicomAETitle=DCMQRSCP,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle
 dicomAETitle: DCMQRSCP
@@ -382,10 +370,6 @@ dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=getscu,cn=Devices,
 dicomAETitle: GETSCU
 dicomAssociationAcceptor: TRUE
 
-dn: cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: hl7UniqueApplicationNamesRegistryRoot
-cn: Unique HL7 Application Names Registry
-
 dn: hl7ApplicationName=HL7RCV^DCM4CHEE,cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: hl7UniqueApplicationName
 hl7ApplicationName: HL7RCV^DCM4CHEE
@@ -588,6 +572,7 @@ dicomHostname: localhost
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dcmProtocol: SYSLOG_UDP
+dcmClientBindAddress: 0.0.0.0
 cn: audit-udp
 
 dn: cn=Audit Logger,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
