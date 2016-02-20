@@ -698,7 +698,7 @@ class ArchiveDeviceFactory {
 
     static final String PIX_MANAGER = "HL7RCV^DCM4CHEE";
     static final String STORAGE_ID = "fs1";
-    static final URI STORAGE_URI = URI.create("file:///var/local/dcm4chee-arc/fs1/");
+    static final URI STORAGE_URI = URI.create("file:///opt/wildfly/standalone/data/fs1/");
     static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
     static final boolean SEND_PENDING_C_GET = true;
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
@@ -720,7 +720,8 @@ class ArchiveDeviceFactory {
         Device arrDevice = new Device(name);
         AuditRecordRepository arr = new AuditRecordRepository();
         arrDevice.addDeviceExtension(arr);
-        Connection auditUDP = new Connection("audit-udp", "localhost", port);
+        String syslogHost = System.getProperty("syslogHost", "localhost");
+        Connection auditUDP = new Connection("audit-udp", syslogHost, port);
         auditUDP.setProtocol(protocol);
         arrDevice.addConnection(auditUDP);
         arr.addConnection(auditUDP);
@@ -786,8 +787,8 @@ class ArchiveDeviceFactory {
     }
     public static Device createArchiveDevice(String name, Device arrDevice, ConfigType configType) throws Exception {
         Device device = new Device(name);
-
-        Connection dicom = new Connection("dicom", "localhost", 11112);
+        String archiveHost = System.getProperty("archiveHost", "localhost");
+        Connection dicom = new Connection("dicom", archiveHost, 11112);
         dicom.setBindAddress("0.0.0.0");
         dicom.setClientBindAddress("0.0.0.0");
         dicom.setMaxOpsInvoked(0);
@@ -796,7 +797,7 @@ class ArchiveDeviceFactory {
 
         Connection dicomTLS = null;
         if (configType == configType.SAMPLE) {
-            dicomTLS = new Connection("dicom-tls", "localhost", 2762);
+            dicomTLS = new Connection("dicom-tls", archiveHost, 2762);
             dicomTLS.setBindAddress("0.0.0.0");
             dicomTLS.setClientBindAddress("0.0.0.0");
             dicomTLS.setMaxOpsInvoked(0);
@@ -808,8 +809,8 @@ class ArchiveDeviceFactory {
         }
 
         addArchiveDeviceExtension(device, configType);
-        addHL7DeviceExtension(device, configType);
-        addAuditLogger(device, arrDevice);
+        addHL7DeviceExtension(device, configType, archiveHost);
+        addAuditLogger(device, arrDevice, archiveHost);
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
 
@@ -833,6 +834,7 @@ class ArchiveDeviceFactory {
     private static QueryRetrieveView createQueryRetrieveView(
             String viewID, Code[] showInstancesRejectedByCodes, Code[] hideRejectionNoteCodes,
             boolean hideNotRejectedInstances) {
+
         QueryRetrieveView view = new QueryRetrieveView();
         view.setViewID(viewID);
         view.setShowInstancesRejectedByCodes(showInstancesRejectedByCodes);
@@ -866,8 +868,8 @@ class ArchiveDeviceFactory {
         return coercion;
     }
 
-    private static void addAuditLogger(Device device, Device arrDevice) {
-        Connection auditUDP = new Connection("audit-udp", "localhost");
+    private static void addAuditLogger(Device device, Device arrDevice, String archiveHost) {
+        Connection auditUDP = new Connection("audit-udp", archiveHost);
         auditUDP.setClientBindAddress("0.0.0.0");
         auditUDP.setProtocol(Connection.Protocol.SYSLOG_UDP);
         device.addConnection(auditUDP);
@@ -879,7 +881,7 @@ class ArchiveDeviceFactory {
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
     }
 
-    private static void addHL7DeviceExtension(Device device, ConfigType configType) {
+    private static void addHL7DeviceExtension(Device device, ConfigType configType, String archiveHost) {
         HL7DeviceExtension ext = new HL7DeviceExtension();
         device.addDeviceExtension(ext);
 
@@ -890,7 +892,7 @@ class ArchiveDeviceFactory {
         hl7App.setHL7DefaultCharacterSet("8859/1");
         ext.addHL7Application(hl7App);
 
-        Connection hl7 = new Connection("hl7", "localhost", 2575);
+        Connection hl7 = new Connection("hl7", archiveHost, 2575);
         hl7.setBindAddress("0.0.0.0");
         hl7.setClientBindAddress("0.0.0.0");
         hl7.setProtocol(Connection.Protocol.HL7);
@@ -898,7 +900,7 @@ class ArchiveDeviceFactory {
         hl7App.addConnection(hl7);
 
         if (configType == configType.SAMPLE) {
-            Connection hl7TLS = new Connection("hl7-tls", "localhost", 12575);
+            Connection hl7TLS = new Connection("hl7-tls", archiveHost, 12575);
             hl7TLS.setBindAddress("0.0.0.0");
             hl7TLS.setClientBindAddress("0.0.0.0");
             hl7TLS.setProtocol(Connection.Protocol.HL7);
