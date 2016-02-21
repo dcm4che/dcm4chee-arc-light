@@ -444,7 +444,8 @@ class ArchiveDeviceFactory {
             UID.XRayRadiationDoseSRStorage,
             UID.RadiopharmaceuticalRadiationDoseSRStorage,
             UID.ColonCADSRStorage,
-            UID.ImplantationPlanSRStorage
+            UID.ImplantationPlanSRStorage,
+            UID.AcquisitionContextSRStorage
     };
 
     static final String[] SR_TSUIDS = {
@@ -477,6 +478,8 @@ class ArchiveDeviceFactory {
             UID.PseudoColorSoftcopyPresentationStateStorageSOPClass,
             UID.BlendingSoftcopyPresentationStateStorageSOPClass,
             UID.XAXRFGrayscaleSoftcopyPresentationStateStorage,
+            UID.GrayscalePlanarMPRVolumetricPresentationStateStorage,
+            UID.CompositingPlanarMPRVolumetricPresentationStateStorage,
             UID.ParametricMapStorage,
             UID.RawDataStorage,
             UID.SpatialRegistrationStorage,
@@ -484,6 +487,7 @@ class ArchiveDeviceFactory {
             UID.DeformableSpatialRegistrationStorage,
             UID.SegmentationStorage,
             UID.SurfaceSegmentationStorage,
+            UID.TractographyResultsStorage,
             UID.RealWorldValueMappingStorage,
             UID.SurfaceScanMeshStorage,
             UID.SurfaceScanPointCloudStorage,
@@ -508,6 +512,8 @@ class ArchiveDeviceFactory {
             UID.RTTreatmentSummaryRecordStorage,
             UID.RTIonPlanStorage,
             UID.RTIonBeamsTreatmentRecordStorage,
+            UID.RTBeamsDeliveryInstructionStorage,
+            UID.RTBrachyApplicationSetupDeliveryInstructionStorage,
             UID.PrivateAgfaArrivalTransaction,
             UID.PrivateAgfaBasicAttributePresentationState,
             UID.PrivateAgfaDictationTransaction,
