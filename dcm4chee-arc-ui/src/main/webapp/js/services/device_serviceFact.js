@@ -449,14 +449,26 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				delete localShema.properties.dicomNetworkAE;
 				delete localShema.properties.dicomNetworkConnection;
 				delete localShema.properties.dcmAuditRecordRepository;
-				delete localShema.properties.hl7Application;
-				delete localShema.properties.dcmImageWriter;
+				// delete localShema.properties.hl7Application;
+				// delete localShema.properties.dcmImageWriter;
 				delete localShema.properties.dcmImageReader;
 				delete localShema.properties.dcmAuditLogger;
 				delete localShema.properties.dcmArchiveDevice;
 				//return localShema;
 				// $log.debug("localSchema",localShema.properties);
 				angular.forEach(localShema.properties, function(m,i){
+					// $log.debug("mitems$reflenght=",m.items.$ref.length);
+					if(m && m.items && m.items.$ref){
+						$log.debug("m=",m);
+						$log.debug("m=",m.items.$ref);
+						$log.debug("m=",Object.keys(m.items)[0]);
+						endArray.push({
+							"key":i,
+							"type":"ref",
+							"json":m.items.$ref
+						});
+					}else{
+
 					if(m.type != "array"){
 						if(i==="dicomInstalled"){
 							endArray.push({
@@ -485,9 +497,10 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		                         ]
 		                        });
 					}
+				}
 				});
 
-				// $log.debug("2endArray=",endArray);
+				$log.debug("2endArray=",endArray);
 				return endArray;
 			}catch(e){
 				$log.error("Error on splitting the device schema in factory DeviceService.js",e);

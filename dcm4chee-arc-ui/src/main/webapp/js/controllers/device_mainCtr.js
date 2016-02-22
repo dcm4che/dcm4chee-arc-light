@@ -25,6 +25,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     // DeviceService.addMissingCheckboxes($scope);
       //TEST
 
+      $scope.loadSchemaPart = function(href, name){
+        $log.debug("laodschemaclicked href=",href);
+        $log.debug("name=",name);
+      }
     /*
     *Watch when the user trys to leave the page
     */

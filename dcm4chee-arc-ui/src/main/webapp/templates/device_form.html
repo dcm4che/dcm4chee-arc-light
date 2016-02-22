@@ -1,5 +1,7 @@
 <form id="editDevice" name="editDevice" ng-cloak> <!--  on-change="formOnChange()" -->
-	<div ng-show="selectedElement == 'device'" name="deviceForm" class="ng-cloak" sf-schema="deviceSchema" sf-form="deviceForm" sf-model="deviceModel" ng-cloak></div>
+	<div ng-show="selectedElement == 'device'">
+		<div name="deviceForm" class="ng-cloak" sf-schema="deviceSchema" sf-form="deviceForm" sf-model="deviceModel" ng-cloak></div>
+	</div>
 	<div ng-show="selectedElement == 'connection'" name="dicomNetConnForm" class="ng-cloak" sf-schema="dicomNetConnSchema" sf-form="dicomNetConnForm" sf-model="dicomNetConnModel" ng-cloak></div>
 	<div ng-show="selectedElement == 'networkae'" name="networkAeForm" class="ng-cloak" sf-schema="networkAeSchema" sf-form="networkAeForm" sf-model="networkAeModel" ng-cloak>
 	

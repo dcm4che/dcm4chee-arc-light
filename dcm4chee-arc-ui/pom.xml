@@ -66,6 +66,7 @@
             schema/*schema.json,
             img/**,
             templates/**,
+            add-on/**,
             bower_components/jquery/dist/jquery.min.js,
             bower_components/angular/angular.js,
             bower_components/angular/angular.min.js,
