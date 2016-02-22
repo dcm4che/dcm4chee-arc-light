@@ -112,12 +112,12 @@ public class AuditTriggerObserver {
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
         AuditMessages.EventID eid = AuditMessages.EventID.BeginTransferringDICOMInstances;
-        auditService.auditDICOMInstancesTransfer(ctx, eid);
+        auditService.auditDICOMInstancesTransfer(ctx, eid, ctx.getException());
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
         AuditMessages.EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
-        auditService.auditDICOMInstancesTransfer(ctx, eid);
+        auditService.auditDICOMInstancesTransfer(ctx, eid, ctx.getException());
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {

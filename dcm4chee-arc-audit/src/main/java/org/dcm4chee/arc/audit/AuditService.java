@@ -129,7 +129,7 @@ public class AuditService {
 
     public void auditInstancesStoredOrRetrieved(PatientStudyInfo patientStudyInfo, HashSet<String> accNos,
                                      HashSet<String> mppsUIDs, HashMap<String, List<String>> sopClassMap,
-                                     Calendar eventTime, String eventType) {
+                                     Calendar eventTime, String eventType, String outcome) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         String eac = "";
@@ -137,9 +137,14 @@ public class AuditService {
             eac = AuditMessages.EventActionCode.Create;
         if (eventType.equals(retrieve))
             eac = AuditMessages.EventActionCode.Read;
-        msg.setEventIdentification(AuditMessages.createEventIdentification(
+        if (outcome.equals(success))
+            msg.setEventIdentification(AuditMessages.createEventIdentification(
                 AuditMessages.EventID.DICOMInstancesTransferred, eac, eventTime,
                 AuditMessages.EventOutcomeIndicator.Success, success));
+        else
+            msg.setEventIdentification(AuditMessages.createEventIdentification(
+                    AuditMessages.EventID.DICOMInstancesTransferred, eac, eventTime,
+                    AuditMessages.EventOutcomeIndicator.MinorFailure, outcome));
         if (eventType.equals(store)) {
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
                     patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
@@ -317,8 +322,8 @@ public class AuditService {
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
-        } catch (IOException e) {
-            LOG.warn("Failed write to Audit Spool File - {} ", file, e);
+        } catch (IOException ioe) {
+            LOG.warn("Failed write to Audit Spool File - {} ", file, ioe);
         }
     }
 
@@ -329,12 +334,14 @@ public class AuditService {
             eventType = retrieve;
         if (file.startsWith("onstore"))
             eventType = store;
+        String outcome = "";
         PatientStudyInfo patientStudyInfo;
         HashSet<String> accNos = new HashSet<>();
         HashSet<String> mppsUIDs = new HashSet<>();
         HashMap<String, List<String>> sopClassMap = new HashMap<>();
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             patientStudyInfo = new PatientStudyInfo(reader.readLine());
+            outcome = patientStudyInfo.getField(PatientStudyInfo.OUTCOME);
             accNos.add(patientStudyInfo.getField(PatientStudyInfo.ACCESSION_NO));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -361,7 +368,7 @@ public class AuditService {
         } catch (IOException e) {
             LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", path, e);
         }
-        auditInstancesStoredOrRetrieved(patientStudyInfo, accNos, mppsUIDs, sopClassMap, eventTime, eventType);
+        auditInstancesStoredOrRetrieved(patientStudyInfo, accNos, mppsUIDs, sopClassMap, eventTime, eventType, outcome);
         try {
             Files.delete(path);
         } catch (IOException e) {
@@ -408,26 +415,25 @@ public class AuditService {
         emitAuditMessage(timestamp, msg);
     }
 
-    public void auditDICOMInstancesTransfer(RetrieveContext ctx, AuditMessages.EventID eventID) {
+    public void auditDICOMInstancesTransfer(RetrieveContext ctx, AuditMessages.EventID eventID, Exception e) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         String eac, eoi, eod = "";
-        if (null != ctx.getException()) {
+        if (null != e) {
             eac = AuditMessages.EventActionCode.Execute;
             eoi = AuditMessages.EventOutcomeIndicator.MinorFailure;
-            if (null != ctx.getHttpRequest())
-                eod = "Failed on WADO Retrieve : " + ctx.getException().getMessage();
             if (ctx.isLocalRequestor())
-                eod = "Failed on Export Forwarding : " + ctx.getException().getMessage();
-            if (null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation() && ctx.getRequestAssociation() == ctx.getStoreAssociation())
-                eod = "C-GET Failed : " + ctx.getException().getMessage();
+                eod = "Failed on Export Forwarding : " + e.getMessage();
+            if (null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                    && ctx.getRequestAssociation() == ctx.getStoreAssociation())
+                eod = "C-GET Failed : " + e.getMessage();
             if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                eod = "C-MOVE Failed : " + ctx.getException().getMessage();
+                eod = "C-MOVE Failed : " + e.getMessage();
         }
         else {
             eac = AuditMessages.EventActionCode.Execute;
             eoi = AuditMessages.EventOutcomeIndicator.Success;
-            eod = "success";
+            eod = success;
             if (eventID.equals(AuditMessages.EventID.BeginTransferringDICOMInstances))
                 eac = AuditMessages.EventActionCode.Execute;
             if (eventID.equals(AuditMessages.EventID.DICOMInstancesTransferred))
@@ -442,10 +448,10 @@ public class AuditService {
                 ctx.getLocalApplicationEntity().getDevice().getDeviceName(),
                 aet + ctx.getLocalAETitle(), "", sender, ctx.getLocalApplicationEntity().getDevice().getDeviceName(),
                 AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Source));
-        if (ctx.isDestinationRequestor())
+        if (null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation() && ctx.getRequestAssociation().equals(ctx.getStoreAssociation()))
             receiver = true;
         msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-            ctx.getDestinationHostName(), aet + ctx.getDestinationAETitle(), "", receiver, ctx.getDestinationHostName(),
+            ctx.getDestinationAETitle(), aet + ctx.getDestinationAETitle(), "", receiver, ctx.getDestinationAETitle(),
             AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Destination));
         if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor()) {
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
@@ -500,11 +506,15 @@ public class AuditService {
         public static final int ACCESSION_NO = 5;
         public static final int PATIENT_ID = 6;
         public static final int PATIENT_NAME = 7;
+        public static final int OUTCOME = 8;
+        String outcome = success;
 
         private final String[] fields;
 
         public PatientStudyInfo(StoreContext ctx, Attributes attrs) {
             StoreSession session = ctx.getStoreSession();
+            if (null != ctx.getException())
+                outcome = ctx.getException().getMessage();
             fields = new String[] {
                     session.getArchiveAEExtension().getApplicationEntity().getDevice().getDeviceName(),
                     session.getRemoteHostName(),
@@ -513,11 +523,14 @@ public class AuditService {
                     ctx.getStudyInstanceUID(),
                     attrs.getString(Tag.AccessionNumber, ""),
                     attrs.getString(Tag.PatientID, ""),
-                    attrs.getString(Tag.PatientName, "")
+                    attrs.getString(Tag.PatientName, ""),
+                    outcome
             };
         }
 
         public PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
+            if (null != ctx.getException())
+                outcome = ctx.getException().getMessage();
             fields = new String[] {
                     ctx.getArchiveAEExtension().getApplicationEntity().getDevice().getDeviceName(),
                     ctx.getHttpRequest().getRemoteAddr(),
@@ -526,7 +539,8 @@ public class AuditService {
                     ctx.getStudyInstanceUIDs()[0],
                     attrs.getString(Tag.AccessionNumber, ""),
                     attrs.getString(Tag.PatientID, ""),
-                    attrs.getString(Tag.PatientName, "")
+                    attrs.getString(Tag.PatientName, ""),
+                    outcome
             };
         }
 
