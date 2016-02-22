@@ -1,0 +1,15 @@
+<label>Select Transfer Capability to edit or delete:</label>
+<select 
+	class="form-control" 
+	ng-class="{active_dropbox:selectedElement == 'transfarecap',active_menu:activeMenu == 'transfarecap'}" 
+	name="transfcap" 
+	ng-model="selectedTransfCap" 
+	ng-change='changeElement("transfarecap")' 
+	ng-click='selectElement("transfarecap")'
+	ng-options="obj.cn as obj.cn for obj in transfcap track by obj.cn">
+</select>
+<create-delete-button 
+	part="transfarecap" 
+	create-text="Create new Transfer Capability" 
+	delete-text="Delete selected Transfer Capability">
+</create-delete-button>

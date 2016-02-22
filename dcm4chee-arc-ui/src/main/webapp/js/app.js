@@ -1,6 +1,6 @@
 "use strict";
 
-var myApp = angular.module('myApp', ['ngRoute']);
+var myApp = angular.module('myApp', ['ngRoute','schemaForm','angular-loading-bar','ngTouch']);
 
 myApp.config(function ($routeProvider) {
     $routeProvider.when('/studies', {
@@ -15,12 +15,16 @@ myApp.config(function ($routeProvider) {
         templateUrl: 'templates/control.html',
         controller: 'ArchiveCtrl'
     })
+    .when('/devices', {
+        templateUrl: 'templates/device_main.html',
+        controller: 'DeviceController'
+    })
     .otherwise({
         redirectTo: '/studies'
     });
 
 });
-
+myApp.value("testConstant", {});
 myApp.logoutUrl = function() {
     var host = location.protocol + "//" + location.host
     return host + "/auth/realms/dcm4che/tokens/logout?redirect_uri="

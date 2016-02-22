@@ -1,3 +1,4 @@
+myApp.constant("$schema",
 {
   "title": "Device",
   "description": "DICOM Device related information",
@@ -170,127 +171,201 @@
     "dicomInstalled": {
       "title": "installed",
       "description": "Boolean to indicate whether this device is presently installed on the network",
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "dicomNetworkConnection": {
-      "title": "Network Connections",
-      "description": "network connections of the device",
+      "title": "Network Connection",
+      "description": "Describes one TCP/UDP port on one network device.",
       "type": "array",
       "items": {
-        "$ref": "networkConnection.schema.json"
-      }
-    },
-    "dicomNetworkAE": {
-      "title": "Network AEs",
-      "description": "Application entity provided by the device",
-      "type": "array",
-      "items": {
-        "$ref": "networkAE.schema.json"
-      }
-    },
-    "dcmDevice": {
-      "title": "dcm4che Device Attributes",
-      "description": "dcm4che proprietary Device Attributes",
-      "type": "object",
-      "properties": {
-        "dcmLimitOpenAssociations": {
-          "title": "Limit Open Associations",
-          "description": "Limit open DICOM connections; rejects Association requests if the limit is exceeded; 0 (=no limit) if absent",
-          "type": "integer",
-          "minimum": 0
-        },
-        "dcmTrustStoreURL": {
-          "title": "Trust Store URL",
-          "description": "URL of Trust Store with Certificates for DICOM nodes that are authorized to connect to this node; overrides dicomAuthorizedNodeCertificateReference",
-          "type": "string"
-        },
-        "dcmTrustStoreType": {
-          "title": "Trust Store Type",
-          "description": "Key Store Type of Trust Store specified by dcmTrustStoreURL. JKS or PKCS12",
-          "type":"string",
-          "enum": [ "JKS", "PKCS12" ]
-        },
-        "dcmTrustStorePin": {
-          "title": "Trust Store Pin",
-          "description": "Key Store Password of Trust Store specified by Trust Store URL",
-          "type": "string"
-        },
-        "dcmTrustStorePinProperty": {
-          "title": "Trust Store Pin Property",
-          "description": "System property of Key Store Password of Trust Store specified by Trust Store URL",
-          "type": "string"
-        },
-        "dcmKeyStoreURL": {
-          "title": "Key Store URL",
-          "description": "URL of Key Store with private Key and certificate used to identify this DICOM node in TLS connections",
-          "type": "string"
-        },
-        "dcmKeyStoreType": {
-          "title": "Key Store Type",
-          "description": "Key Store Type of Key Store specified by Key Store URL. JKS or PKCS12",
-          "type": "string",
-          "enum": [ "JKS", "PKCS12"]
-
-        },
-        "dcmKeyStorePin": {
-          "title": "Key Store Pin",
-          "description": "Key Store Password of Key Store specified by Key Store URL",
-          "type": "string"
-        },
-        "dcmKeyStorePinProperty": {
-          "title": "Key Store Pin Property",
-          "description": "System property of Key Store Password of Key Store specified by Key Store URL",
-          "type": "string"
-        },
-        "dcmKeyStoreKeyPin": {
-          "title": "Key Store Key Pin",
-          "description": "Key Password of Key Store specified by Key Store URL",
-          "type": "string"
-        },
-        "dcmKeyStoreKeyPinProperty": {
-          "title": "Key Store Key Pin Property",
-          "description": "System property of Key Password of Key Store specified by Key Store URL",
-          "type": "string"
-        },
-        "dcmTimeZoneOfDevice": {
-          "title": "Time Zone of Device",
-          "description": "Time Zone ID of the Device; matches Java TimeZone ID",
-          "type": "string"
+        "type": "object",
+        "required": [
+          "dicomHostname"
+        ],
+        "properties": {
+          "cn": {
+            "title": "Name",
+            "description": "Arbitrary/Meaningful name for the Network Connection object",
+            "type": "string"
+          },
+          "dicomHostname": {
+            "title": "Hostname",
+            "description": "DNS name for this particular connection",
+            "type": "string"
+          },
+          "dicomPort": {
+            "title": "Port",
+            "description": "TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections",
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "dicomTLSCipherSuite": {
+            "title": "TLS CipherSuites",
+            "description": "The TLS CipherSuites that are supported on this particular connection. If not present TLS is disabled",
+            "type": "array",
+            "items": {
+              "enum": [
+                "SSL_RSA_WITH_NULL_SHA",
+                "TLS_RSA_WITH_AES_128_CBC_SHA",
+                "SSL_RSA_WITH_3DES_EDE_CBC_SHA"
+              ]
+            }
+          },
+          "dicomInstalled": {
+            "title": "installed",
+            "description": "True if the Network Connection is installed on the network. If not present, information about the installed status of the Network Connection is inherited from the device",
+            "type": "boolean"
+          }
         }
       }
     },
-    "hl7Application": {
-      "title": "HL7 Applications",
-      "description": "HL7 Applications provided by the Device",
+    "dicomNetworkAE": {
+      "title": "Network AE",
+      "description": "Application entity that provides services on a network",
       "type": "array",
       "items": {
-        "$ref": "hl7Application.schema.json"
+        "type": "object",
+        "required": [
+          "dicomAETitle",
+          "dicomNetworkConnectionReference",
+          "dicomAssociationInitiator",
+          "dicomAssociationAcceptor"
+        ],
+        "properties": {
+          "dicomAETitle": {
+            "title": "AE Title",
+            "description": "Unique AE title for this Network AE",
+            "type": "string"
+          },
+          "dicomNetworkConnectionReference": {
+            "title": "Network Connection Reference",
+            "description": "JSON Pointers to the Network Connection objects for this AE",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "dicomAssociationInitiator": {
+            "title": "Association Initiator",
+            "description": "True if the Network AE can initiate associations, false otherwise",
+            "type": "boolean"
+          },
+          "dicomAssociationAcceptor": {
+            "title": "Association Acceptor",
+            "description": "True if the Network AE can accept associations, false otherwise",
+            "type": "boolean"
+          },
+          "dicomDescription": {
+            "title": "AE Description",
+            "description": "Unconstrained text description of the application entity",
+            "type": "string"
+          },
+          "dicomApplicationCluster": {
+            "title": "Application Cluster",
+            "description": "Locally defined names for a subset of related applications",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dicomPreferredCalledAETitle": {
+            "title": "Preferred Called AE Title",
+            "description": "AE Title(s) that are preferred for initiating associations",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dicomPreferredCallingAETitle": {
+            "title": "Preferred Calling AE Title",
+            "description": "AE Title(s) that are preferred for accepting associations",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dicomSupportedCharacterSet": {
+            "title": "Supported Character Set",
+            "description": "Character Set(s) supported by the Network AE for data sets it receives",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dicomInstalled": {
+            "title": "installed",
+            "description": "True if the AE is installed on network. If not present, information about the installed status of the AE is inherited from the device",
+            "type": "boolean"
+          },
+          "dicomTransferCapability": {
+            "title": "Transfer Capability",
+            "description": "Each transfer capability specifies the SOP class that the Network AE can support, the mode that it can utilize (SCP or SCU), and the Transfer Syntax(es) that it can utilize",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "dicomSOPClass",
+                "dicomTransferRole",
+                "dicomTransferSyntax"
+              ],
+              "properties": {
+                "cn": {
+                  "title": "Name",
+                  "description": "Arbitrary/Meaningful name for the Transfer Capability object",
+                  "type": "string"
+                },
+                "dicomSOPClass": {
+                  "title": "SOP Class",
+                  "description": "SOP Class UID",
+                  "type": "string"
+                },
+                "dicomTransferRole": {
+                  "title": "Transfer Role",
+                  "description": "Either SCU or SCP",
+                  "type": "string",
+                  "enum": [ "SCP",  "SCU" ]
+                },
+                "dicomTransferSyntax": {
+                  "title": "Transfer Syntax",
+                  "description": "Transfer syntax(es) that may be requested as an SCU or that are offered as an SCP",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
-    },
-    "dcmImageWriter": {
-      "title": "Image Writers",
-      "description": "Specifies Java Image IO Image Writers with Write Parameters used for compressing DICOM images",
-      "type": "array",
-      "items": {
-        "$ref": "imageWriter.schema.json"
-      }
-    },
-    "dcmImageReader": {
-      "title": "Image Readers",
-      "description": "Specifies Java Image IO Image Readers used for decompressing compressed DICOM images",
-      "type": "array",
-      "items": {
-        "$ref": "imageReader.schema.json"
-      }
-    },
-    "dcmAuditLogger": {
-      "$ref": "auditLogger.schema.json"
-    },
-    "dcmAuditRecordRepository": {
-      "$ref": "auditRecordRepository.schema.json"
-    },
-    "dcmArchiveDevice": {
-      "$ref": "archiveDevice.schema.json"
     }
   }
-}
+});
+
+/*   
+To show dropdown list put this on schema
+       "dicomNetworkConnectionReference": {
+            "title": "Network Connection Reference",
+            "description": "JSON Pointers to the Network Connection objects for this AE",
+            "type": "string",
+            "enum":["/dicomNetworkConnection/0","/dicomNetworkConnection/0"],  
+            "options": {
+                "enum_titles": ["dicom0","dicom1"]
+             }
+          },
+
+
+
+//OR
+          "dicomNetworkConnectionReference": {
+            "title": "Network Connection Reference",
+            "description": "JSON Pointers to the Network Connection objects for this AE",
+            "type": "array",
+            "items": { 
+              "type": "string",
+              "enum":["/dicomNetworkConnection/0","/dicomNetworkConnection/0"],  
+              "options": {
+                "enum_titles": ["dicom0","dicom1"]
+              }
+            }
+          */

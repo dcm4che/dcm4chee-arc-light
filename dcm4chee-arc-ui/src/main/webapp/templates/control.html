@@ -1,9 +1,3 @@
-<ul class="nav nav-tabs">
-    <li role="presentation"><a href="#/studies">Studies</a></li>
-    <li role="presentation"><a href="#/queues">Queues</a></li>
-    <li role="presentation" class="active"><a href="#/ctrl">Control</a></li>
-    <li role="presentation"><a ng-href="{{logoutUrl}}">Logout</a></li>
-</ul>
 <p ng-bind="status == 'STARTED' ? 'Archive is running' : 'Archive is not running'"></p>
 <div class="btn-group">
     <button type="button" class="btn btn-default" ng-click="start()" ng-disabled="status == 'STARTED'" title="Start Archive">Start</button>

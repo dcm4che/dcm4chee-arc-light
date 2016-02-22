@@ -3,28 +3,94 @@
 <head>
     <meta charset="utf-8">
     <title>dcm4chee-arc-web</title>
-</head>
-<body>
-
-<header>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/app.css">
-</header>
-
-<div ng-view>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- https://daneden.github.io/animate.css/ -->
+    <link rel="stylesheet" href="css/animate.css">
+</head>
+<body ng-controller="MainController" scroll>
+<div class="background"></div>
+<div class="glyphicon glyphicon-align-justify toggle-button out" ng-click="toggleMenu()" ng-show="!showMenu"></div>
+<ul class="nav slideInLeft animated" ng-show="showMenu">
+<div class="glyphicon glyphicon-align-justify toggle-button" ng-click="toggleMenu()"></div>
+    <li role="presentation" ng-class="getClass('/studies')" ng-click="toggleMenu()"><a href="#studies">Studies</a></li>
+    <li role="presentation" ng-class="getClass('/queues')" ng-click="toggleMenu()"><a href="#/queues">Queues</a></li>
+    <li role="presentation" ng-class="getClass('/ctrl')" ng-click="toggleMenu()"><a href="#/ctrl">Control</a></li>
+    <li role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li>
+</ul>
+<img src="img/logo.png" class="logo">
+<div class="main_content" ng-view>
 </div>
+<div 
+    class="scroll_up glyphicon glyphicon-menu-up animated" 
+    ng-show="showScrollButton" 
+    ng-class="{fadeIn:showScrollButton, fadeOut:!showScrollButton}"
+    ng-click="scrollUp()">
+</div>
+<!--jQuery-->
+<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
 
-<script src="bower_components/angular/angular.min.js"></script>
-<script src="bower_components/angular-route/angular-route.min.js"></script>
+<!--Angular,Route-->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.7/angular.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.7/angular-route.min.js"></script> -->
+<script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+<script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
+
+<!-- Alert library: http://github.hubspot.com/vex/-->
+<script type="text/javascript" src="bower_components/vex/js/vex.combined.min.js"></script>
+<link rel="stylesheet" href="bower_components/vex/css/vex.css" />
+<link rel="stylesheet" href="bower_components/vex/css/vex-theme-os.css" />
+
+<!--jsondiffpatch: https://github.com/benjamine/jsondiffpatch -->
+<script type="text/javascript" src="bower_components/jsondiffpatch/public/build/jsondiffpatch.min.js"></script>
+
+<!--angular-touch: https://github.com/angular/bower-angular-touch-->
+<script type="text/javascript" src="bower_components/angular-touch/angular-touch.min.js"></script>
+
+<!--angular-schema-form: https://github.com/Textalk/angular-schema-form-->
+<script type="text/javascript" src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+<script type="text/javascript" src="bower_components/tv4/tv4.js"></script>
+<script type="text/javascript" src="bower_components/objectpath/lib/ObjectPath.js"></script>
+<script type="text/javascript" src="bower_components/angular-schema-form/dist/schema-form.js"></script>
+<script type="text/javascript" src="bower_components/angular-schema-form/dist/bootstrap-decorator.min.js"></script>
+
+<!--Angular loading bar: https://github.com/chieffancypants/angular-loading-bar -->
+<script type="text/javascript" src="bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
+<link rel="stylesheet" href="bower_components/angular-loading-bar/build/loading-bar.min.css">
+
 
 <script src="js/app.js"></script>
 <script src="js/dcm4che-dict-names.js"></script>
+
+<!--constant-->
+<script src="js/constant/schema.js"></script>
+<!-- Controllers -->
 <script src="js/controllers/study_list.js"></script>
+<script src="js/controllers/mainCtr.js"></script>
+<script src="js/controllers/device_mainCtr.js"></script>
 <script src="js/controllers/queue_mgt.js"></script>
 <script src="js/controllers/control.js"></script>
+<!-- Filters -->
 <script src="js/filters/filters.js"></script>
+<!-- Directivs -->
 <script src="js/directives/attributeList.js"></script>
+<script src="js/directives/device_formEditAreaDir.js"></script>
+<script src="js/directives/device_onDeviceChangeDir.js"></script>
+<script src="js/directives/device_selectDevicePartDir.js"></script>
+<script src="js/directives/device_selectTransferCapabilityDir.js"></script>
+<script src="js/directives/device_createDeleteButtonDir.js"></script>
+<script src="js/directives/scrollDir.js"></script>
+<!-- Services -->
+<script src="js/services/device_serviceFact.js"></script>
 <script src="js/services/qido.js"></script>
 <script src="js/services/qmgt.js"></script>
+<!-- schema form add-on-->
+<script src="js/add-on/angular-schema-form-ref/src/ref.js"></script>
+<script src="js/add-on/angular-schema-form-ref/src/angular-ref.js"></script>
+
 </body>
 </html>

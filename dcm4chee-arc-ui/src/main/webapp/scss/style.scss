@@ -1,0 +1,462 @@
+body{
+	padding: 2px 40px;
+	.background{
+		background: url("../img/bg.jpg");
+		-webkit-filter: blur(5px);
+	  	-moz-filter: blur(5px);
+	  	-o-filter: blur(5px);
+	  	-ms-filter: blur(5px);
+	  	filter: blur(5px);
+	    display: block;
+	    height: 100%;
+	    left: 0;
+	    position: fixed;
+	    top: 0;
+	    width: 100%;
+	    z-index: -1;
+
+	}
+	.main_content{
+		background: rgba(255, 255, 255, 0.78) none repeat scroll 0 0;
+//		margin:40px;
+		//margin: 40px 20px;
+		 margin: 27px -30px 40px 4px;
+    	padding: 45px 30px 80px 30px;
+    	box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+	}
+	.logo{
+	    height: auto;
+	    margin-left: 10px;
+	    opacity: 0.7;
+	    position: absolute;
+	    right: 32px;
+	    top: 44px;
+	    width: 140px;
+	}
+}
+ul.nav {
+    background: rgba(0, 0, 0, 0.74) none repeat scroll 0 0;
+    box-shadow: 10px 10px 10px #959292;
+    color: white;
+    // display: none;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 150px;
+    z-index: 999;
+
+    li {
+	    background: transparent none repeat scroll 0 0;
+	    color: white;
+	    width: 100%;
+	    a{
+	    	//background:white;
+	    	background: transparent;
+	    	color:white;
+	    	text-align: right;
+
+	    }
+	    a:hover{
+	    	background:transparent;
+	    	font-weight: bold;
+	    }
+	    a:active{
+	    	background: transparent;
+			outline: none;
+	    }
+	}
+	li.active{
+		a{
+			background: transparent;
+			text-decoration: underline;
+			outline: none;
+		}
+		a:hover{
+			outline: none;
+			font-weight: normal;
+		}
+		a:active{
+			outline: none;
+	    	background: transparent;
+	    }
+	}
+	.glyphicon.glyphicon-align-justify {
+	    background-position: right center;
+	    left: 80%;
+		padding-top: 30px;
+	}
+}
+.glyphicon.glyphicon-align-justify.toggle-button.out {
+	background: white none repeat scroll 0 0;
+	box-shadow: 5px 2px 7px 3px #7e7e7e;
+	height: 30px;
+	left: 0;
+	line-height: 30px;
+	position: fixed;
+	text-align: center;
+	top: 30px;
+	vertical-align: middle;
+	width: 30px;
+}
+.glyphicon.glyphicon-align-justify.toggle-button.out:hover,.toggle-button:hover{
+	cursor: pointer;
+}
+
+/*Hide template before rendered*/
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+#showDeviceForm{
+	background: rgba(255, 255, 255, 0.84) none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    display: block;
+    text-align: left;
+    width: 91%;
+    min-height: 34px;
+}
+
+.active_dropbox,
+.active_dropbox:focus,
+#showDeviceForm.active_dropbox,
+#showDeviceForm.active_dropbox:focus,
+ {
+ 	outline: 0;
+    background: rgba(79, 136, 255, 0.92) none repeat scroll 0 0;
+    border: 1px solid #00526d;
+    box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
+    color: white;
+}
+.block_layer {
+    display: block;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    z-index: 998;
+}
+.form_content{
+	z-index: 999;
+	.btn {
+	    //background: rgba(54, 54, 54, 0.55) none repeat scroll 0 0;
+	    //border: 1px solid #ccc;
+	    background: rgba(79, 136, 255, 0.92);
+		border:1px solid #2e6da4;
+	    color: #ffffff;
+	    display: block;
+	    float: right;
+	    margin-top: 20px;
+	}
+	
+	.btn-group{
+		.btn{
+			background:white;
+			border:1px solid #ccc;
+			color:black;
+			border-radius: 0;
+		}
+		.btn.active{
+			background:#ccc;
+		}
+	}
+	.save{
+	    margin-left: 10px;
+	}
+}
+#add_edit_area{
+	float: left;
+	width: 100%;
+}
+/*Disable device Name field until the functionality is not implemented, 
+so that if the device name is changed, the application shuld delete the 
+device and create an other one with the new name*/
+
+/* #dicomDeviceName{
+	pointer-events: none;
+	background: #ccc;
+	color:black;
+} */
+.device{
+	.active_border{
+		&.col-md-3, &.col-md-5 {
+		    border: 1px solid #dddddd;
+		    margin: 4px;
+		    padding-bottom: 20px;
+		    box-shadow: 4px 3px 8px 1px #cccccc;
+		     background: rgba(255, 255, 255, 0.63);
+		}
+		.btn-primary,.save{
+			background: rgba(79, 136, 255, 0.92);
+			border:1px solid #2e6da4;
+		}
+		.btn-primary:hover,.save:hover{
+			background: rgba(71, 114, 204, 0.93);
+		}
+/* 		&:hover{
+			 -webkit-transform: rotate(-90deg);
+			 -moz-transform: rotate(-90deg);
+			 -o-transform: rotate(-90deg);
+			  transform: rotate(-90deg);
+			-webkit-transition-duration: 1s;
+			 -moz-transition-duration: 1s;
+			 -o-transition-duration: 1s;
+			  transition-duration: 1s;
+		} */
+	}
+}
+.main_select{
+	padding-right: 11px;
+	overflow: hidden;
+	h3{
+		margin-bottom: 37px;
+	}
+	select{
+		float: left;
+		width:92%;
+		-webkit-transition: width 0.4s; /* For Safari 3.1 to 6.0 */
+    	transition: width 0.4s;
+	}
+	.active_menu{
+		width:65%;
+	}
+	.edit.btn{
+		margin-right: 8%;
+    	margin-top: 20px;
+	}
+}
+#add_dropdowns{
+	overflow:hidden;
+	 .ng-scope > div{
+		margin-bottom: 12px;
+	}
+	.form-control{
+		width: 92%;
+		float: left;
+		-webkit-transition: width 0.4s; /* For Safari 3.1 to 6.0 */
+    	transition: width 0.4s;
+	}
+	.form-control.active_menu{
+		width:65%;
+	}
+}
+.col-md-5.active_border{
+	width:48%;
+}
+.more_menu{
+	display: block;
+	width:8%;
+	height: 35px;
+	background: url("../img/dots.png");
+	background-repeat: no-repeat;
+	background-position: 70% center;
+	background-size: auto;
+	float: left;
+	padding-left: 8%;
+	.delete_create_buttons {
+		display: block;
+	    height: 35px;
+	    width: 90px;
+		&> div {
+		    display: block;
+		    float: left;
+		    height: 100%;
+		    width: 50%;
+		}
+		.delete{
+			background: url(../img/delete.png);
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: 19px auto;
+		}
+		.delete:hover{
+			background: url(../img/delete_color.png);
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: 19px auto;
+		}
+		.create{
+			background: url(../img/add.png);
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: 19px auto;
+		}
+		.create:hover{
+			background: url(../img/add_color.png);
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: 19px auto;
+		}
+	}
+}
+.more_menu:hover{
+	cursor: pointer;
+}
+.msg_container {
+    bottom: 0;
+    position: fixed;
+    right: 0;
+    width: 400px;
+    z-index: 99999999;
+    -webkit-transition: 0.4s; /* For Safari 3.1 to 6.0 */
+    transition: 0.4s;
+    max-height: 10000000px;
+    li{
+
+    	min-height: 85px;
+    	position: relative;
+    	-webkit-transition: width 0.4s; /* For Safari 3.1 to 6.0 */
+    	transition: width 0.4s;
+    	margin-bottom: 10px;
+    	margin-right: 5px;
+    	list-style: none;
+    	padding-left: 85px;
+    	-webkit-box-shadow: 6px 7px 10px 0px rgba(0, 0, 0, 0.47);
+		-moz-box-shadow:    6px 7px 10px 0px rgba(0, 0, 0, 0.47);
+		box-shadow:         6px 7px 10px 0px rgba(0, 0, 0, 0.47);
+    	.progress {
+		    bottom: 0;
+		    height: 3px;
+		    left: 0;
+		    position: absolute;
+		    width: 0%;
+		    display: block;
+		    background-color: rgba(0, 0, 0, 0.39);
+		    margin: 0 !important;
+		    margin-bottom: 0 !important;
+		    padding:0 !important;
+		    border: 1px solid rgba(0, 0, 0, 0.33);
+		    -webkit-transition: width 0.1s; /* For Safari 3.1 to 6.0 */
+    		transition: width 0.1s;
+		}
+    	h4{
+    		// float: left; 
+    		display: inline-block;
+    		// width: 90%;
+    	}
+		p{
+			padding-bottom: 10px;
+		}
+		.close{
+			margin-right: 10px;
+				color:white;
+		}
+		.close:hover{
+		  	color:white;
+		}
+    	&.info{
+		    border-color: #296ba0;
+		    color: #fff;
+		    background: url(../img/info.png);
+    		background-color: rgba(46, 121, 180, 0.9);
+			background-size:55px;
+			background-position: 15px center;
+			background-repeat: no-repeat;
+			&:hover{
+	    		background-color: rgb(46, 121, 180);
+			}
+
+    	}
+    	&.error{
+    		background: url(../img/error.png);
+			background-size:55px;
+			background-position: 15px center;
+			background-repeat: no-repeat;
+    		background-color: rgba(202, 33, 33, 0.9);
+    		border-color: #b41d1d;
+		    color: #fff;
+		    &:hover{
+    			background-color: rgb(202, 33, 33);
+		    }
+    	}
+    	&.warning{
+    		background: url(../img/warning.png);
+			background-size:55px;
+			background-position: 15px center;
+			background-repeat: no-repeat;
+ 			background-color: rgba(197, 131, 0, 0.9);
+    		border-color: #b97429;
+		    color: #fff;
+		    &:hover{
+    			background-color: rgb(197, 131, 0);
+		    }
+    	}
+    	&:hover{
+			cursor:pointer;
+    	}
+
+
+    }
+}
+.loader{
+	background:url(../img/loader.gif);
+	background-repeat: no-repeat;
+	background-position: center;
+	display: block;
+	position: absolute;
+	margin-left: -15px;
+	width:100%;
+	height:200px;
+	z-index: 9999;
+}
+.animated.pulse{
+	-webkit-animation-duration: 400ms;
+	animation-duration: 400ms;
+	-moz-animation-duration: 400ms;
+}
+.animated.nav{
+	-webkit-animation-duration: 300ms;
+	animation-duration: 300ms;
+	-moz-animation-duration: 300ms;
+}
+.echo {
+    border: 1px solid #ccc;
+    box-shadow: 1px 1px 9px 0 #b8b8b8 inset;
+    color: #000000;
+    float: left;
+    margin-bottom: 30px;
+    margin-top: 30px;
+    padding: 28px 20px;
+    .col-md-6 {
+	    height: 36px;
+	    line-height: 36px;
+	    vertical-align: middle;
+	}
+	.echo_block{
+		border: 1px solid #ccc;
+    	padding: 15px 0;
+    	margin-top: 10px;
+	}
+}
+.scroll_up {
+    background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
+    border-radius: 40px;
+    color: white;
+    display: block;
+    font-size: 23px;
+    height: 40px;
+    line-height: 42px;
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    top:auto;
+    text-align: center;
+    vertical-align: middle;
+    width: 40px;
+    z-index: 99999999;
+    cursor: pointer;
+    font-weight: bold;
+}
+/* .scroll_up:target ~ body{
+	-webkit-transform: translateY( 0px);
+    transform: translateY( 0px );
+} */
+/* body{
+	-webkit-transform: translateZ( 0 );
+    transform: translateZ( 0 );
+    -webkit-transition: -webkit-transform 0.6s ease-in-out;
+    transition: transform 0.6s ease-in-out;
+    // -webkit-backface-visibility: hidden;
+    // backface-visibility: hidden;
+} */
+.scroll_up:hover{
+    background: rgba(0, 0, 0, 1) none repeat scroll 0 0;
+}
