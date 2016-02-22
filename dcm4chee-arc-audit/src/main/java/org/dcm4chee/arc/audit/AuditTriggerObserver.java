@@ -124,7 +124,8 @@ public class AuditTriggerObserver {
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
         EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
-        auditService.auditDICOMInstancesTransfer(ctx, eid);
+        auditService.auditWADORetrieve(ctx);
+//        auditService.auditDICOMInstancesTransfer(ctx, eid);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {

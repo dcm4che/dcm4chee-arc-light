@@ -105,13 +105,9 @@ public class AuditService {
     public void auditApplicationActivity(EventTypeCode eventTypeCode, HttpServletRequest request) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
-        EventIdentification ei = new EventIdentification();
-        ei.setEventID(AuditMessages.EventID.ApplicationActivity);
-        ei.getEventTypeCode().add(eventTypeCode);
-        ei.setEventActionCode(AuditMessages.EventActionCode.Execute);
-        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
-        ei.setEventDateTime(timestamp);
-        msg.setEventIdentification(ei);
+        msg.setEventIdentification(AuditMessages.createEventIdentification(
+                AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute, timestamp,
+                AuditMessages.EventOutcomeIndicator.Success, "Success", eventTypeCode));
         ActiveParticipant apApplication = new ActiveParticipant();
         apApplication.getRoleIDCode().add(AuditMessages.RoleIDCode.Application);
         apApplication.setUserID(device.getDeviceName());
@@ -123,10 +119,15 @@ public class AuditService {
                 aets.append(';');
             aets.append(ae.getAETitle());
         }
-        apApplication.setAlternativeUserID(aets.toString());
+        apApplication.setAlternativeUserID(AuditMessages.alternativeUserIDForAETitle(
+                device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()])));
         apApplication.setUserIsRequestor(false);
         msg.getActiveParticipant().add(apApplication);
-
+//        msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
+//                device.getDeviceName(), AuditMessages.alternativeUserIDForAETitle(
+//                        device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()])),
+//                device.getDeviceName(), false, "", "", "", AuditMessages.RoleIDCode.Application));
+//
         if (request != null) {
             ActiveParticipant apUser = new ActiveParticipant();
             apUser.getRoleIDCode().add(AuditMessages.RoleIDCode.ApplicationLauncher);
@@ -143,12 +144,18 @@ public class AuditService {
 
     public void auditInstancesStored(PatientStudyInfo patientStudyInfo, HashSet<String> accNos,
                                      HashSet<String> mppsUIDs, HashMap<String, List<String>> sopClassMap,
-                                     Calendar eventTime) {
+                                     Calendar eventTime, String eventType) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         EventIdentification ei = new EventIdentification();
         ei.setEventID(AuditMessages.EventID.DICOMInstancesTransferred);
-        ei.setEventActionCode(AuditMessages.EventActionCode.Create);
+        if (eventType.equals("store"))
+            ei.setEventActionCode(AuditMessages.EventActionCode.Create);
+        if (eventType.equals("retrieve"))
+            ei.setEventActionCode(AuditMessages.EventActionCode.Read);
+        ei.setEventDateTime(eventTime);
+        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
+        msg.setEventIdentification(ei);
         ActiveParticipant apSender = new ActiveParticipant();
         apSender.setUserID(patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME));
         apSender.setAlternativeUserID("AETITLE=" + patientStudyInfo.getField(PatientStudyInfo.CALLING_AET));
@@ -163,9 +170,6 @@ public class AuditService {
         apReceiver.setUserIsRequestor(false);
         apReceiver.getRoleIDCode().add(AuditMessages.RoleIDCode.Destination);
         msg.getActiveParticipant().add(apReceiver);
-        ei.setEventDateTime(eventTime);
-        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.Success);
-        msg.setEventIdentification(ei);
         msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         ParticipantObjectIdentification poiStudy = new ParticipantObjectIdentification();
         poiStudy.setParticipantObjectTypeCode(AuditMessages.ParticipantObjectTypeCode.SystemObject);
@@ -255,13 +259,9 @@ public class AuditService {
     public void auditConnectionRejected(Socket s, Throwable e) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
-        EventIdentification ei = new EventIdentification();
-        ei.setEventID(AuditMessages.EventID.SecurityAlert);
-        ei.setEventActionCode(AuditMessages.EventActionCode.Execute);
-        ei.setEventDateTime(timestamp);
-        ei.setEventOutcomeIndicator(AuditMessages.EventOutcomeIndicator.MinorFailure);
-        ei.getEventTypeCode().add(AuditMessages.EventTypeCode.NodeAuthentication);
-        msg.setEventIdentification(ei);
+        msg.setEventIdentification(AuditMessages.createEventIdentification(
+                AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute, timestamp,
+                AuditMessages.EventOutcomeIndicator.MinorFailure, "MinorFailure", AuditMessages.EventTypeCode.NodeAuthentication));
         ActiveParticipant apReporter = new ActiveParticipant();
         apReporter.setUserID(s.getLocalSocketAddress().toString());
         apReporter.setUserIsRequestor(false);
@@ -309,7 +309,45 @@ public class AuditService {
         }
     }
 
+    public void auditWADORetrieve(RetrieveContext ctx){
+        HttpServletRequest req = ctx.getHttpRequest();
+        Collection<InstanceLocations> il = ctx.getMatches();
+        Attributes attrs = new Attributes();
+        for (InstanceLocations i : il) {
+            attrs = i.getAttributes();
+        }
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        boolean auditAggregate = arcDev.isAuditAggregate();
+        Path dir = Paths.get(
+                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
+        Path file = dir.resolve(
+                "onretrieve-" + req.getRemoteAddr() + '-' + ctx.getLocalAETitle() + '-' + ctx.getStudyInstanceUIDs()[0]);
+        boolean append = Files.exists(file);
+        try {
+            if (!append)
+                Files.createDirectories(dir);
+            try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
+                if (!append) {
+                    writer.write(new PatientStudyInfo(ctx, attrs).toString());
+                    writer.newLine();
+                }
+                writer.write(new InstanceInfo(ctx, attrs).toString());
+                writer.newLine();
+            }
+            if (!auditAggregate)
+                aggregateAuditMessage(file);
+        } catch (IOException e) {
+            LOG.warn("Failed write to Audit Spool File - {} ", file, e);
+        }
+    }
+
     public void aggregateAuditMessage(Path path) {
+        String eventType = "";
+        if (path.getFileName().startsWith("onretrieve"))
+            eventType = "retrieve";
+        if (path.getFileName().startsWith("onstore"))
+            eventType = "store";
         PatientStudyInfo patientStudyInfo;
         HashSet<String> accNos = new HashSet<>();
         HashSet<String> mppsUIDs = new HashSet<>();
@@ -342,7 +380,7 @@ public class AuditService {
         } catch (IOException e) {
             LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", path, e);
         }
-        auditInstancesStored(patientStudyInfo, accNos, mppsUIDs, sopClassMap, eventTime);
+        auditInstancesStored(patientStudyInfo, accNos, mppsUIDs, sopClassMap, eventTime, eventType);
         try {
             Files.delete(path);
         } catch (IOException e) {
@@ -532,6 +570,18 @@ public class AuditService {
         public String toString() {
             return StringUtils.concat(fields, '\\');
         }
+
+        public PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
+            fields = new String[] {
+                    ctx.getHttpRequest().getRemoteAddr(),
+                    "",
+                    ctx.getLocalAETitle(),
+                    ctx.getStudyInstanceUIDs()[0],
+                    attrs.getString(Tag.AccessionNumber, ""),
+                    attrs.getString(Tag.PatientID, ""),
+                    attrs.getString(Tag.PatientName, "")
+            };
+        }
     }
 
     private static class InstanceInfo {
@@ -568,6 +618,21 @@ public class AuditService {
         @Override
         public String toString() {
             return StringUtils.concat(fields, '\\');
+        }
+
+        public InstanceInfo(RetrieveContext ctx, Attributes attrs) {
+            ArrayList<String> list = new ArrayList<>();
+            list.add(attrs.getString(Tag.SOPClassUID, ""));
+            list.add(ctx.getSopInstanceUIDs()[0]);
+            list.add("");
+            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
+            if (reqAttrs != null)
+                for (Attributes reqAttr : reqAttrs) {
+                    String accno = reqAttr.getString(Tag.AccessionNumber);
+                    if (accno != null)
+                        list.add(accno);
+                }
+            this.fields = list.toArray(new String[list.size()]);
         }
     }
 
