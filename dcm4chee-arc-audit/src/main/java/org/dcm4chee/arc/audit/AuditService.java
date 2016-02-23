@@ -290,7 +290,7 @@ public class AuditService {
             if (!auditAggregate)
                 aggregateAuditMessage(file);
         } catch (IOException e) {
-            LOG.warn("Failed write to Audit Spool File - {} ", file, e);
+            LOG.warn("Failed to write to Audit Spool File - {} ", file, e);
         }
     }
 
