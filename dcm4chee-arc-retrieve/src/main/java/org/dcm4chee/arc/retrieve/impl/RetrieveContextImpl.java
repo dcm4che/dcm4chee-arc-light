@@ -78,6 +78,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private int moveOriginatorMessageID;
     private String moveOriginatorAETitle;
     private String destinationAETitle;
+    private ApplicationEntity destinationAE;
     private Exception exception;
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
@@ -202,6 +203,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public void setDestinationAE(ApplicationEntity destinationAE) {
+        this.destinationAE = destinationAE;
+    }
+
+    @Override
     public Exception getException() {
         return exception;
     }
@@ -234,7 +240,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     public String getDestinationHostName() {
         return httpRequest != null
                 ? httpRequest.getRemoteHost()
-                : storeAssociation.getSocket().getInetAddress().getHostName();
+                : storeAssociation != null
+                    ? storeAssociation.getSocket().getInetAddress().getHostName()
+                    : destinationAE != null && !destinationAE.getConnections().isEmpty()
+                        ? destinationAE.getConnections().get(0).getHostname()
+                        : null;
     }
 
     @Override
