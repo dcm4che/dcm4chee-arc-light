@@ -450,9 +450,14 @@ public class AuditService {
                 AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Source));
         if (null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation() && ctx.getRequestAssociation().equals(ctx.getStoreAssociation()))
             receiver = true;
-        msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-            ctx.getDestinationAETitle(), aet + ctx.getDestinationAETitle(), "", receiver, ctx.getDestinationAETitle(),
-            AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Destination));
+        if (null != ctx.getDestinationHostName())
+            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
+                ctx.getDestinationHostName(), aet + ctx.getDestinationAETitle(), "", receiver, ctx.getDestinationAETitle(),
+                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Destination));
+        else
+            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
+                    ctx.getDestinationAETitle(), aet + ctx.getDestinationAETitle(), "", receiver, "",
+                    "", null, AuditMessages.RoleIDCode.Destination));
         if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor()) {
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
                     ctx.getRequestorHostName(), aet + ctx.getMoveOriginatorAETitle(), "", true,
