@@ -40,10 +40,8 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.audit.EventTypeCode;
-import org.dcm4che3.audit.EventID;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
@@ -61,7 +59,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
-import java.util.Collection;
 
 
 /**
@@ -107,25 +104,24 @@ public class AuditTriggerObserver {
         Attributes queryKeys = ctx.getQueryKeys();
         String calledAET = ctx.getCalledAET();
         String callingAET = ctx.getCallingAET();
+        String localDevice = ctx.getLocalApplicationEntity().getDevice().getDeviceName();
         String remoteHostName = ctx.getRemoteHostName();
         String sopClassUID = ctx.getSOPClassUID();
-        auditService.auditQuery(as, request, queryKeys, callingAET, calledAET, remoteHostName, sopClassUID);
+        auditService.auditQuery(as, request, queryKeys, callingAET, calledAET, remoteHostName, localDevice, sopClassUID);
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        EventID eid = AuditMessages.EventID.BeginTransferringDICOMInstances;
-        auditService.auditDICOMInstancesTransfer(ctx, eid);
+        AuditMessages.EventID eid = AuditMessages.EventID.BeginTransferringDICOMInstances;
+        auditService.auditDICOMInstancesTransfer(ctx, eid, ctx.getException());
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
-        auditService.auditDICOMInstancesTransfer(ctx, eid);
+        AuditMessages.EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
+        auditService.auditDICOMInstancesTransfer(ctx, eid, ctx.getException());
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
         auditService.auditWADORetrieve(ctx);
-//        auditService.auditDICOMInstancesTransfer(ctx, eid);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
