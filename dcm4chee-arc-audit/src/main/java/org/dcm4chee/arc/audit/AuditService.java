@@ -225,12 +225,12 @@ public class AuditService {
                         iuids = new HashSet<>();
                         sopClassMap.put(cuid, iuids);
                     }
-                    iuids.add(seriesRef.getString(Tag.ReferencedSOPInstanceUID));
-                }
-                for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-                    poiStudyDesc.getSOPClass().add(AuditMessages.createSOPClass(entry.getKey(), entry.getValue().size()));
+                    iuids.add(sopRef.getString(Tag.ReferencedSOPInstanceUID));
                 }
             }
+        }
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
+            poiStudyDesc.getSOPClass().add(AuditMessages.createSOPClass(entry.getKey(), entry.getValue().size()));
         }
         msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
                 ctx.getStudyInstanceUID(), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID, "", null,
