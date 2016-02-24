@@ -326,6 +326,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.65 NAME 'dcmAuditAggregateDuration'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.66 NAME 'dcmReadOnly'
+  DESC 'Indicates if a Storage System is read only; false if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -411,6 +416,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmRetrieveAET $
     dcmInstanceAvailability $
     dcmDeleterThreshold $
+    dcmReadOnly $
     dcmProperty ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.13 NAME 'dcmQueryRetrieveView'
   DESC 'Specifies behavior on Rejection Note Stored'

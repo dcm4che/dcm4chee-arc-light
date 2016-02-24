@@ -15,6 +15,7 @@ public final class StorageDescriptor {
     private String digestAlgorithm;
     private String[] retrieveAETitles = {};
     private Availability instanceAvailability;
+    private boolean readOnly;
 
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
@@ -84,6 +85,14 @@ public final class StorageDescriptor {
         this.instanceAvailability = instanceAvailability;
     }
 
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
     public boolean hasDeleterThresholds() {
         return !deleterThresholds.isEmpty();
     }
@@ -145,7 +154,9 @@ public final class StorageDescriptor {
                 ", retrieveAETs=" + Arrays.toString(retrieveAETitles) +
                 ", availability=" + instanceAvailability +
                 ", deleterThresholds=" + deleterThresholds +
+                ", readOnly=" + readOnly +
                 ", properties=" + properties +
                 '}';
     }
+
 }

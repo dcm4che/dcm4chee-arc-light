@@ -91,6 +91,9 @@ public class PurgeStorageScheduler extends Scheduler {
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
+            if (desc.isReadOnly())
+                continue;
+
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
             List<Long> studyPks = Collections.emptyList();

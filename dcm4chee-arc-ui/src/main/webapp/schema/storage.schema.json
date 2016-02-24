@@ -38,6 +38,11 @@
         "type": "string"
       }
     },
+    "dcmReadOnly": {
+      "title": "Read Only",
+      "description": "Indicates if a Storage System is read only; false if absent.",
+      "type": "boolean"
+    },
     "dcmDeleterThreshold": {
       "title": "Deleter Threshold",
       "description": "Minimal Usable Space on Storage System. If present, studies are deleted from the Storage System, if the usable space fall below that value. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB)",
