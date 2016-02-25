@@ -1,9 +1,30 @@
 <div id="selects_part">
+	<pre>selectedPart: {{selectedPart | json}}
+		dicomnetworkconn: {{selectedPart.DicomNetworkConnection}}
+	</pre>
 	<div>
 		<h3>Select device part to edit</h3>
 		<label>Edit rest of device</label>
 		<div id="showDeviceForm" class="btn ng-cloak" ng-class="{active_dropbox:selectedElement == 'device'}" ng-click='selectElement("device")' ng-cloak>{{wholeDevice.dicomDeviceName}}</div>
 	</div>
+	<div ng-repeat="(key, value) in selectObject">
+		<label>Select dicom {{value.title}} to edit or delete:</label>
+		<select 
+			class="form-control" 
+			ng-class="{active_dropbox:selectedElement === '{{value.partName}}',active_menu:activeMenu === '{{value.partName}}'}" 
+			ng-click='selectElement(value.partName)' 
+			name="{{value.partName}}"
+			ng-model="selectedPart[value.model]" 
+			ng-change='changeElement(value.partName)'
+			ng-options="obj[value.optionValue] as obj[value.optionValue]  for obj in wholeDevice[value.optionRef] track by obj[value.optionValue]">
+		</select>
+		<create-delete-button 
+			part="{{value.partName}}" 
+			create-text="Create new network connection" 
+			delete-text="Delete selected network connection">
+		</create-delete-button>
+	</div>
+<!-- 
 	<div>
 		<label>Select dicom Network Connection to edit or delete:</label>
 		<select 
@@ -37,6 +58,6 @@
 			create-text="Create new Network AE" 
 			delete-text="Delete selected Network AE">
 		</create-delete-button>
-	</div>
+	</div> -->
 	<div id="SelectDicomTransferCapability"></div>
 </div>

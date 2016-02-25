@@ -1,3 +1,23 @@
+myApp.constant("$select", 
+  [
+      {
+        "title" : "Network Connection",
+        "partName" : "connection",
+        "model" : "DicomNetworkConnection",
+        "optionRef" : "dicomNetworkConnection",
+        "optionValue": "cn"
+      
+      },
+      {
+        "title" : "Network AE",
+        "partName" : "networkae",
+        "model" : "NetworkAE",
+        "optionRef" : "dicomNetworkAE",
+        "optionValue": "dicomAETitle"
+      
+      }
+    ]
+);
 myApp.constant("$schema",
 {
   "title": "Device",

@@ -23,7 +23,10 @@ angular.module('schemaForm').config(
     // };
     // console.log("schemaFormProvider.defaults.string=",schemaFormProvider.defaults.string)
     // schemaFormProvider.defaults.string.unshift(ref);
-
+  // schemaFormProvider.postProcess(function(form){
+  //   form.reverse();
+  //   return form;
+  // })
     //Add to the bootstrap directive
     schemaFormDecoratorsProvider.addMapping(
       'bootstrapDecorator',
@@ -32,7 +35,7 @@ angular.module('schemaForm').config(
     );
     schemaFormDecoratorsProvider.createDirective(
       'loadSubSchema',
-      'js/add-on/angular-schema-form-ref/src/test.html'
+      'js/add-on/angular-schema-form-ref/src/form.html'
     );
   }
 ]);

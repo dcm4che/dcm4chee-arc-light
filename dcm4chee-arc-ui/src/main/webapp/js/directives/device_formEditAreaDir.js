@@ -88,7 +88,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 var index;
 
                 angular.forEach(scope.wholeDevice.dicomNetworkConnection,function(value,key) {
-                	if(value.cn === scope.selectedDicomNetworkConnection){
+                	if(value.cn === scope.selectedPart.DicomNetworkConnection){
                 		index = key;
                 	}
                 });
@@ -97,7 +97,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 scope.dicomNetConnForm  = DeviceService.getFormDicomNetworkConn();
             }
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-            if(scope.selectedElement === "networkae" && scope.selectedNetworkAE){
+            if(scope.selectedElement === "networkae" && scope.selectedPart.NetworkAE){
 
                     scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
                     // scope.networkAeSchema 	= $schema;
@@ -108,7 +108,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 var toEditKey;
 
                 angular.forEach(scope.wholeDevice.dicomNetworkAE,function(value,key) {
-                	if(value.dicomAETitle === scope.selectedNetworkAE){
+                	if(value.dicomAETitle === scope.selectedPart.NetworkAE){
                 		networAeToEdit      = value;
                         toEditKey           = key;
                 	}
@@ -144,7 +144,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
             	scope.transfareCapSchema = DeviceService.getShemaTransfareCap();
                 scope.transfareCapForm   = DeviceService.getFormTransfareCap();
                 angular.forEach(scope.wholeDevice.dicomNetworkAE,function(value1,key1) {
-                	if(value1.dicomAETitle === scope.selectedNetworkAE){
+                	if(value1.dicomAETitle === scope.selectedPart.NetworkAE){
 		            	angular.forEach(scope.wholeDevice.dicomNetworkAE[key1].dicomTransferCapability,function(value,key) {
 		            		if(value.cn === scope.selectedTransfCap){
                                 var model   = scope.wholeDevice.dicomNetworkAE[key1].dicomTransferCapability[key];
