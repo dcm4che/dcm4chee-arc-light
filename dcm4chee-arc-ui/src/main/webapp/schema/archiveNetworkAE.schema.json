@@ -102,6 +102,11 @@
         "IMAGE"
       ]
     },
+    "dcmFallbackCMoveSCPRetries": {
+      "title": "Fallback C-Move SCP Retries",
+      "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. Only effective with dcmFallbackCMoveSCPLevel=STUDY. -1 = forever. Use value configured on Device level, if absent",
+      "type": "integer"
+    },
     "dcmAltCMoveSCP": {
       "title": "AltCMoveSCP",
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",

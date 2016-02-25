@@ -40,39 +40,52 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
-import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.retrieve.StudyInfo;
 
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jan 2016
+ * @since Feb 2016
  */
-@Stateless
-public class RetrieveServiceEJB {
+public class StudyInfoImpl implements StudyInfo {
+    private final Long studyPk;
+    private final String studyInstanceUID;
+    private final Date accessTime;
+    private final int failedRetrieves;
+    private final String failedSOPInstanceUIDList;
 
-    @PersistenceContext(unitName = "dcm4chee-arc")
-    private EntityManager em;
-
-    public void updateStudyAccessTime(Long studyPk) {
-        em.createNamedQuery(Study.UPDATE_ACCESS_TIME)
-                .setParameter(1, studyPk)
-                .executeUpdate();
+    public StudyInfoImpl(Long studyPk, String studyInstanceUID, Date accessTime, int failedRetrieves,
+                         String failedSOPInstanceUIDList) {
+        this.studyPk = studyPk;
+        this.studyInstanceUID = studyInstanceUID;
+        this.accessTime = accessTime;
+        this.failedRetrieves = failedRetrieves;
+        this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
     }
 
-    public void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList) {
-        em.createNamedQuery(Study.INCREMENT_FAILED_RETRIEVES)
-                .setParameter(1, studyInstanceUID)
-                .setParameter(2, failedSOPInstanceUIDList)
-                .executeUpdate();
+    @Override
+    public Long getStudyPk() {
+        return studyPk;
     }
 
-    public void clearFailedSOPInstanceUIDList(String studyInstanceUID) {
-        em.createNamedQuery(Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST)
-                .setParameter(1, studyInstanceUID)
-                .executeUpdate();
+    @Override
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
+    }
+
+    @Override
+    public Date getAccessTime() {
+        return accessTime;
+    }
+
+    @Override
+    public int getFailedRetrieves() {
+        return failedRetrieves;
+    }
+
+    @Override
+    public String getFailedSOPInstanceUIDList() {
+        return failedSOPInstanceUIDList;
     }
 }

@@ -331,6 +331,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.66 NAME 'dcmReadOnly'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.67 NAME 'dcmFallbackCMoveSCPRetries'
+  DESC 'Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. Only effective with dcmFallbackCMoveSCPLevel=STUDY. -1 = forever. 0 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -353,6 +358,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
     dcmFallbackCMoveSCPLevel $
+    dcmFallbackCMoveSCPRetries $
     dcmAltCMoveSCP $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
@@ -389,6 +395,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
     dcmFallbackCMoveSCPLevel $
+    dcmFallbackCMoveSCPRetries $
     dcmAltCMoveSCP ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'

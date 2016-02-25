@@ -320,8 +320,10 @@
     <module>dcm4chee-arc-conf-data</module>
     <module>dcm4chee-arc-conf-json</module>
     <module>dcm4chee-arc-conf-ldap</module>
+    <module>dcm4chee-arc-conf-rs</module>
     <module>dcm4chee-arc-conf-test</module>
     <module>dcm4chee-arc-ctrl</module>
+    <module>dcm4chee-arc-delete</module>
     <module>dcm4chee-arc-echo-rs</module>
     <module>dcm4chee-arc-entity</module>
     <module>dcm4chee-arc-export</module>
@@ -329,6 +331,7 @@
     <module>dcm4chee-arc-export-dicom</module>
     <module>dcm4chee-arc-export-rs</module>
     <module>dcm4chee-arc-hl7</module>
+    <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-issuer</module>
     <module>dcm4chee-arc-mpps</module>
     <module>dcm4chee-arc-mpps-scp</module>
@@ -342,9 +345,11 @@
     <module>dcm4chee-arc-query-util</module>
     <module>dcm4chee-arc-retrieve</module>
     <module>dcm4chee-arc-retrieve-scp</module>
+    <module>dcm4chee-arc-retrieve-scu</module>
     <module>dcm4chee-arc-service</module>
     <module>dcm4chee-arc-stgcmt-scp</module>
     <module>dcm4chee-arc-storage</module>
+    <module>dcm4chee-arc-storage-cloud</module>
     <module>dcm4chee-arc-storage-filesystem</module>
     <module>dcm4chee-arc-store</module>
     <module>dcm4chee-arc-store-scu</module>
@@ -355,11 +360,6 @@
     <module>dcm4chee-arc-ui</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
-    <module>dcm4chee-arc-storage-cloud</module>
-    <module>dcm4chee-arc-delete</module>
-    <module>dcm4chee-arc-conf-rs</module>
-    <module>dcm4chee-arc-iocm-rs</module>
-    <module>dcm4chee-arc-retrieve-scu</module>
   </modules>
 
   <build>

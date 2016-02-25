@@ -44,8 +44,10 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.AAssociateRQ;
+import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -53,6 +55,7 @@ import org.dcm4chee.arc.retrieve.scu.ForwardRetrieveTask;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -71,7 +74,9 @@ public class CMoveSCUImpl implements CMoveSCU {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(retrieveAET);
             return new ForwardRetrieveTaskImpl(as, pc, rq, keys,
-                    localAE.connect(remoteAE, createAARQ(as, pc, callingAET)), bwdRSPs, fwdCancel);
+                    localAE.connect(remoteAE,
+                            createAARQ(as, as.getAAssociateRQ().getPresentationContext(pc.getPCID()), callingAET)),
+                    bwdRSPs, fwdCancel);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
@@ -80,7 +85,9 @@ public class CMoveSCUImpl implements CMoveSCU {
     private AAssociateRQ createAARQ(Association as, PresentationContext pc, String callingAET) {
         AAssociateRQ aarq = new AAssociateRQ();
         aarq.setCallingAET(callingAET);
-        aarq.addPresentationContext(as.getAAssociateRQ().getPresentationContext(pc.getPCID()));
+        aarq.addPresentationContext(pc);
+        aarq.addExtendedNegotiation(new ExtendedNegotiation(pc.getAbstractSyntax(),
+                QueryOption.toExtendedNegotiationInformation(EnumSet.of(QueryOption.RELATIONAL))));
         return aarq;
     }
 }

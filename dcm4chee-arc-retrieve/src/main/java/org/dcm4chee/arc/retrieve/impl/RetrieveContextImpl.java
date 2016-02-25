@@ -52,6 +52,7 @@ import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.StudyInfo;
 import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,6 +87,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private String[] sopInstanceUIDs = {};
     private int numberOfMatches;
     private final Collection<InstanceLocations> matches = new ArrayList<>();
+    private final Collection<StudyInfo> studyInfos = new ArrayList<>();
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
     private final Collection<String> failedSOPInstanceUIDs =
@@ -300,6 +302,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public Collection<InstanceLocations> getMatches() {
         return matches;
+    }
+
+    @Override
+    public Collection<StudyInfo> getStudyInfos() {
+        return studyInfos;
     }
 
     @Override

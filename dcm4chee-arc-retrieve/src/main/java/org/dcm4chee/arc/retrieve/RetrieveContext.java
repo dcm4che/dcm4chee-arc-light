@@ -133,6 +133,8 @@ public interface RetrieveContext extends Closeable {
 
     Collection<InstanceLocations> getMatches();
 
+    Collection<StudyInfo> getStudyInfos();
+
     int getNumberOfMatches();
 
     void setNumberOfMatches(int numberOfMatches);

@@ -38,41 +38,22 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve.impl;
+package org.dcm4chee.arc.retrieve;
 
-import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.entity.Study;
-
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jan 2016
+ * @since Feb 2016
  */
-@Stateless
-public class RetrieveServiceEJB {
+public interface StudyInfo {
+    Long getStudyPk();
 
-    @PersistenceContext(unitName = "dcm4chee-arc")
-    private EntityManager em;
+    String getStudyInstanceUID();
 
-    public void updateStudyAccessTime(Long studyPk) {
-        em.createNamedQuery(Study.UPDATE_ACCESS_TIME)
-                .setParameter(1, studyPk)
-                .executeUpdate();
-    }
+    Date getAccessTime();
 
-    public void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList) {
-        em.createNamedQuery(Study.INCREMENT_FAILED_RETRIEVES)
-                .setParameter(1, studyInstanceUID)
-                .setParameter(2, failedSOPInstanceUIDList)
-                .executeUpdate();
-    }
+    String getFailedSOPInstanceUIDList();
 
-    public void clearFailedSOPInstanceUIDList(String studyInstanceUID) {
-        em.createNamedQuery(Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST)
-                .setParameter(1, studyInstanceUID)
-                .executeUpdate();
-    }
+    int getFailedRetrieves();
 }

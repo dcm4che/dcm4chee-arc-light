@@ -43,7 +43,6 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 
@@ -76,4 +75,8 @@ public interface RetrieveService {
     DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException;
 
     Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx);
+
+    void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList);
+
+    void clearFailedSOPInstanceUIDList(String studyInstanceUID);
 }
