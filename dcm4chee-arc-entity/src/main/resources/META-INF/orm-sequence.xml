@@ -218,6 +218,9 @@
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="study_pk_seq"/>
       </id>
+      <basic name="failedSOPInstanceUIDList">
+        <column name="failed_iuids" column-definition="varchar(32768)" />
+      </basic>
     </attributes>
   </entity>
 

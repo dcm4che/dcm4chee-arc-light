@@ -61,6 +61,15 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.Study">
+    <sequence-generator name="study_pk_seq" sequence-name="study_pk_seq" allocation-size="1"/>
+    <attributes>
+      <basic name="failedSOPInstanceUIDList">
+        <column name="failed_iuids" column-definition="varchar(32768)" />
+      </basic>
+    </attributes>
+  </entity>
+
   <embeddable class="org.dcm4che3.data.Code">
     <attributes>
       <basic name="codeValue" optional="false">
