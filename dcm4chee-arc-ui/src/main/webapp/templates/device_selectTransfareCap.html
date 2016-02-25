@@ -3,7 +3,7 @@
 	class="form-control" 
 	ng-class="{active_dropbox:selectedElement == 'transfarecap',active_menu:activeMenu == 'transfarecap'}" 
 	name="transfcap" 
-	ng-model="selectedTransfCap" 
+	ng-model="selectedPart.TransfCap" 
 	ng-change='changeElement("transfarecap")' 
 	ng-click='selectElement("transfarecap")'
 	ng-options="obj.cn as obj.cn for obj in transfcap track by obj.cn">

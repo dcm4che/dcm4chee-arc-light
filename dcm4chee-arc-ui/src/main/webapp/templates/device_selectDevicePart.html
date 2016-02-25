@@ -7,7 +7,7 @@
 		<label>Edit rest of device</label>
 		<div id="showDeviceForm" class="btn ng-cloak" ng-class="{active_dropbox:selectedElement == 'device'}" ng-click='selectElement("device")' ng-cloak>{{wholeDevice.dicomDeviceName}}</div>
 	</div>
-	<div ng-repeat="(key, value) in selectObject">
+	<div ng-repeat="(key, value) in selectObject | testFilter:selectedElement:selectedPart">
 		<label>Select dicom {{value.title}} to edit or delete:</label>
 		<select 
 			class="form-control" 

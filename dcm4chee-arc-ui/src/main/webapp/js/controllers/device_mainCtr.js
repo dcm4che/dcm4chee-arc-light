@@ -79,7 +79,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       element === "device"        ||
                       element === "connection"    && $scope.selectedPart.DicomNetworkConnection  != undefined ||
                       element === "networkae"     && $scope.selectedPart.NetworkAE               != undefined ||
-                      element === 'transfarecap'  && $scope.selectedTransfCap               != undefined
+                      element === 'transfarecap'  && $scope.selectedPart.TransfCap               != undefined
                   ) 
                     &&
                   (
@@ -90,14 +90,14 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
               ) {
                   cfpLoadingBar.start();
                   if(element === 'networkae'){
-                    $scope.selectedTransfCap  = null;
+                    $scope.selectedPart.TransfCap  = null;
                     //$scope.transfareCapModel  = {};
                   }
                   $scope.selectedElement  = element;
                   $scope.lastBorder       = "active_border";
                   $scope.showSave         = true;
               }
-              if ($scope.selectedPart.NetworkAE != undefined && !$scope.selectedTransfCap && $scope.devicename === "CHANGE_ME") {
+              if ($scope.selectedPart.NetworkAE != undefined && !$scope.selectedPart.TransfCap && $scope.devicename === "CHANGE_ME") {
                   DeviceService
                   .addDirectiveToDom(
                       $scope, 
@@ -106,7 +106,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   );
               }
               if($scope.devicename === "CHANGE_ME"){
-                $log.debug("in if change me changeElement");
                   // $timeout(function() {
                     DeviceService
                     .addDirectiveToDom(
@@ -128,7 +127,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 element === "device"        ||
                 element === "connection"    && $scope.selectedPart.DicomNetworkConnection  != undefined ||
                 element === "networkae"     && $scope.selectedPart.NetworkAE               != undefined ||
-                element === 'transfarecap'  && $scope.selectedTransfCap               != undefined
+                element === 'transfarecap'  && $scope.selectedPart.TransfCap               != undefined
             ) 
               &&
             (
@@ -139,7 +138,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         ) {
             cfpLoadingBar.start();
             if(element === 'networkae'){
-              $scope.selectedTransfCap  = null;
+              $scope.selectedPart.TransfCap  = null;
               //$scope.transfareCapModel  = {};
             }
             $scope.selectedElement  = element;
@@ -284,7 +283,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
             case "networkae":
                 $log.debug("$scope.selectedPart.NetworkAE=",$scope.selectedPart.NetworkAE);
-                $log.debug("$scope.selectedTransfCap=",$scope.selectedTransfCap);
+                $log.debug("$scope.selectedPart.TransfCap=",$scope.selectedPart.TransfCap);
                 if($scope.selectedPart.NetworkAE) {
 
                     var m = confirm("Are you sure you want to delete the Network AE: " + $scope.selectedPart.NetworkAE + "?");
@@ -327,11 +326,11 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
             case "transfarecap":
 
-                if($scope.selectedTransfCap){
+                if($scope.selectedPart.TransfCap){
 
-                    // var m = confirm("Are you sure you want to delete the Network AE: " + $scope.selectedTransfCap + "?");
+                    // var m = confirm("Are you sure you want to delete the Network AE: " + $scope.selectedPart.TransfCap + "?");
                   vex.dialog.confirm({
-                      message: "Are you sure you want to delete the Network AE: " + $scope.selectedTransfCap + "?",
+                      message: "Are you sure you want to delete the Network AE: " + $scope.selectedPart.TransfCap + "?",
                       callback: function(m) {
                         if (m) {
                             var networkAEKey;
@@ -340,7 +339,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                 if (value.dicomAETitle == $scope.selectedPart.NetworkAE) {
                                     networkAEKey = key;
                                     angular.forEach(value.dicomTransferCapability, function(m, k) {
-                                        if (m.cn == $scope.selectedTransfCap) {
+                                        if (m.cn == $scope.selectedPart.TransfCap) {
                                             toDeleteKey = k;
                                         }
                                     });
@@ -351,7 +350,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                             // $scope.networkAeModel     = {};
                             // $scope.networkAeForm        = [];
                             $scope.selectedElement    = "";
-                            $scope.selectedTransfCap  = null;
+                            $scope.selectedPart.TransfCap  = null;
                             $scope.lastBorder         = "";
                             $scope.showSave           = false;
                         }
@@ -361,7 +360,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     $scope.activeMenu = "transfarecap";
                     vex.dialog.alert("Please select first a network connection to delete");
                 }
-                //$log.debug("transfarecap delete trans", $scope.selectedTransfCap);
+                //$log.debug("transfarecap delete trans", $scope.selectedPart.TransfCap);
                 break;
         }
         $scope.editMode = false;

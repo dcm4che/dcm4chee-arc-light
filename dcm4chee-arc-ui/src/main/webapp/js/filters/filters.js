@@ -81,3 +81,31 @@ myApp.filter("attributeNameOf", function() {
     };
 });
 
+myApp.filter("testFilter", function(){
+    return function(object, selectedElement, selectedPart){
+        var localObject = object.slice();
+/*        console.log("in filter:");
+        console.log("object=",object);
+        console.log("selectedPart=",selectedPart);
+        console.log("selectedElement=",selectedElement);*/
+        angular.forEach(localObject, function(m, i){
+            console.log("filter foreach m=",m,"i=",i);
+            if(m.partName === "transfarecap"){
+                if(selectedPart.NetworkAE){
+                    console.log("fitler in if optionRef=",m.optionRef);
+                    // if(m.partName === "transfarecap"){
+                        
+                    // }
+
+
+                }else{
+                    console.log("fitler in else m.partName=",m.partName);
+                        localObject.splice(i, 1);
+                        console.log("element removed",localObject);
+                }
+            }
+        });
+
+        return localObject;
+    };
+});

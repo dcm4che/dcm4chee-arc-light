@@ -15,6 +15,14 @@ myApp.constant("$select",
         "optionRef" : "dicomNetworkAE",
         "optionValue": "dicomAETitle"
       
+      },
+      {
+        "title" : "Transfer Capability",
+        "partName" : "transfarecap",
+        "model" : "TransfCap",
+        "optionRef" : "dicomNetworkAE.dicomTransferCapability",
+        "optionValue": "cn"
+      
       }
     ]
 );

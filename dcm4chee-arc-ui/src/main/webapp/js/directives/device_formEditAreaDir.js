@@ -139,14 +139,15 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
 
             }
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-            if(scope.selectedElement === 'transfarecap' && scope.selectedTransfCap){
-                // $log.debug("transfarecap schema=",DeviceService.getShemaTransfareCap());
+            $log.debug("before transfarecap in formEditAreaDir scope.selectedElement=",scope.selectedElement,"scope.selectedPart.TransfCap=",scope.selectedPart.TransfCap);
+            if(scope.selectedElement === 'transfarecap' && scope.selectedPart.TransfCap){
+                $log.debug("transfarecap schema=",DeviceService.getShemaTransfareCap());
             	scope.transfareCapSchema = DeviceService.getShemaTransfareCap();
                 scope.transfareCapForm   = DeviceService.getFormTransfareCap();
                 angular.forEach(scope.wholeDevice.dicomNetworkAE,function(value1,key1) {
                 	if(value1.dicomAETitle === scope.selectedPart.NetworkAE){
 		            	angular.forEach(scope.wholeDevice.dicomNetworkAE[key1].dicomTransferCapability,function(value,key) {
-		            		if(value.cn === scope.selectedTransfCap){
+		            		if(value.cn === scope.selectedPart.TransfCap){
                                 var model   = scope.wholeDevice.dicomNetworkAE[key1].dicomTransferCapability[key];
                                 // $log.debug("transfercap model=",model);
                                 scope.transfareCapModel = model;
@@ -158,13 +159,11 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
             }
             cfpLoadingBar.complete();
             //Warning the user if he start to change the device name
-             setTimeout(function(){
-
+            setTimeout(function(){
                 angular.element(document.getElementById('dicomDeviceName')).bind("click focus keydown",function(){
                     // $log.debug("this=",this.value);
                     // $log.debug("scope.wholeDevice=",scope.wholeDevice);
                     if(scope.currentDevice != "CHANGE_ME"){
-
                         DeviceService.msg(scope, {
                           "title": "Warning",
                           "text": "If you change the name of the device, on save will try the system to create another copy of the device with the new name and delete the old one.",
@@ -173,8 +172,8 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                         });
                     }
                 });
-             },1000);
-        scope.showSave = true;
+            },1000);
+            scope.showSave = true;
 
         }
 
