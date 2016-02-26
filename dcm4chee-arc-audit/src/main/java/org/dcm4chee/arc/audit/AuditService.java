@@ -114,6 +114,18 @@ public class AuditService {
         static AggregationType fromFile(Path file) {
             return valueOf(file.getFileName().toString().substring(0, 10));
         }
+
+        static AggregationType forWADORetrieve(RetrieveContext ctx) {
+            return ctx.getException() != null ? WADO_R_E__ : WADO_R_P__;
+        }
+
+        static AggregationType forInstanceStored(StoreContext ctx) {
+            return ctx.getException() != null
+                    ? ctx.getPreviousInstance() != null ? STORE_U_E_ : STORE_C_E_
+                    : ctx.getLocation() != null
+                        ? ctx.getPreviousInstance() != null ? STORE_U_P_ : STORE_C_P_
+                        : null;
+        }
     }
 
     @Inject
@@ -278,33 +290,11 @@ public class AuditService {
         emitAuditMessage(timestamp, msg);
     }
 
-    private static class CheckAggregationType {
-        AggregationType at = null;
-
-        public AggregationType storeAggregationType(StoreContext ctx) {
-            if (null != ctx.getException() && null != ctx.getPreviousInstance())
-                at = AggregationType.STORE_U_E_;
-            if (null != ctx.getException() && null == ctx.getPreviousInstance())
-                at = AggregationType.STORE_C_E_;
-            if (null == ctx.getException() && null != ctx.getPreviousInstance())
-                at = AggregationType.STORE_U_P_;
-            if (null == ctx.getException() && null == ctx.getPreviousInstance())
-                at = AggregationType.STORE_C_P_;
-            return at;
-        }
-
-        public AggregationType wadoRetrieveAggregationType(RetrieveContext ctx) {
-            if (null != ctx.getException())
-                at = AggregationType.WADO_R_E__;
-            if (null == ctx.getException())
-                at = AggregationType.WADO_R_P__;
-            return at;
-        }
-    }
-
     public void auditInstanceStored(StoreContext ctx) {
-        CheckAggregationType cat = new CheckAggregationType();
-        AggregationType aggregationType = cat.storeAggregationType(ctx);
+        AggregationType aggregationType = AggregationType.forInstanceStored(ctx);
+        if (aggregationType == null)
+            return; // no audit message for duplicate received instance
+        
         StoreSession session = ctx.getStoreSession();
         Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -334,8 +324,7 @@ public class AuditService {
     }
 
     public void auditWADORetrieve(RetrieveContext ctx){
-        CheckAggregationType cat = new CheckAggregationType();
-        AggregationType aggregationType = cat.wadoRetrieveAggregationType(ctx);
+        AggregationType aggregationType = AggregationType.forWADORetrieve(ctx);
         HttpServletRequest req = ctx.getHttpRequest();
         Collection<InstanceLocations> il = ctx.getMatches();
         Attributes attrs = new Attributes();
