@@ -100,31 +100,36 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         RetrieveContext ctx = retrieveService.newRetrieveContextMOVE(as, rq, qrLevel, keys);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArrayList<String> failedIUIDs = new ArrayList<>();
+        String fallbackCMoveSCP = arcAE.fallbackCMoveSCP();
+        String fallbackCMoveSCPDestination = arcAE.fallbackCMoveSCPDestination();
+        MoveForwardLevel moveForwardLevel = arcAE.fallbackCMoveSCPLevel();
         if (!retrieveService.calculateMatches(ctx)) {
-            if (arcAE.getFallbackCMoveSCP() == null)
+            if (fallbackCMoveSCP == null)
                 return null;
 
-            if (arcAE.getFallbackCMoveSCPDestination() == null) {
+            if (fallbackCMoveSCPDestination == null) {
                 LOG.info("{}: No objects of study{} found - forward C-MOVE RQ to {}",
-                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), arcAE.getFallbackCMoveSCP());
+                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
                 return moveSCU.newForwardRetrieveTask(ctx.getLocalApplicationEntity(), as, pc, rq, keys,
-                        as.getCallingAET(), arcAE.getFallbackCMoveSCP(), true, true);
+                        as.getCallingAET(), fallbackCMoveSCP, true, true);
             }
 
             if (retrieveFrom(ctx, pc, rq, keys, failedIUIDs) == 0)
                 return null;
 
             retrieveService.calculateMatches(ctx);
-        } else if (arcAE.getFallbackCMoveSCP() != null
-                && arcAE.getFallbackCMoveSCPDestination() != null
-                && arcAE.getFallbackCMoveSCPLevel() == MoveForwardLevel.STUDY) {
-            int totRetrieved = 0;
-            for (StudyInfo studyInfo : ctx.getStudyInfos()) {
-                if (studyInfo.getFailedSOPInstanceUIDList() != null)
-                    totRetrieved += retryRetrieveFrom(ctx, pc, rq, studyInfo, failedIUIDs);
+        } else {
+            if (fallbackCMoveSCP != null
+                    && fallbackCMoveSCPDestination != null
+                    && moveForwardLevel == MoveForwardLevel.STUDY) {
+                int totRetrieved = 0;
+                for (StudyInfo studyInfo : ctx.getStudyInfos()) {
+                    if (studyInfo.getFailedSOPInstanceUIDList() != null)
+                        totRetrieved += retryRetrieveFrom(ctx, pc, rq, studyInfo, failedIUIDs);
+                }
+                if (totRetrieved > 0)
+                    retrieveService.calculateMatches(ctx);
             }
-            if (totRetrieved > 0)
-                retrieveService.calculateMatches(ctx);
         }
 
         String altCMoveSCP = arcAE.alternativeCMoveSCP();
