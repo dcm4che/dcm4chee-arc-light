@@ -92,9 +92,8 @@ public class AuditTriggerObserver {
             auditService.auditInstancesDeleted(ctx);
             return;
         }
-        if (ctx.getLocation() == null)
+        if (ctx.getLocation() == null && null == ctx.getException())
             return;
-
         auditService.auditInstanceStored(ctx);
     }
 

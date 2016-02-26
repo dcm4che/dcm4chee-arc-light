@@ -86,17 +86,33 @@ public class AuditService {
     private static final String tmpdir = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
     private static final String success = "success";
     enum AggregationType {
-        WADO_(AuditMessages.EventActionCode.Read),
-        STORE(AuditMessages.EventActionCode.Create);
+        WADO_R_P__(AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source),
+        WADO_R_E__(AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source),
+        STORE_C_P_(AuditMessages.EventActionCode.Create, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination),
+        STORE_C_E_(AuditMessages.EventActionCode.Create, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination),
+        STORE_U_P_(AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination),
+        STORE_U_E_(AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination);
 
         final String eventActionCode;
+        final String outcome;
+        final AuditMessages.RoleIDCode source;
+        final AuditMessages.RoleIDCode destination;
 
-        AggregationType(String eventActionCode) {
+        AggregationType(String eventActionCode, String outcome, AuditMessages.RoleIDCode source, AuditMessages.RoleIDCode destination) {
             this.eventActionCode = eventActionCode;
+            this.outcome = outcome;
+            this.source = source;
+            this.destination = destination;
         }
 
         static AggregationType fromFile(Path file) {
-            return valueOf(file.getFileName().toString().substring(0, 5));
+            return valueOf(file.getFileName().toString().substring(0, 10));
         }
     }
 
@@ -139,41 +155,22 @@ public class AuditService {
 
     public void auditInstancesStoredOrWADORetrieve(PatientStudyInfo patientStudyInfo, HashSet<String> accNos,
                                      HashSet<String> mppsUIDs, HashMap<String, List<String>> sopClassMap,
-                                     Calendar eventTime, AggregationType eventType, String outcome) {
+                                     Calendar eventTime, AggregationType eventType, String outcomeDesc) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
-        if (outcome.equals(success))
-            msg.setEventIdentification(AuditMessages.createEventIdentification(
+        msg.setEventIdentification(AuditMessages.createEventIdentification(
                 AuditMessages.EventID.DICOMInstancesTransferred, eventType.eventActionCode, eventTime,
-                AuditMessages.EventOutcomeIndicator.Success, null));
-        else
-            msg.setEventIdentification(AuditMessages.createEventIdentification(
-                    AuditMessages.EventID.DICOMInstancesTransferred, eventType.eventActionCode, eventTime,
-                    AuditMessages.EventOutcomeIndicator.MinorFailure, outcome));
-        if (eventType.equals(AggregationType.STORE.toString())) {
-            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
-                    AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLING_AET)),
-                    null, true, patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
-                    AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Source));
-            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    patientStudyInfo.getField(PatientStudyInfo.LOCAL_HOSTNAME),
-                    AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLED_AET)),
-                    null, false, device.getDeviceName(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
-                    AuditMessages.RoleIDCode.Destination));
-        }
-        if (eventType.equals(AggregationType.WADO_.toString())) {
-            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    patientStudyInfo.getField(PatientStudyInfo.LOCAL_HOSTNAME),
-                    AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLED_AET)),
-                    null, false, device.getDeviceName(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
-                    AuditMessages.RoleIDCode.Source));
-            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
-                    AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLING_AET)),
-                    null, true, patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
-                    AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Destination));
-        }
+                eventType.outcome, outcomeDesc));
+        msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
+                patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
+                AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLING_AET)),
+                null, true, patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
+                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
+        msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
+                patientStudyInfo.getField(PatientStudyInfo.LOCAL_HOSTNAME),
+                AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLED_AET)),
+                null, false, device.getDeviceName(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
+                eventType.destination));
         msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         HashSet<Accession> acc = new HashSet<>();
         HashSet<MPPS> mpps = new HashSet<>();
@@ -281,7 +278,33 @@ public class AuditService {
         emitAuditMessage(timestamp, msg);
     }
 
+    private static class CheckAggregationType {
+        AggregationType at = null;
+
+        public AggregationType storeAggregationType(StoreContext ctx) {
+            if (null != ctx.getException() && null != ctx.getPreviousInstance())
+                at = AggregationType.STORE_U_E_;
+            if (null != ctx.getException() && null == ctx.getPreviousInstance())
+                at = AggregationType.STORE_C_E_;
+            if (null == ctx.getException() && null != ctx.getPreviousInstance())
+                at = AggregationType.STORE_U_P_;
+            if (null == ctx.getException() && null == ctx.getPreviousInstance())
+                at = AggregationType.STORE_C_P_;
+            return at;
+        }
+
+        public AggregationType wadoRetrieveAggregationType(RetrieveContext ctx) {
+            if (null != ctx.getException())
+                at = AggregationType.WADO_R_E__;
+            if (null == ctx.getException())
+                at = AggregationType.WADO_R_P__;
+            return at;
+        }
+    }
+
     public void auditInstanceStored(StoreContext ctx) {
+        CheckAggregationType cat = new CheckAggregationType();
+        AggregationType aggregationType = cat.storeAggregationType(ctx);
         StoreSession session = ctx.getStoreSession();
         Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -289,7 +312,7 @@ public class AuditService {
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
         Path file = dir.resolve(
-                AggregationType.STORE + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
+                aggregationType + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -311,6 +334,8 @@ public class AuditService {
     }
 
     public void auditWADORetrieve(RetrieveContext ctx){
+        CheckAggregationType cat = new CheckAggregationType();
+        AggregationType aggregationType = cat.wadoRetrieveAggregationType(ctx);
         HttpServletRequest req = ctx.getHttpRequest();
         Collection<InstanceLocations> il = ctx.getMatches();
         Attributes attrs = new Attributes();
@@ -322,7 +347,7 @@ public class AuditService {
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
         Path file = dir.resolve(
-                AggregationType.WADO_ + req.getRemoteAddr() + '-' + ctx.getLocalAETitle() + '-' + ctx.getStudyInstanceUIDs()[0]);
+                aggregationType + req.getRemoteAddr() + '-' + ctx.getLocalAETitle() + '-' + ctx.getStudyInstanceUIDs()[0]);
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -345,7 +370,7 @@ public class AuditService {
 
     public void aggregateAuditMessage(Path path) {
         AggregationType eventType = AggregationType.fromFile(path);
-        String outcome = success;
+        String outcome;
         PatientStudyInfo patientStudyInfo;
         HashSet<String> accNos = new HashSet<>();
         HashSet<String> mppsUIDs = new HashSet<>();
