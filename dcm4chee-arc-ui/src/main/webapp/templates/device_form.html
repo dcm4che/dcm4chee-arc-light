@@ -2,8 +2,8 @@
 	<div ng-show="selectedElement == 'device'">
 		<div name="deviceForm" class="ng-cloak" sf-schema="deviceSchema" sf-form="deviceForm" sf-model="deviceModel" ng-cloak></div>
 	</div>
-	<div ng-show="selectedElement == 'connection'" name="dicomNetConnForm" class="ng-cloak" sf-schema="dicomNetConnSchema" sf-form="dicomNetConnForm" sf-model="dicomNetConnModel" ng-cloak></div>
-	<div ng-show="selectedElement == 'networkae'" name="networkAeForm" class="ng-cloak" sf-schema="networkAeSchema" sf-form="networkAeForm" sf-model="networkAeModel" ng-cloak>
+	<div ng-show="selectedElement == 'dicomNetworkConnection'" name="dicomNetConnForm" class="ng-cloak" sf-schema="dicomNetConnSchema" sf-form="dicomNetConnForm" sf-model="dicomNetConnModel" ng-cloak></div>
+	<div ng-show="selectedElement == 'dicomNetworkAE'" name="networkAeForm" class="ng-cloak" sf-schema="networkAeSchema" sf-form="networkAeForm" sf-model="networkAeModel" ng-cloak>
 	
 	</div>
 	<hr  ng-show="showEcho()">
@@ -20,10 +20,10 @@
 			</div>
 			<div class="col-md-6">
 				<span>Remote AET:</span>
-				{{selectedPart.NetworkAE}}			
+				{{selectedPart.dicomNetworkAE}}			
 			</div>
 		</div>
 		<div class="btn col-md-2" ng-click="echo()">Echo</div>
 	</div>
-	<div ng-show="selectedElement == 'transfarecap'" class="ng-cloak" sf-schema="transfareCapSchema" sf-form="transfareCapForm" sf-model="transfareCapModel" ng-cloak></div>
+	<div ng-show="selectedElement == 'dicomTransferCapability'" class="ng-cloak" sf-schema="transfareCapSchema" sf-form="transfareCapForm" sf-model="transfareCapModel" ng-cloak></div>
 </form>

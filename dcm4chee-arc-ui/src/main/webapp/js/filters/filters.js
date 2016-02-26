@@ -90,10 +90,10 @@ myApp.filter("testFilter", function(){
         console.log("selectedElement=",selectedElement);*/
         angular.forEach(localObject, function(m, i){
             console.log("filter foreach m=",m,"i=",i);
-            if(m.partName === "transfarecap"){
-                if(selectedPart.NetworkAE){
+            if(m.partName === "dicomTransferCapability"){
+                if(selectedPart.dicomNetworkAE){
                     console.log("fitler in if optionRef=",m.optionRef);
-                    // if(m.partName === "transfarecap"){
+                    // if(m.partName === "dicomTransferCapability"){
                         
                     // }
 

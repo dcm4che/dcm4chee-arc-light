@@ -17,7 +17,7 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
 
                         // var wholeDeviceCopy                 = {};
                             //scope.selectedNetworkConnection = response.data.dicomNetworkConnection;
-                            scope.networkae                 = response.data.dicomNetworkAE;
+                            scope.dicomNetworkAE                 = response.data.dicomNetworkAE;
                             scope.wholeDevice               = response.data;
                             DeviceService.addEmptyArrayFields(scope);
                             cfpLoadingBar.set(cfpLoadingBar.status()+(0.3));

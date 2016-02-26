@@ -81,14 +81,14 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
             }
             
 			//If the first selectbutton was changed than show the NetworkConnection of dhe device
-			if(scope.selectedElement === "connection" && scope.wholeDevice.dicomNetworkConnection){
+			if(scope.selectedElement === "dicomNetworkConnection" && scope.wholeDevice.dicomNetworkConnection){
 
                 var dicomNetConnSchema 		    = DeviceService.getSchemaDicomNetworkConn();
 	                scope.dicomNetConnSchema 	= dicomNetConnSchema.properties.dicomNetworkConnection.items;
                 var index;
 
                 angular.forEach(scope.wholeDevice.dicomNetworkConnection,function(value,key) {
-                	if(value.cn === scope.selectedPart.DicomNetworkConnection){
+                	if(value.cn === scope.selectedPart.dicomNetworkConnection){
                 		index = key;
                 	}
                 });
@@ -97,7 +97,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 scope.dicomNetConnForm  = DeviceService.getFormDicomNetworkConn();
             }
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-            if(scope.selectedElement === "networkae" && scope.selectedPart.NetworkAE){
+            if(scope.selectedElement === "dicomNetworkAE" && scope.selectedPart.dicomNetworkAE){
 
                     scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
                     // scope.networkAeSchema 	= $schema;
@@ -108,7 +108,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 var toEditKey;
 
                 angular.forEach(scope.wholeDevice.dicomNetworkAE,function(value,key) {
-                	if(value.dicomAETitle === scope.selectedPart.NetworkAE){
+                	if(value.dicomAETitle === scope.selectedPart.dicomNetworkAE){
                 		networAeToEdit      = value;
                         toEditKey           = key;
                 	}
@@ -139,15 +139,15 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
 
             }
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-            $log.debug("before transfarecap in formEditAreaDir scope.selectedElement=",scope.selectedElement,"scope.selectedPart.TransfCap=",scope.selectedPart.TransfCap);
-            if(scope.selectedElement === 'transfarecap' && scope.selectedPart.TransfCap){
-                $log.debug("transfarecap schema=",DeviceService.getShemaTransfareCap());
+            $log.debug("before dicomTransferCapability in formEditAreaDir scope.selectedElement=",scope.selectedElement,"scope.selectedPart.dicomTransferCapability=",scope.selectedPart.dicomTransferCapability);
+            if(scope.selectedElement === 'dicomTransferCapability' && scope.selectedPart.dicomTransferCapability){
+                $log.debug("dicomTransferCapability schema=",DeviceService.getShemaTransfareCap());
             	scope.transfareCapSchema = DeviceService.getShemaTransfareCap();
                 scope.transfareCapForm   = DeviceService.getFormTransfareCap();
                 angular.forEach(scope.wholeDevice.dicomNetworkAE,function(value1,key1) {
-                	if(value1.dicomAETitle === scope.selectedPart.NetworkAE){
+                	if(value1.dicomAETitle === scope.selectedPart.dicomNetworkAE){
 		            	angular.forEach(scope.wholeDevice.dicomNetworkAE[key1].dicomTransferCapability,function(value,key) {
-		            		if(value.cn === scope.selectedPart.TransfCap){
+		            		if(value.cn === scope.selectedPart.dicomTransferCapability){
                                 var model   = scope.wholeDevice.dicomNetworkAE[key1].dicomTransferCapability[key];
                                 // $log.debug("transfercap model=",model);
                                 scope.transfareCapModel = model;

@@ -560,7 +560,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		},
 
 		/*
-		*Gets the form for the network connection with the connections as checkboxes in it
+		*Gets the form for the network dicomNetworkConnection with the connections as checkboxes in it
 		*@connections (array) array of current device connections
 		*@return (Object) JSON-Form
 		*/
@@ -658,7 +658,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				return localShema;
 
 			}catch(e){
-				$log.error("Error on splitting the DicomNetworkConnection schema in factory DeviceService.js",e);
+				$log.error("Error on splitting the dicomNetworkConnection schema in factory DeviceService.js",e);
 				return {};
 			}
 		},
@@ -764,7 +764,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	        			}
 	        		}
 	        		break;
-	            case "connection":
+	            case "dicomNetworkConnection":
 	            	if($scope.dicomNetConnModel){
 	            		$log.debug("$scope.dicomNetConnModel=",$scope.dicomNetConnModel);
 		                if (!$scope.dicomNetConnModel.cn) {
@@ -783,7 +783,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	            		});
 	            	}
 	                break;
-	            case "networkae":
+	            case "dicomNetworkAE":
 	            	if($scope.networkAeModel){
 	            		$log.debug("$scope.networkAeModel=",$scope.networkAeModel);
 		                if (!$scope.networkAeModel.dicomAETitle) {
@@ -813,7 +813,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	            		});
 	            	}
 	                break;
-	            case "transfarecap":
+	            case "dicomTransferCapability":
 	            	if($scope.transfareCapModel){
 		            	if(!$scope.transfareCapModel.cn){
 		                    validForm = false;
@@ -834,7 +834,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		                var check = checkTransfareRedondance($scope);
 		                validForm = validForm && check.valid;
 		                message  += check.msg;
-	            		$log.debug("transfarecap validation if validForm=",validForm,",message=",message);
+	            		$log.debug("dicomTransferCapability validation if validForm=",validForm,",message=",message);
 	            	}
 	                break;
 	        }
@@ -1067,7 +1067,13 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
         */
         addEmptyArrayFields : function($scope){
         	addEmptyArrayFieldsPrivate($scope);
-        }
+        },
+
+		getDescendantProp : function(obj, desc){
+		    var arr = desc.split(".");
+		    while(arr.length && (obj = obj[arr.shift()]));
+		    return obj;
+		}
 
 	}
 

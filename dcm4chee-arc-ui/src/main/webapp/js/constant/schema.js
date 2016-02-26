@@ -2,24 +2,24 @@ myApp.constant("$select",
   [
       {
         "title" : "Network Connection",
-        "partName" : "connection",
-        "model" : "DicomNetworkConnection",
+        "partName" : "dicomNetworkConnection",
+        "model" : "dicomNetworkConnection",
         "optionRef" : "dicomNetworkConnection",
         "optionValue": "cn"
       
       },
       {
         "title" : "Network AE",
-        "partName" : "networkae",
-        "model" : "NetworkAE",
+        "partName" : "dicomNetworkAE",
+        "model" : "dicomNetworkAE",
         "optionRef" : "dicomNetworkAE",
         "optionValue": "dicomAETitle"
-      
+
       },
       {
         "title" : "Transfer Capability",
-        "partName" : "transfarecap",
-        "model" : "TransfCap",
+        "partName" : "dicomTransferCapability",
+        "model" : "dicomTransferCapability",
         "optionRef" : "dicomNetworkAE.dicomTransferCapability",
         "optionValue": "cn"
       

@@ -77,9 +77,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
               if(
                   (
                       element === "device"        ||
-                      element === "connection"    && $scope.selectedPart.DicomNetworkConnection  != undefined ||
-                      element === "networkae"     && $scope.selectedPart.NetworkAE               != undefined ||
-                      element === 'transfarecap'  && $scope.selectedPart.TransfCap               != undefined
+                      element === "dicomNetworkConnection"    && $scope.selectedPart.dicomNetworkConnection  != undefined ||
+                      element === "dicomNetworkAE"     && $scope.selectedPart.dicomNetworkAE               != undefined ||
+                      element === 'dicomTransferCapability'  && $scope.selectedPart.dicomTransferCapability               != undefined
                   ) 
                     &&
                   (
@@ -89,15 +89,15 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       $scope.validForm
               ) {
                   cfpLoadingBar.start();
-                  if(element === 'networkae'){
-                    $scope.selectedPart.TransfCap  = null;
+                  if(element === 'dicomNetworkAE'){
+                    $scope.selectedPart.dicomTransferCapability  = null;
                     //$scope.transfareCapModel  = {};
                   }
                   $scope.selectedElement  = element;
                   $scope.lastBorder       = "active_border";
                   $scope.showSave         = true;
               }
-              if ($scope.selectedPart.NetworkAE != undefined && !$scope.selectedPart.TransfCap && $scope.devicename === "CHANGE_ME") {
+              if ($scope.selectedPart.dicomNetworkAE != undefined && !$scope.selectedPart.dicomTransferCapability && $scope.devicename === "CHANGE_ME") {
                   DeviceService
                   .addDirectiveToDom(
                       $scope, 
@@ -114,7 +114,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         "<div edit-area></div>"
                     );
               }
-              if ($scope.selectedPart.DicomNetworkConnection != undefined) {
+              if ($scope.selectedPart.dicomNetworkConnection != undefined) {
 
                 $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
                 $scope.networkAeForm = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
@@ -125,9 +125,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         if(
             (
                 element === "device"        ||
-                element === "connection"    && $scope.selectedPart.DicomNetworkConnection  != undefined ||
-                element === "networkae"     && $scope.selectedPart.NetworkAE               != undefined ||
-                element === 'transfarecap'  && $scope.selectedPart.TransfCap               != undefined
+                element === "dicomNetworkConnection"    && $scope.selectedPart.dicomNetworkConnection  != undefined ||
+                element === "dicomNetworkAE"     && $scope.selectedPart.dicomNetworkAE               != undefined ||
+                element === 'dicomTransferCapability'  && $scope.selectedPart.dicomTransferCapability               != undefined
             ) 
               &&
             (
@@ -137,8 +137,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.validForm
         ) {
             cfpLoadingBar.start();
-            if(element === 'networkae'){
-              $scope.selectedPart.TransfCap  = null;
+            if(element === 'dicomNetworkAE'){
+              $scope.selectedPart.dicomTransferCapability  = null;
               //$scope.transfareCapModel  = {};
             }
             $scope.selectedElement  = element;
@@ -250,15 +250,15 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.deletPartProcess = true;
         //TODO Make service for this
         switch (element) {
-            case "connection":
-                if ($scope.selectedPart.DicomNetworkConnection) {
-                    var m = confirm("Are you sure you want to delete the network connection: " + $scope.selectedPart.DicomNetworkConnection + "?");
+            case "dicomNetworkConnection":
+                if ($scope.selectedPart.dicomNetworkConnection) {
+                    var m = confirm("Are you sure you want to delete the network connection: " + $scope.selectedPart.dicomNetworkConnection + "?");
                     
                     if (m) {
                         var toDeleteKey;
 
                         angular.forEach($scope.wholeDevice.dicomNetworkConnection, function(value, key) {
-                            if (value.cn == $scope.selectedPart.DicomNetworkConnection) {
+                            if (value.cn == $scope.selectedPart.dicomNetworkConnection) {
                                 toDeleteKey = key;
                             }
                         });
@@ -266,7 +266,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         $scope.wholeDevice.dicomNetworkConnection.splice(toDeleteKey, 1);
                         $scope.dicomNetConnModel              = {};
                         $scope.selectedElement                = "";
-                        $scope.selectedPart.DicomNetworkConnection = null;
+                        $scope.selectedPart.dicomNetworkConnection = null;
                         $scope.lastBorder                     = "";
 
                         //TODO Check references and delete them to
@@ -275,31 +275,31 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     }
                 } else {
                     //TODO replace it with an bautiful messaging
-                    $scope.activeMenu = "connection";
+                    $scope.activeMenu = "dicomNetworkConnection";
                     vex.dialog.alert("Please select first a network connection to delete");
                 }
                 break;
 
 
-            case "networkae":
-                $log.debug("$scope.selectedPart.NetworkAE=",$scope.selectedPart.NetworkAE);
-                $log.debug("$scope.selectedPart.TransfCap=",$scope.selectedPart.TransfCap);
-                if($scope.selectedPart.NetworkAE) {
+            case "dicomNetworkAE":
+                $log.debug("$scope.selectedPart.dicomNetworkAE=",$scope.selectedPart.dicomNetworkAE);
+                $log.debug("$scope.selectedPart.dicomTransferCapability=",$scope.selectedPart.dicomTransferCapability);
+                if($scope.selectedPart.dicomNetworkAE) {
 
-                    var m = confirm("Are you sure you want to delete the Network AE: " + $scope.selectedPart.NetworkAE + "?");
+                    var m = confirm("Are you sure you want to delete the Network AE: " + $scope.selectedPart.dicomNetworkAE + "?");
                   
                     if(m){
 
                         var toDeleteKey;
                         var shouldDeleteTransfare = false;
                         angular.forEach($scope.wholeDevice.dicomNetworkAE, function(value, key) {
-                            if (value.dicomAETitle == $scope.selectedPart.NetworkAE) {
+                            if (value.dicomAETitle == $scope.selectedPart.dicomNetworkAE) {
                                 toDeleteKey = key;
                             }
                         });
                         $log.debug("$scope.transfcap=",$scope.transfcap);
                         if($scope.transfcap[0]){
-                            $log.debug("in if transfarecap[0]");
+                            $log.debug("in if dicomTransferCapability[0]");
                             angular.forEach($scope.wholeDevice.dicomNetworkAE[toDeleteKey].dicomTransferCapability, function(k, i){
                               if(k.cn === $scope.transfcap[0].cn){
                                 $scope.transfcap = null;
@@ -313,33 +313,33 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         $scope.networkAeModel       = {};
                         $scope.networkAeForm        = [];
                         $scope.selectedElement      = "";
-                        $scope.selectedPart.NetworkAE    = null;
+                        $scope.selectedPart.dicomNetworkAE    = null;
                         $scope.lastBorder           = "";
                     }
 
                 }else{
-                    $scope.activeMenu = "networkae";
+                    $scope.activeMenu = "dicomNetworkAE";
                     //TODO replace it with an bautiful messaging
                     vex.dialog.alert("Please select first a network AE to delete");
                 }
                 break;
 
-            case "transfarecap":
+            case "dicomTransferCapability":
 
-                if($scope.selectedPart.TransfCap){
+                if($scope.selectedPart.dicomTransferCapability){
 
-                    // var m = confirm("Are you sure you want to delete the Network AE: " + $scope.selectedPart.TransfCap + "?");
+                    // var m = confirm("Are you sure you want to delete the Network AE: " + $scope.selectedPart.dicomTransferCapability + "?");
                   vex.dialog.confirm({
-                      message: "Are you sure you want to delete the Network AE: " + $scope.selectedPart.TransfCap + "?",
+                      message: "Are you sure you want to delete the Network AE: " + $scope.selectedPart.dicomTransferCapability + "?",
                       callback: function(m) {
                         if (m) {
                             var networkAEKey;
                             var toDeleteKey;
                             angular.forEach($scope.wholeDevice.dicomNetworkAE, function(value, key) {
-                                if (value.dicomAETitle == $scope.selectedPart.NetworkAE) {
+                                if (value.dicomAETitle == $scope.selectedPart.dicomNetworkAE) {
                                     networkAEKey = key;
                                     angular.forEach(value.dicomTransferCapability, function(m, k) {
-                                        if (m.cn == $scope.selectedPart.TransfCap) {
+                                        if (m.cn == $scope.selectedPart.dicomTransferCapability) {
                                             toDeleteKey = k;
                                         }
                                     });
@@ -350,17 +350,17 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                             // $scope.networkAeModel     = {};
                             // $scope.networkAeForm        = [];
                             $scope.selectedElement    = "";
-                            $scope.selectedPart.TransfCap  = null;
+                            $scope.selectedPart.dicomTransferCapability  = null;
                             $scope.lastBorder         = "";
                             $scope.showSave           = false;
                         }
                       }
                    });
                 }else{
-                    $scope.activeMenu = "transfarecap";
+                    $scope.activeMenu = "dicomTransferCapability";
                     vex.dialog.alert("Please select first a network connection to delete");
                 }
-                //$log.debug("transfarecap delete trans", $scope.selectedPart.TransfCap);
+                //$log.debug("dicomTransferCapability delete trans", $scope.selectedPart.dicomTransferCapability);
                 break;
         }
         $scope.editMode = false;
@@ -369,11 +369,11 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.createPart = function(element) {
         // $scope.editMode = true;
         switch (element) {
-            case "connection":
+            case "dicomNetworkConnection":
                 var dicomNetConnSchema    = DeviceService.getSchemaDicomNetworkConn();
                 $scope.dicomNetConnSchema = dicomNetConnSchema.properties.dicomNetworkConnection.items;
-                $scope.selectedElement    = "connection";
-                $scope.activeMenu         = "connection";
+                $scope.selectedElement    = "dicomNetworkConnection";
+                $scope.activeMenu         = "dicomNetworkConnection";
                 if(!$scope.wholeDevice.dicomNetworkConnection){
                   $scope.wholeDevice["dicomNetworkConnection"] = []
                 }
@@ -391,13 +391,13 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.editMode   = true;
                 $scope.validForm  = false;
                 break;
-            case "networkae":
+            case "dicomNetworkAE":
                 if($scope.wholeDevice.dicomNetworkConnection && $scope.wholeDevice.dicomNetworkConnection[0]!=null){
                   $log.debug("in if=",$scope.wholeDevice.dicomNetworkConnection);
                   $scope.networkAeSchema  = DeviceService.getSchemaNetworkAe();
                   $scope.networkAeForm    = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
-                  $scope.selectedElement  = "networkae";
-                  $scope.activeMenu       = "networkae";
+                  $scope.selectedElement  = "dicomNetworkAE";
+                  $scope.activeMenu       = "dicomNetworkAE";
                   $scope.transfcap        = {};
                   if(!$scope.wholeDevice.dicomNetworkAE) {
                     $scope.wholeDevice["dicomNetworkAE"] = []
@@ -408,7 +408,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   }else{
                     $scope.wholeDevice.dicomNetworkAE.push($scope.networkAeModel);
                   }
-                  $scope.selectedPart.NetworkAE  = $scope.selectedElement.dicomAETitle;
+                  $scope.selectedPart.dicomNetworkAE  = $scope.selectedElement.dicomAETitle;
                   $scope.showCancel = true;
                   $scope.showSave   = true;
                   $scope.lastBorder = "active_border";
@@ -423,17 +423,17 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 }
                 break;
 
-            case "transfarecap":
-                if ($scope.selectedPart.NetworkAE) {
-                  //TODO Create form element for the transfarecap
+            case "dicomTransferCapability":
+                if ($scope.selectedPart.dicomNetworkAE) {
+                  //TODO Create form element for the dicomTransferCapability
                     $scope.transfareCapSchema = DeviceService.getShemaTransfareCap();
                     $scope.transfareCapModel  = {};
                     $scope.transfareCapForm   = DeviceService.getFormTransfareCap();
-                    $scope.selectedElement    = "transfarecap";
+                    $scope.selectedElement    = "dicomTransferCapability";
                     var toEditKey;
 
                     angular.forEach($scope.wholeDevice.dicomNetworkAE, function(value, key) {
-                        if (value.dicomAETitle === $scope.selectedPart.NetworkAE) {
+                        if (value.dicomAETitle === $scope.selectedPart.dicomNetworkAE) {
                             toEditKey = key;
                         }
                     });
@@ -449,7 +449,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     $scope.editMode = true;
 
                 } else {
-                    $scope.activeMenu = "transfarecap";
+                    $scope.activeMenu = "dicomTransferCapability";
                     vex.dialog.alert("Select first a Network AE");
                 }
                 break;
@@ -654,7 +654,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 angular.element(document.getElementById("add_dropdowns")).html("");
                 angular.element(document.getElementById("add_edit_area")).html("");
                 break;
-            case "connection":
+            case "dicomNetworkConnection":
                 if($scope.dicomNetConnModel.cn){
                   angular.forEach($scope.wholeDevice.dicomNetworkConnection, function(m,i){
                     if(m.cn === $scope.dicomNetConnModel.cn){
@@ -665,7 +665,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.dicomNetConnModel  = {};
                 DeviceService.removeEmptyPart($scope.wholeDevice.dicomNetworkConnection, "cn");
                 break;
-            case "networkae":
+            case "dicomNetworkAE":
                   if($scope.networkAeModel.dicomAETitle){
                     angular.forEach($scope.wholeDevice.dicomNetworkAE, function(m,i){
                       if(m.dicomAETitle === $scope.networkAeModel.dicomAETitle){
@@ -681,11 +681,11 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   $scope.transfcap = {};
                 break;
 
-            case "transfarecap":
-                if ($scope.selectedPart.NetworkAE) {
+            case "dicomTransferCapability":
+                if ($scope.selectedPart.dicomNetworkAE) {
                     var toEditKey;
                     angular.forEach($scope.wholeDevice.dicomNetworkAE, function(value, key) {
-                        if (value.dicomAETitle === $scope.selectedPart.NetworkAE) {
+                        if (value.dicomAETitle === $scope.selectedPart.dicomNetworkAE) {
                             toEditKey = key;
                         }
                     });
@@ -699,7 +699,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         DeviceService.removeEmptyPart($scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability, "cn");
                     }
                 } else {
-                    $scope.activeMenu = "transfarecap";
+                    $scope.activeMenu = "dicomTransferCapability";
                     vex.dialog.alert("Select first a Network AE");
                 }
                 $scope.transfareCapModel  = {};
@@ -723,13 +723,13 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
     $scope.echo = function(){
       // $log.debug("selectedAet=",$scope.selectedAet);
-      // $log.debug("selectedPart.NetworkAE=",$scope.selectedPart.NetworkAE);
-      if($scope.selectedAet && $scope.selectedPart.NetworkAE){
+      // $log.debug("selectedPart.dicomNetworkAE=",$scope.selectedPart.dicomNetworkAE);
+      if($scope.selectedAet && $scope.selectedPart.dicomNetworkAE){
 
         $http({
             method: 'GET',
             // url: 'json/devices.json'
-            url: '../aets/'+$scope.selectedAet+'/echo/'+$scope.selectedPart.NetworkAE
+            url: '../aets/'+$scope.selectedAet+'/echo/'+$scope.selectedPart.dicomNetworkAE
         }).then(function successCallback(response) {
             // alert(response.data);
             try{
@@ -791,10 +791,26 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     };
 
     $scope.showEcho = function(){
-      if($scope.selectedElement == 'networkae' && !$scope.showCancel && $scope.devicenam != "CHANGE_ME"){
+      if($scope.selectedElement == 'dicomNetworkAE' && !$scope.showCancel && $scope.devicenam != "CHANGE_ME"){
         return true;
       }else{
         return false;
+      }
+    };
+    $scope.splitStringToObject = function(value){
+      console.log("in pslitStringObject, value=",value);
+      // console.log("scope=",$scope.wholeDevice);
+
+      $scope.selectModel = $scope.selectModel || {};
+      if(angular.isDefined($scope.wholeDevice)){
+        if(value.optionRef.indexOf(".")>-1){
+          //TODO convert dotted string to json object reference
+        }else{
+          $scope.selectModel[value.model] = $scope.wholeDevice[value.optionRef];
+        }
+        // $scope.selectModel[value.model] = DeviceService.getDescendantProp($scope.wholeDevice, value.optionRef);
+        // DeviceService.getDescendantProp($scope.wholeDevice,value.optionRef);
+        // return  $scope.wholeDevice.dicomNetworkConnection;
       }
     };
 });
