@@ -139,6 +139,8 @@ public interface RetrieveContext extends Closeable {
 
     void setNumberOfMatches(int numberOfMatches);
 
+    void incrementNumberOfMatches(int inc);
+
     int completed();
 
     void incrementCompleted();

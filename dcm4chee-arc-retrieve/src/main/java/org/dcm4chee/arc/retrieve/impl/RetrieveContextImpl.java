@@ -320,6 +320,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public void incrementNumberOfMatches(int inc) {
+        numberOfMatches += inc;
+    }
+
+    @Override
     public int completed() {
         return completed.get();
     }

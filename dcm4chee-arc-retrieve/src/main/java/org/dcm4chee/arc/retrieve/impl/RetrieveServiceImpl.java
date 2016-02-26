@@ -238,9 +238,9 @@ public class RetrieveServiceImpl implements RetrieveService {
                 }
                 match.getLocations().add(loadLocation(tuple));
             }
+            ctx.setNumberOfMatches(matches.size());
             ctx.getStudyInfos().addAll(studyInfoMap.values());
             updateStudyAccessTime(ctx);
-            ctx.setNumberOfMatches(matches.size());
             return !matches.isEmpty();
         } finally {
             session.close();

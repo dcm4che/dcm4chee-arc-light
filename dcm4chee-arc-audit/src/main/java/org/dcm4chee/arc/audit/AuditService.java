@@ -85,7 +85,20 @@ public class AuditService {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private static final String tmpdir = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
     private static final String success = "success";
-    enum AggregationType { retrieve, store___, none};
+    enum AggregationType {
+        WADO_(AuditMessages.EventActionCode.Read),
+        STORE(AuditMessages.EventActionCode.Create);
+
+        final String eventActionCode;
+
+        AggregationType(String eventActionCode) {
+            this.eventActionCode = eventActionCode;
+        }
+
+        static AggregationType fromFile(Path file) {
+            return valueOf(file.getFileName().toString().substring(0, 5));
+        }
+    }
 
     @Inject
     private Device device;
@@ -126,23 +139,18 @@ public class AuditService {
 
     public void auditInstancesStoredOrWADORetrieve(PatientStudyInfo patientStudyInfo, HashSet<String> accNos,
                                      HashSet<String> mppsUIDs, HashMap<String, List<String>> sopClassMap,
-                                     Calendar eventTime, String eventType, String outcome) {
+                                     Calendar eventTime, AggregationType eventType, String outcome) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
-        String eac = null;
-        if (eventType.equals(AggregationType.store___.toString()))
-            eac = AuditMessages.EventActionCode.Create;
-        if (eventType.equals(AggregationType.retrieve.toString()))
-            eac = AuditMessages.EventActionCode.Read;
         if (outcome.equals(success))
             msg.setEventIdentification(AuditMessages.createEventIdentification(
-                AuditMessages.EventID.DICOMInstancesTransferred, eac, eventTime,
+                AuditMessages.EventID.DICOMInstancesTransferred, eventType.eventActionCode, eventTime,
                 AuditMessages.EventOutcomeIndicator.Success, null));
         else
             msg.setEventIdentification(AuditMessages.createEventIdentification(
-                    AuditMessages.EventID.DICOMInstancesTransferred, eac, eventTime,
+                    AuditMessages.EventID.DICOMInstancesTransferred, eventType.eventActionCode, eventTime,
                     AuditMessages.EventOutcomeIndicator.MinorFailure, outcome));
-        if (eventType.equals(AggregationType.store___.toString())) {
+        if (eventType.equals(AggregationType.STORE.toString())) {
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
                     patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
                     AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLING_AET)),
@@ -154,7 +162,7 @@ public class AuditService {
                     null, false, device.getDeviceName(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
                     AuditMessages.RoleIDCode.Destination));
         }
-        if (eventType.equals(AggregationType.retrieve.toString())) {
+        if (eventType.equals(AggregationType.WADO_.toString())) {
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
                     patientStudyInfo.getField(PatientStudyInfo.LOCAL_HOSTNAME),
                     AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLED_AET)),
@@ -281,7 +289,7 @@ public class AuditService {
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
         Path file = dir.resolve(
-                AggregationType.store___ + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
+                AggregationType.STORE + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -314,7 +322,7 @@ public class AuditService {
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
         Path file = dir.resolve(
-                AggregationType.retrieve + req.getRemoteAddr() + '-' + ctx.getLocalAETitle() + '-' + ctx.getStudyInstanceUIDs()[0]);
+                AggregationType.WADO_ + req.getRemoteAddr() + '-' + ctx.getLocalAETitle() + '-' + ctx.getStudyInstanceUIDs()[0]);
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -336,12 +344,7 @@ public class AuditService {
     }
 
     public void aggregateAuditMessage(Path path) {
-        String file = path.getFileName().toString();
-        String eventType = AggregationType.none.toString();
-        if (file.substring(0, 8).equals(AggregationType.retrieve.toString()))
-            eventType = AggregationType.retrieve.toString();
-        if (file.substring(0, 8).equals(AggregationType.store___.toString()))
-            eventType = AggregationType.store___.toString();
+        AggregationType eventType = AggregationType.fromFile(path);
         String outcome = success;
         PatientStudyInfo patientStudyInfo;
         HashSet<String> accNos = new HashSet<>();
