@@ -97,16 +97,57 @@ public class AuditService {
         STORE_U_P_(AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination),
         STORE_U_E_(AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination);
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination),
 
+        BEGIN__M_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true),
+        BEGIN__M_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true),
+        BEGIN__G_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false),
+        BEGIN__G_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false),
+        BEGIN__E_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false),
+        BEGIN__E_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false),
+        TRF_MOVE_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true),
+        TRF_MOVE_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true),
+        TRF__GET_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false),
+        TRF__GET_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false),
+        TRF_EXPT_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false),
+        TRF_EXPT_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false);
+
+        AuditMessages.EventID eventID;
         final String eventActionCode;
-        final String outcome;
+        final String outcomeIndicator;
         final AuditMessages.RoleIDCode source;
         final AuditMessages.RoleIDCode destination;
+        boolean isSource;
+        boolean isDest;
+        boolean isOther;
+
+        AggregationType(AuditMessages.EventID eventID, String eventActionCode, String outcome, AuditMessages.RoleIDCode source,
+                        AuditMessages.RoleIDCode destination, boolean isSource, boolean isDest, boolean isOther) {
+            this.eventID = eventID;
+            this.eventActionCode = eventActionCode;
+            this.outcomeIndicator = outcome;
+            this.source = source;
+            this.destination = destination;
+            this.isSource = isSource;
+            this.isDest = isDest;
+            this.isOther = isOther;
+        }
 
         AggregationType(String eventActionCode, String outcome, AuditMessages.RoleIDCode source, AuditMessages.RoleIDCode destination) {
             this.eventActionCode = eventActionCode;
-            this.outcome = outcome;
+            this.outcomeIndicator = outcome;
             this.source = source;
             this.destination = destination;
         }
@@ -123,8 +164,48 @@ public class AuditService {
             return ctx.getException() != null
                     ? ctx.getPreviousInstance() != null ? STORE_U_E_ : STORE_C_E_
                     : ctx.getLocation() != null
-                        ? ctx.getPreviousInstance() != null ? STORE_U_P_ : STORE_C_P_
-                        : null;
+                    ? ctx.getPreviousInstance() != null ? STORE_U_P_ : STORE_C_P_
+                    : null;
+        }
+
+        static AggregationType forBegin(RetrieveContext ctx) {
+            AggregationType at = null;
+            if (ctx.getException() != null) {
+                if (ctx.isLocalRequestor())
+                    at = BEGIN__E_E;
+                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
+                    at = BEGIN__M_E;
+                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
+                    at = BEGIN__G_E;
+            } else {
+                if (ctx.isLocalRequestor())
+                    at = BEGIN__E_P;
+                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
+                    at = BEGIN__M_P;
+                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
+                    at = BEGIN__G_P;
+            }
+            return at;
+        }
+
+        static AggregationType forDicomInstTransferred(RetrieveContext ctx) {
+            AggregationType at = null;
+            if (ctx.getException() != null) {
+                if (ctx.isLocalRequestor())
+                    at = TRF_EXPT_E;
+                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
+                    at = TRF_MOVE_E;
+                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
+                    at = TRF__GET_E;
+            } else {
+                if (ctx.isLocalRequestor())
+                    at = TRF_EXPT_P;
+                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
+                    at = TRF_MOVE_P;
+                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
+                    at = TRF__GET_P;
+            }
+            return at;
         }
     }
 
@@ -166,13 +247,13 @@ public class AuditService {
     }
 
     public void auditInstancesStoredOrWADORetrieve(PatientStudyInfo patientStudyInfo, HashSet<String> accNos,
-                                     HashSet<String> mppsUIDs, HashMap<String, List<String>> sopClassMap,
-                                     Calendar eventTime, AggregationType eventType, String outcomeDesc) {
+                                                   HashSet<String> mppsUIDs, HashMap<String, List<String>> sopClassMap,
+                                                   Calendar eventTime, AggregationType eventType, String outcomeDesc) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         msg.setEventIdentification(AuditMessages.createEventIdentification(
                 AuditMessages.EventID.DICOMInstancesTransferred, eventType.eventActionCode, eventTime,
-                eventType.outcome, outcomeDesc));
+                eventType.outcomeIndicator, outcomeDesc));
         msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
                 patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
                 AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLING_AET)),
@@ -440,92 +521,103 @@ public class AuditService {
         emitAuditMessage(timestamp, msg);
     }
 
-    public void auditDICOMInstancesTransfer(RetrieveContext ctx, AuditMessages.EventID eventID, Exception e) {
-        Calendar timestamp = log().timeStamp();
-        AuditMessage msg = new AuditMessage();
-        String eac, eoi, eod = null;
-        if (null != e) {
-            eac = AuditMessages.EventActionCode.Execute;
-            eoi = AuditMessages.EventOutcomeIndicator.MinorFailure;
-            if (ctx.isLocalRequestor())
-                eod = "Failed on Export Forwarding : " + e.getMessage();
-            if (null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                    && ctx.getRequestAssociation() == ctx.getStoreAssociation())
-                eod = "C-GET Failed : " + e.getMessage();
-            if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                eod = "C-MOVE Failed : " + e.getMessage();
-        }
-        else {
-            eac = AuditMessages.EventActionCode.Execute;
-            eoi = AuditMessages.EventOutcomeIndicator.Success;
-            if (eventID.equals(AuditMessages.EventID.BeginTransferringDICOMInstances))
-                eac = AuditMessages.EventActionCode.Execute;
-            if (eventID.equals(AuditMessages.EventID.DICOMInstancesTransferred))
-                eac = AuditMessages.EventActionCode.Read;
-        }
-        msg.setEventIdentification(AuditMessages.createEventIdentification(eventID, eac, timestamp, eoi, eod));
-        boolean sender = false;
-        boolean receiver = false;
-        if (ctx.isLocalRequestor())
-            sender = true;
-        msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                ctx.getLocalApplicationEntity().getDevice().getDeviceName(),
-                AuditMessages.alternativeUserIDForAETitle(ctx.getLocalAETitle()), null, sender,
-                ctx.getLocalApplicationEntity().getDevice().getDeviceName(),
-                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Source));
-        if (null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                && ctx.getRequestAssociation().equals(ctx.getStoreAssociation()))
-            receiver = true;
-        if (null != ctx.getDestinationHostName())
-            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                ctx.getDestinationHostName(), AuditMessages.alternativeUserIDForAETitle(ctx.getDestinationAETitle()),
-                    null, receiver, ctx.getDestinationAETitle(), AuditMessages.NetworkAccessPointTypeCode.IPAddress,
-                    null, AuditMessages.RoleIDCode.Destination));
-        else
-            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    ctx.getDestinationAETitle(), AuditMessages.alternativeUserIDForAETitle(ctx.getDestinationAETitle()),
-                    null, receiver, null, null, null, AuditMessages.RoleIDCode.Destination));
-        if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor()) {
-            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    ctx.getRequestorHostName(), AuditMessages.alternativeUserIDForAETitle(ctx.getMoveOriginatorAETitle()),
-                    null, true, ctx.getRequestorHostName(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
-        }
-        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
-        String pID = "<none>";
-        String pName = null;
-        HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
-        for (InstanceLocations il : ctx.getMatches()) {
-            Attributes attrs = il.getAttributes();
-            String studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
-            AccessionNumSopClassInfo accessionNumSopClassInfo = study_accNumSOPClassInfo.get(studyInstanceUID);
-            if (accessionNumSopClassInfo == null) {
-                accessionNumSopClassInfo = new AccessionNumSopClassInfo(attrs.getString(Tag.AccessionNumber));
-                study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfo);
+    public void auditRetrieve(RetrieveContext ctx, AggregationType at) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        boolean auditAggregate = arcDev.isAuditAggregate();
+        Path dir = Paths.get(
+                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
+        Path file = dir.resolve(at.toString());
+        boolean append = Files.exists(file);
+        try {
+            if (!append)
+                Files.createDirectories(dir);
+            try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
+                if (!append) {
+                    writer.write(new RetrieveInfo(ctx).toString());
+                    writer.newLine();
+                    for (InstanceLocations il : ctx.getMatches()) {
+                        Attributes attrs = il.getAttributes();
+                        writer.write(new RetrieveStudyInfo(attrs).toString());
+                        writer.newLine();
+                    }
+                }
             }
-            accessionNumSopClassInfo.addSOPInstance(attrs);
-            study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfo);
-            pID = attrs.getString(Tag.PatientID, pID);
-            pName = attrs.getString(Tag.PatientName);
+            auditRetrieveInfo(file);
+        } catch (IOException e) {
+            LOG.warn("Failed write to Audit Spool File - {} ", file, e);
         }
-        HashSet<Accession> acc = new HashSet<>();
-        HashSet<SOPClass> sopC = new HashSet<>();
-        for (Map.Entry<String, AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
-            if (null != entry.getValue().getAccNum())
-                acc.add(AuditMessages.createAccession(entry.getValue().getAccNum()));
-        for (Map.Entry<String, HashSet<String>> sopClassMap : entry.getValue().getSopClassMap().entrySet())
-            sopC.add(AuditMessages.createSOPClass(sopClassMap.getKey(), sopClassMap.getValue().size()));
-        ParticipantObjectContainsStudy pocs = new ParticipantObjectContainsStudy();
-        pocs.getStudyIDs().add(AuditMessages.createStudyIDs(entry.getKey()));
-        msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
-                entry.getKey(), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID, null, null,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Report, null, null, null, acc, null, sopC, null, null, pocs));
+        try {
+            Files.delete(file);
+        } catch (IOException e) {
+            LOG.warn("Failed to delete Audit Spool File - {}", file, e);
         }
-        msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
-                pID, AuditMessages.ParticipantObjectIDTypeCode.PatientNumber, pName, null,
-                AuditMessages.ParticipantObjectTypeCode.Person,
-                AuditMessages.ParticipantObjectTypeCodeRole.Patient, null, null, null, null, null, null, null, null, null));
-        emitAuditMessage(timestamp, msg);
+    }
+
+    private void auditRetrieveInfo(Path file) {
+        AggregationType eventType = AggregationType.fromFile(file);
+        Calendar eventTime = log().timeStamp();
+        try {
+            eventTime.setTimeInMillis(Files.getLastModifiedTime(file).toMillis());
+        } catch (IOException e) {
+            LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", file, e);
+        }
+        AuditMessage msg = new AuditMessage();
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            RetrieveInfo ri = new RetrieveInfo(reader.readLine());
+            msg.setEventIdentification(AuditMessages.createEventIdentification(eventType.eventID, eventType.eventActionCode,
+                    eventTime, eventType.outcomeIndicator, ri.getField(RetrieveInfo.OUTCOME)));
+            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
+                    ri.getField(RetrieveInfo.LOCALHOST), AuditMessages.alternativeUserIDForAETitle(ri.getField(RetrieveInfo.LOCALAET)),
+                    null, eventType.isSource, null, null, null, eventType.source));
+            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.DESTHOST),
+                    AuditMessages.alternativeUserIDForAETitle(ri.getField(RetrieveInfo.DESTAET)), null, eventType.isDest,
+                    ri.getField(RetrieveInfo.DESTNAPID), ri.getField(RetrieveInfo.DESTNAPCODE), null, eventType.destination));
+            if (eventType.isOther)
+                msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.REQUESTORHOST),
+                        AuditMessages.alternativeUserIDForAETitle(ri.getField(RetrieveInfo.MOVEAET)), null, eventType.isOther,
+                        ri.getField(RetrieveInfo.REQUESTORHOST), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
+            msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
+            String line;
+            HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
+            String pID = "<none>";
+            String pName = null;
+            while ((line = reader.readLine()) != null) {
+                RetrieveStudyInfo rInfo = new RetrieveStudyInfo(line);
+                String studyInstanceUID = rInfo.getField(RetrieveStudyInfo.STUDYUID);
+                AccessionNumSopClassInfo accessionNumSopClassInfo = study_accNumSOPClassInfo.get(studyInstanceUID);
+                if (accessionNumSopClassInfo == null) {
+                    accessionNumSopClassInfo = new AccessionNumSopClassInfo(rInfo.getField(RetrieveStudyInfo.ACCESSION));
+                    study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfo);
+                }
+                accessionNumSopClassInfo.addSOPInstance(rInfo);
+                study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfo);
+                pID = rInfo.getField(RetrieveStudyInfo.PATIENTID);
+                pName = rInfo.getField(RetrieveStudyInfo.PATIENTNAME);
+            }
+            HashSet<Accession> acc = new HashSet<>();
+            HashSet<SOPClass> sopC = new HashSet<>();
+            for (Map.Entry<String, AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
+                if (null != entry.getValue().getAccNum())
+                    acc.add(AuditMessages.createAccession(entry.getValue().getAccNum()));
+                for (Map.Entry<String, HashSet<String>> sopClassMap : entry.getValue().getSopClassMap().entrySet())
+                    sopC.add(AuditMessages.createSOPClass(sopClassMap.getKey(), sopClassMap.getValue().size()));
+                ParticipantObjectContainsStudy pocs = new ParticipantObjectContainsStudy();
+                pocs.getStudyIDs().add(AuditMessages.createStudyIDs(entry.getKey()));
+                msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
+                        entry.getKey(), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID, null, null,
+                        AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                        AuditMessages.ParticipantObjectTypeCodeRole.Report, null, null, null, acc, null, sopC, null, null, pocs));
+            }
+            msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
+                    pID, AuditMessages.ParticipantObjectIDTypeCode.PatientNumber, pName, null,
+                    AuditMessages.ParticipantObjectTypeCode.Person,
+                    AuditMessages.ParticipantObjectTypeCodeRole.Patient, null, null, null, null, null, null, null, null, null));
+        } catch (Exception e) {
+            LOG.warn("Failed to read Audit Spool File - {} ", file, e);
+            return;
+        }
+        emitAuditMessage(log().timeStamp(), msg);
     }
 
     private static class PatientStudyInfo {
@@ -655,14 +747,91 @@ public class AuditService {
         public HashMap<String, HashSet<String>> getSopClassMap() {
             return sopClassMap;
         }
-        public void addSOPInstance(Attributes attrs) {
-            String cuid = attrs.getString(Tag.SOPClassUID);
+        public void addSOPInstance(RetrieveStudyInfo rInfo) {
+            String cuid = rInfo.getField(RetrieveStudyInfo.SOPCLASSUID);
             HashSet<String> iuids = sopClassMap.get(cuid);
             if (iuids == null) {
                 iuids = new HashSet<>();
                 sopClassMap.put(cuid, iuids);
             }
-            iuids.add(attrs.getString(Tag.SOPInstanceUID));
+            iuids.add(rInfo.getField(RetrieveStudyInfo.SOPINSTANCEUID));
         }
     }
+
+    private static class RetrieveStudyInfo {
+        public static final int STUDYUID = 0;
+        public static final int ACCESSION = 1;
+        public static final int SOPCLASSUID = 2;
+        public static final int SOPINSTANCEUID = 3;
+        public static final int PATIENTID = 4;
+        public static final int PATIENTNAME = 5;
+
+        private final String[] fields;
+        public RetrieveStudyInfo(Attributes attrs) {
+            fields = new String[] {
+                    attrs.getString(Tag.StudyInstanceUID),
+                    attrs.getString(Tag.AccessionNumber),
+                    attrs.getString(Tag.SOPClassUID),
+                    attrs.getString(Tag.SOPInstanceUID),
+                    attrs.getString(Tag.PatientID, "<none>"),
+                    attrs.getString(Tag.PatientName, "<none>")
+            };
+        }
+        public RetrieveStudyInfo(String s) {
+            fields = StringUtils.split(s, '\\');
+        }
+        public String getField(int field) {
+            return fields[field];
+        }
+        @Override
+        public String toString() {
+            return StringUtils.concat(fields, '\\');
+        }
+    }
+
+    private static class RetrieveInfo {
+        public static final int LOCALHOST = 0;
+        public static final int LOCALAET = 1;
+        public static final int DESTHOST = 2;
+        public static final int DESTAET = 3;
+        public static final int DESTNAPID = 4;
+        public static final int DESTNAPCODE = 5;
+        public static final int REQUESTORHOST = 6;
+        public static final int MOVEAET = 7;
+        public static final int OUTCOME = 8;
+
+        private final String[] fields;
+
+        public RetrieveInfo(RetrieveContext ctx) {
+            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage() : success;
+            String destHost = (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : ctx.getDestinationAETitle();
+            String destNapID = (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null;
+            String destNapCode = (null != ctx.getDestinationHostName()) ? AuditMessages.NetworkAccessPointTypeCode.IPAddress : null;
+            fields = new String[] {
+                    ctx.getLocalApplicationEntity().getDevice().getDeviceName(),
+                    ctx.getLocalAETitle(),
+                    destHost,
+                    ctx.getDestinationAETitle(),
+                    destNapID,
+                    destNapCode,
+                    ctx.getRequestorHostName(),
+                    ctx.getMoveOriginatorAETitle(),
+                    outcome
+            };
+        }
+
+        public RetrieveInfo(String s) {
+            fields = StringUtils.split(s, '\\');
+        }
+
+        public String getField(int field) {
+            return fields[field];
+        }
+
+        @Override
+        public String toString() {
+            return StringUtils.concat(fields, '\\');
+        }
+    }
+
 }
