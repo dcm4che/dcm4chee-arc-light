@@ -294,7 +294,7 @@ public class AuditService {
         AggregationType aggregationType = AggregationType.forInstanceStored(ctx);
         if (aggregationType == null)
             return; // no audit message for duplicate received instance
-        
+
         StoreSession session = ctx.getStoreSession();
         Attributes attrs = ctx.getAttributes();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
