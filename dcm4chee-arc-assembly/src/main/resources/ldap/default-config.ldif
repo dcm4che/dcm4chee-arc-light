@@ -1,22 +1,22 @@
 version: 1
 
-dn: dicomDeviceName=syslog,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
-dicomDeviceName: syslog
+dicomDeviceName: logstash
 objectClass: dicomDevice
 objectClass: dcmDevice
 
-dn: cn=audit-udp,dicomDeviceName=syslog,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
 dicomPort: 514
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dcmProtocol: SYSLOG_UDP
-cn: audit-udp
+cn: syslog
 
-dn: cn=Audit Record Repository,dicomDeviceName=syslog,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: cn=Audit Record Repository,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmAuditRecordRepository
-dicomNetworkConnectionReference: cn=audit-udp,dicomDeviceName=syslog,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Record Repository
 
 dn: dicomAETitle=DCM4CHEE,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -97,19 +97,19 @@ dcmProtocol: HL7
 dcmClientBindAddress: 0.0.0.0
 cn: hl7
 
-dn: cn=audit-udp,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dcmProtocol: SYSLOG_UDP
 dcmClientBindAddress: 0.0.0.0
-cn: audit-udp
+cn: syslog
 
 dn: cn=Audit Logger,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAuditSourceTypeCode: 4
-dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=syslog,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmAuditLogger
-dicomNetworkConnectionReference: cn=audit-udp,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAuditMessageSchemaURI: http://www.dcm4che.org/DICOM/audit-message.rnc
 cn: Audit Logger
 

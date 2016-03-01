@@ -110,7 +110,7 @@ public class ArchiveDeviceConfigurationTest {
                         ArchiveDeviceFactory.PIX_MANAGER,
                         "localhost", 2576, 12576)));
         }
-        Device arrDevice = ArchiveDeviceFactory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
+        Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514);
         config.persist(arrDevice);
         config.registerAETitle("DCM4CHEE");
 
@@ -149,7 +149,7 @@ public class ArchiveDeviceConfigurationTest {
             config.removeDevice("dcm4chee-arc");
         } catch (ConfigurationNotFoundException e) {}
         try {
-            config.removeDevice("syslog");
+            config.removeDevice("logstash");
         } catch (ConfigurationNotFoundException e) {}
         try {
             config.removeDevice("hl7rcv");

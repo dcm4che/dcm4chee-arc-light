@@ -78,7 +78,7 @@ public class ArchiveDeviceJsonConfigurationTest {
 
     @Test
     public void testJsonPersist() throws Exception {
-        Device arrDevice = ArchiveDeviceFactory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
+        Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514);
         Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice,
                 ArchiveDeviceFactory.ConfigType.TEST);
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
@@ -97,9 +97,9 @@ public class ArchiveDeviceJsonConfigurationTest {
     private final ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
         public Device findDevice(String name) throws ConfigurationException {
-            if (!name.equals("syslog"))
+            if (!name.equals("logstash"))
                 throw new ConfigurationNotFoundException("Unknown Device: " + name);
-            return ArchiveDeviceFactory.createARRDevice("syslog", Connection.Protocol.SYSLOG_UDP, 514);
+            return ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514);
         }
     };
 }
