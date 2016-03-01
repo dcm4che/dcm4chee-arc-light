@@ -84,7 +84,7 @@ public class AuditTriggerObserver {
                 return;
         }
         HttpServletRequest request = event.getRequest();
-        auditService.collateApplicationActivity(et, request);
+        auditService.auditApplicationActivity(et, request);
     }
 
     public void onStore(@Observes StoreContext ctx) {

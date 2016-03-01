@@ -227,9 +227,6 @@ public class AuditService {
         EventType eventType = EventType.fromFile(path);
         String triggerType = String.valueOf(eventType).substring(0, 5);
         switch (triggerType) {
-            case "APPLN":
-                auditApplicationActivity(path, eventType);
-                break;
             case "CONN_":
                 auditConnectionRejected(path, eventType);
                 break;
@@ -267,37 +264,7 @@ public class AuditService {
         }
     }
 
-    public void collateApplicationActivity(EventType et, HttpServletRequest request) {
-        Calendar timestamp = log().timeStamp();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        Path file = dir.resolve(String.valueOf(et));
-        boolean append = Files.exists(file);
-        try {
-            if (!append)
-                Files.createDirectories(dir);
-            try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
-                if (!append) {
-                    if (request != null) {
-                        writer.write(new ApplicationActivityInfo(request).toString());
-                        writer.newLine();
-                    } else {
-                        writer.write(new ApplicationActivityInfo().toString());
-                        writer.newLine();
-                    }
-                }
-            }
-            if (!auditAggregate)
-                aggregateAuditMessage(file);
-
-        } catch (IOException e) {
-            LOG.warn("Failed to write to Audit Spool File - {} ", file, e);
-        }
-    }
-    private void auditApplicationActivity(Path file, EventType eventType) {
+    public void auditApplicationActivity(EventType eventType, HttpServletRequest req) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         msg.setEventIdentification(AuditMessages.createEventIdentification(
@@ -308,25 +275,17 @@ public class AuditService {
                         device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()])),
                 null, false, device.getDeviceName(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
                 AuditMessages.RoleIDCode.Application));
-        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            ApplicationActivityInfo applnActivityInfo = new ApplicationActivityInfo(reader.readLine());
-            if (!applnActivityInfo.getField(ApplicationActivityInfo.REMOTEADDR).equals("none"))
-                msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                        applnActivityInfo.getField(ApplicationActivityInfo.REMOTEUSER), null, null, true,
-                        applnActivityInfo.getField(ApplicationActivityInfo.REMOTEADDR),
-                        AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
-                        AuditMessages.RoleIDCode.ApplicationLauncher));
-        } catch (Exception e) {
-            LOG.warn("Failed to read Audit Spool File - {} ", file, e);
-            return;
+        if (req != null) {
+            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
+                    req.getRemoteUser() != null ? req.getRemoteUser() : req.getRemoteAddr(), null, null, true,
+                    req.getRemoteAddr(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
+                    AuditMessages.RoleIDCode.ApplicationLauncher));
         }
         msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
         emitAuditMessage(timestamp, msg);
-        deleteFile(file);
     }
 
     public void collateInstancesDeleted(StoreContext ctx) {
-        Calendar timestamp = log().timeStamp();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -416,7 +375,6 @@ public class AuditService {
     }
 
     public void collateConnectionRejected(Socket s, Throwable e) {
-        Calendar timestamp = log().timeStamp();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -662,7 +620,6 @@ public class AuditService {
     }
 
     public void collateRetrieve(RetrieveContext ctx, EventType et) {
-        Calendar timestamp = log().timeStamp();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -1035,37 +992,6 @@ public class AuditService {
         }
     }
 
-    private static class ApplicationActivityInfo {
-        public static final int REMOTEUSER = 0;
-        public static final int REMOTEADDR = 1;
-        private final String[] fields;
-
-        public ApplicationActivityInfo(HttpServletRequest req) {
-            String remoteUser = (req.getRemoteUser()!= null) ? req.getRemoteUser() : req.getRemoteAddr();
-            fields = new String[] {
-                  remoteUser,
-                  req.getRemoteAddr()
-            };
-        }
-
-        public ApplicationActivityInfo() {
-            fields = new String[] {
-                    "none",
-                    "none"
-            };
-        }
-
-        public ApplicationActivityInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-        public String getField(int field) {
-            return fields[field];
-        }
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
 
     private static class ConnectionRejectedInfo {
         public static final int REMOTE_ADDR = 0;
