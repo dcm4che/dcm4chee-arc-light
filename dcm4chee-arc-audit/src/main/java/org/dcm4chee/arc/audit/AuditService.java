@@ -108,7 +108,7 @@ public class AuditService {
         BEGIN__E_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
         BEGIN__E_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
         TRF__MVE_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
         TRF__MVE_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
@@ -291,18 +291,16 @@ public class AuditService {
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
         EventType et = (ctx.getException() != null) ? EventType.DELETE_ERR : EventType.DELETE_PAS;
-        Path file = dir.resolve(String.valueOf(et));
         Attributes attrs = ctx.getAttributes();
-        boolean append = Files.exists(file);
         try {
+            Path file = Files.createTempFile(dir, String.valueOf(et), null);
+            boolean append = Files.exists(file);
             if (!append)
                 Files.createDirectories(dir);
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
-                if (!append) {
-                    writer.write(new DeleteInfo(ctx).toString());
-                    writer.newLine();
-                }
+                    StandardOpenOption.APPEND)) {
+                writer.write(new DeleteInfo(ctx).toString());
+                writer.newLine();
                 HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
                 for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
                     for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
@@ -325,7 +323,7 @@ public class AuditService {
             if (!auditAggregate)
                 aggregateAuditMessage(file);
         } catch (IOException e) {
-            LOG.warn("Failed to write to Audit Spool File - {} ", file, e);
+            LOG.warn("Failed to write to Audit Spool File - {} ", e);
         }
     }
 
@@ -379,23 +377,21 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        Path file = dir.resolve(String.valueOf(EventType.CONN__RJCT));
-        boolean append = Files.exists(file);
         try {
+            Path file = Files.createTempFile(dir, String.valueOf(EventType.CONN__RJCT), null);
+            boolean append = Files.exists(file);
             if (!append)
                 Files.createDirectories(dir);
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
-                if (!append) {
-                    writer.write(new ConnectionRejectedInfo(s, e).toString());
-                    writer.newLine();
-                }
+                    StandardOpenOption.APPEND)) {
+                writer.write(new ConnectionRejectedInfo(s, e).toString());
+                writer.newLine();
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
 
         } catch (Exception ex) {
-            LOG.warn("Failed to write to Audit Spool File - {} ", file, ex);
+            LOG.warn("Failed to write to Audit Spool File - {} ", ex);
         }
     }
 
@@ -624,27 +620,25 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        Path file = dir.resolve(String.valueOf(et));
-        boolean append = Files.exists(file);
         try {
+            Path file = Files.createTempFile(dir, String.valueOf(et), null);
+            boolean append = Files.exists(file);
             if (!append)
                 Files.createDirectories(dir);
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
-                if (!append) {
-                    writer.write(new RetrieveInfo(ctx).toString());
+                    StandardOpenOption.APPEND)) {
+                writer.write(new RetrieveInfo(ctx).toString());
+                writer.newLine();
+                for (InstanceLocations il : ctx.getMatches()) {
+                    Attributes attrs = il.getAttributes();
+                    writer.write(new RetrieveStudyInfo(attrs).toString());
                     writer.newLine();
-                    for (InstanceLocations il : ctx.getMatches()) {
-                        Attributes attrs = il.getAttributes();
-                        writer.write(new RetrieveStudyInfo(attrs).toString());
-                        writer.newLine();
-                    }
                 }
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
         } catch (IOException e) {
-            LOG.warn("Failed write to Audit Spool File - {} ", file, e);
+            LOG.warn("Failed write to Audit Spool File - {} ", e);
         }
     }
 
@@ -930,11 +924,10 @@ public class AuditService {
         public static final int LOCALAET = 1;
         public static final int REMOTEHOST = 2;
         public static final int REMOTEAET = 3;
-        public static final int REMOTENAPID = 4;
-        public static final int STUDYUID = 5;
-        public static final int PATIENTID = 6;
-        public static final int PATIENTNAME = 7;
-        public static final int OUTCOME = 8;
+        public static final int STUDYUID = 4;
+        public static final int PATIENTID = 5;
+        public static final int PATIENTNAME = 6;
+        public static final int OUTCOME = 7;
 
         private final String[] fields;
 
@@ -947,7 +940,6 @@ public class AuditService {
                     ctx.getStoreSession().getCalledAET(),
                     ctx.getStoreSession().getRemoteHostName(),
                     ctx.getStoreSession().getCallingAET(),
-                    ctx.getStoreSession().getRemoteHostName(),
                     ctx.getStudyInstanceUID(),
                     ctx.getAttributes().getString(Tag.PatientID, "<none>"),
                     ctx.getAttributes().getString(Tag.PatientID, "<none>"),
