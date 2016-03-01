@@ -1,30 +1,36 @@
 myApp.constant("$select", 
-  [
-      {
+  {
+      "dicomNetworkConnection":{
         "title" : "Network Connection",
-        "partName" : "dicomNetworkConnection",
-        "model" : "dicomNetworkConnection",
         "optionRef" : "dicomNetworkConnection",
         "optionValue": "cn"
       
       },
-      {
+      "dicomNetworkAE":{
         "title" : "Network AE",
-        "partName" : "dicomNetworkAE",
-        "model" : "dicomNetworkAE",
         "optionRef" : "dicomNetworkAE",
         "optionValue": "dicomAETitle"
 
       },
-      {
+      "dicomTransferCapability":{
         "title" : "Transfer Capability",
-        "partName" : "dicomTransferCapability",
-        "model" : "dicomTransferCapability",
         "optionRef" : "dicomNetworkAE.dicomTransferCapability",
         "optionValue": "cn"
       
+      },
+      "hl7Application":{
+        "title" : "HL7 Applications",
+        "optionRef" : "hl7Application",
+        "optionValue": "hl7ApplicationName"
+      
+      },
+      "dcmImageWriter":{
+        "title" : "Image Writers",
+        "optionRef" : "dcmImageWriter",
+        "optionValue": "dicomTransferSyntax"
+      
       }
-    ]
+    }
 );
 myApp.constant("$schema",
 {

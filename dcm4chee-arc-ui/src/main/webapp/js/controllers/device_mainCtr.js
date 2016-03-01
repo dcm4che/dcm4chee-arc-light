@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, testConstant, $select) {
+myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, schemas, $select) {
 
     $scope.activeMenu             = "device_menu";
     $scope.showSave               = false;
@@ -17,7 +17,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.selectedPart           = {};
     $scope.selectObject           = $select;
 
-    // var testConstant = {};
+    // var schemas = {};
     setTimeout(function(){
       $scope.$apply(function(){
         $scope.activeMenu             = "";
@@ -52,10 +52,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         url: 'schema/device.schema.json'
         // url: '../devices'
     }).then(function successCallback(response) {
-        $log.debug("before testConstant=",testConstant);
+        $log.debug("before schemas=",schemas);
         $log.debug("new schemas=",response.data);
-        testConstant.data = response.data;
-        $log.debug("after testConstant=",testConstant);
+        schemas.device = response.data;
+        $log.debug("after schemas=",schemas);
     }, function errorCallback(response) {
         $log.error("Error loading device names", response);
         vex.dialog.alert("Error loading device names, please reload the page and try again!");
@@ -73,13 +73,21 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }
     });
     $scope.changeElement = function(element){
-              cfpLoadingBar.start();
+            $log.debug("in changElement, element=",element);
+            $log.debug("$scope.selectedPart.dicomNetworkConnection=",$scope.selectedPart.dicomNetworkConnection);
+            $log.debug("$scope.validForm=",$scope.validForm);
+            var checkDevice = element === "device";
+            angular.forEach($select, function(m, j){
+              $log.debug("element=",element,"$scope.selectedPart[j]",$scope.selectedPart[j]);
+              if(element === j && $scope.selectedPart[j]  != undefined ){
+                checkDevice = true;
+              }
+            });
+
+            cfpLoadingBar.start();
               if(
                   (
-                      element === "device"        ||
-                      element === "dicomNetworkConnection"    && $scope.selectedPart.dicomNetworkConnection  != undefined ||
-                      element === "dicomNetworkAE"     && $scope.selectedPart.dicomNetworkAE               != undefined ||
-                      element === 'dicomTransferCapability'  && $scope.selectedPart.dicomTransferCapability               != undefined
+                      checkDevice
                   ) 
                     &&
                   (
@@ -87,24 +95,25 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       $scope.devicename === "CHANGE_ME"
                   )&&
                       $scope.validForm
-              ) {
+              ){
                   cfpLoadingBar.start();
                   if(element === 'dicomNetworkAE'){
                     $scope.selectedPart.dicomTransferCapability  = null;
                     //$scope.transfareCapModel  = {};
                   }
+                  $log.debug("selectedElement=",$scope.selectedElement);
                   $scope.selectedElement  = element;
                   $scope.lastBorder       = "active_border";
                   $scope.showSave         = true;
               }
-              if ($scope.selectedPart.dicomNetworkAE != undefined && !$scope.selectedPart.dicomTransferCapability && $scope.devicename === "CHANGE_ME") {
-                  DeviceService
-                  .addDirectiveToDom(
-                      $scope, 
-                      "SelectDicomTransferCapability",
-                      "<div select-transfare-capability></div>"
-                  );
-              }
+              // if ($scope.selectedPart.dicomNetworkAE != undefined && !$scope.selectedPart.dicomTransferCapability && $scope.devicename === "CHANGE_ME") {
+              //     DeviceService
+              //     .addDirectiveToDom(
+              //         $scope, 
+              //         "SelectDicomTransferCapability",
+              //         "<div select-transfare-capability></div>"
+              //     );
+              // }
               if($scope.devicename === "CHANGE_ME"){
                   // $timeout(function() {
                     DeviceService
@@ -119,15 +128,21 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
                 $scope.networkAeForm = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
               }  
+              $log.debug("selectedElement2=",$scope.selectedElement);
             cfpLoadingBar.complete();
     };
     $scope.selectElement = function(element) {
+        var checkDevice = element === "device";
+        angular.forEach($select, function(m, j){
+            $log.debug("element=",element,"$scope.selectedPart[j]",$scope.selectedPart[j]);
+            if(element === j && $scope.selectedPart[j]  != undefined ){
+              checkDevice = true;
+            }
+        });
+        
         if(
             (
-                element === "device"        ||
-                element === "dicomNetworkConnection"    && $scope.selectedPart.dicomNetworkConnection  != undefined ||
-                element === "dicomNetworkAE"     && $scope.selectedPart.dicomNetworkAE               != undefined ||
-                element === 'dicomTransferCapability'  && $scope.selectedPart.dicomTransferCapability               != undefined
+              checkDevice
             ) 
               &&
             (
@@ -649,7 +664,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.lastBorder       = "";
                 $scope.deviceModel      = {};
                 $scope.wholeDevice      = {};
-                $scope.validForm        = true;
                 $scope.showSave         = false;
                 angular.element(document.getElementById("add_dropdowns")).html("");
                 angular.element(document.getElementById("add_edit_area")).html("");
@@ -706,6 +720,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 break;
         }
         $scope.selectedElement  = "device";
+        $scope.validForm        = true;
         // $scope.activeMenu       = "";
         $scope.showCancel       = false;
         // $scope.showSave         = false;
@@ -797,16 +812,20 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         return false;
       }
     };
-    $scope.splitStringToObject = function(value){
-      console.log("in pslitStringObject, value=",value);
+    $scope.splitStringToObject = function(value,key){
+      // console.log("in pslitStringObject, value=",value);
       // console.log("scope=",$scope.wholeDevice);
 
       $scope.selectModel = $scope.selectModel || {};
+      // console.log("in pslitStringObject, $scope.selectModel=",$scope.selectModel);
+      // console.log("in pslitStringObject, $scope.selectModel=",$scope.selectModel);
       if(angular.isDefined($scope.wholeDevice)){
+        // console.log("in if value.optionRef",value.optionRef);
+        // console.log("in if value.optionRef.indexOf",value.optionRef.indexOf("."));
         if(value.optionRef.indexOf(".")>-1){
-          //TODO convert dotted string to json object reference
+          DeviceService.getObjectFromString($scope, value, key);
         }else{
-          $scope.selectModel[value.model] = $scope.wholeDevice[value.optionRef];
+          $scope.selectModel[key] = $scope.wholeDevice[value.optionRef];
         }
         // $scope.selectModel[value.model] = DeviceService.getDescendantProp($scope.wholeDevice, value.optionRef);
         // DeviceService.getDescendantProp($scope.wholeDevice,value.optionRef);

@@ -81,31 +81,15 @@ myApp.filter("attributeNameOf", function() {
     };
 });
 
-myApp.filter("testFilter", function(){
+myApp.filter("testFilter", function($filter){
     return function(object, selectedElement, selectedPart){
-        var localObject = object.slice();
-/*        console.log("in filter:");
-        console.log("object=",object);
-        console.log("selectedPart=",selectedPart);
-        console.log("selectedElement=",selectedElement);*/
-        angular.forEach(localObject, function(m, i){
-            console.log("filter foreach m=",m,"i=",i);
-            if(m.partName === "dicomTransferCapability"){
-                if(selectedPart.dicomNetworkAE){
-                    console.log("fitler in if optionRef=",m.optionRef);
-                    // if(m.partName === "dicomTransferCapability"){
-                        
-                    // }
-
-
-                }else{
-                    console.log("fitler in else m.partName=",m.partName);
-                        localObject.splice(i, 1);
-                        console.log("element removed",localObject);
-                }
+        var localObject = {};
+        angular.forEach(object, function(m, i){
+            if(i != "dicomTransferCapability" || (selectedPart && selectedPart.dicomNetworkAE)){
+                // localObject.push(m);
+                localObject[i]=m;
             }
         });
-
         return localObject;
     };
 });

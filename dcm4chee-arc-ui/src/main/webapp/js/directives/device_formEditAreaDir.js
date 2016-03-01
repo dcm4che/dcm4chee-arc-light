@@ -1,12 +1,52 @@
 "use strict";
 
-myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService, $compile){
+myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService, $compile, schemas){
 	return{
 		restrict:"A",
 		templateUrl: 'templates/device_form.html',
 		link: function(scope,elm,attr) {
     		// cfpLoadingBar.start();
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
+            scope.form = scope.form || {};
+            scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
+            $log.debug("scope.form=",scope.form);
+
+            if(scope.selectedElement === "device"){
+
+            }else{
+                console.log("in directive schema=",DeviceService.getSchema(scope.selectedElement));
+                // console.log("schemas",schemas, "scope.form=",scope.form,",schemas[scope.selectedElement]=",schemas[scope.selectedElement][scope.selectedElement]["items"]);
+                scope.form[scope.selectedElement]["schema"] = schemas[scope.selectedElement][scope.selectedElement]["items"];
+//                 scope.form[scope.selectedElement]["schema"] = {
+//   "type": "object",
+//   "title": "Comment",
+//   "properties": {
+//     "name": {
+//       "title": "Name",
+//       "type": "string"
+//     },
+//     "email": {
+//       "title": "Email",
+//       "type": "string",
+//       "pattern": "^\\S+@\\S+$",
+//       "description": "Email will be used for evil."
+//     },
+//     "comment": {
+//       "title": "Comment",
+//       "type": "string",
+//       "maxLength": 20,
+//       "validationMessage": "Don't be greedy!"
+//     }
+//   },
+//   "required": [
+//     "name",
+//     "email",
+//     "comment"
+//   ]
+// };
+            }
+            $log.debug("selectedElement=",scope.selectedElement);
+            $log.debug("scope.form=",scope.form);
 
             // $log.debug("in formEditAreaDir");
 			if(scope.selectedElement === "device"){
@@ -134,8 +174,9 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                                       ];*/
                 // $log.debug("geetFormNetworkAe2=",scope.networkAeForm);
                 // $log.debug("wholeDevice=",scope.wholeDevice);
-                angular.element(document.getElementById('SelectDicomTransferCapability'))
-                                   .html($compile("<div select-transfare-capability></div>")(scope));
+                
+                // angular.element(document.getElementById('SelectDicomTransferCapability'))
+                //                    .html($compile("<div select-transfare-capability></div>")(scope));
 
             }
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));

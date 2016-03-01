@@ -1,7 +1,6 @@
 <div id="selects_part">
-<!-- 	<pre>selectedPart: {{selectedPart | json}}
-		dicomnetworkconn: {{selectedPart.dicomNetworkConnection}}
-		wholeDevice.dicomNetworkAE: {{this.wholeDevice.dicomNetworkAE}}
+<!-- 	<pre>
+		selectObject: {{selectObject | json}}
 	</pre> -->
 	<div>
 		<h3>Select device part to edit</h3>
@@ -10,22 +9,22 @@
 	</div>
 	<div ng-repeat="(key, value) in selectObject | testFilter:selectedElement:selectedPart">
 		<label>Select dicom {{value.title}} to edit or delete:</label>
-		{{splitStringToObject(value)}}
+		{{splitStringToObject(value,key)}}
 <!-- 		<pre> 
 		test: {{"wholeDevice.dicomNetworkAE".substring(str.lastIndexOf(":")+1,str.lastIndexOf(";"))}}
 		test: {{"wholeDevice.dicomNetworkAE".substring("wholeDevice.dicomNetworkAE".lastIndexOf(".")+1)}}
 		</pre> -->
 		<select 
 			class="form-control" 
-			ng-class="{active_dropbox:selectedElement === '{{value.partName}}',active_menu:activeMenu === '{{value.partName}}'}" 
-			ng-click='selectElement(value.partName)' 
-			name="{{value.partName}}"
-			ng-model="selectedPart[value.model]" 
-			ng-change='changeElement(value.partName)'
-			ng-options="obj[value.optionValue] as obj[value.optionValue]  for obj in selectModel[value.model] track by obj[value.optionValue]">
+			ng-class="{active_dropbox:selectedElement === '{{key}}',active_menu:activeMenu === '{{key}}'}" 
+			ng-click='selectElement(key)' 
+			name="{{key}}"
+			ng-model="selectedPart[key]" 
+			ng-change='changeElement(key)'
+			ng-options="obj[value.optionValue] as obj[value.optionValue]  for obj in selectModel[key] track by obj[value.optionValue]">
 		</select>
 		<create-delete-button 
-			part="{{value.partName}}" 
+			part="{{key}}" 
 			create-text="Create new network dicomNetworkConnection" 
 			delete-text="Delete selected network dicomNetworkConnection">
 		</create-delete-button>
@@ -65,5 +64,6 @@
 			delete-text="Delete selected Network AE">
 		</create-delete-button>
 	</div> -->
-	<div id="SelectDicomTransferCapability"></div>
+	<div id="endLoadSelect"></div>
+	<!-- <div id="SelectDicomTransferCapability"></div> -->
 </div>
