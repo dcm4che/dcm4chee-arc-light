@@ -47,7 +47,6 @@ import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
@@ -79,13 +78,18 @@ public class PurgeStorageScheduler extends Scheduler {
     private StorageFactory storageFactory;
 
     @Override
+    protected Logger log() {
+        return LOG;
+    }
+
+    @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         return arcDev.getPurgeStoragePollingInterval();
     }
 
     @Override
-    public void run() {
+    protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getPurgeStorageFetchSize();
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
@@ -132,15 +136,28 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private List<Long> deleteStudy(List<Long> studyPks, StorageDescriptor desc, int fetchSize, boolean deletePatient) {
-        do {
+        boolean studyDeleted = false;
+        while (!studyDeleted) {
             if (studyPks.isEmpty()) {
-                studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+                try {
+                    studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+                } catch (Exception e) {
+                    LOG.warn("Query for studies for deletion on {} failed", desc.getStorageURI(), e);
+                    return null;
+                }
                 if (studyPks.isEmpty()) {
                     LOG.warn("No studies for deletion found on {}", desc.getStorageURI());
                     return null;
                 }
             }
-        } while (!ejb.removeStudyOnStorage(studyPks.remove(0), deletePatient));
+            Long studyPk = studyPks.remove(0);
+            try {
+                studyDeleted = ejb.removeStudyOnStorage(studyPk, deletePatient);
+            } catch (Exception e) {
+                LOG.warn("Failed to delete Study[pk={}]", studyPk, e);
+                return null;
+            }
+        }
         return studyPks;
     }
 

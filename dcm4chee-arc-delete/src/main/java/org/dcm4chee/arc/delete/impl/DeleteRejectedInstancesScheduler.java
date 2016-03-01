@@ -71,13 +71,18 @@ public class DeleteRejectedInstancesScheduler extends Scheduler {
     private DeletionServiceEJB ejb;
 
     @Override
+    protected Logger log() {
+        return LOG;
+    }
+
+    @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         return arcDev.getDeleteRejectedPollingInterval();
     }
 
     @Override
-    public void run() {
+    protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getDeleteRejectedFetchSize();
         for (RejectionNote rjNote : arcDev.getRejectionNotes()) {

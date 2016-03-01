@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc;
 
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 
 import javax.annotation.Resource;
@@ -59,6 +58,15 @@ public abstract class Scheduler implements Runnable {
 
     @Resource
     private ManagedScheduledExecutorService scheduledExecutor;
+
+    @Override
+    public void run() {
+        try {
+            execute();
+        } catch (Throwable e) {
+            log().warn("execute throws Exception", e);
+        }
+    }
 
     public void start() {
         Duration pollingInterval = getPollingInterval();
@@ -86,4 +94,7 @@ public abstract class Scheduler implements Runnable {
 
     protected abstract Duration getPollingInterval();
 
+    protected abstract org.slf4j.Logger log();
+
+    protected abstract void execute();
 }
