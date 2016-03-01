@@ -83,7 +83,6 @@ import static java.security.AccessController.doPrivileged;
 public class AuditService {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private static final String tmpdir = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
-    private static final String success = "success";
     enum EventType {
         WADO_R_P__(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, true, false, false, null),
@@ -274,7 +273,7 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        Path file = dir.resolve(String.valueOf(et) + "_" + timestamp);
+        Path file = dir.resolve(String.valueOf(et));
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -333,7 +332,7 @@ public class AuditService {
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
         EventType et = (ctx.getException() != null) ? EventType.DELETE_ERR : EventType.DELETE_PAS;
-        Path file = dir.resolve(String.valueOf(et) + "_" + timestamp);
+        Path file = dir.resolve(String.valueOf(et));
         Attributes attrs = ctx.getAttributes();
         boolean append = Files.exists(file);
         try {
@@ -422,7 +421,7 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        Path file = dir.resolve(String.valueOf(EventType.CONN__RJCT) + "_" + timestamp);
+        Path file = dir.resolve(String.valueOf(EventType.CONN__RJCT));
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -668,7 +667,7 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        Path file = dir.resolve(String.valueOf(et) + "_" + timestamp);
+        Path file = dir.resolve(String.valueOf(et));
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -773,7 +772,7 @@ public class AuditService {
 
         public PatientStudyInfo(StoreContext ctx, Attributes attrs) {
             StoreSession session = ctx.getStoreSession();
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): success;
+            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
             fields = new String[] {
                     session.getArchiveAEExtension().getApplicationEntity().getDevice().getDeviceName(),
                     session.getRemoteHostName(),
@@ -788,7 +787,7 @@ public class AuditService {
         }
 
         public PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): success;
+            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
             fields = new String[] {
                     ctx.getArchiveAEExtension().getApplicationEntity().getDevice().getDeviceName(),
                     ctx.getHttpRequest().getRemoteAddr(),
@@ -938,7 +937,7 @@ public class AuditService {
         private final String[] fields;
 
         public RetrieveInfo(RetrieveContext ctx) {
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage() : success;
+            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage() : null;
             String destHost = (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : ctx.getDestinationAETitle();
             String destNapID = (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null;
             String destNapCode = (null != ctx.getDestinationHostName()) ? AuditMessages.NetworkAccessPointTypeCode.IPAddress : null;
