@@ -72,29 +72,29 @@ public class AuditTriggerObserver {
     private AuditService auditService;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        EventTypeCode eventTypeCode = null;
+        AuditService.EventType et = null;
         switch (event.getType()) {
             case STARTED:
-                eventTypeCode = AuditMessages.EventTypeCode.ApplicationStart;
+                et = AuditService.EventType.APPLNSTART;
                 break;
             case STOPPED:
-                eventTypeCode = AuditMessages.EventTypeCode.ApplicationStop;
+                et = AuditService.EventType.APPLN_STOP;
                 break;
             case RELOADED:
                 return;
         }
         HttpServletRequest request = event.getRequest();
-        auditService.auditApplicationActivity(eventTypeCode, request);
+        auditService.collateApplicationActivity(et, request);
     }
 
     public void onStore(@Observes StoreContext ctx) {
         if ((null != ctx.getRejectionNote())) {
-            auditService.auditInstancesDeleted(ctx);
+            auditService.collateInstancesDeleted(ctx);
             return;
         }
         if (ctx.getLocation() == null && null == ctx.getException())
             return;
-        auditService.auditInstanceStored(ctx);
+        auditService.collateInstanceStored(ctx);
     }
 
     public void onQuery(@Observes QueryContext ctx) {
@@ -106,21 +106,21 @@ public class AuditTriggerObserver {
         String localDevice = ctx.getLocalApplicationEntity().getDevice().getDeviceName();
         String remoteHostName = ctx.getRemoteHostName();
         String sopClassUID = ctx.getSOPClassUID();
-        auditService.auditQuery(as, request, queryKeys, callingAET, calledAET, remoteHostName, localDevice, sopClassUID);
+        auditService.collateQuery(as, request, queryKeys, callingAET, calledAET, remoteHostName, localDevice, sopClassUID);
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        AuditService.AggregationType at = AuditService.AggregationType.forBegin(ctx);
-        auditService.auditRetrieve(ctx, at);
+        AuditService.EventType et = AuditService.EventType.forBeginTransfer(ctx);
+        auditService.collateRetrieve(ctx, et);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        AuditService.AggregationType at = AuditService.AggregationType.forDicomInstTransferred(ctx);
-        auditService.auditRetrieve(ctx, at);
+        AuditService.EventType et = AuditService.EventType.forDicomInstTransferred(ctx);
+        auditService.collateRetrieve(ctx, et);
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        auditService.auditWADORetrieve(ctx);
+        auditService.collateWADORetrieve(ctx);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
@@ -154,7 +154,7 @@ public class AuditTriggerObserver {
     }
 
     private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
-        auditService.auditConnectionRejected(s, e);
+        auditService.collateConnectionRejected(s, e);
     }
 
     private void onConnectionAccepted(Connection conn, Socket s) {
