@@ -44,12 +44,12 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.*;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.DicomOutputStream;
-import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -61,10 +61,7 @@ import sun.security.action.GetPropertyAction;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -84,139 +81,7 @@ import static java.security.AccessController.doPrivileged;
 public class AuditService {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private static final String tmpdir = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
-
-    enum EventType {
-        WADO_R_P__(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, true, false, false, null),
-        WADO_R_E__(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, true, false, false, null),
-        STORE_C_P_(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        STORE_C_E_(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        STORE_U_P_(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        STORE_U_E_(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-
-        BEGIN__M_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        BEGIN__M_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        BEGIN__G_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        BEGIN__G_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        BEGIN__E_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        BEGIN__E_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        TRF__MVE_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        TRF__MVE_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        TRF__GET_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        TRF__GET_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        TRF__EXP_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        TRF__EXP_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-
-        DELETE_PAS(AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.Success,
-                null, null, true, false, false, null),
-        DELETE_ERR(AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                null, null, true, false, false, null),
-
-        APPLNSTART(AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
-                   null, null, false, false, false, AuditMessages.EventTypeCode.ApplicationStart),
-        APPLN_STOP(AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
-                   null, null, false, false, false, AuditMessages.EventTypeCode.ApplicationStop),
-
-        CONN__RJCT(AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
-                AuditMessages.EventOutcomeIndicator.MinorFailure, null, null, false, false, false, AuditMessages.EventTypeCode.NodeAuthentication);
-
-        final AuditMessages.EventID eventID;
-        final String eventActionCode;
-        final String outcomeIndicator;
-        final AuditMessages.RoleIDCode source;
-        final AuditMessages.RoleIDCode destination;
-        final boolean isSource;
-        final boolean isDest;
-        final boolean isOther;
-        final EventTypeCode eventTypeCode;
-
-
-        EventType(AuditMessages.EventID eventID, String eventActionCode, String outcome, AuditMessages.RoleIDCode source,
-                        AuditMessages.RoleIDCode destination, boolean isSource, boolean isDest, boolean isOther, EventTypeCode etc) {
-            this.eventID = eventID;
-            this.eventActionCode = eventActionCode;
-            this.outcomeIndicator = outcome;
-            this.source = source;
-            this.destination = destination;
-            this.isSource = isSource;
-            this.isDest = isDest;
-            this.isOther = isOther;
-            this.eventTypeCode = etc;
-        }
-
-        static EventType fromFile(Path file) {
-            return valueOf(file.getFileName().toString().substring(0, 10));
-        }
-
-        static EventType forWADORetrieve(RetrieveContext ctx) {
-            return ctx.getException() != null ? WADO_R_E__ : WADO_R_P__;
-        }
-
-        static EventType forInstanceStored(StoreContext ctx) {
-            return ctx.getException() != null
-                    ? ctx.getPreviousInstance() != null ? STORE_U_E_ : STORE_C_E_
-                    : ctx.getLocation() != null
-                    ? ctx.getPreviousInstance() != null ? STORE_U_P_ : STORE_C_P_
-                    : null;
-        }
-
-        static EventType forBeginTransfer(RetrieveContext ctx) {
-            EventType at = null;
-            if (ctx.getException() != null) {
-                if (ctx.isLocalRequestor())
-                    at = BEGIN__E_E;
-                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                    at = BEGIN__M_E;
-                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
-                    at = BEGIN__G_E;
-            } else {
-                if (ctx.isLocalRequestor())
-                    at = BEGIN__E_P;
-                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                    at = BEGIN__M_P;
-                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
-                    at = BEGIN__G_P;
-            }
-            return at;
-        }
-
-        static EventType forDicomInstTransferred(RetrieveContext ctx) {
-            EventType at = null;
-            if (ctx.getException() != null) {
-                if (ctx.isLocalRequestor())
-                    at = TRF__EXP_E;
-                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                    at = TRF__MVE_E;
-                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
-                    at = TRF__GET_E;
-            } else {
-                if (ctx.isLocalRequestor())
-                    at = TRF__EXP_P;
-                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                    at = TRF__MVE_P;
-                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
-                    at = TRF__GET_P;
-            }
-            return at;
-        }
-    }
+    private static final String noValue = "<none>";
 
     @Inject
     private Device device;
@@ -226,7 +91,7 @@ public class AuditService {
     }
 
     public void aggregateAuditMessage(Path path) {
-        EventType eventType = EventType.fromFile(path);
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
         String triggerType = String.valueOf(eventType).substring(0, 5);
         switch (triggerType) {
             case "CONN_":
@@ -247,6 +112,9 @@ public class AuditService {
             case "DELET":
                 auditInstanceDeletion(path, eventType);
                 break;
+            case "QUERY":
+                auditQuery(path, eventType);
+                break;
         }
     }
 
@@ -258,15 +126,8 @@ public class AuditService {
         }
     }
 
-    private static void deleteFile(Path file) {
-        try {
-            Files.delete(file);
-        } catch (IOException e) {
-            LOG.warn("Failed to delete Audit Spool File - {}", file, e);
-        }
-    }
 
-    public void auditApplicationActivity(EventType eventType, HttpServletRequest req) {
+    public void auditApplicationActivity(AuditServiceUtils.EventType eventType, HttpServletRequest req) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         msg.setEventIdentification(AuditMessages.createEventIdentification(
@@ -292,7 +153,8 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        EventType et = (ctx.getException() != null) ? EventType.DELETE_ERR : EventType.DELETE_PAS;
+        AuditServiceUtils.EventType et = (ctx.getException() != null)
+                ? AuditServiceUtils.EventType.DELETE_ERR : AuditServiceUtils.EventType.DELETE_PAS;
         Attributes attrs = ctx.getAttributes();
         try {
             Path file = Files.createTempFile(dir, String.valueOf(et), null);
@@ -301,7 +163,7 @@ public class AuditService {
                 Files.createDirectories(dir);
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     StandardOpenOption.APPEND)) {
-                writer.write(new DeleteInfo(ctx).toString());
+                writer.write(new AuditServiceUtils.DeleteInfo(ctx).toString());
                 writer.newLine();
                 HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
                 for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
@@ -318,65 +180,85 @@ public class AuditService {
                     }
                 }
                 for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-                    writer.write(new DeleteStudyInfo(entry.getKey(), String.valueOf(entry.getValue().size())).toString());
+                    writer.write(new AuditServiceUtils.DeleteStudyInfo(entry.getKey(), String.valueOf(entry.getValue().size())).toString());
                     writer.newLine();
                 }
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Failed to write to Audit Spool File - {} ", e);
         }
     }
 
     public void spoolStudyDeleted(StudyDeleteContext ctx) {
-        // TODO
+//        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+//        boolean auditAggregate = arcDev.isAuditAggregate();
+//        Path dir = Paths.get(
+//                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
+//        AuditServiceUtils.EventType eventType = (ctx.getException() != null)
+//                ? AuditServiceUtils.EventType.PERM_DEL_E : AuditServiceUtils.EventType.PERM_DEL_S;
+//        try {
+//            Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
+//            boolean append = Files.exists(file);
+//            if (!append)
+//                Files.createDirectories(dir);
+//            try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+//                    StandardOpenOption.APPEND)) {
+//                writer.write(new AuditServiceUtils.PermanentDeletionInfo(ctx).toString());
+//                writer.newLine();
+//            }
+//        } catch (Exception e) {
+//            LOG.warn("Failed to write to Audit Spool File - {} ", e);
+//        }
     }
 
 
-    private void auditInstanceDeletion(Path path, EventType eventType) {
+    private void auditInstanceDeletion(Path path, AuditServiceUtils.EventType eventType) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
-        DeleteInfo deleteInfo;
+        AuditServiceUtils.DeleteInfo deleteInfo;
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            deleteInfo = new DeleteInfo(reader.readLine());
+            deleteInfo = new AuditServiceUtils.DeleteInfo(reader.readLine());
             msg.setEventIdentification(AuditMessages.createEventIdentification(
                     eventType.eventID, eventType.eventActionCode, timestamp,
-                    eventType.outcomeIndicator, deleteInfo.getField(DeleteInfo.OUTCOME)));
+                    eventType.outcomeIndicator, deleteInfo.getField(AuditServiceUtils.DeleteInfo.OUTCOME)));
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    deleteInfo.getField(DeleteInfo.REMOTEHOST), AuditMessages.alternativeUserIDForAETitle(
-                            deleteInfo.getField(DeleteInfo.REMOTEAET)), null, eventType.isSource, deleteInfo.getField(DeleteInfo.REMOTEHOST),
+                    deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEHOST), AuditMessages.alternativeUserIDForAETitle(
+                            deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEAET)), null, eventType.isSource,
+                    deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEHOST),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    deleteInfo.getField(DeleteInfo.LOCALHOST),
-                    AuditMessages.alternativeUserIDForAETitle(deleteInfo.getField(DeleteInfo.LOCALAET)), null,
+                    deleteInfo.getField(AuditServiceUtils.DeleteInfo.LOCALHOST),
+                    AuditMessages.alternativeUserIDForAETitle(deleteInfo.getField(AuditServiceUtils.DeleteInfo.LOCALAET)), null,
                     eventType.isDest, null, null, null));
             msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
             ParticipantObjectContainsStudy pocs = new ParticipantObjectContainsStudy();
-            pocs.getStudyIDs().add(AuditMessages.createStudyIDs(deleteInfo.getField(DeleteInfo.STUDYUID)));
+            pocs.getStudyIDs().add(AuditMessages.createStudyIDs(deleteInfo.getField(AuditServiceUtils.DeleteInfo.STUDYUID)));
             String line;
             HashSet<SOPClass> sopC = new HashSet<>();
             while ((line = reader.readLine()) != null) {
-                DeleteStudyInfo dsi = new DeleteStudyInfo(line);
-                dsi.getField(DeleteStudyInfo.SOPCLASSUID);
-                dsi.getField(DeleteStudyInfo.NUMINSTANCES);
+                AuditServiceUtils.DeleteStudyInfo dsi = new AuditServiceUtils.DeleteStudyInfo(line);
+                dsi.getField(AuditServiceUtils.DeleteStudyInfo.SOPCLASSUID);
+                dsi.getField(AuditServiceUtils.DeleteStudyInfo.NUMINSTANCES);
                 sopC.add(AuditMessages.createSOPClass(
-                        dsi.getField(DeleteStudyInfo.SOPCLASSUID), Integer.parseInt(dsi.getField(DeleteStudyInfo.NUMINSTANCES))));
+                        dsi.getField(AuditServiceUtils.DeleteStudyInfo.SOPCLASSUID),
+                        Integer.parseInt(dsi.getField(AuditServiceUtils.DeleteStudyInfo.NUMINSTANCES))));
             }
             msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
-                    deleteInfo.getField(DeleteInfo.STUDYUID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                    deleteInfo.getField(AuditServiceUtils.DeleteInfo.STUDYUID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                     null, null, AuditMessages.ParticipantObjectTypeCode.SystemObject,
                     AuditMessages.ParticipantObjectTypeCodeRole.Report, null, null, null, null, null, sopC, null, null, pocs));
             msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
-                    deleteInfo.getField(DeleteInfo.PATIENTID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
-                    deleteInfo.getField(DeleteInfo.PATIENTNAME), null, AuditMessages.ParticipantObjectTypeCode.Person,
+                    deleteInfo.getField(AuditServiceUtils.DeleteInfo.PATIENTID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                    deleteInfo.getField(AuditServiceUtils.DeleteInfo.PATIENTNAME), null, AuditMessages.ParticipantObjectTypeCode.Person,
                     AuditMessages.ParticipantObjectTypeCodeRole.Patient, null, null, null, null, null, null, null, null, null));
         } catch (Exception e) {
             LOG.warn("Failed to read Audit Spool File - {} ", path, e);
             return;
         }
         emitAuditMessage(timestamp, msg);
-        deleteFile(path);
+        AuditServiceUtils.deleteFile(path);
     }
 
     public void collateConnectionRejected(Socket s, Throwable e) {
@@ -385,13 +267,13 @@ public class AuditService {
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
         try {
-            Path file = Files.createTempFile(dir, String.valueOf(EventType.CONN__RJCT), null);
+            Path file = Files.createTempFile(dir, String.valueOf(AuditServiceUtils.EventType.CONN__RJCT), null);
             boolean append = Files.exists(file);
             if (!append)
                 Files.createDirectories(dir);
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     StandardOpenOption.APPEND)) {
-                writer.write(new ConnectionRejectedInfo(s, e).toString());
+                writer.write(new AuditServiceUtils.ConnectionRejectedInfo(s, e).toString());
                 writer.newLine();
             }
             if (!auditAggregate)
@@ -402,28 +284,29 @@ public class AuditService {
         }
     }
 
-    private void auditConnectionRejected(Path file, EventType eventType) {
+    private void auditConnectionRejected(Path file, AuditServiceUtils.EventType eventType) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
-        ConnectionRejectedInfo crInfo;
+        AuditServiceUtils.ConnectionRejectedInfo crInfo;
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            crInfo = new ConnectionRejectedInfo(reader.readLine());
+            crInfo = new AuditServiceUtils.ConnectionRejectedInfo(reader.readLine());
             msg.setEventIdentification(AuditMessages.createEventIdentification(
                     eventType.eventID, eventType.eventActionCode, timestamp,
-                    eventType.outcomeIndicator, crInfo.getField(ConnectionRejectedInfo.OUTCOME_DESC), eventType.eventTypeCode));
+                    eventType.outcomeIndicator, crInfo.getField(
+                            AuditServiceUtils.ConnectionRejectedInfo.OUTCOME_DESC), eventType.eventTypeCode));
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    crInfo.getField(ConnectionRejectedInfo.LOCAL_ADDR), null, null, false,
-                    crInfo.getField(ConnectionRejectedInfo.LOCAL_ADDR),
+                    crInfo.getField(AuditServiceUtils.ConnectionRejectedInfo.LOCAL_ADDR), null, null, false,
+                    crInfo.getField(AuditServiceUtils.ConnectionRejectedInfo.LOCAL_ADDR),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    crInfo.getField(ConnectionRejectedInfo.REMOTE_ADDR), null, null, true,
-                    crInfo.getField(ConnectionRejectedInfo.REMOTE_ADDR),
+                    crInfo.getField(AuditServiceUtils.ConnectionRejectedInfo.REMOTE_ADDR), null, null, true,
+                    crInfo.getField(AuditServiceUtils.ConnectionRejectedInfo.REMOTE_ADDR),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
             List<String> desc = new ArrayList<>();
-            desc.add(crInfo.getField(ConnectionRejectedInfo.PO_DESC));
+            desc.add(crInfo.getField(AuditServiceUtils.ConnectionRejectedInfo.PO_DESC));
             msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
-                    crInfo.getField(ConnectionRejectedInfo.REMOTE_ADDR), AuditMessages.ParticipantObjectIDTypeCode.NodeID,
+                    crInfo.getField(AuditServiceUtils.ConnectionRejectedInfo.REMOTE_ADDR), AuditMessages.ParticipantObjectIDTypeCode.NodeID,
                     null, null, AuditMessages.ParticipantObjectTypeCode.SystemObject, null, null, null, desc, null, null,
                     null, null, null, null));
         } catch (Exception e) {
@@ -431,46 +314,88 @@ public class AuditService {
             return;
         }
         emitAuditMessage(timestamp, msg);
-        deleteFile(file);
+        AuditServiceUtils.deleteFile(file);
     }
 
-    public void collateQuery(Association as, HttpServletRequest request,
-                           Attributes queryKeys, String callingAET, String calledAET,
-                           String remoteHostName, String localDevice, String sopClassUID) {
+    public void collateQuery(QueryContext ctx) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        boolean auditAggregate = arcDev.isAuditAggregate();
+        Path dir = Paths.get(
+                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forQuery(ctx);
+        try {
+            Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
+            boolean append = Files.exists(file);
+            if (!append)
+                Files.createDirectories(dir);
+            try (BufferedOutputStream out = new BufferedOutputStream(
+                    Files.newOutputStream(file, StandardOpenOption.APPEND))) {
+                    new DataOutputStream(out).writeUTF(new AuditServiceUtils.QueryInfo(ctx).toString());
+                if (ctx.getAssociation() != null) {
+                    try (DicomOutputStream dos = new DicomOutputStream(out, UID.ImplicitVRLittleEndian)) {
+                        dos.writeDataset(null, ctx.getQueryKeys());
+                    } catch (Exception e) {
+                        LOG.warn("Failed to create DicomOutputStream : ", e);
+                    }
+                }
+            }
+            if (!auditAggregate)
+                aggregateAuditMessage(file);
+        } catch (Exception e) {
+            LOG.warn("Failed to write to Audit Spool File - {} ", e);
+        }
+    }
+
+    private void auditQuery(Path file, AuditServiceUtils.EventType eventType) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
-        msg.setEventIdentification(AuditMessages.createEventIdentification(
-                AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute, timestamp,
-                AuditMessages.EventOutcomeIndicator.Success, null));
-        msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(remoteHostName,
-                AuditMessages.alternativeUserIDForAETitle(callingAET), null, true, remoteHostName,
-                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Source));
-        msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(localDevice,
-                AuditMessages.alternativeUserIDForAETitle(calledAET), null, false, localDevice,
-                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, AuditMessages.RoleIDCode.Destination));
-        msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
-        byte[] b = new byte[]{};
-        ParticipantObjectDetail pod = new ParticipantObjectDetail();
-        if (request != null) {
-            String queryString = request.getRequestURI() + request.getQueryString();
-            b = queryString.getBytes();
-            pod = null;
-        }
-        if (as != null) {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            try (DicomOutputStream dos = new DicomOutputStream(bos, UID.ImplicitVRLittleEndian)) {
-                dos.writeDataset(null, queryKeys);
-            } catch (Exception e) {
-                LOG.warn("Failed to create DicomOutputStream : ", e);
+        AuditServiceUtils.QueryInfo qrInfo;
+        try (InputStream in = new BufferedInputStream(Files.newInputStream(file))) {
+            qrInfo = new AuditServiceUtils.QueryInfo(new DataInputStream(in).readUTF());
+            msg.setEventIdentification(AuditMessages.createEventIdentification(
+                    eventType.eventID, eventType.eventActionCode, timestamp,
+                    eventType.outcomeIndicator, null));
+            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(qrInfo.getField(AuditServiceUtils.QueryInfo.REMOTE_HOST),
+                    AuditMessages.alternativeUserIDForAETitle(qrInfo.getField(AuditServiceUtils.QueryInfo.CALLING_AET)), null,
+                    eventType.isSource, qrInfo.getField(AuditServiceUtils.QueryInfo.REMOTE_HOST), AuditMessages.NetworkAccessPointTypeCode.IPAddress,
+                    null, eventType.source));
+            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(qrInfo.getField(AuditServiceUtils.QueryInfo.LOCAL_HOST),
+                    AuditMessages.alternativeUserIDForAETitle(qrInfo.getField(AuditServiceUtils.QueryInfo.CALLED_AET)), null,
+                    eventType.isDest, qrInfo.getField(AuditServiceUtils.QueryInfo.LOCAL_HOST),
+                    AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.destination));
+            msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
+            if (!qrInfo.getField(AuditServiceUtils.QueryInfo.PATIENT_ID).equals(noValue))
+                msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
+                        qrInfo.getField(AuditServiceUtils.QueryInfo.PATIENT_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                        null, null, AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient,
+                        null, null, null, null, null, null, null, null, null));
+            if (String.valueOf(eventType).equals(String.valueOf(AuditServiceUtils.EventType.QUERY_QIDO)))
+                msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
+                        null, AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID, null,
+                        qrInfo.getField(AuditServiceUtils.QueryInfo.QUERY_STRING).getBytes(),
+                        AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Query,
+                        null, null, null, null, null, null, null, null, null,
+                        AuditMessages.createParticipantObjectDetail(
+                                "QueryEncoding", String.valueOf(StandardCharsets.UTF_8).getBytes())));
+            else {
+                byte[] buffer = new byte[(int) Files.size(file)];
+                int len = in.read(buffer);
+                byte[] data = new byte[len];
+                System.arraycopy(buffer, 0, data, 0, len);
+                msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
+                        qrInfo.getField(AuditServiceUtils.QueryInfo.SOPCLASSUID), AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID, null,
+                        data, AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                        AuditMessages.ParticipantObjectTypeCodeRole.Query,
+                        null, null, null, null, null, null, null, null, null,
+                        AuditMessages.createParticipantObjectDetail(
+                                "TransferSyntax", UID.ImplicitVRLittleEndian.getBytes())));
             }
-            b = bos.toByteArray();
-            pod = AuditMessages.createParticipantObjectDetail("TransferSyntax", UID.ImplicitVRLittleEndian.getBytes());
+        } catch (Exception e) {
+            LOG.warn("Failed to read Audit Spool File - {} ", file, e);
+            return;
         }
-        msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(sopClassUID,
-                AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID, null, b,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report,
-                null, null, null, null, null, null, null, null, null, pod));
         emitAuditMessage(timestamp, msg);
+        AuditServiceUtils.deleteFile(file);
     }
 
     public void collateInstanceStored(StoreContext ctx) {
@@ -478,7 +403,7 @@ public class AuditService {
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
-        EventType eventType = EventType.forInstanceStored(ctx);
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(ctx);
         if (eventType == null)
             return; // no audit message for duplicate received instance
         StoreSession session = ctx.getStoreSession();
@@ -492,21 +417,21 @@ public class AuditService {
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
                 if (!append) {
-                    writer.write(new PatientStudyInfo(ctx, attrs).toString());
+                    writer.write(new AuditServiceUtils.PatientStudyInfo(ctx, attrs).toString());
                     writer.newLine();
                 }
-                writer.write(new InstanceInfo(ctx, attrs).toString());
+                writer.write(new AuditServiceUtils.InstanceInfo(ctx, attrs).toString());
                 writer.newLine();
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Failed to write to Audit Spool File - {} ", file, e);
         }
     }
 
     public void collateWADORetrieve(RetrieveContext ctx){
-        EventType aggregationType = EventType.forWADORetrieve(ctx);
+        AuditServiceUtils.EventType aggregationType = AuditServiceUtils.EventType.forWADORetrieve(ctx);
         HttpServletRequest req = ctx.getHttpRequest();
         Collection<InstanceLocations> il = ctx.getMatches();
         Attributes attrs = new Attributes();
@@ -526,40 +451,40 @@ public class AuditService {
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW)) {
                 if (!append) {
-                    writer.write(new PatientStudyInfo(ctx, attrs).toString());
+                    writer.write(new AuditServiceUtils.PatientStudyInfo(ctx, attrs).toString());
                     writer.newLine();
                 }
-                writer.write(new InstanceInfo(ctx, attrs).toString());
+                writer.write(new AuditServiceUtils.InstanceInfo(ctx, attrs).toString());
                 writer.newLine();
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
-        } catch (IOException ioe) {
+        } catch (Exception ioe) {
             LOG.warn("Failed write to Audit Spool File - {} ", file, ioe);
         }
     }
 
-    private void aggregateStoreOrWADORetrieve(Path path, EventType eventType) {
+    private void aggregateStoreOrWADORetrieve(Path path, AuditServiceUtils.EventType eventType) {
         String outcome;
-        PatientStudyInfo patientStudyInfo;
+        AuditServiceUtils.PatientStudyInfo patientStudyInfo;
         HashSet<String> accNos = new HashSet<>();
         HashSet<String> mppsUIDs = new HashSet<>();
         HashMap<String, List<String>> sopClassMap = new HashMap<>();
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            patientStudyInfo = new PatientStudyInfo(reader.readLine());
-            outcome = patientStudyInfo.getField(PatientStudyInfo.OUTCOME);
-            accNos.add(patientStudyInfo.getField(PatientStudyInfo.ACCESSION_NO));
+            patientStudyInfo = new AuditServiceUtils.PatientStudyInfo(reader.readLine());
+            outcome = patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.OUTCOME);
+            accNos.add(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.ACCESSION_NO));
             String line;
             while ((line = reader.readLine()) != null) {
-                InstanceInfo instanceInfo = new InstanceInfo(line);
-                List<String> iuids = sopClassMap.get(instanceInfo.getField(InstanceInfo.CLASS_UID));
+                AuditServiceUtils.InstanceInfo instanceInfo = new AuditServiceUtils.InstanceInfo(line);
+                List<String> iuids = sopClassMap.get(instanceInfo.getField(AuditServiceUtils.InstanceInfo.CLASS_UID));
                 if (iuids == null) {
                     iuids = new ArrayList<>();
-                    sopClassMap.put(instanceInfo.getField(InstanceInfo.CLASS_UID), iuids);
+                    sopClassMap.put(instanceInfo.getField(AuditServiceUtils.InstanceInfo.CLASS_UID), iuids);
                 }
-                iuids.add(instanceInfo.getField(InstanceInfo.INSTANCE_UID));
-                mppsUIDs.add(instanceInfo.getField(InstanceInfo.MPPS_UID));
-                for (int i = InstanceInfo.ACCESSION_NO; instanceInfo.getField(i) != null; i++)
+                iuids.add(instanceInfo.getField(AuditServiceUtils.InstanceInfo.INSTANCE_UID));
+                mppsUIDs.add(instanceInfo.getField(AuditServiceUtils.InstanceInfo.MPPS_UID));
+                for (int i = AuditServiceUtils.InstanceInfo.ACCESSION_NO; instanceInfo.getField(i) != null; i++)
                     accNos.add(instanceInfo.getField(i));
             }
         } catch (Exception e) {
@@ -571,29 +496,29 @@ public class AuditService {
         Calendar eventTime = log().timeStamp();
         try {
             eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", path, e);
         }
         auditInstancesStoredOrWADORetrieve(patientStudyInfo, accNos, mppsUIDs, sopClassMap, eventTime, eventType, outcome);
-        deleteFile(path);
+        AuditServiceUtils.deleteFile(path);
     }
 
-    public void auditInstancesStoredOrWADORetrieve(PatientStudyInfo patientStudyInfo, HashSet<String> accNos,
+    private void auditInstancesStoredOrWADORetrieve(AuditServiceUtils.PatientStudyInfo patientStudyInfo, HashSet<String> accNos,
                                                    HashSet<String> mppsUIDs, HashMap<String, List<String>> sopClassMap,
-                                                   Calendar eventTime, EventType eventType, String outcomeDesc) {
+                                                   Calendar eventTime, AuditServiceUtils.EventType eventType, String outcomeDesc) {
         Calendar timestamp = log().timeStamp();
         AuditMessage msg = new AuditMessage();
         msg.setEventIdentification(AuditMessages.createEventIdentification(
                 AuditMessages.EventID.DICOMInstancesTransferred, eventType.eventActionCode, eventTime,
                 eventType.outcomeIndicator, outcomeDesc));
         msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
-                AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLING_AET)),
-                null, true, patientStudyInfo.getField(PatientStudyInfo.REMOTE_HOSTNAME),
+                patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.REMOTE_HOSTNAME),
+                AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.CALLING_AET)),
+                null, true, patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.REMOTE_HOSTNAME),
                 AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
         msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                patientStudyInfo.getField(PatientStudyInfo.LOCAL_HOSTNAME),
-                AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(PatientStudyInfo.CALLED_AET)),
+                patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.LOCAL_HOSTNAME),
+                AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.CALLED_AET)),
                 null, false, device.getDeviceName(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
                 eventType.destination));
         msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
@@ -607,22 +532,22 @@ public class AuditService {
         for (Map.Entry<String, List<String>> entry : sopClassMap.entrySet())
             sopC.add(AuditMessages.createSOPClass(entry.getKey(), entry.getValue().size()));
         ParticipantObjectContainsStudy pocs = new ParticipantObjectContainsStudy();
-        pocs.getStudyIDs().add(AuditMessages.createStudyIDs(patientStudyInfo.getField(PatientStudyInfo.STUDY_UID)));
+        pocs.getStudyIDs().add(AuditMessages.createStudyIDs(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.STUDY_UID)));
         msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
-                patientStudyInfo.getField(PatientStudyInfo.STUDY_UID),
+                patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.STUDY_UID),
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID, null, null,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report,
                 null, null, null, acc, mpps, sopC, null, null, pocs));
         msg.getParticipantObjectIdentification().add(AuditMessages.createParticipantObjectIdentification(
-                StringUtils.maskEmpty(patientStudyInfo.getField(PatientStudyInfo.PATIENT_ID), "<none>"),
+                StringUtils.maskEmpty(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.PATIENT_ID), noValue),
                 AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
-                StringUtils.maskEmpty(patientStudyInfo.getField(PatientStudyInfo.PATIENT_NAME), null), null,
+                StringUtils.maskEmpty(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.PATIENT_NAME), null), null,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient,
                 null, null, null, null, null, null, null, null, null));
         emitAuditMessage(timestamp, msg);
     }
 
-    public void collateRetrieve(RetrieveContext ctx, EventType et) {
+    public void collateRetrieve(RetrieveContext ctx, AuditServiceUtils.EventType et) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -634,64 +559,65 @@ public class AuditService {
                 Files.createDirectories(dir);
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     StandardOpenOption.APPEND)) {
-                writer.write(new RetrieveInfo(ctx).toString());
+                writer.write(new AuditServiceUtils.RetrieveInfo(ctx).toString());
                 writer.newLine();
                 for (InstanceLocations il : ctx.getMatches()) {
                     Attributes attrs = il.getAttributes();
-                    writer.write(new RetrieveStudyInfo(attrs).toString());
+                    writer.write(new AuditServiceUtils.RetrieveStudyInfo(attrs).toString());
                     writer.newLine();
                 }
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Failed write to Audit Spool File - {} ", e);
         }
     }
 
-    private void auditRetrieve(Path file, EventType eventType) {
+    private void auditRetrieve(Path file, AuditServiceUtils.EventType eventType) {
         Calendar eventTime = log().timeStamp();
         try {
             eventTime.setTimeInMillis(Files.getLastModifiedTime(file).toMillis());
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", file, e);
         }
         AuditMessage msg = new AuditMessage();
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            RetrieveInfo ri = new RetrieveInfo(reader.readLine());
+            AuditServiceUtils.RetrieveInfo ri = new AuditServiceUtils.RetrieveInfo(reader.readLine());
             msg.setEventIdentification(AuditMessages.createEventIdentification(eventType.eventID, eventType.eventActionCode,
-                    eventTime, eventType.outcomeIndicator, ri.getField(RetrieveInfo.OUTCOME)));
+                    eventTime, eventType.outcomeIndicator, ri.getField(AuditServiceUtils.RetrieveInfo.OUTCOME)));
             msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(
-                    ri.getField(RetrieveInfo.LOCALHOST), AuditMessages.alternativeUserIDForAETitle(ri.getField(RetrieveInfo.LOCALAET)),
+                    ri.getField(AuditServiceUtils.RetrieveInfo.LOCALHOST),
+                    AuditMessages.alternativeUserIDForAETitle(ri.getField(AuditServiceUtils.RetrieveInfo.LOCALAET)),
                     null, eventType.isSource, null, null, null, eventType.source));
-            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.DESTHOST),
-                    AuditMessages.alternativeUserIDForAETitle(ri.getField(RetrieveInfo.DESTAET)), null, eventType.isDest,
-                    ri.getField(RetrieveInfo.DESTNAPID), ri.getField(RetrieveInfo.DESTNAPCODE), null, eventType.destination));
+            msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(ri.getField(AuditServiceUtils.RetrieveInfo.DESTHOST),
+                    AuditMessages.alternativeUserIDForAETitle(ri.getField(AuditServiceUtils.RetrieveInfo.DESTAET)), null, eventType.isDest,
+                    ri.getField(AuditServiceUtils.RetrieveInfo.DESTNAPID), ri.getField(AuditServiceUtils.RetrieveInfo.DESTNAPCODE), null, eventType.destination));
             if (eventType.isOther)
-                msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.REQUESTORHOST),
-                        AuditMessages.alternativeUserIDForAETitle(ri.getField(RetrieveInfo.MOVEAET)), null, eventType.isOther,
-                        ri.getField(RetrieveInfo.REQUESTORHOST), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
+                msg.getActiveParticipant().add(AuditMessages.createActiveParticipant(ri.getField(AuditServiceUtils.RetrieveInfo.REQUESTORHOST),
+                        AuditMessages.alternativeUserIDForAETitle(ri.getField(AuditServiceUtils.RetrieveInfo.MOVEAET)), null, eventType.isOther,
+                        ri.getField(AuditServiceUtils.RetrieveInfo.REQUESTORHOST), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             msg.getAuditSourceIdentification().add(log().createAuditSourceIdentification());
             String line;
-            HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
-            String pID = "<none>";
+            HashMap<String, AuditServiceUtils.AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
+            String pID = noValue;
             String pName = null;
             while ((line = reader.readLine()) != null) {
-                RetrieveStudyInfo rInfo = new RetrieveStudyInfo(line);
-                String studyInstanceUID = rInfo.getField(RetrieveStudyInfo.STUDYUID);
-                AccessionNumSopClassInfo accessionNumSopClassInfo = study_accNumSOPClassInfo.get(studyInstanceUID);
+                AuditServiceUtils.RetrieveStudyInfo rInfo = new AuditServiceUtils.RetrieveStudyInfo(line);
+                String studyInstanceUID = rInfo.getField(AuditServiceUtils.RetrieveStudyInfo.STUDYUID);
+                AuditServiceUtils.AccessionNumSopClassInfo accessionNumSopClassInfo = study_accNumSOPClassInfo.get(studyInstanceUID);
                 if (accessionNumSopClassInfo == null) {
-                    accessionNumSopClassInfo = new AccessionNumSopClassInfo(rInfo.getField(RetrieveStudyInfo.ACCESSION));
+                    accessionNumSopClassInfo = new AuditServiceUtils.AccessionNumSopClassInfo(rInfo.getField(AuditServiceUtils.RetrieveStudyInfo.ACCESSION));
                     study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfo);
                 }
                 accessionNumSopClassInfo.addSOPInstance(rInfo);
                 study_accNumSOPClassInfo.put(studyInstanceUID, accessionNumSopClassInfo);
-                pID = rInfo.getField(RetrieveStudyInfo.PATIENTID);
-                pName = rInfo.getField(RetrieveStudyInfo.PATIENTNAME);
+                pID = rInfo.getField(AuditServiceUtils.RetrieveStudyInfo.PATIENTID);
+                pName = rInfo.getField(AuditServiceUtils.RetrieveStudyInfo.PATIENTNAME);
             }
             HashSet<Accession> acc = new HashSet<>();
             HashSet<SOPClass> sopC = new HashSet<>();
-            for (Map.Entry<String, AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
+            for (Map.Entry<String, AuditServiceUtils.AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
                 if (null != entry.getValue().getAccNum())
                     acc.add(AuditMessages.createAccession(entry.getValue().getAccNum()));
                 for (Map.Entry<String, HashSet<String>> sopClassMap : entry.getValue().getSopClassMap().entrySet())
@@ -712,311 +638,6 @@ public class AuditService {
             return;
         }
         emitAuditMessage(log().timeStamp(), msg);
-        deleteFile(file);
-    }
-
-    private static class PatientStudyInfo {
-        public static final int LOCAL_HOSTNAME = 0;
-        public static final int REMOTE_HOSTNAME = 1;
-        public static final int CALLING_AET = 2;
-        public static final int CALLED_AET = 3;
-        public static final int STUDY_UID = 4;
-        public static final int ACCESSION_NO = 5;
-        public static final int PATIENT_ID = 6;
-        public static final int PATIENT_NAME = 7;
-        public static final int OUTCOME = 8;
-
-        private final String[] fields;
-
-        public PatientStudyInfo(StoreContext ctx, Attributes attrs) {
-            StoreSession session = ctx.getStoreSession();
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
-            fields = new String[] {
-                    session.getArchiveAEExtension().getApplicationEntity().getDevice().getDeviceName(),
-                    session.getRemoteHostName(),
-                    session.getCallingAET(),
-                    session.getCalledAET(),
-                    ctx.getStudyInstanceUID(),
-                    attrs.getString(Tag.AccessionNumber, ""),
-                    attrs.getString(Tag.PatientID, ""),
-                    attrs.getString(Tag.PatientName, ""),
-                    outcome
-            };
-        }
-
-        public PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
-            fields = new String[] {
-                    ctx.getArchiveAEExtension().getApplicationEntity().getDevice().getDeviceName(),
-                    ctx.getHttpRequest().getRemoteAddr(),
-                    "",
-                    ctx.getLocalAETitle(),
-                    ctx.getStudyInstanceUIDs()[0],
-                    attrs.getString(Tag.AccessionNumber, ""),
-                    attrs.getString(Tag.PatientID, ""),
-                    attrs.getString(Tag.PatientName, ""),
-                    outcome
-            };
-        }
-
-        public PatientStudyInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        public String getField(int field) {
-            return fields[field];
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    private static class InstanceInfo {
-        public static final int CLASS_UID = 0;
-        public static final int INSTANCE_UID = 1;
-        public static final int MPPS_UID = 2;
-        public static final int ACCESSION_NO = 3;
-
-        private final String[] fields;
-
-        public InstanceInfo(StoreContext ctx, Attributes attrs) {
-            ArrayList<String> list = new ArrayList<>();
-            list.add(ctx.getSopClassUID());
-            list.add(ctx.getSopInstanceUID());
-            list.add(StringUtils.maskNull(ctx.getMppsInstanceUID(), ""));
-            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
-            if (reqAttrs != null)
-                for (Attributes reqAttr : reqAttrs) {
-                    String accno = reqAttr.getString(Tag.AccessionNumber);
-                    if (accno != null)
-                        list.add(accno);
-                }
-            this.fields = list.toArray(new String[list.size()]);
-        }
-
-        public InstanceInfo(RetrieveContext ctx, Attributes attrs) {
-            ArrayList<String> list = new ArrayList<>();
-            list.add(attrs.getString(Tag.SOPClassUID));
-            list.add(ctx.getSopInstanceUIDs()[0]);
-            list.add("");
-            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
-            if (reqAttrs != null)
-                for (Attributes reqAttr : reqAttrs) {
-                    String accno = reqAttr.getString(Tag.AccessionNumber);
-                    if (accno != null)
-                        list.add(accno);
-                }
-            this.fields = list.toArray(new String[list.size()]);
-        }
-
-        public InstanceInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        public String getField(int field) {
-            return field < fields.length ? fields[field] : null;
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    private static class AccessionNumSopClassInfo {
-        private final String accNum;
-        private HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-
-        public AccessionNumSopClassInfo(String accNum) {
-            this.accNum = accNum;
-        }
-
-        public String getAccNum() {
-            return accNum;
-        }
-        public HashMap<String, HashSet<String>> getSopClassMap() {
-            return sopClassMap;
-        }
-        public void addSOPInstance(RetrieveStudyInfo rInfo) {
-            String cuid = rInfo.getField(RetrieveStudyInfo.SOPCLASSUID);
-            HashSet<String> iuids = sopClassMap.get(cuid);
-            if (iuids == null) {
-                iuids = new HashSet<>();
-                sopClassMap.put(cuid, iuids);
-            }
-            iuids.add(rInfo.getField(RetrieveStudyInfo.SOPINSTANCEUID));
-        }
-    }
-
-    private static class RetrieveStudyInfo {
-        public static final int STUDYUID = 0;
-        public static final int ACCESSION = 1;
-        public static final int SOPCLASSUID = 2;
-        public static final int SOPINSTANCEUID = 3;
-        public static final int PATIENTID = 4;
-        public static final int PATIENTNAME = 5;
-
-        private final String[] fields;
-        public RetrieveStudyInfo(Attributes attrs) {
-            fields = new String[] {
-                    attrs.getString(Tag.StudyInstanceUID),
-                    attrs.getString(Tag.AccessionNumber),
-                    attrs.getString(Tag.SOPClassUID),
-                    attrs.getString(Tag.SOPInstanceUID),
-                    attrs.getString(Tag.PatientID, "<none>"),
-                    attrs.getString(Tag.PatientName, "<none>")
-            };
-        }
-        public RetrieveStudyInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-        public String getField(int field) {
-            return fields[field];
-        }
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    private static class RetrieveInfo {
-        public static final int LOCALHOST = 0;
-        public static final int LOCALAET = 1;
-        public static final int DESTHOST = 2;
-        public static final int DESTAET = 3;
-        public static final int DESTNAPID = 4;
-        public static final int DESTNAPCODE = 5;
-        public static final int REQUESTORHOST = 6;
-        public static final int MOVEAET = 7;
-        public static final int OUTCOME = 8;
-
-        private final String[] fields;
-
-        public RetrieveInfo(RetrieveContext ctx) {
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage() : null;
-            String destHost = (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : ctx.getDestinationAETitle();
-            String destNapID = (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null;
-            String destNapCode = (null != ctx.getDestinationHostName()) ? AuditMessages.NetworkAccessPointTypeCode.IPAddress : null;
-            fields = new String[] {
-                    ctx.getLocalApplicationEntity().getDevice().getDeviceName(),
-                    ctx.getLocalAETitle(),
-                    destHost,
-                    ctx.getDestinationAETitle(),
-                    destNapID,
-                    destNapCode,
-                    ctx.getRequestorHostName(),
-                    ctx.getMoveOriginatorAETitle(),
-                    outcome
-            };
-        }
-
-        public RetrieveInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        public String getField(int field) {
-            return fields[field];
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    private static class DeleteInfo {
-        public static final int LOCALHOST = 0;
-        public static final int LOCALAET = 1;
-        public static final int REMOTEHOST = 2;
-        public static final int REMOTEAET = 3;
-        public static final int STUDYUID = 4;
-        public static final int PATIENTID = 5;
-        public static final int PATIENTNAME = 6;
-        public static final int OUTCOME = 7;
-
-        private final String[] fields;
-
-        public DeleteInfo(StoreContext ctx) {
-            String outcomeDesc = (ctx.getException() != null)
-                    ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                    : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning();
-            fields = new String[]{
-                    ctx.getStoreSession().getArchiveAEExtension().getApplicationEntity().getDevice().getDeviceName(),
-                    ctx.getStoreSession().getCalledAET(),
-                    ctx.getStoreSession().getRemoteHostName(),
-                    ctx.getStoreSession().getCallingAET(),
-                    ctx.getStudyInstanceUID(),
-                    ctx.getAttributes().getString(Tag.PatientID, "<none>"),
-                    ctx.getAttributes().getString(Tag.PatientID, "<none>"),
-                    outcomeDesc
-            };
-        }
-
-        public DeleteInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        public String getField(int field) {
-            return fields[field];
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    private static class DeleteStudyInfo {
-        public static final int SOPCLASSUID = 0;
-        public static final int NUMINSTANCES = 1;
-
-        private final String[] fields;
-        public DeleteStudyInfo(String cuid, String numInst) {
-            ArrayList<String> list = new ArrayList<>();
-            list.add(cuid);
-            list.add(numInst);
-            this.fields = list.toArray(new String[list.size()]);
-        }
-        public DeleteStudyInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-        public String getField(int field) {
-            return field < fields.length ? fields[field] : null;
-        }
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-
-    private static class ConnectionRejectedInfo {
-        public static final int REMOTE_ADDR = 0;
-        public static final int LOCAL_ADDR = 1;
-        public static final int PO_DESC = 2;
-        public static final int OUTCOME_DESC = 3;
-        private final String[] fields;
-
-        public ConnectionRejectedInfo(Socket s, Throwable e) {
-            fields = new String[] {
-                    s.getRemoteSocketAddress().toString(),
-                    s.getLocalSocketAddress().toString(),
-                    e.getMessage(),
-                    "MinorFailure"
-            };
-        }
-
-        public ConnectionRejectedInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-        public String getField(int field) {
-            return fields[field];
-        }
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
+        AuditServiceUtils.deleteFile(file);
     }
 }

@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.audit.EventTypeCode;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
@@ -71,13 +73,13 @@ public class AuditTriggerObserver {
     private AuditService auditService;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        AuditService.EventType et = null;
+        AuditServiceUtils.EventType et = null;
         switch (event.getType()) {
             case STARTED:
-                et = AuditService.EventType.APPLNSTART;
+                et = AuditServiceUtils.EventType.APPLNSTART;
                 break;
             case STOPPED:
-                et = AuditService.EventType.APPLN_STOP;
+                et = AuditServiceUtils.EventType.APPLN_STOP;
                 break;
             case RELOADED:
                 return;
@@ -97,24 +99,16 @@ public class AuditTriggerObserver {
     }
 
     public void onQuery(@Observes QueryContext ctx) {
-        Association as = ctx.getAssociation();
-        HttpServletRequest request = ctx.getHttpRequest();
-        Attributes queryKeys = ctx.getQueryKeys();
-        String calledAET = ctx.getCalledAET();
-        String callingAET = ctx.getCallingAET();
-        String localDevice = ctx.getLocalApplicationEntity().getDevice().getDeviceName();
-        String remoteHostName = ctx.getRemoteHostName();
-        String sopClassUID = ctx.getSOPClassUID();
-        auditService.collateQuery(as, request, queryKeys, callingAET, calledAET, remoteHostName, localDevice, sopClassUID);
+        auditService.collateQuery(ctx);
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        AuditService.EventType et = AuditService.EventType.forBeginTransfer(ctx);
+        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
         auditService.collateRetrieve(ctx, et);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        AuditService.EventType et = AuditService.EventType.forDicomInstTransferred(ctx);
+        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
         auditService.collateRetrieve(ctx, et);
     }
 
