@@ -49,6 +49,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -83,6 +84,7 @@ import static java.security.AccessController.doPrivileged;
 public class AuditService {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private static final String tmpdir = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
+
     enum EventType {
         WADO_R_P__(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, true, false, false, null),
@@ -326,6 +328,11 @@ public class AuditService {
             LOG.warn("Failed to write to Audit Spool File - {} ", e);
         }
     }
+
+    public void spoolStudyDeleted(StudyDeleteContext ctx) {
+        // TODO
+    }
+
 
     private void auditInstanceDeletion(Path path, EventType eventType) {
         Calendar timestamp = log().timeStamp();

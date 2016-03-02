@@ -46,6 +46,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -53,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Calendar;
@@ -76,6 +78,9 @@ public class PurgeStorageScheduler extends Scheduler {
 
     @Inject
     private StorageFactory storageFactory;
+
+    @Inject
+    private Event<StudyDeleteContext> studyDeletedEvent;
 
     @Override
     protected Logger log() {
@@ -136,8 +141,8 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private List<Long> deleteStudy(List<Long> studyPks, StorageDescriptor desc, int fetchSize, boolean deletePatient) {
-        boolean studyDeleted = false;
-        while (!studyDeleted) {
+        boolean studyRemoved = false;
+        while (!studyRemoved) {
             if (studyPks.isEmpty()) {
                 try {
                     studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
@@ -151,13 +156,22 @@ public class PurgeStorageScheduler extends Scheduler {
                 }
             }
             Long studyPk = studyPks.remove(0);
+            StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
             try {
-                studyDeleted = ejb.removeStudyOnStorage(studyPk, deletePatient);
+                studyRemoved = ejb.removeStudyOnStorage(ctx, deletePatient);
+                if (studyRemoved) {
+                    LOG.info("Successfully delete {} on {} from database", ctx.getStudy(), desc.getStorageURI());
+                } else {
+                    LOG.warn("Failed to delete {} on {}", ctx.getStudy(), desc.getStorageURI(), ctx.getException());
+                }
+                studyDeletedEvent.fire(ctx);
             } catch (Exception e) {
-                LOG.warn("Failed to delete Study[pk={}]", studyPk, e);
+                LOG.warn("Failed to delete ", ctx.getStudy(), e);
+                ctx.setException(e);
+                studyDeletedEvent.fire(ctx);
                 return null;
             }
-        }
+        };
         return studyPks;
     }
 

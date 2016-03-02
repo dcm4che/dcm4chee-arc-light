@@ -91,7 +91,11 @@ import java.util.Date;
             "where st.studyInstanceUID = ?1"),
 @NamedQuery(
     name=Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST,
-    query="update Study st set st.failedSOPInstanceUIDList = NULL where st.studyInstanceUID = ?1")
+    query="update Study st set st.failedSOPInstanceUIDList = NULL where st.studyInstanceUID = ?1"),
+@NamedQuery(
+    name=Study.COUNT_STUDIES_OF_PATIENT,
+    query="select count(st) from Study st " +
+            "where st.patient = ?1")
 })
 @Entity
 @Table(name = "study",
@@ -116,6 +120,7 @@ public class Study {
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Study.ClearFailedSOPInstanceUIDList";
+    public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -376,5 +381,8 @@ public class Study {
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+    }
+
+    public class COUNT_STUDIES_OF_PATIENT {
     }
 }
