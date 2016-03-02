@@ -15,8 +15,61 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
 
             }else{
                 console.log("in directive schema=",DeviceService.getSchema(scope.selectedElement));
-                // console.log("schemas",schemas, "scope.form=",scope.form,",schemas[scope.selectedElement]=",schemas[scope.selectedElement][scope.selectedElement]["items"]);
-                scope.form[scope.selectedElement]["schema"] = schemas[scope.selectedElement][scope.selectedElement]["items"];
+                console.log("schemas",schemas, "scope.form=",scope.form,",schemas[scope.selectedElement]=",schemas[scope.selectedElement][scope.selectedElement]["items"]);
+                var test = setInterval(function(){
+                    $log.debug("length=",schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]);
+                    if(schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]){
+                        clearInterval(test);
+                        scope.form[scope.selectedElement]["schema"] = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement];
+                        scope.form[scope.selectedElement]["model"] = scope.wholeDevice;
+                    }else{
+                        $log.debug("waiting");
+                    }
+                },100);
+//                 scope.form[scope.selectedElement]["schema"] = {
+//           "title":"Image Writer",
+//           "description":"Specifies Java Image IO Image Writer and Write Parameter used for compressing DICOM images",
+//           "type":"object",
+//           "required":[
+//              "dicomTransferSyntax",
+//              "dcmIIOFormatName"
+//           ],
+//           "properties":{
+//              "dicomTransferSyntax":{
+//                 "title":"Transfer Syntax",
+//                 "description":"Transfer Syntax to which to compress the DICOM image",
+//                 "type":"string"
+//              },
+//              "dcmIIOFormatName":{
+//                 "title":"Image IO Writer Format Name",
+//                 "description":"Image IO Writer Format Name",
+//                 "type":"string"
+//              },
+//              "dcmJavaClassName":{
+//                 "title":"Java Class Name",
+//                 "description":"Fully qualified Java class of Image IO Writer. If absent, use any Image Writer found for specified Format Name",
+//                 "type":"string"
+//              },
+//              "dcmPatchJPEGLS":{
+//                 "title":"Patch JPEG-LS",
+//                 "description":"Patch JPEG-LS after compressing: JAI2ISO, ISO2JAI or ISO2JAI_IF_APP_OR_COM",
+//                 "type":"string",
+//                 "enum":[
+//                    "JAI2ISO",
+//                    "ISO2JAI",
+//                    "ISO2JAI_IF_APP_OR_COM"
+//                 ]
+//              },
+//              "dcmImageWriteParam":{
+//                 "title":"Image Write Param",
+//                 "description":"Image Write Parameter(s) (name=value) set at on Image Writer before compression",
+//                 "type":"array",
+//                 "items":{
+//                    "type":"string"
+//                 }
+//              }
+//           }
+// };
 //                 scope.form[scope.selectedElement]["schema"] = {
 //   "type": "object",
 //   "title": "Comment",
@@ -125,6 +178,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
 
                 var dicomNetConnSchema 		    = DeviceService.getSchemaDicomNetworkConn();
 	                scope.dicomNetConnSchema 	= dicomNetConnSchema.properties.dicomNetworkConnection.items;
+                    $log.debug("dicomNetConnSchema=",dicomNetConnSchema);
                 var index;
 
                 angular.forEach(scope.wholeDevice.dicomNetworkConnection,function(value,key) {

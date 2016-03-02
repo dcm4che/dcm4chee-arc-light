@@ -16,6 +16,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.dynamicform            = {};
     $scope.selectedPart           = {};
     $scope.selectObject           = $select;
+    //Just for debuging
+    $scope.schemas                = schemas;
 
     // var schemas = {};
     setTimeout(function(){
