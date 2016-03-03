@@ -23,7 +23,7 @@
     <li role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li>
 </ul>
 <img src="img/logo.png" class="logo">
-<div class="main_content" ng-view>
+<div class="main_content" ng-class="getPathName()" ng-view>
 </div>
 <div 
     class="scroll_up glyphicon glyphicon-menu-up animated" 

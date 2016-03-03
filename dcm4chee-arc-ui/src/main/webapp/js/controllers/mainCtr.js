@@ -21,5 +21,7 @@ myApp.controller('MainController', function ($scope,$location) {
             scrollTop: 0
         }, 300);
     };
-	
+	$scope.getPathName = function(){
+    return $location.path().replace(/\//g, '');;
+  };
 });

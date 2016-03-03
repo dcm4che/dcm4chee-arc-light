@@ -460,3 +460,177 @@ device and create an other one with the new name*/
 .scroll_up:hover{
     background: rgba(0, 0, 0, 1) none repeat scroll 0 0;
 }
+table{
+	&.subtable_1, &.subtable_2{
+    	width: 100%;
+
+		&, th, tr, td{
+			border:1px solid #ddd;
+		}
+		tr{
+			height:30px;
+		}
+	}
+
+}
+/* 
+.div-table{
+	  display:table;         
+	  width:100%;         
+	  background-color:#eee;         
+	  border:1px solid  #666666;         
+	  border-spacing:5px;
+	.thead, .tbody{
+		display: table;
+		width:100%;
+	}
+	.thead{
+		.th{
+			width:10%;
+		}
+	}
+	.tr_row{
+	  display:table-row;
+	  width:auto;
+	  clear:both;
+	      text-align: justify;
+	    -ms-text-justify: distribute-all-lines;
+	    text-justify: distribute-all-lines;
+	}
+	.td_cell, .th{
+	  float:left;
+	  display:table-column;         
+	  width:9%;         
+	  background-color:#ccc;  
+	  empty-cells: show;
+	}
+} */
+
+// .div-table    { display: table; }
+// .tr_row       { display: table-row; }
+// .thead    { display: table-header-group; }
+// .tbody    { display: table-row-group; }
+// .td_cell, .th  { display: table-cell; }
+		
+
+// .div-table {
+// 		    	display: table;
+// 		    	width: 100%;
+// 		}
+// .tr_row {
+//     	display: table-row;
+// }
+// .td_cell, .th{
+//     	display: table-cell;
+//     	padding: 3px 10px;
+//     	border: 1px solid #999999;
+// }
+// .thead {
+//     	display: table-header-group;
+//     	background-color: #ddd;
+//     	font-weight: bold;
+// }
+// .tbody {
+//     	display: table-row-group;
+// }
+
+.div-table .thead .tr_row{
+	display: inline-block;
+    width: 100%;
+	.th {
+	    border: 1px solid #ddd;
+	    float: left;
+	    width:10%;
+	}
+} 
+.tbody {
+    border: 1px solid #ddd;
+    float: left;
+    width: 100%;
+}
+.repeat1 {
+	.th{
+		// background:#ccc;
+	}
+	.tr_row .td_row .td_cell {
+	    float: left;
+	    width: 10.3%;
+		background:#ddd;
+	    .th{
+	    	float: left;
+	    }
+	}
+	.colcell{
+		width: 3%;
+		float:left;
+
+	}
+	.tr_row .td_row .td_cell.table_btn{
+		width:7%;
+	}
+	.subblock {
+	    display: inline-block;
+	    float: left;
+	    width: 97%;
+	    border:1px solid #aaa;
+	    .thead2{
+	    	.th{
+				float: left;
+				width:11%;
+				height: 25px;
+	    	}
+	    }
+	    .thead3{
+	    	.th{
+				float: left;
+				width:14%;
+				height: 25px;
+	    	}
+	    }
+		.repeat2{
+			.td_cell{
+
+				&.colcell{
+					width: 3%;
+				}
+			}
+			.subblock{
+
+				.tr_row{
+					.td_cell{
+						width:11.4%;
+						&.table_btn{
+							width:8%;
+						}
+					}
+
+				}
+				.repeat3{
+					.td_cell{
+					
+						&.colcell{
+							width: 3%;
+						}
+					}
+					.subblock{
+
+						.tr_row{
+							.td_cell{
+								width:14.5%;
+								height: 25px;
+								&.table_btn{
+									width:11.3%;
+								}
+							}
+
+						}
+					}
+				}
+			}
+		}
+	}
+
+}
+.main_content.studies{
+	float:left;
+}
