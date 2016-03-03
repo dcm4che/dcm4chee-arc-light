@@ -90,30 +90,30 @@ public class AuditTriggerObserver {
 
     public void onStore(@Observes StoreContext ctx) {
         if ((null != ctx.getRejectionNote())) {
-            auditService.collateInstancesDeleted(ctx);
+            auditService.spoolInstancesDeleted(ctx);
             return;
         }
         if (ctx.getLocation() == null && null == ctx.getException())
             return;
-        auditService.collateInstanceStored(ctx);
+        auditService.spoolInstanceStored(ctx);
     }
 
     public void onQuery(@Observes QueryContext ctx) {
-        auditService.collateQuery(ctx);
+        auditService.spoolQuery(ctx);
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
         AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
-        auditService.collateRetrieve(ctx, et);
+        auditService.spoolRetrieve(ctx, et);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
         AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
-        auditService.collateRetrieve(ctx, et);
+        auditService.spoolRetrieve(ctx, et);
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        auditService.collateWADORetrieve(ctx);
+        auditService.spoolWADORetrieve(ctx);
     }
 
     public void onStudyDeleted(@Observes StudyDeleteContext ctx) {
@@ -151,7 +151,7 @@ public class AuditTriggerObserver {
     }
 
     private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
-        auditService.collateConnectionRejected(s, e);
+        auditService.spoolConnectionRejected(conn, s, e);
     }
 
     private void onConnectionAccepted(Connection conn, Socket s) {
