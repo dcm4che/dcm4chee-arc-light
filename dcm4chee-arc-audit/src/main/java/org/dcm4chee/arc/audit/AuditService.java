@@ -552,7 +552,8 @@ public class AuditService {
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             patientStudyInfo = new AuditServiceUtils.PatientStudyInfo(reader.readLine());
             outcome = patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.OUTCOME);
-            accNos.add(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.ACCESSION_NO));
+            if (null != patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.ACCESSION_NO))
+                accNos.add(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.ACCESSION_NO));
             String line;
             while ((line = reader.readLine()) != null) {
                 AuditServiceUtils.InstanceInfo instanceInfo = new AuditServiceUtils.InstanceInfo(line);
@@ -563,8 +564,8 @@ public class AuditService {
                 }
                 iuids.add(instanceInfo.getField(AuditServiceUtils.InstanceInfo.INSTANCE_UID));
                 mppsUIDs.add(instanceInfo.getField(AuditServiceUtils.InstanceInfo.MPPS_UID));
-                for (int i = AuditServiceUtils.InstanceInfo.ACCESSION_NO; instanceInfo.getField(i) != null; i++)
-                    accNos.add(instanceInfo.getField(i));
+//                for (int i = AuditServiceUtils.InstanceInfo.ACCESSION_NO; instanceInfo.getField(i) != null; i++)
+//                    accNos.add(instanceInfo.getField(i));
             }
         } catch (Exception e) {
             LOG.warn("Failed to read Audit Spool File - {} ", path, e);

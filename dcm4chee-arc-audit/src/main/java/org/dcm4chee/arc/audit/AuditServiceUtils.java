@@ -246,9 +246,9 @@ public class AuditServiceUtils {
                     session.getCallingAET(),
                     session.getCalledAET(),
                     ctx.getStudyInstanceUID(),
-                    attrs.getString(Tag.AccessionNumber, ""),
-                    attrs.getString(Tag.PatientID, ""),
-                    attrs.getString(Tag.PatientName, ""),
+                    attrs.getString(Tag.AccessionNumber),
+                    attrs.getString(Tag.PatientID, noValue),
+                    attrs.getString(Tag.PatientName),
                     outcome
             };
         }
@@ -260,9 +260,9 @@ public class AuditServiceUtils {
                     null,
                     ctx.getLocalAETitle(),
                     ctx.getStudyInstanceUIDs()[0],
-                    attrs.getString(Tag.AccessionNumber, ""),
-                    attrs.getString(Tag.PatientID, ""),
-                    attrs.getString(Tag.PatientName, ""),
+                    attrs.getString(Tag.AccessionNumber),
+                    attrs.getString(Tag.PatientID, noValue),
+                    attrs.getString(Tag.PatientName),
                     outcome
             };
         }
@@ -285,7 +285,7 @@ public class AuditServiceUtils {
         public static final int CLASS_UID = 0;
         public static final int INSTANCE_UID = 1;
         public static final int MPPS_UID = 2;
-        public static final int ACCESSION_NO = 3;
+//        public static final int ACCESSION_NO = 3;
 
         private final String[] fields;
 
@@ -294,13 +294,13 @@ public class AuditServiceUtils {
             list.add(ctx.getSopClassUID());
             list.add(ctx.getSopInstanceUID());
             list.add(StringUtils.maskNull(ctx.getMppsInstanceUID(), ""));
-            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
-            if (reqAttrs != null)
-                for (Attributes reqAttr : reqAttrs) {
-                    String accno = reqAttr.getString(Tag.AccessionNumber);
-                    if (accno != null)
-                        list.add(accno);
-                }
+//            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
+//            if (reqAttrs != null)
+//                for (Attributes reqAttr : reqAttrs) {
+//                    String accno = reqAttr.getString(Tag.AccessionNumber);
+//                    if (accno != null)
+//                        list.add(accno);
+//                }
             this.fields = list.toArray(new String[list.size()]);
         }
 
@@ -309,13 +309,13 @@ public class AuditServiceUtils {
             list.add(attrs.getString(Tag.SOPClassUID));
             list.add(ctx.getSopInstanceUIDs()[0]);
             list.add("");
-            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
-            if (reqAttrs != null)
-                for (Attributes reqAttr : reqAttrs) {
-                    String accno = reqAttr.getString(Tag.AccessionNumber);
-                    if (accno != null)
-                        list.add(accno);
-                }
+//            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
+//            if (reqAttrs != null)
+//                for (Attributes reqAttr : reqAttrs) {
+//                String accno = reqAttr.getString(Tag.AccessionNumber, "");
+//                    if (accno != null)
+//                        list.add(accno);
+//                }
             this.fields = list.toArray(new String[list.size()]);
         }
 
