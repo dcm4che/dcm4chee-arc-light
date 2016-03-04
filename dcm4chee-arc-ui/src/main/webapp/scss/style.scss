@@ -534,13 +534,29 @@ table{
 //     	display: table-row-group;
 // }
 
-.div-table .thead .tr_row{
-	display: inline-block;
-    width: 100%;
-	.th {
-	    border: 1px solid #ddd;
-	    float: left;
-	    width:10%;
+.div-table .thead {
+	.td_cell{
+	    background: #666 none repeat scroll 0 0;
+	    border: 1px solid white;
+	    color: white;
+	    font-size: 14px;
+	    font-weight: bold;
+	    height: 34px;
+	    line-height: 33px;
+	    padding-left: 7px;
+	    vertical-align: middle;
+	}
+	.tr_row{
+		display: inline-block;
+	    width: 100%;
+		.th {
+ 			border: 1px solid #ddd;
+		    float: left;
+		    height: 30px;
+		    line-height: 30px;
+		    padding-left: 7px;
+		    width: 10%;
+		}
 	}
 } 
 .tbody {
@@ -555,7 +571,7 @@ table{
 	.tr_row .td_row .td_cell {
 	    float: left;
 	    width: 10.3%;
-		background:#ddd;
+		// background:#ddd;
 	    .th{
 	    	float: left;
 	    }
@@ -563,21 +579,52 @@ table{
 	.colcell{
 		width: 3%;
 		float:left;
+		text-align: center;
 
 	}
 	.tr_row .td_row .td_cell.table_btn{
-		width:7%;
+	   	background: transparent none repeat scroll 0 0;
+	    height: 30px;
+	    line-height: 30px;
+	    padding-left: 0;
+	    width: 7%;
 	}
 	.subblock {
 	    display: inline-block;
 	    float: left;
 	    width: 97%;
 	    border:1px solid #aaa;
+	    .td_cell.table_btn > a {
+		   background: #ddd none repeat scroll 0 0;
+		    border: 1px solid #ccc;
+		    float: left;
+		    text-align: center;
+		    width: 25%;
+		}
+	    .td_row{
+	    	.tr_row{
+	    		.td_cell.attribute_list{
+	    			width:100%;
+	    			table{
+	    				background:white;
+	    			}
+	    		}
+	    	}
+	    }
+	    .thead{
+	    	box-shadow: 4px 4px 9px 0 rgba(0, 0, 0, 0.53);
+		    display: block;
+		    float: left;
+		    width: 100%;
+	    }
 	    .thead2{
 	    	.th{
-				float: left;
-				width:11%;
-				height: 25px;
+			    border: 1px solid #ddd;
+			    float: left;
+			    height: 30px;
+			    line-height: 30px;
+			    padding-left: 7px;
+			    width: 11%;
 	    	}
 	    }
 	    .thead3{
@@ -595,13 +642,29 @@ table{
 				}
 			}
 			.subblock{
-
+				.tr_row > .td_cell{
+					background: #848484 none repeat scroll 0 0;
+				    color: white;
+				    font-weight: bold;
+				    height: 30px;
+				    line-height: 30px;
+				    padding-left: 7px;
+				    &.attribute_list{
+				    	height: auto;
+				    	color: black;
+				    	font-weight: normal;
+				    }
+				}
 				.tr_row{
 					.td_cell{
 						width:11.4%;
 						&.table_btn{
 							width:8%;
+							padding-left:0;
 						}
+					}
+					.td_cell.attribute_list{
+						width: 100%;
 					}
 
 				}
@@ -616,8 +679,10 @@ table{
 
 						.tr_row{
 							.td_cell{
+								background:white;
+								color: black;
 								width:14.5%;
-								height: 25px;
+								height: 30px;
 								&.table_btn{
 									width:11.3%;
 								}
