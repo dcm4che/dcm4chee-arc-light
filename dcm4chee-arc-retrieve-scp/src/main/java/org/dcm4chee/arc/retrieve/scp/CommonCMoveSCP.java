@@ -74,6 +74,7 @@ import java.util.*;
 class CommonCMoveSCP extends BasicCMoveSCP {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommonCMoveSCP.class);
+    private static final int MAX_FAILED_IUIDS_LEN = 4000;
 
     private final EnumSet<QueryRetrieveLevel2> qrLevels;
 
@@ -218,7 +219,13 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         for (String iuid : failedSOPInstanceUIDList) {
             failedIUIDs.add(iuid);
         }
-        return StringUtils.concat(failedSOPInstanceUIDList, '\\');
+        String concat = StringUtils.concat(failedSOPInstanceUIDList, '\\');
+        if (concat.length() > MAX_FAILED_IUIDS_LEN) {
+            LOG.warn("{}: Failed SOP Instance UID List [{}] in C-MOVE-RSP from {} too large to persist in DB",
+                    as, failed, fallbackCMoveSCP);
+            return def;
+        }
+        return concat;
     }
 
     private int retryRetrieveFrom(RetrieveContext ctx, PresentationContext pc, Attributes rq, StudyInfo studyInfo,

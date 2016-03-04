@@ -65,7 +65,7 @@
     <sequence-generator name="study_pk_seq" sequence-name="study_pk_seq" allocation-size="1"/>
     <attributes>
       <basic name="failedSOPInstanceUIDList">
-        <column name="failed_iuids" column-definition="varchar(32768)" />
+        <column name="failed_iuids" column-definition="varchar(4000)" />
       </basic>
     </attributes>
   </entity>
