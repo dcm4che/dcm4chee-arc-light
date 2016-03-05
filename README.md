@@ -9,10 +9,6 @@ DICOM Archive Java EE application running in WildFly.
 
 This is a complete rewrite of [DCM4CHEE Archive 2.x](http://www.dcm4che.org/confluence/display/ee2/Home).
 
-It started as refactoring of [DCM4CHEE Archive 4.x](https://github.com/dcm4che/dcm4chee-arc-cdi),
-eliminating complexity only needed for integration with proprietary systems of the company
-which drives development of DCM4CHEE Archive 4.x.
-
 One major improvement to 2.x is the use of LDAP as central configuration,
 compliant to the DICOM Application Configuration Management Profile,
 specified in [DICOM 2015, Part 15, Annex H][1].
