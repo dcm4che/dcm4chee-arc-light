@@ -536,19 +536,21 @@ table{
 
 .div-table .thead {
 	.td_cell{
-	    background: #666 none repeat scroll 0 0;
-	    border: 1px solid white;
-	    color: white;
+	    // background: #666 none repeat scroll 0 0;
+	    // border: 1px solid white;
+	    // color: white;
 	    font-size: 14px;
 	    font-weight: bold;
-	    height: 34px;
-	    line-height: 33px;
+	    height: 30px;
+	    line-height: 30px;
 	    padding-left: 7px;
 	    vertical-align: middle;
 	}
 	.tr_row{
 		display: inline-block;
 	    width: 100%;
+	    background:#666;
+	    color: white;
 		.th {
  			border: 1px solid #ddd;
 		    float: left;
@@ -556,6 +558,9 @@ table{
 		    line-height: 30px;
 		    padding-left: 7px;
 		    width: 10%;
+		    button{
+		    	color: white;
+		    }
 		}
 	}
 } 
@@ -572,6 +577,9 @@ table{
 	    float: left;
 	    width: 10.3%;
 		// background:#ddd;
+		&:last-child{
+			border-right:0;
+		}
 	    .th{
 	    	float: left;
 	    }
@@ -580,6 +588,8 @@ table{
 		width: 3%;
 		float:left;
 		text-align: center;
+		height: 30px;
+		line-height: 30px;
 
 	}
 	.tr_row .td_row .td_cell.table_btn{
@@ -600,6 +610,11 @@ table{
 		    float: left;
 		    text-align: center;
 		    width: 25%;
+		    color: black;
+			&:hover{
+				background:#C2C2C2;
+			}
+
 		}
 	    .td_row{
 	    	.tr_row{
@@ -612,26 +627,62 @@ table{
 	    	}
 	    }
 	    .thead{
-	    	box-shadow: 4px 4px 9px 0 rgba(0, 0, 0, 0.53);
+	    	// box-shadow: 4px 4px 9px 0 rgba(0, 0, 0, 0.53);
+		    display: block;
+		    float: left;
+		    width: 100%;
+		    background:transparent;
+
+	    }
+	    &>.thead.td_row{
+	    	background:white;
+	    	box-shadow:none;
+	    }
+	    &>.td_row{
+	    	box-shadow: inset 3px 7px 10px 1px black;
+	    	background: rgba(204, 204, 204, 0.38) none repeat scroll 0 0;
 		    display: block;
 		    float: left;
 		    width: 100%;
 	    }
 	    .thead2{
+	    	// background:#848484;
+	    	background: rgba(132, 132, 132, 0.68) none repeat scroll 0 0;
+	    	// background:white;
+	    	color: white;
+	    	display: block;
+	    	float: left;
+	    	width:100%;
+    // color: white;
+    // display: block;
+    // float: left;
+    // width: 100%;
 	    	.th{
-			    border: 1px solid #ddd;
+			    border-right: 1px solid #ddd;
 			    float: left;
 			    height: 30px;
 			    line-height: 30px;
 			    padding-left: 7px;
 			    width: 11%;
+				&:last-child{
+					border-right:0;
+				}
+			    button{
+			    	color:white;
+			    }
 	    	}
 	    }
 	    .thead3{
 	    	.th{
 				float: left;
 				width:14%;
-				height: 25px;
+				height: 30px;
+				line-height: 30px;
+				background:rgba(186, 186, 186, 0.52);
+				padding-left:7px;
+				button{
+					color: black;
+				}
 	    	}
 	    }
 		.repeat2{
@@ -639,12 +690,14 @@ table{
 
 				&.colcell{
 					width: 3%;
+					height: 30px;
+					line-height: 30px;
 				}
 			}
 			.subblock{
 				.tr_row > .td_cell{
-					background: #848484 none repeat scroll 0 0;
-				    color: white;
+					// background: #848484 none repeat scroll 0 0;
+				    // color: white;
 				    font-weight: bold;
 				    height: 30px;
 				    line-height: 30px;
@@ -676,13 +729,20 @@ table{
 						}
 					}
 					.subblock{
-
+						background:white;
+						.td_cell.table_btn > a {
+							width:16%;
+						}
 						.tr_row{
 							.td_cell{
 								background:white;
 								color: black;
 								width:14.5%;
 								height: 30px;
+								&.attribute_list{
+									width: 100%;
+									height: auto;
+								}
 								&.table_btn{
 									width:11.3%;
 								}
@@ -698,4 +758,9 @@ table{
 }
 .main_content.studies{
 	float:left;
+}
+.btn.disabled, .btn[disabled], fieldset[disabled] .btn {
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.34;
 }
