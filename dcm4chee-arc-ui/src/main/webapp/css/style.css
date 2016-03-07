@@ -434,7 +434,6 @@ table.subtable_1, table.subtable_2 {
 } */
 .div-table .thead .td_cell {
   font-size: 14px;
-  font-weight: bold;
   height: 30px;
   line-height: 30px;
   padding-left: 7px;
@@ -533,9 +532,12 @@ table.subtable_1, table.subtable_2 {
     height: 30px;
     line-height: 30px;
     background: rgba(186, 186, 186, 0.52);
-    padding-left: 7px; }
+    padding-left: 7px;
+    border-top: 2px solid rgba(0, 0, 0, 0.55); }
     .repeat1 .subblock .thead3 .th button {
       color: black; }
+    .repeat1 .subblock .thead3 .th:first-child {
+      border-left: 2px solid rgba(0, 0, 0, 0.55); }
   .repeat1 .subblock .repeat2 .td_cell.colcell {
     width: 3%;
     height: 30px;
@@ -557,7 +559,9 @@ table.subtable_1, table.subtable_2 {
   .repeat1 .subblock .repeat2 .subblock .tr_row .td_cell.attribute_list {
     width: 100%; }
   .repeat1 .subblock .repeat2 .subblock .repeat3 .td_cell.colcell {
-    width: 3%; }
+    width: 3%;
+    border-left: 2px solid rgba(0, 0, 0, 0.55);
+    height: 32px; }
   .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock {
     background: white; }
     .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn > a {

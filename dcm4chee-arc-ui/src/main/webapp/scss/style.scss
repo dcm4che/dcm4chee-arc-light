@@ -540,7 +540,7 @@ table{
 	    // border: 1px solid white;
 	    // color: white;
 	    font-size: 14px;
-	    font-weight: bold;
+	    // font-weight: bold;
 	    height: 30px;
 	    line-height: 30px;
 	    padding-left: 7px;
@@ -680,8 +680,12 @@ table{
 				line-height: 30px;
 				background:rgba(186, 186, 186, 0.52);
 				padding-left:7px;
+				border-top: 2px solid rgba(0, 0, 0, 0.55);
 				button{
 					color: black;
+				}
+				&:first-child{
+					 border-left: 2px solid rgba(0, 0, 0, 0.55);
 				}
 	    	}
 	    }
@@ -726,6 +730,8 @@ table{
 					
 						&.colcell{
 							width: 3%;
+							border-left: 2px solid rgba(0, 0, 0, 0.55);
+							height: 32px;
 						}
 					}
 					.subblock{
