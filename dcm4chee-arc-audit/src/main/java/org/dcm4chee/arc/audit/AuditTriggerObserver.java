@@ -47,6 +47,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveWADO;
@@ -72,56 +73,51 @@ public class AuditTriggerObserver {
     private AuditService auditService;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        EventTypeCode eventTypeCode = null;
+        AuditServiceUtils.EventType et = null;
         switch (event.getType()) {
             case STARTED:
-                eventTypeCode = AuditMessages.EventTypeCode.ApplicationStart;
+                et = AuditServiceUtils.EventType.APPLNSTART;
                 break;
             case STOPPED:
-                eventTypeCode = AuditMessages.EventTypeCode.ApplicationStop;
+                et = AuditServiceUtils.EventType.APPLN_STOP;
                 break;
             case RELOADED:
                 return;
         }
         HttpServletRequest request = event.getRequest();
-        auditService.auditApplicationActivity(eventTypeCode, request);
+        auditService.auditApplicationActivity(et, request);
     }
 
     public void onStore(@Observes StoreContext ctx) {
         if ((null != ctx.getRejectionNote())) {
-            auditService.auditInstancesDeleted(ctx);
+            auditService.spoolInstancesDeleted(ctx);
             return;
         }
-        if (ctx.getLocation() == null)
+        if (ctx.getLocation() == null && null == ctx.getException())
             return;
-
-        auditService.auditInstanceStored(ctx);
+        auditService.spoolInstanceStored(ctx);
     }
 
     public void onQuery(@Observes QueryContext ctx) {
-        Association as = ctx.getAssociation();
-        HttpServletRequest request = ctx.getHttpRequest();
-        Attributes queryKeys = ctx.getQueryKeys();
-        String calledAET = ctx.getCalledAET();
-        String callingAET = ctx.getCallingAET();
-        String localDevice = ctx.getLocalApplicationEntity().getDevice().getDeviceName();
-        String remoteHostName = ctx.getRemoteHostName();
-        String sopClassUID = ctx.getSOPClassUID();
-        auditService.auditQuery(as, request, queryKeys, callingAET, calledAET, remoteHostName, localDevice, sopClassUID);
+        auditService.spoolQuery(ctx);
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        AuditMessages.EventID eid = AuditMessages.EventID.BeginTransferringDICOMInstances;
-        auditService.auditDICOMInstancesTransfer(ctx, eid, ctx.getException());
+        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
+        auditService.spoolRetrieve(ctx, et);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        AuditMessages.EventID eid = AuditMessages.EventID.DICOMInstancesTransferred;
-        auditService.auditDICOMInstancesTransfer(ctx, eid, ctx.getException());
+        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
+        auditService.spoolRetrieve(ctx, et);
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        auditService.auditWADORetrieve(ctx);
+        auditService.spoolWADORetrieve(ctx);
+    }
+
+    public void onStudyDeleted(@Observes StudyDeleteContext ctx) {
+        auditService.spoolStudyDeleted(ctx);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
@@ -155,7 +151,7 @@ public class AuditTriggerObserver {
     }
 
     private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
-        auditService.auditConnectionRejected(s, e);
+        auditService.spoolConnectionRejected(conn, s, e);
     }
 
     private void onConnectionAccepted(Connection conn, Socket s) {

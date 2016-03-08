@@ -52,6 +52,7 @@ import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.StudyInfo;
 import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
@@ -78,6 +79,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private int moveOriginatorMessageID;
     private String moveOriginatorAETitle;
     private String destinationAETitle;
+    private ApplicationEntity destinationAE;
     private Exception exception;
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
@@ -85,6 +87,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private String[] sopInstanceUIDs = {};
     private int numberOfMatches;
     private final Collection<InstanceLocations> matches = new ArrayList<>();
+    private final Collection<StudyInfo> studyInfos = new ArrayList<>();
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
     private final Collection<String> failedSOPInstanceUIDs =
@@ -202,6 +205,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public void setDestinationAE(ApplicationEntity destinationAE) {
+        this.destinationAE = destinationAE;
+    }
+
+    @Override
     public Exception getException() {
         return exception;
     }
@@ -234,7 +242,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     public String getDestinationHostName() {
         return httpRequest != null
                 ? httpRequest.getRemoteHost()
-                : storeAssociation.getSocket().getInetAddress().getHostName();
+                : storeAssociation != null
+                    ? storeAssociation.getSocket().getInetAddress().getHostName()
+                    : destinationAE != null && !destinationAE.getConnections().isEmpty()
+                        ? destinationAE.getConnections().get(0).getHostname()
+                        : null;
     }
 
     @Override
@@ -293,6 +305,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public Collection<StudyInfo> getStudyInfos() {
+        return studyInfos;
+    }
+
+    @Override
     public int getNumberOfMatches() {
         return numberOfMatches;
     }
@@ -300,6 +317,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setNumberOfMatches(int numberOfMatches) {
         this.numberOfMatches = numberOfMatches;
+    }
+
+    @Override
+    public void incrementNumberOfMatches(int inc) {
+        numberOfMatches += inc;
     }
 
     @Override

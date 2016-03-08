@@ -73,13 +73,18 @@ public class AuditScheduler extends Scheduler {
     private AuditService service;
 
     @Override
+    protected Logger log() {
+        return LOG;
+    }
+
+    @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         return arcDev.isAuditAggregate() ? arcDev.getAuditPollingInterval() : null;
     }
 
     @Override
-    public void run() {
+    protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String auditSpoolDir = arcDev.getAuditSpoolDirectory();
         Duration duration = arcDev.getAuditAggregateDuration();

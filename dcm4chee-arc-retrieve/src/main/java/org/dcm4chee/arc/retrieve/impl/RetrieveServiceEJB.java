@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Study;
 
 import javax.ejb.Stateless;
@@ -59,6 +60,19 @@ public class RetrieveServiceEJB {
     public void updateStudyAccessTime(Long studyPk) {
         em.createNamedQuery(Study.UPDATE_ACCESS_TIME)
                 .setParameter(1, studyPk)
+                .executeUpdate();
+    }
+
+    public void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList) {
+        em.createNamedQuery(Study.INCREMENT_FAILED_RETRIEVES)
+                .setParameter(1, studyInstanceUID)
+                .setParameter(2, failedSOPInstanceUIDList)
+                .executeUpdate();
+    }
+
+    public void clearFailedSOPInstanceUIDList(String studyInstanceUID) {
+        em.createNamedQuery(Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST)
+                .setParameter(1, studyInstanceUID)
                 .executeUpdate();
     }
 }

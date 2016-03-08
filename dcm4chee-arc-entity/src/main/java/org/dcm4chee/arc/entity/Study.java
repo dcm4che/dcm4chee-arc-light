@@ -84,7 +84,18 @@ import java.util.Date;
             "order by st.accessTime"),
 @NamedQuery(
     name=Study.UPDATE_ACCESS_TIME,
-    query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1")
+    query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1"),
+@NamedQuery(
+    name=Study.INCREMENT_FAILED_RETRIEVES,
+    query="update Study st set st.failedRetrieves = st.failedRetrieves + 1, st.failedSOPInstanceUIDList = ?2 " +
+            "where st.studyInstanceUID = ?1"),
+@NamedQuery(
+    name=Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST,
+    query="update Study st set st.failedSOPInstanceUIDList = NULL where st.studyInstanceUID = ?1"),
+@NamedQuery(
+    name=Study.COUNT_STUDIES_OF_PATIENT,
+    query="select count(st) from Study st " +
+            "where st.patient = ?1")
 })
 @Entity
 @Table(name = "study",
@@ -107,6 +118,9 @@ public class Study {
     public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
     public static final String FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME = "Study.findPkByStorageIDOrderByAccessTime";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
+    public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
+    public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Study.ClearFailedSOPInstanceUIDList";
+    public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -135,6 +149,13 @@ public class Study {
     @Basic(optional = false)
     @Column(name = "scattered_storage")
     private boolean scatteredStorage;
+
+    @Column(name = "failed_iuids")
+    private String failedSOPInstanceUIDList;
+
+    @Basic(optional = false)
+    @Column(name = "failed_retrieves")
+    private int failedRetrieves;
 
     @Basic(optional = false)
     @Column(name = "study_iuid", updatable = false)
@@ -362,4 +383,6 @@ public class Study {
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
     }
 
+    public class COUNT_STUDIES_OF_PATIENT {
+    }
 }

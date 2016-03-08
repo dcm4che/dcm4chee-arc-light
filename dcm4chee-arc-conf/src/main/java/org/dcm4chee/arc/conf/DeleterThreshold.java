@@ -63,7 +63,7 @@ public class DeleterThreshold implements Comparable<DeleterThreshold> {
             case 2:
                 String[] split2 = StringUtils.split(split1[0], '[');
                 if (split2.length == 2) {
-                    this.schedule = ScheduleExpression.valueOf(split2[split2.length - 1]);
+                    this.schedule = ScheduleExpression.valueOf(split2[1]);
                     break;
                 }
             default:

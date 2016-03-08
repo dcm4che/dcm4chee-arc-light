@@ -42,16 +42,16 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -59,8 +59,6 @@ import java.util.*;
  */
 @Stateless
 public class DeletionServiceEJB {
-
-    static final Logger LOG = LoggerFactory.getLogger(DeletionServiceEJB.class);
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -92,22 +90,23 @@ public class DeletionServiceEJB {
         em.remove(em.merge(location));
     }
 
-    public boolean removeStudyOnStorage(Long studyPk, boolean deletePatient) {
+    public boolean removeStudyOnStorage(StudyDeleteContext ctx, boolean deletePatient) {
+        Long studyPk = ctx.getStudyPk();
         List<String> storageIDs = em.createNamedQuery(Location.FIND_STORAGE_IDS_BY_STUDY_PK, String.class)
                 .setParameter(1, studyPk)
                 .getResultList();
         if (storageIDs.size() > 1) {
             Study study = em.find(Study.class, studyPk);
             study.setScatteredStorage(true);
-            LOG.info("objects of {} scattered over Storages{} - will not be deleted", study, storageIDs);
+            ctx.setStudy(study);
+            ctx.setPatient(study.getPatient());
+            ctx.setException(new Exception("objects scattered over multiple Storages" + storageIDs));
             return false;
         }
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                 .setParameter(1, studyPk)
                 .getResultList();
-        List<Study> deleteWholeStudy = new ArrayList<>(1);
-        deleteInstances(locations, deleteWholeStudy, deletePatient);
-        LOG.info("Successfully delete {} on Storage{} from database", deleteWholeStudy.get(0), storageIDs);
+        deleteInstances(locations, ctx, deletePatient);
         return true;
     }
 
@@ -131,7 +130,7 @@ public class DeletionServiceEJB {
         return deleteInstances(locations, null, false);
     }
 
-    private int deleteInstances(List<Location> locations, List<Study> deleteWholeStudy, boolean deletePatient) {
+    private int deleteInstances(List<Location> locations, StudyDeleteContext studyDeleteContext, boolean deletePatient) {
         if (locations.isEmpty())
             return 0;
 
@@ -149,6 +148,8 @@ public class DeletionServiceEJB {
                 series.put(ser.getPk(), ser);
                 deleteSeriesQueryAttributes(ser);
             }
+            if (studyDeleteContext != null)
+                studyDeleteContext.addInstance(inst);
             em.remove(inst);
         }
         HashMap<Long,Study> studies = new HashMap<>();
@@ -157,30 +158,34 @@ public class DeletionServiceEJB {
             if (!studies.containsKey(study.getPk())) {
                 studies.put(study.getPk(), study);
                 deleteStudyQueryAttributes(study);
+                if (studyDeleteContext != null) {
+                    studyDeleteContext.setStudy(study);
+                    studyDeleteContext.setPatient(study.getPatient());
+                }
             }
-            if (deleteWholeStudy != null || countInstancesOfSeries(ser) == 0) {
+            if (studyDeleteContext != null || countInstancesOfSeries(ser) == 0) {
                 em.remove(ser);
             } else {
                 studies.put(study.getPk(), null);
             }
         }
-        Patient patient = null;
+        HashMap<Long,Patient> patients = new HashMap<>();
         for (Study study : studies.values()) {
             if (study == null)
                 continue;
 
-            if (deleteWholeStudy != null) {
-                deleteWholeStudy.add(study);
-            } else if (countSeriesOfStudy(study) > 0) {
-                deletePatient = false;
-                continue;
+            Patient patient = study.getPatient();
+            if (studyDeleteContext != null || countSeriesOfStudy(study) == 0) {
+                em.remove(study);
+                if (deletePatient && !patients.containsKey(patient.getPk()))
+                    patients.put(patient.getPk(), patient);
+            } else {
+                patients.put(patient.getPk(), null);
             }
-            if (patient == null && deletePatient)
-                patient = study.getPatient();
-            em.remove(study);
         }
-        if (patient != null) {
-            deletePatient(patient);
+        for (Patient patient : patients.values()) {
+            if (patient != null && countStudiesOfPatient(patient) == 0)
+                deletePatient(patient);
         }
         return insts.size();
     }
@@ -197,6 +202,11 @@ public class DeletionServiceEJB {
         for (MPPS mpps : mppsList)
             em.remove(mpps);
         em.remove(patient);
+    }
+
+    private long countStudiesOfPatient(Patient patient) {
+        return em.createNamedQuery(Study.COUNT_STUDIES_OF_PATIENT, Long.class).setParameter(1, patient)
+                .getSingleResult();
     }
 
     private long countSeriesOfStudy(Study study) {

@@ -40,32 +40,94 @@
     },
     "dcmAuditFacility": {
       "title": "Syslog Facility",
-      "description": "RFC 5424 Syslog Facility value of audit message: 0-23; 10 (authpriv) if absent",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 13
+      "description": "RFC 5424 Syslog Facility string value of audit message; 'authpriv' if absent",
+      "type": "string",
+      "enum": [
+        "kern",
+        "user",
+        "mail",
+        "daemon",
+        "auth",
+        "syslog",
+        "lpr",
+        "news",
+        "uucp",
+        "cron",
+        "authpriv",
+        "ftp",
+        "ntp",
+        "audit",
+        "console",
+        "cron2",
+        "local0",
+        "local1",
+        "local2",
+        "local3",
+        "local4",
+        "local5",
+        "local6",
+        "local7"
+      ]
     },
     "dcmAuditSuccessSeverity": {
       "title": "Syslog Severity - Success",
-      "description": "RFC 5424 Syslog Severity of audit message with Event Outcome Indicator 0 (Success); 5 (notice) if absent",
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 7
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 0 (Success); 'notice' if absent",
+      "type": "string",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
     },
     "dcmAuditMinorFailureSeverity": {
       "title": "Syslog Severity - Failure",
-      "description": "RFC 5424 Syslog Severity of audit message with Event Outcome Indicator 4 (Minor failure); 4 (warning) if absent",
-      "type": "string"
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 4 (Minor failure); 'warning' if absent",
+      "type": "string",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
     },
     "dcmAuditSeriousFailureSeverity": {
       "title": "Syslog Severity - Failure",
-      "description": "RFC 5424 Syslog Severity of audit message with Event Outcome Indicator 8 (Serious failure); 3 (err) if absent",
-      "type": "string"
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 8 (Serious failure); 'err' if absent",
+      "type": "string",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
     },
     "dcmAuditMajorFailureSeverity": {
       "title": "Syslog Severity - Major",
-      "description": "RFC 5424 Syslog Severity of audit message with Event Outcome Indicator 12 (Major failure); 2 (crit) if absent",
-      "type": "string"
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 12 (Major failure); 'crit' if absent",
+      "type": "string",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
     },
     "dcmAuditApplicationName": {
       "title": "Syslog Application Name",

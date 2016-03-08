@@ -63,6 +63,7 @@ import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.StudyInfo;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -102,7 +103,10 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     static final Expression<?>[] PATIENT_STUDY_SERIES_ATTRS = {
             QStudy.study.pk,
+            QStudy.study.studyInstanceUID,
             QStudy.study.accessTime,
+            QStudy.study.failedRetrieves,
+            QStudy.study.failedSOPInstanceUIDList,
             QueryBuilder.seriesAttributesBlob.encodedAttributes,
             QueryBuilder.studyAttributesBlob.encodedAttributes,
             QueryBuilder.patientAttributesBlob.encodedAttributes
@@ -205,10 +209,11 @@ public class RetrieveServiceImpl implements RetrieveService {
     public boolean calculateMatches(RetrieveContext ctx)  {
         StatelessSession session = openStatelessSession();
         Collection<InstanceLocations> matches = ctx.getMatches();
+        matches.clear();
         try {
             HashMap<Long,InstanceLocations> instMap = new HashMap<>();
             HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
-            HashMap<Long,Date> studyAccessTimeMap = new HashMap<>();
+            HashMap<Long,StudyInfo> studyInfoMap = new HashMap<>();
             for (Tuple tuple : createQuery(ctx, session).fetch()) {
                 Long instPk = tuple.get(QInstance.instance.pk);
                 InstanceLocations match = instMap.get(instPk);
@@ -217,7 +222,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                     Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
                     if (seriesAttrs == null) {
                         SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
-                        studyAccessTimeMap.put(seriesAttributes.studyPk, seriesAttributes.accessTime);
+                        studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
                         seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
                     }
                     Attributes instAttrs = AttributesBlob.decodeAttributes(
@@ -233,15 +238,16 @@ public class RetrieveServiceImpl implements RetrieveService {
                 }
                 match.getLocations().add(loadLocation(tuple));
             }
-            updateStudyAccessTime(ctx, studyAccessTimeMap);
             ctx.setNumberOfMatches(matches.size());
+            ctx.getStudyInfos().addAll(studyInfoMap.values());
+            updateStudyAccessTime(ctx);
             return !matches.isEmpty();
         } finally {
             session.close();
         }
     }
 
-    private void updateStudyAccessTime(RetrieveContext ctx, HashMap<Long, Date> studyAccessTimeMap) {
+    private void updateStudyAccessTime(RetrieveContext ctx) {
         Duration maxAccessTimeStaleness = ctx.getArchiveAEExtension().getArchiveDeviceExtension()
                 .getMaxAccessTimeStaleness();
         if (maxAccessTimeStaleness == null)
@@ -249,9 +255,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
         long now = System.currentTimeMillis();
         long minAccessTime = now - maxAccessTimeStaleness.getSeconds() * 1000;
-        for (Map.Entry<Long, Date> studyAccessTime : studyAccessTimeMap.entrySet()) {
-            if (studyAccessTime.getValue().getTime() < minAccessTime)
-                ejb.updateStudyAccessTime(studyAccessTime.getKey());
+        for (StudyInfo study : ctx.getStudyInfos()) {
+            if (study.getAccessTime().getTime() < minAccessTime)
+                ejb.updateStudyAccessTime(study.getStudyPk());
         }
     }
 
@@ -269,14 +275,13 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private static class SeriesAttributes {
         final Attributes attrs;
-        final Long studyPk;
-        final Date accessTime;
+        final StudyInfo studyInfo;
 
-        SeriesAttributes(Attributes attrs, Long studyPk, Date accessTime) {
+        SeriesAttributes(Attributes attrs, StudyInfo studyInfo) {
             this.attrs = attrs;
-            this.studyPk = studyPk;
-            this.accessTime = accessTime;
+            this.studyInfo = studyInfo;
         }
+
     }
 
     private SeriesAttributes getSeriesAttributes(StatelessSession session, Long seriesPk) {
@@ -289,8 +294,13 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob)
                 .where(QSeries.series.pk.eq(seriesPk))
                 .fetchOne();
-        Long studyPk = tuple.get(QStudy.study.pk);
-        Date accessTime = tuple.get(QStudy.study.accessTime);
+        StudyInfo studyInfo = new StudyInfoImpl(
+                tuple.get(QStudy.study.pk),
+                tuple.get(QStudy.study.studyInstanceUID),
+                tuple.get(QStudy.study.accessTime),
+                tuple.get(QStudy.study.failedRetrieves),
+                tuple.get(QStudy.study.failedSOPInstanceUIDList)
+        );
         Attributes patAttrs = AttributesBlob.decodeAttributes(
                 tuple.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         Attributes studyAttrs = AttributesBlob.decodeAttributes(
@@ -302,7 +312,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
-        return new SeriesAttributes(attrs, studyPk, accessTime);
+        return new SeriesAttributes(attrs, studyInfo);
 }
 
     private HibernateQuery<Tuple> createQuery(RetrieveContext ctx, StatelessSession session) {
@@ -370,6 +380,16 @@ public class RetrieveServiceImpl implements RetrieveService {
             }
         }
         return notAccessable;
+    }
+
+    @Override
+    public void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList) {
+        ejb.failedToRetrieveStudy(studyInstanceUID, failedSOPInstanceUIDList);
+    }
+
+    @Override
+    public void clearFailedSOPInstanceUIDList(String studyInstanceUID) {
+        ejb.clearFailedSOPInstanceUIDList(studyInstanceUID);
     }
 
     private boolean isAccessable(ArchiveDeviceExtension arcDev, InstanceLocations match) {

@@ -90,6 +90,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination());
         writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcDev.getFallbackCMoveSCPLevel());
+        writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcDev.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNull("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP());
         writer.writeNotNull("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval());
         writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 5);
@@ -140,6 +141,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmDigestAlgorithm", st.getDigestAlgorithm());
             writer.writeNotEmpty("dcmRetrieveAET", st.getRetrieveAETitles());
             writer.writeNotNull("dcmInstanceAvailability", st.getInstanceAvailability());
+            writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
             writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
             writer.writeNotEmpty("dcmProperty", descriptorProperties(st.getProperties()));
             writer.writeEnd();
@@ -294,6 +296,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
         writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcAE.getFallbackCMoveSCPLevel());
+        writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
         writer.writeEnd();
     }
@@ -366,6 +369,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPLevel":
                     arcDev.setFallbackCMoveSCPLevel(MoveForwardLevel.valueOf(reader.stringValue()));
+                    break;
+                case "dcmFallbackCMoveSCPRetries":
+                    arcDev.setFallbackCMoveSCPRetries(reader.intValue());
                     break;
                 case "dcmAltCMoveSCP":
                     arcDev.setAlternativeCMoveSCP(reader.stringValue());
@@ -501,6 +507,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmInstanceAvailability":
                         st.setInstanceAvailability(Availability.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmReadOnly":
+                        st.setReadOnly(reader.booleanValue());
                         break;
                     case "dcmDeleterThreshold":
                         st.setDeleterThresholdsFromStrings(reader.stringArray());
@@ -861,6 +870,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPLevel":
                     arcAE.setFallbackCMoveSCPLevel(MoveForwardLevel.valueOf(reader.stringValue()));
+                    break;
+                case "dcmFallbackCMoveSCPRetries":
+                    arcAE.setFallbackCMoveSCPRetries(reader.intValue());
                     break;
                 case "dcmAltCMoveSCP":
                     arcAE.setAlternativeCMoveSCP(reader.stringValue());

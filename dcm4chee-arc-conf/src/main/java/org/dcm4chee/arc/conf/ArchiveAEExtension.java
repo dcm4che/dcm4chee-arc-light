@@ -70,6 +70,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
     private MoveForwardLevel fallbackCMoveSCPLevel;
+    private int fallbackCMoveSCPRetries;
     private String alternativeCMoveSCP;
     private int qidoMaxNumberOfResults;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -292,6 +293,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackCMoveSCPLevel();
     }
 
+    public void setFallbackCMoveSCPRetries(int fallbackCMoveSCPRetries) {
+        this.fallbackCMoveSCPRetries = fallbackCMoveSCPRetries;
+    }
+
+    public int getFallbackCMoveSCPRetries() {
+        return fallbackCMoveSCPRetries;
+    }
+
+    public int fallbackCMoveSCPRetries() {
+        return fallbackCMoveSCPRetries > 0
+                ? fallbackCMoveSCPRetries
+                : getArchiveDeviceExtension().getFallbackCMoveSCPRetries();
+    }
+
     public String getAlternativeCMoveSCP() {
         return alternativeCMoveSCP;
     }
@@ -318,6 +333,10 @@ public class ArchiveAEExtension extends AEExtension {
         return qidoMaxNumberOfResults > 0
                 ? qidoMaxNumberOfResults
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
+    }
+
+    public QueryRetrieveView getQueryRetrieveView() {
+        return getArchiveDeviceExtension().getQueryRetrieveView(queryRetrieveViewID());
     }
 
     public void removeExportRule(ExportRule rule) {
@@ -388,6 +407,7 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
         fallbackCMoveSCPLevel = aeExt.fallbackCMoveSCPLevel;
+        fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         exportRules.clear();
@@ -447,9 +467,5 @@ public class ArchiveAEExtension extends AEExtension {
 
     private File fileOf(String s) {
         return s != null ? new File(StringUtils.replaceSystemProperties(s)) : null;
-    }
-
-    public QueryRetrieveView getQueryRetrieveView() {
-        return getArchiveDeviceExtension().getQueryRetrieveView(queryRetrieveViewID());
     }
 }

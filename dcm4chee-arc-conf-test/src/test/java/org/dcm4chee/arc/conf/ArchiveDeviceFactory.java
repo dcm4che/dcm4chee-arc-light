@@ -727,10 +727,10 @@ class ArchiveDeviceFactory {
         AuditRecordRepository arr = new AuditRecordRepository();
         arrDevice.addDeviceExtension(arr);
         String syslogHost = System.getProperty("syslogHost", "localhost");
-        Connection auditUDP = new Connection("audit-udp", syslogHost, port);
-        auditUDP.setProtocol(protocol);
-        arrDevice.addConnection(auditUDP);
-        arr.addConnection(auditUDP);
+        Connection syslog = new Connection("syslog", syslogHost, port);
+        syslog.setProtocol(protocol);
+        arrDevice.addConnection(syslog);
+        arr.addConnection(syslog);
         return arrDevice ;
     }
 
@@ -875,14 +875,14 @@ class ArchiveDeviceFactory {
     }
 
     private static void addAuditLogger(Device device, Device arrDevice, String archiveHost) {
-        Connection auditUDP = new Connection("audit-udp", archiveHost);
-        auditUDP.setClientBindAddress("0.0.0.0");
-        auditUDP.setProtocol(Connection.Protocol.SYSLOG_UDP);
-        device.addConnection(auditUDP);
+        Connection syslog = new Connection("syslog", archiveHost);
+        syslog.setClientBindAddress("0.0.0.0");
+        syslog.setProtocol(Connection.Protocol.SYSLOG_UDP);
+        device.addConnection(syslog);
 
         AuditLogger auditLogger = new AuditLogger();
         device.addDeviceExtension(auditLogger);
-        auditLogger.addConnection(auditUDP);
+        auditLogger.addConnection(syslog);
         auditLogger.setAuditSourceTypeCodes("4");
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
     }

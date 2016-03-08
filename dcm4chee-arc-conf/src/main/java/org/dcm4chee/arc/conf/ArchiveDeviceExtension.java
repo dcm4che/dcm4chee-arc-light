@@ -72,6 +72,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
     private MoveForwardLevel fallbackCMoveSCPLevel;
+    private int fallbackCMoveSCPRetries;
     private String alternativeCMoveSCP;
     private Duration exportTaskPollingInterval;
     private int exportTaskFetchSize = 5;
@@ -266,6 +267,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFallbackCMoveSCPLevel(MoveForwardLevel fallbackCMoveSCPLevel) {
         this.fallbackCMoveSCPLevel = fallbackCMoveSCPLevel;
+    }
+
+    public int getFallbackCMoveSCPRetries() {
+        return fallbackCMoveSCPRetries;
+    }
+
+    public void setFallbackCMoveSCPRetries(int fallbackCMoveSCPRetries) {
+        this.fallbackCMoveSCPRetries = fallbackCMoveSCPRetries;
     }
 
     public String getAlternativeCMoveSCP() {
@@ -557,6 +566,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCP = arcdev.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = arcdev.fallbackCMoveSCPDestination;
         fallbackCMoveSCPLevel = arcdev.fallbackCMoveSCPLevel;
+        fallbackCMoveSCPRetries = arcdev.fallbackCMoveSCPRetries;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
         exportTaskFetchSize = arcdev.exportTaskFetchSize;

@@ -84,6 +84,7 @@ public class CStoreSCUImpl implements CStoreSCU {
         try {
             try {
                 ApplicationEntity remoteAE = aeCache.findApplicationEntity(ctx.getDestinationAETitle());
+                ctx.setDestinationAE(remoteAE);
                 ApplicationEntity localAE = ctx.getLocalApplicationEntity();
                 return localAE.connect(remoteAE, createAARQ(ctx, callingAET));
             } catch (ConfigurationNotFoundException e) {

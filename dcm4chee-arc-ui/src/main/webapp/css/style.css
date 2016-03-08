@@ -400,38 +400,9 @@ table.subtable_1, table.subtable_2 {
   table.subtable_1 tr, table.subtable_2 tr {
     height: 30px; }
 
-/* 
-.div-table{
-	  display:table;         
-	  width:100%;         
-	  background-color:#eee;         
-	  border:1px solid  #666666;         
-	  border-spacing:5px;
-	.thead, .tbody{
-		display: table;
-		width:100%;
-	}
-	.thead{
-		.th{
-			width:10%;
-		}
-	}
-	.tr_row{
-	  display:table-row;
-	  width:auto;
-	  clear:both;
-	      text-align: justify;
-	    -ms-text-justify: distribute-all-lines;
-	    text-justify: distribute-all-lines;
-	}
-	.td_cell, .th{
-	  float:left;
-	  display:table-column;         
-	  width:9%;         
-	  background-color:#ccc;  
-	  empty-cells: show;
-	}
-} */
+#selects_part button {
+  text-align: left; }
+
 .div-table .thead .td_cell {
   font-size: 14px;
   height: 30px;

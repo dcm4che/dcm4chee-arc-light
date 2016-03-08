@@ -97,6 +97,8 @@ public interface RetrieveContext extends Closeable {
 
     void setDestinationAETitle(String destinationAETitle);
 
+    void setDestinationAE(ApplicationEntity remoteAE);
+
     Exception getException();
 
     void setException(Exception exception);
@@ -131,9 +133,13 @@ public interface RetrieveContext extends Closeable {
 
     Collection<InstanceLocations> getMatches();
 
+    Collection<StudyInfo> getStudyInfos();
+
     int getNumberOfMatches();
 
     void setNumberOfMatches(int numberOfMatches);
+
+    void incrementNumberOfMatches(int inc);
 
     int completed();
 

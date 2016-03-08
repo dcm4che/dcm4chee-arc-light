@@ -46,14 +46,15 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.BinaryPrefix;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Calendar;
@@ -78,6 +79,14 @@ public class PurgeStorageScheduler extends Scheduler {
     @Inject
     private StorageFactory storageFactory;
 
+    @Inject
+    private Event<StudyDeleteContext> studyDeletedEvent;
+
+    @Override
+    protected Logger log() {
+        return LOG;
+    }
+
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -85,12 +94,15 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     @Override
-    public void run() {
+    protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getPurgeStorageFetchSize();
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
+            if (desc.isReadOnly())
+                continue;
+
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
             List<Long> studyPks = Collections.emptyList();
@@ -129,15 +141,37 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private List<Long> deleteStudy(List<Long> studyPks, StorageDescriptor desc, int fetchSize, boolean deletePatient) {
-        do {
+        boolean studyRemoved = false;
+        while (!studyRemoved) {
             if (studyPks.isEmpty()) {
-                studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+                try {
+                    studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+                } catch (Exception e) {
+                    LOG.warn("Query for studies for deletion on {} failed", desc.getStorageURI(), e);
+                    return null;
+                }
                 if (studyPks.isEmpty()) {
                     LOG.warn("No studies for deletion found on {}", desc.getStorageURI());
                     return null;
                 }
             }
-        } while (!ejb.removeStudyOnStorage(studyPks.remove(0), deletePatient));
+            Long studyPk = studyPks.remove(0);
+            StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
+            try {
+                studyRemoved = ejb.removeStudyOnStorage(ctx, deletePatient);
+                if (studyRemoved) {
+                    LOG.info("Successfully delete {} on {} from database", ctx.getStudy(), desc.getStorageURI());
+                } else {
+                    LOG.warn("Failed to delete {} on {}", ctx.getStudy(), desc.getStorageURI(), ctx.getException());
+                }
+                studyDeletedEvent.fire(ctx);
+            } catch (Exception e) {
+                LOG.warn("Failed to delete ", ctx.getStudy(), e);
+                ctx.setException(e);
+                studyDeletedEvent.fire(ctx);
+                return null;
+            }
+        };
         return studyPks;
     }
 

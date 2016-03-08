@@ -819,6 +819,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
         	var message = "";
         	// $log.debug("$scope.selectedElement",$scope.selectedElement);
         	// $log.debug("wholeDevice=",$scope.wholeDevice);
+        	$log.debug("in validateform", $scope.selectedElement);
 	        switch ($scope.selectedElement) {
 	        	case "device":
 	        		if($scope.deviceModel){
