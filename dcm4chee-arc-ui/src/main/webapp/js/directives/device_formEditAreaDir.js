@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService, $compile, schemas){
+myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService, $compile, schemas, $select){
 	return{
 		restrict:"A",
 		templateUrl: 'templates/device_form.html',
@@ -16,16 +16,51 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
             }else{
                 console.log("in directive schema=",DeviceService.getSchema(scope.selectedElement));
                 console.log("schemas",schemas, "scope.form=",scope.form,",schemas[scope.selectedElement]=",schemas[scope.selectedElement][scope.selectedElement]["items"]);
-                var test = setInterval(function(){
-                    $log.debug("length=",schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]);
-                    if(schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]){
-                        clearInterval(test);
-                        scope.form[scope.selectedElement]["schema"] = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement];
-                        scope.form[scope.selectedElement]["model"] = scope.wholeDevice;
-                    }else{
-                        $log.debug("waiting");
-                    }
-                },100);
+                $log.debug("$select[scope.selectedElement]=",$select[scope.selectedElement]);
+                if($select[scope.selectedElement].type==="array"){
+
+                    var wait = setInterval(function(){
+                        $log.debug("1schemas=",schemas);
+                        $log.debug("1scope.selectedElement=",scope.selectedElement);
+                        $log.debug("scope.selectedElement=",schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]);
+                        // $log.debug("length=",schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]);
+                        if(schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]){
+                            clearInterval(wait);
+                            DeviceService.setFormModel(scope);
+                            scope.form[scope.selectedElement]["schema"] = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement];
+                            if($select[scope.selectedElement].parentOf){
+                                angular.forEach($select[scope.selectedElement].parentOf,function(m,i){
+                                    delete scope.form[scope.selectedElement]["schema"].properties[$select[scope.selectedElement].parentOf[i]];
+                                });
+                            }
+                            $log.debug("1scope.form[scope.selectedElement][schema]",scope.form[scope.selectedElement]["schema"]);
+                            // scope.form[scope.selectedElement]["model"]  = scope.wholeDevice;
+                        }else{
+                            $log.debug("waiting");
+                        }
+                    },100);
+                }else{
+                    var wait2 = setInterval(function(){
+                        $log.debug("2schemas=",schemas);
+                        $log.debug("2scope.selectedElement=",scope.selectedElement);
+                        $log.debug("scope.selectedElement=",schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]);
+                        // $log.debug("length=",schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]);
+                        if(schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]){
+                            clearInterval(wait2);
+                            DeviceService.setFormModel(scope);
+                            scope.form[scope.selectedElement]["schema"] = schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement];
+                            // if($select[scope.selectedElement].parentOf){
+                            //     angular.forEach($select[scope.selectedElement].parentOf,function(m,i){
+                            //         delete scope.form[scope.selectedElement]["schema"].properties[$select[scope.selectedElement].parentOf[i]];
+                            //     });
+                            // }
+                            $log.debug("2scope.form[scope.selectedElement][schema]",scope.form[scope.selectedElement]["schema"]);
+                            // scope.form[scope.selectedElement]["model"]  = scope.wholeDevice;
+                        }else{
+                            $log.debug("waiting");
+                        }
+                    },100);
+                }
 //                 scope.form[scope.selectedElement]["schema"] = {
 //           "title":"Image Writer",
 //           "description":"Specifies Java Image IO Image Writer and Write Parameter used for compressing DICOM images",
@@ -191,7 +226,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 scope.dicomNetConnForm  = DeviceService.getFormDicomNetworkConn();
             }
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-            if(scope.selectedElement === "dicomNetworkAE" && scope.selectedPart.dicomNetworkAE){
+  /*          if(scope.selectedElement === "dicomNetworkAE" && scope.selectedPart.dicomNetworkAE){
 
                     scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
                     // scope.networkAeSchema 	= $schema;
@@ -232,7 +267,8 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 // angular.element(document.getElementById('SelectDicomTransferCapability'))
                 //                    .html($compile("<div select-transfare-capability></div>")(scope));
 
-            }
+            /*}
+            */
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
             $log.debug("before dicomTransferCapability in formEditAreaDir scope.selectedElement=",scope.selectedElement,"scope.selectedPart.dicomTransferCapability=",scope.selectedPart.dicomTransferCapability);
             if(scope.selectedElement === 'dicomTransferCapability' && scope.selectedPart.dicomTransferCapability){

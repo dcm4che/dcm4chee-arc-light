@@ -15,6 +15,7 @@
 		test: {{"wholeDevice.dicomNetworkAE".substring("wholeDevice.dicomNetworkAE".lastIndexOf(".")+1)}}
 		</pre> -->
 		<select 
+			ng-if="value.type==='array'"
 			class="form-control" 
 			ng-class="{active_dropbox:selectedElement === '{{key}}',active_menu:activeMenu === '{{key}}'}" 
 			ng-click='selectElement(key)' 
@@ -23,6 +24,15 @@
 			ng-change='changeElement(key)'
 			ng-options="obj[value.optionValue] as obj[value.optionValue]  for obj in selectModel[key] track by obj[value.optionValue]">
 		</select>
+		<button
+			ng-if="value.type!='array'"
+			ng-click='selectElement(key)' 
+			name="{{key}}"
+			class="form-control" 
+			ng-class="{active_dropbox:selectedElement === '{{key}}',active_menu:activeMenu === '{{key}}'}" 
+		>
+			{{key}}
+		</button>
 		<create-delete-button 
 			part="{{key}}" 
 			create-text="Create new network dicomNetworkConnection" 

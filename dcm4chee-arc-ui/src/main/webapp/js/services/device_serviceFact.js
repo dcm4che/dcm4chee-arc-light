@@ -1085,17 +1085,21 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
         			var elementLenght = angular.element(document.querySelectorAll('#editDevice bootstrap-decorator')).length;
         			// $log.warn("elementLength=",elementLenght);
         			var watchFormnLoader = setInterval(function() {
-        			// $log.warn("elementLength in watch=",(document.querySelectorAll('#editDevice bootstrap-decorator')).length);
-        			// $log.warn("elementLength=",elementLenght);
+        			$log.warn("elementLength in watch=",(document.querySelectorAll('#editDevice bootstrap-decorator')).length);
+        			$log.warn("elementLength=",elementLenght);
 		                if(angular.element(document.querySelectorAll('#editDevice bootstrap-decorator')).length === elementLenght) {
 		                    clearInterval(watchFormnLoader);
-		                	$scope.$apply(function(){
+		                	$log.debug("in if",element);
+		                	// $scope.$apply(function(){
 			                    $scope.lastBorder 	  = "active_border";
 			                    $scope.showFormLoader = false;
-		                	});
+		                		$log.debug("in apply");
+		                	// });
 		                    angular.element(document.getElementById(element)).show();
+		                		$log.debug("document.getElementById(element)=",document.getElementById(element));
 		                
 		                }else{
+		                	$log.debug("in else");
 		                	elementLenght = angular.element(document.querySelectorAll('#editDevice bootstrap-decorator')).length;
 		                }
 
@@ -1179,6 +1183,43 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				// schemas[selectedElement] = newSchema[selectedElement];
 				replaceRef(schemas[selectedElement], selectedElement);
 				return schemas[selectedElement];
+			}
+		},
+
+		setFormModel : function(scope){
+			$log.debug("in setFormModel,selectedElement=",scope.selectedElement);
+
+			$log.debug("wholeDevice=",scope.wholeDevice);
+			$log.debug("$select[selectedElement]=",$select[scope.selectedElement].optionRef);
+			// scope.form[scope.selectedElement]["model"]
+			if($select[scope.selectedElement].type === "array"){
+
+				if($select[scope.selectedElement].optionRef.indexOf(".")>-1){
+
+				}else{
+					$log.debug("selectedPart=",scope.selectedPart[scope.selectedElement]);
+					$log.debug("in else scope.wholeDevice[$select[scope.selectedElement].optionRef]=",scope.wholeDevice[$select[scope.selectedElement].optionRef]);
+					if(scope.wholeDevice[$select[scope.selectedElement].optionRef]){
+						angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef], function(m, i){
+						$log.debug("scope.wholeDevice[$select[scope.selectedElement].optionRef][i][$select[scope.selectedElement].optionValue]=",scope.wholeDevice[$select[scope.selectedElement].optionRef][i][$select[scope.selectedElement].optionValue]);
+							$log.debug("scope.selectedPart[scope.selectedElement]=",scope.selectedPart[scope.selectedElement]);
+							if(scope.selectedPart[scope.selectedElement] === scope.wholeDevice[$select[scope.selectedElement].optionRef][i][$select[scope.selectedElement].optionValue]){
+								scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef][i];
+								$log.debug("1selected part mdoel=", scope.wholeDevice[$select[scope.selectedElement].optionRef][i]);
+								$log.debug("scope.form[scope.selectedElement]['model']",scope.form[scope.selectedElement]["model"]);
+							}
+						});
+					}
+				}
+			}else{
+				if($select[scope.selectedElement].optionRef.indexOf(".")>-1){
+
+				}else{
+					$log.debug("for object model set, ",scope.wholeDevice[$select[scope.selectedElement].optionRef]);
+					if(scope.wholeDevice[$select[scope.selectedElement].optionRef]){
+						scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef];
+					}
+				}
 			}
 		}
 

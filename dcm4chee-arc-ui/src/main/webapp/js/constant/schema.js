@@ -3,31 +3,63 @@ myApp.constant("$select",
       "dicomNetworkConnection":{
         "title" : "Network Connection",
         "optionRef" : "dicomNetworkConnection",
-        "optionValue": "cn"
+        "optionValue": "cn",
+        "type": "array"
       
       },
       "dicomNetworkAE":{
         "title" : "Network AE",
         "optionRef" : "dicomNetworkAE",
-        "optionValue": "dicomAETitle"
-
+        "optionValue" : "dicomAETitle",
+        "type": "array",
+        "parentOf" : ["dicomTransferCapability"]
       },
       "dicomTransferCapability":{
         "title" : "Transfer Capability",
         "optionRef" : "dicomNetworkAE.dicomTransferCapability",
-        "optionValue": "cn"
-      
+        "optionValue": "cn",
+        "type": "array"
       },
       "hl7Application":{
         "title" : "HL7 Applications",
         "optionRef" : "hl7Application",
-        "optionValue": "hl7ApplicationName"
+        "optionValue": "hl7ApplicationName",
+        "type": "array"
       
       },
       "dcmImageWriter":{
         "title" : "Image Writers",
         "optionRef" : "dcmImageWriter",
-        "optionValue": "dicomTransferSyntax"
+        "optionValue": "dicomTransferSyntax",
+        "type": "array"
+      
+      },
+      "dcmImageReader":{
+        "title" : "Image Readers",
+        "optionRef" : "dcmImageReader",
+        "optionValue": "dicomTransferSyntax",
+        "type": "array"
+      
+      },
+      "dcmAuditLogger":{
+        "title" : "Audit Logger",
+        "optionRef" : "dcmAuditLogger",
+        "optionValue": "dicomNetworkConnectionReference",
+        "type": "object"
+      
+      },
+      "dcmAuditRecordRepository":{
+        "title" : "Audit Record Repository",
+        "optionRef" : "dcmAuditRecordRepository",
+        "optionValue": "dicomNetworkConnectionReference",
+        "type": "object"
+      
+      },
+      "dcmArchiveDevice":{
+        "title" : "Archive Device",
+        "optionRef" : "dcmArchiveDevice",
+        "optionValue": "dcmFuzzyAlgorithmClass",
+        "type": "object"
       
       }
     }

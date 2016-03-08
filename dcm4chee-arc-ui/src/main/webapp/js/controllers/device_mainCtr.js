@@ -136,9 +136,18 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.selectElement = function(element) {
         var checkDevice = element === "device";
         angular.forEach($select, function(m, j){
-            $log.debug("element=",element,"$scope.selectedPart[j]",$scope.selectedPart[j]);
-            if(element === j && $scope.selectedPart[j]  != undefined ){
-              checkDevice = true;
+            // $log.debug("m=",m);
+            // $log.debug("j=",j);
+            // $log.debug("element=",element,"$scope.selectedPart[j]",$scope.selectedPart[j]);
+            //Differentiate between array elements and not array elements becouse just the array elements (Select element) has selectedPart model
+            if(m.type==="array"){
+              if(element === j && $scope.selectedPart[j]  != undefined ){
+                checkDevice = true;
+              }
+            }else{
+              if(element === j){
+                checkDevice = true;
+              }
             }
         });
         
@@ -159,6 +168,17 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
               //$scope.transfareCapModel  = {};
             }
             $scope.selectedElement  = element;
+            $log.debug("$scope.selectedElement",$scope.selectedElement);
+            $log.debug("$select=",$select);
+            $log.debug("$select[$scope.selectedElement]=",$select[$scope.selectedElement]);
+            if($select[$scope.selectedElement].type != "array"){
+              DeviceService
+                    .addDirectiveToDom(
+                        $scope, 
+                        "add_edit_area",
+                        "<div edit-area></div>"
+                    );
+            }
             $scope.lastBorder       = "active_border";
             $scope.showSave         = true;
             cfpLoadingBar.complete();
