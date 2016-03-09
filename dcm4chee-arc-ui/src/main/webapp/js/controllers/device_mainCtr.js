@@ -402,10 +402,13 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     };
     $scope.createPart = function(element) {
         // $scope.editMode = true;
-
                 $log.debug("element in createPart=",element);
                 $scope.selectedElement = element;
                 $scope.activeMenu      = element;
+                $scope.form[$scope.selectedElement] = $scope.form[$scope.selectedElement] || {};
+                if(!schemas[$scope.selectedElement]){
+                  DeviceService.getSchema($scope.selectedElement);
+                }
                 var wait = setInterval(function(){
                     if(schemas[$scope.selectedElement][$scope.selectedElement]["items"][$scope.selectedElement]){
                         clearInterval(wait);
@@ -650,7 +653,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     */
     $scope.savedCheck = function(e){
       // $log.debug("savecheck editMode=",$scope.editMode,"$scope.deletPartProcess=",$scope.deletPartProcess);
-
+      $log.debug("in savecheck");
       if($scope.editMode && $(e.target).closest('.form_content').length<1 && !(e.target.className == "create "+$scope.selectedElement)){
         // $log.debug("validate");
         var validateForm = DeviceService.validateForm($scope);
@@ -717,10 +720,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     */
     $scope.cancel = function(){
       $scope.deletPartProcess = true;
-
-      //With switch we check witch part ist selected so you can reset the right form and dropdown list
-      switch ($scope.selectedElement) {
-            case "device":
+      if($scope.selectedElement === "device"){
                 $scope.devicename       = "";
                 $scope.currentDevice    = "";
                 $scope.newDevice        = true;
@@ -731,58 +731,87 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.showSave         = false;
                 angular.element(document.getElementById("add_dropdowns")).html("");
                 angular.element(document.getElementById("add_edit_area")).html("");
-                break;
-            case "dicomNetworkConnection":
-                if($scope.dicomNetConnModel.cn){
-                  angular.forEach($scope.wholeDevice.dicomNetworkConnection, function(m,i){
-                    if(m.cn === $scope.dicomNetConnModel.cn){
-                      $scope.wholeDevice.dicomNetworkConnection.splice(i,1);
+      }else{
+
+                $log.debug("selectedPart=",$scope.selectedPart);
+                $log.debug("selectedPart=",$scope.selectedElement);
+                $log.debug("$scope.form[$scope.selectedPart].model[$select[$scope.selectedElement].optionValue]=",$scope.form[$scope.selectedElement].model[$select[$scope.selectedElement].optionValue]);
+                if($scope.form[$scope.selectedElement].model[$select[$scope.selectedElement].optionValue]){
+                  angular.forEach($scope.wholeDevice[$scope.selectedElement], function(m,i){
+                    if(m[$select[$scope.selectedElement].optionValue] === $scope.form[$scope.selectedElement].model[$select[$scope.selectedElement].optionValue]){
+                      $scope.wholeDevice[$scope.selectedElement].splice(i,1);
                     }
                   });
                 }
-                $scope.dicomNetConnModel  = {};
-                DeviceService.removeEmptyPart($scope.wholeDevice.dicomNetworkConnection, "cn");
-                break;
-            case "dicomNetworkAE":
-                  if($scope.networkAeModel.dicomAETitle){
-                    angular.forEach($scope.wholeDevice.dicomNetworkAE, function(m,i){
-                      if(m.dicomAETitle === $scope.networkAeModel.dicomAETitle){
-                        $scope.wholeDevice.dicomNetworkAE.splice(i,1);
-                      }
-                    });
-                  }else{
-                    DeviceService.removeEmptyPart($scope.wholeDevice.dicomNetworkAE, "dicomAETitle");
-                  }
+                $scope.form[$scope.selectedElement].model  = {};
+                DeviceService.removeEmptyPart($scope.wholeDevice[$scope.selectedElement], [$select[$scope.selectedElement].optionValue]);
+      }
+
+      //With switch we check witch part ist selected so you can reset the right form and dropdown list
+      // switch ($scope.selectedElement) {
+      //       case "device":
+      //           $scope.devicename       = "";
+      //           $scope.currentDevice    = "";
+      //           $scope.newDevice        = true;
+      //           $scope.middleBorder     = "";
+      //           $scope.lastBorder       = "";
+      //           $scope.deviceModel      = {};
+      //           $scope.wholeDevice      = {};
+      //           $scope.showSave         = false;
+      //           angular.element(document.getElementById("add_dropdowns")).html("");
+      //           angular.element(document.getElementById("add_edit_area")).html("");
+      //           break;
+      //       case "dicomNetworkConnection":
+      //           if($scope.dicomNetConnModel.cn){
+      //             angular.forEach($scope.wholeDevice.dicomNetworkConnection, function(m,i){
+      //               if(m.cn === $scope.dicomNetConnModel.cn){
+      //                 $scope.wholeDevice.dicomNetworkConnection.splice(i,1);
+      //               }
+      //             });
+      //           }
+      //           $scope.dicomNetConnModel  = {};
+      //           DeviceService.removeEmptyPart($scope.wholeDevice.dicomNetworkConnection, "cn");
+      //           break;
+      //       case "dicomNetworkAE":
+      //             if($scope.networkAeModel.dicomAETitle){
+      //               angular.forEach($scope.wholeDevice.dicomNetworkAE, function(m,i){
+      //                 if(m.dicomAETitle === $scope.networkAeModel.dicomAETitle){
+      //                   $scope.wholeDevice.dicomNetworkAE.splice(i,1);
+      //                 }
+      //               });
+      //             }else{
+      //               DeviceService.removeEmptyPart($scope.wholeDevice.dicomNetworkAE, "dicomAETitle");
+      //             }
                   
-                  $scope.networkAeForm = [];
-                  $scope.networkAeModel = {};
-                  $scope.transfcap = {};
-                break;
+      //             $scope.networkAeForm = [];
+      //             $scope.networkAeModel = {};
+      //             $scope.transfcap = {};
+      //           break;
 
-            case "dicomTransferCapability":
-                if ($scope.selectedPart.dicomNetworkAE) {
-                    var toEditKey;
-                    angular.forEach($scope.wholeDevice.dicomNetworkAE, function(value, key) {
-                        if (value.dicomAETitle === $scope.selectedPart.dicomNetworkAE) {
-                            toEditKey = key;
-                        }
-                    });
-                    if ($scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability) {
+      //       case "dicomTransferCapability":
+      //           if ($scope.selectedPart.dicomNetworkAE) {
+      //               var toEditKey;
+      //               angular.forEach($scope.wholeDevice.dicomNetworkAE, function(value, key) {
+      //                   if (value.dicomAETitle === $scope.selectedPart.dicomNetworkAE) {
+      //                       toEditKey = key;
+      //                   }
+      //               });
+      //               if ($scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability) {
 
-                        angular.forEach($scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability, function(m,i){
-                          if(m.cn === $scope.transfareCapModel.cn){
-                            $scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability.splice(i,1);
-                          }
-                        });
-                        DeviceService.removeEmptyPart($scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability, "cn");
-                    }
-                } else {
-                    $scope.activeMenu = "dicomTransferCapability";
-                    vex.dialog.alert("Select first a Network AE");
-                }
-                $scope.transfareCapModel  = {};
-                break;
-        }
+      //                   angular.forEach($scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability, function(m,i){
+      //                     if(m.cn === $scope.transfareCapModel.cn){
+      //                       $scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability.splice(i,1);
+      //                     }
+      //                   });
+      //                   DeviceService.removeEmptyPart($scope.wholeDevice.dicomNetworkAE[toEditKey].dicomTransferCapability, "cn");
+      //               }
+      //           } else {
+      //               $scope.activeMenu = "dicomTransferCapability";
+      //               vex.dialog.alert("Select first a Network AE");
+      //           }
+      //           $scope.transfareCapModel  = {};
+      //           break;
+      //   }
         $scope.selectedElement  = "device";
         $scope.validForm        = true;
         // $scope.activeMenu       = "";

@@ -15,15 +15,17 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
 
             }else{
                 console.log("in directive schema=",DeviceService.getSchema(scope.selectedElement));
-                console.log("schemas",schemas, "scope.form=",scope.form,",schemas[scope.selectedElement]=",schemas[scope.selectedElement][scope.selectedElement]["items"]);
-                $log.debug("$select[scope.selectedElement]=",$select[scope.selectedElement]);
+                // console.log("schemas",schemas, "scope.form=",scope.form,",schemas[scope.selectedElement]=",schemas[scope.selectedElement][scope.selectedElement]["items"]);
+                // $log.debug("$select[scope.selectedElement]=",$select[scope.selectedElement]);
                 if($select[scope.selectedElement].type==="array"){
 
                     var wait = setInterval(function(){
                         $log.debug("1schemas=",schemas);
                         $log.debug("1scope.selectedElement=",scope.selectedElement);
-                        $log.debug("scope.selectedElement=",schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]);
+                        // $log.debug("scope.selectedElement=",schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]);
                         // $log.debug("length=",schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]);
+                        $log.debug("schemas=",schemas);
+                        $log.debug("schemas[scope.selectedElement]=",schemas[scope.selectedElement]);
                         if(schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]){
                             clearInterval(wait);
                             DeviceService.setFormModel(scope);
@@ -61,78 +63,9 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                         }
                     },100);
                 }
-//                 scope.form[scope.selectedElement]["schema"] = {
-//           "title":"Image Writer",
-//           "description":"Specifies Java Image IO Image Writer and Write Parameter used for compressing DICOM images",
-//           "type":"object",
-//           "required":[
-//              "dicomTransferSyntax",
-//              "dcmIIOFormatName"
-//           ],
-//           "properties":{
-//              "dicomTransferSyntax":{
-//                 "title":"Transfer Syntax",
-//                 "description":"Transfer Syntax to which to compress the DICOM image",
-//                 "type":"string"
-//              },
-//              "dcmIIOFormatName":{
-//                 "title":"Image IO Writer Format Name",
-//                 "description":"Image IO Writer Format Name",
-//                 "type":"string"
-//              },
-//              "dcmJavaClassName":{
-//                 "title":"Java Class Name",
-//                 "description":"Fully qualified Java class of Image IO Writer. If absent, use any Image Writer found for specified Format Name",
-//                 "type":"string"
-//              },
-//              "dcmPatchJPEGLS":{
-//                 "title":"Patch JPEG-LS",
-//                 "description":"Patch JPEG-LS after compressing: JAI2ISO, ISO2JAI or ISO2JAI_IF_APP_OR_COM",
-//                 "type":"string",
-//                 "enum":[
-//                    "JAI2ISO",
-//                    "ISO2JAI",
-//                    "ISO2JAI_IF_APP_OR_COM"
-//                 ]
-//              },
-//              "dcmImageWriteParam":{
-//                 "title":"Image Write Param",
-//                 "description":"Image Write Parameter(s) (name=value) set at on Image Writer before compression",
-//                 "type":"array",
-//                 "items":{
-//                    "type":"string"
-//                 }
-//              }
-//           }
-// };
-//                 scope.form[scope.selectedElement]["schema"] = {
-//   "type": "object",
-//   "title": "Comment",
-//   "properties": {
-//     "name": {
-//       "title": "Name",
-//       "type": "string"
-//     },
-//     "email": {
-//       "title": "Email",
-//       "type": "string",
-//       "pattern": "^\\S+@\\S+$",
-//       "description": "Email will be used for evil."
-//     },
-//     "comment": {
-//       "title": "Comment",
-//       "type": "string",
-//       "maxLength": 20,
-//       "validationMessage": "Don't be greedy!"
-//     }
-//   },
-//   "required": [
-//     "name",
-//     "email",
-//     "comment"
-//   ]
-// };
+
             }
+            
             $log.debug("selectedElement=",scope.selectedElement);
             $log.debug("scope.form=",scope.form);
 

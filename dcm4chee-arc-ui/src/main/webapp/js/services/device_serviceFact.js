@@ -308,10 +308,15 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	// };
 
 	var traverse = function(o, selectedElement, newSchema) {
-		// console.log("in traverse selectedElement=",selectedElement);
+		console.log("***********in traverse o=",o);
 	    for (var i in o) {
 	        // func.apply(this, [i,o[i]] , selectedElement);
 	        // console.log("before if selectedElement=",selectedElement,"o[=",[i,o[i]],"i=",i);
+	        $log.warn("i=",i);
+	        if(i === "$ref"){
+	        	$log.debug("in ref, o",o);
+	        }
+	        	
 	        if(i != selectedElement){
 		        if (o[i] !== null && typeof(o[i])=="object") {
 		            //going on step down in the object tree!!
@@ -1169,22 +1174,26 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		getSchema : function(selectedElement){
 			// $log.debug("select in getschema=",$select[selectedElement].optionRef);
 			$log.debug("in getSchema=", selectedElement);
+			var localSchema = {};
+			schemas[selectedElement] = schemas[selectedElement] || {};
+			angular.copy(schemas.device, localSchema);
+			
 			if($select[selectedElement].optionRef.indexOf(".")>-1){
-
+				$log.debug("in if getschema");
+				//TODO
+				traverse(localSchema, selectedElement, schemas[selectedElement]);
 			}else{
 				// $log.debug("selectedElement=",selectedElement);
 				// $log.debug("schemas=",schemas);
-				var localSchema = {};
-				angular.copy(schemas.device, localSchema);
-				schemas[selectedElement] = schemas[selectedElement] || {};
-
 				traverse(localSchema, selectedElement, schemas[selectedElement]);
+
 				// $log.debug("get schema from traverse=",traverse(schemas.device, process, selectedElement, newSchema));
 				// $log.debug("newSchema=",newSchema);
 				// schemas[selectedElement] = newSchema[selectedElement];
 				replaceRef(schemas[selectedElement], selectedElement);
 				return schemas[selectedElement];
 			}
+			$log.debug("schemas=",schemas);
 		},
 
 		setFormModel : function(scope){
