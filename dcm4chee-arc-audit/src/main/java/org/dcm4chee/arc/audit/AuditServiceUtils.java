@@ -453,7 +453,6 @@ public class AuditServiceUtils {
         private final String[] fields;
 
         protected RetrieveInfo(RetrieveContext ctx) {
-            ctx.getHttpRequest().getRemoteAddr();
             String outcome = (null != ctx.getException()) ? ctx.getException().getMessage() : null;
             String destHost = (null == ctx.getHttpRequest())
                     ? null != ctx.getDestinationHostName() ? ctx.getDestinationHostName() : ctx.getDestinationAETitle()
