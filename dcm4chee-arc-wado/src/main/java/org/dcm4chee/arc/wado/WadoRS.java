@@ -40,22 +40,37 @@
 
 package org.dcm4chee.arc.wado;
 
+import org.dcm4che3.data.AttributesCoercion;
+import org.dcm4che3.data.MergeAttributesCoercion;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.io.XSLTAttributesCoercion;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4che3.net.Dimse;
+import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.retrieve.*;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.CompletionCallback;
+import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.*;
+import javax.xml.transform.Templates;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -70,7 +85,6 @@ public class WadoRS {
     @Inject
     private RetrieveService service;
 
-    @Context
     private HttpServletRequest request;
 
     @Context
@@ -82,8 +96,16 @@ public class WadoRS {
     @Inject
     private Device device;
 
+    @Inject @RetrieveStart
+    private Event<RetrieveContext> retrieveStart;
+
+    @Inject @RetrieveEnd
+    private Event<RetrieveContext> retrieveEnd;
+
     @PathParam("AETitle")
     private String aet;
+
+    private Collection<String> acceptableTransferSyntaxes;
 
     @Override
     public String toString() {
@@ -93,148 +115,254 @@ public class WadoRS {
     @GET
     @Path("/studies/{studyUID}")
     @Produces("multipart/related;type=application/dicom")
-    public Response retrieveStudy(
-            @PathParam("studyUID") String studyUID) throws Exception {
-        return retrieve("retrieveStudy", studyUID, null, null, Output.DICOM);
+    public void retrieveStudy(
+            @PathParam("studyUID") String studyUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveStudy", studyUID, null, null, ar, Output.DICOM);
     }
 
     @GET
     @Path("/studies/{studyUID}")
     @Produces("multipart/related")
-    public Response retrieveStudyBulkdata(
-            @PathParam("studyUID") String studyUID) throws Exception {
-        return retrieve("retrieveStudyBulkdata", studyUID, null, null, Output.BULKDATA);
+    public void retrieveStudyBulkdata(
+            @PathParam("studyUID") String studyUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveStudyBulkdata", studyUID, null, null, ar, Output.BULKDATA);
     }
 
     @GET
-    @Path("/studies/{studyUID}/rendered")
+    @Path("/studies/{studyUID}/render")
     @Produces("multipart/related")
-    public Response retrieveStudyRendered(
-            @PathParam("studyUID") String studyUID) throws Exception {
-        return retrieve("retrieveStudyBulkdata", studyUID, null, null, Output.RENDERED);
+    public void retrieveStudyRendered(
+            @PathParam("studyUID") String studyUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveStudyBulkdata", studyUID, null, null, ar, Output.RENDER);
     }
 
     @GET
     @Path("/studies/{studyUID}/metadata")
     @Produces("application/json")
-    public Response retrieveStudyMetadataAsJSON(
-            @PathParam("studyUID") String studyUID) throws Exception {
-        return retrieve("retrieveStudyMetadataAsJSON", studyUID, null, null, Output.METADATA_JSON);
+    public void retrieveStudyMetadataAsJSON(
+            @PathParam("studyUID") String studyUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveStudyMetadataAsJSON", studyUID, null, null, ar, Output.METADATA_JSON);
     }
 
     @GET
     @Path("/studies/{studyUID}/metadata")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response retrieveStudyMetadataAsXML(
-            @PathParam("studyUID") String studyUID) throws Exception {
-        return retrieve("retrieveStudyMetadataAsXML", studyUID, null, null, Output.METADATA_XML);
+    public void retrieveStudyMetadataAsXML(
+            @PathParam("studyUID") String studyUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveStudyMetadataAsXML", studyUID, null, null, ar, Output.METADATA_XML);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}")
     @Produces("multipart/related;type=application/dicom")
-    public Response retrieveSeries(
+    public void retrieveSeries(
             @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID) throws Exception {
-        return retrieve("retrieveSeries", studyUID, seriesUID, null, Output.DICOM);
+            @PathParam("seriesUID") String seriesUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveSeries", studyUID, seriesUID, null, ar, Output.DICOM);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}")
     @Produces("multipart/related")
-    public Response retrieveSeriesBulkdata(
+    public void retrieveSeriesBulkdata(
             @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID) throws Exception {
-        return retrieve("retrieveSeriesBulkdata", studyUID, seriesUID, null, Output.BULKDATA);
+            @PathParam("seriesUID") String seriesUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveSeriesBulkdata", studyUID, seriesUID, null, ar, Output.BULKDATA);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/rendered")
+    @Path("/studies/{studyUID}/series/{seriesUID}/render")
     @Produces("multipart/related")
-    public Response retrieveSeriesRendered(
+    public void retrieveSeriesRendered(
             @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID) throws Exception {
-        return retrieve("retrieveSeriesRendered", studyUID, seriesUID, null, Output.RENDERED);
+            @PathParam("seriesUID") String seriesUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveSeriesRendered", studyUID, seriesUID, null, ar, Output.RENDER);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
     @Produces("application/json")
-    public Response retrieveSeriesMetadataAsJSON(
+    public void retrieveSeriesMetadataAsJSON(
             @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID) throws Exception {
-        return retrieve("retrieveSeriesMetadataAsJSON", studyUID, seriesUID, null, Output.METADATA_JSON);
+            @PathParam("seriesUID") String seriesUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveSeriesMetadataAsJSON", studyUID, seriesUID, null, ar, Output.METADATA_JSON);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response retrieveSeriesMetadataAsXML(
+    public void retrieveSeriesMetadataAsXML(
             @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID) throws Exception {
-        return retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, Output.METADATA_XML);
+            @PathParam("seriesUID") String seriesUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, ar, Output.METADATA_XML);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
     @Produces("multipart/related;type=application/dicom")
-    public Response retrieveInstance(
+    public void retrieveInstance(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID) throws Exception {
-        return retrieve("retrieveInstance", studyUID, seriesUID, objectUID, Output.DICOM);
+            @PathParam("objectUID") String objectUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, ar, Output.DICOM);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
     @Produces("multipart/related")
-    public Response retrieveInstanceBulkdata(
+    public void retrieveInstanceBulkdata(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID) throws Exception {
-        return retrieve("retrieveInstanceBulkdata", studyUID, seriesUID, objectUID, Output.BULKDATA);
+            @PathParam("objectUID") String objectUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveInstanceBulkdata", studyUID, seriesUID, objectUID, ar, Output.BULKDATA);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
     @Produces("multipart/related")
-    public Response retrieveInstanceRendered(
+    public void retrieveInstanceRender(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID) throws Exception {
-        return retrieve("retrieveInstanceRendered", studyUID, seriesUID, objectUID, Output.RENDERED);
+            @PathParam("objectUID") String objectUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveInstanceRender", studyUID, seriesUID, objectUID, ar, Output.RENDER);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
     @Produces("application/json")
-    public Response retrieveInstanceMetadataAsJSON(
+    public void retrieveInstanceMetadataAsJSON(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID) throws Exception {
-        return retrieve("retrieveInstanceMetadataAsJSON", studyUID, seriesUID, objectUID, Output.METADATA_JSON);
+            @PathParam("objectUID") String objectUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveInstanceMetadataAsJSON", studyUID, seriesUID, objectUID, ar, Output.METADATA_JSON);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response retrieveInstanceMetadataAsXML(
+    public void retrieveInstanceMetadataAsXML(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID) throws Exception {
-        return retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, Output.METADATA_XML);
+            @PathParam("objectUID") String objectUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, ar, Output.METADATA_XML);
     }
 
-    private Response retrieve(String method, String studyUID, String seriesUID, String objectUID, Output output) {
+    private void retrieve(String method, String studyUID, String seriesUID, String objectUID, AsyncResponse ar,
+                              Output output) {
+        // @Inject does not work:
+        // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
+        // s. https://issues.jboss.org/browse/RESTEASY-903
+        request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
-        return null;
+        try {
+            checkAET();
+            final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
+            service.calculateMatches(ctx);
+            LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
+            if (ctx.getNumberOfMatches() == 0)
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            retrieveStart.fire(ctx);
+            ar.register(new CompletionCallback() {
+                @Override
+                public void onComplete(Throwable throwable) {
+                    retrieveEnd.fire(ctx);
+                }
+            });
+            ar.resume(Response.status(output.status(this, ctx)).entity(output.entity(this, ctx)).build());
+        } catch (Exception e) {
+            ar.resume(e);
+        }
+    }
+
+    private void checkAET() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(
+                    "No such Application Entity: " + aet,
+                    Response.Status.SERVICE_UNAVAILABLE);
     }
 
     private enum Output {
-        DICOM,
+        DICOM {
+            @Override
+            protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
+                                   InstanceLocations inst) throws Exception {
+                wadoRS.writeDICOM(output, ctx, inst);
+            }
+        },
         BULKDATA,
-        RENDERED,
+        RENDER,
         METADATA_XML,
-        METADATA_JSON
+        METADATA_JSON;
+
+        public Response.Status status(WadoRS wadoRS, RetrieveContext ctx) {
+            return Response.Status.OK;
+        }
+
+        public Object entity(WadoRS wadoRS, RetrieveContext ctx) throws Exception {
+            MultipartRelatedOutput output = new MultipartRelatedOutput();
+            Iterator<InstanceLocations> inst = ctx.getMatches().iterator();
+            while (inst.hasNext()) {
+                addPart(output, wadoRS, ctx, inst.next());
+                if (!inst.hasNext()) {
+
+                }
+            }
+            return output;
+        }
+
+        protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
+                               InstanceLocations inst) throws Exception {
+             throw new WebApplicationException(name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE);
+        }
+    }
+
+    private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)
+            throws Exception {
+        MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
+        DicomObjectOutput entity = new DicomObjectOutput(
+                service.openTranscoder(ctx, inst, acceptableTransferSyntaxes(), true), coerce);
+        output.addPart(entity, MediaTypes.APPLICATION_DICOM_TYPE);
+    }
+
+    private Collection<String> acceptableTransferSyntaxes() {
+        Collection<String> tsuids = acceptableTransferSyntaxes;
+        if (tsuids == null) {
+            tsuids = new HashSet<>();
+            for (MediaType mediaType : headers.getAcceptableMediaTypes()) {
+                tsuids.add(MediaTypes.getTransferSyntax(MediaTypes.getMultiPartRelatedType(mediaType)));
+            }
+            tsuids.remove(null);
+            acceptableTransferSyntaxes = tsuids;
+        }
+        return tsuids;
+    }
+
+    private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) throws Exception {
+        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
+        ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
+                request.getRemoteHost(), null, TransferCapability.Role.SCP, Dimse.C_STORE_RQ, inst.getSopClassUID());
+        if (coercion == null)
+            return null;
+        LOG.debug("{}: apply {}", this, coercion);
+        String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
+        Templates tpls = TemplatesCache.getDefault().get(uri);
+        return new XSLTAttributesCoercion(tpls, null)
+                .includeKeyword(!coercion.isNoKeywords());
     }
 }
