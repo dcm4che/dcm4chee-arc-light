@@ -18,27 +18,44 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 // console.log("schemas",schemas, "scope.form=",scope.form,",schemas[scope.selectedElement]=",schemas[scope.selectedElement][scope.selectedElement]["items"]);
                 // $log.debug("$select[scope.selectedElement]=",$select[scope.selectedElement]);
                 if($select[scope.selectedElement].type==="array"){
-
+                    var timeout = 50;
                     var wait = setInterval(function(){
                         $log.debug("1schemas=",schemas);
                         $log.debug("1scope.selectedElement=",scope.selectedElement);
                         // $log.debug("scope.selectedElement=",schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]);
                         // $log.debug("length=",schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]);
-                        $log.debug("schemas=",schemas);
-                        $log.debug("schemas[scope.selectedElement]=",schemas[scope.selectedElement]);
-                        if(schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]){
+                        console.log("schemas=",JSON.parse(JSON.stringify(console.dir(schemas))));
+                        // $log.debug("schemas[scope.selectedElement]=",schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]);
+                        
+                        if(
+                            schemas[scope.selectedElement] && 
+                            schemas[scope.selectedElement][scope.selectedElement] && 
+                            schemas[scope.selectedElement][scope.selectedElement]["items"] && 
+                            schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]
+                           ){
                             clearInterval(wait);
                             DeviceService.setFormModel(scope);
                             scope.form[scope.selectedElement]["schema"] = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement];
+                            $log.debug("$select[scope.selectedElement].parentOf",$select[scope.selectedElement].parentOf);
                             if($select[scope.selectedElement].parentOf){
+                                $log.debug("in if");
                                 angular.forEach($select[scope.selectedElement].parentOf,function(m,i){
                                     delete scope.form[scope.selectedElement]["schema"].properties[$select[scope.selectedElement].parentOf[i]];
                                 });
                             }
+
                             $log.debug("1scope.form[scope.selectedElement][schema]",scope.form[scope.selectedElement]["schema"]);
                             // scope.form[scope.selectedElement]["model"]  = scope.wholeDevice;
                         }else{
-                            $log.debug("waiting");
+                            console.log("waiting", JSON.parse(JSON.stringify(console.dir(schemas))));
+                            // $log.debug("waiting", schemas[dicomTransferCapability]);
+                            // console.log("scope.selectedElemen=", JSON.parse(JSON.stringify(console.dir(scope.selectedElement))));
+                        }
+                        if(timeout<0){
+                            clearInterval(wait);
+                        }else{
+                            $log.debug("temout=",timeout);
+                            timeout--;
                         }
                     },100);
                 }else{

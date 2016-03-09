@@ -309,6 +309,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 
 	var traverse = function(o, selectedElement, newSchema) {
 		console.log("***********in traverse o=",o);
+		$log.debug("newSchema=",newSchema);
 	    for (var i in o) {
 	        // func.apply(this, [i,o[i]] , selectedElement);
 	        // console.log("before if selectedElement=",selectedElement,"o[=",[i,o[i]],"i=",i);
@@ -1175,14 +1176,22 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 			// $log.debug("select in getschema=",$select[selectedElement].optionRef);
 			$log.debug("in getSchema=", selectedElement);
 			var localSchema = {};
-			schemas[selectedElement] = schemas[selectedElement] || {};
-			angular.copy(schemas.device, localSchema);
-			
+
 			if($select[selectedElement].optionRef.indexOf(".")>-1){
-				$log.debug("in if getschema");
+				schemas[selectedElement] = schemas[selectedElement] || {};
+				var refs = $select[selectedElement].optionRef.split(".");
+				angular.copy(schemas[refs[0]], localSchema);
+				$log.debug("in if getschema selectedElement=",selectedElement);
 				//TODO
+				$log.debug("refs[0]=",refs[0]);
+				$log.debug("schemas[refs[0]]=",schemas[refs[0]]);
 				traverse(localSchema, selectedElement, schemas[selectedElement]);
+				$log.debug("schemas ingetschema=",schemas);
+				replaceRef(schemas[selectedElement], selectedElement);
+				$log.debug("schemas 2ingetschema=",schemas);
 			}else{
+				schemas[selectedElement] = schemas[selectedElement] || {};
+				angular.copy(schemas.device, localSchema);
 				// $log.debug("selectedElement=",selectedElement);
 				// $log.debug("schemas=",schemas);
 				traverse(localSchema, selectedElement, schemas[selectedElement]);
@@ -1205,7 +1214,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 			if($select[scope.selectedElement].type === "array"){
 
 				if($select[scope.selectedElement].optionRef.indexOf(".")>-1){
-
+					//TODO
 				}else{
 					$log.debug("selectedPart=",scope.selectedPart[scope.selectedElement]);
 					$log.debug("in else scope.wholeDevice[$select[scope.selectedElement].optionRef]=",scope.wholeDevice[$select[scope.selectedElement].optionRef]);
