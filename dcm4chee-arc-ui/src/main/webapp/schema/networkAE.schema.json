@@ -79,7 +79,7 @@
       "description": "transfer capabilities provided by the application entity",
       "type": "array",
       "items": {
-        "$ref": "transferCapability.json"
+        "$ref": "transferCapability.schema.json"
       }
     },
     "dcmNetworkAE": {
