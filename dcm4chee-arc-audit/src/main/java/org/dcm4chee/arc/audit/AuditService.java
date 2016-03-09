@@ -101,16 +101,10 @@ public class AuditService {
             case "CONN_":
                 auditConnectionRejected(path, eventType);
                 break;
-            case "STORE":
+            case "ITRF_":
                 aggregateStoreOrWADORetrieve(path, eventType);
                 break;
-            case "WADO_":
-                aggregateStoreOrWADORetrieve(path, eventType);
-                break;
-            case "BEGIN":
-                auditRetrieve(path, eventType);
-                break;
-            case "TRF__":
+            case "RTRV_":
                 auditRetrieve(path, eventType);
                 break;
             case "DELET":
@@ -191,13 +185,10 @@ public class AuditService {
         AuditServiceUtils.DeleteInfo deleteInfo;
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             deleteInfo = new AuditServiceUtils.DeleteInfo(reader.readLine());
-            String altUserID = (deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEAET) != null)
-                    ? AuditMessages.alternativeUserIDForAETitle(
-                    deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEAET))
-                    : null;
             apList.add(AuditMessages.createActiveParticipant(
-                    deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEHOST), altUserID, null, eventType.isSource,
                     deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEHOST),
+                    auditServiceUtils.buildAltUserID(deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEAET)),
+                    null, eventType.isSource, deleteInfo.getField(AuditServiceUtils.DeleteInfo.REMOTEHOST),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             apList.add(AuditMessages.createActiveParticipant(
                     deleteInfo.getField(AuditServiceUtils.DeleteInfo.LOCALAET),
@@ -260,7 +251,8 @@ public class AuditService {
                     iuids.add(i.getSopInstanceUID());
                 }
                 for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-                    writer.write(new AuditServiceUtils.DeleteStudyInfo(entry.getKey(), String.valueOf(entry.getValue().size())).toString());
+                    writer.write(new AuditServiceUtils.DeleteStudyInfo(entry.getKey(),
+                            String.valueOf(entry.getValue().size())).toString());
                     writer.newLine();
                 }
             }
@@ -400,12 +392,9 @@ public class AuditService {
         AuditServiceUtils.QueryInfo qrInfo;
         try (InputStream in = new BufferedInputStream(Files.newInputStream(file))) {
             qrInfo = new AuditServiceUtils.QueryInfo(new DataInputStream(in).readUTF());
-            String altUserID = (qrInfo.getField(AuditServiceUtils.QueryInfo.CALLING_AET) != null)
-                    ? AuditMessages.alternativeUserIDForAETitle(
-                    qrInfo.getField(AuditServiceUtils.QueryInfo.CALLING_AET))
-                    : null;
             apList.add(AuditMessages.createActiveParticipant(qrInfo.getField(AuditServiceUtils.QueryInfo.REMOTE_HOST),
-                    altUserID, null, eventType.isSource, qrInfo.getField(AuditServiceUtils.QueryInfo.REMOTE_HOST),
+                    auditServiceUtils.buildAltUserID(qrInfo.getField(AuditServiceUtils.QueryInfo.CALLING_AET)), null,
+                    eventType.isSource, qrInfo.getField(AuditServiceUtils.QueryInfo.REMOTE_HOST),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
             apList.add(AuditMessages.createActiveParticipant(qrInfo.getField(AuditServiceUtils.QueryInfo.CALLED_AET),
                     log().processID(), null, eventType.isDest, auditServiceUtils.getLocalHostName(log()),
@@ -457,7 +446,8 @@ public class AuditService {
         StoreSession session = ctx.getStoreSession();
         Attributes attrs = ctx.getAttributes();
         Path file = dir.resolve(
-                eventType + session.getCallingAET() + '-' + session.getCalledAET() + '-' + ctx.getStudyInstanceUID());
+                String.valueOf(eventType) + '-' + session.getCallingAET() + '-' + session.getCalledAET() + '-'
+                        + ctx.getStudyInstanceUID());
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -479,7 +469,7 @@ public class AuditService {
     }
 
     public void spoolWADORetrieve(RetrieveContext ctx){
-        AuditServiceUtils.EventType aggregationType = AuditServiceUtils.EventType.forWADORetrieve(ctx);
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forWADORetrieve(ctx);
         HttpServletRequest req = ctx.getHttpRequest();
         Collection<InstanceLocations> il = ctx.getMatches();
         Attributes attrs = new Attributes();
@@ -491,7 +481,8 @@ public class AuditService {
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : tmpdir);
         Path file = dir.resolve(
-                aggregationType + req.getRemoteAddr() + '-' + ctx.getLocalAETitle() + '-' + ctx.getStudyInstanceUIDs()[0]);
+                String.valueOf(eventType) + '-' + req.getRemoteAddr() + '-' + ctx.getLocalAETitle() + '-'
+                        + ctx.getStudyInstanceUIDs()[0]);
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -557,11 +548,10 @@ public class AuditService {
                                                    Calendar eventTime, AuditServiceUtils.EventType eventType, String outcomeDesc) {
         List<ActiveParticipant> apList = new ArrayList<>();
         List<ParticipantObjectIdentification> poiList = new ArrayList<>();
-        String altUserID = (patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.CALLING_AET) != null)
-                           ? AuditMessages.alternativeUserIDForAETitle(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.CALLING_AET))
-                            : null;
-        apList.add(AuditMessages.createActiveParticipant(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.REMOTE_HOSTNAME),
-                altUserID, null, eventType.isSource, patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.REMOTE_HOSTNAME),
+        apList.add(AuditMessages.createActiveParticipant(
+                patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.REMOTE_HOSTNAME),
+                auditServiceUtils.buildAltUserID(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.CALLING_AET)),
+                null, eventType.isSource, patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.REMOTE_HOSTNAME),
                 AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
         apList.add(AuditMessages.createActiveParticipant(
                 patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.CALLED_AET), log().processID(),
@@ -638,7 +628,7 @@ public class AuditService {
                     null, eventType.isSource, auditServiceUtils.getLocalHostName(log()),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
             apList.add(AuditMessages.createActiveParticipant(ri.getField(AuditServiceUtils.RetrieveInfo.DESTHOST),
-                    AuditMessages.alternativeUserIDForAETitle(ri.getField(AuditServiceUtils.RetrieveInfo.DESTAET)), null,
+                    auditServiceUtils.buildAltUserID(ri.getField(AuditServiceUtils.RetrieveInfo.DESTAET)), null,
                     eventType.isDest, ri.getField(AuditServiceUtils.RetrieveInfo.DESTNAPID),
                     ri.getField(AuditServiceUtils.RetrieveInfo.DESTNAPCODE), null, eventType.destination));
             if (eventType.isOther)
