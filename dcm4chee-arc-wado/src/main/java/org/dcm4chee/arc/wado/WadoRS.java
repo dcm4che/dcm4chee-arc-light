@@ -316,12 +316,8 @@ public class WadoRS {
 
         public Object entity(WadoRS wadoRS, RetrieveContext ctx) throws Exception {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
-            Iterator<InstanceLocations> inst = ctx.getMatches().iterator();
-            while (inst.hasNext()) {
-                addPart(output, wadoRS, ctx, inst.next());
-                if (!inst.hasNext()) {
-
-                }
+            for (InstanceLocations inst : ctx.getMatches()) {
+                addPart(output, wadoRS, ctx, inst);
             }
             return output;
         }
