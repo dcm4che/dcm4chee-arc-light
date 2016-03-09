@@ -39,11 +39,12 @@
  */
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.audit.EventTypeCode;
+import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4che3.net.Connection;
@@ -59,9 +60,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -70,7 +69,7 @@ import java.util.HashSet;
 public class AuditServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private static final String noValue = "<none>";
-    enum EventType {
+    protected enum EventType {
         WADO_R_P__(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, true, false, false, null),
         WADO_R_E__(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
@@ -218,7 +217,24 @@ public class AuditServiceUtils {
         }
     }
 
-    public static void deleteFile(Path file) {
+
+    protected void emitAuditMessage(Calendar timestamp, EventIdentification ei, List<ActiveParticipant> apList,
+                                 List<ParticipantObjectIdentification> poiList, AuditLogger log) {
+        AuditMessage msg = new AuditMessage();
+        msg.setEventIdentification(ei);
+        for (ActiveParticipant ap : apList)
+            msg.getActiveParticipant().add(ap);
+        msg.getAuditSourceIdentification().add(log.createAuditSourceIdentification());
+        for (ParticipantObjectIdentification poi : poiList)
+            msg.getParticipantObjectIdentification().add(poi);
+        try {
+            log.write(timestamp, msg);
+        } catch (Exception e) {
+            LOG.warn("Failed to emit audit message", e);
+        }
+    }
+
+    protected static void deleteFile(Path file) {
         try {
             Files.delete(file);
         } catch (IOException e) {
@@ -226,19 +242,33 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class PatientStudyInfo {
-        public static final int REMOTE_HOSTNAME = 0;
-        public static final int CALLING_AET = 1;
-        public static final int CALLED_AET = 2;
-        public static final int STUDY_UID = 3;
-        public static final int ACCESSION_NO = 4;
-        public static final int PATIENT_ID = 5;
-        public static final int PATIENT_NAME = 6;
-        public static final int OUTCOME = 7;
+    protected String buildAET(Device device) {
+        String[] aets = device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()]);
+        StringBuilder b = new StringBuilder();
+        b.append(aets[0]);
+        for (int i = 1; i < aets.length; i++)
+            b.append(';').append(aets[i]);
+        return b.toString();
+    }
+
+    protected String getLocalHostName(AuditLogger log) {
+        List<Connection> conns = log.getConnections();
+        return conns.get(0).getHostname();
+    }
+
+    protected static class PatientStudyInfo {
+        protected static final int REMOTE_HOSTNAME = 0;
+        protected static final int CALLING_AET = 1;
+        protected static final int CALLED_AET = 2;
+        protected static final int STUDY_UID = 3;
+        protected static final int ACCESSION_NO = 4;
+        protected static final int PATIENT_ID = 5;
+        protected static final int PATIENT_NAME = 6;
+        protected static final int OUTCOME = 7;
 
         private final String[] fields;
 
-        public PatientStudyInfo(StoreContext ctx, Attributes attrs) {
+        protected PatientStudyInfo(StoreContext ctx, Attributes attrs) {
             StoreSession session = ctx.getStoreSession();
             String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
             fields = new String[] {
@@ -253,7 +283,7 @@ public class AuditServiceUtils {
             };
         }
 
-        public PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
+        protected PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
             String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
             fields = new String[] {
                     ctx.getHttpRequest().getRemoteAddr(),
@@ -267,11 +297,11 @@ public class AuditServiceUtils {
             };
         }
 
-        public PatientStudyInfo(String s) {
+        protected PatientStudyInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
 
-        public String getField(int field) {
+        protected String getField(int field) {
             return StringUtils.maskEmpty(fields[field], null);
         }
 
@@ -281,15 +311,15 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class InstanceInfo {
-        public static final int CLASS_UID = 0;
-        public static final int INSTANCE_UID = 1;
-        public static final int MPPS_UID = 2;
-//        public static final int ACCESSION_NO = 3;
+    protected static class InstanceInfo {
+        protected static final int CLASS_UID = 0;
+        protected static final int INSTANCE_UID = 1;
+        protected static final int MPPS_UID = 2;
+//        protected static final int ACCESSION_NO = 3;
 
         private final String[] fields;
 
-        public InstanceInfo(StoreContext ctx, Attributes attrs) {
+        protected InstanceInfo(StoreContext ctx, Attributes attrs) {
             ArrayList<String> list = new ArrayList<>();
             list.add(ctx.getSopClassUID());
             list.add(ctx.getSopInstanceUID());
@@ -304,7 +334,7 @@ public class AuditServiceUtils {
             this.fields = list.toArray(new String[list.size()]);
         }
 
-        public InstanceInfo(RetrieveContext ctx, Attributes attrs) {
+        protected InstanceInfo(RetrieveContext ctx, Attributes attrs) {
             ArrayList<String> list = new ArrayList<>();
             list.add(attrs.getString(Tag.SOPClassUID));
             list.add(ctx.getSopInstanceUIDs()[0]);
@@ -319,11 +349,11 @@ public class AuditServiceUtils {
             this.fields = list.toArray(new String[list.size()]);
         }
 
-        public InstanceInfo(String s) {
+        protected InstanceInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
 
-        public String getField(int field) {
+        protected String getField(int field) {
             return field < fields.length ? fields[field] : null;
         }
 
@@ -333,21 +363,21 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class AccessionNumSopClassInfo {
+    protected static class AccessionNumSopClassInfo {
         private final String accNum;
         private HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
 
-        public AccessionNumSopClassInfo(String accNum) {
+        protected AccessionNumSopClassInfo(String accNum) {
             this.accNum = accNum;
         }
 
-        public String getAccNum() {
+        protected String getAccNum() {
             return accNum;
         }
-        public HashMap<String, HashSet<String>> getSopClassMap() {
+        protected HashMap<String, HashSet<String>> getSopClassMap() {
             return sopClassMap;
         }
-        public void addSOPInstance(RetrieveStudyInfo rInfo) {
+        protected void addSOPInstance(RetrieveStudyInfo rInfo) {
             String cuid = rInfo.getField(RetrieveStudyInfo.SOPCLASSUID);
             HashSet<String> iuids = sopClassMap.get(cuid);
             if (iuids == null) {
@@ -358,16 +388,16 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class RetrieveStudyInfo {
-        public static final int STUDYUID = 0;
-        public static final int ACCESSION = 1;
-        public static final int SOPCLASSUID = 2;
-        public static final int SOPINSTANCEUID = 3;
-        public static final int PATIENTID = 4;
-        public static final int PATIENTNAME = 5;
+    protected static class RetrieveStudyInfo {
+        protected static final int STUDYUID = 0;
+        protected static final int ACCESSION = 1;
+        protected static final int SOPCLASSUID = 2;
+        protected static final int SOPINSTANCEUID = 3;
+        protected static final int PATIENTID = 4;
+        protected static final int PATIENTNAME = 5;
 
         private final String[] fields;
-        public RetrieveStudyInfo(Attributes attrs) {
+        protected RetrieveStudyInfo(Attributes attrs) {
             fields = new String[] {
                     attrs.getString(Tag.StudyInstanceUID),
                     attrs.getString(Tag.AccessionNumber),
@@ -377,10 +407,10 @@ public class AuditServiceUtils {
                     StringUtils.maskEmpty(attrs.getString(Tag.PatientName), null)
             };
         }
-        public RetrieveStudyInfo(String s) {
+        protected RetrieveStudyInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
-        public String getField(int field) {
+        protected String getField(int field) {
             return StringUtils.maskEmpty(fields[field], null);
         }
         @Override
@@ -389,19 +419,19 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class RetrieveInfo {
-        public static final int LOCALAET = 0;
-        public static final int DESTHOST = 1;
-        public static final int DESTAET = 2;
-        public static final int DESTNAPID = 3;
-        public static final int DESTNAPCODE = 4;
-        public static final int REQUESTORHOST = 5;
-        public static final int MOVEAET = 6;
-        public static final int OUTCOME = 7;
+    protected static class RetrieveInfo {
+        protected static final int LOCALAET = 0;
+        protected static final int DESTHOST = 1;
+        protected static final int DESTAET = 2;
+        protected static final int DESTNAPID = 3;
+        protected static final int DESTNAPCODE = 4;
+        protected static final int REQUESTORHOST = 5;
+        protected static final int MOVEAET = 6;
+        protected static final int OUTCOME = 7;
 
         private final String[] fields;
 
-        public RetrieveInfo(RetrieveContext ctx) {
+        protected RetrieveInfo(RetrieveContext ctx) {
             String outcome = (null != ctx.getException()) ? ctx.getException().getMessage() : null;
             String destHost = (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : ctx.getDestinationAETitle();
             String destNapID = (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null;
@@ -418,11 +448,11 @@ public class AuditServiceUtils {
             };
         }
 
-        public RetrieveInfo(String s) {
+        protected RetrieveInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
 
-        public String getField(int field) {
+        protected String getField(int field) {
             return StringUtils.maskEmpty(fields[field], null);
         }
 
@@ -432,18 +462,18 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class DeleteInfo {
-        public static final int LOCALAET = 0;
-        public static final int REMOTEHOST = 1;
-        public static final int REMOTEAET = 2;
-        public static final int STUDYUID = 3;
-        public static final int PATIENTID = 4;
-        public static final int PATIENTNAME = 5;
-        public static final int OUTCOME = 6;
+    protected static class DeleteInfo {
+        protected static final int LOCALAET = 0;
+        protected static final int REMOTEHOST = 1;
+        protected static final int REMOTEAET = 2;
+        protected static final int STUDYUID = 3;
+        protected static final int PATIENTID = 4;
+        protected static final int PATIENTNAME = 5;
+        protected static final int OUTCOME = 6;
 
         private final String[] fields;
 
-        public DeleteInfo(StoreContext ctx) {
+        protected DeleteInfo(StoreContext ctx) {
             String outcomeDesc = (ctx.getException() != null)
                     ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
                     : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning();
@@ -458,11 +488,11 @@ public class AuditServiceUtils {
             };
         }
 
-        public DeleteInfo(String s) {
+        protected DeleteInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
 
-        public String getField(int field) {
+        protected String getField(int field) {
             return StringUtils.maskEmpty(fields[field], null);
         }
 
@@ -472,21 +502,21 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class DeleteStudyInfo {
-        public static final int SOPCLASSUID = 0;
-        public static final int NUMINSTANCES = 1;
+    protected static class DeleteStudyInfo {
+        protected static final int SOPCLASSUID = 0;
+        protected static final int NUMINSTANCES = 1;
 
         private final String[] fields;
-        public DeleteStudyInfo(String cuid, String numInst) {
+        protected DeleteStudyInfo(String cuid, String numInst) {
             ArrayList<String> list = new ArrayList<>();
             list.add(cuid);
             list.add(numInst);
             this.fields = list.toArray(new String[list.size()]);
         }
-        public DeleteStudyInfo(String s) {
+        protected DeleteStudyInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
-        public String getField(int field) {
+        protected String getField(int field) {
             return field < fields.length ? fields[field] : null;
         }
         @Override
@@ -495,16 +525,16 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class PermanentDeletionInfo {
-        public static final int STUDY_UID = 0;
-        public static final int ACCESSION = 1;
-        public static final int PATIENT_ID = 2;
-        public static final int PATIENT_NAME = 3;
-        public static final int OUTCOME_DESC = 4;
+    protected static class PermanentDeletionInfo {
+        protected static final int STUDY_UID = 0;
+        protected static final int ACCESSION = 1;
+        protected static final int PATIENT_ID = 2;
+        protected static final int PATIENT_NAME = 3;
+        protected static final int OUTCOME_DESC = 4;
 
         private final String[] fields;
 
-        public PermanentDeletionInfo (StudyDeleteContext ctx) {
+        protected PermanentDeletionInfo (StudyDeleteContext ctx) {
             String outcomeDesc = (ctx.getException() != null) ? ctx.getException().getMessage() : null;
             String patientName = (null != ctx.getPatient().getPatientName())
                                     ? ctx.getPatient().getPatientName().toString() : null;
@@ -517,11 +547,11 @@ public class AuditServiceUtils {
                     outcomeDesc
             };
         }
-        public PermanentDeletionInfo(String s) {
+        protected PermanentDeletionInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
 
-        public String getField(int field) {
+        protected String getField(int field) {
             return StringUtils.maskEmpty(fields[field], null);
         }
 
@@ -531,13 +561,13 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class ConnectionRejectedInfo {
-        public static final int REMOTE_ADDR = 0;
-        public static final int LOCAL_ADDR = 1;
-        public static final int OUTCOME_DESC = 2;
+    protected static class ConnectionRejectedInfo {
+        protected static final int REMOTE_ADDR = 0;
+        protected static final int LOCAL_ADDR = 1;
+        protected static final int OUTCOME_DESC = 2;
         private final String[] fields;
 
-        public ConnectionRejectedInfo(Connection conn, Socket s, Throwable e) {
+        protected ConnectionRejectedInfo(Connection conn, Socket s, Throwable e) {
             fields = new String[] {
                     s.getRemoteSocketAddress().toString(),
                     conn.getHostname(),
@@ -545,10 +575,10 @@ public class AuditServiceUtils {
             };
         }
 
-        public ConnectionRejectedInfo(String s) {
+        protected ConnectionRejectedInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
-        public String getField(int field) {
+        protected String getField(int field) {
             return StringUtils.maskEmpty(fields[field], null);
         }
         @Override
@@ -557,17 +587,17 @@ public class AuditServiceUtils {
         }
     }
 
-    public static class QueryInfo {
-        public static final int CALLING_AET = 0;
-        public static final int REMOTE_HOST = 1;
-        public static final int CALLED_AET = 2;
-        public static final int SOPCLASSUID = 3;
-        public static final int PATIENT_ID = 4;
-        public static final int QUERY_STRING = 5;
+    protected static class QueryInfo {
+        protected static final int CALLING_AET = 0;
+        protected static final int REMOTE_HOST = 1;
+        protected static final int CALLED_AET = 2;
+        protected static final int SOPCLASSUID = 3;
+        protected static final int PATIENT_ID = 4;
+        protected static final int QUERY_STRING = 5;
 
         private final String[] fields;
 
-        public QueryInfo(QueryContext ctx) {
+        protected QueryInfo(QueryContext ctx) {
             String queryString = (ctx.getHttpRequest() != null)
                     ? ctx.getHttpRequest().getRequestURI() + ctx.getHttpRequest().getQueryString()
                     : null;
@@ -583,10 +613,10 @@ public class AuditServiceUtils {
             };
         }
 
-        public QueryInfo(String s) {
+        protected QueryInfo(String s) {
             fields = StringUtils.split(s, '\\');
         }
-        public String getField(int field) {
+        protected String getField(int field) {
             return StringUtils.maskEmpty(fields[field], null);
         }
         @Override
