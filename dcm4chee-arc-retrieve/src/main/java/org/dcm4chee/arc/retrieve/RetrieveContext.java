@@ -99,9 +99,9 @@ public interface RetrieveContext extends Closeable {
 
     void setDestinationAE(ApplicationEntity remoteAE);
 
-    Exception getException();
+    Throwable getException();
 
-    void setException(Exception exception);
+    void setException(Throwable exception);
 
     String getLocalAETitle();
 
@@ -158,6 +158,8 @@ public interface RetrieveContext extends Closeable {
     int remaining();
 
     int status();
+
+    String getOutcomeDescription();
 
     Storage getStorage(String storageID);
 

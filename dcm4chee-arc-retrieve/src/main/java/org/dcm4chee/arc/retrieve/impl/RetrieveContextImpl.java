@@ -80,7 +80,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private String moveOriginatorAETitle;
     private String destinationAETitle;
     private ApplicationEntity destinationAE;
-    private Exception exception;
+    private Throwable exception;
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
     private String[] seriesInstanceUIDs = {};
@@ -210,12 +210,12 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public Exception getException() {
+    public Throwable getException() {
         return exception;
     }
 
     @Override
-    public void setException(Exception exception) {
+    public void setException(Throwable exception) {
         this.exception = exception;
     }
 
@@ -371,6 +371,18 @@ public class RetrieveContextImpl implements RetrieveContext {
                 : (completed() == 0 && warning() == 0)
                 ? Status.UnableToPerformSubOperations
                 : Status.OneOrMoreFailures;
+    }
+
+    @Override
+    public String getOutcomeDescription() {
+        return (failed() == 0 && warning() == 0)
+                ? "Success"
+                : (completed() == 0 && warning() == 0)
+                ? "Unable to perform sup-operations"
+                : (failed() == 0)
+                ? "Warnings on retrieve of " + warning() + " objects"
+                : "Retrieve of " + failed() + " objects failed";
+
     }
 
     @Override

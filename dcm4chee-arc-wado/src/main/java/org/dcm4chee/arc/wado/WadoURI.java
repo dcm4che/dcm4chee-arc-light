@@ -223,16 +223,16 @@ public class WadoURI {
                 throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
 
             StreamingOutput entity;
-            MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
             if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
                 mimeType = MediaTypes.APPLICATION_DICOM_TYPE;
-                entity = new DicomObjectOutput(service.openTranscoder(ctx, inst, tsuids(), true), coerce);
+                entity = new DicomObjectOutput(ctx, inst, tsuids());
             } else {
-                entity = entityOf(ctx, inst, objectType, mimeType, coerce);
+                entity = entityOf(ctx, inst, objectType, mimeType);
             }
             ar.register(new CompletionCallback() {
                 @Override
                 public void onComplete(Throwable throwable) {
+                    ctx.setException(throwable);
                     retrieveWado.fire(ctx);
                 }
             });
@@ -264,7 +264,7 @@ public class WadoURI {
     }
 
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
-                            MediaType mimeType, MergeAttributesCoercion coerce)
+                            MediaType mimeType)
             throws IOException {
         int imageIndex = -1;
         switch (objectType) {
@@ -279,7 +279,7 @@ public class WadoURI {
             case MPEG4Video:
                 return decapsulateVideo(service.openDicomInputStream(ctx, inst));
             case SRDocument:
-                return renderSRDocument(ctx, inst, mimeType, coerce);
+                return renderSRDocument(ctx, inst, mimeType);
         }
         throw new AssertionError("objectType: " + objectType);
     }
@@ -326,13 +326,13 @@ public class WadoURI {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private StreamingOutput renderSRDocument(RetrieveContext ctx, InstanceLocations inst, MediaType mimeType,
-                                    AttributesCoercion coerce) throws IOException {
+    private StreamingOutput renderSRDocument(RetrieveContext ctx, InstanceLocations inst, MediaType mimeType)
+            throws IOException {
         Attributes attrs;
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)){
             attrs = dis.readDataset(-1, -1);
         }
-        coerce.coerce(attrs, null);
+        service.coerceAttributes(ctx, inst, attrs);
         return new DicomXSLTOutput(attrs, getTemplate(ctx, mimeType), new SAXTransformer.SetupTransformer() {
             @Override
             public void setup(Transformer transformer) {

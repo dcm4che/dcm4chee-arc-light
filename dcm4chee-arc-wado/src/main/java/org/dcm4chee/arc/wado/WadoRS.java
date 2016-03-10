@@ -40,10 +40,12 @@
 
 package org.dcm4chee.arc.wado;
 
-import org.dcm4che3.data.AttributesCoercion;
-import org.dcm4che3.data.MergeAttributesCoercion;
+import org.dcm4che3.data.*;
+import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
@@ -61,6 +63,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
@@ -68,9 +72,11 @@ import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import javax.xml.transform.Templates;
+import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -280,6 +286,7 @@ public class WadoRS {
             ar.register(new CompletionCallback() {
                 @Override
                 public void onComplete(Throwable throwable) {
+                    ctx.setException(throwable);
                     retrieveEnd.fire(ctx);
                 }
             });
@@ -301,20 +308,31 @@ public class WadoRS {
         DICOM {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst) throws Exception {
+                                   InstanceLocations inst) {
                 wadoRS.writeDICOM(output, ctx, inst);
             }
         },
         BULKDATA,
         RENDER,
-        METADATA_XML,
-        METADATA_JSON;
+        METADATA_XML {
+            @Override
+            protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
+                                   InstanceLocations inst) {
+                wadoRS.writeMetadataXML(output, ctx, inst);
+            }
+        },
+        METADATA_JSON {
+            @Override
+            public Object entity(WadoRS wadoRS, RetrieveContext ctx) {
+                return wadoRS.writeMetadataJSON(ctx);
+            }
+        };
 
         public Response.Status status(WadoRS wadoRS, RetrieveContext ctx) {
             return Response.Status.OK;
         }
 
-        public Object entity(WadoRS wadoRS, RetrieveContext ctx) throws Exception {
+        public Object entity(WadoRS wadoRS, RetrieveContext ctx) {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             for (InstanceLocations inst : ctx.getMatches()) {
                 addPart(output, wadoRS, ctx, inst);
@@ -323,16 +341,13 @@ public class WadoRS {
         }
 
         protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                               InstanceLocations inst) throws Exception {
+                               InstanceLocations inst) {
              throw new WebApplicationException(name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE);
         }
     }
 
-    private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)
-            throws Exception {
-        MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
-        DicomObjectOutput entity = new DicomObjectOutput(
-                service.openTranscoder(ctx, inst, acceptableTransferSyntaxes(), true), coerce);
+    private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
+        DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes());
         output.addPart(entity, MediaTypes.APPLICATION_DICOM_TYPE);
     }
 
@@ -361,4 +376,69 @@ public class WadoRS {
         return new XSLTAttributesCoercion(tpls, null)
                 .includeKeyword(!coercion.isNoKeywords());
     }
+
+    private void writeMetadataXML(MultipartRelatedOutput output, final RetrieveContext ctx,
+                                  final InstanceLocations inst) {
+        output.addPart(
+                new StreamingOutput() {
+                    @Override
+                    public void write(OutputStream out) throws IOException,
+                            WebApplicationException {
+                        try {
+                            SAXTransformer.getSAXWriter(new StreamResult(out)).write(loadAttrsWithBulkdataURI(ctx, inst));
+                        } catch (Exception e) {
+                            throw new WebApplicationException(e);
+                        }
+                    }
+                },
+                MediaTypes.APPLICATION_DICOM_XML_TYPE);
+
+    }
+
+    private Object writeMetadataJSON(final RetrieveContext ctx) {
+        final Collection<InstanceLocations> insts = ctx.getMatches();
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                try {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    JSONWriter writer = new JSONWriter(gen);
+                    gen.writeStartArray();
+                    for (InstanceLocations inst : insts) {
+                        writer.write(loadAttrsWithBulkdataURI(ctx, inst));
+                    }
+                    gen.writeEnd();
+                    gen.flush();
+                } catch (Exception e) {
+                    throw new WebApplicationException(e);
+                }
+            }
+        };
+    }
+
+    private Attributes loadAttrsWithBulkdataURI(RetrieveContext ctx, InstanceLocations inst) throws Exception {
+        Attributes attrs;
+        try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
+            dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+            attrs = dis.readDataset(-1, Tag.PixelData);
+            if (dis.tag() == Tag.PixelData)
+                attrs.setValue(Tag.PixelData, dis.vr(), new BulkData(null, mkBulkDataURI(attrs), dis.bigEndian()));
+        }
+        MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
+        coerce.coerce(attrs, null);
+        return attrs;
+    }
+
+    private String mkBulkDataURI(Attributes attrs) {
+        StringBuffer sb = request.getRequestURL();
+        sb.setLength(sb.lastIndexOf("/metadata"));
+        if (sb.lastIndexOf("/instances/") < 0) {
+            if (sb.lastIndexOf("/series/") < 0) {
+                sb.append("/series/").append(attrs.getString(Tag.SeriesInstanceUID));
+            }
+            sb.append("/instances/").append(attrs.getString(Tag.SOPInstanceUID));
+        }
+        return sb.toString();
+    }
+
 }
