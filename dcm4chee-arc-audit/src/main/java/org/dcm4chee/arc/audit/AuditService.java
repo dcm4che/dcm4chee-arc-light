@@ -202,7 +202,7 @@ public class AuditService {
                 AuditServiceUtils.DeleteStudyInfo dsi = new AuditServiceUtils.DeleteStudyInfo(line);
                 dsi.getField(AuditServiceUtils.DeleteStudyInfo.SOPCLASSUID);
                 dsi.getField(AuditServiceUtils.DeleteStudyInfo.NUMINSTANCES);
-                sopC.add(AuditMessages.createSOPClass(
+                sopC.add(AuditMessages.createSOPClass(null,
                         dsi.getField(AuditServiceUtils.DeleteStudyInfo.SOPCLASSUID),
                         Integer.parseInt(dsi.getField(AuditServiceUtils.DeleteStudyInfo.NUMINSTANCES))));
             }
@@ -281,7 +281,7 @@ public class AuditService {
                 AuditServiceUtils.DeleteStudyInfo dsi = new AuditServiceUtils.DeleteStudyInfo(line);
                 dsi.getField(AuditServiceUtils.DeleteStudyInfo.SOPCLASSUID);
                 dsi.getField(AuditServiceUtils.DeleteStudyInfo.NUMINSTANCES);
-                sopC.add(AuditMessages.createSOPClass(
+                sopC.add(AuditMessages.createSOPClass(null,
                         dsi.getField(AuditServiceUtils.DeleteStudyInfo.SOPCLASSUID),
                         Integer.parseInt(dsi.getField(AuditServiceUtils.DeleteStudyInfo.NUMINSTANCES))));
             }
@@ -565,7 +565,7 @@ public class AuditService {
         for (String mppsUID : mppsUIDs)
             mpps.add(AuditMessages.createMPPS(mppsUID));
         for (Map.Entry<String, List<String>> entry : sopClassMap.entrySet())
-            sopC.add(AuditMessages.createSOPClass(entry.getKey(), entry.getValue().size()));
+            sopC.add(AuditMessages.createSOPClass(null, entry.getKey(), entry.getValue().size()));
         ParticipantObjectContainsStudy pocs = new ParticipantObjectContainsStudy();
         pocs.getStudyIDs().add(AuditMessages.createStudyIDs(patientStudyInfo.getField(AuditServiceUtils.PatientStudyInfo.STUDY_UID)));
         poiList.add(AuditMessages.createParticipantObjectIdentification(
@@ -584,7 +584,29 @@ public class AuditService {
                 eventType.outcomeIndicator, outcomeDesc), apList, poiList, log());
     }
 
-    public void spoolRetrieve(RetrieveContext ctx, AuditServiceUtils.EventType et) {
+    public void spoolPartialRetrieve(RetrieveContext ctx, HashSet<AuditServiceUtils.EventType> et) {
+        List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
+        Collection<InstanceLocations> instanceLocations = ctx.getMatches();
+        HashSet<InstanceLocations> failed = new HashSet<>();
+        HashSet<InstanceLocations> success = new HashSet<>();
+        success.addAll(instanceLocations);
+        for (InstanceLocations il : instanceLocations) {
+            if (failedList.contains(il.getSopInstanceUID())) {
+                failed.add(il);
+                success.remove(il);
+            }
+        }
+        String etFile;
+        for (AuditServiceUtils.EventType eventType : et) {
+            etFile = String.valueOf(eventType);
+            if (etFile.substring(9, 10).equals("E"))
+                spoolRetrieve(etFile, ctx, failed);
+            if (etFile.substring(9, 10).equals("P"))
+                spoolRetrieve(etFile, ctx, success);
+        }
+    }
+
+    public void spoolRetrieve(String etFile, RetrieveContext ctx, Collection<InstanceLocations> il) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -593,13 +615,13 @@ public class AuditService {
         try {
             if (!append)
                 Files.createDirectories(dir);
-            Path file = Files.createTempFile(dir, String.valueOf(et), null);
+            Path file = Files.createTempFile(dir, etFile, null);
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     StandardOpenOption.APPEND)) {
-                writer.write(new AuditServiceUtils.RetrieveInfo(ctx).toString());
+                writer.write(new AuditServiceUtils.RetrieveInfo(ctx, etFile).toString());
                 writer.newLine();
-                for (InstanceLocations il : ctx.getMatches()) {
-                    Attributes attrs = il.getAttributes();
+                for (InstanceLocations instanceLocation : il) {
+                    Attributes attrs = instanceLocation.getAttributes();
                     writer.write(new AuditServiceUtils.RetrieveStudyInfo(attrs).toString());
                     writer.newLine();
                 }
@@ -659,8 +681,14 @@ public class AuditService {
             for (Map.Entry<String, AuditServiceUtils.AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
                 if (null != entry.getValue().getAccNum())
                     acc.add(AuditMessages.createAccession(entry.getValue().getAccNum()));
-                for (Map.Entry<String, HashSet<String>> sopClassMap : entry.getValue().getSopClassMap().entrySet())
-                    sopC.add(AuditMessages.createSOPClass(sopClassMap.getKey(), sopClassMap.getValue().size()));
+                for (Map.Entry<String, HashSet<String>> sopClassMap : entry.getValue().getSopClassMap().entrySet()) {
+                    if (ri.getField(AuditServiceUtils.RetrieveInfo.PARTIAL_ERROR).equals(Boolean.toString(true))
+                            && eventType.outcomeIndicator.equals(AuditMessages.EventOutcomeIndicator.MinorFailure))
+                        sopC.add(AuditMessages.createSOPClass(
+                                sopClassMap.getValue(), sopClassMap.getKey(), sopClassMap.getValue().size()));
+                    else
+                        sopC.add(AuditMessages.createSOPClass(null, sopClassMap.getKey(), sopClassMap.getValue().size()));
+                }
                 ParticipantObjectContainsStudy pocs = new ParticipantObjectContainsStudy();
                 pocs.getStudyIDs().add(AuditMessages.createStudyIDs(entry.getKey()));
                 poiList.add(AuditMessages.createParticipantObjectIdentification(

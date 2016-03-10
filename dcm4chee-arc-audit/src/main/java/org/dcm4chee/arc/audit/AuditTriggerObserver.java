@@ -60,6 +60,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.HashSet;
 
 
 /**
@@ -103,13 +104,23 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
-        auditService.spoolRetrieve(ctx, et);
+        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
+        String etFile = null;
+        for (AuditServiceUtils.EventType eventType : et)
+            etFile = String.valueOf(eventType);
+        auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
-        auditService.spoolRetrieve(ctx, et);
+        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
+        if (ctx.failedSOPInstanceUIDs().length > 0)
+            auditService.spoolPartialRetrieve(ctx, et);
+        else {
+            String etFile = null;
+            for (AuditServiceUtils.EventType eventType : et)
+                etFile = String.valueOf(eventType);
+            auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
+        }
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {

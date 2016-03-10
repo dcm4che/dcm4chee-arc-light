@@ -41,7 +41,6 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
@@ -185,55 +184,55 @@ public class AuditServiceUtils {
                     : null;
         }
 
-        static EventType forBeginTransfer(RetrieveContext ctx) {
-            EventType at = null;
-            if (ctx.getException() != null) {
-                if (ctx.isLocalRequestor())
-                    at = RTRV_B_E_E;
-                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                    at = RTRV_B_M_E;
-                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
-                    at = RTRV_B_G_E;
-                if (ctx.getHttpRequest() != null)
-                    at = RTRV_B_W_E;
-            } else {
-                if (ctx.isLocalRequestor())
-                    at = RTRV_B_E_P;
-                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                    at = RTRV_B_M_P;
-                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
-                    at = RTRV_B_G_P;
-                if (ctx.getHttpRequest() != null)
-                    at = RTRV_B_W_P;
-            }
-            return at;
+        static HashSet<EventType> forBeginTransfer(RetrieveContext ctx) {
+            HashSet<EventType> eventType = new HashSet<>();
+            EventType et = null;
+            if (null != ctx.getException())
+                et = ctx.isLocalRequestor() ? RTRV_B_E_E
+                        : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_B_M_E
+                        : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                            && ctx.isDestinationRequestor() ? RTRV_B_G_E
+                        : null != ctx.getHttpRequest() ? RTRV_B_W_E : null;
+            if (ctx.getException() == null)
+                et = ctx.isLocalRequestor() ? RTRV_B_E_P
+                        : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_B_M_P
+                        : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                            && ctx.isDestinationRequestor()
+                        ? RTRV_B_G_P : null != ctx.getHttpRequest() ? RTRV_B_W_P : null;
+            eventType.add(et);
+            return eventType;
         }
 
-        static EventType forDicomInstTransferred(RetrieveContext ctx) {
-            EventType at = null;
-            if (ctx.getException() != null) {
-                if (ctx.isLocalRequestor())
-                    at = RTRV_T_E_E;
-                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                    at = RTRV_T_M_E;
-                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
-                    at = RTRV_T_G_E;
-                if (ctx.getHttpRequest() != null)
-                    at = RTRV_T_W_E;
-            } else {
-                if (ctx.isLocalRequestor())
-                    at = RTRV_T_E_P;
-                if (!ctx.isDestinationRequestor() && !ctx.isLocalRequestor())
-                    at = RTRV_T_M_P;
-                if (ctx.getRequestAssociation() != null && ctx.getStoreAssociation() != null && ctx.isDestinationRequestor())
-                    at = RTRV_T_G_P;
-                if (ctx.getHttpRequest() != null)
-                    at = RTRV_T_W_P;
+        static HashSet<EventType> forDicomInstTransferred(RetrieveContext ctx) {
+            HashSet<EventType> eventType = new HashSet<>();
+            EventType et;
+            if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size()) {
+                if (null != ctx.getException() || ctx.failedSOPInstanceUIDs().length > 0) {
+                    eventType.add(getDicomInstTrfdErrorEventType(ctx));
+                }
+                if (ctx.getException() == null || ctx.failedSOPInstanceUIDs().length > 0) {
+                    et = ctx.isLocalRequestor() ? RTRV_T_E_P
+                            : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_T_M_P
+                            : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                            && ctx.isDestinationRequestor()
+                            ? RTRV_T_G_P : null != ctx.getHttpRequest() ? RTRV_T_W_P : null;
+                    eventType.add(et);
+                }
             }
-            return at;
+            else
+                eventType.add(getDicomInstTrfdErrorEventType(ctx));
+            return eventType;
         }
     }
 
+    private static EventType getDicomInstTrfdErrorEventType(RetrieveContext ctx) {
+        EventType et;
+        return et = ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_E_E
+                : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_M_E
+                : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                && ctx.isDestinationRequestor() ? AuditServiceUtils.EventType.RTRV_T_G_E
+                : null != ctx.getHttpRequest() ? AuditServiceUtils.EventType.RTRV_T_W_E : null;
+    }
 
     protected void emitAuditMessage(Calendar timestamp, EventIdentification ei, List<ActiveParticipant> apList,
                                  List<ParticipantObjectIdentification> poiList, AuditLogger log) {
@@ -449,11 +448,18 @@ public class AuditServiceUtils {
         protected static final int REQUESTORHOST = 5;
         protected static final int MOVEAET = 6;
         protected static final int OUTCOME = 7;
+        protected static final int PARTIAL_ERROR = 8;
 
         private final String[] fields;
 
-        protected RetrieveInfo(RetrieveContext ctx) {
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage() : null;
+        protected RetrieveInfo(RetrieveContext ctx, String etFile) {
+            String outcome = null != ctx.getException()
+                                ? ctx.getException().getMessage()
+                                : ctx.warning() != 0 ? ctx.getOutcomeDescription()
+                                : ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
+                                ? ctx.getOutcomeDescription() : null;
+            String partialError = ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
+                                    ? Boolean.toString(true) : Boolean.toString(false);
             String destHost = (null == ctx.getHttpRequest())
                     ? null != ctx.getDestinationHostName() ? ctx.getDestinationHostName() : ctx.getDestinationAETitle()
                     : ctx.getHttpRequest().getRemoteHost();
@@ -470,7 +476,8 @@ public class AuditServiceUtils {
                     destNapCode,
                     ctx.getRequestorHostName(),
                     ctx.getMoveOriginatorAETitle(),
-                    outcome
+                    outcome,
+                    partialError
             };
         }
 
