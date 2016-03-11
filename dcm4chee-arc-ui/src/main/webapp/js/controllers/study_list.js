@@ -14,6 +14,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate()};
     $scope.studyTime = { from: '', to: ''};
+    $scope.clockpicker = {
+          twelvehour: false,
+          autoclose : true,
+          align :'left',
+          nativeOnMobile: true,
+          afterDone: function() {
+                            StudiesService.convertTime($scope.studyTime);
+          }
+    };
 
     $scope.queryStudies = function(offset) {
         cfpLoadingBar.start();

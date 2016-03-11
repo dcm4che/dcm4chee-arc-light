@@ -23,6 +23,7 @@ body{
 		 margin: 27px -30px 40px 4px;
     	padding: 45px 30px 80px 30px;
     	box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+    	width: 100%;
 	}
 	.logo{
 	    height: auto;
@@ -714,4 +715,7 @@ table{
     box-shadow: none;
     cursor: not-allowed;
     opacity: 0.34;
+}
+.clockpicker-span-am-pm{
+	display:none;
 }
