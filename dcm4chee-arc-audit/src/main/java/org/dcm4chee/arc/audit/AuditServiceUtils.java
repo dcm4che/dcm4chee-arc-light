@@ -223,15 +223,15 @@ public class AuditServiceUtils {
                 eventType.add(getDicomInstTrfdErrorEventType(ctx));
             return eventType;
         }
-    }
 
-    private static EventType getDicomInstTrfdErrorEventType(RetrieveContext ctx) {
-        EventType et;
-        return et = ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_E_E
-                : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_M_E
-                : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                && ctx.isDestinationRequestor() ? AuditServiceUtils.EventType.RTRV_T_G_E
-                : null != ctx.getHttpRequest() ? AuditServiceUtils.EventType.RTRV_T_W_E : null;
+        static EventType getDicomInstTrfdErrorEventType(RetrieveContext ctx) {
+            EventType et;
+            return et = ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_E_E
+                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_M_E
+                    : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                    && ctx.isDestinationRequestor() ? AuditServiceUtils.EventType.RTRV_T_G_E
+                    : null != ctx.getHttpRequest() ? AuditServiceUtils.EventType.RTRV_T_W_E : null;
+        }
     }
 
     protected void emitAuditMessage(Calendar timestamp, EventIdentification ei, List<ActiveParticipant> apList,
