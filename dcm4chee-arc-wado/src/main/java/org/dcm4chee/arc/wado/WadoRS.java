@@ -41,10 +41,7 @@
 package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.io.SAXTransformer;
-import org.dcm4che3.io.TemplatesCache;
-import org.dcm4che3.io.XSLTAttributesCoercion;
+import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -75,6 +72,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -418,12 +416,28 @@ public class WadoRS {
 
     private Attributes loadAttrsWithBulkdataURI(RetrieveContext ctx, InstanceLocations inst) throws Exception {
         Attributes attrs;
+        final ArrayList<BulkData> bulkDataList = new ArrayList<>();
+        String bulkDataURI;
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
             dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+            dis.setBulkDataCreator(new BulkDataCreator() {
+                @Override
+                public BulkData createBulkData(DicomInputStream dis) throws IOException {
+                    BulkData bulkData = new BulkData(null, dis.getAttributePath(), dis.bigEndian());
+                    bulkDataList.add(bulkData);
+                    return bulkData;
+                }
+            });
             attrs = dis.readDataset(-1, Tag.PixelData);
-            if (dis.tag() == Tag.PixelData)
-                attrs.setValue(Tag.PixelData, dis.vr(), new BulkData(null, mkBulkDataURI(attrs), dis.bigEndian()));
+            bulkDataURI = mkBulkDataURI(attrs);
+            if (dis.tag() == Tag.PixelData) {
+                attrs.setValue(Tag.PixelData, dis.vr(), new BulkData(null, bulkDataURI, dis.bigEndian()));
+            }
         }
+        for (BulkData bulkData : bulkDataList) {
+            bulkData.setURI(bulkDataURI + bulkData.getURI());
+        }
+
         MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
         coerce.coerce(attrs, null);
         return attrs;
