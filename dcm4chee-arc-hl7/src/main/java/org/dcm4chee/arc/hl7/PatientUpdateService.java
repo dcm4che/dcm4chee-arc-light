@@ -33,7 +33,7 @@ class PatientUpdateService extends DefaultHL7Service {
     private PatientService patientService;
 
     public PatientUpdateService() {
-        super("ADT^A02", "ADT^A03", "ADT^A06", "ADT^A07", "ADT^A08", "ADT^A40");
+        super("ADT^A02", "ADT^A03", "ADT^A06", "ADT^A07", "ADT^A08", "ADT^A28", "ADT^A31", "ADT^A40", "ADT^A47");
     }
 
     @Override

@@ -44,22 +44,22 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
+import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Dimse;
+import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -69,12 +69,16 @@ import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -85,6 +89,8 @@ import java.util.*;
  */
 @ApplicationScoped
 public class RetrieveServiceImpl implements RetrieveService {
+
+    private static Logger LOG = LoggerFactory.getLogger(RetrieveServiceImpl.class);
 
     private static final Expression<?>[] SELECT = {
             QLocation.location.pk,
@@ -392,6 +398,27 @@ public class RetrieveServiceImpl implements RetrieveService {
         ejb.clearFailedSOPInstanceUIDList(studyInstanceUID);
     }
 
+    @Override
+    public void coerceAttributes(RetrieveContext ctx, InstanceLocations inst, Attributes dataset) {
+        new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst)).coerce(dataset, null);
+    }
+
+    private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {
+        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
+        ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
+                ctx.getRequestorHostName(), null, TransferCapability.Role.SCP, Dimse.C_STORE_RQ, inst.getSopClassUID());
+        if (coercion == null)
+            return null;
+        String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
+        try {
+            Templates tpls = TemplatesCache.getDefault().get(uri);
+            return new XSLTAttributesCoercion(tpls, null).includeKeyword(!coercion.isNoKeywords());
+        } catch (TransformerConfigurationException e) {
+            LOG.warn("{}: Failed to coerce Attributes", ctx.getLocalAETitle(), e);
+            return null;
+        }
+    }
+
     private boolean isAccessable(ArchiveDeviceExtension arcDev, InstanceLocations match) {
         for (Location location : match.getLocations()) {
             if (arcDev.getStorageDescriptor(location.getStorageID()) != null)
@@ -429,6 +456,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             throw e;
         }
     }
+
 
     private Storage getStorage(RetrieveContext ctx, String storageID) {
         Storage storage = ctx.getStorage(storageID);

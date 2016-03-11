@@ -79,4 +79,6 @@ public interface RetrieveService {
     void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList);
 
     void clearFailedSOPInstanceUIDList(String studyInstanceUID);
+
+    void coerceAttributes(RetrieveContext ctx, InstanceLocations inst, Attributes dataset);
 }

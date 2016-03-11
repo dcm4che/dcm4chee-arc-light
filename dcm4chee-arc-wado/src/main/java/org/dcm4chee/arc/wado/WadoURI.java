@@ -60,6 +60,7 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.RetrieveWADO;
 import org.dcm4chee.arc.validation.constraints.*;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +74,9 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.*;
 import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.CompletionCallback;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -109,7 +113,6 @@ public class WadoURI {
     @Inject
     private RetrieveService service;
 
-    @Context
     private HttpServletRequest request;
 
     @Inject
@@ -196,37 +199,47 @@ public class WadoURI {
     }
 
     @GET
-    public Response get() {
+    public void get(@Suspended AsyncResponse ar) {
+        // @Inject does not work:
+        // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
+        // s. https://issues.jboss.org/browse/RESTEASY-903
+        request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
-        checkAET();
-        RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
-        if (!service.calculateMatches(ctx))
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-
-        Collection<InstanceLocations> matches = ctx.getMatches();
-        if (matches.size() > 1)
-            throw new WebApplicationException(
-                    "More than one matching resource found");
-
-        InstanceLocations inst = matches.iterator().next();
-        ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
-        MediaType mimeType = selectMimeType(objectType);
-        if (mimeType == null)
-            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
-
-        StreamingOutput entity;
         try {
-            MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
+            checkAET();
+            final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
+            if (!service.calculateMatches(ctx))
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+
+            Collection<InstanceLocations> matches = ctx.getMatches();
+            if (matches.size() > 1)
+                throw new WebApplicationException(
+                        "More than one matching resource found");
+
+            InstanceLocations inst = matches.iterator().next();
+            ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
+            MediaType mimeType = selectMimeType(objectType);
+            if (mimeType == null)
+                throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+
+            StreamingOutput entity;
             if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
                 mimeType = MediaTypes.APPLICATION_DICOM_TYPE;
-                entity = new DicomObjectOutput(service.openTranscoder(ctx, inst, tsuids(), true), coerce);
+                entity = new DicomObjectOutput(ctx, inst, tsuids());
             } else {
-                entity = entityOf(ctx, inst, objectType, mimeType, coerce);
+                entity = entityOf(ctx, inst, objectType, mimeType);
             }
+            ar.register(new CompletionCallback() {
+                @Override
+                public void onComplete(Throwable throwable) {
+                    ctx.setException(throwable);
+                    retrieveWado.fire(ctx);
+                }
+            });
+            ar.resume(Response.ok(entity, mimeType).build());
         } catch (Exception e) {
-            throw new WebApplicationException(e);
+            ar.resume(e);
         }
-        return Response.ok(new FireRequestWado(ctx, entity), mimeType).build();
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) throws Exception {
@@ -251,7 +264,7 @@ public class WadoURI {
     }
 
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
-                            MediaType mimeType, MergeAttributesCoercion coerce)
+                            MediaType mimeType)
             throws IOException {
         int imageIndex = -1;
         switch (objectType) {
@@ -266,7 +279,7 @@ public class WadoURI {
             case MPEG4Video:
                 return decapsulateVideo(service.openDicomInputStream(ctx, inst));
             case SRDocument:
-                return renderSRDocument(ctx, inst, mimeType, coerce);
+                return renderSRDocument(ctx, inst, mimeType);
         }
         throw new AssertionError("objectType: " + objectType);
     }
@@ -313,13 +326,13 @@ public class WadoURI {
         return s != null ? Integer.parseInt(s) : 0;
     }
 
-    private StreamingOutput renderSRDocument(RetrieveContext ctx, InstanceLocations inst, MediaType mimeType,
-                                    AttributesCoercion coerce) throws IOException {
+    private StreamingOutput renderSRDocument(RetrieveContext ctx, InstanceLocations inst, MediaType mimeType)
+            throws IOException {
         Attributes attrs;
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)){
             attrs = dis.readDataset(-1, -1);
         }
-        coerce.coerce(attrs, null);
+        service.coerceAttributes(ctx, inst, attrs);
         return new DicomXSLTOutput(attrs, getTemplate(ctx, mimeType), new SAXTransformer.SetupTransformer() {
             @Override
             public void setup(Transformer transformer) {
@@ -514,29 +527,6 @@ public class WadoURI {
                     (int) (top * rows),
                     (int) Math.ceil((right - left) * columns),
                     (int) Math.ceil((bottom - top) * rows));
-        }
-    }
-
-    private class FireRequestWado implements StreamingOutput {
-
-        private final RetrieveContext ctx;
-        private final StreamingOutput delegate;
-
-        private FireRequestWado(RetrieveContext ctx, StreamingOutput delegate) {
-            this.ctx = ctx;
-            this.delegate = delegate;
-        }
-
-        @Override
-        public void write(OutputStream output) throws IOException, WebApplicationException {
-            try {
-                delegate.write(output);
-            } catch (IOException | WebApplicationException e) {
-                ctx.setException(e);
-                throw e;
-            } finally {
-                retrieveWado.fire(ctx);
-            }
         }
     }
 }

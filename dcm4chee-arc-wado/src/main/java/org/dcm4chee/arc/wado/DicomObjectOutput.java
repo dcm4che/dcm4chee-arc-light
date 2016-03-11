@@ -41,13 +41,14 @@
 package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.util.SafeClose;
+import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,26 +56,26 @@ import java.io.OutputStream;
  */
 public class DicomObjectOutput implements StreamingOutput {
 
-    private final Transcoder transcoder;
-    private final AttributesCoercion coerce;
+    private final RetrieveContext ctx;
+    private final InstanceLocations inst;
+    private final Collection<String> tsuids;
 
-    public DicomObjectOutput(Transcoder transcoder, AttributesCoercion coerce) {
-        this.transcoder = transcoder;
-        this.coerce = coerce;
+    public DicomObjectOutput(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
+        this.ctx = ctx;
+        this.inst = inst;
+        this.tsuids = tsuids;
     }
 
     @Override
     public void write(final OutputStream out) throws IOException {
-        try {
+        try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
             transcoder.transcode(new Transcoder.Handler() {
                 @Override
                 public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                    coerce.coerce(dataset, null);
+                    ctx.getRetrieveService().coerceAttributes(ctx, inst, dataset);
                     return out;
                 }
             });
-        } finally {
-            SafeClose.close(transcoder);
         }
     }
 }
