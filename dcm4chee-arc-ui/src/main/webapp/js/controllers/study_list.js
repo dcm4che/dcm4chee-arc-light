@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService) {
+myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
     $scope.moreStudies = false;
@@ -12,8 +12,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService)
     $scope.rjnotes;
     $scope.rjnote = null;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
-    $scope.studyDate = { from: '', to: ''};
+    $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate()};
     $scope.studyTime = { from: '', to: ''};
+
     $scope.queryStudies = function(offset) {
         if (offset < 0) offset = 0;
         QidoService.queryStudies(
