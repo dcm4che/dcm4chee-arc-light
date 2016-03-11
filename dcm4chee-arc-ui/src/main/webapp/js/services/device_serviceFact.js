@@ -308,8 +308,8 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	// };
 
 	var traverse = function(o, selectedElement, newSchema) {
-		console.log("***********in traverse o=",o);
-		$log.debug("newSchema=",newSchema);
+		console.log("***********in traverse o=",angular.copy(o));
+		console.log("newSchema intra", angular.copy(newSchema));
 	    for (var i in o) {
 	        // func.apply(this, [i,o[i]] , selectedElement);
 	        // console.log("before if selectedElement=",selectedElement,"o[=",[i,o[i]],"i=",i);
@@ -324,7 +324,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		        	traverse(o[i], selectedElement, newSchema);
 		        }
 	        }else{
-	        	// console.log("before return o=",[i,o[i]]);
+	        	console.log("before return o=",angular.copy([i,o[i]]));
 	        	newSchema[selectedElement] = o[i];
 	        }
 	    }
@@ -1174,34 +1174,44 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 
 		getSchema : function(selectedElement){
 			// $log.debug("select in getschema=",$select[selectedElement].optionRef);
-			$log.debug("in getSchema=", selectedElement);
+			$log.debug("in selectedElement=", selectedElement);
 			var localSchema = {};
 
 			if($select[selectedElement].optionRef.indexOf(".")>-1){
 				schemas[selectedElement] = schemas[selectedElement] || {};
-				var refs = $select[selectedElement].optionRef.split(".");
-				angular.copy(schemas[refs[0]], localSchema);
-				$log.debug("in if getschema selectedElement=",selectedElement);
-				//TODO
-				$log.debug("refs[0]=",refs[0]);
-				$log.debug("schemas[refs[0]]=",schemas[refs[0]]);
-				traverse(localSchema, selectedElement, schemas[selectedElement]);
-				$log.debug("schemas ingetschema=",schemas);
-				replaceRef(schemas[selectedElement], selectedElement);
-				$log.debug("schemas 2ingetschema=",schemas);
-			}else{
-				schemas[selectedElement] = schemas[selectedElement] || {};
-				angular.copy(schemas.device, localSchema);
-				// $log.debug("selectedElement=",selectedElement);
-				// $log.debug("schemas=",schemas);
-				traverse(localSchema, selectedElement, schemas[selectedElement]);
+				console.log("Object.keys(obj).length=",Object.keys(schemas[selectedElement]).length);
 
-				// $log.debug("get schema from traverse=",traverse(schemas.device, process, selectedElement, newSchema));
-				// $log.debug("newSchema=",newSchema);
-				// schemas[selectedElement] = newSchema[selectedElement];
-				replaceRef(schemas[selectedElement], selectedElement);
-				return schemas[selectedElement];
+				if(Object.keys(schemas[selectedElement]).length < 1){
+
+					var refs = $select[selectedElement].optionRef.split(".");
+					angular.copy(schemas.whole, localSchema);
+					// $log.debug("in if getschema selectedElement=",selectedElement);
+					//TODO
+					$log.debug("refs[0]=",refs[0]);
+					$log.debug("schemas[refs[0]]=",schemas[refs[0]]);
+					traverse(localSchema, refs[1], schemas[refs[1]]);
+					// traverse(localSchema, selectedElement, schemas[selectedElement]);
+					$log.debug("schemas ingetschema=",schemas);
+					replaceRef(schemas[selectedElement], selectedElement);
+					$log.debug("schemas 2ingetschema=",schemas);
+				}
+			}else{
+				$log.debug("in else");
+				schemas[selectedElement] = schemas[selectedElement] || {};
+				if(Object.keys(schemas[selectedElement]).length < 1){
+					angular.copy(schemas.device, localSchema);
+					// $log.debug("selectedElement=",selectedElement);
+					// $log.debug("schemas=",schemas);
+					traverse(localSchema, selectedElement, schemas[selectedElement]);
+
+					// $log.debug("get schema from traverse=",traverse(schemas.device, process, selectedElement, newSchema));
+					// $log.debug("newSchema=",newSchema);
+					// schemas[selectedElement] = newSchema[selectedElement];
+					replaceRef(schemas[selectedElement], selectedElement);
+					replaceRef(schemas.whole, selectedElement);
+				}
 			}
+			return schemas[selectedElement];
 			$log.debug("schemas=",schemas);
 		},
 

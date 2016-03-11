@@ -56,7 +56,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     }).then(function successCallback(response) {
         $log.debug("before schemas=",schemas);
         $log.debug("new schemas=",response.data);
-        schemas.device = response.data;
+        schemas.device  = response.data;
+        schemas.whole   = response.data;
         $log.debug("after schemas=",schemas);
     }, function errorCallback(response) {
         $log.error("Error loading device names", response);
