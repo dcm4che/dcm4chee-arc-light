@@ -52,7 +52,10 @@ class PatientUpdateService extends DefaultHL7Service {
                 IDWithIssuer mrgpid = IDWithIssuer.pidOf(mrg);
                 if (mrgpid == null)
                     throw new HL7Exception(HL7Exception.AR, "Missing MRG-1");
-                patientService.mergePatient(pid, attrs, mrgpid, mrg);
+                if ("ADT^A47".equals(msh.getMessageType()))
+                    patientService.changePatientID(pid, attrs, mrgpid, mrg);
+                else
+                    patientService.mergePatient(pid, attrs, mrgpid, mrg);
             }
             return super.onMessage(hl7App, conn, s, msh, msg, off, len, mshlen);
         } catch (HL7Exception e) {

@@ -179,6 +179,18 @@ public class PatientServiceEJB implements PatientService {
     }
 
     @Override
+    public Patient changePatientID(IDWithIssuer pid, Attributes newAttrs, IDWithIssuer mrgpid, Attributes mrg)
+            throws NonUniquePatientException, PatientMergedException {
+        Patient pat = findPatient(mrgpid);
+        if (pat == null)
+            return createPatient(pid, newAttrs);
+
+        pat.setPatientID( createPatientID(pid));
+        updatePatient(pat, newAttrs);
+        return pat;
+    }
+
+    @Override
     public Patient findPatient(Object ctx, IDWithIssuer pid) {
         if (pid == null) {
             LOG.info("{}: No Patient ID in received object", ctx);
