@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService) {
+myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
     $scope.moreStudies = false;
@@ -16,6 +16,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.studyTime = { from: '', to: ''};
 
     $scope.queryStudies = function(offset) {
+        cfpLoadingBar.start();
         if (offset < 0) offset = 0;
         QidoService.queryStudies(
             rsURL(),
@@ -36,6 +37,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         });
     };
     $scope.querySeries = function(study, offset) {
+         cfpLoadingBar.start();
         if (offset < 0) offset = 0;
         QidoService.querySeries(
             rsURL(),
@@ -55,9 +57,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             if (study.moreSeries = (study.series.length > $scope.limit)) {
                 study.series.pop();
             }
+            cfpLoadingBar.complete();
         });
+        cfpLoadingBar.complete();
     };
     $scope.queryInstances = function (series, offset) {
+         cfpLoadingBar.start();
         if (offset < 0) offset = 0;
         QidoService.queryInstances(
             rsURL(),
@@ -70,6 +75,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 var numberOfFrames = valueOf(attrs['00280008']),
                     gspsQueryParams = createGSPSQueryParams(attrs),
                     video = isVideo(attrs);
+                    cfpLoadingBar.complete();   
                 return {
                     series: series,
                     offset: offset + index,
@@ -91,6 +97,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 series.instances.pop();
             }
         });
+        cfpLoadingBar.complete();
     };
     $scope.exportStudy = function(study) {
         $http.get(studyURL(study.attrs) + '/export/' + $scope.exporterID);

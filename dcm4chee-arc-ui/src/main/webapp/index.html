@@ -22,6 +22,8 @@
     <li role="presentation" ng-class="getClass('/ctrl')" ng-click="toggleMenu()"><a href="#/ctrl">Control</a></li>
     <!-- <li role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li> -->
     <li><a><strike>devices</strike></a></li>
+    <li><a>-</a></li>
+    <li role="presentation"><a ng-href="{{logoutUrl}}">Logout</a></li>
 </ul>
 <img src="img/logo.png" class="logo">
 <div class="main_content" ng-class="getPathName()" ng-view>
@@ -51,6 +53,26 @@
 
 <!--angular-touch: https://github.com/angular/bower-angular-touch-->
 <script type="text/javascript" src="bower_components/angular-touch/angular-touch.min.js"></script>
+
+<!-- https://github.com/linagora/angular-clockpicker -->
+<!--   <script src="bower_components/jquery/dist/jquery.min.js"></script>
+ -->  
+<script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment.min.js"></script> -->
+  <!-- <script src="bower_components/angular/angular.min.js"></script> -->
+<script src="bower_components/angular-moment/angular-moment.min.js"></script>
+  <!-- <script src="dist/angular-clockpicker.min.js"></script> -->
+<script src="bower_components/lng-clockpicker/dist/jquery-clockpicker.min.js"></script>
+<script src="bower_components/re-tree/re-tree.min.js"></script>
+<script src="bower_components/ng-device-detector/ng-device-detector.min.js"></script>
+<script type="text/javascript" src="bower_components/angular-clockpicker/dist/angular-clockpicker.min.js"></script>
+<link rel="stylesheet" href="bower_components/angular-clockpicker/dist/angular-clockpicker.css" />
+<link rel="stylesheet" href="bower_components/lng-clockpicker/dist/jquery-clockpicker.min.css" />
+
+<!-- https://github.com/g00fy-/angular-datepicker -->
+<script type="text/javascript" src="bower_components/angular-datepicker/dist/angular-datepicker.min.js"></script>
+<link rel="stylesheet" href="bower_components/angular-datepicker/dist/angular-datepicker.min.css" />
+
 
 <!--angular-schema-form: https://github.com/Textalk/angular-schema-form-->
 <script type="text/javascript" src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>

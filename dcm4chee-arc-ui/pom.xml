@@ -84,7 +84,17 @@
             bower_components/angular-loading-bar/build/loading-bar.min.css,
             bower_components/vex/js/vex.combined.min.js,
             bower_components/vex/css/vex.css,
-            bower_components/vex/css/vex-theme-os.css
+            bower_components/vex/css/vex-theme-os.css,
+            bower_components/angular-clockpicker/dist/angular-clockpicker.min.js,
+            bower_components/angular-datepicker/dist/angular-datepicker.min.js,
+            bower_components/angular-clockpicker/dist/angular-clockpicker.css,
+            bower_components/lng-clockpicker/dist/jquery-clockpicker.min.css,
+            bower_components/angular-datepicker/dist/angular-datepicker.min.css,
+            bower_components/moment/min/moment.min.js,
+            bower_components/angular-moment/angular-moment.min.js,
+            bower_components/lng-clockpicker/dist/jquery-clockpicker.min.js,
+            bower_components/re-tree/re-tree.min.js,
+            bower_components/ng-device-detector/ng-device-detector.min.js
           </warSourceIncludes>
           <classifier>${classifier}</classifier>
           <webXml>${webXml}</webXml>

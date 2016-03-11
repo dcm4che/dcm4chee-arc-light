@@ -1,6 +1,6 @@
 "use strict";
 
-var myApp = angular.module('myApp', ['ngRoute','schemaForm','angular-loading-bar','ngTouch']);
+var myApp = angular.module('myApp', ['ngRoute','schemaForm','angular-loading-bar','ngTouch', 'angular-clockpicker']);
 
 myApp.config(function ($routeProvider) {
     $routeProvider.when('/studies', {
