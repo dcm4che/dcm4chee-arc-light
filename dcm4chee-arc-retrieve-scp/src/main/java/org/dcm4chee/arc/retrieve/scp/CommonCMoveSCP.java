@@ -248,7 +248,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             ForwardRetrieveTask retrieveTask = moveSCU.newForwardRetrieveTask(
                     ctx.getLocalApplicationEntity(), as, pc,
                     changeMoveDestination(rq, fallbackCMoveSCPDestination),
-                    failedIUIDs.equals("*")
+                    failedIUIDList.equals("*")
                             ? mkStudyRequest(studyInstanceUID)
                             : mkInstanceRequest(studyInstanceUID, failedIUIDList),
                     as.getCallingAET(), fallbackCMoveSCP, false, false);
