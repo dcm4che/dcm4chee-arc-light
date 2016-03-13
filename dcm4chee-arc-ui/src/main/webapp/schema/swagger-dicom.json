@@ -59,6 +59,7 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
             "items": {
               "type": "string"
             },
@@ -152,6 +153,7 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
             "items": {
               "type": "string"
             },
@@ -238,6 +240,7 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
             "items": {
               "type": "string"
             },
@@ -338,6 +341,7 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
             "items": {
               "type": "string"
             },
@@ -438,6 +442,7 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
             "items": {
               "type": "string"
             },
@@ -538,6 +543,7 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
             "items": {
               "type": "string"
             },
