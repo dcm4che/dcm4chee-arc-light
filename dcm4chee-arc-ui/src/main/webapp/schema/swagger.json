@@ -31,24 +31,8 @@
       "description": "Imaging Object Change Management"
     },
     {
-      "name": "QIDO-RS",
-      "description": "Query based on ID for DICOM Objects by RESTful Services",
-      "externalDocs": {
-        "description": "DICOM PS3.18",
-        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
-      }
-    },
-    {
       "name": "QUEUE-RS",
       "description": "Queue Management"
-    },
-    {
-      "name": "WADO-URI",
-      "description": "Web Access to DICOM Objects by URI",
-      "externalDocs": {
-        "description": "DICOM PS3.18",
-        "url": "http://dicom.nema.org/medical/dicom/current/output/html/part18.html"
-      }
     }
   ],
   "paths": {
@@ -480,8 +464,6 @@
       "get": {
         "tags": [
           "CONFIG-RS",
-          "QIDO-RS",
-          "WADO-URI",
           "IOCM-RS",
           "ECHO-RS",
           "EXPORT-RS"
@@ -857,169 +839,6 @@
           },
           "404": {
             "description": "instance not found or no rejection note with specified codeValue and codingSchemeDesignator configured"
-          },
-          "default": {
-            "description": "unexpected error"
-          }
-        }
-      }
-    },
-    "/aets/{aet}/wado": {
-      "get": {
-        "tags": [
-          "WADO-URI"
-        ],
-        "summary": "get object",
-        "operationId": "getObject",
-        "produces": [
-          "application/dicom",
-          "application/pdf",
-          "image/jpeg",
-          "image/gif",
-          "text/html",
-          "text/plain",
-          "text/xml",
-          "video/mpeg",
-          "video/mp4"
-        ],
-        "parameters": [
-          {
-            "name": "aet",
-            "in": "path",
-            "description": "Archive AE Title",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "requestType",
-            "in": "query",
-            "description": "Request Type",
-            "required": true,
-            "type": "string",
-            "enum": [ "WADO" ]
-          },
-          {
-            "name": "studyUID",
-            "in": "query",
-            "description": "Unique Identifier of the Study",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "seriesUID",
-            "in": "query",
-            "description": "Unique Identifier of the Series",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "objectUID",
-            "in": "query",
-            "description": "Unique Identifier of the Object",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "contentType",
-            "in": "query",
-            "description": "MIME Type of the Response",
-            "type": "string"
-          },
-          {
-            "name": "charset",
-            "in": "query",
-            "description": "Charset of the Response (not implemented)",
-            "type": "string"
-          },
-          {
-            "name": "anonymize",
-            "in": "query",
-            "description": "Anonymize Object (not implemented)",
-            "type": "string",
-            "enum": [ "yes" ]
-          },
-          {
-            "name": "annotation",
-            "in": "query",
-            "description": "Annotation On The Object (not implemented)",
-            "type": "string"
-          },
-          {
-            "name": "rows",
-            "in": "query",
-            "description": "Number of Pixel Rows",
-            "type": "integer",
-            "minimum": 1
-          },
-          {
-            "name": "columns",
-            "in": "query",
-            "description": "Number of Pixel Columns",
-            "type": "integer",
-            "minimum": 1
-          },
-          {
-            "name": "region",
-            "in": "query",
-            "description": "Region of the Image (not implemented)",
-            "type": "string"
-          },
-          {
-            "name": "windowCenter",
-            "in": "query",
-            "description": "Window Center of the Image",
-            "type": "number"
-          },
-          {
-            "name": "windowWidth",
-            "in": "query",
-            "description": "Window Width of the Image",
-            "type": "number",
-            "minimum": 1
-          },
-          {
-            "name": "frameNumber",
-            "in": "query",
-            "description": "Frame Number",
-            "type": "integer",
-            "minimum": 1
-          },
-          {
-            "name": "imageQuality",
-            "in": "query",
-            "description": "Image Quality",
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100
-          },
-          {
-            "name": "presentationUID",
-            "in": "query",
-            "description": "Unique Identifier of the Presentation Object",
-            "type": "string"
-          },
-          {
-            "name": "presentationSeriesUID",
-            "in": "query",
-            "description": "Unique Identifier of the Series Containing The Presentation Object",
-            "type": "string"
-          },
-          {
-            "name": "transferSyntax",
-            "in": "query",
-            "description": "Transfer Syntax UID",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "object",
-            "schema": {
-              "type": "file"
-            }
-          },
-          "404": {
-            "description": "object not found"
           },
           "default": {
             "description": "unexpected error"
