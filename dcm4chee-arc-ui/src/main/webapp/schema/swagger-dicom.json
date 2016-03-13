@@ -788,7 +788,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/frames/{FrameList},": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/frames/{FrameList}": {
       "get": {
         "tags": [
           "WADO-RS"
@@ -854,7 +854,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/bulkdata/{AttributePath},": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/bulkdata/{AttributePath}": {
       "get": {
         "tags": [
           "WADO-RS"
