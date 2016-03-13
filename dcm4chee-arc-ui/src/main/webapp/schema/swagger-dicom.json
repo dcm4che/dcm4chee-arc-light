@@ -4,7 +4,7 @@
     "title": "DICOM 3",
     "version": "2016a"
   },
-  "host": "localhost:8080",
+  "host": "dcm4che.org",
   "basePath": "/dcm4chee-arc",
   "schemes": [
     "http"
@@ -115,7 +115,7 @@
             }
           },
           "404": {
-            "description": "no series with specified UIDs found"
+            "description": "no matching study found"
           },
           "default": {
             "description": "unexpected error"
@@ -209,7 +209,7 @@
             }
           },
           "404": {
-            "description": "no series with specified UIDs found"
+            "description": "no matching series found"
           },
           "default": {
             "description": "unexpected error"
@@ -296,7 +296,7 @@
             }
           },
           "404": {
-            "description": "no series with specified UIDs found"
+            "description": "no matching series found"
           },
           "default": {
             "description": "unexpected error"
@@ -397,7 +397,7 @@
             }
           },
           "404": {
-            "description": "no object with specified UIDs found"
+            "description": "no matching instances found"
           },
           "default": {
             "description": "unexpected error"
@@ -498,7 +498,7 @@
             }
           },
           "404": {
-            "description": "no object with specified UIDs found"
+            "description": "no matching instances found"
           },
           "default": {
             "description": "unexpected error"
@@ -599,7 +599,7 @@
             }
           },
           "404": {
-            "description": "no object with specified UIDs found"
+            "description": "no matching instances found"
           },
           "default": {
             "description": "unexpected error"
@@ -657,7 +657,7 @@
             }
           },
           "404": {
-            "description": "no series with specified UIDs found"
+            "description": "no study with specified UID found"
           },
           "default": {
             "description": "unexpected error"
@@ -898,7 +898,7 @@
           {
             "name": "AttributePath",
             "in": "path",
-            "description": "{dicomTag} or {sequenceTag}[{itemIndex}].{AttributePath}'",
+            "description": "{dicomTag} or {dicomTag}/{itemIndex}/{AttributePath}'",
             "required": true,
             "type": "string"
           }
