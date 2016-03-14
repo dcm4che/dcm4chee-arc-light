@@ -124,7 +124,7 @@ public class FileSystemStorage extends AbstractStorage {
         Path dirPath = path.getParent();
         while (!dirPath.equals(rootPath)) {
             try {
-                Files.delete(dirPath);
+                Files.deleteIfExists(dirPath);
             } catch (DirectoryNotEmptyException ignore) {
                 break;
             } catch (IOException e) {
