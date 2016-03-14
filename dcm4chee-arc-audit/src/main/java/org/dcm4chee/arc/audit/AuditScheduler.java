@@ -65,6 +65,7 @@ import java.util.ArrayList;
 public class AuditScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditScheduler.class);
+    private static final String FAILED = ".failed";
 
     @Inject
     private Device device;
@@ -101,7 +102,8 @@ public class AuditScheduler extends Scheduler {
             try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir, new DirectoryStream.Filter<Path>() {
                 @Override
                 public boolean accept(Path file) throws IOException {
-                    return Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime;
+                    return !file.endsWith(FAILED)
+                            && Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime;
                 }
             })) {
                 for (Path path : dirStream) {
@@ -112,7 +114,17 @@ public class AuditScheduler extends Scheduler {
             LOG.warn("Failed to access Audit Spool Directory - {}", dir, e);
         }
         for (Path path : pathList) {
-            service.aggregateAuditMessage(path);
+            try {
+                service.aggregateAuditMessage(path);
+                Files.delete(path);
+            } catch (Exception e) {
+                LOG.warn("Failed to process Audit Spool File - {}", path, e);
+                try {
+                    Files.move(path, path.resolveSibling(path.getFileName().toString() + FAILED));
+                } catch (IOException e1) {
+                    LOG.warn("Failed to mark Audit Spool File - {} as failed", path, e);
+                }
+            }
         }
     }
 }
