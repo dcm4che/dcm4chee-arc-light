@@ -23,7 +23,8 @@
     "objectpath": "~1.2.1",
     "angular-clockpicker": "^1.1.0",
     "angular-datepicker": "^2.0.3",
-    "moment": "^2.12.0"
+    "moment": "^2.12.0",
+    "angular-bootstrap": "^1.2.4"
   },
   "resolutions": {
     "tv4": "~1.0.15",

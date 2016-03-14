@@ -94,7 +94,22 @@
             bower_components/angular-moment/angular-moment.min.js,
             bower_components/lng-clockpicker/dist/jquery-clockpicker.min.js,
             bower_components/re-tree/re-tree.min.js,
-            bower_components/ng-device-detector/ng-device-detector.min.js
+            bower_components/ng-device-detector/ng-device-detector.min.js,
+            bower_components/ui.bootstrap/src/dateparser/dateparser.js,
+            bower_components/ui.bootstrap/src/isClass/isClass.js,
+            bower_components/ui.bootstrap/src/position/position.js,
+            bower_components/ui.bootstrap/template/datepicker/datepicker.html.js,
+            bower_components/ui.bootstrap/template/datepicker/day.html.js,
+            bower_components/ui.bootstrap/template/datepicker/month.html.js,
+            bower_components/ui.bootstrap/template/datepicker/year.html.js,
+            bower_components/ui.bootstrap/template/datepicker/popup.html.js,
+            bower_components/ui.bootstrap/src/datepicker/datepicker.js,
+            <!-- bower_components/ui.bootstrap/src/datepicker/index.js, -->
+            bower_components/ui.bootstrap/src/datepicker/datepicker.css,
+            bower_components/ui.bootstrap/src/position/position.css,
+            bower_components/angular-bootstrap/ui-bootstrap.min.js,
+            bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js,
+            bower_components/angular-bootstrap/ui-bootstrap-csp.css
           </warSourceIncludes>
           <classifier>${classifier}</classifier>
           <webXml>${webXml}</webXml>

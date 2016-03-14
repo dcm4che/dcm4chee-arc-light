@@ -12,17 +12,61 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.rjnotes;
     $scope.rjnote = null;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
-    $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate()};
+    // $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate()};
+    $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
+    $scope.format = "yyyyMMdd";
+    $scope.studyDateFrom = {
+        opened: false
+    };
+    $scope.studyDateTo = {
+        opened: false
+    };
+    $scope.studyDateFromOpen = function() {
+        cfpLoadingBar.start();
+        $scope.studyDateFrom.opened = true;
+        var watchPicker = setInterval(function(){ 
+            if(angular.element(".uib-datepicker-popup .uib-close").length>0){
+                clearInterval(watchPicker);
+                cfpLoadingBar.complete();
+
+            }
+        }, 100);
+    };
+    $scope.studyDateToOpen = function() {
+        cfpLoadingBar.start();
+        $scope.studyDateTo.opened = true;
+        var watchPicker = setInterval(function(){ 
+            console.log("isOpen",angular.element(".uib-datepicker-popup .uib-close").length);
+            if(angular.element(".uib-datepicker-popup .uib-close").length>0){
+                clearInterval(watchPicker);
+                cfpLoadingBar.complete();
+
+            }
+        }, 100);
+    };
     $scope.clockpicker = {
           twelvehour: false,
           autoclose : true,
           align :'left',
           nativeOnMobile: true,
           afterDone: function() {
-                            StudiesService.convertTime($scope.studyTime);
+                    cfpLoadingBar.start();
+                    StudiesService.updateTime($scope.studyTime);
           }
     };
+    $scope.studyDateFromChange = function(){
+        console.log("in studyDateFromChange",$scope.studyDate);
+        cfpLoadingBar.start();
+        StudiesService.updateFromDate($scope.studyDate);
+
+    }
+    $scope.studyDateToChange = function(){
+        console.log("in studyDateFromChange",$scope.studyDate);
+        cfpLoadingBar.start();
+        StudiesService.updateToDate($scope.studyDate);
+
+    }
 
     $scope.queryStudies = function(offset) {
         cfpLoadingBar.start();
