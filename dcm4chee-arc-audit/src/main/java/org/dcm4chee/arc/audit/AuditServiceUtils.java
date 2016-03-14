@@ -599,10 +599,7 @@ public class AuditServiceUtils {
 
         @Override
         public String toString() {
-            String f = StringUtils.concat(fields, '\\');
-            f = f.replace('\n', '.');
-            f = f.replace('\r', '.');
-            return f;
+            return StringUtils.concat(fields, '\\');
         }
     }
 
