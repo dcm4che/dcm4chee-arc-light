@@ -40,106 +40,101 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import java.io.IOException;
-import java.net.Socket;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Feb 2016
  */
-@ApplicationScoped
 public class AuditServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
-    private static final String noValue = "<none>";
-    protected enum EventType {
-        ITRF_WAD_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+    static final String noValue = "<none>";
+    enum EventClass {
+        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY
+    }
+    enum EventType {
+        ITRF_WAD_P(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, true, false, false, null),
-        ITRF_WAD_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+        ITRF_WAD_E(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
                 AuditMessages.RoleIDCode.Destination, AuditMessages.RoleIDCode.Source, true, false, false, null),
-        ITRF_S_C_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create, AuditMessages.EventOutcomeIndicator.Success,
+        ITRF_S_C_P(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        ITRF_S_C_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create, AuditMessages.EventOutcomeIndicator.MinorFailure,
+        ITRF_S_C_E(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Create, AuditMessages.EventOutcomeIndicator.MinorFailure,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        ITRF_S_U_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.Success,
+        ITRF_S_U_P(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        ITRF_S_U_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-
-        RTRV_B_M_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        RTRV_B_M_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        RTRV_B_G_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_B_G_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_B_E_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        RTRV_B_E_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        RTRV_T_M_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        RTRV_T_M_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        RTRV_T_G_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_T_G_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_T_E_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        RTRV_T_E_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+        ITRF_S_U_E(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update, AuditMessages.EventOutcomeIndicator.MinorFailure,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
-        RTRV_B_W_P(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+        RTRV_B_M_P(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
+        RTRV_B_M_E(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
+        RTRV_B_G_P(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_B_W_E(AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
+        RTRV_B_G_E(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_T_W_P(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+        RTRV_B_E_P(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
+        RTRV_B_E_E(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
+        RTRV_T_M_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
+        RTRV_T_M_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
+        RTRV_T_G_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_T_W_E(AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+        RTRV_T_G_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
+        RTRV_T_E_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
+        RTRV_T_E_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
+
+        RTRV_B_W_P(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
+        RTRV_B_W_E(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
+        RTRV_T_W_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
+        RTRV_T_W_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
 
-        DELETE_PAS(AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.Success,
+        DELETE_PAS(EventClass.DELETE, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.Success,
                 null, null, true, false, false, null),
-        DELETE_ERR(AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.MinorFailure,
+        DELETE_ERR(EventClass.DELETE, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.MinorFailure,
                 null, null, true, false, false, null),
 
-        PERM_DEL_E(AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.MinorFailure,
+        PERM_DEL_E(EventClass.PERM_DELETE, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.MinorFailure,
                 null, null, false, false, false, null),
-        PERM_DEL_S(AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.Success,
+        PERM_DEL_S(EventClass.PERM_DELETE, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete, AuditMessages.EventOutcomeIndicator.Success,
                 null, null, false, false, false, null),
 
-        APPLNSTART(AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+        APPLNSTART(EventClass.APPLN_ACTIVITY, AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
                 null, null, false, false, false, AuditMessages.EventTypeCode.ApplicationStart),
-        APPLN_STOP(AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+        APPLN_STOP(EventClass.APPLN_ACTIVITY, AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
                 null, null, false, false, false, AuditMessages.EventTypeCode.ApplicationStop),
 
-        QUERY_QIDO(AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+        QUERY_QIDO(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        QUERY_FIND(AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
+        QUERY_FIND(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
 
-        CONN__RJCT(AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+        CONN__RJCT(EventClass.CONN_REJECT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 AuditMessages.EventOutcomeIndicator.MinorFailure, null, null, false, false, false, AuditMessages.EventTypeCode.NodeAuthentication);
 
+        final EventClass eventClass;
         final AuditMessages.EventID eventID;
         final String eventActionCode;
         final String outcomeIndicator;
@@ -151,8 +146,9 @@ public class AuditServiceUtils {
         final EventTypeCode eventTypeCode;
 
 
-        EventType(AuditMessages.EventID eventID, String eventActionCode, String outcome, AuditMessages.RoleIDCode source,
+        EventType(EventClass eventClass, AuditMessages.EventID eventID, String eventActionCode, String outcome, AuditMessages.RoleIDCode source,
                   AuditMessages.RoleIDCode destination, boolean isSource, boolean isDest, boolean isOther, EventTypeCode etc) {
+            this.eventClass = eventClass;
             this.eventID = eventID;
             this.eventActionCode = eventActionCode;
             this.outcomeIndicator = outcome;
@@ -234,31 +230,25 @@ public class AuditServiceUtils {
         }
     }
 
-    protected void emitAuditMessage(Calendar timestamp, EventIdentification ei, List<ActiveParticipant> apList,
+    static void emitAuditMessage(EventType eventType, String outcomeDesc, List<ActiveParticipant> apList,
                                  List<ParticipantObjectIdentification> poiList, AuditLogger log) {
         AuditMessage msg = new AuditMessage();
-        msg.setEventIdentification(ei);
+        msg.setEventIdentification(AuditMessages.createEventIdentification(
+                eventType.eventID, eventType.eventActionCode, log.timeStamp(), eventType.outcomeIndicator,
+                outcomeDesc, eventType.eventTypeCode));
         for (ActiveParticipant ap : apList)
             msg.getActiveParticipant().add(ap);
         msg.getAuditSourceIdentification().add(log.createAuditSourceIdentification());
         for (ParticipantObjectIdentification poi : poiList)
             msg.getParticipantObjectIdentification().add(poi);
         try {
-            log.write(timestamp, msg);
+            log.write(log.timeStamp(), msg);
         } catch (Exception e) {
             LOG.warn("Failed to emit audit message", e);
         }
     }
 
-    protected static void deleteFile(Path file) {
-        try {
-            Files.delete(file);
-        } catch (IOException e) {
-            LOG.warn("Failed to delete Audit Spool File - {}", file, e);
-        }
-    }
-
-    protected String buildAET(Device device) {
+    static String buildAET(Device device) {
         String[] aets = device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()]);
         StringBuilder b = new StringBuilder();
         b.append(aets[0]);
@@ -267,394 +257,12 @@ public class AuditServiceUtils {
         return b.toString();
     }
 
-    protected String getLocalHostName(AuditLogger log) {
+    static String getLocalHostName(AuditLogger log) {
         List<Connection> conns = log.getConnections();
         return conns.get(0).getHostname();
     }
 
-    protected String buildAltUserID(String s) {
+    static String buildAltUserID(String s) {
         return (s != null) ? AuditMessages.alternativeUserIDForAETitle(s) : null;
-    }
-
-    protected static class PatientStudyInfo {
-        protected static final int REMOTE_HOSTNAME = 0;
-        protected static final int CALLING_AET = 1;
-        protected static final int CALLED_AET = 2;
-        protected static final int STUDY_UID = 3;
-        protected static final int ACCESSION_NO = 4;
-        protected static final int PATIENT_ID = 5;
-        protected static final int PATIENT_NAME = 6;
-        protected static final int OUTCOME = 7;
-
-        private final String[] fields;
-
-        protected PatientStudyInfo(StoreContext ctx, Attributes attrs) {
-            StoreSession session = ctx.getStoreSession();
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
-            fields = new String[] {
-                    session.getRemoteHostName(),
-                    session.getCallingAET(),
-                    session.getCalledAET(),
-                    ctx.getStudyInstanceUID(),
-                    attrs.getString(Tag.AccessionNumber),
-                    attrs.getString(Tag.PatientID, noValue),
-                    attrs.getString(Tag.PatientName),
-                    outcome
-            };
-        }
-
-        protected PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
-            String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
-            fields = new String[] {
-                    ctx.getHttpRequest().getRemoteAddr(),
-                    null,
-                    ctx.getLocalAETitle(),
-                    ctx.getStudyInstanceUIDs()[0],
-                    attrs.getString(Tag.AccessionNumber),
-                    attrs.getString(Tag.PatientID, noValue),
-                    attrs.getString(Tag.PatientName),
-                    outcome
-            };
-        }
-
-        protected PatientStudyInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        protected String getField(int field) {
-            return StringUtils.maskEmpty(fields[field], null);
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    protected static class InstanceInfo {
-        protected static final int CLASS_UID = 0;
-        protected static final int INSTANCE_UID = 1;
-        protected static final int MPPS_UID = 2;
-//        protected static final int ACCESSION_NO = 3;
-
-        private final String[] fields;
-
-        protected InstanceInfo(StoreContext ctx, Attributes attrs) {
-            ArrayList<String> list = new ArrayList<>();
-            list.add(ctx.getSopClassUID());
-            list.add(ctx.getSopInstanceUID());
-            list.add(StringUtils.maskNull(ctx.getMppsInstanceUID(), ""));
-//            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
-//            if (reqAttrs != null)
-//                for (Attributes reqAttr : reqAttrs) {
-//                    String accno = reqAttr.getString(Tag.AccessionNumber);
-//                    if (accno != null)
-//                        list.add(accno);
-//                }
-            this.fields = list.toArray(new String[list.size()]);
-        }
-
-        protected InstanceInfo(RetrieveContext ctx, Attributes attrs) {
-            ArrayList<String> list = new ArrayList<>();
-            list.add(attrs.getString(Tag.SOPClassUID));
-            list.add(ctx.getSopInstanceUIDs()[0]);
-            list.add("");
-//            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
-//            if (reqAttrs != null)
-//                for (Attributes reqAttr : reqAttrs) {
-//                String accno = reqAttr.getString(Tag.AccessionNumber, "");
-//                    if (accno != null)
-//                        list.add(accno);
-//                }
-            this.fields = list.toArray(new String[list.size()]);
-        }
-
-        protected InstanceInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        protected String getField(int field) {
-            return field < fields.length ? fields[field] : null;
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    protected static class AccessionNumSopClassInfo {
-        private final String accNum;
-        private HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-
-        protected AccessionNumSopClassInfo(String accNum) {
-            this.accNum = accNum;
-        }
-
-        protected String getAccNum() {
-            return accNum;
-        }
-        protected HashMap<String, HashSet<String>> getSopClassMap() {
-            return sopClassMap;
-        }
-        protected void addSOPInstance(RetrieveStudyInfo rInfo) {
-            String cuid = rInfo.getField(RetrieveStudyInfo.SOPCLASSUID);
-            HashSet<String> iuids = sopClassMap.get(cuid);
-            if (iuids == null) {
-                iuids = new HashSet<>();
-                sopClassMap.put(cuid, iuids);
-            }
-            iuids.add(rInfo.getField(RetrieveStudyInfo.SOPINSTANCEUID));
-        }
-    }
-
-    protected static class RetrieveStudyInfo {
-        protected static final int STUDYUID = 0;
-        protected static final int ACCESSION = 1;
-        protected static final int SOPCLASSUID = 2;
-        protected static final int SOPINSTANCEUID = 3;
-        protected static final int PATIENTID = 4;
-        protected static final int PATIENTNAME = 5;
-
-        private final String[] fields;
-        protected RetrieveStudyInfo(Attributes attrs) {
-            fields = new String[] {
-                    attrs.getString(Tag.StudyInstanceUID),
-                    attrs.getString(Tag.AccessionNumber),
-                    attrs.getString(Tag.SOPClassUID),
-                    attrs.getString(Tag.SOPInstanceUID),
-                    attrs.getString(Tag.PatientID, noValue),
-                    attrs.getString(Tag.PatientName)
-            };
-        }
-        protected RetrieveStudyInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-        protected String getField(int field) {
-            return StringUtils.maskEmpty(fields[field], null);
-        }
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    protected static class RetrieveInfo {
-        protected static final int LOCALAET = 0;
-        protected static final int DESTHOST = 1;
-        protected static final int DESTAET = 2;
-        protected static final int DESTNAPID = 3;
-        protected static final int DESTNAPCODE = 4;
-        protected static final int REQUESTORHOST = 5;
-        protected static final int MOVEAET = 6;
-        protected static final int OUTCOME = 7;
-        protected static final int PARTIAL_ERROR = 8;
-
-        private final String[] fields;
-
-        protected RetrieveInfo(RetrieveContext ctx, String etFile) {
-            String outcome = null != ctx.getException()
-                                ? ctx.getException().getMessage()
-                                : ctx.warning() != 0 ? ctx.getOutcomeDescription()
-                                : ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
-                                ? ctx.getOutcomeDescription() : null;
-            String partialError = ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
-                                    ? Boolean.toString(true) : Boolean.toString(false);
-            String destHost = (null == ctx.getHttpRequest())
-                    ? null != ctx.getDestinationHostName() ? ctx.getDestinationHostName() : ctx.getDestinationAETitle()
-                    : ctx.getHttpRequest().getRemoteHost();
-            String destNapID = (null == ctx.getHttpRequest())
-                    ? (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null
-                    : ctx.getHttpRequest().getRemoteAddr();
-            String destNapCode = (null != ctx.getDestinationHostName() || null != ctx.getHttpRequest())
-                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress : null;
-            fields = new String[] {
-                    ctx.getLocalAETitle(),
-                    destHost,
-                    ctx.getDestinationAETitle(),
-                    destNapID,
-                    destNapCode,
-                    ctx.getRequestorHostName(),
-                    ctx.getMoveOriginatorAETitle(),
-                    outcome,
-                    partialError
-            };
-        }
-
-        protected RetrieveInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        protected String getField(int field) {
-            return StringUtils.maskEmpty(fields[field], null);
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    protected static class DeleteInfo {
-        protected static final int LOCALAET = 0;
-        protected static final int REMOTEHOST = 1;
-        protected static final int REMOTEAET = 2;
-        protected static final int STUDYUID = 3;
-        protected static final int PATIENTID = 4;
-        protected static final int PATIENTNAME = 5;
-        protected static final int OUTCOME = 6;
-
-        private final String[] fields;
-
-        protected DeleteInfo(StoreContext ctx) {
-            String outcomeDesc = (ctx.getException() != null)
-                    ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                    : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning();
-            fields = new String[]{
-                    ctx.getStoreSession().getCalledAET(),
-                    ctx.getStoreSession().getRemoteHostName(),
-                    ctx.getStoreSession().getCallingAET(),
-                    ctx.getStudyInstanceUID(),
-                    ctx.getAttributes().getString(Tag.PatientID, noValue),
-                    ctx.getAttributes().getString(Tag.PatientName),
-                    outcomeDesc
-            };
-        }
-
-        protected DeleteInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        protected String getField(int field) {
-            return StringUtils.maskEmpty(fields[field], null);
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    protected static class DeleteStudyInfo {
-        protected static final int SOPCLASSUID = 0;
-        protected static final int NUMINSTANCES = 1;
-
-        private final String[] fields;
-        protected DeleteStudyInfo(String cuid, String numInst) {
-            ArrayList<String> list = new ArrayList<>();
-            list.add(cuid);
-            list.add(numInst);
-            this.fields = list.toArray(new String[list.size()]);
-        }
-        protected DeleteStudyInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-        protected String getField(int field) {
-            return field < fields.length ? fields[field] : null;
-        }
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    protected static class PermanentDeletionInfo {
-        protected static final int STUDY_UID = 0;
-        protected static final int ACCESSION = 1;
-        protected static final int PATIENT_ID = 2;
-        protected static final int PATIENT_NAME = 3;
-        protected static final int OUTCOME_DESC = 4;
-
-        private final String[] fields;
-
-        protected PermanentDeletionInfo (StudyDeleteContext ctx) {
-            String outcomeDesc = (ctx.getException() != null) ? ctx.getException().getMessage() : null;
-            String patientName = null != ctx.getPatient().getPatientName().toString()
-                                ? ctx.getPatient().getPatientName().toString() : null;
-            String accessionNo = (ctx.getStudy().getAccessionNumber() != null) ? ctx.getStudy().getAccessionNumber() : null;
-            fields = new String[] {
-                    ctx.getStudy().getStudyInstanceUID(),
-                    accessionNo,
-                    ctx.getPatient().getPatientID().getID(),
-                    patientName,
-                    outcomeDesc
-            };
-        }
-        protected PermanentDeletionInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-
-        protected String getField(int field) {
-            return StringUtils.maskEmpty(fields[field], null);
-        }
-
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    protected static class ConnectionRejectedInfo {
-        protected static final int REMOTE_ADDR = 0;
-        protected static final int LOCAL_ADDR = 1;
-        protected static final int OUTCOME_DESC = 2;
-        private final String[] fields;
-
-        protected ConnectionRejectedInfo(Connection conn, Socket s, Throwable e) {
-            fields = new String[] {
-                    s.getRemoteSocketAddress().toString(),
-                    conn.getHostname(),
-                    e.getMessage(),
-            };
-        }
-
-        protected ConnectionRejectedInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-        protected String getField(int field) {
-            return StringUtils.maskEmpty(fields[field], null);
-        }
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
-    }
-
-    protected static class QueryInfo {
-        protected static final int CALLING_AET = 0;
-        protected static final int REMOTE_HOST = 1;
-        protected static final int CALLED_AET = 2;
-        protected static final int SOPCLASSUID = 3;
-        protected static final int PATIENT_ID = 4;
-        protected static final int QUERY_STRING = 5;
-
-        private final String[] fields;
-
-        protected QueryInfo(QueryContext ctx) {
-            String queryString = (ctx.getHttpRequest() != null)
-                    ? ctx.getHttpRequest().getRequestURI() + ctx.getHttpRequest().getQueryString()
-                    : null;
-            String patientID = (ctx.getQueryKeys() != null && ctx.getQueryKeys().getString(Tag.PatientID) != null)
-                    ? ctx.getQueryKeys().getString(Tag.PatientID) : noValue;
-            fields = new String[] {
-                    ctx.getCallingAET(),
-                    ctx.getRemoteHostName(),
-                    ctx.getCalledAET(),
-                    ctx.getSOPClassUID(),
-                    patientID,
-                    queryString
-            };
-        }
-
-        protected QueryInfo(String s) {
-            fields = StringUtils.split(s, '\\');
-        }
-        protected String getField(int field) {
-            return StringUtils.maskEmpty(fields[field], null);
-        }
-        @Override
-        public String toString() {
-            return StringUtils.concat(fields, '\\');
-        }
     }
 }
