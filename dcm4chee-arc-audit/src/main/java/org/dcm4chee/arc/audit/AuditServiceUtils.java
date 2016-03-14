@@ -276,6 +276,11 @@ public class AuditServiceUtils {
         return (s != null) ? AuditMessages.alternativeUserIDForAETitle(s) : null;
     }
 
+    private static String rectifyPatientName(String patName, Character c) {
+        patName.replace(c, '.');
+        return patName;
+    }
+
     protected static class PatientStudyInfo {
         protected static final int REMOTE_HOSTNAME = 0;
         protected static final int CALLING_AET = 1;
@@ -291,6 +296,11 @@ public class AuditServiceUtils {
         protected PatientStudyInfo(StoreContext ctx, Attributes attrs) {
             StoreSession session = ctx.getStoreSession();
             String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
+            String patName = null != attrs.getString(Tag.PatientName) ? attrs.getString(Tag.PatientName) : null;
+            if (null != patName) {
+                patName = patName.contains("\\n") ? rectifyPatientName(patName, '\n') : patName;
+                patName = patName.contains("\\r") ? rectifyPatientName(patName, '\r') : patName;
+            }
             fields = new String[] {
                     session.getRemoteHostName(),
                     session.getCallingAET(),
@@ -298,13 +308,18 @@ public class AuditServiceUtils {
                     ctx.getStudyInstanceUID(),
                     attrs.getString(Tag.AccessionNumber),
                     attrs.getString(Tag.PatientID, noValue),
-                    attrs.getString(Tag.PatientName),
+                    patName,
                     outcome
             };
         }
 
         protected PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
             String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
+            String patName = null != attrs.getString(Tag.PatientName) ? attrs.getString(Tag.PatientName) : null;
+            if (null != patName) {
+                patName = patName.contains("\\n") ? rectifyPatientName(patName, '\n') : patName;
+                patName = patName.contains("\\r") ? rectifyPatientName(patName, '\r') : patName;
+            }
             fields = new String[] {
                     ctx.getHttpRequest().getRemoteAddr(),
                     null,
@@ -312,7 +327,7 @@ public class AuditServiceUtils {
                     ctx.getStudyInstanceUIDs()[0],
                     attrs.getString(Tag.AccessionNumber),
                     attrs.getString(Tag.PatientID, noValue),
-                    attrs.getString(Tag.PatientName),
+                    patName,
                     outcome
             };
         }
@@ -418,13 +433,18 @@ public class AuditServiceUtils {
 
         private final String[] fields;
         protected RetrieveStudyInfo(Attributes attrs) {
+            String patName = null != attrs.getString(Tag.PatientName) ? attrs.getString(Tag.PatientName) : null;
+            if (null != patName) {
+                patName = patName.contains("\\n") ? rectifyPatientName(patName, '\n') : patName;
+                patName = patName.contains("\\r") ? rectifyPatientName(patName, '\r') : patName;
+            }
             fields = new String[] {
                     attrs.getString(Tag.StudyInstanceUID),
                     attrs.getString(Tag.AccessionNumber),
                     attrs.getString(Tag.SOPClassUID),
                     attrs.getString(Tag.SOPInstanceUID),
                     attrs.getString(Tag.PatientID, noValue),
-                    StringUtils.maskEmpty(attrs.getString(Tag.PatientName), null)
+                    patName
             };
         }
         protected RetrieveStudyInfo(String s) {
@@ -510,13 +530,19 @@ public class AuditServiceUtils {
             String outcomeDesc = (ctx.getException() != null)
                     ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
                     : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning();
+            String patName = null != ctx.getAttributes().getString(Tag.PatientName)
+                                ? ctx.getAttributes().getString(Tag.PatientName) : null;
+            if (null != patName) {
+                patName = patName.contains("\\n") ? rectifyPatientName(patName, '\n') : patName;
+                patName = patName.contains("\\r") ? rectifyPatientName(patName, '\r') : patName;
+            }
             fields = new String[]{
                     ctx.getStoreSession().getCalledAET(),
                     ctx.getStoreSession().getRemoteHostName(),
                     ctx.getStoreSession().getCallingAET(),
                     ctx.getStudyInstanceUID(),
                     ctx.getAttributes().getString(Tag.PatientID, noValue),
-                    StringUtils.maskEmpty(ctx.getAttributes().getString(Tag.PatientName), null),
+                    patName,
                     outcomeDesc
             };
         }
@@ -569,8 +595,14 @@ public class AuditServiceUtils {
 
         protected PermanentDeletionInfo (StudyDeleteContext ctx) {
             String outcomeDesc = (ctx.getException() != null) ? ctx.getException().getMessage() : null;
-            String patientName = (null != ctx.getPatient().getPatientName())
-                                    ? ctx.getPatient().getPatientName().toString() : null;
+            String patientName = null != ctx.getPatient().getPatientName().toString()
+                                ? ctx.getPatient().getPatientName().toString() : null;
+            if (null != patientName) {
+                patientName = ctx.getPatient().getPatientName().toString().contains("\\n")
+                        ? rectifyPatientName(patientName, '\n') : patientName;
+                patientName = ctx.getPatient().getPatientName().toString().contains("\\r")
+                        ? rectifyPatientName(patientName, '\r') : patientName;
+            }
             String accessionNo = (ctx.getStudy().getAccessionNumber() != null) ? ctx.getStudy().getAccessionNumber() : null;
             fields = new String[] {
                     ctx.getStudy().getStudyInstanceUID(),
