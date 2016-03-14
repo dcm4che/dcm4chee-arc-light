@@ -17,19 +17,19 @@ import org.dcm4chee.arc.conf.ArchiveCompressionRule;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
-import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.storage.Storage;
-import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import java.io.IOException;
@@ -87,7 +87,7 @@ class StoreServiceImpl implements StoreService {
             coerceAttributes(ctx);
             try {
                 ejb.updateDB(ctx, result);
-            } catch (PersistenceException e) {
+            } catch (EJBException e) {
                 LOG.info("Failed to update DB - retry", e);
                 UpdateDBResult result2 = new UpdateDBResult();
                 ejb.updateDB(ctx, result2);
@@ -144,7 +144,7 @@ class StoreServiceImpl implements StoreService {
             coerceAttributes(ctx);
             try {
                 ejb.updateDB(ctx, result);
-            } catch (PersistenceException e) {
+            } catch (EJBException e) {
                 LOG.info("Failed to update DB - retry", e);
                 UpdateDBResult result2 = new UpdateDBResult();
                 ejb.updateDB(ctx, result2);
