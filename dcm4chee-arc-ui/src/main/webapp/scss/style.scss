@@ -715,7 +715,7 @@ table{
 }
 .main_content.studies{
 	float:left;
-	overflow-x:hidden;
+	// overflow-x:hidden;
 }
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
     box-shadow: none;
@@ -768,4 +768,58 @@ table{
 		}
 
 	}
+
+}
+.modality_selector {
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    background: white none repeat scroll 0 0;
+    display: block;
+    height: auto;
+    position: absolute;
+    width: 380px;
+    border: 1px solid #ccc;
+    z-index: 9999;
+    margin-left: 69px;
+    box-sizing: border-box;
+    padding: 30px 20px;
+    .common {
+    	margin-bottom: 15px;
+	}
+	div.more{
+		margin-top: 15px;
+		.form-group{
+			margin-top: 20px;
+	    	label{
+	    		margin-right:20%;
+	    	}
+		}
+	}
+    a{
+	    border: 1px solid #ccc;
+	    box-shadow: 0 0 11px 0 #bebebe;
+	    color: #585858;
+	    display: inline-block;
+	    margin: 3px;
+	    padding: 2px 10px;
+	    text-align: center;
+	    width: 106px;
+    }
+    a.more{
+    	box-shadow:none;
+    	border:none;
+    	i{
+    		margin-left: 5px;
+    	}
+    	&:hover{
+    		color: #585858;
+			background:white;
+			text-decoration: underline;
+			font-weight: bold;
+    	}
+    }
+    a:hover{
+    	background:#ddd;
+    	color: #404040;
+    	text-decoration: none;
+    }
 }

@@ -1,7 +1,5 @@
 <!-- <pre>
-studies[0].offset={{studies[0].offset}}
-limit:{{limit}}
-    {{studies}}
+showModalitySelector={{showModalitySelector}}
 </pre> -->
 <div class="form-inline">
 <div>
@@ -102,7 +100,22 @@ limit:{{limit}}
     </div>
     <div class="form-group">
         <label for="Modality">Modality:</label>
-        <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy"/>
+        <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector"/>
+        <div class="modality_selector" ng-show="showModalitySelector">
+            <div class="common">
+                <a href="" ng-repeat="(key, value) in modalities.common" ng-click="selectModality(key)" title="{{value}}">{{key}}</a>
+            </div>
+            <a href="" ng-click="showMore=true" ng-show="!showMore" class="more">more<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+            <a href="" ng-click="showMore=false" ng-show="showMore" class="more">less<i class="glyphicon glyphicon-triangle-top"></i></a>
+            <div class="more" ng-show="showMore">
+                <a href="" ng-repeat="(key, value) in modalities.more" ng-click="selectModality(key)" title="{{value}}">{{key}}</a>
+                <div class="form-group">
+                    <label>Custom modality code:</label>
+                    <input ng-model="filter.ModalitiesInStudy" />
+                    <button ng-click="showModalitySelector=false">Add</button>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- test -->
 <!--         <p class="input-group">

@@ -555,8 +555,7 @@ table.subtable_1, table.subtable_2 {
         width: 11.3%; }
 
 .main_content.studies {
-  float: left;
-  overflow-x: hidden; }
+  float: left; }
 
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
   box-shadow: none;
@@ -604,5 +603,49 @@ table.subtable_1, table.subtable_2 {
       color: rgba(0, 0, 0, 0.6); }
       .arrows .arrows_block .btn:hover {
         font-size: 31px; }
+
+.modality_selector {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  background: white none repeat scroll 0 0;
+  display: block;
+  height: auto;
+  position: absolute;
+  width: 380px;
+  border: 1px solid #ccc;
+  z-index: 9999;
+  margin-left: 69px;
+  box-sizing: border-box;
+  padding: 30px 20px; }
+  .modality_selector .common {
+    margin-bottom: 15px; }
+  .modality_selector div.more {
+    margin-top: 15px; }
+    .modality_selector div.more .form-group {
+      margin-top: 20px; }
+      .modality_selector div.more .form-group label {
+        margin-right: 20%; }
+  .modality_selector a {
+    border: 1px solid #ccc;
+    box-shadow: 0 0 11px 0 #bebebe;
+    color: #585858;
+    display: inline-block;
+    margin: 3px;
+    padding: 2px 10px;
+    text-align: center;
+    width: 106px; }
+  .modality_selector a.more {
+    box-shadow: none;
+    border: none; }
+    .modality_selector a.more i {
+      margin-left: 5px; }
+    .modality_selector a.more:hover {
+      color: #585858;
+      background: white;
+      text-decoration: underline;
+      font-weight: bold; }
+  .modality_selector a:hover {
+    background: #ddd;
+    color: #404040;
+    text-decoration: none; }
 
 /*# sourceMappingURL=style.css.map */

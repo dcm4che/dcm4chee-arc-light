@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar) {
+myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
     $scope.moreStudies = false;
@@ -11,11 +11,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.exporterID = null;
     $scope.rjnotes;
     $scope.rjnote = null;
+    $scope.showModalitySelector = false;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     // $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate()};
     $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
     $scope.format = "yyyyMMdd";
+    $scope.modalities = $modalities;
+    $scope.selectModality = function(key){
+        $scope.filter.ModalitiesInStudy =key;
+        $scope.showModalitySelector=false;
+    }
     $scope.studyDateFrom = {
         opened: false
     };
