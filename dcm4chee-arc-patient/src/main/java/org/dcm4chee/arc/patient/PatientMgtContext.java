@@ -73,4 +73,13 @@ public interface PatientMgtContext {
     Attributes getPreviousAttributes();
 
     void setPreviousAttributes(Attributes attrs);
+
+    String getEventActionCode();
+
+    void setEventActionCode(String eventActionCode);
+
+    Exception getException();
+
+    void setException(Exception ex);
+
 }

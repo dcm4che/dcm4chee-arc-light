@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.patient.impl;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
@@ -107,6 +108,7 @@ public class PatientServiceEJB {
     }
 
     public Patient createPatient(PatientMgtContext ctx) {
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         return createPatient(ctx, ctx.getPatientID(), ctx.getAttributes());
     }
 
@@ -124,7 +126,8 @@ public class PatientServiceEJB {
         if (pat == null)
             return createPatient(ctx);
 
-        updatePatient(pat, ctx);
+        if (updatePatient(pat, ctx))
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         return pat;
     }
 
@@ -145,24 +148,29 @@ public class PatientServiceEJB {
         return pat;
     }
 
-    private void updatePatient(Patient pat, PatientMgtContext ctx) {
+    private boolean updatePatient(Patient pat, PatientMgtContext ctx) {
         Attributes attrs = pat.getAttributes();
-        if (attrs.update(ctx.getAttributes(), null))
-            pat.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        if (!attrs.update(ctx.getAttributes(), null))
+            return false;
+
+        pat.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        return true;
     }
 
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
         Patient pat = findPatient(ctx.getPatientID());
         if (pat == null)
-            pat = createPatient(ctx, ctx.getPatientID(), ctx.getAttributes());
+            pat = createPatient(ctx);
         else {
             updatePatient(pat, ctx);
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         }
         Patient prev = findPatient(ctx.getPreviousPatientID());
-        if (prev == null)
+        if (prev == null) {
             prev = createPatient(ctx, ctx.getPreviousPatientID(), ctx.getPreviousAttributes());
-        else {
+            ctx.setPreviousAttributes(null); // suppress audit message for deletion of merge patient
+        } else {
             moveStudies(prev, pat);
             moveMPPS(prev, pat);
         }
@@ -173,11 +181,14 @@ public class PatientServiceEJB {
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
         Patient pat = findPatient(ctx.getPreviousPatientID());
-        if (pat == null)
-            return createPatient(ctx, ctx.getPatientID(), ctx.getAttributes());
+        if (pat == null) {
+            ctx.setPreviousAttributes(null); // suppress audit message for deletion of merge patient
+            return createPatient(ctx);
+        }
 
         pat.setPatientID(createPatientID(ctx.getPatientID()));
         updatePatient(pat, ctx);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         return pat;
     }
 

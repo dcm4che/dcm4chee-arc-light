@@ -55,6 +55,7 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.net.Socket;
 import java.util.List;
@@ -71,6 +72,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Inject
     private Device device;
+
+    @Inject
+    private Event<PatientMgtContext> patientMgtEvent;
 
     @Override
     public PatientMgtContext createPatientMgtContextDICOM(Association as) {
@@ -89,25 +93,53 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient createPatient(PatientMgtContext ctx) {
-        return ejb.createPatient(ctx);
+        try {
+            return ejb.createPatient(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            patientMgtEvent.fire(ctx);
+        }
     }
 
     @Override
     public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        return ejb.updatePatient(ctx);
+        try {
+            return ejb.updatePatient(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            patientMgtEvent.fire(ctx);
+        }
     }
 
     @Override
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        return ejb.mergePatient(ctx);
+        try {
+            return ejb.mergePatient(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            patientMgtEvent.fire(ctx);
+        }
     }
 
     @Override
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        return ejb.changePatientID(ctx);
+        try {
+            return ejb.changePatientID(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            patientMgtEvent.fire(ctx);
+        }
     }
 
     @Override

@@ -68,6 +68,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private Attributes attributes;
     private IDWithIssuer previousPatientID;
     private Attributes previousAttributes;
+    private String eventActionCode;
+    private Exception exception;
 
     public PatientMgtContextImpl(Device device, Association as, Socket socket, HL7Segment msh) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -137,6 +139,26 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setPreviousAttributes(Attributes attrs) {
         this.previousAttributes = attrs;
-        this.previousPatientID = IDWithIssuer.pidOf(attrs);
+        this.previousPatientID = attrs != null ? IDWithIssuer.pidOf(attrs) : null;
+    }
+
+    @Override
+    public String getEventActionCode() {
+        return eventActionCode;
+    }
+
+    @Override
+    public void setEventActionCode(String eventActionCode) {
+        this.eventActionCode = eventActionCode;
+    }
+
+    @Override
+    public Exception getException() {
+        return exception;
+    }
+
+    @Override
+    public void setException(Exception exception) {
+        this.exception = exception;
     }
 }
