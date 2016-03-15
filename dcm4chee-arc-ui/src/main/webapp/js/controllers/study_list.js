@@ -22,6 +22,27 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.studyDateTo = {
         opened: false
     };
+    $scope.addEffect = function(direction){
+        var element = angular.element(".div-table");
+            element.removeClass('fadeInRight').removeClass('fadeInLeft');
+            setTimeout(function(){
+                if(direction==="left"){
+                    element.addClass("fadeOutRight");
+                }
+                if(direction==="right"){
+                    element.addClass("fadeOutLeft");
+                }
+            },1);
+            setTimeout(function(){
+                element.removeClass('fadeOutRight').removeClass('fadeOutLeft');
+                if(direction==="left"){
+                    element.addClass("fadeInLeft");
+                }
+                if(direction==="right"){
+                    element.addClass("fadeInRight");
+                }
+            },300);
+    };
     $scope.studyDateFromOpen = function() {
         cfpLoadingBar.start();
         $scope.studyDateFrom.opened = true;

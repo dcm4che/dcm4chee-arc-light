@@ -1,5 +1,7 @@
 <!-- <pre>
-    {{studyDate}}
+studies[0].offset={{studies[0].offset}}
+limit:{{limit}}
+    {{studies}}
 </pre> -->
 <div class="form-inline">
 <div>
@@ -31,20 +33,20 @@
     </div>
     <br/>
     <div class="form-group">
-        <label for="PatientName">Patient Name:</label>
-        <input id="PatientName" type="text" ng-model="filter.PatientName"/>
+        <!-- <label for="PatientName">Patient Name:</label> -->
+        <input id="PatientName" type="text" ng-model="filter.PatientName" placeholder=" Patient Name" />
     </div>
     <div class="form-group">
-        <label for="PatientID">Patient ID:</label>
-        <input id="PatientID" type="text" ng-model="filter.PatientID"/>
+        <!-- <label for="PatientID">Patient ID:</label> -->
+        <input id="PatientID" type="text" ng-model="filter.PatientID" placeholder=" Patient ID" />
     </div>
     <div class="form-group">
-        <label for="AccessionNumber">Acc. No.:</label>
-        <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber"/>
+        <!-- <label for="AccessionNumber">Acc. No.:</label> -->
+        <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder=" Acc. No." />
     </div>
     <div class="form-group">
-        <label for="StudyID">Study ID:</label>
-        <input id="StudyID" type="text" ng-model="filter.StudyID"/>
+        <!-- <label for="StudyID">Study ID:</label> -->
+        <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder=" Study ID" />
     </div>
 </div>
 <div>
@@ -52,6 +54,7 @@
         <label for="StudyDateFrom">Study Date:</label>
         <div class="input-group">
           <input 
+            placeholder=" Study Date from" 
             ng-change="studyDateFromChange()"
             ng-click="studyDateFromOpen()" 
             id="StudyDateFrom" 
@@ -70,7 +73,8 @@
     <div class="form-group">
         <label for="StudyDateTo">-</label>
         <div class="input-group">
-            <input 
+            <input
+                placeholder=" Study Date to"  
                 ng-change="studyDateToChange()"
                 id="StudyDateTo" 
                 ng-click="studyDateToOpen()"  
@@ -87,8 +91,10 @@
     </div>
 
     <div class="form-group">
-        <label for="StudyTimeFrom">Study Time:</label>
-        <input id="StudyTimeFrom" type="text" size="10"  ng-model="studyTime.fromObject" data-lng-clockpicker data-lng-clockpicker-options='clockpicker'></input>
+        <!-- <label for="StudyTimeFrom">Study Time:</label> -->
+        <input 
+            placeholder="Study Time from" 
+            id="StudyTimeFrom" type="text" size="10"  ng-model="studyTime.fromObject" data-lng-clockpicker data-lng-clockpicker-options='clockpicker'></input>
     </div>
     <div class="form-group">
         <label for="StudyTimeTo">-</label>
@@ -106,14 +112,14 @@
           </span>
         </p> -->
     <!-- test -->
-    <div class="form-group">
+<!--     <div class="form-group">
         <label for="OrderBy">Order By:</label>
         <select id="OrderBy" ng-model="filter.orderby">
             <option value="PatientName">Patient Name &uarr;</option>
             <option value="StudyDate,StudyTime">Study Date &uarr;</option>
             <option value="-StudyDate,-StudyTime">Study Date &darr;</option>
         </select>
-    </div>
+    </div> -->
     <div class="checkbox">
         <label>
             <input type="checkbox" ng-model="filter.fuzzymatching"> Fuzzy Matching
@@ -122,7 +128,7 @@
 </div>
 </div>
 <!-- Table -->
-<div class="div-table">
+<div class="div-table animated">
     <div class="thead">
         <div class="tr_row">
             <div class="th">                
@@ -142,9 +148,23 @@
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button> 
             </div>
-            <div class="th">Patient Name</div>
+            <div class="th">Patient Name
+                <a href="" class="order_arrow" ng-click="filter.orderby = 'PatientName';queryStudies(0)">
+                    <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
+                </a>
+                <a href="" class="order_arrow" ng-click="filter.orderby = '-PatientName';queryStudies(0)">
+                    <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                </a>
+                </div>
             <div class="th">Patient ID</div>
-            <div class="th">Study Date</div>
+            <div class="th">Study Date
+                <a href="" class="order_arrow" ng-click="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)">
+                    <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
+                </a>
+                <a href="" class="order_arrow" ng-click="filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)">
+                    <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                </a>
+            </div>
             <div class="th">Study Time</div>
             <div class="th">Accession Number</div>
             <div class="th">Modalities</div>
@@ -324,5 +344,21 @@
             </div>
 
         </div>
+    </div>
+</div>
+<div class="arrows">
+    <div class="arrows_block">
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="studies[0].offset==0||!studies[0].offset"
+                        ng-click="queryStudies(studies[0].offset-limit);addEffect('left')"
+                        title="Previous Studies">
+                    <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                </button>
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="!moreStudies"
+                        ng-click="queryStudies(studies[0].offset+limit);addEffect('right')"
+                        title="Next Studies">
+                    <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                </button> 
     </div>
 </div>

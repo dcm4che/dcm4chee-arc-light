@@ -343,6 +343,11 @@ device and create an other one with the new name*/
   animation-duration: 300ms;
   -moz-animation-duration: 300ms; }
 
+.animated.div-table {
+  -webkit-animation-duration: 200ms;
+  animation-duration: 200ms;
+  -moz-animation-duration: 200ms; }
+
 .echo {
   border: 1px solid #ccc;
   box-shadow: 1px 1px 9px 0 #b8b8b8 inset;
@@ -550,7 +555,8 @@ table.subtable_1, table.subtable_2 {
         width: 11.3%; }
 
 .main_content.studies {
-  float: left; }
+  float: left;
+  overflow-x: hidden; }
 
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
   box-shadow: none;
@@ -559,5 +565,44 @@ table.subtable_1, table.subtable_2 {
 
 .clockpicker-span-am-pm {
   display: none; }
+
+.order_arrow {
+  display: inline-block;
+  text-align: center;
+  width: 20px; }
+  .order_arrow:first-child {
+    margin-left: 10px; }
+  .order_arrow span {
+    color: rgba(255, 255, 255, 0.7); }
+  .order_arrow span:hover {
+    color: white; }
+
+::-webkit-input-placeholder {
+  /* Chrome/Opera/Safari */
+  font-style: italic; }
+
+::-moz-placeholder {
+  /* Firefox 19+ */
+  font-style: italic; }
+
+:-ms-input-placeholder {
+  /* IE 10+ */
+  font-style: italic; }
+
+:-moz-placeholder {
+  /* Firefox 18- */
+  font-style: italic; }
+
+.arrows {
+  width: 100%;
+  float: left; }
+  .arrows .arrows_block {
+    display: table;
+    margin: 0 auto; }
+    .arrows .arrows_block .btn {
+      font-size: 30px;
+      color: rgba(0, 0, 0, 0.6); }
+      .arrows .arrows_block .btn:hover {
+        font-size: 31px; }
 
 /*# sourceMappingURL=style.css.map */

@@ -408,6 +408,11 @@ device and create an other one with the new name*/
 	animation-duration: 300ms;
 	-moz-animation-duration: 300ms;
 }
+.animated.div-table{
+	-webkit-animation-duration: 200ms;
+	animation-duration: 200ms;
+	-moz-animation-duration: 200ms;
+}
 .echo {
     border: 1px solid #ccc;
     box-shadow: 1px 1px 9px 0 #b8b8b8 inset;
@@ -710,6 +715,7 @@ table{
 }
 .main_content.studies{
 	float:left;
+	overflow-x:hidden;
 }
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
     box-shadow: none;
@@ -718,4 +724,48 @@ table{
 }
 .clockpicker-span-am-pm{
 	display:none;
+}
+.order_arrow{
+    display: inline-block;
+    text-align: center;
+    width: 20px;
+    &:first-child{
+    	margin-left: 10px;
+    }
+    span{
+    	color: rgba(255, 255, 255, 0.70);
+    }
+    span:hover{
+    	color: rgba(255, 255, 255, 1);
+    }
+
+}
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  font-style:italic; 
+}
+::-moz-placeholder { /* Firefox 19+ */
+  font-style:italic; 
+}
+:-ms-input-placeholder { /* IE 10+ */
+  font-style:italic; 
+}
+:-moz-placeholder { /* Firefox 18- */
+  font-style:italic; 
+}
+
+.arrows{
+	width: 100%;
+	float: left;
+	.arrows_block{
+		display: table;
+    	margin: 0 auto;
+		.btn{
+			font-size: 30px;
+			color: rgba(0, 0, 0, 0.60);
+			&:hover{
+				font-size: 31px;
+			}
+		}
+
+	}
 }
