@@ -42,6 +42,8 @@ package org.dcm4chee.arc.patient;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.AttributeFilter;
 
@@ -54,25 +56,13 @@ public interface PatientMgtContext {
 
     FuzzyStr getFuzzyStr();
 
-    String getLocalApplication();
+    Association getAssociation();
 
-    void setLocalApplication(String localApplication);
-
-    String getRemoteApplication();
-
-    void setRemoteApplication(String remoteApplication);
+    HL7Segment getHL7MessageHeader();
 
     String getRemoteHostName();
 
-    void setRemoteHostName(String remoteHostName);
-
-    String getHL7MSH10();
-
-    void setHL7MSH10(String hl7msh10);
-
     IDWithIssuer getPatientID();
-
-    void setPatientID(IDWithIssuer patientID);
 
     Attributes getAttributes();
 
@@ -80,9 +70,7 @@ public interface PatientMgtContext {
 
     IDWithIssuer getPreviousPatientID();
 
-    void setPreviousPatientID(IDWithIssuer previousPatientID);
-
     Attributes getPreviousAttributes();
 
-    void setPreviousAttributes(Attributes previousAttributes);
+    void setPreviousAttributes(Attributes attrs);
 }

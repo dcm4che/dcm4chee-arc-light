@@ -42,12 +42,16 @@ package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+
+import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -57,26 +61,26 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     private final AttributeFilter attributeFilter;
     private final FuzzyStr fuzzyStr;
-    private final Object prompt;
-    private String localApplication;
-    private String remoteApplication;
-    private String remoteHostName;
-    private String hl7msh10;
+    private final Association as;
+    private final Socket socket;
+    private final HL7Segment msh;
     private IDWithIssuer patientID;
     private Attributes attributes;
     private IDWithIssuer previousPatientID;
     private Attributes previousAttributes;
 
-    public PatientMgtContextImpl(Device device, Object prompt) {
+    public PatientMgtContextImpl(Device device, Association as, Socket socket, HL7Segment msh) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         this.attributeFilter = arcDev.getAttributeFilter(Entity.Patient);
         this.fuzzyStr = arcDev.getFuzzyStr();
-        this.prompt = prompt;
+        this.as = as;
+        this.socket = socket;
+        this.msh = msh;
     }
 
     @Override
     public String toString() {
-        return prompt.toString();
+        return as != null ? as.toString() : msh.toString();
     }
 
     @Override
@@ -90,43 +94,18 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public String getLocalApplication() {
-        return localApplication;
+    public Association getAssociation() {
+        return as;
     }
 
     @Override
-    public void setLocalApplication(String localApplication) {
-        this.localApplication = localApplication;
-    }
-
-    @Override
-    public String getRemoteApplication() {
-        return remoteApplication;
-    }
-
-    @Override
-    public void setRemoteApplication(String remoteApplication) {
-        this.remoteApplication = remoteApplication;
+    public HL7Segment getHL7MessageHeader() {
+        return msh;
     }
 
     @Override
     public String getRemoteHostName() {
-        return remoteHostName;
-    }
-
-    @Override
-    public void setRemoteHostName(String remoteHostName) {
-        this.remoteHostName = remoteHostName;
-    }
-
-    @Override
-    public String getHL7MSH10() {
-        return hl7msh10;
-    }
-
-    @Override
-    public void setHL7MSH10(String hl7msh10) {
-        this.hl7msh10 = hl7msh10;
+        return socket.getInetAddress().getHostName();
     }
 
     @Override
@@ -135,18 +114,14 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public void setPatientID(IDWithIssuer patientID) {
-        this.patientID = patientID;
-    }
-
-    @Override
     public Attributes getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(Attributes attributes) {
-        this.attributes = attributes;
+    public void setAttributes(Attributes attrs) {
+        this.attributes = attrs;
+        this.patientID = IDWithIssuer.pidOf(attrs);
     }
 
     @Override
@@ -155,17 +130,13 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public void setPreviousPatientID(IDWithIssuer previousPatientID) {
-        this.previousPatientID = previousPatientID;
-    }
-
-    @Override
     public Attributes getPreviousAttributes() {
         return previousAttributes;
     }
 
     @Override
-    public void setPreviousAttributes(Attributes previousAttributes) {
-        this.previousAttributes = previousAttributes;
+    public void setPreviousAttributes(Attributes attrs) {
+        this.previousAttributes = attrs;
+        this.previousPatientID = IDWithIssuer.pidOf(attrs);
     }
 }

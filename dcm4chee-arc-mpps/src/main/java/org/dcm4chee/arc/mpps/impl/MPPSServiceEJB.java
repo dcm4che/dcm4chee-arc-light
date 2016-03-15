@@ -92,9 +92,7 @@ public class MPPSServiceEJB {
         Attributes attrs = ctx.getAttributes();
         MPPS mpps = new MPPS();
         mpps.setSopInstanceUID(ctx.getSopInstanceUID());
-        IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
-        PatientMgtContext patMgtCtx = patientService.createPatientMgtContext(ctx);
-        patMgtCtx.setPatientID(pid);
+        PatientMgtContext patMgtCtx = patientService.createPatientMgtContextDICOM(ctx.getAssociation());
         patMgtCtx.setAttributes(attrs);
         Patient pat = patientService.findPatient(patMgtCtx);
         if (pat == null) {

@@ -12,6 +12,7 @@ import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -42,20 +43,21 @@ class PatientUpdateService extends DefaultHL7Service {
         try {
             String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
             Attributes attrs = SAXTransformer.transform(msg, off, len, hl7cs, getTemplate(hl7App));
-            IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
-            if (pid == null)
+            PatientMgtContext ctx = patientService.createPatientMgtContextHL7(s, msh);
+            ctx.setAttributes(attrs);
+            if (ctx.getPatientID() == null)
                 throw new HL7Exception(HL7Exception.AR, "Missing PID-3");
             Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
             if (mrg == null) {
-                patientService.updatePatient(pid, attrs);
+                patientService.updatePatient(ctx);
             } else {
-                IDWithIssuer mrgpid = IDWithIssuer.pidOf(mrg);
-                if (mrgpid == null)
+                ctx.setPreviousAttributes(mrg);
+                if (ctx.getPreviousPatientID() == null)
                     throw new HL7Exception(HL7Exception.AR, "Missing MRG-1");
                 if ("ADT^A47".equals(msh.getMessageType()))
-                    patientService.changePatientID(pid, attrs, mrgpid, mrg);
+                    patientService.changePatientID(ctx);
                 else
-                    patientService.mergePatient(pid, attrs, mrgpid, mrg);
+                    patientService.mergePatient(ctx);
             }
             return super.onMessage(hl7App, conn, s, msh, msg, off, len, mshlen);
         } catch (HL7Exception e) {

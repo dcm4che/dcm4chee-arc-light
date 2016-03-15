@@ -40,30 +40,23 @@
 
 package org.dcm4chee.arc.patient.impl;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Issuer;
+import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.issuer.IssuerService;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
 import org.dcm4chee.arc.patient.PatientMergedException;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.ejb.Stateless;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.net.Socket;
 import java.util.List;
 
 /**
@@ -73,8 +66,6 @@ import java.util.List;
 @ApplicationScoped
 public class PatientServiceImpl implements PatientService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PatientServiceImpl.class);
-
     @Inject
     private PatientServiceEJB ejb;
 
@@ -82,8 +73,13 @@ public class PatientServiceImpl implements PatientService {
     private Device device;
 
     @Override
-    public PatientMgtContext createPatientMgtContext(Object prompt) {
-        return new PatientMgtContextImpl(device, prompt);
+    public PatientMgtContext createPatientMgtContextDICOM(Association as) {
+        return new PatientMgtContextImpl(device, as, as.getSocket(), null);
+    }
+
+    @Override
+    public PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh) {
+        return new PatientMgtContextImpl(device, null, socket, msh);
     }
 
     @Override

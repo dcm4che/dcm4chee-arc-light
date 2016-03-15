@@ -323,8 +323,8 @@ public class StoreServiceEJB {
             Study study = findStudy(ctx);
             if (study == null) {
                 IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
-                PatientMgtContext patMgtCtx = patientService.createPatientMgtContext(ctx);
-                patMgtCtx.setPatientID(pid);
+                PatientMgtContext patMgtCtx = patientService.createPatientMgtContextDICOM(
+                        ctx.getStoreSession().getAssociation());
                 patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);
                 if (pat == null) {

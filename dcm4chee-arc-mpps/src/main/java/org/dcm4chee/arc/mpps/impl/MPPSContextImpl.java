@@ -58,10 +58,14 @@ public class MPPSContextImpl implements MPPSContext {
     private Attributes attributes;
     private String sopInstanceUID;
     private Dimse dimse;
-
     public MPPSContextImpl(Association as) {
         this.as = as;
         this.ae = as.getApplicationEntity();
+    }
+
+    @Override
+    public Association getAssociation() {
+        return as;
     }
 
     @Override
