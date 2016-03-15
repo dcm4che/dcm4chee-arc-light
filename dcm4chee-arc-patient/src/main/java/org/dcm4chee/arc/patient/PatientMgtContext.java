@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,37 +35,54 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** END LICENSE BLOCK *****
  */
 
 package org.dcm4chee.arc.patient;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4chee.arc.entity.Patient;
-
-import java.util.List;
+import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4chee.arc.conf.AttributeFilter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Mar 2016
  */
-public interface PatientService {
+public interface PatientMgtContext {
+    AttributeFilter getAttributeFilter();
 
-    PatientMgtContext createPatientMgtContext(Object prompt);
+    FuzzyStr getFuzzyStr();
 
-    List<Patient> findPatients(IDWithIssuer pid);
+    String getLocalApplication();
 
-    Patient createPatient(PatientMgtContext ctx);
+    void setLocalApplication(String localApplication);
 
-    Patient updatePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
+    String getRemoteApplication();
 
-    Patient mergePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
+    void setRemoteApplication(String remoteApplication);
 
-    Patient changePatientID(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
+    String getRemoteHostName();
 
-    Patient findPatient(PatientMgtContext ctx);
+    void setRemoteHostName(String remoteHostName);
+
+    String getHL7MSH10();
+
+    void setHL7MSH10(String hl7msh10);
+
+    IDWithIssuer getPatientID();
+
+    void setPatientID(IDWithIssuer patientID);
+
+    Attributes getAttributes();
+
+    void setAttributes(Attributes attributes);
+
+    IDWithIssuer getPreviousPatientID();
+
+    void setPreviousPatientID(IDWithIssuer previousPatientID);
+
+    Attributes getPreviousAttributes();
+
+    void setPreviousAttributes(Attributes previousAttributes);
 }

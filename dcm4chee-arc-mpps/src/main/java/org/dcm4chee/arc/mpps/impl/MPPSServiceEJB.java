@@ -57,6 +57,7 @@ import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.mpps.MPPSContext;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 
 import javax.ejb.Stateless;
@@ -92,9 +93,12 @@ public class MPPSServiceEJB {
         MPPS mpps = new MPPS();
         mpps.setSopInstanceUID(ctx.getSopInstanceUID());
         IDWithIssuer pid = IDWithIssuer.pidOf(attrs);
-        Patient pat = patientService.findPatient(ctx, pid);
+        PatientMgtContext patMgtCtx = patientService.createPatientMgtContext(ctx);
+        patMgtCtx.setPatientID(pid);
+        patMgtCtx.setAttributes(attrs);
+        Patient pat = patientService.findPatient(patMgtCtx);
         if (pat == null) {
-            pat = patientService.createPatient(pid, attrs);
+            pat = patientService.createPatient(patMgtCtx);
         }
         mpps.setPatient(pat);
         mpps.setDiscontinuationReasonCode(discontinuationReasonCodeOf(attrs));

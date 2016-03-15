@@ -43,16 +43,11 @@ package org.dcm4chee.arc.patient.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
 import org.dcm4chee.arc.patient.PatientMergedException;
-import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +64,7 @@ import java.util.List;
  * @since Jul 2015
  */
 @Stateless
-public class PatientServiceEJB implements PatientService {
+public class PatientServiceEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(PatientServiceEJB.class);
 
@@ -79,10 +74,6 @@ public class PatientServiceEJB implements PatientService {
     @Inject
     private IssuerService issuerService;
 
-    @Inject
-    private Device device;
-
-    @Override
     public List<Patient> findPatients(IDWithIssuer pid) {
         List<Patient> list = em.createNamedQuery(Patient.FIND_BY_PATIENT_ID_EAGER, Patient.class)
                 .setParameter(1, pid.getID())
@@ -115,23 +106,25 @@ public class PatientServiceEJB implements PatientService {
         }
     }
 
-    @Override
-    public Patient createPatient(IDWithIssuer pid, Attributes attrs) {
+    public Patient createPatient(PatientMgtContext ctx) {
+        return createPatient(ctx, ctx.getPatientID(), ctx.getAttributes());
+    }
+
+    private Patient createPatient(PatientMgtContext ctx, IDWithIssuer patientID, Attributes attributes) {
         Patient patient = new Patient();
-        patient.setAttributes(attrs, getAttributeFilter(), getFuzzyStr());
-        patient.setPatientID(createPatientID(pid));
+        patient.setAttributes(attributes, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        patient.setPatientID(createPatientID(patientID));
         em.persist(patient);
         return patient;
     }
 
-    @Override
-    public Patient updatePatient(IDWithIssuer pid, Attributes newAttrs)
+    public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(pid);
+        Patient pat = findPatient(ctx.getPatientID());
         if (pat == null)
-            return createPatient(pid, newAttrs);
+            return createPatient(ctx);
 
-        updatePatient(pat, newAttrs);
+        updatePatient(pat, ctx);
         return pat;
     }
 
@@ -152,24 +145,23 @@ public class PatientServiceEJB implements PatientService {
         return pat;
     }
 
-    private void updatePatient(Patient pat, Attributes newAttrs) {
+    private void updatePatient(Patient pat, PatientMgtContext ctx) {
         Attributes attrs = pat.getAttributes();
-        if (attrs.update(newAttrs, null))
-            pat.setAttributes(attrs, getAttributeFilter(), getFuzzyStr());
+        if (attrs.update(ctx.getAttributes(), null))
+            pat.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
     }
 
-    @Override
-    public Patient mergePatient(IDWithIssuer pid, Attributes newAttrs, IDWithIssuer mrgpid, Attributes mrg)
+    public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(pid);
+        Patient pat = findPatient(ctx.getPatientID());
         if (pat == null)
-            pat = createPatient(pid, newAttrs);
+            pat = createPatient(ctx, ctx.getPatientID(), ctx.getAttributes());
         else {
-            updatePatient(pat, newAttrs);
+            updatePatient(pat, ctx);
         }
-        Patient prev = findPatient(mrgpid);
+        Patient prev = findPatient(ctx.getPreviousPatientID());
         if (prev == null)
-            prev = createPatient(mrgpid, mrg);
+            prev = createPatient(ctx, ctx.getPreviousPatientID(), ctx.getPreviousAttributes());
         else {
             moveStudies(prev, pat);
             moveMPPS(prev, pat);
@@ -178,31 +170,29 @@ public class PatientServiceEJB implements PatientService {
         return pat;
     }
 
-    @Override
-    public Patient changePatientID(IDWithIssuer pid, Attributes newAttrs, IDWithIssuer mrgpid, Attributes mrg)
+    public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(mrgpid);
+        Patient pat = findPatient(ctx.getPreviousPatientID());
         if (pat == null)
-            return createPatient(pid, newAttrs);
+            return createPatient(ctx, ctx.getPatientID(), ctx.getAttributes());
 
-        pat.setPatientID( createPatientID(pid));
-        updatePatient(pat, newAttrs);
+        pat.setPatientID(createPatientID(ctx.getPatientID()));
+        updatePatient(pat, ctx);
         return pat;
     }
 
-    @Override
-    public Patient findPatient(Object ctx, IDWithIssuer pid) {
-        if (pid == null) {
+    public Patient findPatient(PatientMgtContext ctx) {
+        if (ctx.getPatientID() == null) {
             LOG.info("{}: No Patient ID in received object", ctx);
             return null;
         }
 
-        List<Patient> list = findPatients(pid);
+        List<Patient> list = findPatients(ctx.getPatientID());
         if (list.isEmpty())
             return null;
 
         if (list.size() > 1) {
-            LOG.info("{}: Multiple Patients with ID: {}", ctx, pid);
+            LOG.info("{}: Multiple Patients with ID: {}", ctx, ctx.getPatientID());
             return null;
         }
 
@@ -214,7 +204,7 @@ public class PatientServiceEJB implements PatientService {
         HashSet<Long> patPks = new HashSet<>();
         do {
             if (!patPks.add(mergedWith.getPk())) {
-                LOG.warn("{}: Detected circular merged {}", ctx, pid);
+                LOG.warn("{}: Detected circular merged {}", ctx, ctx.getPatientID());
                 return null;
             }
 
@@ -248,17 +238,5 @@ public class PatientServiceEJB implements PatientService {
             patientID.setIssuer(issuerService.findOrCreate(idWithIssuer.getIssuer()));
 
         return patientID;
-    }
-
-    private ArchiveDeviceExtension getArchiveDeviceExtension() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class);
-    }
-
-    public AttributeFilter getAttributeFilter() {
-        return getArchiveDeviceExtension().getAttributeFilter(Entity.Patient);
-    }
-
-    public FuzzyStr getFuzzyStr() {
-        return getArchiveDeviceExtension().getFuzzyStr();
     }
 }

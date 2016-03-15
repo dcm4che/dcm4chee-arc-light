@@ -48,6 +48,7 @@ import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
@@ -322,9 +323,12 @@ public class StoreServiceEJB {
             Study study = findStudy(ctx);
             if (study == null) {
                 IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
-                Patient pat = patientService.findPatient(ctx, pid);
+                PatientMgtContext patMgtCtx = patientService.createPatientMgtContext(ctx);
+                patMgtCtx.setPatientID(pid);
+                patMgtCtx.setAttributes(ctx.getAttributes());
+                Patient pat = patientService.findPatient(patMgtCtx);
                 if (pat == null) {
-                    pat = patientService.createPatient(pid, ctx.getAttributes());
+                    pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
                 }
                 study = createStudy(ctx, pat);
