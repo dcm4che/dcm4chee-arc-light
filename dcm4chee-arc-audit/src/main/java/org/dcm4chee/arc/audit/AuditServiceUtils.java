@@ -43,6 +43,7 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.Connection;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -60,7 +61,7 @@ public class AuditServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     static final String noValue = "<none>";
     enum EventClass {
-        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY
+        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7
     }
     enum EventType {
         ITRF_WAD_P(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
@@ -100,7 +101,6 @@ public class AuditServiceUtils {
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
         RTRV_T_E_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.MinorFailure,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-
         RTRV_B_W_P(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
         RTRV_B_W_E(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.MinorFailure,
@@ -130,9 +130,32 @@ public class AuditServiceUtils {
         QUERY_FIND(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute, AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
-
         CONN__RJCT(EventClass.CONN_REJECT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
-                AuditMessages.EventOutcomeIndicator.MinorFailure, null, null, false, false, false, AuditMessages.EventTypeCode.NodeAuthentication);
+                AuditMessages.EventOutcomeIndicator.MinorFailure, null, null, false, false, false, AuditMessages.EventTypeCode.NodeAuthentication),
+
+        HL7_CREA_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
+                AuditMessages.EventOutcomeIndicator.Success, AuditMessages.RoleIDCode.Source,
+                AuditMessages.RoleIDCode.Destination, true, false, false,
+                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+        HL7_CREA_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
+                AuditMessages.EventOutcomeIndicator.MinorFailure, AuditMessages.RoleIDCode.Source,
+                AuditMessages.RoleIDCode.Destination, true, false, false,
+                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+        HL7_UPDA_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
+                AuditMessages.EventOutcomeIndicator.Success, AuditMessages.RoleIDCode.Source,
+                AuditMessages.RoleIDCode.Destination, true, false, false,
+                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+        HL7_UPDA_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
+                AuditMessages.EventOutcomeIndicator.MinorFailure, AuditMessages.RoleIDCode.Source,
+                AuditMessages.RoleIDCode.Destination, true, false, false,
+                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+        HL7_MERG_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, null, AuditMessages.EventOutcomeIndicator.Success,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false,
+                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+        HL7_MERG_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, null, AuditMessages.EventOutcomeIndicator.MinorFailure,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false,
+                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed);
+
 
         final EventClass eventClass;
         final AuditMessages.EventID eventID;
@@ -221,12 +244,18 @@ public class AuditServiceUtils {
         }
 
         static EventType getDicomInstTrfdErrorEventType(RetrieveContext ctx) {
-            EventType et;
-            return et = ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_E_E
+            return ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_E_E
                     : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_M_E
                     : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
                     && ctx.isDestinationRequestor() ? AuditServiceUtils.EventType.RTRV_T_G_E
                     : null != ctx.getHttpRequest() ? AuditServiceUtils.EventType.RTRV_T_W_E : null;
+        }
+
+        static EventType forHL7(PatientMgtContext ctx) {
+            return ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                   ? ctx.getException() != null ? HL7_CREA_E : HL7_CREA_P
+                   : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
+                   ? ctx.getException() != null ? HL7_UPDA_E : HL7_UPDA_P : null;
         }
     }
 
@@ -260,9 +289,5 @@ public class AuditServiceUtils {
     static String getLocalHostName(AuditLogger log) {
         List<Connection> conns = log.getConnections();
         return conns.get(0).getHostname();
-    }
-
-    static String buildAltUserID(String s) {
-        return (s != null) ? AuditMessages.alternativeUserIDForAETitle(s) : null;
     }
 }

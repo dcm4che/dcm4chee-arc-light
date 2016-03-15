@@ -64,8 +64,9 @@ public class QueryInfo {
                 : null;
         String patientID = (ctx.getQueryKeys() != null && ctx.getQueryKeys().getString(Tag.PatientID) != null)
                 ? ctx.getQueryKeys().getString(Tag.PatientID) : AuditServiceUtils.noValue;
+        String callingAET = ctx.getCallingAET() != null ? ctx.getCallingAET() : ctx.getRemoteHostName();
         fields = new String[] {
-                ctx.getCallingAET(),
+                callingAET,
                 ctx.getRemoteHostName(),
                 ctx.getCalledAET(),
                 ctx.getSOPClassUID(),

@@ -44,9 +44,9 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.StoreSession;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -61,19 +61,20 @@ class PatientStudyInfo {
     static final int PATIENT_ID = 5;
     static final int PATIENT_NAME = 6;
     static final int OUTCOME = 7;
-
+    String outcome;
     private final String[] fields;
 
     PatientStudyInfo(StoreContext ctx) {
-        StoreSession session = ctx.getStoreSession();
-        String outcome = null != ctx.getRejectionNote() ? null != ctx.getException()
+        outcome = null != ctx.getRejectionNote() ? null != ctx.getException()
                 ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
                 : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
                 : null != ctx.getException() ? ctx.getException().getMessage() : null;
+        String callingAET = ctx.getStoreSession().getCallingAET() != null ? ctx.getStoreSession().getCallingAET()
+                            : ctx.getStoreSession().getRemoteHostName();
         fields = new String[] {
-                session.getRemoteHostName(),
-                session.getCallingAET(),
-                session.getCalledAET(),
+                ctx.getStoreSession().getRemoteHostName(),
+                callingAET,
+                ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
                 ctx.getAttributes().getString(Tag.PatientID, AuditServiceUtils.noValue),
@@ -83,7 +84,7 @@ class PatientStudyInfo {
     }
 
     PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
-        String outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
+        outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
         fields = new String[] {
                 ctx.getHttpRequest().getRemoteAddr(),
                 null,
@@ -96,8 +97,8 @@ class PatientStudyInfo {
         };
     }
 
-    PatientStudyInfo (StudyDeleteContext ctx) {
-        String outcomeDesc = (ctx.getException() != null) ? ctx.getException().getMessage() : null;
+    PatientStudyInfo(StudyDeleteContext ctx) {
+        outcome = (ctx.getException() != null) ? ctx.getException().getMessage() : null;
         String patientName = null != ctx.getPatient().getPatientName().toString()
                 ? ctx.getPatient().getPatientName().toString() : null;
         String accessionNo = (ctx.getStudy().getAccessionNumber() != null) ? ctx.getStudy().getAccessionNumber() : null;
@@ -109,7 +110,27 @@ class PatientStudyInfo {
                 accessionNo,
                 ctx.getPatient().getPatientID().getID(),
                 patientName,
-                outcomeDesc
+                outcome
+        };
+    }
+
+    PatientStudyInfo(PatientMgtContext ctx) {
+        outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
+        String sourceUserID = ctx.getAssociation() != null ? ctx.getAssociation().getCallingAET()
+                : ctx.getHL7MessageHeader() != null ? ctx.getHL7MessageHeader().getSendingApplicationWithFacility() : null;
+        String sourceNapID= ctx.getAssociation() != null ? ctx.getAssociation().getRemoteAET()
+                : ctx.getHL7MessageHeader() != null ? ctx.getRemoteHostName() : null;
+        String destUserID = ctx.getAssociation() != null ? ctx.getAssociation().getCalledAET()
+                : ctx.getHL7MessageHeader() != null ? ctx.getHL7MessageHeader().getReceivingApplicationWithFacility() : null;
+        fields = new String[] {
+                sourceNapID,
+                sourceUserID,
+                destUserID,
+                null,
+                null,
+                ctx.getPatientID().getID(),
+                null,
+                outcome
         };
     }
 

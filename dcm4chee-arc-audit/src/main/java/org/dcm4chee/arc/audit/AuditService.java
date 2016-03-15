@@ -92,7 +92,7 @@ public class AuditService {
         return device.getDeviceExtension(AuditLogger.class);
     }
 
-    public void aggregateAuditMessage(Path path) throws IOException {
+    void aggregateAuditMessage(Path path) throws IOException {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
         switch (eventType.eventClass) {
             case CONN_REJECT:
@@ -113,10 +113,13 @@ public class AuditService {
             case QUERY:
                 auditQuery(path, eventType);
                 break;
+            case HL7:
+                auditHL7(path, eventType);
+                break;
         }
     }
 
-    public void auditApplicationActivity(AuditServiceUtils.EventType eventType, HttpServletRequest req) {
+    void auditApplicationActivity(AuditServiceUtils.EventType eventType, HttpServletRequest req) {
         List<ActiveParticipant> apList = new ArrayList<>();
         List<ParticipantObjectIdentification> poiList = new ArrayList<>();
         apList.add(AuditMessages.createActiveParticipant(AuditServiceUtils.buildAET(device), AuditLogger.processID(), null, false,
@@ -131,7 +134,7 @@ public class AuditService {
         AuditServiceUtils.emitAuditMessage(eventType, null, apList, poiList, log());
     }
 
-    public void spoolInstancesDeleted(StoreContext ctx) {
+    void spoolInstancesDeleted(StoreContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -179,9 +182,8 @@ public class AuditService {
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             deleteInfo = new PatientStudyInfo(reader.readLine());
             apList.add(AuditMessages.createActiveParticipant(
+                    deleteInfo.getField(PatientStudyInfo.CALLING_AET), null, null, eventType.isSource,
                     deleteInfo.getField(PatientStudyInfo.CALLING_HOSTNAME),
-                    AuditServiceUtils.buildAltUserID(deleteInfo.getField(PatientStudyInfo.CALLING_AET)),
-                    null, eventType.isSource, deleteInfo.getField(PatientStudyInfo.CALLING_HOSTNAME),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             apList.add(AuditMessages.createActiveParticipant(
                     deleteInfo.getField(PatientStudyInfo.CALLED_AET),
@@ -210,7 +212,7 @@ public class AuditService {
                 apList, poiList, log());
     }
 
-    public void spoolStudyDeleted(StudyDeleteContext ctx) {
+    void spoolStudyDeleted(StudyDeleteContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -282,7 +284,7 @@ public class AuditService {
                 apList, poiList, log());
     }
 
-    public void spoolConnectionRejected(Connection conn, Socket s, Throwable e) {
+    void spoolConnectionRejected(Connection conn, Socket s, Throwable e) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -327,7 +329,7 @@ public class AuditService {
                 crInfo.getField(ConnectionRejectedInfo.OUTCOME_DESC), apList, poiList, log());
     }
 
-    public void spoolQuery(QueryContext ctx) {
+    void spoolQuery(QueryContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -362,9 +364,8 @@ public class AuditService {
         QueryInfo qrInfo;
         try (InputStream in = new BufferedInputStream(Files.newInputStream(file))) {
             qrInfo = new QueryInfo(new DataInputStream(in).readUTF());
-            apList.add(AuditMessages.createActiveParticipant(qrInfo.getField(QueryInfo.REMOTE_HOST),
-                    AuditServiceUtils.buildAltUserID(qrInfo.getField(QueryInfo.CALLING_AET)), null,
-                    eventType.isSource, qrInfo.getField(QueryInfo.REMOTE_HOST),
+            apList.add(AuditMessages.createActiveParticipant(qrInfo.getField(QueryInfo.CALLING_AET),
+                    null, null, eventType.isSource, qrInfo.getField(QueryInfo.REMOTE_HOST),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
             apList.add(AuditMessages.createActiveParticipant(qrInfo.getField(QueryInfo.CALLED_AET),
                     AuditLogger.processID(), null, eventType.isDest, AuditServiceUtils.getLocalHostName(log()),
@@ -399,7 +400,7 @@ public class AuditService {
         AuditServiceUtils.emitAuditMessage(eventType, null, apList, poiList, log());
     }
 
-    public void spoolInstanceStored(StoreContext ctx) {
+    void spoolInstanceStored(StoreContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -430,7 +431,7 @@ public class AuditService {
         }
     }
 
-    public void spoolWADORetrieve(RetrieveContext ctx){
+    void spoolWADORetrieve(RetrieveContext ctx){
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forWADORetrieve(ctx);
         HttpServletRequest req = ctx.getHttpRequest();
         Collection<InstanceLocations> il = ctx.getMatches();
@@ -505,9 +506,8 @@ public class AuditService {
         List<ActiveParticipant> apList = new ArrayList<>();
         List<ParticipantObjectIdentification> poiList = new ArrayList<>();
         apList.add(AuditMessages.createActiveParticipant(
+                patientStudyInfo.getField(PatientStudyInfo.CALLING_AET), null, null, eventType.isSource,
                 patientStudyInfo.getField(PatientStudyInfo.CALLING_HOSTNAME),
-                AuditServiceUtils.buildAltUserID(patientStudyInfo.getField(PatientStudyInfo.CALLING_AET)),
-                null, eventType.isSource, patientStudyInfo.getField(PatientStudyInfo.CALLING_HOSTNAME),
                 AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
         apList.add(AuditMessages.createActiveParticipant(
                 patientStudyInfo.getField(PatientStudyInfo.CALLED_AET), AuditLogger.processID(),
@@ -538,7 +538,7 @@ public class AuditService {
         AuditServiceUtils.emitAuditMessage(eventType, outcomeDesc, apList, poiList, log());
     }
 
-    public void spoolPartialRetrieve(RetrieveContext ctx, HashSet<AuditServiceUtils.EventType> et) {
+    void spoolPartialRetrieve(RetrieveContext ctx, HashSet<AuditServiceUtils.EventType> et) {
         List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
         Collection<InstanceLocations> instanceLocations = ctx.getMatches();
         HashSet<InstanceLocations> failed = new HashSet<>();
@@ -560,7 +560,7 @@ public class AuditService {
         }
     }
 
-    public void spoolRetrieve(String etFile, RetrieveContext ctx, Collection<InstanceLocations> il) {
+    void spoolRetrieve(String etFile, RetrieveContext ctx, Collection<InstanceLocations> il) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
@@ -601,9 +601,8 @@ public class AuditService {
                     ri.getField(RetrieveInfo.LOCALAET), AuditLogger.processID(),
                     null, eventType.isSource, AuditServiceUtils.getLocalHostName(log()),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
-            apList.add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.DESTHOST),
-                    AuditServiceUtils.buildAltUserID(ri.getField(RetrieveInfo.DESTAET)), null,
-                    eventType.isDest, ri.getField(RetrieveInfo.DESTNAPID),
+            apList.add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.DESTAET),
+                    null, null, eventType.isDest, ri.getField(RetrieveInfo.DESTNAPID),
                     ri.getField(RetrieveInfo.DESTNAPCODE), null, eventType.destination));
             if (eventType.isOther)
                 apList.add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.REQUESTORHOST),
@@ -657,7 +656,45 @@ public class AuditService {
                 apList, poiList, log());
     }
 
-    public void spoolPatientUpdate(PatientMgtContext ctx) {
-        //TODO
+    void spoolPatientUpdate(PatientMgtContext ctx) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        boolean auditAggregate = arcDev.isAuditAggregate();
+        Path dir = Paths.get(
+                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
+        boolean append = Files.exists(dir);
+        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forHL7(ctx);
+        try {
+            if (!append)
+                Files.createDirectories(dir);
+            Path file = Files.createTempFile(dir, String.valueOf(et), null);
+            try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                    StandardOpenOption.APPEND))) {
+                writer.writeLine(new PatientStudyInfo(ctx));
+            }
+            if (!auditAggregate)
+                aggregateAuditMessage(file);
+        } catch (Exception e) {
+            LOG.warn("Failed write to Audit Spool File - {} ", e);
+        }
+    }
+
+    private void auditHL7(Path file, AuditServiceUtils.EventType et) {
+        List<ActiveParticipant> apList = new ArrayList<>();
+        List<ParticipantObjectIdentification> poiList = new ArrayList<>();
+        PatientStudyInfo hl7psi;
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            hl7psi = new PatientStudyInfo(reader.readLine());
+            apList.add(AuditMessages.createActiveParticipant(hl7psi.getField(PatientStudyInfo.CALLING_AET), null, null,
+                    et.isSource, hl7psi.getField(PatientStudyInfo.CALLING_HOSTNAME),
+                    AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, et.source));
+            apList.add(AuditMessages.createActiveParticipant(hl7psi.getField(PatientStudyInfo.CALLED_AET), null, null,
+                    et.isDest, log().processID(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
+                    et.destination));
+//            poiList.add(AuditMessages.createParticipantObjectIdentification());
+            AuditServiceUtils.emitAuditMessage(et, hl7psi.getField(RetrieveInfo.OUTCOME),
+                    apList, poiList, log());
+        } catch (Exception e) {
+            LOG.warn("Failed to read audit spool file ", e);
+        }
     }
 }

@@ -50,14 +50,13 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
  */
 public class RetrieveInfo {
     static final int LOCALAET = 0;
-    static final int DESTHOST = 1;
-    static final int DESTAET = 2;
-    static final int DESTNAPID = 3;
-    static final int DESTNAPCODE = 4;
-    static final int REQUESTORHOST = 5;
-    static final int MOVEAET = 6;
-    static final int OUTCOME = 7;
-    static final int PARTIAL_ERROR = 8;
+    static final int DESTAET = 1;
+    static final int DESTNAPID = 2;
+    static final int DESTNAPCODE = 3;
+    static final int REQUESTORHOST = 4;
+    static final int MOVEAET = 5;
+    static final int OUTCOME = 6;
+    static final int PARTIAL_ERROR = 7;
 
     private final String[] fields;
 
@@ -69,18 +68,15 @@ public class RetrieveInfo {
                 ? ctx.getOutcomeDescription() : null;
         String partialError = ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
                 ? Boolean.toString(true) : Boolean.toString(false);
-        String destHost = (null == ctx.getHttpRequest())
-                ? null != ctx.getDestinationHostName() ? ctx.getDestinationHostName() : ctx.getDestinationAETitle()
-                : ctx.getHttpRequest().getRemoteHost();
         String destNapID = (null == ctx.getHttpRequest())
                 ? (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null
                 : ctx.getHttpRequest().getRemoteAddr();
         String destNapCode = (null != ctx.getDestinationHostName() || null != ctx.getHttpRequest())
                 ? AuditMessages.NetworkAccessPointTypeCode.IPAddress : null;
+        String destAET = ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRemoteAddr() : ctx.getDestinationAETitle();
         fields = new String[] {
                 ctx.getLocalAETitle(),
-                destHost,
-                ctx.getDestinationAETitle(),
+                destAET,
                 destNapID,
                 destNapCode,
                 ctx.getRequestorHostName(),
