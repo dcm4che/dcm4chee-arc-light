@@ -1,25 +1,172 @@
 <!-- <pre>
 showModalitySelector={{showModalitySelector}}
 </pre> -->
+
+<div class="row">
+    <div class="col-md-3 block-1-1">
+        <div class="row">
+            <label for="aet" class="col-md-6 text-right control-label">AET:</label>
+            <div class=" col-md-6">    
+                <select id="aet" ng-model="aet" class="col-md-12">
+                    <option ng-repeat="ae in aes" title="{{ae.description}}">{{ae.title}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <input id="PatientName" type="text" ng-model="filter.PatientName" placeholder=" Patient Name" class="col-md-12" />
+            </div>
+            <div class="col-md-6">
+                <input id="PatientID" type="text" ng-model="filter.PatientID" placeholder=" Patient ID" class="col-md-12" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder=" Acc. No." class="col-md-12" />
+            </div>
+            <div class="col-md-6">
+                <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" />
+                <div class="modality_selector" ng-show="showModalitySelector">
+                    <a href="" ng-click="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
+                    <div class="common">
+                        <a href="" ng-repeat="(key, value) in modalities.common" ng-click="selectModality(key)" title="{{value}}">{{key}}</a>
+                    </div>
+                    <button ng-click="filter.ModalitiesInStudy='';showModalitySelector=false;" class="clear custom_button">Clear</button>
+                    <!-- <div class="col-md-12"></div> -->
+                    <a href="" ng-click="showMore=true" ng-show="!showMore" class="more">more<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                    <a href="" ng-click="showMore=false" ng-show="showMore" class="more">less<i class="glyphicon glyphicon-triangle-top"></i></a>
+                    <div class="more_block" ng-show="showMore">
+                        <a href="" ng-repeat="(key, value) in modalities.more" ng-click="selectModality(key)" title="{{value}}">{{key}}</a>
+                        <div class="form-group">
+                            <label>Custom modality code:</label>
+                            <input ng-model="filter.ModalitiesInStudy" />
+                            <button ng-click="showModalitySelector=false" class="custom_button">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>    
+        </div>
+    </div>
+    <div class="col-md-3 block-1-2">
+        <div class="row">
+            <label for="StudyDateFrom" class="col-md-12">Study Date:</label>
+        </div>
+        <div class="row">
+            <div class="block_seid">
+                <input 
+                    class="col-md-12"
+                    placeholder=" Study date from" 
+                    ng-change="studyDateFromChange()"
+                    ng-click="studyDateFromOpen()" 
+                    id="StudyDateFrom" 
+                    type="text" 
+                    uib-datepicker-popup="{{format}}" 
+                    ng-model="studyDate.fromObject" 
+                    is-open="studyDateFrom.opened" 
+                    datepicker-options="dateOptions" 
+                    ng-required="true" 
+                    close-text="Close"/>
+                <input 
+                    class="col-md-12"
+                    placeholder="Study time from" 
+                    id="StudyTimeFrom" 
+                    type="text" 
+                    size="10"  
+                    ng-model="studyTime.fromObject" 
+                    data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
+            </div>
+            <div class="minus text-center">
+                -
+            </div>
+            <div class="block_seid">
+                <input
+                    class="col-md-12"
+                    placeholder=" Study date to"  
+                    ng-change="studyDateToChange()"
+                    id="StudyDateTo" 
+                    ng-click="studyDateToOpen()"  
+                    is-open="studyDateTo.opened" 
+                    close-text="Close" 
+                    type="text" 
+                    size="10" 
+                    ng-model="studyDate.toObject" 
+                    uib-datepicker-popup="{{format}}"/>
+                <input 
+                    class="col-md-12"
+                    placeholder="Study time to" 
+                    id="StudyTimeTo" 
+                    type="text" 
+                    size="10"  
+                    ng-model="studyTime.toObject" 
+                    data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
+            </div>
+        </div>
+    </div>
+</div>
+<a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
+<div class="row" ng-show="advancedConfig">
+    <div class="col-md-3 block-2-1">
+        <div class="row">
+            <label for="exporter" class="col-md-6 text-right">Export:</label>
+            <div class="col-md-6">
+                <select id="exporter" ng-model="exporterID" class="col-md-12">
+                    <option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder=" Study ID" class="col-md-12" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 block-2-2">
+        <div class="row">
+            <label for="reject" class="block_seid text-right">Reject:</label>
+            <div class="block_seid">
+                <select id="reject" ng-model="reject" class="col-md-9">
+                    <option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}"
+                            value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
+                </select>
+                <a ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <label for="limit" class="block_seid text-right">Page Size:</label>
+            <div class="block_seid">
+                <input class="col-md-12" id="limit" type="number" min="1" ng-model="limit" required/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-5 col-md-offset-6">
+                <input type="checkbox" ng-model="filter.fuzzymatching"> Fuzzy Matching
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="form-inline">
 <div>
-    <div class="form-group">
+<!--     <div class="form-group">
         <label for="aet">AET:</label>
         <select id="aet" ng-model="aet">
             <option ng-repeat="ae in aes" title="{{ae.description}}">{{ae.title}}</option>
         </select>
-    </div>
-    <div class="form-group">
+    </div> -->
+<!--     <div class="form-group">
         <label for="limit">Page Size:</label>
-        <input id="limit" type="number" min="1" style="width: 3em" ng-model="limit" required/>
-    </div>
-    <div class="form-group">
+        <input id="limit" type="number" min="1" ng-model="limit" required/>
+    </div> -->
+<!--     <div class="form-group">
         <label for="exporter">Export:</label>
         <select id="exporter" ng-model="exporterID">
             <option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option>
         </select>
-    </div>
-    <div class="form-group">
+    </div> -->
+<!--     <div class="form-group">
         <label for="reject">Reject:</label>
         <select id="reject" ng-model="reject">
             <option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}"
@@ -28,27 +175,27 @@ showModalitySelector={{showModalitySelector}}
         <a ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently">
             <span class="glyphicon glyphicon-remove"></span>
         </a>
-    </div>
-    <br/>
-    <div class="form-group">
+    </div> -->
+    <!-- <br/> -->
+    <!-- <div class="form-group"> -->
         <!-- <label for="PatientName">Patient Name:</label> -->
-        <input id="PatientName" type="text" ng-model="filter.PatientName" placeholder=" Patient Name" />
-    </div>
-    <div class="form-group">
+<!--         <input id="PatientName" type="text" ng-model="filter.PatientName" placeholder=" Patient Name" />
+    </div> -->
+    <!-- <div class="form-group"> -->
         <!-- <label for="PatientID">Patient ID:</label> -->
-        <input id="PatientID" type="text" ng-model="filter.PatientID" placeholder=" Patient ID" />
-    </div>
-    <div class="form-group">
+<!--         <input id="PatientID" type="text" ng-model="filter.PatientID" placeholder=" Patient ID" />
+    </div> -->
+    <!-- <div class="form-group"> -->
         <!-- <label for="AccessionNumber">Acc. No.:</label> -->
-        <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder=" Acc. No." />
-    </div>
-    <div class="form-group">
-        <!-- <label for="StudyID">Study ID:</label> -->
+<!--         <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder=" Acc. No." />
+    </div> -->
+<!--     <div class="form-group">
+        <label for="StudyID">Study ID:</label>
         <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder=" Study ID" />
-    </div>
+    </div> -->
 </div>
 <div>
-    <div class="form-group">
+<!--     <div class="form-group">
         <label for="StudyDateFrom">Study Date:</label>
         <div class="input-group">
           <input 
@@ -67,8 +214,8 @@ showModalitySelector={{showModalitySelector}}
             <button type="button" class="btn btn-default" ng-click="studyDateFromOpen()"><i class="glyphicon glyphicon-calendar"></i></button>
         </span>
         </div>
-    </div>
-    <div class="form-group">
+    </div> -->
+<!--     <div class="form-group">
         <label for="StudyDateTo">-</label>
         <div class="input-group">
             <input
@@ -86,10 +233,10 @@ showModalitySelector={{showModalitySelector}}
                 <button type="button" class="btn btn-default" ng-click="studyDateToOpen()"><i class="glyphicon glyphicon-calendar"></i></button>
             </span>
         </div>
-    </div>
+    </div> -->
 
-    <div class="form-group">
-        <!-- <label for="StudyTimeFrom">Study Time:</label> -->
+<!--     <div class="form-group">
+        <label for="StudyTimeFrom">Study Time:</label>
         <input 
             placeholder="Study Time from" 
             id="StudyTimeFrom" type="text" size="10"  ng-model="studyTime.fromObject" data-lng-clockpicker data-lng-clockpicker-options='clockpicker'></input>
@@ -97,10 +244,10 @@ showModalitySelector={{showModalitySelector}}
     <div class="form-group">
         <label for="StudyTimeTo">-</label>
         <input id="StudyTimeTo" type="text" size="10"  ng-model="studyTime.toObject" data-lng-clockpicker data-lng-clockpicker-options='clockpicker'></input>
-    </div>
-    <div class="form-group">
-        <label for="Modality">Modality:</label>
-        <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector"/>
+    </div> -->
+    <!-- <div class="form-group"> -->
+        <!-- <label for="Modality">Modality:</label> -->
+<!--         <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality" />
         <div class="modality_selector" ng-show="showModalitySelector">
             <div class="common">
                 <a href="" ng-repeat="(key, value) in modalities.common" ng-click="selectModality(key)" title="{{value}}">{{key}}</a>
@@ -116,7 +263,7 @@ showModalitySelector={{showModalitySelector}}
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- test -->
 <!--         <p class="input-group">
           <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
@@ -133,11 +280,11 @@ showModalitySelector={{showModalitySelector}}
             <option value="-StudyDate,-StudyTime">Study Date &darr;</option>
         </select>
     </div> -->
-    <div class="checkbox">
+<!--     <div class="checkbox">
         <label>
             <input type="checkbox" ng-model="filter.fuzzymatching"> Fuzzy Matching
         </label>
-    </div>
+    </div> -->
 </div>
 </div>
 <!-- Table -->
@@ -148,7 +295,7 @@ showModalitySelector={{showModalitySelector}}
                 <button class="btn btn-link btn-xs" ng-click="queryStudies(0)" title="Query Studies">
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
-                <button class="btn btn-link btn-xs"
+<!--                 <button class="btn btn-link btn-xs"
                         ng-disabled="studies[0].offset==0"
                         ng-click="queryStudies(studies[0].offset-limit)"
                         title="Previous Studies">
@@ -159,7 +306,7 @@ showModalitySelector={{showModalitySelector}}
                         ng-click="queryStudies(studies[0].offset+limit)"
                         title="Next Studies">
                     <span class="glyphicon glyphicon-menu-right"></span>
-                </button> 
+                </button>  -->
             </div>
             <div class="th">Patient Name
                 <a href="" class="order_arrow" ng-click="filter.orderby = 'PatientName';queryStudies(0)">

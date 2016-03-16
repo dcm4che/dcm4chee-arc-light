@@ -20,6 +20,23 @@ body {
     padding: 45px 30px 80px 30px;
     box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     width: 100%; }
+    body .main_content.studies {
+      float: left; }
+      body .main_content.studies .more {
+        color: black;
+        float: left;
+        margin-bottom: 15px;
+        margin-right: 70%; }
+        body .main_content.studies .more i {
+          margin-left: 5px; }
+        body .main_content.studies .more:hover {
+          color: black; }
+      body .main_content.studies .form-group label {
+        width: 100px; }
+      body .main_content.studies .form-group input {
+        width: 100px; }
+      body .main_content.studies > .row {
+        margin-left: 0; }
   body .logo {
     height: auto;
     margin-left: 10px;
@@ -554,9 +571,6 @@ table.subtable_1, table.subtable_2 {
       .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell.table_btn {
         width: 11.3%; }
 
-.main_content.studies {
-  float: left; }
-
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
   box-shadow: none;
   cursor: not-allowed;
@@ -604,6 +618,16 @@ table.subtable_1, table.subtable_2 {
       .arrows .arrows_block .btn:hover {
         font-size: 31px; }
 
+.custom_button {
+  background: white none repeat scroll 0 0;
+  border: 0 none;
+  border-radius: 5px;
+  box-shadow: 0 0 7px 0 #ccc inset;
+  height: 27px;
+  margin-left: 3px; }
+  .custom_button:hover {
+    background: #EAEAEA; }
+
 .modality_selector {
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   background: white none repeat scroll 0 0;
@@ -617,13 +641,20 @@ table.subtable_1, table.subtable_2 {
   box-sizing: border-box;
   padding: 30px 20px; }
   .modality_selector .common {
-    margin-bottom: 15px; }
-  .modality_selector div.more {
+    margin-bottom: 15px;
+    margin-top: 10px; }
+  .modality_selector div.more_block {
     margin-top: 15px; }
-    .modality_selector div.more .form-group {
+    .modality_selector div.more_block .form-group {
       margin-top: 20px; }
-      .modality_selector div.more .form-group label {
+      .modality_selector div.more_block .form-group label {
+        width: 100%;
         margin-right: 20%; }
+      .modality_selector div.more_block .form-group input {
+        width: 222px; }
+      .modality_selector div.more_block .form-group button {
+        width: 106px;
+        margin-top: 5px; }
   .modality_selector a {
     border: 1px solid #ccc;
     box-shadow: 0 0 11px 0 #bebebe;
@@ -633,6 +664,25 @@ table.subtable_1, table.subtable_2 {
     padding: 2px 10px;
     text-align: center;
     width: 106px; }
+  .modality_selector .clear {
+    margin-bottom: 15px;
+    margin-right: 70%;
+    width: 106px; }
+  .modality_selector a.close {
+    background: transparent none repeat scroll 0 0;
+    border: medium none;
+    box-shadow: none;
+    font-size: 14px;
+    height: 20px;
+    padding: 0;
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    width: 20px; }
+    .modality_selector a.close:hover {
+      background: none;
+      color: #404040;
+      text-decoration: none; }
   .modality_selector a.more {
     box-shadow: none;
     border: none; }
@@ -647,5 +697,52 @@ table.subtable_1, table.subtable_2 {
     background: #ddd;
     color: #404040;
     text-decoration: none; }
+
+.block-1-1, .block-1-2, .block-2-1, .block-2-2 {
+  border: 1px solid #ccc;
+  margin-bottom: 18px;
+  padding: 18px 15px 15px;
+  margin-right: 15px; }
+  .block-1-1 label, .block-1-1 input, .block-1-2 label, .block-1-2 input, .block-2-1 label, .block-2-1 input, .block-2-2 label, .block-2-2 input {
+    margin-top: 5px; }
+
+.block-2-1, .block-2-2 {
+  height: 121px; }
+
+.block-1-2 .block_seid {
+  width: 49%;
+  float: left;
+  padding-left: 15px;
+  padding-right: 15px; }
+.block-1-2 .minus {
+  float: left;
+  height: 60px;
+  line-height: 60px;
+  vertical-align: middle;
+  width: 1%; }
+
+.block-2-2 .block_seid {
+  width: 49%;
+  float: left;
+  padding-left: 15px;
+  padding-right: 15px; }
+.block-2-2 .minus {
+  float: left;
+  height: 60px;
+  line-height: 60px;
+  vertical-align: middle;
+  width: 1%; }
+
+.deleteRejctedI {
+  border-radius: 3px;
+  color: #999;
+  float: left;
+  height: 23px;
+  line-height: 24px;
+  margin-left: 2px;
+  text-align: center;
+  width: 45px; }
+  .deleteRejctedI:hover {
+    color: #555; }
 
 /*# sourceMappingURL=style.css.map */

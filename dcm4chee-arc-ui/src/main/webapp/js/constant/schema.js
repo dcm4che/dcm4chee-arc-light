@@ -1,11 +1,17 @@
 myApp.constant("$modalities",{
 "common":{
+  "CR":"Computed Radiography",
   "CT":"Computed Tomography",
-  "DOC":"Document",
-  "ES":"Endoscopy",
+  "DX":"Digital Radiography",
+  "KO":"Key Object Selection",
   "MR":"Magnetic Resonance",
   "MG":"Mammography",
-  "US":"Ultrasound"
+  "NM":"Nuclear Medicine",
+  "OT":"Other",
+  "PT":"Positron emission tomography (PET)",
+  "PR":"Presentation State",
+  "US":"Ultrasound",
+  "XA":"X-Ray Angiography"
 },
 "more":{
   "AR":"Autorefraction",
@@ -13,11 +19,11 @@ myApp.constant("$modalities",{
   "BDUS":"Bone Densitometry (ultrasound)",
   "BI":"Biomagnetic imaging",
   "BMD":"Bone Densitometry (X-Ray)",
-  "CR":"Computed Radiography",
+  "DOC":"Document",
   "DG":"Diaphanography",
-  "DX":"Digital Radiography",
   "ECG":"Electrocardiography",
   "EPS":"Cardiac Electrophysiology",
+  "ES":"Endoscopy",
   "FID":"Fiducials",
   "GM":"General Microscopy",
   "HC":"Hard Copy",
@@ -27,10 +33,8 @@ myApp.constant("$modalities",{
   "IVOCT":"Intravascular Optical Coherence Tomography",
   "IVUS":"Intravascular Ultrasound",
   "KER":"Keratometry",
-  "KO":"Key Object Selection",
   "LEN":"Lensometry",
   "LS":"Laser surface scan",
-  "NM":"Nuclear Medicine",
   "OAM":"Ophthalmic Axial Measurements",
   "OCT":"Optical Coherence Tomography (non-Ophthalmic)",
   "OP":"Ophthalmic Photography",
@@ -38,10 +42,7 @@ myApp.constant("$modalities",{
   "OPT":"Ophthalmic Tomography",
   "OPV":"Ophthalmic Visual Field",
   "OSS":"Optical Surface Scan",
-  "OT":"Other",
   "PLAN":"Plan",
-  "PR":"Presentation State",
-  "PT":"Positron emission tomography (PET)",
   "PX":"Panoramic X-Ray",
   "REG":"Registration",
   "RESP":"Respiratory Waveform",
@@ -61,7 +62,6 @@ myApp.constant("$modalities",{
   "STAIN":"Automated Slide Stainer",
   "TG":"Thermography",
   "VA":"Visual Acuity",
-  "XA":"X-Ray Angiography",
   "XC":"External-camera Photography"
 }
 });
