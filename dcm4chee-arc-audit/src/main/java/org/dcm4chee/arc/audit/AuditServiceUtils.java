@@ -149,10 +149,12 @@ public class AuditServiceUtils {
                 AuditMessages.EventOutcomeIndicator.MinorFailure, AuditMessages.RoleIDCode.Source,
                 AuditMessages.RoleIDCode.Destination, true, false, false,
                 AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
-        HL7_MERG_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, null, AuditMessages.EventOutcomeIndicator.Success,
+        HL7_DELT_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+                AuditMessages.EventOutcomeIndicator.Success,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false,
                 AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
-        HL7_MERG_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, null, AuditMessages.EventOutcomeIndicator.MinorFailure,
+        HL7_DELT_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+                AuditMessages.EventOutcomeIndicator.MinorFailure,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false,
                 AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed);
 
@@ -251,11 +253,26 @@ public class AuditServiceUtils {
                     : null != ctx.getHttpRequest() ? AuditServiceUtils.EventType.RTRV_T_W_E : null;
         }
 
-        static EventType forHL7(PatientMgtContext ctx) {
-            return ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
-                   ? ctx.getException() != null ? HL7_CREA_E : HL7_CREA_P
-                   : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
-                   ? ctx.getException() != null ? HL7_UPDA_E : HL7_UPDA_P : null;
+        static HashSet<EventType> forHL7(PatientMgtContext ctx) {
+            HashSet<EventType> eventType = new HashSet<>();
+            EventType et;
+            if (ctx.getException() != null)
+                et = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? HL7_CREA_E
+                        : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
+                        ? HL7_UPDA_E : null;
+            else
+                et = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? HL7_CREA_P
+                        : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
+                        ? HL7_UPDA_P
+                        : null;
+            eventType.add(et);
+            if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null) {
+                et = ctx.getException() != null ? HL7_DELT_E : HL7_DELT_P;
+                eventType.add(et);
+            }
+            return eventType;
         }
     }
 

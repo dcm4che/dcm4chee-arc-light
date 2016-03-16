@@ -114,7 +114,7 @@ public class AuditService {
                 auditQuery(path, eventType);
                 break;
             case HL7:
-                auditHL7(path, eventType);
+                auditPatientRecord(path, eventType);
                 break;
         }
     }
@@ -656,20 +656,42 @@ public class AuditService {
                 apList, poiList, log());
     }
 
-    void spoolPatientUpdate(PatientMgtContext ctx) {
+    void detectPatientRecordEvent(PatientMgtContext ctx) {
+        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forHL7(ctx);
+        for (AuditServiceUtils.EventType eventType : et)
+            spoolPatientRecord(ctx, String.valueOf(eventType));
+    }
+
+    private void spoolPatientRecord(PatientMgtContext ctx, String et) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
         boolean append = Files.exists(dir);
-        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forHL7(ctx);
         try {
             if (!append)
                 Files.createDirectories(dir);
-            Path file = Files.createTempFile(dir, String.valueOf(et), null);
+            Path file = Files.createTempFile(dir, et, null);
             try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     StandardOpenOption.APPEND))) {
-                writer.writeLine(new PatientStudyInfo(ctx));
+                String outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
+                String remoteHost = ctx.getRemoteHostName();
+                HL7Info hl7i;
+                if (ctx.getHL7MessageHeader() != null) {
+                    hl7i = new HL7Info(outcome, ctx.getRemoteHostName(),
+                            ctx.getHL7MessageHeader().getSendingApplicationWithFacility(),
+                            ctx.getHL7MessageHeader().getReceivingApplicationWithFacility(), "MSH-10",
+                            ctx.getHL7MessageHeader().getField(9, ""));
+                    if (et.equals(String.valueOf(AuditServiceUtils.EventType.HL7_DELT_E))
+                            || et.equals(String.valueOf(AuditServiceUtils.EventType.HL7_DELT_P)))
+                        writer.writeLine(new HL7Info(ctx.getPreviousPatientID(), ctx.getPreviousAttributes(), hl7i));
+                    else
+                        writer.writeLine(new HL7Info(ctx.getPatientID(), ctx.getAttributes(), hl7i));
+                }
+                if (ctx.getAssociation() != null)
+                    writer.writeLine(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
+                        new HL7Info(outcome, ctx.getRemoteHostName(), ctx.getAssociation().getCallingAET(),
+                                ctx.getAssociation().getCalledAET(), null, null)));
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
@@ -678,20 +700,33 @@ public class AuditService {
         }
     }
 
-    private void auditHL7(Path file, AuditServiceUtils.EventType et) {
+    private void auditPatientRecord(Path file, AuditServiceUtils.EventType et) {
         List<ActiveParticipant> apList = new ArrayList<>();
         List<ParticipantObjectIdentification> poiList = new ArrayList<>();
-        PatientStudyInfo hl7psi;
+        HL7Info hl7psi;
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            hl7psi = new PatientStudyInfo(reader.readLine());
-            apList.add(AuditMessages.createActiveParticipant(hl7psi.getField(PatientStudyInfo.CALLING_AET), null, null,
-                    et.isSource, hl7psi.getField(PatientStudyInfo.CALLING_HOSTNAME),
+            hl7psi = new HL7Info(reader.readLine());
+            apList.add(AuditMessages.createActiveParticipant(hl7psi.getField(HL7Info.CALLING_AET), null, null,
+                    et.isSource, hl7psi.getField(HL7Info.CALLING_HOSTNAME),
                     AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, et.source));
-            apList.add(AuditMessages.createActiveParticipant(hl7psi.getField(PatientStudyInfo.CALLED_AET), null, null,
-                    et.isDest, log().processID(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
-                    et.destination));
-//            poiList.add(AuditMessages.createParticipantObjectIdentification());
-            AuditServiceUtils.emitAuditMessage(et, hl7psi.getField(RetrieveInfo.OUTCOME),
+            apList.add(AuditMessages.createActiveParticipant(hl7psi.getField(HL7Info.CALLED_AET),
+                    AuditLogger.processID(), null, et.isDest, AuditServiceUtils.getLocalHostName(log()),
+                    AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, et.destination));
+            if (hl7psi.getField(HL7Info.POD_VALUE) != null)
+                poiList.add(AuditMessages.createParticipantObjectIdentification(hl7psi.getField(HL7Info.PATIENT_ID),
+                        AuditMessages.ParticipantObjectIDTypeCode.PatientNumber, hl7psi.getField(HL7Info.PATIENT_NAME),
+                        null, AuditMessages.ParticipantObjectTypeCode.Person,
+                        AuditMessages.ParticipantObjectTypeCodeRole.Patient,
+                        null, null, null, null, null, null, null, null, null,
+                        AuditMessages.createParticipantObjectDetail(hl7psi.getField(HL7Info.POD_TYPE),
+                                hl7psi.getField(HL7Info.POD_VALUE).getBytes())));
+            else
+                poiList.add(AuditMessages.createParticipantObjectIdentification(hl7psi.getField(HL7Info.PATIENT_ID),
+                        AuditMessages.ParticipantObjectIDTypeCode.PatientNumber, hl7psi.getField(HL7Info.PATIENT_NAME),
+                        null, AuditMessages.ParticipantObjectTypeCode.Person,
+                        AuditMessages.ParticipantObjectTypeCodeRole.Patient,
+                        null, null, null, null, null, null, null, null, null));
+            AuditServiceUtils.emitAuditMessage(et, hl7psi.getField(HL7Info.OUTCOME),
                     apList, poiList, log());
         } catch (Exception e) {
             LOG.warn("Failed to read audit spool file ", e);

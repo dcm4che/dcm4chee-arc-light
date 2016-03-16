@@ -154,7 +154,7 @@ public class AuditTriggerObserver {
     }
 
     public void onPatientUpdate(@Observes PatientMgtContext ctx) {
-        auditService.spoolPatientUpdate(ctx);
+        auditService.detectPatientRecordEvent(ctx);
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {

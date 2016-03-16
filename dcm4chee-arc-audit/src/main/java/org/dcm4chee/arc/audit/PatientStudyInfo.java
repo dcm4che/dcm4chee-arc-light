@@ -44,7 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
 
@@ -87,7 +86,7 @@ class PatientStudyInfo {
         outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
         fields = new String[] {
                 ctx.getHttpRequest().getRemoteAddr(),
-                null,
+                ctx.getHttpRequest().getRemoteAddr(),
                 ctx.getLocalAETitle(),
                 ctx.getStudyInstanceUIDs()[0],
                 attrs.getString(Tag.AccessionNumber),
@@ -110,26 +109,6 @@ class PatientStudyInfo {
                 accessionNo,
                 ctx.getPatient().getPatientID().getID(),
                 patientName,
-                outcome
-        };
-    }
-
-    PatientStudyInfo(PatientMgtContext ctx) {
-        outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
-        String sourceUserID = ctx.getAssociation() != null ? ctx.getAssociation().getCallingAET()
-                : ctx.getHL7MessageHeader() != null ? ctx.getHL7MessageHeader().getSendingApplicationWithFacility() : null;
-        String sourceNapID= ctx.getAssociation() != null ? ctx.getAssociation().getRemoteAET()
-                : ctx.getHL7MessageHeader() != null ? ctx.getRemoteHostName() : null;
-        String destUserID = ctx.getAssociation() != null ? ctx.getAssociation().getCalledAET()
-                : ctx.getHL7MessageHeader() != null ? ctx.getHL7MessageHeader().getReceivingApplicationWithFacility() : null;
-        fields = new String[] {
-                sourceNapID,
-                sourceUserID,
-                destUserID,
-                null,
-                null,
-                ctx.getPatientID().getID(),
-                null,
                 outcome
         };
     }
