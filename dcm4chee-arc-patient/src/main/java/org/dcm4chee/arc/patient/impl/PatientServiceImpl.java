@@ -99,7 +99,8 @@ public class PatientServiceImpl implements PatientService {
             ctx.setException(e);
             throw e;
         } finally {
-            patientMgtEvent.fire(ctx);
+            if (ctx.getEventActionCode() != null)
+                patientMgtEvent.fire(ctx);
         }
     }
 
@@ -112,7 +113,8 @@ public class PatientServiceImpl implements PatientService {
             ctx.setException(e);
             throw e;
         } finally {
-            patientMgtEvent.fire(ctx);
+            if (ctx.getEventActionCode() != null)
+                patientMgtEvent.fire(ctx);
         }
     }
 
@@ -125,7 +127,8 @@ public class PatientServiceImpl implements PatientService {
             ctx.setException(e);
             throw e;
         } finally {
-            patientMgtEvent.fire(ctx);
+            if (ctx.getEventActionCode() != null)
+                patientMgtEvent.fire(ctx);
         }
     }
 
@@ -138,7 +141,8 @@ public class PatientServiceImpl implements PatientService {
             ctx.setException(e);
             throw e;
         } finally {
-            patientMgtEvent.fire(ctx);
+            if (ctx.getEventActionCode() != null)
+                patientMgtEvent.fire(ctx);
         }
     }
 
