@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.realm.rs;
 
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.representations.IDToken;
+
 import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -52,7 +56,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.security.Principal;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,12 +95,13 @@ public class RealmRS {
     }
 
     private String user() {
-        //TODO
-        return "USER";
+        KeycloakPrincipal<KeycloakSecurityContext> kp1 = (KeycloakPrincipal<KeycloakSecurityContext>) sc.getUserPrincipal();
+        return kp1.getKeycloakSecurityContext().getIdToken().getPreferredUsername();
     }
 
     private Iterable<String> roles() {
-        //TODO
-        return Arrays.asList(new String[] { "ROLE1", "ROLE2"});
+        KeycloakPrincipal<KeycloakSecurityContext> kp1 = (KeycloakPrincipal<KeycloakSecurityContext>) sc.getUserPrincipal();
+        Set<String> roles = kp1.getKeycloakSecurityContext().getToken().getRealmAccess().getRoles();
+        return Arrays.asList(roles.toArray(new String[roles.size()]));
     }
 }
