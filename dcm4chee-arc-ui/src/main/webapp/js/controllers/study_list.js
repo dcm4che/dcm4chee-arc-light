@@ -173,6 +173,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     offset: offset + index,
                     attrs: attrs,
                     showAttributes: false,
+                    showFileAttributes:false,
                     wadoQueryParams: {
                         studyUID: attrs['0020000D'].Value[0],
                         seriesUID: attrs['0020000E'].Value[0],

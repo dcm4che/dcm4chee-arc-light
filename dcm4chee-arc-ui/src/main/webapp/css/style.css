@@ -559,7 +559,7 @@ table.subtable_1, table.subtable_2 {
   .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock {
     background: white; }
     .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn > a {
-      width: 16%; }
+      width: 14%; }
     .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell {
       background: white;
       color: black;
@@ -721,6 +721,9 @@ table.subtable_1, table.subtable_2 {
   vertical-align: middle;
   width: 1%; }
 
+.block-2-1 {
+  padding-top: 42px; }
+
 .block-2-2 .block_seid {
   width: 49%;
   float: left;
@@ -732,6 +735,11 @@ table.subtable_1, table.subtable_2 {
   line-height: 60px;
   vertical-align: middle;
   width: 1%; }
+.block-2-2 .row:last-child {
+  margin-left: 0;
+  margin-top: 4px; }
+  .block-2-2 .row:last-child > div {
+    padding-left: 0; }
 
 .deleteRejctedI {
   border-radius: 3px;
@@ -741,7 +749,7 @@ table.subtable_1, table.subtable_2 {
   line-height: 24px;
   margin-left: 2px;
   text-align: center;
-  width: 45px; }
+  width: 44px; }
   .deleteRejctedI:hover {
     color: #555; }
 

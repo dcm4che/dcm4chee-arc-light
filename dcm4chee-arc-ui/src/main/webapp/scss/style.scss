@@ -714,7 +714,7 @@ table{
 					.subblock{
 						background:white;
 						.td_cell.table_btn > a {
-							width:16%;
+							width:14%;
 						}
 						.tr_row{
 							.td_cell{
@@ -924,6 +924,9 @@ table{
 	    width: 1%;
 	}
 }
+.block-2-1 {
+    padding-top: 42px;
+}
 .block-2-2{
 	.block_seid{
 		width: 49%;
@@ -938,6 +941,13 @@ table{
 	    vertical-align: middle;
 	    width: 1%;
 	}
+	.row:last-child{
+		margin-left: 0;
+    	margin-top: 4px;
+    	&>div{
+    		padding-left:0;
+    	}
+	}
 }
 .deleteRejctedI{
     border-radius: 3px;
@@ -947,7 +957,7 @@ table{
     line-height: 24px;
     margin-left: 2px;
     text-align: center;
-    width: 45px;
+    width: 44px;
     &:hover{
 	  	color: #555;
 	}
