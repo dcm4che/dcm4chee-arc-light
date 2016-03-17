@@ -604,9 +604,8 @@ public class AuditService {
                     null, null, eventType.isDest, ri.getField(RetrieveInfo.DESTNAPID),
                     ri.getField(RetrieveInfo.DESTNAPCODE), null, eventType.destination));
             if (eventType.isOther)
-                apList.add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.REQUESTORHOST),
-                        AuditMessages.alternativeUserIDForAETitle(ri.getField(RetrieveInfo.MOVEAET)),
-                        null, eventType.isOther, ri.getField(RetrieveInfo.REQUESTORHOST),
+                apList.add(AuditMessages.createActiveParticipant(ri.getField(RetrieveInfo.MOVEAET),
+                        null, null, eventType.isOther, ri.getField(RetrieveInfo.REQUESTORHOST),
                         AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             String line;
             HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
@@ -674,7 +673,6 @@ public class AuditService {
             try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     StandardOpenOption.APPEND))) {
                 String outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
-                String remoteHost = ctx.getRemoteHostName();
                 HL7Info hl7i;
                 if (ctx.getHL7MessageHeader() != null) {
                     hl7i = new HL7Info(outcome, ctx.getRemoteHostName(),
