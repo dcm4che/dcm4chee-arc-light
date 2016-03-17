@@ -11,6 +11,10 @@
   ],
   "tags": [
     {
+      "name": "REALM-RS",
+      "description": "Access realm"
+    },
+    {
       "name": "CTRL-RS",
       "description": "Start/Stop/Reload Archive"
     },
@@ -36,6 +40,29 @@
     }
   ],
   "paths": {
+    "/ui/rs/realm": {
+      "get": {
+        "tags": [
+          "REALM-RS"
+        ],
+        "summary": "Show realm of logged-in user",
+        "operationId": "realm",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "archive status",
+            "schema": {
+              "$ref": "#/definitions/Realm"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/ctrl/start": {
       "get": {
         "tags": [
@@ -932,6 +959,28 @@
     }
   },
   "definitions": {
+    "Realm": {
+      "type": "object",
+      "required": [
+        "user",
+        "roles"
+      ],
+      "properties": {
+        "status": {
+          "title": "user",
+          "description": "user name",
+          "type": "string"
+        },
+        "roles": {
+          "title": "roles",
+          "description": "user roles",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "Status": {
       "type": "object",
       "required": [
