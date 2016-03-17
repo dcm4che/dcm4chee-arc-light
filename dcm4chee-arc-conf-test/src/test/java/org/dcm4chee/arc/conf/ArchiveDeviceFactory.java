@@ -504,6 +504,10 @@ class ArchiveDeviceFactory {
             UID.EncapsulatedPDFStorage,
             UID.EncapsulatedCDAStorage,
             UID.StandalonePETCurveStorageRetired,
+            UID.TextSRStorageTrialRetired,
+            UID.AudioSRStorageTrialRetired,
+            UID.DetailSRStorageTrialRetired,
+            UID.ComprehensiveSRStorageTrialRetired,
             UID.RTDoseStorage,
             UID.RTStructureSetStorage,
             UID.RTBeamsTreatmentRecordStorage,
@@ -703,11 +707,11 @@ class ArchiveDeviceFactory {
     static final String UNZIP_VENDOR_DATA = "${jboss.server.temp.url}/dcm4chee-arc";
     static final String NULLIFY_PN = "${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl";
     static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
-    static final String PIX_CONSUMER = "DCM4CHEE^DCM4CHEE";
+    static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
 
-    static final String PIX_MANAGER = "HL7RCV^DCM4CHEE";
+    static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
     static final String STORAGE_ID = "fs1";
-    static final URI STORAGE_URI = URI.create("file:///opt/wildfly/standalone/data/fs1/");
+    static final String STORAGE_URI = "${jboss.server.data.url}/fs1/";
     static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
     static final boolean SEND_PENDING_C_GET = true;
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
@@ -724,6 +728,9 @@ class ArchiveDeviceFactory {
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
     static final Duration AUDIT_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration AUDIT_AGGREGATE_DURATION = Duration.parse("PT1M");
+    static {
+        System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
+    }
 
     public static Device createARRDevice(String name, Connection.Protocol protocol, int port) {
         Device arrDevice = new Device(name);
@@ -985,7 +992,7 @@ class ArchiveDeviceFactory {
         }
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
-        storageDescriptor.setStorageURI(STORAGE_URI);
+        storageDescriptor.setStorageURIStr(STORAGE_URI);
         storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
         storageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
         storageDescriptor.setRetrieveAETitles("DCM4CHEE", "DCM4CHEE_ADMIN");

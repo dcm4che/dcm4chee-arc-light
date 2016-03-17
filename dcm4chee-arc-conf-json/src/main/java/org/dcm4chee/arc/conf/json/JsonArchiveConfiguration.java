@@ -137,7 +137,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (StorageDescriptor st : storageDescriptorList) {
             writer.writeStartObject();
             writer.writeNotNull("dcmStorageID", st.getStorageID());
-            writer.writeNotNull("dcmURI", st.getStorageURI());
+            writer.writeNotNull("dcmURI", st.getStorageURIStr());
             writer.writeNotNull("dcmDigestAlgorithm", st.getDigestAlgorithm());
             writer.writeNotEmpty("dcmRetrieveAET", st.getRetrieveAETitles());
             writer.writeNotNull("dcmInstanceAvailability", st.getInstanceAvailability());
@@ -497,7 +497,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         st.setStorageID(reader.stringValue());
                         break;
                     case  "dcmURI":
-                        st.setStorageURI(URI.create(reader.stringValue()));
+                        st.setStorageURIStr(reader.stringValue());
                         break;
                     case "dcmDigestAlgorithm":
                         st.setDigestAlgorithm(reader.stringValue());

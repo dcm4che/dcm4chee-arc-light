@@ -516,7 +516,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private Attributes storeTo(StorageDescriptor descriptor, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmStorage");
         attrs.put("dcmStorageID", descriptor.getStorageID());
-        attrs.put("dcmURI", descriptor.getStorageURI().toString());
+        attrs.put("dcmURI", descriptor.getStorageURIStr());
         LdapUtils.storeNotNull(attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm());
         LdapUtils.storeNotNull(attrs, "dcmInstanceAvailability", descriptor.getInstanceAvailability());
         LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
@@ -541,7 +541,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 StorageDescriptor desc = new StorageDescriptor(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
-                desc.setStorageURI(URI.create(LdapUtils.stringValue(attrs.get("dcmURI"), null)));
+                desc.setStorageURIStr(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 desc.setDigestAlgorithm(LdapUtils.stringValue(attrs.get("dcmDigestAlgorithm"), null));
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
@@ -578,7 +578,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(StorageDescriptor prev, StorageDescriptor desc,
                                               List<ModificationItem> mods) {
-        LdapUtils.storeDiff(mods, "dcmURI", prev.getStorageURI().toString(), desc.getStorageURI().toString());
+        LdapUtils.storeDiff(mods, "dcmURI", prev.getStorageURIStr(), desc.getStorageURIStr());
         LdapUtils.storeDiff(mods, "dcmDigestAlgorithm", prev.getDigestAlgorithm(), desc.getDigestAlgorithm());
         LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability());

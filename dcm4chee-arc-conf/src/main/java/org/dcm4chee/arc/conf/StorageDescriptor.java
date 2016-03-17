@@ -1,5 +1,7 @@
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.util.StringUtils;
+
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +13,7 @@ import java.util.*;
  */
 public final class StorageDescriptor {
     private String storageID;
+    private String storageURIStr;
     private URI storageURI;
     private String digestAlgorithm;
     private String[] retrieveAETitles = {};
@@ -31,21 +34,21 @@ public final class StorageDescriptor {
         this.storageID = storageID;
     }
 
-    public StorageDescriptor(String storageID, URI storageURI) {
-        this.storageID = storageID;
-        this.storageURI = storageURI;
-    }
-
     public String getStorageID() {
         return storageID;
     }
 
-    public URI getStorageURI() {
-        return storageURI;
+    public String getStorageURIStr() {
+        return storageURIStr;
     }
 
-    public void setStorageURI(URI storageURI) {
-        this.storageURI = storageURI;
+    public void setStorageURIStr(String str) {
+        this.storageURI = URI.create(StringUtils.replaceSystemProperties(str));
+        this.storageURIStr = str;
+    }
+
+    public URI getStorageURI() {
+        return storageURI;
     }
 
     public String getDigestAlgorithm() {
@@ -158,5 +161,4 @@ public final class StorageDescriptor {
                 ", properties=" + properties +
                 '}';
     }
-
 }
