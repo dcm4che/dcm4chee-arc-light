@@ -40,10 +40,6 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.audit.EventTypeCode;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;

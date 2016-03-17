@@ -409,7 +409,6 @@ public class AuditService {
         if (eventType == null)
             return; // no audit message for duplicate received instance
         StoreSession session = ctx.getStoreSession();
-        Attributes attrs = ctx.getAttributes();
         Path file = dir.resolve(
                 String.valueOf(eventType) + '-' + session.getCallingAET() + '-' + session.getCalledAET() + '-'
                         + ctx.getStudyInstanceUID());
