@@ -343,6 +343,7 @@
     <module>dcm4chee-arc-query</module>
     <module>dcm4chee-arc-query-scp</module>
     <module>dcm4chee-arc-query-util</module>
+    <module>dcm4chee-arc-realm-rs</module>
     <module>dcm4chee-arc-retrieve</module>
     <module>dcm4chee-arc-retrieve-scp</module>
     <module>dcm4chee-arc-retrieve-scu</module>
