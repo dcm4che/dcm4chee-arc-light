@@ -29,6 +29,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.studyDateTo = {
         opened: false
     };
+    //Close modaity selctor when you click some where else but on the selector
+    angular.element("html").bind("click",function(e){
+        if(!(e.target.id === "Modality")){
+            if(angular.element(e.target).closest('.modality_selector').length === 0 && angular.element(e.target).parent('.modality_selector').length === 0 && $scope.showModalitySelector){
+                $scope.$apply(function(){
+                    $scope.showModalitySelector = false;
+                });
+            }
+        }
+    });
+
     $scope.addEffect = function(direction){
         var element = angular.element(".div-table");
             element.removeClass('fadeInRight').removeClass('fadeInLeft');
