@@ -60,6 +60,7 @@ class PatientStudyInfo {
     static final int PATIENT_ID = 5;
     static final int PATIENT_NAME = 6;
     static final int OUTCOME = 7;
+    static final int STUDY_DATE = 8;
     String outcome;
     private final String[] fields;
 
@@ -78,7 +79,8 @@ class PatientStudyInfo {
                 ctx.getAttributes().getString(Tag.AccessionNumber),
                 ctx.getAttributes().getString(Tag.PatientID, AuditServiceUtils.noValue),
                 ctx.getAttributes().getString(Tag.PatientName),
-                outcome
+                outcome,
+                ctx.getAttributes().getString(Tag.StudyDate)
         };
     }
 
@@ -92,7 +94,8 @@ class PatientStudyInfo {
                 attrs.getString(Tag.AccessionNumber),
                 attrs.getString(Tag.PatientID, AuditServiceUtils.noValue),
                 attrs.getString(Tag.PatientName),
-                outcome
+                outcome,
+                attrs.getString(Tag.StudyDate)
         };
     }
 
@@ -101,6 +104,7 @@ class PatientStudyInfo {
         String patientName = null != ctx.getPatient().getPatientName().toString()
                 ? ctx.getPatient().getPatientName().toString() : null;
         String accessionNo = (ctx.getStudy().getAccessionNumber() != null) ? ctx.getStudy().getAccessionNumber() : null;
+        String studyDate = (ctx.getStudy().getStudyDate() != null) ? ctx.getStudy().getStudyDate() : null;
         fields = new String[] {
                 null,
                 null,
@@ -109,7 +113,8 @@ class PatientStudyInfo {
                 accessionNo,
                 ctx.getPatient().getPatientID().getID(),
                 patientName,
-                outcome
+                outcome,
+                studyDate
         };
     }
 

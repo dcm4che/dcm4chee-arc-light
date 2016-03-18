@@ -55,6 +55,7 @@ class RetrieveStudyInfo {
     static final int SOPINSTANCEUID = 3;
     static final int PATIENTID = 4;
     static final int PATIENTNAME = 5;
+    static final int STUDY_DATE = 6;
 
     private final String[] fields;
     RetrieveStudyInfo(Attributes attrs) {
@@ -64,7 +65,8 @@ class RetrieveStudyInfo {
                 attrs.getString(Tag.SOPClassUID),
                 attrs.getString(Tag.SOPInstanceUID),
                 attrs.getString(Tag.PatientID, AuditServiceUtils.noValue),
-                attrs.getString(Tag.PatientName)
+                attrs.getString(Tag.PatientName),
+                attrs.getString(Tag.StudyDate)
         };
     }
     RetrieveStudyInfo(String s) {
