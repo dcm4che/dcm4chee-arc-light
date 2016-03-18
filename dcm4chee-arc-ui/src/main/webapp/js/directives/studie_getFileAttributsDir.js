@@ -26,6 +26,7 @@ myApp.directive("fileAttributeList", function($http, cfpLoadingBar) {
         },
         templateUrl: 'templates/file_attribute_list.html',
         link: function(scope) {
+            cfpLoadingBar.set(cfpLoadingBar.status()+(0.3));
             var url = "../aets/" + 
                         scope.$parent.aet + 
                         "/rs/studies/" + 

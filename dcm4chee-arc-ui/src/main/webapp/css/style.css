@@ -480,6 +480,8 @@ table.subtable_1, table.subtable_2 {
   float: left;
   width: 97%;
   border: 1px solid #aaa; }
+  .repeat1 .subblock:hover > .td_row > .td_cell, .repeat1 .subblock:hover > .td_row, .repeat1 .subblock:hover {
+    background: #eee; }
   .repeat1 .subblock .td_cell.table_btn > a {
     background: #ddd none repeat scroll 0 0;
     border: 1px solid #ccc;
@@ -564,6 +566,10 @@ table.subtable_1, table.subtable_2 {
     background: white; }
     .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn > a {
       width: 14%; }
+    .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active {
+      background: #999; }
+    .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active:hover {
+      background: #888; }
     .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell {
       background: white;
       color: black;

@@ -22,15 +22,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             // console.log("studies=",$scope.studies);
 
     $scope.addFileAttribute = function(studykey, serieskey, key){
-        cfpLoadingBar.start();
         var id      = '#file-attribute-list-'+($scope.studies[studykey].series[serieskey].instances[key].attrs['00080018'].Value[0]).replace(/\./g, '');
         if(angular.element(id).find("*").length < 1){
+            cfpLoadingBar.start();
             var html    = '<file-attribute-list studykey="'+studykey+'" serieskey="'+serieskey+'" key="'+key+'"></file-attribute-list>';
+            cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
             angular.element(id).html(
                         $compile(html)($scope)
                     );
-        }else{
-            cfpLoadingBar.complete();
         }
     };
 
@@ -89,7 +88,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         cfpLoadingBar.start();
         $scope.studyDateFrom.opened = true;
         var watchPicker = setInterval(function(){ 
-            if(angular.element(".uib-datepicker-popup .uib-close").length>0){
+            if(angular.element(".uib-datepicker-popup .uib-close").lengt > 0){
                 clearInterval(watchPicker);
                 cfpLoadingBar.complete();
 
@@ -101,7 +100,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.studyDateTo.opened = true;
         var watchPicker = setInterval(function(){ 
             console.log("isOpen",angular.element(".uib-datepicker-popup .uib-close").length);
-            if(angular.element(".uib-datepicker-popup .uib-close").length>0){
+            if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
                 clearInterval(watchPicker);
                 cfpLoadingBar.complete();
 
@@ -196,7 +195,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     series: series,
                     offset: offset + index,
                     attrs: attrs,
-                    // fileAttrs: null,
                     showAttributes: false,
                     showFileAttributes:false,
                     wadoQueryParams: {

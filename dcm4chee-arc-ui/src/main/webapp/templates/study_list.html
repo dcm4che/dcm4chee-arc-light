@@ -319,10 +319,10 @@ studies={{studies}}
                                 <div class="subblock">
                                     <div class="tr_row">
                                         <div class="td_cell table_btn">   
-                                            <a ng-click="toggleAttributs(series.instances[key],'attributs')" href="" title="Show Attributes">
+                                            <a ng-click="toggleAttributs(series.instances[key],'attributs')" href="" title="Show Attributes" ng-class="{active:instance.showAttributes}">
                                                 <span class="glyphicon glyphicon-th-list"></span>
                                             </a>   
-                                            <a ng-click="toggleAttributs(series.instances[key],'fileattributs');addFileAttribute(studykey,serieskey,key)" href="" title="Show Attributes from file">
+                                            <a ng-click="toggleAttributs(series.instances[key],'fileattributs');addFileAttribute(studykey,serieskey,key)" href="" title="Show Attributes from file" ng-class="{active:instance.showFileAttributes}">
                                                 <span class="glyphicon glyphicon-list"></span>
                                             </a>
                                             <a ng-click="exportInstance(instance)" ng-show="exporterID" href="" title="Export Instance">

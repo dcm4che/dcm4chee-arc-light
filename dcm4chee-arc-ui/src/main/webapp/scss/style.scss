@@ -584,6 +584,9 @@ table{
 	    float: left;
 	    width: 97%;
 	    border:1px solid #aaa;
+	    &:hover > .td_row > .td_cell,&:hover > .td_row,&:hover{
+	    	background:#eee;
+	    }
 	    .td_cell.table_btn > a {
 		   background: #ddd none repeat scroll 0 0;
 		    border: 1px solid #ccc;
@@ -718,6 +721,12 @@ table{
 						background:white;
 						.td_cell.table_btn > a {
 							width:14%;
+						}
+						a.active{
+							background:#999;
+						}
+						a.active:hover{
+							background:#888;
 						}
 						.tr_row{
 							.td_cell{
