@@ -15,7 +15,7 @@
 <body ng-controller="MainController" scroll>
 <div class="background"></div>
 <div class="glyphicon glyphicon-align-justify toggle-button out" ng-click="toggleMenu()" ng-show="!showMenu"></div>
-<ul class="nav slideInLeft animated" ng-show="showMenu">
+<ul class="nav slideInLeft animated ng-hide" ng-show="showMenu">
 <div class="glyphicon glyphicon-align-justify toggle-button" ng-click="toggleMenu()"></div>
     <li role="presentation" ng-class="getClass('/studies')" ng-click="toggleMenu()"><a href="#studies">Studies</a></li>
     <li role="presentation" ng-class="getClass('/queues')" ng-click="toggleMenu()"><a href="#/queues">Queues</a></li>
@@ -110,6 +110,7 @@
 <script src="js/directives/device_selectDevicePartDir.js"></script>
 <script src="js/directives/device_selectTransferCapabilityDir.js"></script>
 <script src="js/directives/device_createDeleteButtonDir.js"></script>
+<script src="js/directives/studie_getFileAttributsDir.js"></script>
 <script src="js/directives/scrollDir.js"></script>
 <!-- Services -->
 <script src="js/services/device_serviceFact.js"></script>

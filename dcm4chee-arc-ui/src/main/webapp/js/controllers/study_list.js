@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities) {
+myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
     $scope.moreStudies = false;
@@ -19,6 +19,21 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.studyTime = { from: '', to: ''};
     $scope.format = "yyyyMMdd";
     $scope.modalities = $modalities;
+            // console.log("studies=",$scope.studies);
+
+    $scope.addFileAttribute = function(studykey, serieskey, key){
+        cfpLoadingBar.start();
+        var id      = '#file-attribute-list-'+($scope.studies[studykey].series[serieskey].instances[key].attrs['00080018'].Value[0]).replace(/\./g, '');
+        if(angular.element(id).find("*").length < 1){
+            var html    = '<file-attribute-list studykey="'+studykey+'" serieskey="'+serieskey+'" key="'+key+'"></file-attribute-list>';
+            angular.element(id).html(
+                        $compile(html)($scope)
+                    );
+        }else{
+            cfpLoadingBar.complete();
+        }
+    };
+
     $scope.selectModality = function(key){
         $scope.filter.ModalitiesInStudy =key;
         $scope.showModalitySelector=false;
@@ -28,6 +43,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.studyDateTo = {
         opened: false
+    };
+    $scope.toggleAttributs = function(instance,art){
+        if(art==="fileattributs"){
+            instance.showAttributes = false;
+            instance.showFileAttributes = !instance.showFileAttributes;
+        }else{
+            instance.showAttributes = !instance.showAttributes;
+            instance.showFileAttributes = false;
+        }
     };
     //Close modaity selctor when you click some where else but on the selector
     angular.element("html").bind("click",function(e){
@@ -172,6 +196,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     series: series,
                     offset: offset + index,
                     attrs: attrs,
+                    // fileAttrs: null,
                     showAttributes: false,
                     showFileAttributes:false,
                     wadoQueryParams: {

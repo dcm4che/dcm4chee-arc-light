@@ -426,6 +426,10 @@ table.subtable_1, table.subtable_2 {
 #selects_part button {
   text-align: left; }
 
+.div-table {
+  float: left;
+  width: 100%; }
+
 .div-table .thead .td_cell {
   font-size: 14px;
   height: 30px;
@@ -637,7 +641,7 @@ table.subtable_1, table.subtable_2 {
   width: 380px;
   border: 1px solid #ccc;
   z-index: 9999;
-  margin-left: 69px;
+  margin-top: 35px;
   box-sizing: border-box;
   padding: 30px 20px; }
   .modality_selector .common {

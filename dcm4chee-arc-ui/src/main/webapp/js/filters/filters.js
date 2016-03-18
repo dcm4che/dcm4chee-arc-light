@@ -56,6 +56,11 @@ myApp.filter("formatTag", function() {
         return "(" + tag.slice(0,4) + "," + tag.slice(4, 8) + ")";
     };
 });
+myApp.filter("removedots", function() {
+    return function (string) {
+        return string.replace(/\./g, '');
+    };
+});
 
 myApp.filter("formatAttributeValue", function() {
     return function (el) {
@@ -64,9 +69,13 @@ myApp.filter("formatAttributeValue", function() {
                 case 'SQ':
                     return el.Value.length + ' Item(s)';
                 case 'PN':
-                    return el.Value.map(function(value){
-                        return value.Alphabetic;
-                    }).join();
+                    if(el.Value && el.Value[0]){
+                        return el.Value.map(function(value){
+                            return value.Alphabetic;
+                        }).join();
+                    }else{
+                        return "";
+                    }
                 default:
                     return el.Value.join();
             }

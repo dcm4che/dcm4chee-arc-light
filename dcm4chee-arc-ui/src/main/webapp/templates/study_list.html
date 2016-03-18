@@ -1,5 +1,5 @@
 <!-- <pre>
-showModalitySelector={{showModalitySelector}}
+studies={{studies}}
 </pre> -->
 
 <div class="row">
@@ -26,7 +26,7 @@ showModalitySelector={{showModalitySelector}}
             </div>
             <div class="col-md-6">
                 <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" />
-                <div class="modality_selector" ng-show="showModalitySelector">
+                <div class="modality_selector ng-hide" ng-show="showModalitySelector">
                     <a href="" ng-click="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                     <div class="common">
                         <a href="" ng-repeat="(key, value) in modalities.common" ng-click="selectModality(key)" title="{{value}}">{{key}}</a>
@@ -103,8 +103,8 @@ showModalitySelector={{showModalitySelector}}
     </div>
 </div>
 <a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
-<div class="row" ng-show="advancedConfig">
+<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
+<div class="row ng-hide" ng-show="advancedConfig">
     <div class="col-md-3 block-2-1">
         <div class="row">
             <label for="exporter" class="col-md-6 text-right">Export:</label>
@@ -192,7 +192,7 @@ showModalitySelector={{showModalitySelector}}
             <div class="th">#I</div>
         </div>
     </div>
-    <div class="repeat1" ng-repeat="study in studies">
+    <div class="repeat1" ng-repeat="(studykey, study) in studies">
         <div class="tbody">
             <div class="tr_row">
                 <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
@@ -256,7 +256,7 @@ showModalitySelector={{showModalitySelector}}
                             <div class="th">Series Description</div>
                             <div class="th">#I</div>
                         </div>
-                        <div class="repeat2" ng-repeat="series in study.series">
+                        <div class="repeat2" ng-repeat="(serieskey,series) in study.series">
                                 <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
                         <div class="subblock">
                             <div class="tr_row">
@@ -314,15 +314,15 @@ showModalitySelector={{showModalitySelector}}
                                 <div style="width:28%" class="th">Content Description</div>
                                 <div style="width:2%" class="th">#F</div>
                             </div>
-                            <div class="repeat3"  ng-repeat="instance in series.instances">
+                            <div class="repeat3"  ng-repeat="(key,instance) in series.instances">
                                 <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
                                 <div class="subblock">
                                     <div class="tr_row">
                                         <div class="td_cell table_btn">   
-                                            <a ng-click="instance.showAttributes = !instance.showAttributes" href="" title="Show Attributes">
+                                            <a ng-click="toggleAttributs(series.instances[key],'attributs')" href="" title="Show Attributes">
                                                 <span class="glyphicon glyphicon-th-list"></span>
                                             </a>   
-                                            <a ng-click="instance.showFileAttributes = !instance.showFileAttributes" href="" title="Show Attributes from file">
+                                            <a ng-click="toggleAttributs(series.instances[key],'fileattributs');addFileAttribute(studykey,serieskey,key)" href="" title="Show Attributes from file">
                                                 <span class="glyphicon glyphicon-list"></span>
                                             </a>
                                             <a ng-click="exportInstance(instance)" ng-show="exporterID" href="" title="Export Instance">
@@ -358,8 +358,8 @@ showModalitySelector={{showModalitySelector}}
                                         </div>
                                     </div>
                                     <div class="tr_row"  ng-show="instance.showFileAttributes">
-                                        <div class="td_cell attribute_list">
-                                            <file-attribute-list attrs="instance.attrs" instance="instance" aet="aet"></file-attribute-list>
+                                        <div class="td_cell attribute_list file-attribute-list" id="file-attribute-list-{{instance.attrs['00080018'].Value[0] | removedots}}">
+                                            <!-- <file-attribute-list attrs="instance.attrs" instance="instance" aet="aet"></file-attribute-list> -->
                                         </div>
                                     </div>
                                 </div>
