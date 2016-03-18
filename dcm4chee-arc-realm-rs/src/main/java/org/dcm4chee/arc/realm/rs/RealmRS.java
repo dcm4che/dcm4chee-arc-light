@@ -71,9 +71,6 @@ public class RealmRS {
     @Context
     private SecurityContext sc;
 
-    @Context
-    private HttpServletRequest request;
-
     @GET
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
@@ -81,27 +78,31 @@ public class RealmRS {
             @Override
             public void write(OutputStream out) throws IOException {
                 Writer w = new OutputStreamWriter(out, "UTF-8");
-                w.append("{user=\"").append(user()).append("\", roles=[");
-                int count = 0;
-                for (String role : roles()) {
-                    if (count++ > 0)
-                        w.write(',');
-                    w.append('\"').append(role).append('\"');
+                Principal principal = sc.getUserPrincipal();
+                if (principal == null)
+                    w.write("{user=null,roles=[]}");
+                else {
+                    w.append("{user=\"").append(user(principal)).append("\",roles=[");
+                    int count = 0;
+                    for (String role : roles(principal)) {
+                        if (count++ > 0)
+                            w.write(',');
+                        w.append('\"').append(role).append('\"');
+                    }
+                    w.write("]}");
                 }
-                w.write("]}");
                 w.flush();
             }
         };
     }
 
-    private String user() {
-        KeycloakPrincipal<KeycloakSecurityContext> kp1 = (KeycloakPrincipal<KeycloakSecurityContext>) sc.getUserPrincipal();
+    private String user(Principal principal) {
+        KeycloakPrincipal<KeycloakSecurityContext> kp1 = (KeycloakPrincipal<KeycloakSecurityContext>) principal;
         return kp1.getKeycloakSecurityContext().getIdToken().getPreferredUsername();
     }
 
-    private Iterable<String> roles() {
-        KeycloakPrincipal<KeycloakSecurityContext> kp1 = (KeycloakPrincipal<KeycloakSecurityContext>) sc.getUserPrincipal();
-        Set<String> roles = kp1.getKeycloakSecurityContext().getToken().getRealmAccess().getRoles();
-        return Arrays.asList(roles.toArray(new String[roles.size()]));
+    private Iterable<String> roles(Principal principal) {
+        KeycloakPrincipal<KeycloakSecurityContext> kp1 = (KeycloakPrincipal<KeycloakSecurityContext>) principal;
+        return kp1.getKeycloakSecurityContext().getToken().getRealmAccess().getRoles();
     }
 }

@@ -62,6 +62,7 @@
     <resteasy.version>3.0.11.Final</resteasy.version>
     <jclouds.version>1.9.1</jclouds.version>
     <querydsl.version>4.0.3</querydsl.version>
+    <keycloak.version>1.6.1.Final</keycloak.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
 
     <!-- JPA -->
@@ -244,7 +245,7 @@
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-core</artifactId>
-      <version>1.6.1.Final</version>
+      <version>${keycloak.version}</version>
       <scope>provided</scope>
     </dependency>
 
