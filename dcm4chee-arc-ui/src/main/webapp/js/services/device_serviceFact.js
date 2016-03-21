@@ -26,7 +26,6 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				});
 				buffer--;
 			}
-			$log.debug("in if unique id=",id);
 			if(buffer===0 && isAvailable === true){
 				return 999;
 			}else{
@@ -37,7 +36,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		}
 	};
 	/*
-	*Check if the same transfare capability is in the list
+	*Check if the same transfare capability is in the list (form validation)
 	*@$scope (Object) angularjs $scope
 	*/
 	var checkTransfareRedondance = function($scope){
@@ -123,10 +122,10 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	*/
 	var removeEmptyArrays = function(object){
 			$log.debug("is array =",(Object.prototype.toString.call(object) === '[object Array]'));
-			console.log("removeEmptyArrays called");
+			// console.log("removeEmptyArrays called");
 			if(Object.prototype.toString.call(object) === '[object Array]'){
 				angular.forEach(object,function(l,i){
-					console.log("before recursivelly call object[",i,"]=",object[i]);
+					// console.log("before recursivelly call object[",i,"]=",object[i]);
 					if(object[i]){
 						object[i] = removeEmptyArrays(object[i]);
 					}else{
@@ -137,7 +136,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 
 				angular.forEach(object,function(m,k){
 					if((Object.prototype.toString.call(m) === '[object Array]' && m[0]==undefined && m[1]==undefined) || m == ""){
-						console.log("about to delete object[",k,"]=",object[k]);
+						// console.log("about to delete object[",k,"]=",object[k]);
 						delete object[k];
 					}
 				});
@@ -148,11 +147,11 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					object.dicomNetworkConnection = removeEmptyArrays(object.dicomNetworkConnection);
 				}
 				if(object.dicomNetworkAE){
-					$log.debug("in if dicomNetworkAE");
+					// $log.debug("in if dicomNetworkAE");
 					object.dicomNetworkAE = removeEmptyArrays(object.dicomNetworkAE);
 				}
 				if(object.dicomTransferCapability){
-					$log.debug("in if dicomTransferCapability");
+					// $log.debug("in if dicomTransferCapability");
 					object.dicomTransferCapability = removeEmptyArrays(object.dicomTransferCapability);
 				}
 			}
@@ -308,15 +307,15 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	// };
 
 	var traverse = function(o, selectedElement, newSchema) {
-		console.log("***********in traverse o=",angular.copy(o));
-		console.log("newSchema intra", angular.copy(newSchema));
+		// console.log("***********in traverse o=",angular.copy(o));
+		// console.log("newSchema intra", angular.copy(newSchema));
 	    for (var i in o) {
 	        // func.apply(this, [i,o[i]] , selectedElement);
 	        // console.log("before if selectedElement=",selectedElement,"o[=",[i,o[i]],"i=",i);
-	        $log.warn("i=",i);
-	        if(i === "$ref"){
-	        	$log.debug("in ref, o",o);
-	        }
+	        // $log.warn("i=",i);
+	        // if(i === "$ref"){
+	        // 	$log.debug("in ref, o",o);
+	        // }
 	        	
 	        if(i != selectedElement){
 		        if (o[i] !== null && typeof(o[i])=="object") {
@@ -324,18 +323,22 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		        	traverse(o[i], selectedElement, newSchema);
 		        }
 	        }else{
-	        	console.log("before return o=",angular.copy([i,o[i]]));
+	        	// console.log("before return o=",angular.copy([i,o[i]]));
 	        	newSchema[selectedElement] = o[i];
 	        }
 	    }
 	   	return newSchema;
 	};
 
-	var replaceRef = function(schema, selectedElement){
+	var replaceRef = function(schema, selectedElement, parent, grandpa){
+		// console.log("schema",schema);
+		// console.log("parent",parent);
+		// console.log("grandpa",grandpa);
 		for (var i in schema) {
-			console.log("i=",i,"schema[i]=",schema[i]);
+			// console.log("i=",i,"schema[i]=",schema[i]);
 			if(i==="$ref"){
-				console.log("i in if=",i,"schema[i]",schema[i]);
+
+				// console.log("i in if=",i,"schema[i]",schema[i]);
 				if(schema[i].toString().indexOf(".json")>-1){
 
 					$http({
@@ -343,8 +346,14 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				        url: 'schema/'+schema[i]
 				        // url: '../devices'
 				    }).then(function successCallback(response) {
-				    	console.log("response",response);
-				    	schema[selectedElement] = response.data;
+				    	// console.log("response",response);
+				    	$log.warn("json=",schema[i],"parent=",parent,"grandpa=",grandpa);
+				    	if(parent === "items" && grandpa != "properties"){
+				    		schema[grandpa] = response.data;
+				    	}else{
+				    		schema[parent] = response.data;
+				    	}
+				    	// schema[selectedElement] = response.data; //ERROR, it initiats every schema to selectedElement
 				    	delete schema[i];
 				    }, function errorCallback(response) {
 				        $log.error("Error loading schema ref", response);
@@ -352,7 +361,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				}
 			}else{
 				if(schema[i] !== null && typeof(schema[i])=="object") {
-					replaceRef(schema[i], selectedElement);
+					replaceRef(schema[i], selectedElement, i, parent);
 				}
 			}
 		}
@@ -1174,12 +1183,13 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 
 		getSchema : function(selectedElement){
 			// $log.debug("select in getschema=",$select[selectedElement].optionRef);
-			$log.debug("in selectedElement=", selectedElement);
+			// $log.debug("in selectedElement=", selectedElement);
 			var localSchema = {};
 
 			if($select[selectedElement].optionRef.indexOf(".")>-1){
+				// $log.warn("in if getschema");
 				schemas[selectedElement] = schemas[selectedElement] || {};
-				console.log("Object.keys(obj).length=",Object.keys(schemas[selectedElement]).length);
+				// console.log("Object.keys(obj).length=",Object.keys(schemas[selectedElement]).length);
 
 				if(Object.keys(schemas[selectedElement]).length < 1){
 
@@ -1187,16 +1197,15 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					angular.copy(schemas.whole, localSchema);
 					// $log.debug("in if getschema selectedElement=",selectedElement);
 					//TODO
-					$log.debug("refs[0]=",refs[0]);
-					$log.debug("schemas[refs[0]]=",schemas[refs[0]]);
+					// $log.debug("refs[0]=",refs[0]);
+					// $log.debug("schemas[refs[0]]=",schemas[refs[0]]);
 					traverse(localSchema, refs[1], schemas[refs[1]]);
-					// traverse(localSchema, selectedElement, schemas[selectedElement]);
-					$log.debug("schemas ingetschema=",schemas);
-					replaceRef(schemas[selectedElement], selectedElement);
-					$log.debug("schemas 2ingetschema=",schemas);
+					// $log.debug("schemas ingetschema=",schemas);
+					replaceRef(schemas[selectedElement], selectedElement, "", "");
+					// $log.debug("schemas 2ingetschema=",schemas);
 				}
 			}else{
-				$log.debug("in else");
+				// $log.warn("in else getschema");
 				schemas[selectedElement] = schemas[selectedElement] || {};
 				if(Object.keys(schemas[selectedElement]).length < 1){
 					angular.copy(schemas.device, localSchema);
@@ -1204,38 +1213,36 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					// $log.debug("schemas=",schemas);
 					traverse(localSchema, selectedElement, schemas[selectedElement]);
 
-					// $log.debug("get schema from traverse=",traverse(schemas.device, process, selectedElement, newSchema));
-					// $log.debug("newSchema=",newSchema);
-					// schemas[selectedElement] = newSchema[selectedElement];
-					replaceRef(schemas[selectedElement], selectedElement);
-					replaceRef(schemas.whole, selectedElement);
+					replaceRef(schemas[selectedElement], selectedElement, "", "");
+					replaceRef(schemas.whole, selectedElement, "","");
 				}
 			}
+			// $log.debug("schemas=",schemas);
+			// $log.debug("schemas=",schemas);
 			return schemas[selectedElement];
-			$log.debug("schemas=",schemas);
 		},
 
 		setFormModel : function(scope){
-			$log.debug("in setFormModel,selectedElement=",scope.selectedElement);
+			// $log.debug("in setFormModel,selectedElement=",scope.selectedElement);
 
-			$log.debug("wholeDevice=",scope.wholeDevice);
-			$log.debug("$select[selectedElement]=",$select[scope.selectedElement].optionRef);
+			// $log.debug("wholeDevice=",scope.wholeDevice);
+			// $log.debug("$select[selectedElement]=",$select[scope.selectedElement].optionRef);
 			// scope.form[scope.selectedElement]["model"]
 			if($select[scope.selectedElement].type === "array"){
 
 				if($select[scope.selectedElement].optionRef.indexOf(".")>-1){
 					//TODO
 				}else{
-					$log.debug("selectedPart=",scope.selectedPart[scope.selectedElement]);
-					$log.debug("in else scope.wholeDevice[$select[scope.selectedElement].optionRef]=",scope.wholeDevice[$select[scope.selectedElement].optionRef]);
+					// $log.debug("selectedPart=",scope.selectedPart[scope.selectedElement]);
+					// $log.debug("in else scope.wholeDevice[$select[scope.selectedElement].optionRef]=",scope.wholeDevice[$select[scope.selectedElement].optionRef]);
 					if(scope.wholeDevice[$select[scope.selectedElement].optionRef]){
 						angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef], function(m, i){
-						$log.debug("scope.wholeDevice[$select[scope.selectedElement].optionRef][i][$select[scope.selectedElement].optionValue]=",scope.wholeDevice[$select[scope.selectedElement].optionRef][i][$select[scope.selectedElement].optionValue]);
-							$log.debug("scope.selectedPart[scope.selectedElement]=",scope.selectedPart[scope.selectedElement]);
+						// $log.debug("scope.wholeDevice[$select[scope.selectedElement].optionRef][i][$select[scope.selectedElement].optionValue]=",scope.wholeDevice[$select[scope.selectedElement].optionRef][i][$select[scope.selectedElement].optionValue]);
+							// $log.debug("scope.selectedPart[scope.selectedElement]=",scope.selectedPart[scope.selectedElement]);
 							if(scope.selectedPart[scope.selectedElement] === scope.wholeDevice[$select[scope.selectedElement].optionRef][i][$select[scope.selectedElement].optionValue]){
 								scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef][i];
-								$log.debug("1selected part mdoel=", scope.wholeDevice[$select[scope.selectedElement].optionRef][i]);
-								$log.debug("scope.form[scope.selectedElement]['model']",scope.form[scope.selectedElement]["model"]);
+								// $log.debug("1selected part mdoel=", scope.wholeDevice[$select[scope.selectedElement].optionRef][i]);
+								// $log.debug("scope.form[scope.selectedElement]['model']",scope.form[scope.selectedElement]["model"]);
 							}
 						});
 					}
@@ -1244,7 +1251,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				if($select[scope.selectedElement].optionRef.indexOf(".")>-1){
 
 				}else{
-					$log.debug("for object model set, ",scope.wholeDevice[$select[scope.selectedElement].optionRef]);
+					// $log.debug("for object model set, ",scope.wholeDevice[$select[scope.selectedElement].optionRef]);
 					if(scope.wholeDevice[$select[scope.selectedElement].optionRef]){
 						scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef];
 					}

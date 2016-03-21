@@ -907,23 +907,13 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
       }
     };
     $scope.splitStringToObject = function(value,key){
-      // console.log("in pslitStringObject, value=",value);
-      // console.log("scope=",$scope.wholeDevice);
-
       $scope.selectModel = $scope.selectModel || {};
-      // console.log("in pslitStringObject, $scope.selectModel=",$scope.selectModel);
-      // console.log("in pslitStringObject, $scope.selectModel=",$scope.selectModel);
       if(angular.isDefined($scope.wholeDevice)){
-        // console.log("in if value.optionRef",value.optionRef);
-        // console.log("in if value.optionRef.indexOf",value.optionRef.indexOf("."));
         if(value.optionRef.indexOf(".")>-1){
           DeviceService.getObjectFromString($scope, value, key);
         }else{
           $scope.selectModel[key] = $scope.wholeDevice[value.optionRef];
         }
-        // $scope.selectModel[value.model] = DeviceService.getDescendantProp($scope.wholeDevice, value.optionRef);
-        // DeviceService.getDescendantProp($scope.wholeDevice,value.optionRef);
-        // return  $scope.wholeDevice.dicomNetworkConnection;
       }
     };
 });
