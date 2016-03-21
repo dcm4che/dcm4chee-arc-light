@@ -80,9 +80,9 @@ public class RealmRS {
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 Principal principal = sc.getUserPrincipal();
                 if (principal == null)
-                    w.write("{user=null,roles=[]}");
+                    w.write("{\"user\":null,\"roles\":[]}");
                 else {
-                    w.append("{user=\"").append(user(principal)).append("\",roles=[");
+                    w.append("{\"user\":\"").append(user(principal)).append("\",\"roles\":[");
                     int count = 0;
                     for (String role : roles(principal)) {
                         if (count++ > 0)
