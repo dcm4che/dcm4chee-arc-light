@@ -13,6 +13,13 @@
     <link rel="stylesheet" href="css/animate.css">
 </head>
 <body ng-controller="MainController" scroll>
+<div class="user" ng-show="user.username">
+    <span ng-click="showUserMenu = !showUserMenu"><i class="glyphicon glyphicon-user"></i> {{user.username}}</span>
+    <ul ng-show="showUserMenu">
+        <!-- <li>Loged in as {{user.username}}</li> -->
+        <li><a ng-href="{{logoutUrl}}">Logout</a></li>
+     </ul>
+</div>
 <div class="background"></div>
 <div class="glyphicon glyphicon-align-justify toggle-button out" ng-click="toggleMenu()" ng-show="!showMenu"></div>
 <ul class="nav slideInLeft animated ng-hide" ng-show="showMenu">
@@ -22,8 +29,8 @@
     <li role="presentation" ng-class="getClass('/ctrl')" ng-click="toggleMenu()"><a href="#/ctrl">Control</a></li>
     <!-- <li role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li> -->
     <li><a><strike>devices</strike></a></li>
-    <li><a>-</a></li>
-    <li role="presentation"><a ng-href="{{logoutUrl}}">Logout</a></li>
+    <!-- <li><a>-</a></li> -->
+    <!-- <li role="presentation"><a ng-href="{{logoutUrl}}">Logout</a></li> -->
 </ul>
 <img src="img/logo.png" class="logo">
 <div class="main_content" ng-class="getPathName()" ng-view>

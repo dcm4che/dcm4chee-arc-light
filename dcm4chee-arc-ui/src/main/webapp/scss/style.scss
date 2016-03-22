@@ -975,3 +975,41 @@ table{
 	  	color: #555;
 	}
 }
+.user {
+    background: #ffffff none repeat scroll 0 0;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+    color: #7d7d7d;
+    display: block;
+    font-weight: bold;
+    position: fixed;
+    right: 200px;
+    top: 0;
+    z-index: 9999;
+    span{
+	    display: inline-block;
+	    // height: 32px;
+	    padding: 10px 32px;
+	    width: 200px;
+	    &:hover{
+	    	cursor: pointer;
+	    	color: #4D4D4D;
+	    }
+    }
+    ul{
+    	list-style: outside none none;
+    	padding: 0;
+    	li{
+		   	border-top: 1px solid #ccc;
+		    padding: 10px 32px;
+		    a{
+		    	color: #7d7d7d;
+    			display: block;
+    			&:hover{
+    				color: #4D4D4D;
+    			}
+		    }
+    	}
+    }
+}
