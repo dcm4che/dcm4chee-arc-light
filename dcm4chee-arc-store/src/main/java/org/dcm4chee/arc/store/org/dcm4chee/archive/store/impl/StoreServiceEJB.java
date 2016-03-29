@@ -240,6 +240,7 @@ public class StoreServiceEJB {
         Series series = instance.getSeries();
         Study study = series.getStudy();
         em.remove(instance);
+        em.flush(); // to avoid ERROR: duplicate key value violates unique constraint on re-insert
         boolean sameStudy = ctx.getStudyInstanceUID().equals(study.getStudyInstanceUID());
         boolean sameSeries = sameStudy && ctx.getSeriesInstanceUID().equals(series.getSeriesInstanceUID());
         if (!sameSeries) {
