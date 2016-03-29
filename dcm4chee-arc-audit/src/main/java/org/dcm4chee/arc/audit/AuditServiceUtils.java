@@ -207,37 +207,33 @@ public class AuditServiceUtils {
 
         static HashSet<EventType> forBeginTransfer(RetrieveContext ctx) {
             HashSet<EventType> eventType = new HashSet<>();
-            EventType et = null;
             if (null != ctx.getException())
-                et = ctx.isLocalRequestor() ? RTRV_B_E_E
+                eventType.add(ctx.isLocalRequestor() ? RTRV_B_E_E
                         : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_B_M_E
                         : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
                             && ctx.isDestinationRequestor() ? RTRV_B_G_E
-                        : null != ctx.getHttpRequest() ? RTRV_B_W_E : null;
+                        : null != ctx.getHttpRequest() ? RTRV_B_W_E : null);
             if (ctx.getException() == null)
-                et = ctx.isLocalRequestor() ? RTRV_B_E_P
+                eventType.add(ctx.isLocalRequestor() ? RTRV_B_E_P
                         : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_B_M_P
                         : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                            && ctx.isDestinationRequestor()
-                        ? RTRV_B_G_P : null != ctx.getHttpRequest() ? RTRV_B_W_P : null;
-            eventType.add(et);
+                        && ctx.isDestinationRequestor()
+                        ? RTRV_B_G_P : null != ctx.getHttpRequest() ? RTRV_B_W_P : null);
             return eventType;
         }
 
         static HashSet<EventType> forDicomInstTransferred(RetrieveContext ctx) {
             HashSet<EventType> eventType = new HashSet<>();
-            EventType et;
             if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size()) {
                 if (null != ctx.getException() || ctx.failedSOPInstanceUIDs().length > 0) {
                     eventType.add(getDicomInstTrfdErrorEventType(ctx));
                 }
                 if (ctx.getException() == null || ctx.failedSOPInstanceUIDs().length > 0) {
-                    et = ctx.isLocalRequestor() ? RTRV_T_E_P
+                    eventType.add(ctx.isLocalRequestor() ? RTRV_T_E_P
                             : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_T_M_P
                             : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
                             && ctx.isDestinationRequestor()
-                            ? RTRV_T_G_P : null != ctx.getHttpRequest() ? RTRV_T_W_P : null;
-                    eventType.add(et);
+                            ? RTRV_T_G_P : null != ctx.getHttpRequest() ? RTRV_T_W_P : null);
                 }
             }
             else
@@ -255,23 +251,19 @@ public class AuditServiceUtils {
 
         static HashSet<EventType> forHL7(PatientMgtContext ctx) {
             HashSet<EventType> eventType = new HashSet<>();
-            EventType et;
             if (ctx.getException() != null)
-                et = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                eventType.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                         ? HL7_CREA_E
                         : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
-                        ? HL7_UPDA_E : null;
+                        ? HL7_UPDA_E : null);
             else
-                et = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                eventType.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                         ? HL7_CREA_P
                         : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
                         ? HL7_UPDA_P
-                        : null;
-            eventType.add(et);
-            if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null) {
-                et = ctx.getException() != null ? HL7_DELT_E : HL7_DELT_P;
-                eventType.add(et);
-            }
+                        : null);
+            if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null)
+                eventType.add(ctx.getException() != null ? HL7_DELT_E : HL7_DELT_P);
             return eventType;
         }
     }
@@ -304,7 +296,6 @@ public class AuditServiceUtils {
     }
 
     static String getLocalHostName(AuditLogger log) {
-        List<Connection> conns = log.getConnections();
-        return conns.get(0).getHostname();
+        return log.getConnections().get(0).getHostname();
     }
 }
