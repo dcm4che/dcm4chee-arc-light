@@ -69,7 +69,8 @@ class PatientStudyInfo {
         fields = new String[] {
                 ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCallingAET() != null ? ctx.getStoreSession().getCallingAET()
-                        : ctx.getStoreSession().getRemoteHostName(),
+                        : ((RefreshableKeycloakSecurityContext) ctx.getStoreSession().getHttpRequest().getAttribute(
+                        KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername(),
                 ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
