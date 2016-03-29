@@ -150,7 +150,7 @@ public class Study {
     @Column(name = "scattered_storage")
     private boolean scatteredStorage;
 
-    @Column(name = "failed_iuids")
+    @Column(name = "failed_iuids", length = 4000)
     private String failedSOPInstanceUIDList;
 
     @Basic(optional = false)

@@ -275,9 +275,6 @@
       <basic name="studyDescription" optional="false">
         <column name="study_desc" column-definition="nvarchar2(255)" />
       </basic>
-      <basic name="failedSOPInstanceUIDList">
-        <column name="failed_iuids" column-definition="varchar2(4000 char)" />
-      </basic>
     </attributes>
   </entity>
 

@@ -124,7 +124,7 @@ public class QueueMessage {
     private String messageID;
 
     @Basic(optional = false)
-    @Column(name = "msg_props", updatable = false)
+    @Column(name = "msg_props", updatable = false, length = 4000)
     private String messageProperties;
 
     @Basic(optional = false)
