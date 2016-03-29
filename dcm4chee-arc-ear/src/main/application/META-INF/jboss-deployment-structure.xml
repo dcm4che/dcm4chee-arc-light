@@ -67,6 +67,8 @@
             <!-- jclouds modules -->
             <module name="org.apache.jclouds.core" export="TRUE"/>
             <module name="org.apache.jclouds.blobstore" export="TRUE" services="export"/>
+			<module name="org.keycloak.keycloak-core" export="TRUE" services="export"/>
+			<module name="org.keycloak.keycloak-adapter-core" export="TRUE" services="export"/>
         </dependencies>
     </deployment>
 </jboss-deployment-structure>

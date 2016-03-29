@@ -46,6 +46,8 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -61,60 +63,52 @@ class PatientStudyInfo {
     static final int PATIENT_NAME = 6;
     static final int OUTCOME = 7;
     static final int STUDY_DATE = 8;
-    String outcome;
     private final String[] fields;
 
     PatientStudyInfo(StoreContext ctx) {
-        outcome = null != ctx.getRejectionNote() ? null != ctx.getException()
-                ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
-                : null != ctx.getException() ? ctx.getException().getMessage() : null;
-        String callingAET = ctx.getStoreSession().getCallingAET() != null ? ctx.getStoreSession().getCallingAET()
-                            : ctx.getStoreSession().getRemoteHostName();
         fields = new String[] {
                 ctx.getStoreSession().getRemoteHostName(),
-                callingAET,
+                ctx.getStoreSession().getCallingAET() != null ? ctx.getStoreSession().getCallingAET()
+                        : ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
                 ctx.getAttributes().getString(Tag.PatientID, AuditServiceUtils.noValue),
                 ctx.getAttributes().getString(Tag.PatientName),
-                outcome,
+                null != ctx.getRejectionNote() ? null != ctx.getException()
+                        ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
+                        : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
+                        : null != ctx.getException() ? ctx.getException().getMessage() : null,
                 ctx.getAttributes().getString(Tag.StudyDate)
         };
     }
 
     PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
-        outcome = (null != ctx.getException()) ? ctx.getException().getMessage(): null;
         fields = new String[] {
                 ctx.getHttpRequest().getRemoteAddr(),
-                ctx.getHttpRequest().getRemoteAddr(),
+                ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername(),
                 ctx.getLocalAETitle(),
                 ctx.getStudyInstanceUIDs()[0],
                 attrs.getString(Tag.AccessionNumber),
                 attrs.getString(Tag.PatientID, AuditServiceUtils.noValue),
                 attrs.getString(Tag.PatientName),
-                outcome,
+                null != ctx.getException() ? ctx.getException().getMessage(): null,
                 attrs.getString(Tag.StudyDate)
         };
     }
 
     PatientStudyInfo(StudyDeleteContext ctx) {
-        outcome = (ctx.getException() != null) ? ctx.getException().getMessage() : null;
-        String patientName = null != ctx.getPatient().getPatientName().toString()
-                ? ctx.getPatient().getPatientName().toString() : null;
-        String accessionNo = (ctx.getStudy().getAccessionNumber() != null) ? ctx.getStudy().getAccessionNumber() : null;
-        String studyDate = (ctx.getStudy().getStudyDate() != null) ? ctx.getStudy().getStudyDate() : null;
         fields = new String[] {
                 null,
                 null,
                 null,
                 ctx.getStudy().getStudyInstanceUID(),
-                accessionNo,
+                ctx.getStudy().getAccessionNumber() != null ? ctx.getStudy().getAccessionNumber() : null,
                 ctx.getPatient().getPatientID().getID(),
-                patientName,
-                outcome,
-                studyDate
+                null != ctx.getPatient().getPatientName().toString()
+                        ? ctx.getPatient().getPatientName().toString() : null,
+                ctx.getException() != null ? ctx.getException().getMessage() : null,
+                ctx.getStudy().getStudyDate() != null ? ctx.getStudy().getStudyDate() : null
         };
     }
 

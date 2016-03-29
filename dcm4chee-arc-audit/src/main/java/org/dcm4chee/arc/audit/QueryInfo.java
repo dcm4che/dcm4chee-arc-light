@@ -43,6 +43,8 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.query.QueryContext;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -59,19 +61,17 @@ public class QueryInfo {
     private final String[] fields;
 
     QueryInfo(QueryContext ctx) {
-        String queryString = (ctx.getHttpRequest() != null)
-                ? ctx.getHttpRequest().getRequestURI() + ctx.getHttpRequest().getQueryString()
-                : null;
-        String patientID = (ctx.getQueryKeys() != null && ctx.getQueryKeys().getString(Tag.PatientID) != null)
-                ? ctx.getQueryKeys().getString(Tag.PatientID) : AuditServiceUtils.noValue;
-        String callingAET = ctx.getCallingAET() != null ? ctx.getCallingAET() : ctx.getRemoteHostName();
         fields = new String[] {
-                callingAET,
+                ctx.getCallingAET() != null ? ctx.getCallingAET()
+                        : ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
+                        KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername(),
                 ctx.getRemoteHostName(),
                 ctx.getCalledAET(),
                 ctx.getSOPClassUID(),
-                patientID,
-                queryString
+                ctx.getQueryKeys() != null && ctx.getQueryKeys().getString(Tag.PatientID) != null
+                    ? ctx.getQueryKeys().getString(Tag.PatientID) : AuditServiceUtils.noValue,
+                ctx.getHttpRequest() != null
+                    ? ctx.getHttpRequest().getRequestURI() + ctx.getHttpRequest().getQueryString() : null
         };
     }
 

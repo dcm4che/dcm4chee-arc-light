@@ -43,6 +43,8 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -61,28 +63,24 @@ public class RetrieveInfo {
     private final String[] fields;
 
     RetrieveInfo(RetrieveContext ctx, String etFile) {
-        String outcome = null != ctx.getException()
-                ? ctx.getException().getMessage()
-                : ctx.warning() != 0 ? ctx.getOutcomeDescription()
-                : ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
-                ? ctx.getOutcomeDescription() : null;
-        String partialError = ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
-                ? Boolean.toString(true) : Boolean.toString(false);
-        String destNapID = (null == ctx.getHttpRequest())
-                ? (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null
-                : ctx.getHttpRequest().getRemoteAddr();
-        String destNapCode = (null != ctx.getDestinationHostName() || null != ctx.getHttpRequest())
-                ? AuditMessages.NetworkAccessPointTypeCode.IPAddress : null;
-        String destAET = ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRemoteAddr() : ctx.getDestinationAETitle();
         fields = new String[] {
                 ctx.getLocalAETitle(),
-                destAET,
-                destNapID,
-                destNapCode,
+                ctx.getHttpRequest() != null ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
+                        KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername() : ctx.getDestinationAETitle(),
+                null == ctx.getHttpRequest()
+                    ? (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null
+                    : ctx.getHttpRequest().getRemoteAddr(),
+                null != ctx.getDestinationHostName() || null != ctx.getHttpRequest()
+                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress : null,
                 ctx.getRequestorHostName(),
                 ctx.getMoveOriginatorAETitle(),
-                outcome,
-                partialError
+                null != ctx.getException()
+                        ? ctx.getException().getMessage()
+                        : ctx.warning() != 0 ? ctx.getOutcomeDescription()
+                        : ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
+                        ? ctx.getOutcomeDescription() : null,
+                ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
+                        ? Boolean.toString(true) : Boolean.toString(false)
         };
     }
 
