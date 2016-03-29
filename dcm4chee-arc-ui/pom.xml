@@ -69,7 +69,6 @@
         <configuration>
           <warSourceIncludes>
             index.html,
-			logout.html,
             css/**,
             js/**,
             schema/*schema.json,

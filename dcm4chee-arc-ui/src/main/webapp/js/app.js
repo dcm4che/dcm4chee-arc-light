@@ -30,7 +30,7 @@ myApp.value("schemas", {});
 myApp.logoutUrl = function() {
     var host = location.protocol + "//" + location.host
     return host + "/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri="
-        + encodeURIComponent(host + location.pathname) + "logout.html";
+        + encodeURIComponent(host + location.pathname);
 }
 
 
