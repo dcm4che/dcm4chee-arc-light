@@ -966,7 +966,7 @@
         "roles"
       ],
       "properties": {
-        "status": {
+        "user": {
           "title": "user",
           "description": "user name",
           "type": "string"
