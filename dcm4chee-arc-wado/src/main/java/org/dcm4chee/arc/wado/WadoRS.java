@@ -51,6 +51,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.retrieve.*;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
@@ -72,10 +73,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -112,6 +110,7 @@ public class WadoRS {
 
     private Collection<String> acceptableTransferSyntaxes;
     private List<MediaType> acceptableMediaTypes;
+    private Map<String, MediaType> selectedMediaTypes;
 
     @Override
     public String toString() {
@@ -137,13 +136,12 @@ public class WadoRS {
     }
 
     @GET
-    @Path("/studies/{studyUID}")
+    @Path("/studies/{studyUID}/rendered")
     @Produces("multipart/related")
-    public void retrieveStudyRendered(
+    public void retrieveRenderedStudy(
             @PathParam("studyUID") String studyUID,
-            @QueryParam("rendered") String rendered,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyRendered", studyUID, null, null, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedStudy", studyUID, null, null, null, ar, Output.RENDER);
     }
 
     @GET
@@ -185,14 +183,13 @@ public class WadoRS {
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}")
+    @Path("/studies/{studyUID}/series/{seriesUID}/rendered")
     @Produces("multipart/related")
-    public void retrieveSeriesRendered(
+    public void retrieveRenderedSeries(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
-            @QueryParam("rendered") String rendered,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesRendered", studyUID, seriesUID, null, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedSeries", studyUID, seriesUID, null, null, ar, Output.RENDER);
     }
 
     @GET
@@ -238,15 +235,14 @@ public class WadoRS {
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/rendered")
     @Produces("multipart/related")
-    public void retrieveInstanceRendered(
+    public void retrieveRenderedInstance(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
-            @QueryParam("rendered") String rendered,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceRendered", studyUID, seriesUID, objectUID, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedInstance", studyUID, seriesUID, objectUID, null, ar, Output.RENDER);
     }
 
     @GET
@@ -264,26 +260,25 @@ public class WadoRS {
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
     @Produces("multipart/related")
-    public void retrieveFramesBulkdata(
+    public void retrieveFrames(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") String frameList,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveFramesBulkdata", studyUID, seriesUID, objectUID, frameList, ar, Output.BULKDATA_FRAME);
+        retrieve("retrieveFrames", studyUID, seriesUID, objectUID, frameList, ar, Output.BULKDATA_FRAME);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}/rendered")
     @Produces("multipart/related")
-    public void retrieveFramesRendered(
+    public void retrieveRenderedFrames(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") String frameList,
-            @QueryParam("rendered") String rendered,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveFramesBulkdata", studyUID, seriesUID, objectUID, frameList, ar, Output.RENDER_FRAME);
+        retrieve("retrieveRenderedFrames", studyUID, seriesUID, objectUID, frameList, ar, Output.RENDER_FRAME);
     }
 
     @GET
@@ -322,6 +317,11 @@ public class WadoRS {
             LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
             if (ctx.getNumberOfMatches() == 0)
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
+//            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
+            Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx);
+            if (ctx.getNumberOfMatches() == 0)
+                throw new WebApplicationException(
+                        notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
             retrieveStart.fire(ctx);
             ar.register(new CompletionCallback() {
                 @Override
@@ -330,7 +330,9 @@ public class WadoRS {
                     retrieveEnd.fire(ctx);
                 }
             });
-            ar.resume(Response.status(output.status(this, ctx)).entity(output.entity(this, ctx)).build());
+            ar.resume(Response.status(
+                    notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT)
+                    .entity(output.entity(this, ctx, frameList)).build());
         } catch (Exception e) {
             ar.resume(e);
         }
@@ -347,106 +349,125 @@ public class WadoRS {
     private enum Output {
         DICOM {
             @Override
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+                return Collections.EMPTY_LIST;
+            }
+            @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst) {
+                                   InstanceLocations inst, String frameList) {
                 wadoRS.writeDICOM(output, ctx, inst);
             }
         },
         BULKDATA {
             @Override
-            public Response.Status status(WadoRS wadoRS, RetrieveContext ctx) {
-                return wadoRS.selectMediaTypesForBulkdata(ctx);
-            }
-
-            @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst) {
-                super.addPart(output, wadoRS, ctx, inst);
+                                   InstanceLocations inst, String frameList) {
+                super.addPart(output, wadoRS, ctx, inst, frameList);
             }
         },
         BULKDATA_FRAME {
             @Override
-            public Response.Status status(WadoRS wadoRS, RetrieveContext ctx) {
-                return wadoRS.selectMediaTypesForBulkdata(ctx);
+            protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType) {
+                return objectType.getPixelDataContentTypes(match);
             }
-
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst) {
-                super.addPart(output, wadoRS, ctx, inst);
+                                   InstanceLocations inst, String frameList) {
+                super.addPart(output, wadoRS, ctx, inst, frameList);
             }
         },
         BULKDATA_PATH {
             @Override
-            public Response.Status status(WadoRS wadoRS, RetrieveContext ctx) {
-                return super.status(wadoRS, ctx);
+            protected MediaType[] mediaTypesFor(InstanceLocations match) {
+                return new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE };
             }
-
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst) {
-                super.addPart(output, wadoRS, ctx, inst);
+                                   InstanceLocations inst, String frameList) {
+                super.addPart(output, wadoRS, ctx, inst, frameList);
             }
         },
         RENDER {
             @Override
-            public Response.Status status(WadoRS wadoRS, RetrieveContext ctx) {
-                return super.status(wadoRS, ctx);
-            }
-
-            @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst) {
-                super.addPart(output, wadoRS, ctx, inst);
+                                   InstanceLocations inst, String frameList) {
+                super.addPart(output, wadoRS, ctx, inst, frameList);
             }
         },
         RENDER_FRAME {
             @Override
-            public Response.Status status(WadoRS wadoRS, RetrieveContext ctx) {
-                return super.status(wadoRS, ctx);
-            }
-
-            @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst) {
-                super.addPart(output, wadoRS, ctx, inst);
+                                   InstanceLocations inst, String frameList) {
+                super.addPart(output, wadoRS, ctx, inst, frameList);
             }
         },
         METADATA_XML {
             @Override
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+                return Collections.EMPTY_LIST;
+            }
+            @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst) {
+                                   InstanceLocations inst, String frameList) {
                 wadoRS.writeMetadataXML(output, ctx, inst);
             }
         },
         METADATA_JSON {
             @Override
-            public Object entity(WadoRS wadoRS, RetrieveContext ctx) {
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+                return Collections.EMPTY_LIST;
+            }
+            @Override
+            public Object entity(WadoRS wadoRS, RetrieveContext ctx, String frameList) {
                 return wadoRS.writeMetadataJSON(ctx);
             }
         };
 
-        public Response.Status status(WadoRS wadoRS, RetrieveContext ctx) {
-            return Response.Status.OK;
-        }
-
-        public Object entity(WadoRS wadoRS, RetrieveContext ctx) {
+        public Object entity(WadoRS wadoRS, RetrieveContext ctx, String frameList) {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             for (InstanceLocations inst : ctx.getMatches()) {
-                addPart(output, wadoRS, ctx, inst);
+                addPart(output, wadoRS, ctx, inst, frameList);
             }
             return output;
         }
 
+        public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+            Collection<InstanceLocations> matches = ctx.getMatches();
+            Collection<InstanceLocations> notAcceptable = new ArrayList<>(matches.size());
+            Map<String,MediaType> selectedMediaTypes = new HashMap<>(matches.size() * 4 / 3);
+            Iterator<InstanceLocations> iter = matches.iterator();
+            while (iter.hasNext()) {
+                InstanceLocations match = iter.next();
+                MediaType[] mediaTypes = mediaTypesFor(match);
+                if (mediaTypes == null) {
+                    iter.remove();
+                    continue;
+                }
+                MediaType mediaType = wadoRS.selectMediaType(mediaTypes);
+                if (mediaType != null) {
+                    selectedMediaTypes.put(match.getSopInstanceUID(), mediaType);
+                } else {
+                    iter.remove();
+                    notAcceptable.add(match);
+                }
+            }
+            wadoRS.selectedMediaTypes = selectedMediaTypes;
+            return notAcceptable;
+        }
+
+        protected MediaType[] mediaTypesFor(InstanceLocations match) {
+            return mediaTypesFor(match, ObjectType.objectTypeOf(match, null));
+        }
+
+        protected MediaType[] mediaTypesFor(InstanceLocations match, ObjectType objectType) {
+            return objectType.getBulkdataContentTypes(match);
+        }
+
         protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                               InstanceLocations inst) {
+                               InstanceLocations inst, String frameList) {
              throw new WebApplicationException(name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE);
         }
-    }
 
-    private Response.Status selectMediaTypesForBulkdata(RetrieveContext ctx) {
-        Response.Status status = Response.Status.OK;
-        return status;
     }
 
     private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
@@ -478,6 +499,16 @@ public class WadoRS {
             acceptableMediaTypes = mediaTypes;
         }
         return mediaTypes;
+    }
+
+    private MediaType selectMediaType(MediaType... mediaTypes) {
+        for (MediaType acceptableMediaType : acceptableMediaTypes()) {
+            for (MediaType mediaType : mediaTypes) {
+                if (mediaType.isCompatible(acceptableMediaType))
+                    return mediaType;
+            }
+        }
+        return null;
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) throws Exception {

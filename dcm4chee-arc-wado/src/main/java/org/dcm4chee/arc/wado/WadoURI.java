@@ -54,7 +54,6 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -82,7 +81,6 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import java.awt.*;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -442,63 +440,6 @@ public class WadoURI {
             values = new MediaType[ss.length];
             for (int i = 0; i < ss.length; i++)
                 values[i] = MediaType.valueOf(ss[i]);
-        }
-    }
-
-    private enum ObjectType {
-        SingleFrameImage(
-                MediaTypes.IMAGE_JPEG_TYPE,
-                MediaTypes.APPLICATION_DICOM_TYPE,
-                MediaTypes.IMAGE_GIF_TYPE,
-                MediaTypes.IMAGE_PNG_TYPE),
-        MultiFrameImage(MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.IMAGE_GIF_TYPE),
-        MPEG2Video(MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.VIDEO_MPEG_TYPE),
-        MPEG4Video(MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.VIDEO_MP4_TYPE),
-        SRDocument(MediaType.TEXT_HTML_TYPE, MediaType.TEXT_PLAIN_TYPE, MediaTypes.APPLICATION_DICOM_TYPE),
-        EncapsulatedPDF(MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.APPLICATION_PDF_TYPE),
-        EncapsulatedCDA(MediaTypes.APPLICATION_DICOM_TYPE, MediaType.TEXT_XML_TYPE),
-        Other(MediaTypes.APPLICATION_DICOM_TYPE);
-
-        private final MediaType[] mimeTypes;
-
-        ObjectType(MediaType... mimeTypes) {
-            this.mimeTypes = mimeTypes;
-        }
-
-        public static ObjectType objectTypeOf(RetrieveContext ctx, InstanceLocations inst, String frameNumber) {
-            ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
-            String cuid = inst.getSopClassUID();
-            String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
-            Attributes attrs = inst.getAttributes();
-
-            if (arcDev.isWadoSupportedSRClass(cuid))
-                return SRDocument;
-            if (cuid.equals(UID.EncapsulatedPDFStorage))
-                return EncapsulatedPDF;
-            if (cuid.equals(UID.EncapsulatedCDAStorage))
-                return EncapsulatedCDA;
-            if (tsuid.equals(UID.MPEG2) || tsuid.equals(UID.MPEG2MainProfileHighLevel))
-                return MPEG2Video;
-            if (tsuid.equals(UID.MPEG4AVCH264HighProfileLevel41)
-                    || tsuid.equals(UID.MPEG4AVCH264BDCompatibleHighProfileLevel41))
-                return MPEG4Video;
-            if (attrs.contains(Tag.BitsAllocated) && !cuid.equals(UID.RTDoseStorage))
-                return (frameNumber == null && attrs.getInt(Tag.NumberOfFrames, 1) > 1)
-                        ? MultiFrameImage
-                        : SingleFrameImage;
-            return Other;
-        }
-
-        public MediaType getDefaultMimeType() {
-            return mimeTypes[0];
-        }
-
-        public boolean isCompatibleMimeType(MediaType other) {
-            for (MediaType type : mimeTypes) {
-                if (type.isCompatible(other))
-                    return true;
-            }
-            return false;
         }
     }
 
