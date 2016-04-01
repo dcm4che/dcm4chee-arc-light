@@ -102,7 +102,7 @@ public class AuditScheduler extends Scheduler {
             try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir, new DirectoryStream.Filter<Path>() {
                 @Override
                 public boolean accept(Path file) throws IOException {
-                    return !file.endsWith(FAILED)
+                    return !file.getFileName().toString().endsWith(FAILED)
                             && Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime;
                 }
             })) {
