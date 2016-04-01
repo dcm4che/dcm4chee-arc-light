@@ -266,9 +266,11 @@ public class WadoURI {
             throws IOException {
         int imageIndex = -1;
         switch (objectType) {
-            case SingleFrameImage:
+            case CompressedSingleFrameImage:
+            case UncompressedSingleFrameImage:
                 imageIndex = frameNumber(inst.getAttributes()) - 1;
-            case MultiFrameImage:
+            case CompressedMultiFrameImage:
+            case UncompressedMultiFrameImage:
                 return renderImage(ctx, inst, mimeType, imageIndex);
             case EncapsulatedCDA:
             case EncapsulatedPDF:

@@ -51,9 +51,9 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.retrieve.*;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
+import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -319,7 +319,7 @@ public class WadoRS {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
 //            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
             Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx);
-            if (ctx.getNumberOfMatches() == 0)
+            if (ctx.getMatches().isEmpty())
                 throw new WebApplicationException(
                         notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
             retrieveStart.fire(ctx);
@@ -362,7 +362,7 @@ public class WadoRS {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
                                    InstanceLocations inst, String frameList) {
-                super.addPart(output, wadoRS, ctx, inst, frameList);
+                wadoRS.writeBulkdata(output, ctx, inst);
             }
         },
         BULKDATA_FRAME {
@@ -470,6 +470,39 @@ public class WadoRS {
 
     }
 
+    private void writeBulkdata(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst) {
+        MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
+        StreamingOutput entity;
+        ObjectType objectType = ObjectType.objectTypeOf(inst, null);
+        switch (objectType) {
+            case UncompressedSingleFrameImage:
+            case UncompressedMultiFrameImage:
+                entity = new UncompressedPixelDataOutput(ctx, inst);
+                break;
+            case CompressedSingleFrameImage:
+            case MPEG2Video:
+            case MPEG4Video:
+                entity = new CompressedPixelDataOutput(ctx, inst);
+                break;
+            case EncapsulatedPDF:
+            case EncapsulatedCDA:
+                entity = new EncapsulatedDocumentOutput(ctx, inst);
+                break;
+            default:
+                throw new WebApplicationException(objectType + " not implemented",
+                        Response.Status.SERVICE_UNAVAILABLE);
+        }
+        OutputPart outputPart = output.addPart(entity, mediaType);
+        StringBuffer bulkdataURL = request.getRequestURL();
+        if (bulkdataURL.lastIndexOf("/instances/") < 0) {
+            if (bulkdataURL.lastIndexOf("/series/") < 0) {
+                bulkdataURL.append("/series/").append(inst.getAttributes().getString(Tag.SeriesInstanceUID));
+            }
+            bulkdataURL.append("/instances/").append(inst.getSopInstanceUID());
+        }
+        outputPart.getHeaders().putSingle("Content-Location", bulkdataURL);
+    }
+
     private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
         DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes());
         output.addPart(entity, MediaTypes.APPLICATION_DICOM_TYPE);
@@ -493,7 +526,7 @@ public class WadoRS {
         if (mediaTypes == null) {
             mediaTypes = new ArrayList<>();
             for (MediaType mediaType : headers.getAcceptableMediaTypes()) {
-                mediaTypes.add(MediaTypes.getMultiPartRelatedType(mediaType));
+                mediaTypes.add(mediaType.isWildcardType() ? mediaType : MediaTypes.getMultiPartRelatedType(mediaType));
             }
             mediaTypes.remove(null);
             acceptableMediaTypes = mediaTypes;

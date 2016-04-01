@@ -55,12 +55,25 @@ import javax.ws.rs.core.MediaType;
  * @since Mar 2016
  */
 enum ObjectType {
-    SingleFrameImage(
+    UncompressedSingleFrameImage(
             new MediaType[] {
                 MediaTypes.IMAGE_JPEG_TYPE,
                 MediaTypes.APPLICATION_DICOM_TYPE,
                 MediaTypes.IMAGE_GIF_TYPE,
                 MediaTypes.IMAGE_PNG_TYPE
+            },
+            new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE }) {
+        @Override
+        public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
+            return super.getBulkdataContentTypes(inst);
+        }
+    },
+    CompressedSingleFrameImage(
+            new MediaType[] {
+                    MediaTypes.IMAGE_JPEG_TYPE,
+                    MediaTypes.APPLICATION_DICOM_TYPE,
+                    MediaTypes.IMAGE_GIF_TYPE,
+                    MediaTypes.IMAGE_PNG_TYPE
             },
             null) {
         @Override
@@ -72,7 +85,15 @@ enum ObjectType {
             return super.calcPixelDataContentTypes(inst);
         }
     },
-    MultiFrameImage(
+    UncompressedMultiFrameImage(
+            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.IMAGE_GIF_TYPE },
+            new MediaType[] { MediaType.APPLICATION_OCTET_STREAM_TYPE }) {
+        @Override
+        public MediaType[] getPixelDataContentTypes(InstanceLocations inst) {
+            return super.getBulkdataContentTypes(inst);
+        }
+    },
+    CompressedMultiFrameImage(
             new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.IMAGE_GIF_TYPE },
             null) {
         @Override
@@ -138,17 +159,24 @@ enum ObjectType {
             return EncapsulatedPDF;
         if (cuid.equals(UID.EncapsulatedCDAStorage))
             return EncapsulatedCDA;
-        if (tsuid.equals(UID.MPEG2) || tsuid.equals(UID.MPEG2MainProfileHighLevel))
-            return MPEG2Video;
-        if (tsuid.equals(UID.MPEG4AVCH264HighProfileLevel41)
-                || tsuid.equals(UID.MPEG4AVCH264BDCompatibleHighProfileLevel41))
-            return MPEG4Video;
-        if (attrs.contains(Tag.BitsAllocated) && !cuid.equals(UID.RTDoseStorage))
-            return (frameNumber == null && attrs.getInt(Tag.NumberOfFrames, 1) > 1)
-                    ? MultiFrameImage
-                    : SingleFrameImage;
-        return Other;
-    }
+        if (!attrs.contains(Tag.BitsAllocated) || cuid.equals(UID.RTDoseStorage))
+            return Other;
+
+        boolean multiframe = frameNumber == null && attrs.getInt(Tag.NumberOfFrames, 1) > 1;
+        switch (tsuid) {
+            case UID.MPEG2:
+            case UID.MPEG2MainProfileHighLevel:
+                return MPEG2Video;
+            case UID.MPEG4AVCH264HighProfileLevel41:
+            case UID.MPEG4AVCH264BDCompatibleHighProfileLevel41:
+                return MPEG4Video;
+            case UID.ImplicitVRLittleEndian:
+            case UID.ExplicitVRLittleEndian:
+                return multiframe ? UncompressedMultiFrameImage : UncompressedSingleFrameImage;
+            default:
+                return multiframe ? CompressedMultiFrameImage : CompressedSingleFrameImage;
+        }
+     }
 
     public MediaType getDefaultMimeType() {
         return mimeTypes[0];
@@ -170,8 +198,9 @@ enum ObjectType {
         return null;
     }
 
-    private MediaType[] calcPixelDataContentTypes(InstanceLocations inst) {
+    protected MediaType[] calcPixelDataContentTypes(InstanceLocations inst) {
         String tsuid = inst.getLocations().get(0).getTransferSyntaxUID();
-        return new MediaType[] { MediaTypes.forTransferSyntax(tsuid), MediaType.APPLICATION_OCTET_STREAM_TYPE };
+        MediaType mediaType = MediaTypes.forTransferSyntax(tsuid);
+        return new MediaType[] { mediaType, MediaType.APPLICATION_OCTET_STREAM_TYPE };
     }
 }
