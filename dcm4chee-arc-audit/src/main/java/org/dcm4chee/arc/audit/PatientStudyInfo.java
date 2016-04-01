@@ -69,17 +69,19 @@ class PatientStudyInfo {
         fields = new String[] {
                 ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCallingAET() != null ? ctx.getStoreSession().getCallingAET()
-                        : ((RefreshableKeycloakSecurityContext) ctx.getStoreSession().getHttpRequest().getAttribute(
-                        KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername(),
+                    : ctx.getStoreSession().getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
+                    ? ((RefreshableKeycloakSecurityContext) ctx.getStoreSession().getHttpRequest().getAttribute(
+                    KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                    : null,
                 ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
                 ctx.getAttributes().getString(Tag.PatientID, AuditServiceUtils.noValue),
                 ctx.getAttributes().getString(Tag.PatientName),
                 null != ctx.getRejectionNote() ? null != ctx.getException()
-                        ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                        : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
-                        : null != ctx.getException() ? ctx.getException().getMessage() : null,
+                    ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
+                    : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
+                    : null != ctx.getException() ? ctx.getException().getMessage() : null,
                 ctx.getAttributes().getString(Tag.StudyDate)
         };
     }
@@ -87,7 +89,10 @@ class PatientStudyInfo {
     PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
         fields = new String[] {
                 ctx.getHttpRequest().getRemoteAddr(),
-                ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername(),
+                ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
+                    ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
+                    KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                    : null,
                 ctx.getLocalAETitle(),
                 ctx.getStudyInstanceUIDs()[0],
                 attrs.getString(Tag.AccessionNumber),

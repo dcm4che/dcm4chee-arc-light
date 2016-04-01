@@ -65,8 +65,12 @@ public class RetrieveInfo {
     RetrieveInfo(RetrieveContext ctx, String etFile) {
         fields = new String[] {
                 ctx.getLocalAETitle(),
-                ctx.getHttpRequest() != null ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
-                        KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername() : ctx.getDestinationAETitle(),
+                ctx.getHttpRequest() != null
+                    ? ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
+                    ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
+                    KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                    : null
+                    : ctx.getDestinationAETitle(),
                 null == ctx.getHttpRequest()
                     ? (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null
                     : ctx.getHttpRequest().getRemoteAddr(),
@@ -75,12 +79,12 @@ public class RetrieveInfo {
                 ctx.getRequestorHostName(),
                 ctx.getMoveOriginatorAETitle(),
                 null != ctx.getException()
-                        ? ctx.getException().getMessage()
-                        : ctx.warning() != 0 ? ctx.getOutcomeDescription()
-                        : ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
-                        ? ctx.getOutcomeDescription() : null,
+                    ? ctx.getException().getMessage()
+                    : ctx.warning() != 0 ? ctx.getOutcomeDescription()
+                    : ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
+                    ? ctx.getOutcomeDescription() : null,
                 ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
-                        ? Boolean.toString(true) : Boolean.toString(false)
+                    ? Boolean.toString(true) : Boolean.toString(false)
         };
     }
 

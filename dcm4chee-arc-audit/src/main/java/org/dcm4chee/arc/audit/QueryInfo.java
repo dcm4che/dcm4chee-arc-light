@@ -62,9 +62,12 @@ public class QueryInfo {
 
     QueryInfo(QueryContext ctx) {
         fields = new String[] {
-                ctx.getCallingAET() != null ? ctx.getCallingAET()
-                        : ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
-                        KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername(),
+                ctx.getCallingAET() != null
+                ? ctx.getCallingAET()
+                : ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
+                ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
+                KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                : null,
                 ctx.getRemoteHostName(),
                 ctx.getCalledAET(),
                 ctx.getSOPClassUID(),
