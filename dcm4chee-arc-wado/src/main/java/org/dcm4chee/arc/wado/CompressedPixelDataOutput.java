@@ -77,6 +77,7 @@ public class CompressedPixelDataOutput implements StreamingOutput {
             dis.readDataset(-1, Tag.PixelData);
             if (dis.tag() != Tag.PixelData || dis.length() != -1 || !dis.readItemHeader())
                 throw new IOException("No or incorrect encapsulated compressed pixel data in requested object");
+            dis.skipFully(dis.length());
             while (dis.readItemHeader())
                 StreamUtils.copy(dis, out, dis.length());
         }
