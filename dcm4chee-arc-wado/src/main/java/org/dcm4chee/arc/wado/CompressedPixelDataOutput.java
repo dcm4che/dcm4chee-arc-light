@@ -40,11 +40,7 @@
 
 package org.dcm4chee.arc.wado;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.BulkData;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.io.BulkDataCreator;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
@@ -54,7 +50,6 @@ import org.dcm4chee.arc.retrieve.RetrieveService;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
