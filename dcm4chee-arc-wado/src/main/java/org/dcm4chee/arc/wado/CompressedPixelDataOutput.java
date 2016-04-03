@@ -71,7 +71,7 @@ public class CompressedPixelDataOutput implements StreamingOutput {
     }
 
     @Override
-    public void write(final OutputStream out) throws IOException {
+    public void write(OutputStream out) throws IOException {
         RetrieveService service = ctx.getRetrieveService();
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
             dis.readDataset(-1, Tag.PixelData);

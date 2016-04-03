@@ -71,7 +71,7 @@ public class CompressedMFPixelDataOutput implements StreamingOutput, Closeable {
     }
 
     @Override
-    public void write(final OutputStream out) throws IOException {
+    public void write(OutputStream out) throws IOException {
         try {
             if (dis == null)
                 initDicomInputStream();
