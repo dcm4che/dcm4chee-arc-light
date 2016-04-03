@@ -47,11 +47,13 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.retrieve.*;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
@@ -111,6 +113,7 @@ public class WadoRS {
     private Collection<String> acceptableTransferSyntaxes;
     private List<MediaType> acceptableMediaTypes;
     private Map<String, MediaType> selectedMediaTypes;
+    private CompressedMFPixelDataOutput compressedMFPixelDataOutput;
 
     @Override
     public String toString() {
@@ -123,7 +126,7 @@ public class WadoRS {
     public void retrieveStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudy", studyUID, null, null, null, ar, Output.DICOM);
+        retrieve("retrieveStudy", studyUID, null, null, null, null, ar, Output.DICOM);
     }
 
     @GET
@@ -132,16 +135,7 @@ public class WadoRS {
     public void retrieveStudyBulkdata(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyBulkdata", studyUID, null, null, null, ar, Output.BULKDATA);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/rendered")
-    @Produces("multipart/related")
-    public void retrieveRenderedStudy(
-            @PathParam("studyUID") String studyUID,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedStudy", studyUID, null, null, null, ar, Output.RENDER);
+        retrieve("retrieveStudyBulkdata", studyUID, null, null, null, null, ar, Output.BULKDATA);
     }
 
     @GET
@@ -150,7 +144,7 @@ public class WadoRS {
     public void retrieveStudyMetadataAsJSON(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyMetadataAsJSON", studyUID, null, null, null, ar, Output.METADATA_JSON);
+        retrieve("retrieveStudyMetadataAsJSON", studyUID, null, null, null, null, ar, Output.METADATA_JSON);
     }
 
     @GET
@@ -159,7 +153,7 @@ public class WadoRS {
     public void retrieveStudyMetadataAsXML(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyMetadataAsXML", studyUID, null, null, null, ar, Output.METADATA_XML);
+        retrieve("retrieveStudyMetadataAsXML", studyUID, null, null, null, null, ar, Output.METADATA_XML);
     }
 
     @GET
@@ -169,7 +163,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeries", studyUID, seriesUID, null, null, ar, Output.DICOM);
+        retrieve("retrieveSeries", studyUID, seriesUID, null, null, null, ar, Output.DICOM);
     }
 
     @GET
@@ -179,17 +173,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesBulkdata", studyUID, seriesUID, null, null, ar, Output.BULKDATA);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/rendered")
-    @Produces("multipart/related")
-    public void retrieveRenderedSeries(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedSeries", studyUID, seriesUID, null, null, ar, Output.RENDER);
+        retrieve("retrieveSeriesBulkdata", studyUID, seriesUID, null, null, null, ar, Output.BULKDATA);
     }
 
     @GET
@@ -199,7 +183,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesMetadataAsJSON", studyUID, seriesUID, null, null, ar, Output.METADATA_JSON);
+        retrieve("retrieveSeriesMetadataAsJSON", studyUID, seriesUID, null, null, null, ar, Output.METADATA_JSON);
     }
 
     @GET
@@ -209,7 +193,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, null, ar, Output.METADATA_XML);
+        retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, null, null, ar, Output.METADATA_XML);
     }
 
     @GET
@@ -220,7 +204,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, ar, Output.DICOM);
+        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, null, ar, Output.DICOM);
     }
 
     @GET
@@ -231,7 +215,53 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceBulkdata", studyUID, seriesUID, objectUID, null, ar, Output.BULKDATA);
+        retrieve("retrieveInstanceBulkdata", studyUID, seriesUID, objectUID, null, null, ar, Output.BULKDATA);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/bulkdata/{attributePath:.+}")
+    @Produces("multipart/related")
+    public void retrieveBulkdata(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @PathParam("objectUID") String objectUID,
+            @PathParam("attributePath") @ValidValueOf(type = AttributePath.class) String attributePath,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveBulkdata", studyUID, seriesUID, objectUID,
+                null, new AttributePath(attributePath).path, ar, Output.BULKDATA_PATH);
+    }
+
+/*
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
+    @Produces("multipart/related")
+    public void retrieveFrames(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @PathParam("objectUID") String objectUID,
+            @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveFrames", studyUID, seriesUID, objectUID,
+                new FrameList(frameList).frames, null, ar, Output.BULKDATA_FRAME);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/rendered")
+    @Produces("multipart/related")
+    public void retrieveRenderedStudy(
+            @PathParam("studyUID") String studyUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveRenderedStudy", studyUID, null, null, null, null, ar, Output.RENDER);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/rendered")
+    @Produces("multipart/related")
+    public void retrieveRenderedSeries(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveRenderedSeries", studyUID, seriesUID, null, null, null, ar, Output.RENDER);
     }
 
     @GET
@@ -242,31 +272,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedInstance", studyUID, seriesUID, objectUID, null, ar, Output.RENDER);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/bulkdata/{attributePath}")
-    @Produces("multipart/related")
-    public void retrieveBulkdata(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID,
-            @PathParam("attributePath") String attributePath,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveBulkdata", studyUID, seriesUID, objectUID, attributePath, ar, Output.BULKDATA_PATH);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
-    @Produces("multipart/related")
-    public void retrieveFrames(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID,
-            @PathParam("frameList") String frameList,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveFrames", studyUID, seriesUID, objectUID, frameList, ar, Output.BULKDATA_FRAME);
+        retrieve("retrieveRenderedInstance", studyUID, seriesUID, objectUID, null, null, ar, Output.RENDER);
     }
 
     @GET
@@ -276,10 +282,12 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
-            @PathParam("frameList") String frameList,
+            @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedFrames", studyUID, seriesUID, objectUID, frameList, ar, Output.RENDER_FRAME);
+        retrieve("retrieveRenderedFrames", studyUID, seriesUID, objectUID,
+                new FrameList(frameList).frames, null, ar, Output.RENDER_FRAME);
     }
+*/
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
@@ -289,7 +297,8 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceMetadataAsJSON", studyUID, seriesUID, objectUID, null, ar, Output.METADATA_JSON);
+        retrieve("retrieveInstanceMetadataAsJSON", studyUID, seriesUID, objectUID, null, null, ar,
+                Output.METADATA_JSON);
     }
 
     @GET
@@ -300,11 +309,11 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, null, ar, Output.METADATA_XML);
+        retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, null, null, ar, Output.METADATA_XML);
     }
 
-    private void retrieve(String method, String studyUID, String seriesUID, String objectUID, String frameList,
-                          AsyncResponse ar, Output output) {
+    private void retrieve(String method, String studyUID, String seriesUID, String objectUID, int[] frameList,
+                          int[] attributePath, AsyncResponse ar, Output output) {
         // @Inject does not work:
         // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
         // s. https://issues.jboss.org/browse/RESTEASY-903
@@ -326,13 +335,14 @@ public class WadoRS {
             ar.register(new CompletionCallback() {
                 @Override
                 public void onComplete(Throwable throwable) {
+                    SafeClose.close(compressedMFPixelDataOutput);
                     ctx.setException(throwable);
                     retrieveEnd.fire(ctx);
                 }
             });
             ar.resume(Response.status(
                     notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT)
-                    .entity(output.entity(this, ctx, frameList)).build());
+                    .entity(output.entity(this, ctx, frameList, attributePath)).build());
         } catch (Exception e) {
             ar.resume(e);
         }
@@ -354,14 +364,14 @@ public class WadoRS {
             }
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, String frameList) {
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
                 wadoRS.writeDICOM(output, ctx, inst);
             }
         },
         BULKDATA {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, String frameList) {
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
                 wadoRS.writeBulkdata(output, ctx, inst);
             }
         },
@@ -372,8 +382,8 @@ public class WadoRS {
             }
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, String frameList) {
-                super.addPart(output, wadoRS, ctx, inst, frameList);
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                super.addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
         },
         BULKDATA_PATH {
@@ -383,22 +393,22 @@ public class WadoRS {
             }
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, String frameList) {
-                super.addPart(output, wadoRS, ctx, inst, frameList);
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                wadoRS.writeBulkdata(output, ctx, inst, attributePath);
             }
         },
         RENDER {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, String frameList) {
-                super.addPart(output, wadoRS, ctx, inst, frameList);
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                super.addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
         },
         RENDER_FRAME {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, String frameList) {
-                super.addPart(output, wadoRS, ctx, inst, frameList);
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                super.addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
         },
         METADATA_XML {
@@ -408,7 +418,7 @@ public class WadoRS {
             }
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, String frameList) {
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
                 wadoRS.writeMetadataXML(output, ctx, inst);
             }
         },
@@ -418,15 +428,15 @@ public class WadoRS {
                 return Collections.EMPTY_LIST;
             }
             @Override
-            public Object entity(WadoRS wadoRS, RetrieveContext ctx, String frameList) {
+            public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
                 return wadoRS.writeMetadataJSON(ctx);
             }
         };
 
-        public Object entity(WadoRS wadoRS, RetrieveContext ctx, String frameList) {
+        public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             for (InstanceLocations inst : ctx.getMatches()) {
-                addPart(output, wadoRS, ctx, inst, frameList);
+                addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
             return output;
         }
@@ -464,7 +474,7 @@ public class WadoRS {
         }
 
         protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                               InstanceLocations inst, String frameList) {
+                               InstanceLocations inst, int[] frameList, int[] attributePath) {
              throw new WebApplicationException(name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE);
         }
 
@@ -472,35 +482,61 @@ public class WadoRS {
 
     private void writeBulkdata(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst) {
         MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
+        StringBuffer bulkdataURL = request.getRequestURL();
+        mkInstanceURL(bulkdataURL, inst);
         StreamingOutput entity;
         ObjectType objectType = ObjectType.objectTypeOf(inst, null);
         switch (objectType) {
             case UncompressedSingleFrameImage:
             case UncompressedMultiFrameImage:
-                entity = new UncompressedPixelDataOutput(ctx, inst);
+                entity = new BulkdataOutput(ctx, inst, Tag.PixelData);
                 break;
+            case CompressedMultiFrameImage:
+                if (mediaType == MediaType.APPLICATION_OCTET_STREAM_TYPE) {
+                    entity = new DecompressPixelDataOutput(ctx, inst);
+                    break;
+                }
+                writeCompressedMultiFrameImage(output, ctx, inst, mediaType, bulkdataURL);
+                return;
             case CompressedSingleFrameImage:
+                if (mediaType == MediaType.APPLICATION_OCTET_STREAM_TYPE) {
+                    entity = new DecompressPixelDataOutput(ctx, inst);
+                    break;
+                }
             case MPEG2Video:
             case MPEG4Video:
                 entity = new CompressedPixelDataOutput(ctx, inst);
                 break;
             case EncapsulatedPDF:
             case EncapsulatedCDA:
-                entity = new EncapsulatedDocumentOutput(ctx, inst);
+                entity = new BulkdataOutput(ctx, inst, Tag.EncapsulatedDocument);
                 break;
             default:
-                throw new WebApplicationException(objectType + " not implemented",
-                        Response.Status.SERVICE_UNAVAILABLE);
+                throw new AssertionError("Unexcepted object type: " + objectType);
         }
         OutputPart outputPart = output.addPart(entity, mediaType);
-        StringBuffer bulkdataURL = request.getRequestURL();
-        if (bulkdataURL.lastIndexOf("/instances/") < 0) {
-            if (bulkdataURL.lastIndexOf("/series/") < 0) {
-                bulkdataURL.append("/series/").append(inst.getAttributes().getString(Tag.SeriesInstanceUID));
-            }
-            bulkdataURL.append("/instances/").append(inst.getSopInstanceUID());
+        outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
+    }
+
+    private void writeCompressedMultiFrameImage(MultipartRelatedOutput output, RetrieveContext ctx,
+                                                InstanceLocations inst, MediaType mediaType, StringBuffer bulkdataURL) {
+        bulkdataURL.append("/frames/");
+        int length = bulkdataURL.length();
+        int numFrames = inst.getAttributes().getInt(Tag.NumberOfFrames, 1);
+        compressedMFPixelDataOutput = new CompressedMFPixelDataOutput(ctx, inst, numFrames);
+        for (int i = 1; i <= numFrames; i++) {
+            OutputPart outputPart = output.addPart(compressedMFPixelDataOutput, mediaType);
+            bulkdataURL.setLength(length);
+            bulkdataURL.append(i);
+            outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
         }
-        outputPart.getHeaders().putSingle("Content-Location", bulkdataURL);
+    }
+
+    private void writeBulkdata(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
+                               int[] attributePath) {
+        StreamingOutput entity = new BulkdataOutput(ctx, inst, attributePath);
+        OutputPart outputPart = output.addPart(entity, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        outputPart.getHeaders().putSingle("Content-Location", request.getRequestURL());
     }
 
     private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
@@ -600,6 +636,8 @@ public class WadoRS {
         Attributes attrs;
         final ArrayList<BulkData> bulkDataList = new ArrayList<>();
         StringBuffer sb = request.getRequestURL();
+        sb.setLength(sb.lastIndexOf("/metadata"));
+        mkInstanceURL(sb, inst);
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
             dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
             dis.setBulkDataCreator(new BulkDataCreator() {
@@ -611,13 +649,6 @@ public class WadoRS {
                 }
             });
             attrs = dis.readDataset(-1, Tag.PixelData);
-            sb.setLength(sb.lastIndexOf("/metadata"));
-            if (sb.lastIndexOf("/instances/") < 0) {
-                if (sb.lastIndexOf("/series/") < 0) {
-                    sb.append("/series/").append(attrs.getString(Tag.SeriesInstanceUID));
-                }
-                sb.append("/instances/").append(attrs.getString(Tag.SOPInstanceUID));
-            }
             if (dis.tag() == Tag.PixelData) {
                 attrs.setValue(Tag.PixelData, dis.vr(), new BulkData(null, sb.toString(), dis.bigEndian()));
             }
@@ -635,4 +666,41 @@ public class WadoRS {
         return attrs;
     }
 
+    private void mkInstanceURL(StringBuffer sb, InstanceLocations inst) {
+        if (sb.lastIndexOf("/instances/") < 0) {
+            if (sb.lastIndexOf("/series/") < 0) {
+                sb.append("/series/").append(inst.getAttributes().getString(Tag.SeriesInstanceUID));
+            }
+            sb.append("/instances/").append(inst.getSopInstanceUID());
+        }
+    }
+
+    private static class AttributePath {
+        final int[] path;
+
+        AttributePath(String s) {
+            String[] split = StringUtils.split(s, '/');
+            if ((split.length & 1) == 0)
+                throw new IllegalArgumentException(s);
+
+            int[] path = new int[split.length];
+            for (int i = 0; i < split.length; i++) {
+                path[i] = Integer.parseInt(split[i], (i & 1) == 0 ? 16 : 10);
+            }
+            this.path = path;
+        }
+    }
+
+    private class FrameList {
+        final int[] frames;
+
+        public FrameList(String s) {
+            String[] split = StringUtils.split(s, ',');
+            int[] frames = new int[split.length];
+            for (int i = 0; i < split.length; i++) {
+                frames[i] = Integer.parseInt(split[i]);
+            }
+            this.frames = frames;
+        }
+    }
 }

@@ -58,7 +58,7 @@ import java.util.Collection;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2016
+ * @since Apr 2016
  */
 public class CompressedPixelDataOutput implements StreamingOutput {
 

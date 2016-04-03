@@ -40,9 +40,12 @@
 
 package org.dcm4chee.arc.wado;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.util.StreamUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -53,26 +56,67 @@ import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2016
+ * @since Apr 2016
  */
-public class UncompressedPixelDataOutput implements StreamingOutput {
+public class BulkdataOutput implements StreamingOutput {
 
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
+    private final int[] attributePath;
 
-    public UncompressedPixelDataOutput(RetrieveContext ctx, InstanceLocations inst) {
+    public BulkdataOutput(RetrieveContext ctx, InstanceLocations inst, int... attributePath) {
         this.ctx = ctx;
         this.inst = inst;
+        this.attributePath = attributePath;
     }
 
     @Override
     public void write(final OutputStream out) throws IOException {
         RetrieveService service = ctx.getRetrieveService();
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
-            dis.readDataset(-1, Tag.PixelData);
-            if (dis.tag() != Tag.PixelData)
-                throw new IOException("No pixel data in requested object");
+            Attributes attrs = null;
+            for (int level = 0; level < attributePath.length; level++) {
+                if ((level & 1) == 0) {
+                    int stopTag = attributePath[level];
+                    if (attrs == null)
+                        attrs = dis.readDataset(-1, stopTag);
+                    else
+                        dis.readAttributes(attrs, -1, stopTag);
+                    if (dis.tag() != stopTag)
+                        throw new IOException(missingBulkdata());
+                } else {
+                    int index = attributePath[level];
+                    int i = 0;
+                    while (i < index && dis.readItemHeader()) {
+                        int len = dis.length();
+                        boolean undefLen = len == -1;
+                        if (undefLen) {
+                            Attributes item = new Attributes(attrs.bigEndian());
+                            dis.readAttributes(item, len, Tag.ItemDelimitationItem);
+                        } else {
+                            dis.skipFully(len);
+                        }
+                        ++i;
+                    }
+                    if (i < index || !dis.readItemHeader())
+                        throw new IOException(missingBulkdata());
+                }
+            }
             StreamUtils.copy(dis, out, dis.length());
         }
+    }
+
+    private String missingBulkdata() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("No bulkdata ");
+        for (int i = 0; i < attributePath.length; i++) {
+            if ((i & 1) == 0) {
+                sb.append(TagUtils.toString(attributePath[i]));
+            } else {
+                sb.append('[').append(attributePath[i]).append(']');
+            }
+        }
+        sb.append(" in requested object");
+        return sb.toString();
     }
 }

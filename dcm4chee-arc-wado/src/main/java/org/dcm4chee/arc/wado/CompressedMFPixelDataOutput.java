@@ -42,12 +42,14 @@ package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 
 import javax.ws.rs.core.StreamingOutput;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -55,24 +57,51 @@ import java.io.OutputStream;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Apr 2016
  */
-public class EncapsulatedDocumentOutput implements StreamingOutput {
+public class CompressedMFPixelDataOutput implements StreamingOutput, Closeable {
 
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
+    private DicomInputStream dis;
+    private int remainingFrames;
 
-    public EncapsulatedDocumentOutput(RetrieveContext ctx, InstanceLocations inst) {
+    public CompressedMFPixelDataOutput(RetrieveContext ctx, InstanceLocations inst, int numFrames) {
         this.ctx = ctx;
         this.inst = inst;
+        this.remainingFrames = numFrames;
     }
 
     @Override
     public void write(final OutputStream out) throws IOException {
-        RetrieveService service = ctx.getRetrieveService();
-        try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
-            dis.readDataset(-1, Tag.EncapsulatedDocument);
-            if (dis.tag() != Tag.EncapsulatedDocument)
-                throw new IOException("No encapsulated document in requested object");
+        try {
+            if (dis == null)
+                initDicomInputStream();
+
+            if (!dis.readItemHeader())
+                throw new IOException(
+                        "Number of data fragments not sufficient for number of frames in requested object");
+
             StreamUtils.copy(dis, out, dis.length());
+            if (--remainingFrames <= 0)
+                close();
+        } catch (IOException e) {
+            close();
+            throw e;
         }
+    }
+
+    private void initDicomInputStream() throws IOException {
+        RetrieveService service = ctx.getRetrieveService();
+        dis = service.openDicomInputStream(ctx, inst);
+        dis.readDataset(-1, Tag.PixelData);
+        if (dis.tag() != Tag.PixelData || dis.length() != -1 || !dis.readItemHeader()) {
+            throw new IOException("No or incorrect encapsulated compressed pixel data in requested object");
+        }
+        dis.skipFully(dis.length());
+    }
+
+    @Override
+    public void close() {
+        SafeClose.close(dis);
+        dis = null;
     }
 }
