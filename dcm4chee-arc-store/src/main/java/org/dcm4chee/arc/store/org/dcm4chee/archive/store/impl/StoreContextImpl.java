@@ -21,6 +21,7 @@ class StoreContextImpl implements StoreContext {
     private String sopInstanceUID;
     private String receiveTranferSyntaxUID;
     private String storeTranferSyntaxUID;
+    private String acceptedStudyInstanceUID;
     private Attributes attributes;
     private Attributes coercedAttributes;
     private WriteContext writeContext;
@@ -96,6 +97,16 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setStoreTranferSyntax(String storeTranferSyntaxUID) {
         this.storeTranferSyntaxUID = storeTranferSyntaxUID;
+    }
+
+    @Override
+    public String getAcceptedStudyInstanceUID() {
+        return acceptedStudyInstanceUID;
+    }
+
+    @Override
+    public void setAcceptedStudyInstanceUID(String acceptedStudyInstanceUID) {
+        this.acceptedStudyInstanceUID = acceptedStudyInstanceUID;
     }
 
     @Override

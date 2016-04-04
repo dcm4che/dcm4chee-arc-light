@@ -33,6 +33,10 @@ public interface StoreContext {
 
     void setStoreTranferSyntax(String storeTranferSyntaxUID);
 
+    String getAcceptedStudyInstanceUID();
+
+    void setAcceptedStudyInstanceUID(String acceptedStudyInstanceUID);
+
     Attributes getAttributes();
 
     void setAttributes(Attributes dataset);

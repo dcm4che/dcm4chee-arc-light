@@ -90,6 +90,7 @@ public class WadoRS {
     @Inject
     private RetrieveService service;
 
+    @Context
     private HttpServletRequest request;
 
     @Context
@@ -117,7 +118,9 @@ public class WadoRS {
 
     @Override
     public String toString() {
-        return request.getRequestURI();
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
     }
 
     @GET
@@ -314,13 +317,13 @@ public class WadoRS {
 
     private void retrieve(String method, String studyUID, String seriesUID, String objectUID, int[] frameList,
                           int[] attributePath, AsyncResponse ar, Output output) {
-        // @Inject does not work:
-        // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
-        // s. https://issues.jboss.org/browse/RESTEASY-903
-        request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         try {
             checkAET();
+            // @Inject does not work:
+            // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
+            // s. https://issues.jboss.org/browse/RESTEASY-903
+            HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
             service.calculateMatches(ctx);
             LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());

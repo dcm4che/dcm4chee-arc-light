@@ -531,8 +531,7 @@ public class QidoRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                try {
-                    JsonGenerator gen = Json.createGenerator(out);
+                try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
                     for (int i = 0, n=matches.size(); i < n; i++) {
@@ -540,9 +539,6 @@ public class QidoRS {
                         writer.write(match);
                     }
                     gen.writeEnd();
-                    gen.flush();
-                } catch (Exception e) {
-                    throw new WebApplicationException(e);
                 }
             }
         };

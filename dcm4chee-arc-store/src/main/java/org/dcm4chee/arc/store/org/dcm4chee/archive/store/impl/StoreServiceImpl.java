@@ -44,6 +44,7 @@ import java.io.OutputStream;
 class StoreServiceImpl implements StoreService {
 
     static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
+    static final int DIFF_STUDY_INSTANCE_UID = 0xC409;
 
     @Inject
     private StorageFactory storageFactory;
@@ -73,7 +74,10 @@ class StoreServiceImpl implements StoreService {
     public void store(StoreContext ctx, InputStream data) throws IOException {
         UpdateDBResult result = new UpdateDBResult();
         try {
-            try (Transcoder transcoder = new Transcoder(data, ctx.getReceiveTranferSyntax())) {
+            String receiveTranferSyntax = ctx.getReceiveTranferSyntax();
+            try (Transcoder transcoder = receiveTranferSyntax != null
+                    ? new Transcoder(data, receiveTranferSyntax)
+                    : new Transcoder(data)) {
                 transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
                 transcoder.setConcatenateBulkDataFiles(true);
                 transcoder.setBulkDataDirectory(
@@ -83,6 +87,13 @@ class StoreServiceImpl implements StoreService {
             } catch (Exception e) {
                 LOG.warn("{}: Failed to encode received object:", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
+            }
+            if (ctx.getAcceptedStudyInstanceUID() != null
+                    && !ctx.getAcceptedStudyInstanceUID().equals(ctx.getStudyInstanceUID())) {
+                LOG.info("{}: Received Instance[studyUID={},seriesUID={},objectUID={}]" +
+                        " does not match requested studyUID={}", ctx.getStoreSession(), ctx.getStudyInstanceUID(),
+                        ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ctx.getAcceptedStudyInstanceUID());
+                throw new DicomServiceException(DIFF_STUDY_INSTANCE_UID);
             }
             coerceAttributes(ctx);
             try {
