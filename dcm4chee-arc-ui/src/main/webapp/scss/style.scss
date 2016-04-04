@@ -975,6 +975,22 @@ table{
 	  	color: #555;
 	}
 }
+.clearform_button{
+	left: -33px;
+    position: relative;
+    top: -23px;
+    // border-radius: 3px;
+    color: #999;
+    // float: left;
+    // height: 23px;
+    // line-height: 24px;
+    // margin-left: 2px;
+    // text-align: center;
+    // width: 44px;
+    &:hover{
+	  	color: #555;
+	}
+}
 .user {
     background: #ffffff none repeat scroll 0 0;
     border-bottom-left-radius: 6px;

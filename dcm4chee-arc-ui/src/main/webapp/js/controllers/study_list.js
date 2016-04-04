@@ -14,8 +14,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.advancedConfig = false;
     $scope.showModalitySelector = false;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
-    // $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate()};
-    $scope.studyDate = { from: '', to: ''};
+    $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
+    // $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
     $scope.format = "yyyyMMdd";
     $scope.modalities = $modalities;
@@ -32,7 +32,21 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     );
         }
     };
-
+    $scope.clearForm = function(){
+        angular.forEach($scope.filter,function(m,i){
+            console.log("m=",m);
+            console.log("i=",i);
+            $scope.filter[i] = "";
+        });
+        $scope.studyDate.fromObject = null;
+        $scope.studyDate.toObject = null;
+        $scope.studyDate.from = "";
+        $scope.studyDate.to = "";
+        $scope.studyTime.fromObject = null;
+        $scope.studyTime.toObject = null;
+        $scope.studyTime.from = "";
+        $scope.studyTime.to = "";
+    }
     $scope.selectModality = function(key){
         $scope.filter.ModalitiesInStudy =key;
         $scope.showModalitySelector=false;

@@ -763,6 +763,14 @@ table.subtable_1, table.subtable_2 {
   .deleteRejctedI:hover {
     color: #555; }
 
+.clearform_button {
+  left: -33px;
+  position: relative;
+  top: -23px;
+  color: #999; }
+  .clearform_button:hover {
+    color: #555; }
+
 .user {
   background: #ffffff none repeat scroll 0 0;
   border-bottom-left-radius: 6px;
