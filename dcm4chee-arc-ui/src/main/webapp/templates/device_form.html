@@ -3,14 +3,15 @@
 	model: {{form[selectedElement]["model"]}}
 </pre> -->
 <form id="editDevice" name="editDevice" ng-cloak> <!--  on-change="formOnChange()" -->
-	<div ng-show="selectedElement == 'device'">
+<!-- 	<div ng-show="selectedElement == 'device'">
 		<div name="deviceForm" class="ng-cloak" sf-schema="deviceSchema" sf-form="deviceForm" sf-model="deviceModel" ng-cloak></div>
-	</div>
+	</div> -->
 <!-- 	<div ng-show="selectedElement == 'dicomNetworkConnection'" name="dicomNetConnForm" class="ng-cloak" sf-schema="dicomNetConnSchema" sf-form="dicomNetConnForm" sf-model="dicomNetConnModel" ng-cloak></div>
 	<div ng-show="selectedElement == 'dicomNetworkAE'" name="networkAeForm" class="ng-cloak" sf-schema="networkAeSchema" sf-form="networkAeForm" sf-model="networkAeModel" ng-cloak>
 	
 	</div> -->
-	<div 
+
+<!-- 	<div 
 		ng-repeat="(key, value) in selectObject | testFilter:selectedElement:selectedPart"
 		ng-show="selectedElement == '{{key}}'" 
 		name="form[key].form" 
@@ -19,8 +20,10 @@
 		sf-form="form[key].form" 
 		sf-model="form[key].model" 
 		ng-cloak>
-	
-	</div>
+	</div> -->
+<!-- 	<dynamic-form>
+	</dynamic-form> -->
+	<div sf-schema="dynamic_schema" sf-form="dynamic_form" sf-model="dynamic_model"></div>
 	<hr  ng-show="showEcho()">
 	<div ng-show="showEcho()" class="echo col-md-12">
 		<h4>Send echo to Network AE</h4>

@@ -765,8 +765,8 @@ table.subtable_1, table.subtable_2 {
 
 .user {
   background: #ffffff none repeat scroll 0 0;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
   box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
   color: #7d7d7d;
   display: block;
@@ -777,21 +777,35 @@ table.subtable_1, table.subtable_2 {
   z-index: 9999; }
   .user span {
     display: inline-block;
-    padding: 10px 32px;
+    padding: 6px 32px;
     width: 200px; }
     .user span:hover {
       cursor: pointer;
       color: #4D4D4D; }
   .user ul {
     list-style: outside none none;
-    padding: 0; }
+    padding: 0;
+    margin-bottom: 6px; }
     .user ul li {
       border-top: 1px solid #ccc;
-      padding: 10px 32px; }
+      padding: 6px 32px; }
       .user ul li a {
         color: #7d7d7d;
         display: block; }
         .user ul li a:hover {
           color: #4D4D4D; }
+
+#kc-container-wrapper {
+  background: black none repeat scroll 0 0;
+  color: white;
+  display: block;
+  height: 400px;
+  left: 50%;
+  margin-left: -250px;
+  padding: 20px;
+  position: fixed;
+  top: 120px;
+  width: 608px;
+  z-index: 99999; }
 
 /*# sourceMappingURL=style.css.map */

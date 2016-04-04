@@ -30,10 +30,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     // DeviceService.addMissingCheckboxes($scope);
       //TEST
 
-      $scope.loadSchemaPart = function(href, name){
-        $log.debug("laodschemaclicked href=",href);
-        $log.debug("name=",name);
-      }
+    $scope.loadSchemaPart = function(href, name){
+      $log.debug("laodschemaclicked href=",href);
+      $log.debug("name=",name);
+    }
     /*
     *Watch when the user trys to leave the page
     */
@@ -54,10 +54,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         url: 'schema/device.schema.json'
         // url: '../devices'
     }).then(function successCallback(response) {
-        $log.debug("before schemas=",schemas);
-        $log.debug("new schemas=",response.data);
+        // $log.debug("before schemas=",schemas);
+        // $log.debug("new schemas=",response.data);
         schemas.device  = response.data;
-        schemas.whole   = response.data;
+        // schemas.whole   = response.data;
         $log.debug("after schemas=",schemas);
     }, function errorCallback(response) {
         $log.error("Error loading device names", response);
@@ -88,50 +88,60 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             });
 
             cfpLoadingBar.start();
-              if(
-                  (
-                      checkDevice
-                  ) 
-                    &&
-                  (
-                      element != $scope.selectedElement ||
-                      $scope.devicename === "CHANGE_ME"
-                  )&&
-                      $scope.validForm
-              ){
-                  cfpLoadingBar.start();
-                  if(element === 'dicomNetworkAE'){
-                    $scope.selectedPart.dicomTransferCapability  = null;
-                    //$scope.transfareCapModel  = {};
-                  }
-                  $log.debug("selectedElement=",$scope.selectedElement);
-                  $scope.selectedElement  = element;
-                  $scope.lastBorder       = "active_border";
-                  $scope.showSave         = true;
-              }
-              // if ($scope.selectedPart.dicomNetworkAE != undefined && !$scope.selectedPart.dicomTransferCapability && $scope.devicename === "CHANGE_ME") {
-              //     DeviceService
-              //     .addDirectiveToDom(
-              //         $scope, 
-              //         "SelectDicomTransferCapability",
-              //         "<div select-transfare-capability></div>"
-              //     );
-              // }
-              if($scope.devicename === "CHANGE_ME"){
-                  // $timeout(function() {
-                    DeviceService
-                    .addDirectiveToDom(
-                        $scope, 
-                        "add_edit_area",
-                        "<div edit-area></div>"
-                    );
-              }
-              if ($scope.selectedPart.dicomNetworkConnection != undefined) {
+            if(
+                (
+                    checkDevice
+                ) 
+                  &&
+                (
+                    element != $scope.selectedElement ||
+                    $scope.devicename === "CHANGE_ME"
+                )&&
+                    $scope.validForm
+            ){
+                cfpLoadingBar.start();
+                if(element === 'dicomNetworkAE'){
+                  $scope.selectedPart.dicomTransferCapability  = null;
+                  //$scope.transfareCapModel  = {};
+                }
+                $log.debug("selectedElement=",$scope.selectedElement);
+                $scope.selectedElement  = element;
+                $scope.lastBorder       = "active_border";
+                $scope.showSave         = true;
+                console.log("schemas vor init in mainCtrl =",angular.copy(schemas));
+                console.log("form model vor init = ",angular.copy($scope.form));
+                if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
+                                console.log("getschema 2");
 
-                $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
-                $scope.networkAeForm = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
-              }  
-              $log.debug("selectedElement2=",$scope.selectedElement);
+                  DeviceService.getSchema($scope.selectedElement);
+                }
+                DeviceService.setFormModel($scope);
+                console.log("form model nach init = ",$scope.form);
+                console.log("schemas nach init in mainCtrl =",schemas);
+            }
+            // if ($scope.selectedPart.dicomNetworkAE != undefined && !$scope.selectedPart.dicomTransferCapability && $scope.devicename === "CHANGE_ME") {
+            //     DeviceService
+            //     .addDirectiveToDom(
+            //         $scope, 
+            //         "SelectDicomTransferCapability",
+            //         "<div select-transfare-capability></div>"
+            //     );
+            // }
+            if($scope.devicename === "CHANGE_ME"){
+                // $timeout(function() {
+                  DeviceService
+                  .addDirectiveToDom(
+                      $scope, 
+                      "add_edit_area",
+                      "<div edit-area></div>"
+                  );
+            }
+            if ($scope.selectedPart.dicomNetworkConnection != undefined) {
+
+              $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
+              $scope.networkAeForm     = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
+            }  
+            $log.debug("selectedElement2=",$scope.selectedElement);
             cfpLoadingBar.complete();
     };
     $scope.selectElement = function(element) {
@@ -164,22 +174,35 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.validForm
         ) {
             cfpLoadingBar.start();
+            //TODO Make this generic
             if(element === 'dicomNetworkAE'){
               $scope.selectedPart.dicomTransferCapability  = null;
               //$scope.transfareCapModel  = {};
             }
             $scope.selectedElement  = element;
-            $log.debug("$scope.selectedElement",$scope.selectedElement);
-            $log.debug("$select=",$select);
-            $log.debug("$select[$scope.selectedElement]=",$select[$scope.selectedElement]);
-            if($select[$scope.selectedElement] && $select[$scope.selectedElement].type != "array"){
-              DeviceService
-                    .addDirectiveToDom(
-                        $scope, 
-                        "add_edit_area",
-                        "<div edit-area></div>"
-                    );
+            if($scope.selectedElement === "device"){
+                $scope.dynamic_schema = DeviceService.getDeviceSchema();
+                $scope.dynamic_model  = $scope.wholeDevice;
+            }else{
+
+                if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
+                  console.log("getschema 1");
+                  DeviceService.getSchema($scope.selectedElement);
+                }
+                DeviceService.setFormModel($scope);
             }
+            console.log("form model nach init = ",$scope.form);
+            console.log("schemas nach init in mainCtrl =",schemas);
+
+
+            // if($select[$scope.selectedElement] && $select[$scope.selectedElement].type != "array"){
+            //   DeviceService
+            //         .addDirectiveToDom(
+            //             $scope, 
+            //             "add_edit_area",
+            //             "<div edit-area></div>"
+            //         );
+            // }
             $scope.lastBorder       = "active_border";
             $scope.showSave         = true;
             cfpLoadingBar.complete();
@@ -880,6 +903,11 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             }
         }, function errorCallback(response) {
             $log.error("Error loading aets ", response);
+            DeviceService.msg($scope, {
+                        "title": "Error",
+                        "text": "Something went wrong, echo didn't work!",
+                        "status": "error"
+            });
             // vex.dialog.alert("Error loading device names, please reload the page and try again!");
         });
       }else{
@@ -909,10 +937,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.splitStringToObject = function(value,key){
       $scope.selectModel = $scope.selectModel || {};
       if(angular.isDefined($scope.wholeDevice)){
-        if(value.optionRef.indexOf(".")>-1){
+        if(value.optionRef.length > 1){
           DeviceService.getObjectFromString($scope, value, key);
         }else{
-          $scope.selectModel[key] = $scope.wholeDevice[value.optionRef];
+          $scope.selectModel[key] = $scope.wholeDevice[value.optionRef[0]];
         }
       }
     };

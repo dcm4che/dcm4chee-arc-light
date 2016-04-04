@@ -977,8 +977,8 @@ table{
 }
 .user {
     background: #ffffff none repeat scroll 0 0;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
     box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     color: #7d7d7d;
     display: block;
@@ -990,7 +990,7 @@ table{
     span{
 	    display: inline-block;
 	    // height: 32px;
-	    padding: 10px 32px;
+	    padding: 6px 32px;
 	    width: 200px;
 	    &:hover{
 	    	cursor: pointer;
@@ -1000,9 +1000,10 @@ table{
     ul{
     	list-style: outside none none;
     	padding: 0;
+    	margin-bottom: 6px;
     	li{
 		   	border-top: 1px solid #ccc;
-		    padding: 10px 32px;
+		    padding: 6px 32px;
 		    a{
 		    	color: #7d7d7d;
     			display: block;
@@ -1012,4 +1013,17 @@ table{
 		    }
     	}
     }
+}
+#kc-container-wrapper {
+    background: black none repeat scroll 0 0;
+    color: white;
+    display: block;
+    height: 400px;
+    left: 50%;
+    margin-left: -250px;
+    padding: 20px;
+    position: fixed;
+    top: 120px;
+    width: 608px;
+    z-index: 99999;
 }

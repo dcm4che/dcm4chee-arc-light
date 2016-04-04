@@ -69,62 +69,61 @@ myApp.constant("$select",
   {
       "dicomNetworkConnection":{
         "title" : "Network Connection",
-        "optionRef" : "dicomNetworkConnection",
+        "optionRef" : ["dicomNetworkConnection"],
         "optionValue": "cn",
         "type": "array"
       
       },
       "dicomNetworkAE":{
         "title" : "Network AE",
-        "optionRef" : "dicomNetworkAE",
+        "optionRef" : ["dicomNetworkAE"],
         "optionValue" : "dicomAETitle",
         "type": "array",
         "parentOf" : ["dicomTransferCapability"]
       },
       "dicomTransferCapability":{
         "title" : "Transfer Capability",
-        "optionRef" : "dicomNetworkAE.dicomTransferCapability",
+        "optionRef" : ["dicomNetworkAE","dicomTransferCapability"],
         "optionValue": "cn",
         "type": "array"
       },
       "hl7Application":{
         "title" : "HL7 Applications",
-        "optionRef" : "hl7Application",
+        "optionRef" : ["hl7Application"],
         "optionValue": "hl7ApplicationName",
         "type": "array"
       
       },
       "dcmImageWriter":{
         "title" : "Image Writers",
-        "optionRef" : "dcmImageWriter",
+        "optionRef" : ["dcmImageWriter"],
         "optionValue": "dicomTransferSyntax",
         "type": "array"
       
       },
       "dcmImageReader":{
         "title" : "Image Readers",
-        "optionRef" : "dcmImageReader",
+        "optionRef" : ["dcmImageReader"],
         "optionValue": "dicomTransferSyntax",
         "type": "array"
       
       },
       "dcmAuditLogger":{
         "title" : "Audit Logger",
-        "optionRef" : "dcmAuditLogger",
+        "optionRef" : ["dcmAuditLogger"],
         "optionValue": "dicomNetworkConnectionReference",
         "type": "object"
-      
       },
       "dcmAuditRecordRepository":{
         "title" : "Audit Record Repository",
-        "optionRef" : "dcmAuditRecordRepository",
+        "optionRef" : ["dcmAuditRecordRepository"],
         "optionValue": "dicomNetworkConnectionReference",
         "type": "object"
       
       },
       "dcmArchiveDevice":{
         "title" : "Archive Device",
-        "optionRef" : "dcmArchiveDevice",
+        "optionRef" : ["dcmArchiveDevice"],
         "optionValue": "dcmFuzzyAlgorithmClass",
         "type": "object"
       
