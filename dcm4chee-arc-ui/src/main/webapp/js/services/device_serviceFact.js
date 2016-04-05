@@ -1183,14 +1183,23 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		// },
 
 		getObjectFromString : function($scope, value, key){
-			var partsArray = value.optionRef
-				if($scope.selectedPart){
-					angular.forEach($scope.wholeDevice[partsArray[0]], function(m, i){
-						if(m[$select[partsArray[0]].optionValue] === $scope.selectedPart[partsArray[0]]){
-							$scope.selectModel[key] = $scope.wholeDevice[partsArray[0]][i][partsArray[1]];
+			var partsArray = value.optionRef;
+					if(partsArray.length === 2){
+
+						if($select[partsArray[0]].type==="object"){
+							$scope.selectModel[key] = $scope.wholeDevice[partsArray[0]][partsArray[1]];
+						}else{
+							if($scope.selectedPart){
+								angular.forEach($scope.wholeDevice[partsArray[0]], function(m, i){
+									if(m[$select[partsArray[0]].optionValue] === $scope.selectedPart[partsArray[0]]){
+										$scope.selectModel[key] = $scope.wholeDevice[partsArray[0]][i][partsArray[1]];
+									}
+								});
+							}
 						}
-					});
-				}
+					}else{
+						//TODO I don't know if we need it, we will see
+					}
 		},
 
 		getSchema : function(selectedElement){
@@ -1213,27 +1222,55 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					var localSchema2 = {};
 					// if(Object.keys(schemas[$select[selectedElement].optionRef[0]]).length < 1){
 						angular.copy(schemas.device, localSchema);
+						$log.debug("$select[selectedElement].optionRef[0]=",$select[selectedElement].optionRef[0]);
+						$log.debug("before traversecall schemas[$select[selectedElement].optionRef[0]=",schemas[$select[selectedElement].optionRef[0]]);
+						if(!schemas[$select[selectedElement].optionRef[0]]){
+							schemas[$select[selectedElement].optionRef[0]] = {};
+						}
 						traverse(localSchema, $select[selectedElement].optionRef[0], schemas[$select[selectedElement].optionRef[0]]);
 						$log.warn("after first traverse=",angular.copy(schemas));
 						replaceRef(schemas[$select[selectedElement].optionRef[0]], selectedElement, "", "");
 						$log.warn("after first replace=",angular.copy(schemas));
 					// }
-					console.warn("schemas[$select[selectedElement].optionRef[0]]=",schemas[$select[selectedElement].optionRef[0]]);
+					// console.warn("schemas[$select[selectedElement].optionRef[0]]=",schemas[$select[selectedElement].optionRef[0]]);
 					
 					var waitfirstlevel = setInterval(function(){
-						if(	schemas[$select[selectedElement].optionRef[0]] &&
-							schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]]["items"][$select[selectedElement].optionRef[0]]
+						// console.log("schemas[$select[selectedElement].optionRef[0]]=",angular.copy(schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]]));
+						if(	(
+								schemas[$select[selectedElement].optionRef[0]] &&
+								schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]] &&
+								schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]]["items"] &&
+								schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]]["items"][$select[selectedElement].optionRef[0]]
+								) 
+							|| 
+								(	
+									schemas[$select[selectedElement].optionRef[0]] &&
+									schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]] &&
+									schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]] &&
+									schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]]["properties"]								
+								)
 							){	
-							clearInterval(waitfirstlevel);						
-							angular.copy(schemas[$select[selectedElement].optionRef[0]], localSchema2);
-							traverse(localSchema2, $select[selectedElement].optionRef[1], schemas[$select[selectedElement].optionRef[1]]);
-							console.log("after traverse schemas",angular.copy(schemas));
-							replaceRef(schemas[$select[selectedElement].optionRef[1]], selectedElement, "", "");
-							console.log("localSchema2",localSchema2);
-							// replaceRef(schemas[$select[selectedElement].optionRef[1]], selectedElement, "", "");
-							return schemas[selectedElement];
+								clearInterval(waitfirstlevel);						
+								angular.copy(schemas[$select[selectedElement].optionRef[0]], localSchema2);
+								traverse(localSchema2, $select[selectedElement].optionRef[1], schemas[$select[selectedElement].optionRef[1]]);
+								console.log("after traverse schemas",angular.copy(schemas));
+								replaceRef(schemas[$select[selectedElement].optionRef[1]], selectedElement, "", "");
+								console.log("localSchema2",localSchema2);
+							if(schemas[$select[selectedElement].optionRef[0]][$select[selectedElement].optionRef[0]]["properties"]){
+								// replaceRef(schemas[$select[selectedElement].optionRef[1]], selectedElement, "", "");
+							}else{
+
+								// clearInterval(waitfirstlevel);						
+								// angular.copy(schemas[$select[selectedElement].optionRef[0]], localSchema2);
+								// traverse(localSchema2, $select[selectedElement].optionRef[1], schemas[$select[selectedElement].optionRef[1]]);
+								// console.log("after traverse schemas",angular.copy(schemas));
+								// replaceRef(schemas[$select[selectedElement].optionRef[1]], selectedElement, "", "");
+								// console.log("localSchema2",localSchema2);
+								// replaceRef(schemas[$select[selectedElement].optionRef[1]], selectedElement, "", "");
+							}
+								return schemas[selectedElement];
 						}else{
-							console.log("waiting");
+							// console.log("waiting");
 						}
 					},10);
 				}else{
@@ -1243,9 +1280,10 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 				$log.warn("in else getschema");
 				schemas[selectedElement] = schemas[selectedElement] || {};
 				if(Object.keys(schemas[selectedElement]).length < 1){
+					console.log("in if");
 					angular.copy(schemas.device, localSchema);
-					// $log.debug("selectedElement=",selectedElement);
-					// $log.debug("schemas=",schemas);
+					$log.debug("selectedElement=",selectedElement);
+					$log.warn("schemas=",schemas);
 					traverse(localSchema, selectedElement, schemas[selectedElement]);
 					console.log("schema after traverse=",angular.copy(schemas));
 					replaceRef(schemas[selectedElement], selectedElement, "", "");
@@ -1253,6 +1291,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					return schemas[selectedElement];
 					// replaceRef(schemas.whole, selectedElement, "","");
 				}else{
+					console.log("schemas[selectedElement]=",schemas[selectedElement]);
 					return schemas[selectedElement];
 				}
 
@@ -1265,24 +1304,46 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 
 		setFormModel : function(scope){
 			$log.warn("in setFormModel",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
+			$log.debug("selectedElement=",scope.selectedElement);
 			if($select[scope.selectedElement].type === "array"){
 
 				if($select[scope.selectedElement].optionRef.length > 1){
 					if(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]){
-						angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i){
-							if(scope.selectedPart[$select[scope.selectedElement].optionRef[0]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[$select[scope.selectedElement].optionRef[0]].optionValue]){
-								angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]],function(k, j){
-									// console.log("in second foreach k=",k);
-									if(scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]){
-										if(!scope.form[scope.selectedElement]){
-											scope.form[scope.selectedElement] = {};
+						//TODO change it so it will work if the firsst level is not an
+						$log.warn("$select[$select[scope.selectedElement].optionRef[0]].type=",$select[$select[scope.selectedElement].optionRef[0]].type);
+						if($select[$select[scope.selectedElement].optionRef[0]].type==="object"){
+							// angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i){
+								// if(scope.selectedPart[$select[scope.selectedElement].optionRef[0]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[$select[scope.selectedElement].optionRef[0]].optionValue]){
+									$log.debug("in first part without foreach=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]]);
+									angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]],function(k, j){
+										// console.log("in second foreach k=",k);
+										if(scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]){
+											if(!scope.form[scope.selectedElement]){
+												scope.form[scope.selectedElement] = {};
+											}
+											scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j];
 										}
-										scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j];
-									}
 
-								});
-							}
-						});
+									});
+								// }
+							// });
+						}else{
+
+							angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i){
+								if(scope.selectedPart[$select[scope.selectedElement].optionRef[0]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[$select[scope.selectedElement].optionRef[0]].optionValue]){
+									angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]],function(k, j){
+										// console.log("in second foreach k=",k);
+										if(scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]){
+											if(!scope.form[scope.selectedElement]){
+												scope.form[scope.selectedElement] = {};
+											}
+											scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j];
+										}
+
+									});
+								}
+							});
+						}
 					}
 				}else{
 					if(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]){

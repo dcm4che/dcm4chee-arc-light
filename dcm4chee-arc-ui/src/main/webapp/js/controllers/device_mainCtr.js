@@ -77,6 +77,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     });
     $scope.changeElement = function(element){
             $log.warn("in changeElement selectedPart=", $scope.selectedPart);
+            $log.debug("element=",element);
             var checkDevice = element === "device";
             angular.forEach($select, function(m, j){
               if(element === j && $scope.selectedPart[j]  != undefined ){
@@ -103,6 +104,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 }
                 $log.debug("selectedElement=",$scope.selectedElement);
                 $scope.selectedElement  = element;
+                $log.debug("selectedElement2=",$scope.selectedElement);
                 $scope.lastBorder       = "active_border";
                 $scope.showSave         = true;
                 console.log("schemas vor init in mainCtrl =",angular.copy(schemas));
@@ -128,7 +130,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     //   DeviceService.getSchema($scope.selectedElement);
                     // }
                     DeviceService.setFormModel($scope);
-                    console.log("$scope.form[$scope.selectedElement].model=",$scope.form[$scope.selectedElement].model);
+                    // console.log("$scope.form[$scope.selectedElement].model=",$scope.form[$scope.selectedElement].model);
                     $scope.dynamic_model = $scope.form[$scope.selectedElement].model;
                 }
                 console.log("form model nach init = ",$scope.form);

@@ -83,20 +83,23 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     //     console.log("schemas=",schemas);
                     // });
                     // scope.dynamic_schema = null;
+                    $log.debug("scope.selectedElement",scope.selectedElement);
+                    $log.debug("scope.selectedElement",schemas);
                     var wait = setInterval(function(){
                         if(
-                            schemas[scope.selectedElement] && 
-                            schemas[scope.selectedElement][scope.selectedElement] && 
-                            schemas[scope.selectedElement][scope.selectedElement]["items"] && 
-                            schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]
-
+                            (
+                                schemas[scope.selectedElement] && 
+                                schemas[scope.selectedElement][scope.selectedElement] && 
+                                schemas[scope.selectedElement][scope.selectedElement]["items"] && 
+                                schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]
+                            )
                             ||
-
-                            schemas[scope.selectedElement] && 
-                            schemas[scope.selectedElement][scope.selectedElement] && 
-                            schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement] &&
-                            schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"]
-
+                            (
+                                schemas[scope.selectedElement] && 
+                                schemas[scope.selectedElement][scope.selectedElement] && 
+                                schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"]
+                            )
                            ){
                             clearInterval(wait);
                             console.log("scope.dynamic_schema=",angular.copy(scope.dynamic_schema));

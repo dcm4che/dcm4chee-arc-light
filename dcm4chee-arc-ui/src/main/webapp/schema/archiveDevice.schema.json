@@ -213,7 +213,7 @@
       "$ref": "exporter.schema.json"
     },
     "dcmExportRule": {
-      "$ref": "dcmExportRule"
+      "$ref": "exportRule.schema.json"
     },
     "dcmArchiveCompressionRule": {
       "$ref": "archiveCompressionRule.schema.json"
