@@ -69,7 +69,7 @@ public class RetrieveInfo {
                     ? ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
                     ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
                     KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
-                    : null
+                    : ctx.getHttpRequest().getRemoteAddr()
                     : ctx.getDestinationAETitle(),
                 null == ctx.getHttpRequest()
                     ? (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null

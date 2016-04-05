@@ -67,7 +67,7 @@ public class QueryInfo {
                 : ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
                 ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
                 KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
-                : null,
+                : ctx.getRemoteHostName(),
                 ctx.getRemoteHostName(),
                 ctx.getCalledAET(),
                 ctx.getSOPClassUID(),

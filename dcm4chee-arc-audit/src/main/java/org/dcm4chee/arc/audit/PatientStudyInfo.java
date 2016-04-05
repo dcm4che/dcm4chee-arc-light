@@ -72,7 +72,7 @@ class PatientStudyInfo {
                     : ctx.getStoreSession().getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
                     ? ((RefreshableKeycloakSecurityContext) ctx.getStoreSession().getHttpRequest().getAttribute(
                     KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
-                    : null,
+                    : ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
@@ -92,7 +92,7 @@ class PatientStudyInfo {
                 ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
                     ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
                     KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
-                    : null,
+                    : ctx.getHttpRequest().getRemoteAddr(),
                 ctx.getLocalAETitle(),
                 ctx.getStudyInstanceUIDs()[0],
                 attrs.getString(Tag.AccessionNumber),
