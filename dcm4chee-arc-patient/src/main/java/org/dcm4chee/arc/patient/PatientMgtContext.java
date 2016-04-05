@@ -47,6 +47,8 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.AttributeFilter;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2016
@@ -57,6 +59,8 @@ public interface PatientMgtContext {
     FuzzyStr getFuzzyStr();
 
     Association getAssociation();
+
+    HttpServletRequest getHttpRequest();
 
     HL7Segment getHL7MessageHeader();
 

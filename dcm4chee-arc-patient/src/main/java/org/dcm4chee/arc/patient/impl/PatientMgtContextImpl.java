@@ -108,6 +108,11 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
+    public HttpServletRequest getHttpRequest() {
+        return httpRequest;
+    }
+
+    @Override
     public HL7Segment getHL7MessageHeader() {
         return msh;
     }
