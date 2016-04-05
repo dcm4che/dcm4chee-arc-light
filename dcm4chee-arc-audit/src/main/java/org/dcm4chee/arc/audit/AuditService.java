@@ -56,6 +56,8 @@ import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.action.GetPropertyAction;
@@ -710,6 +712,15 @@ public class AuditService {
                     StandardOpenOption.APPEND))) {
                 String outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
                 HL7Info hl7i;
+                if (ctx.getHttpRequest() != null) {
+                    writer.writeLine(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
+                            new HL7Info(outcome, ctx.getHttpRequest().getRemoteAddr(),
+                            ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
+                            ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
+                               KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                            : ctx.getHttpRequest().getRemoteAddr(),
+                            ctx.getCalledAET(), null, null)));
+                }
                 if (ctx.getHL7MessageHeader() != null) {
                     hl7i = new HL7Info(outcome, ctx.getRemoteHostName(),
                             ctx.getHL7MessageHeader().getSendingApplicationWithFacility(),
