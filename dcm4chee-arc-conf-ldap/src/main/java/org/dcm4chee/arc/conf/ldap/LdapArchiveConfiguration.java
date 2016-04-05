@@ -107,6 +107,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAuditSpoolDirectory", ext.getAuditSpoolDirectory());
         LdapUtils.storeNotNull(attrs, "dcmAuditPollingInterval", ext.getAuditPollingInterval());
         LdapUtils.storeNotNull(attrs, "dcmAuditAggregateDuration", ext.getAuditAggregateDuration());
+        LdapUtils.storeNotNull(attrs, "dcmStowSpoolDirectory", ext.getStowSpoolDirectory());
     }
 
     @Override
@@ -156,6 +157,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmAuditSpoolDirectory"), null));
         ext.setAuditPollingInterval(toDuration(LdapUtils.stringValue(attrs.get("dcmAuditPollingInterval"), null)));
         ext.setAuditAggregateDuration(toDuration(LdapUtils.stringValue(attrs.get("dcmAuditAggregateDuration"), null)));
+        ext.setStowSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmStowSpoolDirectory"), null));
     }
 
     @Override
@@ -225,6 +227,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getAuditPollingInterval(), bb.getAuditPollingInterval());
         LdapUtils.storeDiff(mods, "dcmAuditAggregateDuration",
                 aa.getAuditAggregateDuration(), bb.getAuditAggregateDuration());
+        LdapUtils.storeDiff(mods, "dcmStowSpoolDirectory",
+                aa.getStowSpoolDirectory(), bb.getStowSpoolDirectory());
     }
 
     @Override

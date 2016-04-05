@@ -86,6 +86,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String auditSpoolDirectory;
     private Duration auditPollingInterval;
     private Duration auditAggregateDuration;
+    private String stowSpoolDirectory;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -393,6 +394,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return auditSpoolDirectory != null && auditPollingInterval != null && auditAggregateDuration != null;
     }
 
+    public String getStowSpoolDirectory() {
+        return stowSpoolDirectory;
+    }
+
+    public void setStowSpoolDirectory(String stowSpoolDirectory) {
+        this.stowSpoolDirectory = stowSpoolDirectory;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters.get(entity);
     }
@@ -580,6 +589,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditSpoolDirectory = arcdev.auditSpoolDirectory;
         auditPollingInterval = arcdev.auditPollingInterval;
         auditAggregateDuration = arcdev.auditAggregateDuration;
+        stowSpoolDirectory = arcdev.stowSpoolDirectory;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();

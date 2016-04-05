@@ -370,6 +370,10 @@ dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=getscu,cn=Devices,
 dicomAETitle: GETSCU
 dicomAssociationAcceptor: TRUE
 
+dn: cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: hl7UniqueApplicationNamesRegistryRoot
+cn: Unique HL7 Application Names Registry
+
 dn: hl7ApplicationName=HL7RCV|DCM4CHEE,cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: hl7UniqueApplicationName
 hl7ApplicationName: HL7RCV|DCM4CHEE
@@ -457,7 +461,7 @@ dicomAETitle: DCM4CHEE
 dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmOverwritePolicy: SAME_SOURCE
 dcmQueryRetrieveViewID: hideRejected
-dicomSoftwareVersion: 5.0.1
+dicomSoftwareVersion: 5.2.0
 dcmAuditAggregateDuration: PT1M
 dcmStorageID: fs1
 objectClass: dicomDevice
@@ -465,6 +469,7 @@ objectClass: dcmDevice
 objectClass: dcmArchiveDevice
 objectClass: pkiUser
 dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
+dcmStowSpoolDirectory: ${jboss.server.data.dir}/stow-spool
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmKeyStoreType: JKS
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=dcmqrscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -497,22 +502,22 @@ dicomThisNodeCertificateReference: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DI
 dcmSendPendingCGet: TRUE
 dcmExportTaskFetchSize: 2
 dcmPurgeStorageFetchSize: 10
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.11
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.59
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.22
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.35
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.33
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.34
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.65
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.79.1
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.69
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.68
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.67
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
-dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.50
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.65
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.34
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.67
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.11
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.22
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.33
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.69
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.35
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.68
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.70
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.50
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.71
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.79.1
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.59
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
 dcmKeyStorePin: secret
 dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
 dicomManufacturerModelName: dcm4chee-arc
@@ -908,12 +913,12 @@ objectClass: dcmQueue
 dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
 
-dn: dcmQueueName=Export2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmJndiName: jms/queue/Export2
+dn: dcmQueueName=MPPSSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJndiName: jms/queue/MPPSSCU
 dcmRetryDelay: PT30S
 dcmMaxRetries: 10
-dicomDescription: Dicom Export Tasks (2)
-dcmQueueName: Export2
+dicomDescription: Forward MPPS Tasks
+dcmQueueName: MPPSSCU
 objectClass: dcmQueue
 dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
@@ -928,12 +933,12 @@ objectClass: dcmQueue
 dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
 
-dn: dcmQueueName=MPPSSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmJndiName: jms/queue/MPPSSCU
+dn: dcmQueueName=Export2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJndiName: jms/queue/Export2
 dcmRetryDelay: PT30S
 dcmMaxRetries: 10
-dicomDescription: Forward MPPS Tasks
-dcmQueueName: MPPSSCU
+dicomDescription: Dicom Export Tasks (2)
+dcmQueueName: Export2
 objectClass: dcmQueue
 dcmRetryDelayMultiplier: 200
 dcmMaxRetryDelay: PT10M
@@ -1040,14 +1045,11 @@ dcmShowInstancesRejectedByCode: (113037, DCM, "Rejected for Patient Safety Reaso
 dcmShowInstancesRejectedByCode: (113038, DCM, "Incorrect Modality Worklist Entry")
 dcmShowInstancesRejectedByCode: (113039, DCM, "Data Retention Policy Expired")
 
-dn: dcmRejectionNoteLabel=Retention Expired,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmRejectionNoteLabel: Retention Expired
-dcmRejectionNoteCode: (113039, DCM, "Data Retention Policy Expired")
-dcmAcceptPreviousRejectedInstance: RESTORE
+dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmRejectionNoteLabel: Quality
+dcmRejectionNoteCode: (113001, DCM, "Rejected for Quality Reasons")
+dcmAcceptPreviousRejectedInstance: IGNORE
 objectClass: dcmRejectionNote
-dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
-dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
-dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
 
 dn: dcmRejectionNoteLabel=Patient Safety,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Patient Safety
@@ -1055,20 +1057,6 @@ dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 dcmAcceptPreviousRejectedInstance: REJECT
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
-
-dn: dcmRejectionNoteLabel=Incorrect MWL Entry,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmRejectionNoteLabel: Incorrect MWL Entry
-dcmRejectionNoteCode: (113038, DCM, "Incorrect Modality Worklist Entry")
-dcmAcceptPreviousRejectedInstance: REJECT
-objectClass: dcmRejectionNote
-dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
-dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
-
-dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmRejectionNoteLabel: Quality
-dcmRejectionNoteCode: (113001, DCM, "Rejected for Quality Reasons")
-dcmAcceptPreviousRejectedInstance: IGNORE
-objectClass: dcmRejectionNote
 
 dn: dcmRejectionNoteLabel=Revoke Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Revoke Rejection
@@ -1079,6 +1067,23 @@ dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
 dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
 dcmOverwritePreviousRejection: (113039, DCM, "Data Retention Policy Expired")
+
+dn: dcmRejectionNoteLabel=Incorrect MWL Entry,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmRejectionNoteLabel: Incorrect MWL Entry
+dcmRejectionNoteCode: (113038, DCM, "Incorrect Modality Worklist Entry")
+dcmAcceptPreviousRejectedInstance: REJECT
+objectClass: dcmRejectionNote
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+
+dn: dcmRejectionNoteLabel=Retention Expired,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmRejectionNoteLabel: Retention Expired
+dcmRejectionNoteCode: (113039, DCM, "Data Retention Policy Expired")
+dcmAcceptPreviousRejectedInstance: RESTORE
+objectClass: dcmRejectionNote
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7DefaultCharacterSet: 8859/1
@@ -3158,6 +3163,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Comprehensive SR Storage - Trial (Retired) SCP
+
+dn: cn=Content Assessment Results Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.90.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Content Assessment Results Storage SCP
 
 dn: cn=RT Dose Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.2
@@ -5601,6 +5615,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Comprehensive SR Storage - Trial (Retired) SCU
+
+dn: cn=Content Assessment Results Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.90.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Content Assessment Results Storage SCU
 
 dn: cn=RT Dose Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.2
@@ -8146,6 +8169,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Comprehensive SR Storage - Trial (Retired) SCU
+
+dn: cn=Content Assessment Results Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.90.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Content Assessment Results Storage SCU
 
 dn: cn=RT Dose Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.2

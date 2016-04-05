@@ -182,6 +182,11 @@
       "description": "Audit Message Aggregation Duration in ISO-8601 duration format PnDTnHnMn.nS. Audit Message aggregation disabled, if absent.",
       "type": "string"
     },
+    "dcmStowSpoolDirectory": {
+      "title": "STOW-RS Spool Directory",
+      "description": "Path to Directory used by STOW-RS Service to spool Bulkdata of XML/JSON Metadata and Bulk Data Request Messages.",
+      "type": "string"
+    },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",
       "description": "Specifies URI for the style sheet used by HL7v2 Patient Update Service.",

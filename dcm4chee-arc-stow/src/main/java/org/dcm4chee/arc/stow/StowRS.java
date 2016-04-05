@@ -41,7 +41,10 @@
 package org.dcm4chee.arc.stow;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.io.ContentHandlerAdapter;
+import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.io.SAXTransformer;
+import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.mime.MultipartInputStream;
 import org.dcm4che3.mime.MultipartParser;
@@ -54,6 +57,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -61,15 +65,17 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.stream.StreamResult;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -116,108 +122,119 @@ public class StowRS {
     @Path("/studies")
     @Consumes("multipart/related;type=application/dicom")
     @Produces("application/dicom+xml")
-    public Response storeInstancesXML(InputStream in) throws Exception {
-        return store(in, Input.DICOM, Output.DICOM_XML);
+    public void storeInstancesXML(@Suspended AsyncResponse ar, InputStream in) throws Exception {
+        store(ar, in, Input.DICOM, Output.DICOM_XML);
     }
 
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/dicom")
     @Produces("application/dicom+xml")
-    public Response storeInstancesXML(
-            @PathParam("StudyInstanceUID") String studyInstanceUID, InputStream in) throws Exception {
+    public void storeInstancesXML(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @Suspended AsyncResponse ar,
+            InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        return store(in, Input.DICOM, Output.DICOM_XML);
+        store(ar, in, Input.DICOM, Output.DICOM_XML);
     }
 
     @POST
     @Path("/studies")
     @Consumes("multipart/related;type=application/dicom+xml")
     @Produces("application/dicom+xml")
-    public Response storeXMLMetadataAndBulkdataXML(InputStream in) throws Exception {
-        return store(in, Input.METADATA_XML, Output.DICOM_XML);
+    public void storeXMLMetadataAndBulkdataXML(@Suspended AsyncResponse ar, InputStream in) throws Exception {
+        store(ar, in, Input.METADATA_XML, Output.DICOM_XML);
     }
 
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/dicom+xml")
     @Produces("application/dicom+xml")
-    public Response storeXMLMetadataAndBulkdataXML(
-            @PathParam("StudyInstanceUID") String studyInstanceUID, InputStream in) throws Exception {
+    public void storeXMLMetadataAndBulkdataXML(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @Suspended AsyncResponse ar,
+            InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        return store(in, Input.METADATA_XML, Output.DICOM_XML);
+        store(ar, in, Input.METADATA_XML, Output.DICOM_XML);
     }
 
     @POST
     @Path("/studies")
     @Consumes("multipart/related;type=application/json")
     @Produces("application/dicom+xml")
-    public Response storeJSONMetadataAndBulkdataXML(InputStream in) throws Exception {
-        return store(in, Input.METADATA_JSON, Output.DICOM_XML);
+    public void storeJSONMetadataAndBulkdataXML(@Suspended AsyncResponse ar, InputStream in) throws Exception {
+        store(ar, in, Input.METADATA_JSON, Output.DICOM_XML);
     }
 
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/json")
     @Produces("application/dicom+xml")
-    public Response storeJSONMetadataAndBulkdata(
-            @PathParam("StudyInstanceUID") String studyInstanceUID, InputStream in) throws Exception {
+    public void storeJSONMetadataAndBulkdata(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @Suspended AsyncResponse ar,
+            InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        return store(in, Input.METADATA_JSON, Output.DICOM_XML);
+        store(ar, in, Input.METADATA_JSON, Output.DICOM_XML);
     }
 
     @POST
     @Path("/studies")
     @Consumes("multipart/related;type=application/dicom")
     @Produces("application/json")
-    public Response storeInstancesJSON(InputStream in) throws Exception {
-        return store(in, Input.DICOM, Output.JSON);
+    public void storeInstancesJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
+        store(ar, in, Input.DICOM, Output.JSON);
     }
 
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/dicom")
     @Produces("application/json")
-    public Response storeInstancesJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID, InputStream in) throws Exception {
+    public void storeInstancesJSON(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @Suspended AsyncResponse ar,
+            InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        return store(in, Input.DICOM, Output.JSON);
+        store(ar, in, Input.DICOM, Output.JSON);
     }
 
     @POST
     @Path("/studies")
     @Consumes("multipart/related;type=application/dicom+xml")
     @Produces("application/json")
-    public Response storeXMLMetadataAndBulkdataJSON(InputStream in) throws Exception {
-        return store(in, Input.METADATA_XML, Output.JSON);
+    public void storeXMLMetadataAndBulkdataJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
+        store(ar, in, Input.METADATA_XML, Output.JSON);
     }
 
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/dicom+xml")
     @Produces("application/json")
-    public Response storeXMLMetadataAndBulkdataJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID, InputStream in) throws Exception {
+    public void storeXMLMetadataAndBulkdataJSON(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @Suspended AsyncResponse ar, InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        return store(in, Input.METADATA_XML, Output.JSON);
+        store(ar, in, Input.METADATA_XML, Output.JSON);
     }
 
     @POST
     @Path("/studies")
     @Consumes("multipart/related;type=application/json")
     @Produces("application/json")
-    public Response storeJSONMetadataAndBulkdataJSON(InputStream in) throws Exception {
-        return store(in, Input.METADATA_JSON, Output.JSON);
+    public void storeJSONMetadataAndBulkdataJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
+        store(ar, in, Input.METADATA_JSON, Output.JSON);
     }
 
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/json")
     @Produces("application/json")
-    public Response storeJSONMetadataAndBulkdataJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID, InputStream in) throws Exception {
+    public void storeJSONMetadataAndBulkdataJSON(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @Suspended AsyncResponse ar,
+            InputStream in) throws Exception {
         acceptedStudyInstanceUID = studyInstanceUID;
-        return store(in, Input.METADATA_JSON, Output.JSON);
+        store(ar, in, Input.METADATA_JSON, Output.JSON);
     }
 
     private static String getHeaderParamValue(Map<String, List<String>> headerParams, String key) {
@@ -225,7 +242,7 @@ public class StowRS {
         return list != null && !list.isEmpty() ? list.get(0) : null;
     }
 
-    private Response store(InputStream in, final Input input, Output output)  throws IOException {
+    private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws IOException {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         final StoreSession session = service.newStoreSession(request, getApplicationEntity());
         new MultipartParser(boundary()).parse(new BufferedInputStream(in), new MultipartParser.Handler() {
@@ -243,7 +260,7 @@ public class StowRS {
             }
         });
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
-        return Response.status(status()).entity(output.entity(response)).build();
+        ar.resume(Response.status(status()).entity(output.entity(response)).build());
     }
 
     private String boundary() {
@@ -277,20 +294,39 @@ public class StowRS {
         METADATA_XML {
             @Override
             boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
-                                 MediaType mediaType, String contentLocation) {
-                return false;
+                                 MediaType mediaType, String contentLocation) throws IOException {
+                if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.APPLICATION_DICOM_XML_TYPE))
+                    return stowRS.spoolBulkdata(session, in, mediaType, contentLocation);
+
+                try {
+                    stowRS.addMetadata(SAXReader.parse(in));
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                }
+                return true;
             }
         },
         METADATA_JSON {
             @Override
             boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
-                                 MediaType mediaType, String contentLocation) {
-                return false;
+                                 MediaType mediaType, String contentLocation) throws IOException {
+                if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaType.APPLICATION_JSON_TYPE))
+                    return stowRS.spoolBulkdata(session, in, mediaType, contentLocation);
+
+                JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+                stowRS.addMetadata(reader.readDataset(null));
+                return true;
             }
         };
 
         abstract boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
                                       MediaType mediaType, String contentLocation) throws IOException;
+    }
+
+    private void addMetadata(Attributes metadata) {
+
     }
 
     private void storeDicomObject(StoreSession session, MultipartInputStream in) throws IOException {

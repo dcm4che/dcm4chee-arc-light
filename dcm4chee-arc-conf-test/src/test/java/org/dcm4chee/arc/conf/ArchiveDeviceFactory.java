@@ -64,6 +64,7 @@ import static org.dcm4che3.net.TransferCapability.Role.SCU;
  * @since Jul 2015
  */
 class ArchiveDeviceFactory {
+
     enum ConfigType {
         DEFAULT,
         SAMPLE,
@@ -508,6 +509,7 @@ class ArchiveDeviceFactory {
             UID.AudioSRStorageTrialRetired,
             UID.DetailSRStorageTrialRetired,
             UID.ComprehensiveSRStorageTrialRetired,
+            UID.ContentAssessmentResultsStorage,
             UID.RTDoseStorage,
             UID.RTStructureSetStorage,
             UID.RTBeamsTreatmentRecordStorage,
@@ -699,6 +701,7 @@ class ArchiveDeviceFactory {
             "ADT^A47",
             "ORM^O01"
     };
+    static final String DCM4CHEE_ARC_VERSION = "5.2.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String BULK_DATA_SPOOL_DIR = "${jboss.server.temp.dir}";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
@@ -728,6 +731,7 @@ class ArchiveDeviceFactory {
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
     static final Duration AUDIT_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration AUDIT_AGGREGATE_DURATION = Duration.parse("PT1M");
+    static final String STOW_SPOOL_DIR =  "${jboss.server.data.dir}/stow-spool";
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
     }
@@ -832,7 +836,7 @@ class ArchiveDeviceFactory {
 
         device.setManufacturer("dcm4che.org");
         device.setManufacturerModelName("dcm4chee-arc");
-        device.setSoftwareVersions("5.0.1");
+        device.setSoftwareVersions(DCM4CHEE_ARC_VERSION);
         device.setKeyStoreURL(DCM4CHEE_ARC_KEY_JKS);
         device.setKeyStoreType("JKS");
         device.setKeyStorePin("secret");
@@ -966,6 +970,7 @@ class ArchiveDeviceFactory {
         ext.setAuditSpoolDirectory(AUDIT_SPOOL_DIR);
         ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
         ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
+        ext.setStowSpoolDirectory(STOW_SPOOL_DIR);
 
         ext.setAttributeFilter(Entity.Patient, new AttributeFilter(PATIENT_ATTRS));
         ext.setAttributeFilter(Entity.Study, new AttributeFilter(STUDY_ATTRS));

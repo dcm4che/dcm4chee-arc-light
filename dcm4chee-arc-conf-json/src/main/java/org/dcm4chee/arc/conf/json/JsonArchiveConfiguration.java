@@ -104,6 +104,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmAuditSpoolDirectory", arcDev.getAuditSpoolDirectory());
         writer.writeNotNull("dcmAuditPollingInterval", arcDev.getAuditPollingInterval());
         writer.writeNotNull("dcmAuditAggregateDuration", arcDev.getAuditAggregateDuration());
+        writer.writeNotNull("dcmStowSpoolDirectory", arcDev.getStowSpoolDirectory());
         writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
         writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
         writeAttributeFilters(writer, arcDev);
@@ -411,6 +412,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAuditAggregateDuration":
                     arcDev.setAuditAggregateDuration(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmStowSpoolDirectory":
+                    arcDev.setStowSpoolDirectory(reader.stringValue());
                     break;
                 case "hl7PatientUpdateTemplateURI":
                     arcDev.setPatientUpdateTemplateURI(reader.stringValue());
