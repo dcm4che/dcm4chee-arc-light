@@ -42,6 +42,7 @@ package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -57,6 +58,7 @@ import org.dcm4chee.arc.patient.PatientService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 import java.util.List;
 
@@ -78,12 +80,17 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientMgtContext createPatientMgtContextDICOM(Association as) {
-        return new PatientMgtContextImpl(device, as, as.getSocket(), null);
+        return new PatientMgtContextImpl(device, null, as, as.getApplicationEntity(), as.getSocket(), null);
+    }
+
+    @Override
+    public PatientMgtContext createPatientMgtContextDICOM(HttpServletRequest httpRequest, ApplicationEntity ae) {
+        return new PatientMgtContextImpl(device, httpRequest, null, ae, null, null);
     }
 
     @Override
     public PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh) {
-        return new PatientMgtContextImpl(device, null, socket, msh);
+        return new PatientMgtContextImpl(device, null, null, null, socket, msh);
     }
 
     @Override

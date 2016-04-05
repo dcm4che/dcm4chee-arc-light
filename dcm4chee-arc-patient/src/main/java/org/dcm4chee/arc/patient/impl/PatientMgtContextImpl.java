@@ -43,6 +43,7 @@ package org.dcm4chee.arc.patient.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -51,6 +52,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 
 /**
@@ -61,6 +63,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     private final AttributeFilter attributeFilter;
     private final FuzzyStr fuzzyStr;
+    private final HttpServletRequest httpRequest;
+    private final ApplicationEntity ae;
     private final Association as;
     private final Socket socket;
     private final HL7Segment msh;
@@ -71,10 +75,13 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private String eventActionCode;
     private Exception exception;
 
-    public PatientMgtContextImpl(Device device, Association as, Socket socket, HL7Segment msh) {
+    PatientMgtContextImpl(Device device, HttpServletRequest httpRequest, Association as, ApplicationEntity ae,
+                          Socket socket, HL7Segment msh) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         this.attributeFilter = arcDev.getAttributeFilter(Entity.Patient);
         this.fuzzyStr = arcDev.getFuzzyStr();
+        this.httpRequest = httpRequest;
+        this.ae = ae;
         this.as = as;
         this.socket = socket;
         this.msh = msh;
@@ -106,8 +113,18 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
+    public String getCalledAET() {
+        return as != null ? as.getCalledAET() : ae != null ? ae.getAETitle() : null;
+    }
+
+    @Override
+    public String getCallingAET() {
+        return as != null ? as.getCallingAET() : null;
+    }
+
+    @Override
     public String getRemoteHostName() {
-        return socket.getInetAddress().getHostName();
+        return httpRequest != null ? httpRequest.getRemoteHost() : socket.getInetAddress().getHostName();
     }
 
     @Override

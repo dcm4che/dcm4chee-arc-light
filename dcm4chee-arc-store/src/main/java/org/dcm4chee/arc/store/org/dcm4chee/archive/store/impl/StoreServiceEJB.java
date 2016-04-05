@@ -62,6 +62,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -323,9 +324,11 @@ public class StoreServiceEJB {
         if (series == null) {
             Study study = findStudy(ctx);
             if (study == null) {
-                IDWithIssuer pid = IDWithIssuer.pidOf(ctx.getAttributes());
-                PatientMgtContext patMgtCtx = patientService.createPatientMgtContextDICOM(
-                        ctx.getStoreSession().getAssociation());
+                StoreSession session = ctx.getStoreSession();
+                HttpServletRequest httpRequest = session.getHttpRequest();
+                PatientMgtContext patMgtCtx = httpRequest != null
+                        ? patientService.createPatientMgtContextDICOM(httpRequest, session.getLocalApplicationEntity())
+                        : patientService.createPatientMgtContextDICOM(session.getAssociation());
                 patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);
                 if (pat == null) {

@@ -60,6 +60,10 @@ public interface PatientMgtContext {
 
     HL7Segment getHL7MessageHeader();
 
+    String getCalledAET();
+
+    String getCallingAET();
+
     String getRemoteHostName();
 
     IDWithIssuer getPatientID();

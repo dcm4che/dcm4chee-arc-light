@@ -20,8 +20,8 @@ import java.util.Map;
  * @since Jul 2015
  */
 class StoreSessionImpl implements StoreSession {
-    private Association as;
-    private HttpServletRequest httpRequest;
+    private final Association as;
+    private final HttpServletRequest httpRequest;
     private final ApplicationEntity ae;
     private Storage storage;
     private Study cachedStudy;
@@ -30,9 +30,11 @@ class StoreSessionImpl implements StoreSession {
     public StoreSessionImpl(Association as) {
         this.as = as;
         this.ae = as.getApplicationEntity();
+        this.httpRequest = null;
     }
 
     public StoreSessionImpl(HttpServletRequest httpRequest, ApplicationEntity ae) {
+        this.as = null;
         this.httpRequest = httpRequest;
         this.ae = ae;
     }
