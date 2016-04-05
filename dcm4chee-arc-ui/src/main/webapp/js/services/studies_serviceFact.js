@@ -48,6 +48,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
             cfpLoadingBar.complete();
         },
         updateFromDate : function(studyDate){
+
             if(studyDate.fromObject){
                 var timestampFrom   = Date.parse(studyDate.fromObject);
                 var d1From          = new Date(timestampFrom);
@@ -62,6 +63,8 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
                     ddFrom = '0'+ddFrom;
                 }
                 studyDate.from      = yyyyFrom+MMFrom+ddFrom;
+            }else{
+                studyDate.from      = "";
             }
             cfpLoadingBar.complete();
         },
@@ -79,7 +82,9 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
                     ddTo = '0'+ddTo;
                 }
                 studyDate.to      = yyyyTo+MMTo+ddTo;
-			}
+            }else{
+                studyDate.to      = "";
+            }
             cfpLoadingBar.complete();
         }
     };
