@@ -341,6 +341,11 @@ public class StowRS {
         }
     }
 
+    private boolean spoolBulkdata(StoreSession session, MultipartInputStream in, MediaType mediaType,
+                                  String contentLocation) throws IOException {
+        return false;
+    }
+
     private Attributes mkSOPRefWithRetrieveURL(StoreContext ctx) {
         Attributes attrs = mkSOPRef(ctx, 3);
         attrs.setString(Tag.RetrieveURL, VR.UR, retrieveURL(ctx));
