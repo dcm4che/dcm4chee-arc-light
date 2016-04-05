@@ -25,7 +25,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.activeMenu         = "";
       });
     }, 2000);
-    
+    console.log("console",console);
       //TEST
     // DeviceService.addMissingCheckboxes($scope);
       //TEST
@@ -76,12 +76,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }
     });
     $scope.changeElement = function(element){
-            $log.debug("in changElement, element=",element);
-            $log.debug("$scope.selectedPart.dicomNetworkConnection=",$scope.selectedPart.dicomNetworkConnection);
-            $log.debug("$scope.validForm=",$scope.validForm);
+            $log.warn("in changeElement selectedPart=", $scope.selectedPart);
             var checkDevice = element === "device";
             angular.forEach($select, function(m, j){
-              $log.debug("element=",element,"$scope.selectedPart[j]",$scope.selectedPart[j]);
               if(element === j && $scope.selectedPart[j]  != undefined ){
                 checkDevice = true;
               }
@@ -110,12 +107,30 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.showSave         = true;
                 console.log("schemas vor init in mainCtrl =",angular.copy(schemas));
                 console.log("form model vor init = ",angular.copy($scope.form));
-                if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
-                                console.log("getschema 2");
+                // if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
+                //                 console.log("getschema 2");
 
-                  DeviceService.getSchema($scope.selectedElement);
+                //   DeviceService.getSchema($scope.selectedElement);
+                // }
+                // DeviceService.setFormModel($scope);
+
+                // $scope.dynamic_model = null;
+                // if($scope.form[$scope.selectedElement] && $scope.form[$scope.selectedElement].model){
+                //   $scope.form[$scope.selectedElement].model = null;
+                // }
+                if($scope.selectedElement === "device"){
+                    // $scope.dynamic_schema = DeviceService.getDeviceSchema();
+                    $scope.dynamic_model  = $scope.wholeDevice;
+                }else{
+
+                    // if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
+                    //   console.log("getschema 1");
+                    //   DeviceService.getSchema($scope.selectedElement);
+                    // }
+                    DeviceService.setFormModel($scope);
+                    console.log("$scope.form[$scope.selectedElement].model=",$scope.form[$scope.selectedElement].model);
+                    $scope.dynamic_model = $scope.form[$scope.selectedElement].model;
                 }
-                DeviceService.setFormModel($scope);
                 console.log("form model nach init = ",$scope.form);
                 console.log("schemas nach init in mainCtrl =",schemas);
             }
@@ -143,13 +158,13 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             }  
             $log.debug("selectedElement2=",$scope.selectedElement);
             cfpLoadingBar.complete();
+            $log.debug("form=",$scope.form);
+            $log.debug("dynamic_model=",$scope.dynamic_model);
     };
     $scope.selectElement = function(element) {
+        $log.warn("in selectElement");
         var checkDevice = element === "device";
         angular.forEach($select, function(m, j){
-            // $log.debug("m=",m);
-            // $log.debug("j=",j);
-            // $log.debug("element=",element,"$scope.selectedPart[j]",$scope.selectedPart[j]);
             //Differentiate between array elements and not array elements becouse just the array elements (Select element) has selectedPart model
             if(m.type==="array"){
               if(element === j && $scope.selectedPart[j]  != undefined ){
@@ -184,7 +199,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.dynamic_schema = DeviceService.getDeviceSchema();
                 $scope.dynamic_model  = $scope.wholeDevice;
             }else{
-
                 if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
                   console.log("getschema 1");
                   DeviceService.getSchema($scope.selectedElement);
@@ -206,6 +220,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             $scope.lastBorder       = "active_border";
             $scope.showSave         = true;
             cfpLoadingBar.complete();
+
+                        $log.debug("dynamic_model=",$scope.dynamic_model);
+
         }
     };
 

@@ -23,7 +23,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
             //     console.log("schemas=",schemas);
             // });
             /////////////////////////////////////////
-                        scope.$watch("selectedElement",function(newValue,oldValue) {
+            scope.$watch("[selectedElement,selectedPart]",function(newValue,oldValue) {
                 console.log("1234selctedElement=",scope.selectedElement);
                 console.log("1234elm",elm);
                 console.log("1234scope",scope);
@@ -146,7 +146,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     // if(scope.selectedElement == "dicomNetworkConnection"){
 
                 }
-            });
+            }, true);
             /////////////////////////////////////////
     		// cfpLoadingBar.start();
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
