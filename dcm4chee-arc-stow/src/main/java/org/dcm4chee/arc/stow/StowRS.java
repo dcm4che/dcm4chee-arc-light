@@ -40,8 +40,10 @@
 
 package org.dcm4chee.arc.stow;
 
-import org.dcm4che3.data.*;
-import org.dcm4che3.io.ContentHandlerAdapter;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONReader;
@@ -51,13 +53,17 @@ import org.dcm4che3.mime.MultipartParser;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.util.StreamUtils;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
+import sun.security.action.GetPropertyAction;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -65,21 +71,20 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.Path;
 import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.nio.file.*;
+import java.util.*;
+
+import static java.security.AccessController.doPrivileged;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -90,6 +95,7 @@ import java.util.Set;
 public class StowRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StowRS.class);
+    private static final String TMPDIR = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
 
     @Inject
     private StoreService service;
@@ -109,9 +115,12 @@ public class StowRS {
     private String acceptedStudyInstanceUID;
     private final Set<String> studyInstanceUIDs = new HashSet<>();
 
+    private final ArrayList<Attributes> instances = new ArrayList<>();
     private final Attributes response = new Attributes();
     private Sequence sopSequence;
     private Sequence failedSOPSequence;
+    private java.nio.file.Path spoolDirectory;
+    private Map<String, MediaType> bulkdataMediaTypes = new HashMap<>();
 
     @Override
     public String toString() {
@@ -242,8 +251,14 @@ public class StowRS {
         return list != null && !list.isEmpty() ? list.get(0) : null;
     }
 
-    private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws IOException {
+    private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws Exception {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        ar.register(new CompletionCallback() {
+            @Override
+            public void onComplete(Throwable throwable) {
+                purgeSpoolDirectory();
+            }
+        });
         final StoreSession session = service.newStoreSession(request, getApplicationEntity());
         new MultipartParser(boundary()).parse(new BufferedInputStream(in), new MultipartParser.Handler() {
             @Override
@@ -253,14 +268,36 @@ public class StowRS {
                 String contentLocation = getHeaderParamValue(headerParams, "content-location");
                 String contentType = getHeaderParamValue(headerParams, "content-type");
                 MediaType mediaType = MediaType.valueOf(contentType);
-                if (!input.readBodyPart(StowRS.this, session, in, mediaType, contentLocation)) {
-                    LOG.info("{}: Ignore Part with Content-Type={}", session, mediaType);
-                    in.skipAll();
+                try {
+                    if (!input.readBodyPart(StowRS.this, session, in, mediaType, contentLocation)) {
+                        LOG.info("{}: Ignore Part with Content-Type={}", session, mediaType);
+                        in.skipAll();
+                    }
+                } catch (Exception e) {
+                    new WebApplicationException("Failed to process Part #" + partNumber + headerParams, e);
                 }
             }
         });
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
         ar.resume(Response.status(status()).entity(output.entity(response)).build());
+    }
+
+    private void purgeSpoolDirectory() {
+        if (spoolDirectory == null)
+            return;
+
+        try (DirectoryStream<java.nio.file.Path> dir = Files.newDirectoryStream(spoolDirectory)) {
+            for (java.nio.file.Path file : dir) {
+                try {
+                    Files.delete(file);
+                } catch (IOException e) {
+                    LOG.warn("Failed to delete bulkdata spool file {}", file, e);
+                }
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed to purge spool directory {}", spoolDirectory, e);
+        }
+
     }
 
     private String boundary() {
@@ -283,7 +320,7 @@ public class StowRS {
         DICOM {
             @Override
             boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
-                                 MediaType mediaType, String contentLocation) throws IOException {
+                                 MediaType mediaType, String contentLocation) throws Exception {
                 if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.APPLICATION_DICOM_TYPE))
                     return false;
 
@@ -294,39 +331,29 @@ public class StowRS {
         METADATA_XML {
             @Override
             boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
-                                 MediaType mediaType, String contentLocation) throws IOException {
+                                 MediaType mediaType, String contentLocation) throws Exception {
                 if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.APPLICATION_DICOM_XML_TYPE))
                     return stowRS.spoolBulkdata(session, in, mediaType, contentLocation);
 
-                try {
-                    stowRS.addMetadata(SAXReader.parse(in));
-                } catch (ParserConfigurationException e) {
-                    e.printStackTrace();
-                } catch (SAXException e) {
-                    e.printStackTrace();
-                }
+                stowRS.instances.add(SAXReader.parse(in));
                 return true;
             }
         },
         METADATA_JSON {
             @Override
             boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
-                                 MediaType mediaType, String contentLocation) throws IOException {
+                                 MediaType mediaType, String contentLocation) throws Exception {
                 if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaType.APPLICATION_JSON_TYPE))
                     return stowRS.spoolBulkdata(session, in, mediaType, contentLocation);
 
                 JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-                stowRS.addMetadata(reader.readDataset(null));
+                stowRS.instances.add(reader.readDataset(null));
                 return true;
             }
         };
 
         abstract boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
-                                      MediaType mediaType, String contentLocation) throws IOException;
-    }
-
-    private void addMetadata(Attributes metadata) {
-
+                                      MediaType mediaType, String contentLocation) throws Exception;
     }
 
     private void storeDicomObject(StoreSession session, MultipartInputStream in) throws IOException {
@@ -343,7 +370,27 @@ public class StowRS {
 
     private boolean spoolBulkdata(StoreSession session, MultipartInputStream in, MediaType mediaType,
                                   String contentLocation) throws IOException {
-        return false;
+        try (OutputStream out = Files.newOutputStream(spoolDirectory().resolve(contentLocation))) {
+            StreamUtils.copy(in, out);
+        }
+        bulkdataMediaTypes.put(contentLocation, mediaType);
+        return true;
+    }
+
+    private java.nio.file.Path spoolDirectory() throws IOException {
+        if (spoolDirectory == null)
+            spoolDirectory = Files.createTempDirectory(spoolDirectoryRoot(), null);
+
+        return spoolDirectory;
+    }
+
+    private java.nio.file.Path spoolDirectoryRoot() throws IOException {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String dirPath = arcDev.getStowSpoolDirectory();
+        if (dirPath == null)
+            return Paths.get(TMPDIR);
+
+        return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(dirPath)));
     }
 
     private Attributes mkSOPRefWithRetrieveURL(StoreContext ctx) {
