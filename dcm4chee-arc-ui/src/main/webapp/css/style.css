@@ -423,8 +423,15 @@ table.subtable_1, table.subtable_2 {
   table.subtable_1 tr, table.subtable_2 tr {
     height: 30px; }
 
+#selects_part .header {
+  width: 100%; }
 #selects_part button {
-  text-align: left; }
+  text-align: left;
+  margin-bottom: 12px; }
+#selects_part > div {
+  float: left; }
+#selects_part .child {
+  margin-left: 10%; }
 
 .div-table {
   float: left;
@@ -538,10 +545,12 @@ table.subtable_1, table.subtable_2 {
       color: black; }
     .repeat1 .subblock .thead3 .th:first-child {
       border-left: 2px solid rgba(0, 0, 0, 0.55); }
-  .repeat1 .subblock .repeat2 .td_cell.colcell {
-    width: 3%;
-    height: 30px;
-    line-height: 30px; }
+  .repeat1 .subblock .repeat2 .td_cell {
+    overflow: hidden; }
+    .repeat1 .subblock .repeat2 .td_cell.colcell {
+      width: 3%;
+      height: 30px;
+      line-height: 30px; }
   .repeat1 .subblock .repeat2 .subblock .tr_row > .td_cell {
     font-weight: bold;
     height: 30px;

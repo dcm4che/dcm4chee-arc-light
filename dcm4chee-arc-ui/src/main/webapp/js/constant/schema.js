@@ -81,17 +81,17 @@ myApp.constant("$select",
         "type": "array",
         "parentOf" : ["dicomTransferCapability","dcmArchiveNetworkAE"]
       },
-      "dcmArchiveNetworkAE":{
-        "title" : "Archive Network AE",
-        "optionRef" : ["dicomNetworkAE","dcmArchiveNetworkAE"],
-        "optionValue" : "dcmStorageID",
-        "type": "object"
-      },
       "dicomTransferCapability":{
         "title" : "Transfer Capability",
         "optionRef" : ["dicomNetworkAE","dicomTransferCapability"],
         "optionValue": "cn",
         "type": "array"
+      },
+      "dcmArchiveNetworkAE":{
+        "title" : "Archive Network AE",
+        "optionRef" : ["dicomNetworkAE","dcmArchiveNetworkAE"],
+        "optionValue" : "dcmStorageID",
+        "type": "object"
       },
       "hl7Application":{
         "title" : "HL7 Applications",
@@ -139,7 +139,18 @@ myApp.constant("$select",
         "title" : "Archive Device",
         "optionRef" : ["dcmArchiveDevice"],
         "optionValue": "dcmFuzzyAlgorithmClass",
-        "type": "object"
+        "type": "object",
+        "parentOf": [
+                      "dcmAttributeFilter",
+                      "dcmStorage",
+                      "dcmQueryRetrieveView",
+                      "dcmQueue",
+                      "dcmExporter",
+                      "dcmExportRule",
+                      "dcmArchiveCompressionRule",
+                      "dcmArchiveAttributeCoercion",
+                      "dcmRejectionNote"
+                    ]
       
       },
       "dcmAttributeFilter":{

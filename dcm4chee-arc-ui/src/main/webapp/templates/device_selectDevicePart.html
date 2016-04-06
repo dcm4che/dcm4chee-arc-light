@@ -2,12 +2,12 @@
 <!-- 	<pre>
 		selectModel: {{selectModel | json}}
 	</pre> -->
-	<div>
+	<div class="header">
 		<h3>Select device part to edit</h3>
 		<label>Edit rest of device</label>
 		<div id="showDeviceForm" class="btn ng-cloak" ng-class="{active_dropbox:selectedElement == 'device'}" ng-click='selectElement("device")' ng-cloak>{{wholeDevice.dicomDeviceName}}</div>
 	</div>
-	<div ng-repeat="(key, value) in selectObject | testFilter:selectedElement:selectedPart">
+	<div ng-repeat="(key, value) in selectObject | testFilter:selectedElement:selectedPart" ng-class="{child:value.optionRef.length > 1}">
 		<label>Select dicom {{value.title}} to edit or delete:</label>
 		{{splitStringToObject(value,key)}}
 <!-- 		<pre> 

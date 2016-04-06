@@ -2,8 +2,10 @@
 
 myApp.directive("fileAttributeList", function($http, cfpLoadingBar) {
     function attrs2rows(level, attrs, rows) {
-
-        angular.forEach(attrs, function (el, tag) {
+        var keys = Object.keys(attrs);
+        keys.sort();
+        keys.forEach(function (tag) {
+            var el = attrs[tag];
             rows.push({ level: level, tag: tag, el: el });
             if (el.vr === 'SQ') {
                 var itemLevel = level + ">";
@@ -17,9 +19,6 @@ myApp.directive("fileAttributeList", function($http, cfpLoadingBar) {
     return {
         restrict: 'E',
         scope: {
-            // attrs: '=',
-            // instance: '=',
-            // aet: "="
             studykey:'=', 
             serieskey: '=', 
             key: '='

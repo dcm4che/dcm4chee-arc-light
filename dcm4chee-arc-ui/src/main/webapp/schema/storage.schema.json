@@ -33,10 +33,7 @@
     "dcmInstanceAvailability": {
       "title": "Instance Availability",
       "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "type": "string"
     },
     "dcmReadOnly": {
       "title": "Read Only",
@@ -53,7 +50,7 @@
     },
     "dcmProperty": {
       "title": "Storage Property",
-      "description": "Property in format <name>=<value>",
+      "description": "Property in format &lt;name&gt;=&lt;value&gt;",
       "type": "array",
       "items": {
         "type": "string"

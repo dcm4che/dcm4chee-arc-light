@@ -490,70 +490,21 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 			var localShema 	= {};
 			var endArray 	= [];
 			try{			
-			// 	$http({
-	  //       	method: 'GET',
-	  //       	url: 'schema/device.schema.json'
-	  //       	// url: '../devices'
-			//     }).then(function successCallback(response) {
-			//     	// $log.debug("old schema=",$schema);
-			//      //    $log.debug("new schema=",response.data);
-			//         angular.copy(response.data,localShema);
-			// 		delete localShema.properties.dicomNetworkAE;
-			// 		delete localShema.properties.dicomNetworkConnection;
-			// 		delete localShema.properties.dcmAuditRecordRepository;
-			// 		delete localShema.properties.hl7Application;
-			// 		delete localShema.properties.dcmImageWriter;
-			// 		delete localShema.properties.dcmImageReader;
-			// 		delete localShema.properties.dcmAuditLogger;
-			// 		delete localShema.properties.dcmArchiveDevice;
-			// 		//
-			// 		angular.forEach(localShema.properties, function(m,i){
-			// 			endArray.push(i);
-			// 			// if(m.type != "array"){
-			// 			// 	if(i==="dicomInstalled"){
-			// 			// 		endArray.push({
-			// 			// 			"key":"dicomInstalled",
-			// 			// 			"type":"radios",
-			// 			// 			"titleMap":[
-			// 			// 				{
-			// 			// 					"value": true,
-			// 			// 					"name":"True"
-			// 			// 				},
-			// 			// 				{
-			// 			// 					"value": false,
-			// 			// 					"name":"False"
-			// 			// 				}
-			// 			// 			]
-			// 			// 		});
-			// 			// 	}else{
-			// 			// 		endArray.push(i);
-			// 			// 	}
-			// 			// }else{
-			// 			// 	endArray.push({
-			//    //                       "key":i,
-			//    //                       "add": "Add",
-			//    //                       "itmes":[
-			//    //                          i+"[]"
-			//    //                       ]
-			//    //                      });
-			// 			// }
-			// 		});
-			// 		$log.debug("endarray=",endArray);
-			// 		return [];
-			//         // return response.data;
-			//     }, function errorCallback(response) {
-			//         $log.error("Error loading device names", response);
-			//         vex.dialog.alert("Error loading device names, please reload the page and try again!");
-			//     }); 
 				angular.copy(schemas.device,localShema);
-				delete localShema.properties.dicomNetworkAE;
-				delete localShema.properties.dicomNetworkConnection;
-				delete localShema.properties.dcmAuditRecordRepository;
+				angular.forEach($select,function(m,i){
+					if(localShema.properties[i]){
+						delete localShema.properties[i];
+					}
+				});
+				console.log("localSchema=",angular.copy(localShema));
+				// delete localShema.properties.dicomNetworkAE;
+				// delete localShema.properties.dicomNetworkConnection;
+				// delete localShema.properties.dcmAuditRecordRepository;
 				// delete localShema.properties.hl7Application;
 				// delete localShema.properties.dcmImageWriter;
-				delete localShema.properties.dcmImageReader;
-				delete localShema.properties.dcmAuditLogger;
-				delete localShema.properties.dcmArchiveDevice;
+				// delete localShema.properties.dcmImageReader;
+				// delete localShema.properties.dcmAuditLogger;
+				// delete localShema.properties.dcmArchiveDevice;
 				//return localShema;
 				// $log.debug("localSchema",localShema.properties);
 				angular.forEach(localShema.properties, function(m,i){
@@ -599,29 +550,11 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					}
 				}
 				});
-
-				$log.debug("2endArray=",endArray);
 				return endArray;
 			}catch(e){
 				$log.error("Error on splitting the device schema in factory DeviceService.js",e);
 				return {};
 			}
-
-/*			var endArray = [];
-			angular.forEach($schema.properties.dicomNetworkAE.items.properties.dicomTransferCapability.items.properties, function(k, i){
-				if(i==="dicomTransferSyntax"){
-					endArray.push({
-		                         "key":"dicomTransferSyntax",
-		                         "add": "Add new dicom transfare syntax",
-		                         "itmes":[
-		                            "dicomTransferSyntax[]"
-		                         ]
-		                        });
-				}else{
-					endArray.push(i);
-				}
-			});
-			return endArray;*/
 		},
 
 		/*
@@ -1186,7 +1119,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 			var partsArray = value.optionRef;
 					if(partsArray.length === 2){
 
-						if($select[partsArray[0]].type==="object"){
+						if($select[partsArray[0]].type==="object" && $scope.wholeDevice[partsArray[0]] && $scope.wholeDevice[partsArray[0]][partsArray[1]]){
 							$scope.selectModel[key] = $scope.wholeDevice[partsArray[0]][partsArray[1]];
 						}else{
 							if($scope.selectedPart){
@@ -1198,6 +1131,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 							}
 						}
 					}else{
+						$log.warn("In TODO");
 						//TODO I don't know if we need it, we will see
 					}
 		},

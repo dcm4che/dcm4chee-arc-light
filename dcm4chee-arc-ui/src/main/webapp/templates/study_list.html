@@ -168,7 +168,7 @@
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>  -->
             </div>
-            <div class="th">Patient Name
+            <div style="width:16.7%" class="th">Patient Name
                 <a href="" class="order_arrow" ng-click="filter.orderby = 'PatientName';queryStudies(0)">
                     <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
                 </a>
@@ -188,9 +188,9 @@
             <div class="th">Study Time</div>
             <div class="th">Accession Number</div>
             <div class="th">Modalities</div>
-            <div class="th">Study Description</div>
-            <div class="th">#S</div>
-            <div class="th">#I</div>
+            <div style="width:17.3%" class="th">Study Description</div>
+            <div style="width:3%" class="th">#S</div>
+            <div style="width:3%" class="th">#I</div>
         </div>
     </div>
     <div class="repeat1" ng-repeat="(studykey, study) in studies">
@@ -217,15 +217,15 @@
                             <a ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
                             <a ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
                         </div>
-                        <div class="td_cell" ng-bind="(study.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'">&nbsp;</div>
+                        <div style="width:17.3%" class="td_cell" ng-bind="(study.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'" title="{{study.attrs['00100010'].Value[0].Alphabetic}}">&nbsp;</div>
                         <div class="td_cell" ng-bind="(study.attrs['00100020'].Value[0]) || '&nbsp;'"> </div>
                         <div class="td_cell" ng-bind="(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'"></div>
                         <div class="td_cell" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div>
                         <div class="td_cell" ng-bind="(study.attrs['00080050'].Value[0]) || '&nbsp;'"> </div>
                         <div class="td_cell" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'"> </div>
-                        <div class="td_cell" ng-bind="(study.attrs['00081030'].Value[0]) || '&nbsp;'"> </div>
-                        <div class="td_cell" ng-bind="(study.attrs['00201206'].Value[0]) || '&nbsp;'"> </div>
-                        <div class="td_cell" ng-bind="(study.attrs['00201208'].Value[0]) || '&nbsp;'"> </div>
+                        <div style="width:18%" class="td_cell" ng-bind="(study.attrs['00081030'].Value[0]) || '&nbsp;'" title="{{study.attrs['00081030'].Value[0]}}"> </div>
+                        <div style="width:3%" class="td_cell" ng-bind="(study.attrs['00201206'].Value[0]) || '&nbsp;'"> </div>
+                        <div style="width:3%" class="td_cell" ng-bind="(study.attrs['00201208'].Value[0]) || '&nbsp;'"> </div>
                     </div>
                     <div class="td_row">
                         <div class="tr_row"  ng-show="study.showAttributes">
@@ -254,8 +254,8 @@
                             <div class="th">PPS Start Time</div>
                             <div class="th">Body Part</div>
                             <div class="th">Modality</div>
-                            <div class="th">Series Description</div>
-                            <div class="th">#I</div>
+                            <div style="width:21%" class="th">Series Description</div>
+                            <div style="width:2%" class="th">#I</div>
                         </div>
                         <div class="repeat2" ng-repeat="(serieskey,series) in study.series">
                                 <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
@@ -285,8 +285,8 @@
                                 <div class="td_cell" ng-bind="(series.attrs['00400245'].Value[0] | formatTM) || '&nbsp;'"> </div>
                                 <div class="td_cell" ng-bind="(series.attrs['00180015'].Value[0]) || '&nbsp;'"> </div>
                                 <div class="td_cell" ng-bind="(series.attrs['00080060'].Value[0]) || '&nbsp;'"> </div>
-                                <div class="td_cell" ng-bind="(series.attrs['0008103E'].Value[0]) || '&nbsp;'"> </div>
-                                <div class="td_cell" ng-bind="(series.attrs['00201209'].Value[0]) || '&nbsp;'"> </div>
+                                <div style="width:21.5%" class="td_cell" ng-bind="(series.attrs['0008103E'].Value[0] | trim: 40) || '&nbsp;'" title="{{(series.attrs['0008103E'].Value[0]) || '&nbsp;'}}"> </div>
+                                <div style="width:2%" class="td_cell" ng-bind="(series.attrs['00201209'].Value[0]) || '&nbsp;'"> </div>
                             </div>
                             <div class="tr_row"  ng-show="series.showAttributes">
                                 <div class="td_cell attribute_list">

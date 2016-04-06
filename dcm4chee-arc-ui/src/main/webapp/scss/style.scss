@@ -506,8 +506,18 @@ table{
 
 }
 #selects_part{
+	.header{
+		width: 100%;
+	}
 	button{
 		text-align: left;
+		margin-bottom: 12px;
+	}
+	& > div{
+		float: left;
+	}
+	.child{
+		margin-left: 10%;
 	}
 }
 .div-table{
@@ -674,7 +684,7 @@ table{
 	    }
 		.repeat2{
 			.td_cell{
-
+				overflow: hidden;
 				&.colcell{
 					width: 3%;
 					height: 30px;

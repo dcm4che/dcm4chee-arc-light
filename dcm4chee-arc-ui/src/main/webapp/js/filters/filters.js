@@ -90,14 +90,39 @@ myApp.filter("attributeNameOf", function() {
     };
 });
 
-myApp.filter("testFilter", function($filter){
+myApp.filter("trim", function() {
+    return function (object,limit) {
+        if(object.length > limit){
+            return object.substr(0, limit)+"...";
+        }else{
+            return object;
+        }
+    };
+});
+
+
+myApp.filter("testFilter", function($filter, $select){
     return function(object, selectedElement, selectedPart){
         var localObject = {};
         angular.forEach(object, function(m, i){
-            if(i != "dicomTransferCapability" || (selectedPart && selectedPart.dicomNetworkAE)){
-                // localObject.push(m);
-                localObject[i]=m;
-            }
+            if( (
+                    $select[i].optionRef.length > 1 && 
+                    $select[$select[i].optionRef[0]].type === "array" && 
+                    selectedPart && 
+                    selectedPart[$select[i].optionRef[0]]
+                )
+                ||
+                (
+                    $select[i].optionRef.length === 1
+                )
+                ||
+                (
+                    $select[i].optionRef.length > 1 && 
+                    $select[$select[i].optionRef[0]].type === "object"
+                )
+                ){
+                    localObject[i]=m;
+                }
         });
         return localObject;
     };

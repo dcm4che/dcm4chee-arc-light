@@ -1,4 +1,5 @@
 <table class="table table-bordered table-condensed attribute_list">
+    <!-- <tr ng-repeat="row in rows2 | orderBy:'tag'"> -->
     <tr ng-repeat="row in rows2">
         <td ng-bind="row.level"></td>
         <td ng-if="row.el" ng-bind="row.tag | attributeNameOf"></td>
