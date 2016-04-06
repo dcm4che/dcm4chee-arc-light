@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.stow;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONReader;
@@ -52,8 +49,9 @@ import org.dcm4che3.mime.MultipartInputStream;
 import org.dcm4che3.mime.MultipartParser;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
@@ -120,7 +118,7 @@ public class StowRS {
     private Sequence sopSequence;
     private Sequence failedSOPSequence;
     private java.nio.file.Path spoolDirectory;
-    private Map<String, MediaType> bulkdataMediaTypes = new HashMap<>();
+    private Map<String, BulkDataWithMediaType> bulkdataMap = new HashMap<>();
 
     @Override
     public String toString() {
@@ -278,6 +276,10 @@ public class StowRS {
                 }
             }
         });
+        for (Attributes instance : instances) {
+            storeDicomObject(session, instance);
+        }
+
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
         ar.resume(Response.status(status()).entity(output.entity(response)).build());
     }
@@ -286,14 +288,17 @@ public class StowRS {
         if (spoolDirectory == null)
             return;
 
-        try (DirectoryStream<java.nio.file.Path> dir = Files.newDirectoryStream(spoolDirectory)) {
-            for (java.nio.file.Path file : dir) {
-                try {
-                    Files.delete(file);
-                } catch (IOException e) {
-                    LOG.warn("Failed to delete bulkdata spool file {}", file, e);
+        try {
+            try (DirectoryStream<java.nio.file.Path> dir = Files.newDirectoryStream(spoolDirectory)) {
+                for (java.nio.file.Path file : dir) {
+                    try {
+                        Files.delete(file);
+                    } catch (IOException e) {
+                        LOG.warn("Failed to delete bulkdata spool file {}", file, e);
+                    }
                 }
             }
+            Files.delete(spoolDirectory);
         } catch (IOException e) {
             LOG.warn("Failed to purge spool directory {}", spoolDirectory, e);
         }
@@ -368,20 +373,59 @@ public class StowRS {
         }
     }
 
-    private boolean spoolBulkdata(StoreSession session, MultipartInputStream in, MediaType mediaType,
-                                  String contentLocation) throws IOException {
-        try (OutputStream out = Files.newOutputStream(spoolDirectory().resolve(contentLocation))) {
-            StreamUtils.copy(in, out);
+    private void storeDicomObject(StoreSession session, Attributes attrs) throws IOException {
+        StoreContext ctx = service.newStoreContext(session);
+        ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
+        try {
+            ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(resolveBulkdataRefs(attrs)));
+            service.store(ctx, attrs);
+            studyInstanceUIDs.add(ctx.getStudyInstanceUID());
+            sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
+        } catch (DicomServiceException e) {
+            failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
-        bulkdataMediaTypes.put(contentLocation, mediaType);
-        return true;
     }
 
-    private java.nio.file.Path spoolDirectory() throws IOException {
+    private MediaType resolveBulkdataRefs(Attributes attrs) throws DicomServiceException {
+        final MediaType[] mediaType = { MediaType.APPLICATION_OCTET_STREAM_TYPE };
+        try {
+            attrs.accept(new Attributes.Visitor() {
+                @Override
+                public boolean visit(Attributes attrs, int tag, VR vr, Object value) throws Exception {
+                    if (value instanceof BulkData) {
+                        resolveBulkdataRef(attrs, tag, vr, (BulkData) value, mediaType);
+                    }
+                    return true;
+                }
+            }, true);
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
+        return mediaType[0];
+    }
+
+    private void resolveBulkdataRef(Attributes attrs, int tag, VR vr, BulkData bulkdata, MediaType[] mediaType) {
+        BulkDataWithMediaType bulkdataWithMediaType = bulkdataMap.get(bulkdata.getURI());
+        if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType)) {
+            bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
+        } else {
+            Fragments frags = attrs.newFragments(tag, vr, 2);
+            frags.add(ByteUtils.EMPTY_BYTES);
+            frags.add(new BulkData(null, bulkdata.getURI(), false));
+            mediaType[0] = bulkdataWithMediaType.mediaType;
+        }
+    }
+
+    private boolean spoolBulkdata(StoreSession session, MultipartInputStream in, MediaType mediaType,
+                                  String contentLocation) throws IOException {
         if (spoolDirectory == null)
             spoolDirectory = Files.createTempDirectory(spoolDirectoryRoot(), null);
-
-        return spoolDirectory;
+        java.nio.file.Path spoolFile = Files.createTempFile(spoolDirectory, null, null);
+        try (OutputStream out = Files.newOutputStream(spoolFile)) {
+            StreamUtils.copy(in, out);
+        }
+        bulkdataMap.put(contentLocation, new BulkDataWithMediaType(spoolFile, mediaType));
+        return true;
     }
 
     private java.nio.file.Path spoolDirectoryRoot() throws IOException {
@@ -479,5 +523,15 @@ public class StowRS {
         };
 
         abstract StreamingOutput entity(Attributes response);
+    }
+
+    private static class BulkDataWithMediaType {
+        final BulkData bulkData;
+        final MediaType mediaType;
+
+        private BulkDataWithMediaType(java.nio.file.Path path, MediaType mediaType) throws IOException {
+            this.bulkData = new BulkData(path.toUri().toString(), 0, (int) Files.size(path), false);
+            this.mediaType = mediaType;
+        }
     }
 }
