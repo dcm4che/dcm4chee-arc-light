@@ -346,6 +346,7 @@
     <module>dcm4chee-arc-export-dicom</module>
     <module>dcm4chee-arc-export-rs</module>
     <module>dcm4chee-arc-hl7</module>
+    <module>dcm4chee-arc-ian-scu</module>
     <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-issuer</module>
     <module>dcm4chee-arc-mpps</module>
@@ -370,13 +371,13 @@
     <module>dcm4chee-arc-store</module>
     <module>dcm4chee-arc-store-scu</module>
     <module>dcm4chee-arc-store-scp</module>
+    <module>dcm4chee-arc-stow</module>
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
     <module>dcm4chee-arc-ui</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
-    <module>dcm4chee-arc-stow</module>
   </modules>
 
   <build>

@@ -87,6 +87,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI());
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcDev.getQidoMaxNumberOfResults(), 0);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
+        writer.writeNotEmpty("dcmIanDestination", arcDev.getIanDestinations());
+        writer.writeNotNull("dcmIanDelay", arcDev.getIanDelay());
+        writer.writeNotNull("dcmIanTaskPollingInterval", arcDev.getIanTaskPollingInterval());
+        writer.writeNotDef("dcmIanTaskFetchSize", arcDev.getIanTaskFetchSize(), 5);
         writer.writeNotNull("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination());
         writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcDev.getFallbackCMoveSCPLevel());
@@ -294,6 +298,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI());
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults(), 0);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
+        writer.writeNotEmpty("dcmIanDestination", arcAE.getIanDestinations());
+        writer.writeNotNull("dcmIanDelay", arcAE.getIanDelay());
         writer.writeNotNull("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
         writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcAE.getFallbackCMoveSCPLevel());
@@ -361,6 +367,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFwdMppsDestination":
                     arcDev.setMppsForwardDestinations(reader.stringArray());
+                    break;
+                case "dcmIanDestination":
+                    arcDev.setIanDestinations(reader.stringArray());
+                    break;
+                case "dcmIanDelay":
+                    arcDev.setIanDelay(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmIanTaskPollingInterval":
+                    arcDev.setIanTaskPollingInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmIanTaskFetchSize":
+                    arcDev.setIanTaskFetchSize(reader.intValue());
                     break;
                 case "dcmFallbackCMoveSCP":
                     arcDev.setFallbackCMoveSCP(reader.stringValue());
@@ -865,6 +883,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFwdMppsDestination":
                     arcAE.setMppsForwardDestinations(reader.stringArray());
+                    break;
+                case "dcmIanDestination":
+                    arcAE.setIanDestinations(reader.stringArray());
+                    break;
+                case "dcmIanDelay":
+                    arcAE.setIanDelay(Duration.parse(reader.stringValue()));
                     break;
                 case "dcmFallbackCMoveSCP":
                     arcAE.setFallbackCMoveSCP(reader.stringValue());

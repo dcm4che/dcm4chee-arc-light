@@ -69,6 +69,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String patientUpdateTemplateURI;
     private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
+    private String[] ianDestinations = {};
+    private Duration ianDelay;
+    private Duration ianTaskPollingInterval;
+    private int ianTaskFetchSize = 5;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
     private MoveForwardLevel fallbackCMoveSCPLevel;
@@ -244,6 +248,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setMppsForwardDestinations(String... mppsForwardDestinations) {
         this.mppsForwardDestinations = mppsForwardDestinations;
+    }
+
+    public String[] getIanDestinations() {
+        return ianDestinations;
+    }
+
+    public void setIanDestinations(String... ianDestinations) {
+        this.ianDestinations = ianDestinations;
+    }
+
+    public Duration getIanDelay() {
+        return ianDelay;
+    }
+
+    public void setIanDelay(Duration ianDelay) {
+        this.ianDelay = ianDelay;
+    }
+
+    public Duration getIanTaskPollingInterval() {
+        return ianTaskPollingInterval;
+    }
+
+    public void setIanTaskPollingInterval(Duration ianTaskPollingInterval) {
+        this.ianTaskPollingInterval = ianTaskPollingInterval;
+    }
+
+    public int getIanTaskFetchSize() {
+        return ianTaskFetchSize;
+    }
+
+    public void setIanTaskFetchSize(int ianTaskFetchSize) {
+        this.ianTaskFetchSize = ianTaskFetchSize;
     }
 
     public String getFallbackCMoveSCP() {
@@ -572,6 +608,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
+        ianDestinations = arcdev.ianDestinations;
+        ianDelay = arcdev.ianDelay;
+        ianTaskPollingInterval = arcdev.ianTaskPollingInterval;
+        ianTaskFetchSize = arcdev.ianTaskFetchSize;
         fallbackCMoveSCP = arcdev.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = arcdev.fallbackCMoveSCPDestination;
         fallbackCMoveSCPLevel = arcdev.fallbackCMoveSCPLevel;

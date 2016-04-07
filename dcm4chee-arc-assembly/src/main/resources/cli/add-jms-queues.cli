@@ -1,5 +1,6 @@
 jms-queue add --queue-address=StgCmtSCP --entries=java:/jms/queue/StgCmtSCP
 jms-queue add --queue-address=MPPSSCU --entries=java:/jms/queue/MPPSSCU
+jms-queue add --queue-address=IANSCU --entries=java:/jms/queue/IANSCU
 jms-queue add --queue-address=Export1 --entries=java:/jms/queue/Export1
 jms-queue add --queue-address=Export2 --entries=java:/jms/queue/Export2
 jms-queue add --queue-address=Export3 --entries=java:/jms/queue/Export3

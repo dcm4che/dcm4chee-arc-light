@@ -138,6 +138,7 @@ class ArchiveDeviceFactory {
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
         newQueueDescriptor("MPPSSCU", "Forward MPPS Tasks"),
+        newQueueDescriptor("IANSCU", "IAN Tasks"),
         newQueueDescriptor("StgCmtSCP", "Storage Commitment Tasks"),
         newQueueDescriptor("Export1", "Dicom Export Tasks (1)"),
         newQueueDescriptor("Export2", "Dicom Export Tasks (2)"),
@@ -719,6 +720,8 @@ class ArchiveDeviceFactory {
     static final boolean SEND_PENDING_C_GET = true;
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
+    static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
+    static final int IAN_TASK_FETCH_SIZE = 2;
     static final String EXPORTER_ID = "STORESCP";
     static final String EXPORTER_DESC = "Export to STORESCP";
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
@@ -961,6 +964,8 @@ class ArchiveDeviceFactory {
         ext.setPatientUpdateTemplateURI(HL7_ADT2DCM_XSL);
         ext.setUnzipVendorDataToURI(UNZIP_VENDOR_DATA);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
+        ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);
+        ext.setIanTaskFetchSize(IAN_TASK_FETCH_SIZE);
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
         ext.setExportTaskFetchSize(EXPORT_TASK_FETCH_SIZE);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);

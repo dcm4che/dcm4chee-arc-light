@@ -97,15 +97,15 @@ public class Location {
     @Column(name = "storage_id", updatable = false)
     private String storageID;
 
-    @Basic(optional = true)
+    @Basic(optional = false)
     @Column(name = "storage_path", updatable = false)
     private String storagePath;
 
-    @Basic(optional = true)
+    @Basic(optional = false)
     @Column(name = "tsuid", updatable = false)
     private String transferSyntaxUID;
 
-    @Basic(optional = true)
+    @Basic(optional = false)
     @Column(name = "object_size", updatable = false)
     private long size;
 

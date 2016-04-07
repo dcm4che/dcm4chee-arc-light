@@ -88,6 +88,29 @@
       "type": "array",
       "items" : { "type": "string" }
     },
+    "dcmIanDestination": {
+      "title": "Ian Destination",
+      "description": "Destination to send IAN N-CREATE RQ",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmIanDelay": {
+      "title": "IAN Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an IAN for a received study is sent to configured IAN destinations. If absent, IANs are triggered by received MPPS",
+      "type": "string"
+    },
+    "dcmIanTaskPollingInterval": {
+      "title": "IAN Task Polling Interval",
+      "description": "Polling Interval for IAN Tasks in ISO-8601 duration format PnDTnHnMn.nS. IAN disabled, if absent",
+      "type": "string"
+    },
+    "dcmIanTaskFetchSize": {
+      "title": "IAN Task Fetch Size",
+      "description": "Maximal number of IAN Tasks scheduled in one transaction; 5 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "dcmFallbackCMoveSCP": {
       "title": "Fallback C-Move SCP",
       "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive",
@@ -127,7 +150,8 @@
       "title": "Export Task Fetch Size",
       "description": "Maximal number of Export Tasks scheduled in one transaction; 5 if absent",
       "type": "integer",
-      "minimum": 5
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "dcmPurgeStoragePollingInterval": {
       "title": "Purge Storage Polling Interval",
@@ -138,13 +162,15 @@
       "title": "Purge Storage Fetch Size",
       "description": "Maximal number of objects to delete in one task; 100 if absent",
       "type": "integer",
-      "minimum": 100
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "dcmDeleteStudyBatchSize": {
       "title": "Delete Study Batch Size",
       "description": "number of studies to delete from the Storage System, if the usable space fall below configured Usable Space, before checking the usable space again; 10 if absent",
       "type": "integer",
-      "minimum": 10
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "dcmDeletePatientOnDeleteLastStudy": {
       "title": "Delete Patient On Delete Last Study",
@@ -160,7 +186,8 @@
       "title": "Delete Rejected Fetch Size",
       "description": "Maximal number of rejected instances to delete from the DB in one task; 100 if absent",
       "type": "integer",
-      "minimum": 100
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "dcmMaxAccessTimeStaleness": {
       "title": "Maximum Access Time Staleness",

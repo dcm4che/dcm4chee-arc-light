@@ -67,6 +67,8 @@ public class ArchiveAEExtension extends AEExtension {
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String[] mppsForwardDestinations = {};
+    private String[] ianDestinations = {};
+    private Duration ianDelay;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
     private MoveForwardLevel fallbackCMoveSCPLevel;
@@ -251,6 +253,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getMppsForwardDestinations();
     }
 
+    public String[] getIanDestinations() {
+        return ianDestinations;
+    }
+
+    public void setIanDestinations(String... ianDestinations) {
+        this.ianDestinations = ianDestinations;
+    }
+
+    public String[] ianDestinations() {
+        return ianDestinations.length > 0
+                ? ianDestinations
+                : getArchiveDeviceExtension().getIanDestinations();
+    }
+
+    public Duration getIanDelay() {
+        return ianDelay;
+    }
+
+    public void setIanDelay(Duration ianDelay) {
+        this.ianDelay = ianDelay;
+    }
+
+    public Duration ianDelay() {
+        return ianDelay != null
+                ? ianDelay
+                : getArchiveDeviceExtension().getIanDelay();
+    }
+
     public String getFallbackCMoveSCP() {
         return fallbackCMoveSCP;
     }
@@ -404,6 +434,8 @@ public class ArchiveAEExtension extends AEExtension {
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
         mppsForwardDestinations = aeExt.mppsForwardDestinations;
+        ianDestinations = aeExt.ianDestinations;
+        ianDelay = aeExt.ianDelay;
         fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
         fallbackCMoveSCPLevel = aeExt.fallbackCMoveSCPLevel;

@@ -94,6 +94,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
         LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
+        LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", ext.getIanDestinations());
+        LdapUtils.storeNotNull(attrs, "dcmIanDelay", ext.getIanDelay());
+        LdapUtils.storeNotNull(attrs, "dcmIanTaskPollingInterval", ext.getIanTaskPollingInterval());
+        LdapUtils.storeNotDef(attrs, "dcmIanTaskFetchSize", ext.getIanTaskFetchSize(), 5);
         LdapUtils.storeNotNull(attrs, "dcmExportTaskPollingInterval", ext.getExportTaskPollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmExportTaskFetchSize", ext.getExportTaskFetchSize(), 5);
         LdapUtils.storeNotNull(attrs, "dcmPurgeStoragePollingInterval", ext.getPurgeStoragePollingInterval());
@@ -141,6 +145,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
+        ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
+        ext.setIanDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmIanDelay"), null)));
+        ext.setIanTaskPollingInterval(
+                toDuration(LdapUtils.stringValue(attrs.get("dcmIanTaskPollingInterval"), null)));
+        ext.setIanTaskFetchSize(LdapUtils.intValue(attrs.get("dcmIanTaskFetchSize"), 5));
         ext.setExportTaskPollingInterval(
                 toDuration(LdapUtils.stringValue(attrs.get("dcmExportTaskPollingInterval"), null)));
         ext.setExportTaskFetchSize(LdapUtils.intValue(attrs.get("dcmExportTaskFetchSize"), 5));
@@ -203,6 +212,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(),  0);
         LdapUtils.storeDiff(mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
+        LdapUtils.storeDiff(mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
+        LdapUtils.storeDiff(mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay());
+        LdapUtils.storeDiff(mods, "dcmIanTaskPollingInterval",
+                aa.getIanTaskPollingInterval(), bb.getIanTaskPollingInterval());
+        LdapUtils.storeDiff(mods, "dcmIanTaskFetchSize", aa.getIanTaskFetchSize(), bb.getIanTaskFetchSize(), 5);
         LdapUtils.storeDiff(mods, "dcmExportTaskPollingInterval",
                 aa.getExportTaskPollingInterval(), bb.getExportTaskPollingInterval());
         LdapUtils.storeDiff(mods, "dcmExportTaskFetchSize",
@@ -316,6 +330,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
         LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
+        LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", ext.getIanDestinations());
+        LdapUtils.storeNotNull(attrs, "dcmIanDelay", ext.getIanDelay());
     }
 
     @Override
@@ -347,6 +363,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
+        ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
+        ext.setIanDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmIanDelay"), null)));
     }
 
     @Override
@@ -386,6 +404,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(), 0);
         LdapUtils.storeDiff(mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
+        LdapUtils.storeDiff(mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
+        LdapUtils.storeDiff(mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay());
     }
 
     @Override

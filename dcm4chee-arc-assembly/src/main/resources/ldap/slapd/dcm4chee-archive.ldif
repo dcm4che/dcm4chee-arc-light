@@ -341,6 +341,25 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.68 NAME 'dcmStowSpoolDirectory'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.69 NAME 'dcmIanDestination'
+  DESC 'Destination to send IAN N-CREATE RQ'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.70 NAME 'dcmIanDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which an IAN for a received study is sent to configured IAN destinations. If absent, IANs are triggered by received MPPS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.71 NAME 'dcmIanTaskPollingInterval'
+  DESC 'Polling Interval for IAN Tasks in ISO-8601 duration format PnDTnHnMn.nS. IAN disabled, if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.72 NAME 'dcmIanTaskFetchSize'
+  DESC 'Maximal number of IAN Tasks scheduled in one transaction; 5 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -360,6 +379,10 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmWadoSR2TextTemplateURI $
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
+    dcmIanDestination $
+    dcmIanDelay $
+    dcmIanTaskPollingInterval $
+    dcmIanTaskFetchSize $
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
     dcmFallbackCMoveSCPLevel $
@@ -398,6 +421,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmWadoSR2TextTemplateURI $
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
+    dcmIanDestination $
+    dcmIanDelay $
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
     dcmFallbackCMoveSCPLevel $
