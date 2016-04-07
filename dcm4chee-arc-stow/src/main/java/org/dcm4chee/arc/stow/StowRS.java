@@ -411,7 +411,7 @@ public class StowRS {
         } else {
             Fragments frags = attrs.newFragments(tag, vr, 2);
             frags.add(ByteUtils.EMPTY_BYTES);
-            frags.add(new BulkData(null, bulkdata.getURI(), false));
+            frags.add(new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false));
             mediaType[0] = bulkdataWithMediaType.mediaType;
         }
     }
