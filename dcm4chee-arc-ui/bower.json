@@ -28,8 +28,7 @@
   },
   "resolutions": {
     "tv4": "~1.0.15",
-    "angular": "1.5.0",
-    "angular-touch": "~1.5.0",
+    "angular": "1.5.3",
     "objectpath": "~1.1.0",
     "moment": "^2.12.0"
   }
