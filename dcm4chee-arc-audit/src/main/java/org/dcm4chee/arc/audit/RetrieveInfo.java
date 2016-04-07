@@ -80,9 +80,8 @@ public class RetrieveInfo {
                 ctx.getMoveOriginatorAETitle(),
                 null != ctx.getException()
                     ? ctx.getException().getMessage()
-                    : ctx.warning() != 0 ? ctx.getOutcomeDescription()
-                    : ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
-                    ? ctx.getOutcomeDescription() : null,
+                    : (ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")) || ctx.warning() != 0
+                        ? ctx.getOutcomeDescription() : null,
                 ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
                     ? Boolean.toString(true) : Boolean.toString(false)
         };

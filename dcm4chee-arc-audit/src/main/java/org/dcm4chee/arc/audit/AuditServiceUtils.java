@@ -42,7 +42,6 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
-import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;

@@ -93,7 +93,7 @@ public class AuditTriggerObserver {
         }
         if (ctx.getLocation() == null && null == ctx.getException())
             return;
-        auditService.spoolInstanceStored(ctx);
+        auditService.spoolInstanceStoredOrWadoRetrieve(ctx, null);
     }
 
     public void onQuery(@Observes QueryContext ctx) {
@@ -101,6 +101,8 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
+        if (ctx.getException().getMessage() == null)
+            return;         //came across a WADORS scenario where ctx has exception but no detailMessage - so audit msg is irrelevant
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
         String etFile = null;
         for (AuditServiceUtils.EventType eventType : et)
@@ -109,6 +111,8 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
+        if (ctx.getException().getMessage() == null)
+            return;         //came across a WADORS scenario where ctx has exception but no detailMessage - so audit msg is irrelevant
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
         if (ctx.failedSOPInstanceUIDs().length > 0)
             auditService.spoolPartialRetrieve(ctx, et);
@@ -121,7 +125,7 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        auditService.spoolWADORetrieve(ctx);
+        auditService.spoolInstanceStoredOrWadoRetrieve(null, ctx);
     }
 
     public void onStudyDeleted(@Observes StudyDeleteContext ctx) {
@@ -150,7 +154,7 @@ public class AuditTriggerObserver {
     }
 
     public void onPatientUpdate(@Observes PatientMgtContext ctx) {
-        auditService.detectPatientRecordEvent(ctx);
+        auditService.spoolPatientRecord(ctx);
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {

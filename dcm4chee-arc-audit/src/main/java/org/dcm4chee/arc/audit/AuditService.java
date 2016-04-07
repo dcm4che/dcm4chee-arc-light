@@ -138,38 +138,45 @@ public class AuditService {
     }
 
     void spoolInstancesDeleted(StoreContext ctx) {
+        AuditServiceUtils.EventType et = (ctx.getException() != null)
+                ? AuditServiceUtils.EventType.DELETE_ERR : AuditServiceUtils.EventType.DELETE_PAS;
+        LinkedHashSet<Object> obj = new LinkedHashSet<>();
+        obj.add(new PatientStudyInfo(ctx));
+        Attributes attrs = ctx.getAttributes();
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
+            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
+                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
+                    String cuid = sopRef.getString(Tag.ReferencedSOPClassUID);
+                    HashSet<String> iuids = sopClassMap.get(cuid);
+                    if (iuids == null) {
+                        iuids = new HashSet<>();
+                        sopClassMap.put(cuid, iuids);
+                    }
+                    iuids.add(sopRef.getString(Tag.ReferencedSOPInstanceUID));
+                }
+            }
+        }
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
+            obj.add(new InstanceInfo(entry.getKey(), String.valueOf(entry.getValue().size())));
+        }
+        writeSpoolFile(String.valueOf(et), obj);
+    }
+
+    private void writeSpoolFile(String eventType, LinkedHashSet<Object> obj) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
         boolean append = Files.exists(dir);
-        AuditServiceUtils.EventType et = (ctx.getException() != null)
-                ? AuditServiceUtils.EventType.DELETE_ERR : AuditServiceUtils.EventType.DELETE_PAS;
-        Attributes attrs = ctx.getAttributes();
         try {
             if (!append)
                 Files.createDirectories(dir);
-            Path file = Files.createTempFile(dir, String.valueOf(et), null);
+            Path file = Files.createTempFile(dir, eventType, null);
             try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     StandardOpenOption.APPEND))) {
-                writer.writeLine(new PatientStudyInfo(ctx));
-                HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-                for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
-                    for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
-                        for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
-                            String cuid = sopRef.getString(Tag.ReferencedSOPClassUID);
-                            HashSet<String> iuids = sopClassMap.get(cuid);
-                            if (iuids == null) {
-                                iuids = new HashSet<>();
-                                sopClassMap.put(cuid, iuids);
-                            }
-                            iuids.add(sopRef.getString(Tag.ReferencedSOPInstanceUID));
-                        }
-                    }
-                }
-                for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-                    writer.writeLine(new InstanceInfo(entry.getKey(), String.valueOf(entry.getValue().size())));
-                }
+                for (Object o : obj)
+                    writer.writeLine(o);
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
@@ -185,13 +192,13 @@ public class AuditService {
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             deleteInfo = new PatientStudyInfo(reader.readLine());
             apList.add(AuditMessages.createActiveParticipant(
-                    deleteInfo.getField(PatientStudyInfo.CALLING_AET), null, null, eventType.isSource,
-                    deleteInfo.getField(PatientStudyInfo.CALLING_HOSTNAME),
-                    AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
+                deleteInfo.getField(PatientStudyInfo.CALLING_AET), null, null, eventType.isSource,
+                deleteInfo.getField(PatientStudyInfo.CALLING_HOSTNAME),
+                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             apList.add(AuditMessages.createActiveParticipant(
-                    deleteInfo.getField(PatientStudyInfo.CALLED_AET),
-                    AuditLogger.processID(), null, eventType.isDest, AuditServiceUtils.getLocalHostName(log()),
-                    AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
+                deleteInfo.getField(PatientStudyInfo.CALLED_AET),
+                AuditLogger.processID(), null, eventType.isDest, AuditServiceUtils.getLocalHostName(log()),
+                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
             ParticipantObjectContainsStudy pocs = new ParticipantObjectContainsStudy();
             pocs.getStudyIDs().add(AuditMessages.createStudyIDs(deleteInfo.getField(PatientStudyInfo.STUDY_UID)));
             String line;
@@ -225,40 +232,24 @@ public class AuditService {
     }
 
     void spoolStudyDeleted(StudyDeleteContext ctx) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
-        boolean append = Files.exists(dir);
+        LinkedHashSet<Object> obj = new LinkedHashSet<>();
         AuditServiceUtils.EventType eventType = (ctx.getException() != null)
                 ? AuditServiceUtils.EventType.PERM_DEL_E : AuditServiceUtils.EventType.PERM_DEL_S;
-        try {
-            if (!append)
-                Files.createDirectories(dir);
-            Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
-            try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    StandardOpenOption.APPEND))) {
-                writer.writeLine(new PatientStudyInfo(ctx));
-                HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-                for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances()) {
-                    String cuid = i.getSopClassUID();
-                    HashSet<String> iuids = sopClassMap.get(cuid);
-                    if (iuids == null) {
-                        iuids = new HashSet<>();
-                        sopClassMap.put(cuid, iuids);
-                    }
-                    iuids.add(i.getSopInstanceUID());
-                }
-                for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-                    writer.writeLine(new InstanceInfo(entry.getKey(),
-                            String.valueOf(entry.getValue().size())));
-                }
+        obj.add(new PatientStudyInfo(ctx));
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+        for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances()) {
+            String cuid = i.getSopClassUID();
+            HashSet<String> iuids = sopClassMap.get(cuid);
+            if (iuids == null) {
+                iuids = new HashSet<>();
+                sopClassMap.put(cuid, iuids);
             }
-            if (!auditAggregate)
-                aggregateAuditMessage(file);
-        } catch (Exception e) {
-            LOG.warn("Failed to write to Audit Spool File - {} ", e);
+            iuids.add(i.getSopInstanceUID());
         }
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
+            obj.add(new InstanceInfo(entry.getKey(), String.valueOf(entry.getValue().size())));
+        }
+        writeSpoolFile(String.valueOf(eventType), obj);
     }
 
     private void auditPermanentDeletion(Path file, AuditServiceUtils.EventType eventType) throws IOException {
@@ -306,25 +297,9 @@ public class AuditService {
     }
 
     void spoolConnectionRejected(Connection conn, Socket s, Throwable e) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
-        boolean append = Files.exists(dir);
-        try {
-            if (!append)
-                Files.createDirectories(dir);
-            Path file = Files.createTempFile(dir, String.valueOf(AuditServiceUtils.EventType.CONN__RJCT), null);
-            try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    StandardOpenOption.APPEND))) {
-                writer.writeLine(new ConnectionRejectedInfo(conn, s, e));
-            }
-            if (!auditAggregate)
-                aggregateAuditMessage(file);
-
-        } catch (Exception ex) {
-            LOG.warn("Failed to write to Audit Spool File - {} ", ex);
-        }
+        LinkedHashSet<Object> obj = new LinkedHashSet<>();
+        obj.add(new ConnectionRejectedInfo(conn, s, e));
+        writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.CONN__RJCT), obj);
     }
 
     private void auditConnectionRejected(Path file, AuditServiceUtils.EventType eventType) throws IOException {
@@ -421,18 +396,12 @@ public class AuditService {
         AuditServiceUtils.emitAuditMessage(eventType, null, apList, poiList, log());
     }
 
-    void spoolInstanceStored(StoreContext ctx) {
+    private void writeSpoolFileStoreOrWadoRetrieve(String fileName, Object patStudyInfo, Object instanceInfo) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(
                 auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
-        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(ctx);
-        if (eventType == null)
-            return; // no audit message for duplicate received instance
-        StoreSession session = ctx.getStoreSession();
-        Path file = dir.resolve(
-                String.valueOf(eventType) + '-' + session.getCallingAET() + '-' + session.getCalledAET() + '-'
-                        + ctx.getStudyInstanceUID());
+        Path file = dir.resolve(fileName);
         boolean append = Files.exists(file);
         try {
             if (!append)
@@ -440,9 +409,9 @@ public class AuditService {
             try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW))) {
                 if (!append) {
-                    writer.writeLine(new PatientStudyInfo(ctx));
+                    writer.writeLine(patStudyInfo);
                 }
-                writer.writeLine(new InstanceInfo(ctx));
+                writer.writeLine(instanceInfo);
             }
             if (!auditAggregate)
                 aggregateAuditMessage(file);
@@ -451,36 +420,30 @@ public class AuditService {
         }
     }
 
-    void spoolWADORetrieve(RetrieveContext ctx){
-        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forWADORetrieve(ctx);
-        HttpServletRequest req = ctx.getHttpRequest();
-        Collection<InstanceLocations> il = ctx.getMatches();
+    void spoolInstanceStoredOrWadoRetrieve(StoreContext storeCtx, RetrieveContext retrieveCtx) {
+        String fileName;
         Attributes attrs = new Attributes();
-        for (InstanceLocations i : il) {
-            attrs = i.getAttributes();
+        AuditServiceUtils.EventType eventType;
+        if (storeCtx != null) {
+            eventType = AuditServiceUtils.EventType.forInstanceStored(storeCtx);
+            if (eventType == null)
+                return; // no audit message for duplicate received instance
+            StoreSession session = storeCtx.getStoreSession();
+            fileName = String.valueOf(eventType) + '-' + session.getCallingAET() + '-'
+                                + session.getCalledAET() + '-' + storeCtx.getStudyInstanceUID();
+            writeSpoolFileStoreOrWadoRetrieve(fileName, new PatientStudyInfo(storeCtx), new InstanceInfo(storeCtx));
         }
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
-        Path file = dir.resolve(
-                String.valueOf(eventType) + '-' + req.getRemoteAddr() + '-' + ctx.getLocalAETitle() + '-'
-                        + ctx.getStudyInstanceUIDs()[0]);
-        boolean append = Files.exists(file);
-        try {
-            if (!append)
-                Files.createDirectories(dir);
-            try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW))) {
-                if (!append) {
-                    writer.writeLine(new PatientStudyInfo(ctx, attrs));
-                }
-                writer.writeLine(new InstanceInfo(ctx, attrs));
+        if (retrieveCtx != null) {
+            eventType = AuditServiceUtils.EventType.forWADORetrieve(retrieveCtx);
+            HttpServletRequest req = retrieveCtx.getHttpRequest();
+            Collection<InstanceLocations> il = retrieveCtx.getMatches();
+            for (InstanceLocations i : il) {
+                attrs = i.getAttributes();
             }
-            if (!auditAggregate)
-                aggregateAuditMessage(file);
-        } catch (Exception ioe) {
-            LOG.warn("Failed write to Audit Spool File - {} ", file, ioe);
+            fileName = String.valueOf(eventType) + '-' + req.getRemoteAddr() + '-' + retrieveCtx.getLocalAETitle() + '-'
+                        + retrieveCtx.getStudyInstanceUIDs()[0];
+            writeSpoolFileStoreOrWadoRetrieve(fileName, new PatientStudyInfo(retrieveCtx, attrs),
+                    new InstanceInfo(retrieveCtx, attrs));
         }
     }
 
@@ -589,28 +552,13 @@ public class AuditService {
     }
 
     void spoolRetrieve(String etFile, RetrieveContext ctx, Collection<InstanceLocations> il) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
-        boolean append = Files.exists(dir);
-        try {
-            if (!append)
-                Files.createDirectories(dir);
-            Path file = Files.createTempFile(dir, etFile, null);
-            try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    StandardOpenOption.APPEND))) {
-                writer.writeLine(new RetrieveInfo(ctx, etFile));
-                for (InstanceLocations instanceLocation : il) {
-                    Attributes attrs = instanceLocation.getAttributes();
-                    writer.writeLine(new RetrieveStudyInfo(attrs));
-                }
-            }
-            if (!auditAggregate)
-                aggregateAuditMessage(file);
-        } catch (Exception e) {
-            LOG.warn("Failed write to Audit Spool File - {} ", e);
+        LinkedHashSet<Object> obj = new LinkedHashSet<>();
+        obj.add(new RetrieveInfo(ctx, etFile));
+        for (InstanceLocations instanceLocation : il) {
+            Attributes attrs = instanceLocation.getAttributes();
+            obj.add(new RetrieveStudyInfo(attrs));
         }
+        writeSpoolFile(etFile, obj);
     }
 
     private void auditRetrieve(Path file, AuditServiceUtils.EventType eventType) throws IOException {
@@ -692,55 +640,36 @@ public class AuditService {
                 apList, poiList, log());
     }
 
-    void detectPatientRecordEvent(PatientMgtContext ctx) {
+    void spoolPatientRecord(PatientMgtContext ctx) {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forHL7(ctx);
-        for (AuditServiceUtils.EventType eventType : et)
-            spoolPatientRecord(ctx, String.valueOf(eventType));
-    }
-
-    private void spoolPatientRecord(PatientMgtContext ctx, String et) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
-        boolean append = Files.exists(dir);
-        try {
-            if (!append)
-                Files.createDirectories(dir);
-            Path file = Files.createTempFile(dir, et, null);
-            try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    StandardOpenOption.APPEND))) {
-                String outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
-                HL7Info hl7i;
-                if (ctx.getHttpRequest() != null) {
-                    writer.writeLine(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
-                            new HL7Info(outcome, ctx.getHttpRequest().getRemoteAddr(),
+        for (AuditServiceUtils.EventType eventType : et) {
+            LinkedHashSet<Object> obj = new LinkedHashSet<>();
+            String outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
+            HL7Info hl7i;
+            if (ctx.getHttpRequest() != null)
+                obj.add(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
+                        new HL7Info(outcome, ctx.getHttpRequest().getRemoteAddr(),
                             ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
-                            ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
-                               KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
-                            : ctx.getHttpRequest().getRemoteAddr(),
+                                ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
+                                KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                                : ctx.getHttpRequest().getRemoteAddr(),
                             ctx.getCalledAET(), null, null)));
-                }
-                if (ctx.getHL7MessageHeader() != null) {
-                    hl7i = new HL7Info(outcome, ctx.getRemoteHostName(),
-                            ctx.getHL7MessageHeader().getSendingApplicationWithFacility(),
-                            ctx.getHL7MessageHeader().getReceivingApplicationWithFacility(), "MSH-10",
-                            ctx.getHL7MessageHeader().getField(9, ""));
-                    if (et.equals(String.valueOf(AuditServiceUtils.EventType.HL7_DELT_E))
-                            || et.equals(String.valueOf(AuditServiceUtils.EventType.HL7_DELT_P)))
-                        writer.writeLine(new HL7Info(ctx.getPreviousPatientID(), ctx.getPreviousAttributes(), hl7i));
-                    else
-                        writer.writeLine(new HL7Info(ctx.getPatientID(), ctx.getAttributes(), hl7i));
-                }
-                if (ctx.getAssociation() != null)
-                    writer.writeLine(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
+            if (ctx.getHL7MessageHeader() != null) {
+                hl7i = new HL7Info(outcome, ctx.getRemoteHostName(),
+                        ctx.getHL7MessageHeader().getSendingApplicationWithFacility(),
+                        ctx.getHL7MessageHeader().getReceivingApplicationWithFacility(), "MSH-10",
+                        ctx.getHL7MessageHeader().getField(9, ""));
+                if (et.equals(String.valueOf(AuditServiceUtils.EventType.HL7_DELT_E))
+                        || et.equals(String.valueOf(AuditServiceUtils.EventType.HL7_DELT_P)))
+                    obj.add(new HL7Info(ctx.getPreviousPatientID(), ctx.getPreviousAttributes(), hl7i));
+                else
+                    obj.add(new HL7Info(ctx.getPatientID(), ctx.getAttributes(), hl7i));
+            }
+            if (ctx.getAssociation() != null)
+                obj.add(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
                         new HL7Info(outcome, ctx.getRemoteHostName(), ctx.getAssociation().getCallingAET(),
                                 ctx.getAssociation().getCalledAET(), null, null)));
-            }
-            if (!auditAggregate)
-                aggregateAuditMessage(file);
-        } catch (Exception e) {
-            LOG.warn("Failed write to Audit Spool File - {} ", e);
+            writeSpoolFile(String.valueOf(eventType), obj);
         }
     }
 
