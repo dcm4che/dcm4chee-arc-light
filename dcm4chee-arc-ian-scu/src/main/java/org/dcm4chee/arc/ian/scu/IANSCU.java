@@ -38,69 +38,18 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.entity;
+package org.dcm4chee.arc.ian.scu;
 
-import org.dcm4che3.util.StringUtils;
-
-import javax.persistence.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Apr 2016
  */
-@NamedQueries({
-        @NamedQuery(name = IanMppsTask.FIND_BY_DEVICE_NAME,
-                query = "select o from IanMppsTask o where o.deviceName=?1 and o.pk>?2 order by o.pk")
-})
-@Entity
-@Table(name = "ian_mpps_task",
-        indexes = @Index(columnList = "device_name")
-)
-public class IanMppsTask {
-    public static final String FIND_BY_DEVICE_NAME = "IanMppsTask.FindByDeviceName";
+public interface IANSCU {
+    String QUEUE_NAME = "IANSCU";
+    String JNDI_NAME = "jms/queue/IANSCU";
 
-    @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(name = "pk")
-    private long pk;
-
-    @Basic(optional = false)
-    @Column(name = "device_name", updatable = false)
-    private String deviceName;
-
-    @Basic(optional = false)
-    @Column(name = "ian_dests", updatable = false)
-    private String ianDestinations;
-
-    @OneToOne(optional = false)
-    @JoinColumn(name = "mpps_fk")
-    private MPPS mpps;
-
-    public long getPk() {
-        return pk;
-    }
-
-    public String getDeviceName() {
-        return deviceName;
-    }
-
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
-    }
-
-    public String[] getIanDestinations() {
-        return StringUtils.split(ianDestinations, '\\');
-    }
-
-    public void setIanDestinations(String... ianDestinations) {
-        this.ianDestinations = StringUtils.concat(ianDestinations, '\\');
-    }
-
-    public MPPS getMpps() {
-        return mpps;
-    }
-
-    public void setMpps(MPPS mpps) {
-        this.mpps = mpps;
-    }
+    Outcome sendIAN(String localAET, String remoteAET, String sopInstanceUID, Attributes attrs) throws Exception;
 }

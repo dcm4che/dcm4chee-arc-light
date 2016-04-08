@@ -93,6 +93,16 @@
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an IAN for a received study is sent to configured IAN destinations. If absent, IANs are triggered by received MPPS",
       "type": "string"
     },
+    "dcmIanTimeout": {
+      "title": "IAN Timeout",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent",
+      "type": "string"
+    },
+    "dcmIanOnTimeout": {
+      "title": "IAN On Timeout",
+      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent",
+      "type": "boolean"
+    },
     "dcmFallbackCMoveSCP": {
       "title": "Fallback C-Move SCP",
       "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive",

@@ -45,6 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Dimse;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.entity.MPPS;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -57,6 +58,8 @@ public interface MPPSContext {
 
     ArchiveAEExtension getArchiveAEExtension();
 
+    String getCalledAET();
+
     String getSopInstanceUID();
 
     void setSopInstanceUID(String sopInstanceUID);
@@ -68,4 +71,8 @@ public interface MPPSContext {
     Dimse getDimse();
 
     void setDimse(Dimse dimse);
+
+    MPPS getMPPS();
+
+    void setMPPS(MPPS mpps);
 }

@@ -79,7 +79,7 @@ class MPPSSCP extends BasicMPPSSCP {
         ctx.setSopInstanceUID(rsp.getString(Tag.AffectedSOPInstanceUID));
         ctx.setAttributes(rqAttrs);
         try {
-            mppsService.createMPPS(ctx);
+            ctx.setMPPS(mppsService.createMPPS(ctx));
         } catch (DicomServiceException e) {
             throw e;
         } catch (PersistenceException e) {
@@ -102,7 +102,7 @@ class MPPSSCP extends BasicMPPSSCP {
         ctx.setSopInstanceUID(rq.getString(Tag.RequestedSOPInstanceUID));
         ctx.setAttributes(rqAttrs);
         try {
-            mppsService.updateMPPS(ctx);
+            ctx.setMPPS(mppsService.updateMPPS(ctx));
         } catch (DicomServiceException e) {
             throw e;
         } catch (PersistenceException e) {

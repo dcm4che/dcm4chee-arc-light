@@ -96,8 +96,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", ext.getIanDestinations());
         LdapUtils.storeNotNull(attrs, "dcmIanDelay", ext.getIanDelay());
+        LdapUtils.storeNotNull(attrs, "dcmIanTimeout", ext.getIanTimeout());
+        LdapUtils.storeNotDef(attrs, "dcmIanOnTimeout", ext.isIanOnTimeout(), false);
         LdapUtils.storeNotNull(attrs, "dcmIanTaskPollingInterval", ext.getIanTaskPollingInterval());
-        LdapUtils.storeNotDef(attrs, "dcmIanTaskFetchSize", ext.getIanTaskFetchSize(), 5);
+        LdapUtils.storeNotDef(attrs, "dcmIanTaskFetchSize", ext.getIanTaskFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmExportTaskPollingInterval", ext.getExportTaskPollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmExportTaskFetchSize", ext.getExportTaskFetchSize(), 5);
         LdapUtils.storeNotNull(attrs, "dcmPurgeStoragePollingInterval", ext.getPurgeStoragePollingInterval());
@@ -147,9 +149,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
         ext.setIanDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmIanDelay"), null)));
+        ext.setIanTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmIanTimeout"), null)));
+        ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), false));
         ext.setIanTaskPollingInterval(
                 toDuration(LdapUtils.stringValue(attrs.get("dcmIanTaskPollingInterval"), null)));
-        ext.setIanTaskFetchSize(LdapUtils.intValue(attrs.get("dcmIanTaskFetchSize"), 5));
+        ext.setIanTaskFetchSize(LdapUtils.intValue(attrs.get("dcmIanTaskFetchSize"), 100));
         ext.setExportTaskPollingInterval(
                 toDuration(LdapUtils.stringValue(attrs.get("dcmExportTaskPollingInterval"), null)));
         ext.setExportTaskFetchSize(LdapUtils.intValue(attrs.get("dcmExportTaskFetchSize"), 5));
@@ -214,9 +218,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
         LdapUtils.storeDiff(mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay());
+        LdapUtils.storeDiff(mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout());
+        LdapUtils.storeDiff(mods, "dcmIanOnTimeout", aa.isIanOnTimeout(), bb.isIanOnTimeout(), false);
         LdapUtils.storeDiff(mods, "dcmIanTaskPollingInterval",
                 aa.getIanTaskPollingInterval(), bb.getIanTaskPollingInterval());
-        LdapUtils.storeDiff(mods, "dcmIanTaskFetchSize", aa.getIanTaskFetchSize(), bb.getIanTaskFetchSize(), 5);
+        LdapUtils.storeDiff(mods, "dcmIanTaskFetchSize", aa.getIanTaskFetchSize(), bb.getIanTaskFetchSize(), 100);
         LdapUtils.storeDiff(mods, "dcmExportTaskPollingInterval",
                 aa.getExportTaskPollingInterval(), bb.getExportTaskPollingInterval());
         LdapUtils.storeDiff(mods, "dcmExportTaskFetchSize",
@@ -332,6 +338,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", ext.getIanDestinations());
         LdapUtils.storeNotNull(attrs, "dcmIanDelay", ext.getIanDelay());
+        LdapUtils.storeNotNull(attrs, "dcmIanTimeout", ext.getIanTimeout());
+        LdapUtils.storeNotNull(attrs, "dcmIanOnTimeout", ext.getIanOnTimeout());
     }
 
     @Override
@@ -365,6 +373,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
         ext.setIanDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmIanDelay"), null)));
+        ext.setIanTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmIanTimeout"), null)));
+        ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
     }
 
     @Override
@@ -406,6 +416,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
         LdapUtils.storeDiff(mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay());
+        LdapUtils.storeDiff(mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout());
+        LdapUtils.storeDiff(mods, "dcmIanOnTimeout", aa.getIanOnTimeout(), bb.getIanOnTimeout());
     }
 
     @Override

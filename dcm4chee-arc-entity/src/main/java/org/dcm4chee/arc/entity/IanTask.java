@@ -50,45 +50,53 @@ import java.util.Date;
  * @since Apr 2016
  */
 @NamedQueries({
-    @NamedQuery(name = IanStudyTask.FIND_SCHEDULED_BY_DEVICE_NAME,
-        query = "select o from IanStudyTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp"),
-    @NamedQuery(name = IanStudyTask.FIND_BY_STUDY_IUID,
-        query = "select o from IanStudyTask o where o.studyInstanceUID=?1"),
+        @NamedQuery(name = IanTask.FIND_WITH_MPPS_BY_DEVICE_NAME,
+                query = "select o from IanTask o " +
+                        "where o.mpps is not null and o.deviceName=?1 and o.pk>?2 " +
+                        "order by o.pk"),
+        @NamedQuery(name = IanTask.FIND_SCHEDULED_BY_DEVICE_NAME,
+                query = "select o from IanTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp"),
+        @NamedQuery(name = IanTask.FIND_BY_STUDY_IUID,
+                query = "select o from IanTask o where o.studyInstanceUID=?1"),
+
 })
 @Entity
-@Table(name = "ian_study_task",
-    uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
-    indexes = @Index(columnList = "device_name, scheduled_time")
+@Table(name = "ian_task",
+        uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
+        indexes = @Index(columnList = "device_name")
 )
-public class IanStudyTask {
-    public static final String FIND_SCHEDULED_BY_DEVICE_NAME = "IanStudyTask.findScheduledByDeviceName";
-    public static final String FIND_BY_STUDY_IUID = "IanStudyTask.findByStudyIUID";
+public class IanTask {
+    public static final String FIND_WITH_MPPS_BY_DEVICE_NAME = "IanTask.findWithMppsByDeviceName";
+    public static final String FIND_SCHEDULED_BY_DEVICE_NAME = "IanTask.findScheduledByDeviceName";
+    public static final String FIND_BY_STUDY_IUID = "IanTask.findByStudyIUID";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")
     private long pk;
 
-    @Version
-    @Column(name = "version")
-    private long version;
-
     @Basic(optional = false)
     @Column(name = "device_name", updatable = false)
     private String deviceName;
 
     @Basic(optional = false)
+    @Column(name = "calling_aet", updatable = false)
+    private String callingAET;
+
+    @Basic(optional = false)
     @Column(name = "ian_dests", updatable = false)
     private String ianDestinations;
 
-    @Basic(optional = false)
-    @Column(name = "study_iuid", updatable = false)
-    private String studyInstanceUID;
-
-    @Basic(optional = false)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "scheduled_time")
     private Date scheduledTime;
+
+    @Column(name = "study_iuid", updatable = false)
+    private String studyInstanceUID;
+
+    @OneToOne
+    @JoinColumn(name = "mpps_fk", updatable = false)
+    private MPPS mpps;
 
     public long getPk() {
         return pk;
@@ -100,6 +108,14 @@ public class IanStudyTask {
 
     public void setDeviceName(String deviceName) {
         this.deviceName = deviceName;
+    }
+
+    public String getCallingAET() {
+        return callingAET;
+    }
+
+    public void setCallingAET(String callingAET) {
+        this.callingAET = callingAET;
     }
 
     public String[] getIanDestinations() {
@@ -124,5 +140,13 @@ public class IanStudyTask {
 
     public void setStudyInstanceUID(String studyInstanceUID) {
         this.studyInstanceUID = studyInstanceUID;
+    }
+
+    public MPPS getMpps() {
+        return mpps;
+    }
+
+    public void setMpps(MPPS mpps) {
+        this.mpps = mpps;
     }
 }

@@ -721,7 +721,7 @@ class ArchiveDeviceFactory {
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
-    static final int IAN_TASK_FETCH_SIZE = 2;
+    static final int IAN_TASK_FETCH_SIZE = 10;
     static final String EXPORTER_ID = "STORESCP";
     static final String EXPORTER_DESC = "Export to STORESCP";
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
@@ -1112,6 +1112,7 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCP, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
+            addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         if (configType == configType.TEST) {

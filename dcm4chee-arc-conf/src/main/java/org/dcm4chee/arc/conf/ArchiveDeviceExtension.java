@@ -71,8 +71,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
     private Duration ianDelay;
+    private Duration ianTimeout;
+    private boolean ianOnTimeout;
     private Duration ianTaskPollingInterval;
-    private int ianTaskFetchSize = 5;
+    private int ianTaskFetchSize = 100;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
     private MoveForwardLevel fallbackCMoveSCPLevel;
@@ -264,6 +266,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setIanDelay(Duration ianDelay) {
         this.ianDelay = ianDelay;
+    }
+
+    public Duration getIanTimeout() {
+        return ianTimeout;
+    }
+
+    public void setIanTimeout(Duration ianTimeout) {
+        this.ianTimeout = ianTimeout;
+    }
+
+    public boolean isIanOnTimeout() {
+        return ianOnTimeout;
+    }
+
+    public void setIanOnTimeout(boolean ianOnTimeout) {
+        this.ianOnTimeout = ianOnTimeout;
     }
 
     public Duration getIanTaskPollingInterval() {
@@ -610,6 +628,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
         ianDestinations = arcdev.ianDestinations;
         ianDelay = arcdev.ianDelay;
+        ianTimeout = arcdev.ianTimeout;
+        ianOnTimeout = arcdev.ianOnTimeout;
         ianTaskPollingInterval = arcdev.ianTaskPollingInterval;
         ianTaskFetchSize = arcdev.ianTaskFetchSize;
         fallbackCMoveSCP = arcdev.fallbackCMoveSCP;

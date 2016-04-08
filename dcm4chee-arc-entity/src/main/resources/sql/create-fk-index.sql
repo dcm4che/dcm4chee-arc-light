@@ -1,6 +1,7 @@
 create index FK_gudw6viy7lrf5t5hetw7mbgh5 on content_item (code_fk) ;
 create index FK_pyrd1nhijag5ct0ee9xqq4h78 on content_item (name_fk) ;
 create index FK_9kpe6whsov3ur9rph4ih2vi5a on content_item (instance_fk) ;
+create index FK_1fuh251le2hid2byw90hd1mly on ian_task (mpps_fk) ;
 create index FK_7w6f9bi2w91qr2abl6ddxnrwq on instance (srcode_fk) ;
 create index FK_6pnwsvi69g5ypye6gjo26vn7e on instance (reject_code_fk) ;
 create index FK_s4tgrew4sh4qxoupmk3gihtrk on instance (series_fk) ;

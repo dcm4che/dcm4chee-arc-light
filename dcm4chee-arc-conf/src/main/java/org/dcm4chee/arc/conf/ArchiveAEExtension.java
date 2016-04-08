@@ -71,6 +71,8 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration ianDelay;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
+    private Duration ianTimeout;
+    private Boolean ianOnTimeout;
     private MoveForwardLevel fallbackCMoveSCPLevel;
     private int fallbackCMoveSCPRetries;
     private String alternativeCMoveSCP;
@@ -281,6 +283,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getIanDelay();
     }
 
+    public Duration getIanTimeout() {
+        return ianTimeout;
+    }
+
+    public void setIanTimeout(Duration ianTimeout) {
+        this.ianTimeout = ianTimeout;
+    }
+
+    public Duration ianTimeout() {
+        return ianTimeout != null
+                ? ianTimeout
+                : getArchiveDeviceExtension().getIanTimeout();
+    }
+
+    public Boolean getIanOnTimeout() {
+        return ianOnTimeout;
+    }
+
+    public void setIanOnTimeout(Boolean ianOnTimeout) {
+        this.ianOnTimeout = ianOnTimeout;
+    }
+
+    public boolean ianOnTimeout() {
+        return ianOnTimeout != null
+                ? ianOnTimeout.booleanValue()
+                : getArchiveDeviceExtension().isIanOnTimeout();
+    }
+
     public String getFallbackCMoveSCP() {
         return fallbackCMoveSCP;
     }
@@ -436,6 +466,8 @@ public class ArchiveAEExtension extends AEExtension {
         mppsForwardDestinations = aeExt.mppsForwardDestinations;
         ianDestinations = aeExt.ianDestinations;
         ianDelay = aeExt.ianDelay;
+        ianTimeout = aeExt.ianTimeout;
+        ianOnTimeout = aeExt.ianOnTimeout;
         fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
         fallbackCMoveSCPLevel = aeExt.fallbackCMoveSCPLevel;

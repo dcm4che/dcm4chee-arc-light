@@ -89,8 +89,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcDev.getIanDestinations());
         writer.writeNotNull("dcmIanDelay", arcDev.getIanDelay());
+        writer.writeNotNull("dcmIanTimeout", arcDev.getIanTimeout());
+        writer.writeNotDef("dcmIanOnTimeout", arcDev.isIanOnTimeout(), false);
         writer.writeNotNull("dcmIanTaskPollingInterval", arcDev.getIanTaskPollingInterval());
-        writer.writeNotDef("dcmIanTaskFetchSize", arcDev.getIanTaskFetchSize(), 5);
+        writer.writeNotDef("dcmIanTaskFetchSize", arcDev.getIanTaskFetchSize(), 100);
         writer.writeNotNull("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination());
         writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcDev.getFallbackCMoveSCPLevel());
@@ -300,6 +302,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcAE.getIanDestinations());
         writer.writeNotNull("dcmIanDelay", arcAE.getIanDelay());
+        writer.writeNotNull("dcmIanTimeout", arcAE.getIanTimeout());
+        writer.writeNotNull("dcmIanOnTimeout", arcAE.getIanOnTimeout());
         writer.writeNotNull("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
         writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcAE.getFallbackCMoveSCPLevel());
@@ -373,6 +377,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIanDelay":
                     arcDev.setIanDelay(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmIanTimeout":
+                    arcDev.setIanTimeout(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmIanOnTimeout":
+                    arcDev.setIanOnTimeout(reader.booleanValue());
                     break;
                 case "dcmIanTaskPollingInterval":
                     arcDev.setIanTaskPollingInterval(Duration.parse(reader.stringValue()));
@@ -889,6 +899,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIanDelay":
                     arcAE.setIanDelay(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmIanTimeout":
+                    arcAE.setIanTimeout(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmIanOnTimeout":
+                    arcAE.setIanOnTimeout(reader.booleanValue());
                     break;
                 case "dcmFallbackCMoveSCP":
                     arcAE.setFallbackCMoveSCP(reader.stringValue());

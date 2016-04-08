@@ -176,6 +176,10 @@ public class MPPS {
         this.status = status;
     }
 
+    public String getSopInstanceUID() {
+        return sopInstanceUID;
+    }
+
     public void setSopInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
     }

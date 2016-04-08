@@ -99,6 +99,16 @@
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an IAN for a received study is sent to configured IAN destinations. If absent, IANs are triggered by received MPPS",
       "type": "string"
     },
+    "dcmIanTimeout": {
+      "title": "IAN Timeout",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent",
+      "type": "string"
+    },
+    "dcmIanOnTimeout": {
+      "title": "IAN On Timeout",
+      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent",
+      "type": "boolean"
+    },
     "dcmIanTaskPollingInterval": {
       "title": "IAN Task Polling Interval",
       "description": "Polling Interval for IAN Tasks in ISO-8601 duration format PnDTnHnMn.nS. IAN disabled, if absent",

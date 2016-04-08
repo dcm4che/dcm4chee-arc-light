@@ -45,6 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Dimse;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.mpps.MPPSContext;
 
 /**
@@ -58,6 +59,8 @@ public class MPPSContextImpl implements MPPSContext {
     private Attributes attributes;
     private String sopInstanceUID;
     private Dimse dimse;
+    private MPPS mpps;
+
     public MPPSContextImpl(Association as) {
         this.as = as;
         this.ae = as.getApplicationEntity();
@@ -76,6 +79,11 @@ public class MPPSContextImpl implements MPPSContext {
     @Override
     public ArchiveAEExtension getArchiveAEExtension() {
         return ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    @Override
+    public String getCalledAET() {
+        return as.getCalledAET();
     }
 
     @Override
@@ -107,6 +115,16 @@ public class MPPSContextImpl implements MPPSContext {
     @Override
     public void setDimse(Dimse dimse) {
         this.dimse = dimse;
+    }
+
+    @Override
+    public MPPS getMPPS() {
+        return mpps;
+    }
+
+    @Override
+    public void setMPPS(MPPS mpps) {
+        this.mpps = mpps;
     }
 
     @Override
