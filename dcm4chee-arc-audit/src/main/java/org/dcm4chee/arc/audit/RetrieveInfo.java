@@ -59,7 +59,7 @@ public class RetrieveInfo {
     static final int MOVEAET = 5;
     static final int OUTCOME = 6;
     static final int PARTIAL_ERROR = 7;
-
+    private String s;
     private final String[] fields;
 
     RetrieveInfo(RetrieveContext ctx, String etFile) {
@@ -79,7 +79,7 @@ public class RetrieveInfo {
                 ctx.getRequestorHostName(),
                 ctx.getMoveOriginatorAETitle(),
                 null != ctx.getException()
-                    ? ctx.getException().getMessage()
+                    ? ctx.getException().getMessage() != null ? ctx.getException().getMessage() : ctx.getException().toString()
                     : (ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")) || ctx.warning() != 0
                         ? ctx.getOutcomeDescription() : null,
                 ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
