@@ -25,7 +25,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.activeMenu         = "";
       });
     }, 2000);
-    console.log("console",console);
+    // console.log("console",console);
       //TEST
     // DeviceService.addMissingCheckboxes($scope);
       //TEST
@@ -156,7 +156,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             if ($scope.selectedPart.dicomNetworkConnection != undefined) {
 
               $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
-              $scope.networkAeForm     = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
+              // $scope.networkAeForm     = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
+              $log.warn("scope.networkAeForm commented out");
             }  
             $log.debug("selectedElement2=",$scope.selectedElement);
             cfpLoadingBar.complete();
@@ -348,7 +349,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
                         //TODO Check references and delete them to
                         $scope.wholeDevice    = DeviceService.clearReference(toDeleteKey, $scope.wholeDevice);
-                        $scope.networkAeForm  = DeviceService.getFormNetworkAe($scope.selectedNetworkConnection);
+                        $log.warn("hier was $scope.networkAeForm");
+                        // $scope.networkAeForm  = DeviceService.getFormNetworkAe($scope.selectedNetworkConnection);
                     }
                 } else {
                     //TODO replace it with an bautiful messaging

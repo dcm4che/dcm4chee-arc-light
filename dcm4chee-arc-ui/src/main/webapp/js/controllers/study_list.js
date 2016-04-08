@@ -34,8 +34,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.clearForm = function(){
         angular.forEach($scope.filter,function(m,i){
-            console.log("m=",m);
-            console.log("i=",i);
             $scope.filter[i] = "";
         });
         $scope.studyDate.fromObject = null;

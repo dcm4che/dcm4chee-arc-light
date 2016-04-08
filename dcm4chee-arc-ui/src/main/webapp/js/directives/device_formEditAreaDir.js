@@ -1,62 +1,28 @@
 "use strict";
 
 myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService, $compile, schemas, $select){
-	return{
-		restrict:"A",
-		templateUrl: 'templates/device_form.html',
-		link: function(scope,elm,attr) {
-            scope.$watch("[selectedElement,selectedPart]",function(newValue,oldValue) {
-                if(scope.selectedElement === "device"){
-                    cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+    return{
+        restrict:"A",
+        templateUrl: 'templates/device_form.html',
+        link: function(scope,elm,attr) {
 
-                    scope.dynamic_schema    = DeviceService.getDeviceSchema();
-                    scope.dynamic_form      = DeviceService.getDeviceForm();
-                    // $log.debug("scope.deviceSchema",scope.deviceSchema);
-                    if(!scope.deviceSchema){
-                        var timeOut = 0;
-                        var schema  = {};
-                        var waitForShema = setInterval(function(){
-                            schema  = DeviceService.getDeviceSchema();
-                            if(schema){
-                                clearInterval(waitForShema);
-                                scope.dynamic_schema = schema;
-                            }
-                            if(timeOut > 100){  //If the program is waiting more than 10 sec than break up and show alert
-                                clearInterval(waitForShema);
-                                $log.error("Timeout error!");
-                                vex.dialog.alert("Timeout error, can't get device information, please reload the page and try again!");
-                            }
-                            timeOut++;
-                        }, 100);
-                    }
-                    //If the wholeDevice is undefined wait for it, otherwaise assigne it to dynamic_model
-                    if(scope.wholeDevice === undefined || scope.wholeDevice.dicomDeviceName != scope.currentDevice){
-                        var timeOut = 0;
-                        var waitForWholeDevice = setInterval(function(){
-                            if(scope.wholeDevice !== undefined){
-                                clearInterval(waitForWholeDevice);
-                                scope.dynamic_model = scope.wholeDevice;
-                            }
-                            if(timeOut > 100){  //If the program is waiting more than 10 sec than break up and show alert
-                                clearInterval(waitForWholeDevice);
-                                $log.error("Timeout error!");
-                                vex.dialog.alert("Timeout error, can't get device information, please reload the page and try again!");
-                            }
-                            timeOut++;
-                        }, 100);
-                    }else{
-                        scope.dynamic_model = scope.wholeDevice;
-                    }
-                    cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-                    // scope.dynamic_form = DeviceService.getDeviceForm();!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                }else{
+            DeviceService.addEmptyArrayFields(scope);
+            
+            scope.$watch("[selectedElement,selectedPart]",function(newValue,oldValue) {
+
+                if(scope.selectedElement != "device"){
 
                     DeviceService.getSchema(scope.selectedElement);
-
-                    var timeout = 50;
+                    var form = DeviceService.getForm(scope);
+                    // console.log("form=",angular.copy(form));
+                    scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
+                    scope.dynamic_form = scope.form[scope.selectedElement]["form"];
+                    // console.log("scope.dynamic_form",angular.copy(scope.dynamic_form));
+                    var timeout = 300;
                     var wait = setInterval(function(){
                         if(
                             (
+                                // form &&
                                 schemas[scope.selectedElement] && 
                                 schemas[scope.selectedElement][scope.selectedElement] && 
                                 schemas[scope.selectedElement][scope.selectedElement]["items"] && 
@@ -64,16 +30,27 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                             )
                             ||
                             (
+                                // form &&
                                 schemas[scope.selectedElement] && 
                                 schemas[scope.selectedElement][scope.selectedElement] && 
                                 schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement] &&
                                 schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"]
                             )
-                       ){
+                           ){
                             clearInterval(wait);
+                            // console.log("form=",angular.copy(form));
+                            // console.log("in if scope.dynamic_form",angular.copy(scope.dynamic_form));
                             if($select[scope.selectedElement].parentOf){
                                 angular.forEach($select[scope.selectedElement].parentOf,function(m,i){
-                                    delete schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]];
+                                    if(
+                                            schemas[scope.selectedElement][scope.selectedElement] &&
+                                            schemas[scope.selectedElement][scope.selectedElement]["items"] &&
+                                            schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement] &&
+                                            schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties &&
+                                            schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]]
+                                        ){
+                                        delete schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]];
+                                    }
                                 });
                             }
                             if(schemas[scope.selectedElement][scope.selectedElement]["items"]){
@@ -81,10 +58,13 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                             }else{
                                 scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement];
                             }
+                            scope.dynamic_form = scope.form[scope.selectedElement]["form"];
+
                         }
                         if(timeout<0){
+                            // console.log("in timeout");
+                            // console.log("scope.dynamic_form",angular.copy(form));
                             clearInterval(wait);
-                            vex.dialog.alert("Timeout error, can't get device information, please reload the page and try again!");
                         }else{
                             timeout--;
                         }
@@ -97,12 +77,59 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     }else{
                         scope.dynamic_model = null;
                     }
+                    DeviceService.addEmptyArrayFields(scope);
                 }
             }, true);
-    		// cfpLoadingBar.start();
+
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
             scope.form = scope.form || {};
             scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
+
+            if(scope.selectedElement === "device"){
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+
+                scope.dynamic_schema = DeviceService.getDeviceSchema();
+                // $log.debug("scope.deviceSchema",scope.deviceSchema);
+                if(!scope.deviceSchema){
+                    var timeOut = 0;
+                    var schema  = {};
+                    var waitForShema = setInterval(function(){
+                        schema  = DeviceService.getDeviceSchema();
+                        if(schema){
+                            clearInterval(waitForShema);
+                            scope.dynamic_schema = schema;
+                        }
+                        if(timeOut > 100){  //If the program is waiting more than 10 sec than break up and show alert
+                            clearInterval(waitForShema);
+                            $log.error("Timeout error!");
+                            vex.dialog.alert("Timeout error, can't get device information, please reload the page and try again!");
+                        }
+                        timeOut++;
+                    }, 100);
+                }
+                //If the wholeDevice is undefined wait for it, otherwaise assigne it to dynamic_model
+                if(scope.wholeDevice === undefined || scope.wholeDevice.dicomDeviceName != scope.currentDevice){
+                    var timeOut = 0;
+                    var waitForWholeDevice = setInterval(function(){
+                        if(scope.wholeDevice !== undefined){
+                            clearInterval(waitForWholeDevice);
+                            console.log("wholeDevice",scope.dynamic_model);
+                            scope.dynamic_model = scope.wholeDevice;
+                        }
+                        if(timeOut > 100){  //If the program is waiting more than 10 sec than break up and show alert
+                            clearInterval(waitForWholeDevice);
+                            $log.error("Timeout error!");
+                            vex.dialog.alert("Timeout error, can't get device information, please reload the page and try again!");
+                        }
+                        timeOut++;
+                    }, 100);
+                }else{
+                    scope.dynamic_model = scope.wholeDevice;
+                    console.log("2wholeDevice",scope.dynamic_model);
+                }
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
+                scope.dynamic_form = DeviceService.getDeviceForm();
+            }
 
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
 
@@ -121,6 +148,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 });
             },1000);
             scope.showSave = true;
+
         }
 
     }
