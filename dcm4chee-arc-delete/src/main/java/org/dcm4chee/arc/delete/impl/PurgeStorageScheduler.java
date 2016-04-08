@@ -166,7 +166,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 }
                 studyDeletedEvent.fire(ctx);
             } catch (Exception e) {
-                LOG.warn("Failed to delete ", ctx.getStudy(), e);
+                LOG.warn("Failed to delete {} on {}", ctx.getStudy(), desc.getStorageURI(), e);
                 ctx.setException(e);
                 studyDeletedEvent.fire(ctx);
                 return null;
