@@ -59,7 +59,6 @@ public class RetrieveInfo {
     static final int MOVEAET = 5;
     static final int OUTCOME = 6;
     static final int PARTIAL_ERROR = 7;
-    private String s;
     private final String[] fields;
 
     RetrieveInfo(RetrieveContext ctx, String etFile) {
