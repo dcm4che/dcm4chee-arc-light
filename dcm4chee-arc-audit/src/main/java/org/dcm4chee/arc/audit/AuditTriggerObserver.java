@@ -87,7 +87,7 @@ public class AuditTriggerObserver {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getRejectionNote() == null)
+        if (ctx.getRejectionNote() != null)
             auditService.spoolInstancesDeleted(ctx);
         else if (ctx.getLocation() != null || ctx.getException() != null)
             auditService.spoolInstanceStoredOrWadoRetrieve(ctx, null);
