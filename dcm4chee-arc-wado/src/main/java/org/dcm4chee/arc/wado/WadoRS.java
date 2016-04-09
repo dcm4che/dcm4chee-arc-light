@@ -647,6 +647,7 @@ public class WadoRS {
                 @Override
                 public BulkData createBulkData(DicomInputStream dis) throws IOException {
                     BulkData bulkData = new BulkData(null, dis.getAttributePath(), dis.bigEndian());
+                    dis.skipFully(dis.length());
                     bulkDataList.add(bulkData);
                     return bulkData;
                 }
@@ -678,10 +679,10 @@ public class WadoRS {
         }
     }
 
-    private static class AttributePath {
+    public static final class AttributePath {
         final int[] path;
 
-        AttributePath(String s) {
+        public AttributePath(String s) {
             String[] split = StringUtils.split(s, '/');
             if ((split.length & 1) == 0)
                 throw new IllegalArgumentException(s);
