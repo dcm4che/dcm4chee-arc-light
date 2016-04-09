@@ -695,7 +695,7 @@ public class WadoRS {
         }
     }
 
-    private class FrameList {
+    public static class FrameList {
         final int[] frames;
 
         public FrameList(String s) {
