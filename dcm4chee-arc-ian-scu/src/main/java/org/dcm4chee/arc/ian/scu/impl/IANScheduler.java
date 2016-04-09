@@ -99,7 +99,8 @@ public class IANScheduler extends Scheduler {
             ianTasks = ejb.fetchIANTasksForMPPS(device.getDeviceName(), ianTaskPk, fetchSize);
             for (IanTask ianTask : ianTasks) {
                 ianTaskPk = ianTask.getPk();
-                Attributes ian = createIANForMPPS(ianTask);
+                ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
+                Attributes ian = createIANForMPPS(ae, ianTask.getMpps());
                 if (ian != null)
                     ejb.scheduleIANTask(ianTask, ian);
             }
@@ -108,8 +109,10 @@ public class IANScheduler extends Scheduler {
             ianTasks = ejb.fetchIANTasksForStudy(device.getDeviceName(), fetchSize);
             for (IanTask ianTask : ianTasks) {
                 ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
-                if (ianTask.getMpps() == null || ae.getAEExtension(ArchiveAEExtension.class).ianOnTimeout())
-                    ejb.scheduleIANTask(ianTask, createIANForStudy(ianTask));
+                if (ianTask.getMpps() == null)
+                    ejb.scheduleIANTask(ianTask, createIANForStudy(ae, ianTask.getStudyInstanceUID()));
+                if (ae.getAEExtension(ArchiveAEExtension.class).ianOnTimeout())
+                    ejb.scheduleIANTask(ianTask, createIANForStudy(ae, ianTask.getMpps().getStudyInstanceUID()));
                 else
                     ejb.removeIANTask(ianTask);
             }
@@ -117,12 +120,14 @@ public class IANScheduler extends Scheduler {
     }
 
     void onMPPSReceive(@Observes MPPSContext ctx) {
-        ApplicationEntity ae = ctx.getLocalApplicationEntity();
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        String[] ianDestinations = arcAE.ianDestinations();
         MPPS mpps = ctx.getMPPS();
-        if (ianDestinations.length != 0 && arcAE.ianDelay() == null && mpps.getStatus() == MPPS.Status.COMPLETED)
-            ejb.createIANTaskForMPPS(arcAE, ctx.getCalledAET(), mpps);
+        if (mpps.getStatus() == MPPS.Status.COMPLETED) {
+            ApplicationEntity ae = ctx.getLocalApplicationEntity();
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            String[] ianDestinations = arcAE.ianDestinations();
+            if (ianDestinations.length != 0 && arcAE.ianDelay() == null)
+                ejb.createIANTaskForMPPS(arcAE, ctx.getCalledAET(), mpps);
+        }
     }
 
     public void onStore(@Observes StoreContext ctx) {
@@ -137,33 +142,30 @@ public class IANScheduler extends Scheduler {
             ejb.createOrUpdateIANTaskForStudy(arcAE, session.getCalledAET(), ctx.getStudyInstanceUID());
     }
 
-    private Attributes createIANForMPPS(IanTask task) {
-        ApplicationEntity ae = device.getApplicationEntity(task.getCallingAET(), true);
-        MPPS mpps = task.getMpps();
+    private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {
         Attributes mppsAttrs = mpps.getAttributes();
-        String studyInstanceUID =
-                mppsAttrs.getNestedDataset(Tag.ScheduledStepAttributesSequence).getString(Tag.StudyInstanceUID);
+        String studyInstanceUID = mpps.getStudyInstanceUID();
         Sequence perfSeriesSeq = mppsAttrs.getSequence(Tag.PerformedSeriesSequence);
-        Attributes ian = new Attributes(2);
+        Attributes ian = new Attributes(3);
         ian.newSequence(Tag.ReferencedPerformedProcedureStepSequence, 1).add(refMPPS(mpps));
         Sequence refSeriesSeq = ian.newSequence(Tag.ReferencedSeriesSequence, perfSeriesSeq.size());
+        ian.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         for (Attributes perfSeries : perfSeriesSeq) {
             String seriesInstanceUID = perfSeries.getString(Tag.SeriesInstanceUID);
             Attributes result = queryService.getStudyAttributesWithSOPInstanceRefs(
-                    studyInstanceUID, seriesInstanceUID, null, ae);
+                    studyInstanceUID, seriesInstanceUID, null, ae, true);
             if (result == null)
                 return null;
 
             Attributes refStudy = result.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
             Attributes refSeries = refStudy.getSequence(Tag.ReferencedSeriesSequence).remove(0);
-            Sequence available = refSeries.getSequence(Tag.ReferencedInstanceSequence);
+            Sequence available = refSeries.getSequence(Tag.ReferencedSOPSequence);
             if (!allAvailable(perfSeries.getSequence(Tag.ReferencedImageSequence), available) ||
                 !allAvailable(perfSeries.getSequence(Tag.ReferencedNonImageCompositeSOPInstanceSequence), available))
                 return null;
 
             refSeriesSeq.add(refSeries);
         }
-        ian.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         return ian;
     }
 
@@ -176,10 +178,11 @@ public class IANScheduler extends Scheduler {
     }
 
     private boolean allAvailable(Sequence performed, Sequence available) {
-        for (Attributes ref : performed) {
-            if (!available(ref, available))
-                return false;
-        }
+        if (performed != null)
+            for (Attributes ref : performed) {
+                if (!available(ref, available))
+                    return false;
+            }
         return true;
     }
 
@@ -192,15 +195,8 @@ public class IANScheduler extends Scheduler {
         return false;
     }
 
-    private Attributes createIANForStudy(IanTask task) {
-        ApplicationEntity ae = device.getApplicationEntity(task.getCallingAET(), true);
-        String studyInstanceUID = task.getStudyInstanceUID();
-        if (studyInstanceUID == null)
-            studyInstanceUID = task.getMpps().getAttributes()
-                    .getNestedDataset(Tag.ScheduledStepAttributesSequence)
-                    .getString(Tag.StudyInstanceUID);
-
-        Attributes result = queryService.getStudyAttributesWithSOPInstanceRefs(studyInstanceUID, null, null, ae);
+    private Attributes createIANForStudy(ApplicationEntity ae, String studyInstanceUID) {
+        Attributes result = queryService.getStudyAttributesWithSOPInstanceRefs(studyInstanceUID, null, null, ae, true);
         Attributes refStudy = result.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
         refStudy.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
         return refStudy;

@@ -83,5 +83,5 @@ public interface QueryService {
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
 
     Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyUID, String seriesUID, String objectUID, ApplicationEntity ae);
+            String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability);
 }

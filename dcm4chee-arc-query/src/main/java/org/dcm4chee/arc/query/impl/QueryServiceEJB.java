@@ -102,6 +102,7 @@ public class QueryServiceEJB {
             QSeries.series.seriesInstanceUID,
             QInstance.instance.sopInstanceUID,
             QInstance.instance.sopClassUID,
+            QInstance.instance.availability
     };
 
     static final Expression<?>[] PATIENT_STUDY_ATTRS = {
@@ -178,7 +179,7 @@ public class QueryServiceEJB {
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, QueryParam queryParam,
-            Collection<Attributes> seriesAttrs) {
+            Collection<Attributes> seriesAttrs, boolean availability) {
         Attributes attrs = getStudyAttributes(studyUID);
         if (attrs == null)
             return null;
@@ -219,7 +220,10 @@ public class QueryServiceEJB {
                 if (seriesAttrs != null)
                     seriesAttrs.add(getSeriesAttributes(seriesPk));
             }
-            Attributes refSOP = new Attributes(2);
+            Attributes refSOP = new Attributes(3);
+            if (availability)
+                refSOP.setString(Tag.InstanceAvailability, VR.CS,
+                        tuple.get(QInstance.instance.availability).toString());
             refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
             refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
             refSOPSeq.add(refSOP);

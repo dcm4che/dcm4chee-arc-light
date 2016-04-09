@@ -142,7 +142,7 @@ public class IocmRS {
         if (rjNote == null)
             throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
 
-        Attributes attrs = queryService.getStudyAttributesWithSOPInstanceRefs(studyUID, seriesUID, objectUID, ae);
+        Attributes attrs = queryService.getStudyAttributesWithSOPInstanceRefs(studyUID, seriesUID, objectUID, ae, false);
         if (attrs == null)
             throw new WebApplicationException("No Study with UID: " + studyUID, Response.Status.NOT_FOUND);
 

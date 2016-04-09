@@ -180,6 +180,22 @@ public class MPPS {
         return sopInstanceUID;
     }
 
+    public String getPerformedProcedureStepStartDate() {
+        return performedProcedureStepStartDate;
+    }
+
+    public String getPerformedProcedureStepStartTime() {
+        return performedProcedureStepStartTime;
+    }
+
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
+    }
+
+    public String getAccessionNumber() {
+        return accessionNumber;
+    }
+
     public void setSopInstanceUID(String sopInstanceUID) {
         this.sopInstanceUID = sopInstanceUID;
     }
