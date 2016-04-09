@@ -95,27 +95,44 @@ public class IANScheduler extends Scheduler {
         int fetchSize = arcDev.getIanTaskFetchSize();
         long ianTaskPk = 0;
         List<IanTask> ianTasks;
+        Attributes ian;
         do {
             ianTasks = ejb.fetchIANTasksForMPPS(device.getDeviceName(), ianTaskPk, fetchSize);
-            for (IanTask ianTask : ianTasks) {
-                ianTaskPk = ianTask.getPk();
-                ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
-                Attributes ian = createIANForMPPS(ae, ianTask.getMpps());
-                if (ian != null)
-                    ejb.scheduleIANTask(ianTask, ian);
-            }
+            for (IanTask ianTask : ianTasks)
+                try {
+                    ianTaskPk = ianTask.getPk();
+                    ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
+                    LOG.info("Check availability of {}", ianTask.getMpps());
+                    ian = createIANForMPPS(ae, ianTask.getMpps());
+                    if (ian != null) {
+                        LOG.info("Schedule {}", ianTask);
+                        ejb.scheduleIANTask(ianTask, ian);
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Failed to process {}", ianTask, e);
+                }
         } while (ianTasks.size() == fetchSize);
         do {
             ianTasks = ejb.fetchIANTasksForStudy(device.getDeviceName(), fetchSize);
-            for (IanTask ianTask : ianTasks) {
-                ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
-                if (ianTask.getMpps() == null)
-                    ejb.scheduleIANTask(ianTask, createIANForStudy(ae, ianTask.getStudyInstanceUID()));
-                if (ae.getAEExtension(ArchiveAEExtension.class).ianOnTimeout())
-                    ejb.scheduleIANTask(ianTask, createIANForStudy(ae, ianTask.getMpps().getStudyInstanceUID()));
-                else
-                    ejb.removeIANTask(ianTask);
-            }
+            for (IanTask ianTask : ianTasks)
+                try {
+                    ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
+                    if (ianTask.getMpps() == null) {
+                        LOG.info("Schedule {}", ianTask);
+                        ejb.scheduleIANTask(ianTask, createIANForStudy(ae, ianTask.getStudyInstanceUID()));
+                    } else {
+                        if (ae.getAEExtension(ArchiveAEExtension.class).ianOnTimeout()
+                                && (ian = createIANForStudy(ae, ianTask.getMpps().getStudyInstanceUID())) != null) {
+                            LOG.warn("Timeout for {} exceeded - schedule IAN for available instances", ianTask);
+                            ejb.scheduleIANTask(ianTask, ian);
+                        } else {
+                            LOG.warn("Timeout for {} exceeded - no IAN", ianTask);
+                            ejb.removeIANTask(ianTask);
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Failed to process {}", ianTask, e);
+                }
         } while (ianTasks.size() == fetchSize);
     }
 
@@ -125,8 +142,14 @@ public class IANScheduler extends Scheduler {
             ApplicationEntity ae = ctx.getLocalApplicationEntity();
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             String[] ianDestinations = arcAE.ianDestinations();
-            if (ianDestinations.length != 0 && arcAE.ianDelay() == null)
-                ejb.createIANTaskForMPPS(arcAE, ctx.getCalledAET(), mpps);
+            if (ianDestinations.length != 0 && arcAE.ianDelay() == null) {
+                try {
+                    IanTask ianTaskForMPPS = ejb.createIANTaskForMPPS(arcAE, ctx.getCalledAET(), mpps);
+                    LOG.info("{}: Created {}", ctx, ianTaskForMPPS);
+                } catch (Exception e) {
+                    LOG.warn("{}: Failed to create IanTask", ctx, e);
+                }
+            }
         }
     }
 
@@ -138,8 +161,22 @@ public class IANScheduler extends Scheduler {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         String[] ianDestinations = arcAE.ianDestinations();
         Duration ianDelay = arcAE.ianDelay();
-        if (ianDestinations.length != 0 && ianDelay != null)
-            ejb.createOrUpdateIANTaskForStudy(arcAE, session.getCalledAET(), ctx.getStudyInstanceUID());
+        if (ianDestinations.length != 0 && ianDelay != null) {
+            try {
+                IANEJB.IanTaskAction ianTaskAction =
+                        ejb.createOrUpdateIANTaskForStudy(arcAE, session.getCalledAET(), ctx.getStudyInstanceUID());
+                switch (ianTaskAction.action) {
+                    case CREATED:
+                        LOG.info("{}: Created {}", ctx, ianTaskAction.ianTask);
+                        break;
+                    case UPDATED:
+                        LOG.debug("{}: Updated {}", ctx, ianTaskAction.ianTask);
+                        break;
+                }
+            } catch (Exception e) {
+                LOG.warn("{}: Failed to create or update IanTask", ctx, e);
+            }
+        }
     }
 
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {
@@ -197,6 +234,8 @@ public class IANScheduler extends Scheduler {
 
     private Attributes createIANForStudy(ApplicationEntity ae, String studyInstanceUID) {
         Attributes result = queryService.getStudyAttributesWithSOPInstanceRefs(studyInstanceUID, null, null, ae, true);
+        if (result == null)
+            return null;
         Attributes refStudy = result.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
         refStudy.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
         return refStudy;

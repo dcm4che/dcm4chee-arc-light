@@ -149,4 +149,18 @@ public class IanTask {
     public void setMpps(MPPS mpps) {
         this.mpps = mpps;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("IanTask[pk=").append(pk).append(", deviceName=").append(deviceName);
+        if (mpps == null)
+            sb.append(", studyInstanceUID=").append(studyInstanceUID);
+        else
+            sb.append(", mppsInstanceUID=").append(mpps.getSopInstanceUID());
+        if (scheduledTime != null)
+            sb.append(", scheduledTime=").append(scheduledTime);
+        sb.append(']');
+        return sb.toString();
+    }
 }

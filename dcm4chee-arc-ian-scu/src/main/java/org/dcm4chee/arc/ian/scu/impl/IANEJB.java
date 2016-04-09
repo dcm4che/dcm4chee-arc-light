@@ -74,7 +74,18 @@ public class IANEJB {
     @Inject
     private QueueManager queueManager;
 
-    public void createIANTaskForMPPS(ArchiveAEExtension arcAE, String callingAET, MPPS mpps) {
+    public enum Action { CREATED, UPDATED}
+    public static class IanTaskAction {
+        public final IanTask ianTask;
+        public final Action action;
+
+        public IanTaskAction(IanTask ianTask, Action action) {
+            this.ianTask = ianTask;
+            this.action = action;
+        }
+    }
+
+    public IanTask createIANTaskForMPPS(ArchiveAEExtension arcAE, String callingAET, MPPS mpps) {
         ApplicationEntity ae = arcAE.getApplicationEntity();
         IanTask task = new IanTask();
         task.setDeviceName(ae.getDevice().getDeviceName());
@@ -83,24 +94,25 @@ public class IANEJB {
         task.setScheduledTime(scheduledTime(arcAE.ianTimeout()));
         task.setMpps(mpps);
         em.persist(task);
+        return task;
     }
 
-    public void createOrUpdateIANTaskForStudy(ArchiveAEExtension arcAE, String callingAET, String studyInstanceUID) {
+    public IanTaskAction createOrUpdateIANTaskForStudy(ArchiveAEExtension arcAE, String callingAET, String studyInstanceUID) {
         try {
             IanTask task = em.createNamedQuery(IanTask.FIND_BY_STUDY_IUID, IanTask.class)
                     .setParameter(1, studyInstanceUID)
                     .getSingleResult();
             task.setScheduledTime(scheduledTime(arcAE.ianDelay()));
+            return new IanTaskAction(task, Action.UPDATED);
         } catch (NoResultException nre) {
-            ApplicationEntity ae = arcAE.getApplicationEntity();
             IanTask task = new IanTask();
-            String deviceName = ae.getDevice().getDeviceName();
-            task.setDeviceName(deviceName);
+            task.setDeviceName(arcAE.getApplicationEntity().getDevice().getDeviceName());
             task.setCallingAET(callingAET);
             task.setIanDestinations(arcAE.ianDestinations());
             task.setStudyInstanceUID(studyInstanceUID);
             task.setScheduledTime(scheduledTime(arcAE.ianDelay()));
             em.persist(task);
+            return new IanTaskAction(task, Action.CREATED);
         }
     }
 

@@ -148,6 +148,7 @@ public class MPPS {
     public String toString() {
         return "MPPS[pk=" + pk
                 + ", uid=" + sopInstanceUID
+                + ", studyInstanceUID=" + studyInstanceUID
                 + ", status=" + status
                 + "]";
     }
