@@ -369,6 +369,7 @@ public class StowRS {
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
+            LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
     }
@@ -382,6 +383,7 @@ public class StowRS {
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
+            LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
     }
@@ -398,14 +400,19 @@ public class StowRS {
                     return true;
                 }
             }, true);
+        } catch (DicomServiceException e) {
+            throw e;
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
         return mediaType[0];
     }
 
-    private void resolveBulkdataRef(Attributes attrs, int tag, VR vr, BulkData bulkdata, MediaType[] mediaType) {
+    private void resolveBulkdataRef(Attributes attrs, int tag, VR vr, BulkData bulkdata, MediaType[] mediaType)
+            throws DicomServiceException {
         BulkDataWithMediaType bulkdataWithMediaType = bulkdataMap.get(bulkdata.getURI());
+        if (bulkdataWithMediaType == null)
+            throw new DicomServiceException(0xA922, "Missing Bulkdata: " + bulkdata.getURI());
         if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType)) {
             bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
         } else {
