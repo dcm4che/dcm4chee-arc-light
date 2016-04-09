@@ -383,6 +383,7 @@ public class StowRS {
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
+            ctx.setAttributes(attrs);
             LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
