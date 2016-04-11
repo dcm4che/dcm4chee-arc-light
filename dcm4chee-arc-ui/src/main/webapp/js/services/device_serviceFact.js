@@ -264,20 +264,28 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	*@$schema (Object) the schema in the position where the whole device model is
 	*/
 	var addEmptyArrayToModel = function($model, $schema){
-		// console.warn("in addEmptyArray $model=",$model);
-		// console.log("$schema=",$schema);
+		console.warn("in addEmptyArray $model=",$model);
+		console.log("$schema=",$schema);
 		$model = $model || {};
 		// if($model){	
         	angular.forEach($schema, function(k, i){
-        		// console.log("k=",k);
-        		if(k !== null && typeof(k)=="object"){
-					addEmptyArrayToModel($model[i],$schema[i]);
-        		}else{
-	        		if(k.type === "array" && !$model[i]){
+        		console.log("k=",k);
+        		console.log("i=",i);
+        		if(k !== null && typeof(k)==="object" && k.type && k.type==="array" && !$model[i]){
 	                    $model[i] =  [];
 	                    $model[i].push(null);
-	        		}
+	                    // $log.debug("in if after push=",$model);
         		}
+     //    		if(k !== null && typeof(k)=="object"){
+					// addEmptyArrayToModel($model[i],$schema[i]);
+     //    		}else{
+     //    			$log.debug("vor if, k.type=",k.type,"$model",$model);
+	    //     		if(k.type === "array" && !$model[i]){
+	    //                 $model[i] =  [];
+	    //                 $model[i].push(null);
+	    //                 $log.debug("in if after push=",$model);
+	    //     		}
+     //    		}
         	});
 		// }
 		return $model;
@@ -298,7 +306,10 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
     	// }
     	    		console.log("scope.dynamic_model=",angular.copy(scope.dynamic_model));
     		console.log("scope.dynamic_schema=",angular.copy(scope.dynamic_schema));
-    		addEmptyArrayToModel(scope.wholeDevice, scope.dynamic_schema);
+    		if(scope.dynamic_schema && scope.dynamic_schema.properties){
+    			$log.debug("in if");
+    			scope.dynamic_model = addEmptyArrayToModel(scope.dynamic_model, scope.dynamic_schema.properties);
+    		}
     		console.log("after addEmptyArrayToModel=",scope.dynamic_model);
     	// if(
      //            schemas[scope.selectedElement] && 
@@ -441,6 +452,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 			});
 
 			angular.forEach(getSchemaNetworkAe().properties,function(value,k){
+				$log.debug("+++++++++++++++++++++ in getFormNetwork k=",k);
 				if(k === "dicomNetworkConnectionReference"){
 					form.push("select");
 					form.push({
@@ -1140,12 +1152,13 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
         	}
         	$log.debug("ende removeEmptyPart");
         },
-
         /*
         *Add empty arrays to the wholeDevice, becouse without them sometimes the form doesn't show the array fields
         *$scope (Object) angularjs scope
         */
         addEmptyArrayFields : function($scope){
+        	$log.debug("in addEmptyArrayFields dynamic_schema=",angular.copy($scope.dynamic_schema));
+        	$log.debug("dynamic_model=",angular.copy($scope.dynamic_model));
         	addEmptyArrayFieldsPrivate($scope);
         },
 
@@ -1178,6 +1191,8 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 		getForm:function(scope){
 			console.log("selectedElement",scope.selectedElement,"schemas",schemas);
 
+
+
 			if(scope.selectedElement === "dicomNetworkAE"){
 				console.log("dicomNetworkAE=",scope.wholeDevice.dicomNetworkConnection);
 				scope.form[scope.selectedElement]["form"] = getFormNetworkAe(scope.wholeDevice.dicomNetworkConnection);
@@ -1201,9 +1216,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					if(checkItems || checkProp){
 						console.warn("in getForm else if",schemas);
 						clearInterval(waitforschema);	
-						//TODO
 						var endArray = [];
-						////////////////
 						if(checkItems){
 							var schema = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]["properties"];
 						}else{
@@ -1214,36 +1227,62 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 						console.log("schema =",angular.copy(schema));
 						angular.forEach(schema, function(m,i){
 
+							if(i === "dicomNetworkConnectionReference"){
+								var connObject = [];
+								$log.debug("scope.wholeDevice.dicomNetworkConnection=",scope.wholeDevice.dicomNetworkConnection);
+								angular.forEach(scope.wholeDevice.dicomNetworkConnection, function(m,k){
+									$log.debug("m=",m);
+									$log.debug("k=",k);
+									var path = {
+										value:"/dicomNetworkConnection/"+k,
+										name:m.cn
+									};
+									// path["/dicomNetworkConnection/"+k] = m.cn;
 
-
-							if(m.type === "array"){
-								endArray.push({
-				                         "key":i,
-				                         "add": "AddTEST",
-				                         "itmes":[
-				                            i+"[]"
-				                         ]
-				                        });
+									connObject.push(path);
+									$log.debug("connObject=",connObject);
+								});
+								$log.debug("connObject=",connObject);
+								endArray.push("select");
+								var temp = {
+			                                "key": "dicomNetworkConnectionReference",
+			                                "type": "checkboxes",
+			                                "titleMap": angular.copy(connObject)
+			                        		};
+			                    $log.debug("temp=",temp);
+								endArray.push(temp);
+								$log.debug("endarrayinif=",JSON.stringify(endArray));
 							}else{
-								if(i==="dicomInstalled"){
-									endArray.push({
-										"key":"dicomInstalled",
-										"type":"radios",
-										"titleMap":[
-											{
-												"value": true,
-												"name":"True"
-											},
-											{
-												"value": false,
-												"name":"False"
-											}
-										]
-									});
-								}else{
-									endArray.push(i);
-								}
 
+								if(m.type === "array"){
+									endArray.push({
+					                         "key":i,
+					                         "add": "Add",
+					                         "itmes":[
+					                            i+"[]"
+					                         ]
+					                        });
+								}else{
+									if(i==="dicomInstalled"){
+										endArray.push({
+											"key":"dicomInstalled",
+											"type":"radios",
+											"titleMap":[
+												{
+													"value": true,
+													"name":"True"
+												},
+												{
+													"value": false,
+													"name":"False"
+												}
+											]
+										});
+									}else{
+										endArray.push(i);
+									}
+
+								}
 							}
 						});
 						// return Object.keys(schemas[scope.selectedElement][scope.selectedElement].items[scope.selectedElement].properties);
@@ -1251,6 +1290,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 						console.log("endarray=",JSON.stringify(endArray));
 						scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
 						scope.form[scope.selectedElement]["form"] = endArray;
+						$log.debug("in serviceFact getschema scope.formselectedelementform=",scope.form[scope.selectedElement]["form"]);
 						// return endArray;
 					}
 					if(timeout>0){
@@ -1453,7 +1493,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 											}
 											console.log("scope.form[scope.selectedElement]0=",angular.copy(scope.form));
 											console.log("scope.form[scope.selectedElement]=",scope.form);
-											scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j] = 
+											// scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j] = 
 											// addEmptyArrayToModel(
 											// 	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j],
 											// 	scope.form[scope.selectedElement].schema);

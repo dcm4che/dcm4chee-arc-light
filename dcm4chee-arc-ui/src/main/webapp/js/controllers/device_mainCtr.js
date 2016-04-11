@@ -18,7 +18,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.selectObject           = $select;
     //Just for debuging
     $scope.schemas                = schemas;
-
     // var schemas = {};
     setTimeout(function(){
       $scope.$apply(function(){
