@@ -264,12 +264,12 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	*@$schema (Object) the schema in the position where the whole device model is
 	*/
 	var addEmptyArrayToModel = function($model, $schema){
-		console.warn("in addEmptyArray $model=",$model);
-		console.log("$schema=",$schema);
+		// console.warn("in addEmptyArray $model=",$model);
+		// console.log("$schema=",$schema);
 		$model = $model || {};
 		// if($model){	
         	angular.forEach($schema, function(k, i){
-        		console.log("k=",k);
+        		// console.log("k=",k);
         		if(k !== null && typeof(k)=="object"){
 					addEmptyArrayToModel($model[i],$schema[i]);
         		}else{
@@ -284,7 +284,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 	};
 
 	var addEmptyArrayFieldsPrivate = function(scope){
-    	$log.debug("in addEmptyArrayFields",scope.wholeDevice);
+    	// $log.debug("in addEmptyArrayFields",scope.wholeDevice);
     	// $log.debug("$schema.properties",$schema.properties);
     	// if($scope.wholeDevice && $schema.properties){
      //    	addEmptyArrayToModel($scope.wholeDevice, $schema.properties);
@@ -637,8 +637,8 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 					}
 				}
 				});
-				$log.debug("getDeviceForm endArray=",endArray);
-				$log.debug("getDeviceForm endArray=",JSON.stringify(endArray));
+				// $log.debug("getDeviceForm endArray=",endArray);
+				// $log.debug("getDeviceForm endArray=",JSON.stringify(endArray));
 				return endArray;
 			}catch(e){
 				$log.error("Error on splitting the device schema in factory DeviceService.js",e);
@@ -1380,12 +1380,12 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 											if(!scope.form[scope.selectedElement]){
 												scope.form[scope.selectedElement] = {};
 											}
-											scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j] = 
-											addEmptyArrayToModel(
-												scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j],
-												scope.form[scope.selectedElement].schema);
+											// scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j] = 
+											// addEmptyArrayToModel(
+											// 	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j],
+											// 	scope.form[scope.selectedElement].schema);
 											scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j];
-											console.log("scope.form[scope.selectedElement]1",scope.form[scope.selectedElement].model);
+											// console.log("scope.form[scope.selectedElement]1",scope.form[scope.selectedElement].model);
 										}
 
 									});
@@ -1401,10 +1401,10 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 											if(!scope.form[scope.selectedElement]){
 												scope.form[scope.selectedElement] = {};
 											}
-											scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j] = 
-											addEmptyArrayToModel(
-												scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j],
-												scope.form[scope.selectedElement].schema);
+											// scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j] = 
+											// addEmptyArrayToModel(
+											// 	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j],
+											// 	scope.form[scope.selectedElement].schema);
 											scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j];
 											console.log("scope.form[scope.selectedElement]2",scope.form[scope.selectedElement].model);
 										}
@@ -1423,10 +1423,10 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 								if(!scope.form[scope.selectedElement]){
 									scope.form[scope.selectedElement] = {};
 								}
-								scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i] = 
-								addEmptyArrayToModel(
-									scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i],
-									scope.form[scope.selectedElement].schema);
+								// scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i] = 
+								// addEmptyArrayToModel(
+								// 	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i],
+								// 	scope.form[scope.selectedElement].schema);
 								scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i];
 								console.log("scope.form[scope.selectedElement]3",scope.form[scope.selectedElement].model);
 							}
@@ -1454,9 +1454,9 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 											console.log("scope.form[scope.selectedElement]0=",angular.copy(scope.form));
 											console.log("scope.form[scope.selectedElement]=",scope.form);
 											scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j] = 
-											addEmptyArrayToModel(
-												scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j],
-												scope.form[scope.selectedElement].schema);
+											// addEmptyArrayToModel(
+											// 	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j],
+											// 	scope.form[scope.selectedElement].schema);
 											scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j];
 											console.log("scope.form[scope.selectedElement]4",scope.form[scope.selectedElement].model);
 										}
@@ -1473,22 +1473,22 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 											if(!scope.form[scope.selectedElement]){
 												scope.form[scope.selectedElement] = {};
 											}
-											setTimeout(function(){
-												console.log("scope.form[scope.selectedElement]1=",angular.copy(scope.form));
-												console.log("scope.form[scope.selectedElement]=",scope.form);
-												console.log("in timeout j",j); 
-												console.log("$select[scope.selectedElement].optionRef",$select[scope.selectedElement].optionRef); 
-												console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
-												console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i]);
-												console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]]);
-												console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j]);
-												scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]] = 
-												addEmptyArrayToModel(
-													scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]],
-													scope.form[scope.selectedElement].schema);
+											// setTimeout(function(){
+												// console.log("scope.form[scope.selectedElement]1=",angular.copy(scope.form));
+												// console.log("scope.form[scope.selectedElement]=",scope.form);
+												// console.log("in timeout j",j); 
+												// console.log("$select[scope.selectedElement].optionRef",$select[scope.selectedElement].optionRef); 
+												// console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
+												// console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i]);
+												// console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]]);
+												// console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j]);
+												// scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]] = 
+												// addEmptyArrayToModel(
+												// 	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]],
+												// 	scope.form[scope.selectedElement].schema);
 												scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]];
 												console.log("scope.form[scope.selectedElement][model]5",scope.form[scope.selectedElement]["model"]);
-											},1000);
+											// },1000);
 										}
 
 									});
@@ -1501,10 +1501,10 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 						if(!scope.form[scope.selectedElement]){
 							scope.form[scope.selectedElement] = {};
 						}
-						scope.wholeDevice[$select[scope.selectedElement].optionRef[0]] = 
-								addEmptyArrayToModel(
-									scope.wholeDevice[$select[scope.selectedElement].optionRef[0]],
-									scope.form[scope.selectedElement].schema);
+						// scope.wholeDevice[$select[scope.selectedElement].optionRef[0]] = 
+						// 		addEmptyArrayToModel(
+						// 			scope.wholeDevice[$select[scope.selectedElement].optionRef[0]],
+						// 			scope.form[scope.selectedElement].schema);
 						scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
 					}
 				}

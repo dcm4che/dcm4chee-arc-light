@@ -73,10 +73,14 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
 
                     DeviceService.setFormModel(scope);
                     if(scope.form[scope.selectedElement] && scope.form[scope.selectedElement]["model"]){
+                        $log.warn("in if set model form=",scope.form);
                         scope.dynamic_model = scope.form[scope.selectedElement]["model"];
                     }else{
+                        $log.warn("in else, from=",form);
                         scope.dynamic_model = null;
                     }
+                    $log.debug("after set schema=",scope.dynamic_schema);
+                    $log.debug("model=",scope.dynamic_model);
                     DeviceService.addEmptyArrayFields(scope);
                 }
             }, true);
