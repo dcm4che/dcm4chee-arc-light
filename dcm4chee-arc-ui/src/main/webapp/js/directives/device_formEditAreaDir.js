@@ -54,7 +54,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
                 scope.dynamic_form = DeviceService.getDeviceForm();
             }else{
-
+                    $log.debug("in else selectedElement=",scope.selectedElement);
                     DeviceService.getSchema(scope.selectedElement);
                     var form = DeviceService.getForm(scope);
                     // console.log("form=",angular.copy(form));
@@ -120,7 +120,16 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                         scope.dynamic_model = scope.form[scope.selectedElement]["model"];
                     }else{
                         $log.warn("in else, from=",form);
-                        scope.dynamic_model = null;
+                        scope.dynamic_model = {};
+                    }
+                    $log.warn("before createPart if");
+                    $log.debug("$select[scope.selectedElement].optionRef.length=",$select[scope.selectedElement].optionRef.length);
+                    $log.debug("scope.selectedElement=",scope.selectedElement);
+                    $log.debug("$select[scope.selectedElement].optionRef=",$select[scope.selectedElement].optionRef);
+                    if(($select[scope.selectedElement].optionRef.length > 1 && $select[$select[scope.selectedElement].optionRef[1]].type === "object") || ($select[scope.selectedElement].optionRef.length === 1 && $select[$select[scope.selectedElement].optionRef[0]].type === "object")){
+                        // $log.debug("$select[$select[scope.selectedElement].optionRef[1]].type=",$select[$select[scope.selectedElement].optionRef[1]].type);
+                        $log.debug("before createPart call");
+                        DeviceService.createPart(scope);
                     }
                     $log.debug("after set schema=",scope.dynamic_schema);
                     $log.debug("model=",scope.dynamic_model);

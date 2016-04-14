@@ -71,21 +71,36 @@ myApp.constant("$select",
         "title" : "Network Connection",
         "optionRef" : ["dicomNetworkConnection"],
         "optionValue": "cn",
-        "type": "array"
-      
+        "type": "array",
+        "required":{
+          "cn": "Conneciton name",
+          "dicomHostname":"Hostname"
+        }
       },
       "dicomNetworkAE":{
         "title" : "Network AE",
         "optionRef" : ["dicomNetworkAE"],
         "optionValue" : "dicomAETitle",
         "type": "array",
-        "parentOf" : ["dicomTransferCapability","dcmArchiveNetworkAE"]
+        "parentOf" : ["dicomTransferCapability","dcmArchiveNetworkAE"],
+        "required":{
+          "dicomAETitle": "AE Title",
+          "dicomNetworkConnectionReference": "Network Connection Reference",
+          "dicomAssociationInitiator": "Association Initiator",
+          "dicomAssociationAcceptor": "Association Acceptor"
+        }
       },
       "dicomTransferCapability":{
         "title" : "Transfer Capability",
         "optionRef" : ["dicomNetworkAE","dicomTransferCapability"],
         "optionValue": "cn",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "cn": "Transfare Capability name",
+          "dicomSOPClass": "SOP Class",
+          "dicomTransferRole": "Transfer Role",
+          "dicomTransferSyntax": "Transfer Syntax"
+        }
       },
       "dcmArchiveNetworkAE":{
         "title" : "Archive Network AE",
@@ -98,13 +113,17 @@ myApp.constant("$select",
         "optionRef" : ["hl7Application"],
         "optionValue": "hl7ApplicationName",
         "type": "array",
-        "parentOf" : ["dcmArchiveHL7Application"]
+        "parentOf" : ["dcmArchiveHL7Application"],
+        "required":{
+          "hl7ApplicationName": "HL7 Application name",
+          "dicomNetworkConnectionReference": "Network Connection Reference"
+        }
       
       },
       "dcmArchiveHL7Application":{
         "title" : "Archive HL7 Application",
         "optionRef" : ["hl7Application","dcmArchiveHL7Application"],
-        // "optionValue": "hl7ApplicationName",
+        "optionValue": "hl7ApplicationName",
         "type": "object"
       
       },
@@ -112,14 +131,22 @@ myApp.constant("$select",
         "title" : "Image Writers",
         "optionRef" : ["dcmImageWriter"],
         "optionValue": "dicomTransferSyntax",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "dicomTransferSyntax": "Transfer Syntax",
+          "dcmIIOFormatName": "Image IO Writer Format Name"
+        }
       
       },
       "dcmImageReader":{
         "title" : "Image Readers",
         "optionRef" : ["dcmImageReader"],
         "optionValue": "dicomTransferSyntax",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "dicomTransferSyntax": "Transfer Syntax",
+          "dcmIIOFormatName": "Image IO Reader Format Name"
+        }
       
       },
       "dcmAuditLogger":{
@@ -157,62 +184,100 @@ myApp.constant("$select",
         "title" : "Attribute List",
         "optionRef" : ["dcmArchiveDevice","dcmAttributeFilter"],
         "optionValue": "dcmEntity",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "dcmEntity": "Attribute Entity",
+          "dcmTag": "Attribute Tag"
+        }
       
       },
       "dcmStorage":{
         "title" : "Storage Descriptor",
         "optionRef" : ["dcmArchiveDevice","dcmStorage"],
         "optionValue": "dcmStorageID",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "dcmStorageID": "Storage ID",
+          "dcmURI": "Storage URI"
+        }
       
       },
       "dcmQueryRetrieveView":{
         "title" : "Query Retrieve View",
         "optionRef" : ["dcmArchiveDevice","dcmQueryRetrieveView"],
         "optionValue": "dcmQueryRetrieveViewID",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "dcmQueryRetrieveViewID": "Query/Retrieve View ID"
+        }
       
       },
       "dcmQueue":{
         "title" : "Managed JMS Queue",
         "optionRef" : ["dcmArchiveDevice","dcmQueue"],
         "optionValue": "dcmQueueName",
-        "type": "array"
-      
+        "type": "array",
+        "required":{
+          "dcmQueueName": "Queue Name",
+          "dcmJndiName": "JNDI Name"
+        }
       },
       "dcmExporter":{
         "title" : "Exporter Descriptor",
         "optionRef" : ["dcmArchiveDevice","dcmExporter"],
         "optionValue": "dcmExporterID",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "dcmExporterID": "Exporter ID",
+          "dcmURI": "URI",
+          "dcmQueueName": "dcmQueueName"
+        }
       
       },
       "dcmExportRule":{
         "title" : "Export Rule",
         "optionRef" : ["dcmArchiveDevice","dcmExportRule"],
         "optionValue": "cn",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "cn": "Name",
+          "dcmEntity": "Attribute Entity",
+          "dcmExporterID": "Exporter ID"
+        }
       
       },
       "dcmArchiveCompressionRule":{
         "title" : "Archive Compression rule",
         "optionRef" : ["dcmArchiveDevice","dcmArchiveCompressionRule"],
         "optionValue": "cn",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "cn": "Name",
+          "dicomTransferSyntax": "DICOM Transfer Syntax UID"
+        }
       
       },
       "dcmArchiveAttributeCoercion":{
         "title" : "Archive Attribute Coercion",
         "optionRef" : ["dcmArchiveDevice","dcmArchiveAttributeCoercion"],
         "optionValue": "cn",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "cn": "Name",
+          "dcmDIMSE": "DIMSE",
+          "dicomTransferRole": "DICOM Transfer Role",
+          "dcmURI": "dcmURI"
+        }
       },
       "dcmRejectionNote":{
         "title" : "Rejection Note",
         "optionRef" : ["dcmArchiveDevice", "dcmRejectionNote"],
         "optionValue": "dcmRejectionNoteLabel",
-        "type": "array"
+        "type": "array",
+        "required":{
+          "dcmRejectionNoteLabel": "Rejection Note Label",
+          "dcmRejectionNoteCode": "Rejection Note Code"
+        }
       
       }
     }

@@ -24,7 +24,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.activeMenu         = "";
       });
     }, 2000);
-    // console.log("console",console);
+    // console.log("TESTCHNAGES.....");
       //TEST
     // DeviceService.addMissingCheckboxes($scope);
       //TEST
@@ -445,51 +445,52 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $log.debug("editMode Set in deletePart to=",$scope.editMode);
     };
     $scope.createPart = function(element) {
-        // $scope.editMode = true;
-                $log.debug("element in createPart=",element);
                 $scope.selectedElement = element;
                 $scope.activeMenu      = element;
                 $scope.form[$scope.selectedElement] = $scope.form[$scope.selectedElement] || {};
+                $scope.dynamic_model   = {};
                 if(!schemas[$scope.selectedElement]){
                   DeviceService.getSchema($scope.selectedElement);
+                  var wait = setInterval(function(){
+                        $log.debug("waiting");
+                        var checkItems = (
+                                          schemas[$scope.selectedElement] && 
+                                          schemas[$scope.selectedElement][$scope.selectedElement] && 
+                                          schemas[$scope.selectedElement][$scope.selectedElement]["items"] && 
+                                          schemas[$scope.selectedElement][$scope.selectedElement]["items"][$scope.selectedElement]
+                                          );
+                        var checkProp = (
+                                          schemas[$scope.selectedElement] && 
+                                          schemas[$scope.selectedElement][$scope.selectedElement] && 
+                                          schemas[$scope.selectedElement][$scope.selectedElement][$scope.selectedElement]
+                                        );
+                        if(checkItems || checkProp){
+                          clearInterval(wait);
+                          // DeviceService.setFormModel($scope);
+                          if(checkItems){
+                            $scope.form[$scope.selectedElement]["schema"] = schemas[$scope.selectedElement][$scope.selectedElement]["items"][$scope.selectedElement];
+                          }else{
+                            $scope.form[$scope.selectedElement]["schema"] = schemas[$scope.selectedElement][$scope.selectedElement][$scope.selectedElement];
+                          }
+                          if($select[$scope.selectedElement].parentOf){
+                              angular.forEach($select[$scope.selectedElement].parentOf,function(m,i){
+                                  delete $scope.form[$scope.selectedElement]["schema"].properties[$select[$scope.selectedElement].parentOf[i]];
+                              });
+                          }
+                          DeviceService.createPart($scope);
+                      }
+                  },100);
+                }else{
+                    DeviceService.createPart($scope);
                 }
-                var wait = setInterval(function(){
-                    if(schemas[$scope.selectedElement][$scope.selectedElement]["items"][$scope.selectedElement]){
-                        clearInterval(wait);
-                        $log.debug("in if after clearInterval", $scope.selectedElement);
-                        // DeviceService.setFormModel($scope);
-                        $scope.form[$scope.selectedElement]["schema"] = schemas[$scope.selectedElement][$scope.selectedElement]["items"][$scope.selectedElement];
-                        if($select[$scope.selectedElement].parentOf){
-                            angular.forEach($select[$scope.selectedElement].parentOf,function(m,i){
-                                delete $scope.form[$scope.selectedElement]["schema"].properties[$select[$scope.selectedElement].parentOf[i]];
-                            });
-                        }
-                        $log.debug("$scope.wholeDevice",$scope.wholeDevice);
-                        if(!$scope.wholeDevice[$scope.selectedElement]){
-                          $scope.wholeDevice[$scope.selectedElement] = [];
-                        }
-                        // if(!$scope.form[$scope.selectedElement]["model"]){
-                        $scope.form[$scope.selectedElement]["model"] = {};
-                        // }
-                        if($scope.wholeDevice[$scope.selectedElement][0]===null){
-                          $scope.wholeDevice[$scope.selectedElement][0] = $scope.form[$scope.selectedElement]["model"];
-                        }else{
-                          $scope.wholeDevice[$scope.selectedElement].push($scope.form[$scope.selectedElement]["model"]);
-                        }
-                        $log.debug("$scope.wholeDevice[$scope.selectedElement]=",$scope.wholeDevice[$scope.selectedElement]);
-                        // $log.debug("model=",$scope.form[$scope.selectedElement]["model"]);
-                        $scope.showCancel = true;
-                        $scope.showSave   = true;
-                        $scope.lastBorder = "active_border";
-                        $scope.editMode   = true;
-                        $scope.validForm  = false;
-                        setTimeout(function(){ 
-                            $scope.$apply();
-                        });
-                        // $scope.validForm = false;
-                    }
-                },100);
-               
+                $scope.showCancel = true;
+                $scope.showSave   = true;
+                $scope.lastBorder = "active_border";
+                $scope.editMode   = true;
+                $scope.validForm  = false;
+                setTimeout(function(){ 
+                    $scope.$apply();
+                });
         // switch (element) {
         //     case "dicomNetworkConnection":
                 // var dicomNetConnSchema    = DeviceService.getSchemaDicomNetworkConn();
@@ -587,6 +588,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 //$log.debug("after return in save=",DeviceService.addMissingCheckboxes($scope));
         /*      $log.debug("selectedElement=",$scope.selectedElement);
       $log.debug("networkAeModel=",$scope.networkAeModel);*/
+        // DeviceService.removeEmptyPart($scope.wholeDevice[$scope.selectedElement], [$select[$scope.selectedElement].optionValue]);
         $scope.validForm = DeviceService.validateForm($scope).valid;
         var message = DeviceService.validateForm($scope).message;
 
@@ -603,7 +605,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 //DeviceService.addMissingCheckboxes($scope);
 
                 // $log.debug("wholeDevice after clear",$scope.wholeDevice);
-                if($scope.devicename == "CHANGE_ME"){
+                if($scope.devicename === "CHANGE_ME"){
                   $scope.devicename = $scope.wholeDevice.dicomDeviceName;
                   $scope.devices.push({
                     "dicomDeviceName":$scope.wholeDevice.dicomDeviceName
@@ -616,6 +618,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   DeviceService.saveWithChangedName($scope);
 
                 }else{
+                  $log.debug("before save");
                     DeviceService.save($scope);
                 }
             });
@@ -639,6 +642,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.editMode = false;
         // }
         //$log.debug();
+        // DeviceService.addEmptyArrayFields(scope);
         DeviceService.addEmptyArrayFields($scope);
         $log.debug("in wholeDevice=",$scope.wholeDevice);
         cfpLoadingBar.complete();
@@ -777,16 +781,15 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 angular.element(document.getElementById("add_edit_area")).html("");
       }else{
 
-                $log.debug("selectedPart=",$scope.selectedPart);
-                $log.debug("selectedPart=",$scope.selectedElement);
-                $log.debug("$scope.form[$scope.selectedPart].model[$select[$scope.selectedElement].optionValue]=",$scope.form[$scope.selectedElement].model[$select[$scope.selectedElement].optionValue]);
-                if($scope.form[$scope.selectedElement].model[$select[$scope.selectedElement].optionValue]){
-                  angular.forEach($scope.wholeDevice[$scope.selectedElement], function(m,i){
-                    if(m[$select[$scope.selectedElement].optionValue] === $scope.form[$scope.selectedElement].model[$select[$scope.selectedElement].optionValue]){
-                      $scope.wholeDevice[$scope.selectedElement].splice(i,1);
-                    }
-                  });
-                }
+                // $log.debug("");
+                // if($scope.form[$scope.selectedElement].model[$select[$scope.selectedElement].optionValue]){
+                //   angular.forEach($scope.wholeDevice[$scope.selectedElement], function(m,i){
+                //     if(m[$select[$scope.selectedElement].optionValue] === $scope.form[$scope.selectedElement].model[$select[$scope.selectedElement].optionValue]){
+                //       $scope.wholeDevice[$scope.selectedElement].splice(i,1);
+                //     }
+                //   });
+                // }
+                DeviceService.cancle($scope);
                 $scope.form[$scope.selectedElement].model  = {};
                 DeviceService.removeEmptyPart($scope.wholeDevice[$scope.selectedElement], [$select[$scope.selectedElement].optionValue]);
       }
@@ -955,6 +958,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
       }
     };
     $scope.splitStringToObject = function(value,key){
+      $log.debug("in splitStringToObject, value=",value);
+      $log.debug("key=",key);
       $scope.selectModel = $scope.selectModel || {};
       if(angular.isDefined($scope.wholeDevice)){
         if(value.optionRef.length > 1){
