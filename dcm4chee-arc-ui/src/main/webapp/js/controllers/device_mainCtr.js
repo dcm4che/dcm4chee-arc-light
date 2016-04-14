@@ -958,9 +958,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
       }
     };
     $scope.splitStringToObject = function(value,key){
-      $log.debug("in splitStringToObject, value=",value);
-      $log.debug("key=",key);
-      $scope.selectModel = $scope.selectModel || {};
+      // $log.debug("in splitStringToObject, value=",value);
+      // $log.debug("key=",key);
+      $scope.selectModel = {};
       if(angular.isDefined($scope.wholeDevice)){
         if(value.optionRef.length > 1){
           DeviceService.getObjectFromString($scope, value, key);

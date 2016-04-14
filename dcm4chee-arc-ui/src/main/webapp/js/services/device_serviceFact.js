@@ -903,7 +903,8 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 						}else{
 							if($scope.selectedPart && $scope.wholeDevice[partsArray[0]]){
 								angular.forEach($scope.wholeDevice[partsArray[0]], function(m, i){
-									if(m[$select[partsArray[0]].optionValue] === $scope.selectedPart[partsArray[0]]){
+									// $log.debug("fromstring m",m);
+									if((m && m[$select[partsArray[0]].optionValue]) && (m[$select[partsArray[0]].optionValue] === $scope.selectedPart[partsArray[0]])){
 										$scope.selectModel[key] = $scope.wholeDevice[partsArray[0]][i][partsArray[1]];
 									}
 								});
@@ -913,13 +914,9 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 						$log.warn("In TODO");
 						//TODO I don't know if we need it, we will see
 					}
-					$log.debug("in getObjectFromString selectModel",$scope.selectModel);
+					// $log.debug("in getObjectFromString selectModel",$scope.selectModel);
 		},
 		getForm:function(scope){
-			console.log("selectedElement",scope.selectedElement,"schemas",schemas);
-
-
-
 			if(scope.selectedElement === "dicomNetworkAE"){
 				console.log("dicomNetworkAE=",scope.wholeDevice.dicomNetworkConnection);
 				scope.form[scope.selectedElement]["form"] = getFormNetworkAe(scope.wholeDevice.dicomNetworkConnection);
