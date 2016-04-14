@@ -122,7 +122,7 @@
         </div>
     </div>
     <div class="col-md-3 block-2-2">
-        <div class="row">
+        <div class="row" ng-show="isRole('admin')">
             <label for="reject" class="block_seid text-right">Reject:</label>
             <div class="block_seid">
                 <select id="reject" ng-model="reject" class="col-md-9">
@@ -206,7 +206,7 @@
                             <a ng-click="exportStudy(study)" ng-show="exporterID" href="" title="Export Study">
                                 <span class="glyphicon glyphicon-export"></span>
                             </a>
-                            <a ng-click="rejectStudy(study)" href="" title="Reject Study">
+                            <a ng-show="isRole('admin')" ng-click="rejectStudy(study)" href="" title="Reject Study">
                                 <span class="glyphicon glyphicon-trash"></span>
                             </a>
                             <!--
@@ -268,7 +268,7 @@
                                     <a ng-click="exportSeries(series)" ng-show="exporterID" href="" title="Export Series">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
-                                    <a ng-click="rejectSeries(series)" href="" title="Reject Series">
+                                    <a ng-show="isRole('admin')" ng-click="rejectSeries(series)" href="" title="Reject Series">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
                                     <!--
@@ -329,7 +329,7 @@
                                             <a ng-click="exportInstance(instance)" ng-show="exporterID" href="" title="Export Instance">
                                                 <span class="glyphicon glyphicon-export"></span>
                                             </a>
-                                            <a ng-click="rejectInstance(instance)" href="" title="Reject Instance">
+                                            <a ng-show="isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
                                                 <span class="glyphicon glyphicon-trash"></span>
                                             </a>
                                             <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">

@@ -92,7 +92,7 @@ myApp.filter("attributeNameOf", function() {
 
 myApp.filter("trim", function() {
     return function (object,limit) {
-        if(object.length > limit){
+        if(object && object.length > limit){
             return object.substr(0, limit)+"...";
         }else{
             return object;

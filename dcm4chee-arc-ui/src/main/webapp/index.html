@@ -13,10 +13,9 @@
     <link rel="stylesheet" href="css/animate.css">
 </head>
 <body ng-controller="MainController" scroll>
-<div class="user" ng-show="user.username">
-    <span ng-click="showUserMenu = !showUserMenu"><i class="glyphicon glyphicon-user"></i> {{user.username}}</span>
+<div class="user" ng-show="username">
+    <span ng-click="showUserMenu = !showUserMenu"><i class="glyphicon glyphicon-user"></i> {{username}}</span>
     <ul ng-show="showUserMenu">
-        <!-- <li>Loged in as {{user.username}}</li> -->
         <li><a ng-href="{{logoutUrl}}">Logout</a></li>
      </ul>
 </div>
