@@ -27,8 +27,8 @@
     <li role="presentation" ng-class="getClass('/studies')" ng-click="toggleMenu()"><a href="#studies">Studies</a></li>
     <li role="presentation" ng-class="getClass('/queues')" ng-click="toggleMenu()"><a href="#/queues">Queues</a></li>
     <li role="presentation" ng-class="getClass('/ctrl')" ng-click="toggleMenu()"><a href="#/ctrl">Control</a></li>
-    <!-- <li role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li> -->
-    <li><a><strike>devices</strike></a></li>
+    <li ng-show="isRole('admin')" role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li>
+    <!-- <li><a><strike>devices</strike></a></li> -->
     <!-- <li><a>-</a></li> -->
     <!-- <li role="presentation"><a ng-href="{{logoutUrl}}">Logout</a></li> -->
 </ul>

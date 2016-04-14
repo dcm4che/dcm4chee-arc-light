@@ -16,16 +16,36 @@ myApp.controller('MainController', function ($scope, $location, $http) {
       url: 'rs/realm'
   }).then(function successCallback(response) {
     // console.log("response. user=",JSON.parse(response.data));
-    $scope.user = {};
-    $scope.user.username = response.data.user;
-    if(response.data.roles.indexOf("admin") > 0){
-      $scope.user.role = "admin";
-    }else{
-      $scope.user.role = response.data.roles[0];
-    }
+    $scope.user           = {};
+    $scope.user.username  = response.data.user;
+    $scope.user.roles     = response.data.roles;
+    // if(response.data.roles.indexOf("admin") > 0){
+    //   $scope.user.role = "admin";
+    // }else{
+    //   $scope.user.role = response.data.roles[0];
+    // }
+    $scope.isRole = function(role){
+        console.log("role=",role);
+        console.log("$scope.user.roles=",$scope.user.roles);
+        console.log("$scope.user.roles.indexOf(role)=",$scope.user.roles.indexOf(role));
+        if($scope.user && $scope.user.roles && $scope.user.roles.indexOf(role) > -1){
+          return true;
+        }else{
+          return false;
+        }
+    };
   }, function errorCallback(response) {
       // vex.dialog.alert("Error loading device names, please reload the page and try again!");
   }); 
+  // $scope.isRole = function(role){
+  //   console.log("role=",role);
+  //   console.log("$scope.user.roles=",$scope.user.roles);
+  //   if($scope.user && $scope.user.roles && $scope.user.roles.indexOf(role) > 0){
+  //     return true;
+  //   }else{
+  //     return false;
+  //   }
+  // };
   $scope.toggleMenu = function(){
     if($scope.showMenu){
       	$scope.showMenu = false;
