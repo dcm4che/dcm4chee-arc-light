@@ -265,6 +265,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             cfpLoadingBar.complete();
             vex.dialog.alert("Select device"); //TODO add beautiful vex.dialog.alert
         }
+        setTimeout(function(){
+            DeviceService.warnEvent($scope);
+        },1000);
     };
 
     //Deleting device
@@ -727,7 +730,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     angular.forEach($select, function(m, i){
 
       $scope.$watchCollection('[dicomNetConnModel, networkAeModel, transfareCapModel, form['+i+'].model]', function(newValue, oldValue) {
-        $log.debug("in watch");
         if(!$scope.deletPartProcess){
           if(!DeviceService.equalJSON(oldValue,newValue)){
             $scope.editMode = true;
@@ -742,9 +744,14 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     *Watch wholeDevice json-object to see if it was changet so you can set the saved wariable to false
     */
     $scope.$watchCollection('wholeDevice', function(newValue, oldValue){
-      $log.debug("in watch2 wholeDevice");
       if(!DeviceService.equalJSON(oldValue,newValue) &&  newValue.dicomDeviceName == oldValue.dicomDeviceName){
         $scope.saved = false;
+      }
+    });  
+
+    $scope.$watchCollection('[selectedElement]', function(newValue, oldValue){
+      if(newValue[0]!=oldValue[0] && newValue[0] === "device"){
+          DeviceService.warnEvent($scope);
       }
     });
 
