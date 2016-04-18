@@ -3,7 +3,7 @@ dn: cn=dcm4chee-archive,cn=schema,cn=config
 objectClass: olcSchemaConfig
 cn: dcm4chee-archive
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.1 NAME 'dcmFuzzyAlgorithmClass'
-  DESC 'Specifies Fuzzy Algorithm Implementation Class: "org.dcm4che.soundex.Soundex", "org.dcm4che.soundex.ESoundex", "org.dcm4che.soundex.ESoundex9", "org.dcm4che.soundex.Metaphone", "org.dcm4che.soundex.KPhonetik", "org.dcm4che.soundex.Phonem"'
+  DESC 'Specifies Fuzzy Algorithm Implementation Class: "org.dcm4che3.soundex.Soundex", "org.dcm4che3.soundex.ESoundex", "org.dcm4che3.soundex.ESoundex9", "org.dcm4che3.soundex.Metaphone", "org.dcm4che3.soundex.KPhonetik", "org.dcm4che3.soundex.Phonem"'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
