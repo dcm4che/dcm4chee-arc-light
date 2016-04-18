@@ -20,13 +20,18 @@ myApp.controller('MainController', function ($scope, $location, $http) {
     $scope.username  = response.data.user;
 
     $scope.isRole = function(role){
-        if(response.data.roles && response.data.roles.indexOf(role) > -1){
-          return true;
+        if($scope.username != "anonymous"){
+          if(response.data.roles && response.data.roles.indexOf(role) > -1){
+            return true;
+          }else{
+            return false;
+          }
         }else{
-          return false;
+          return true;
         }
     };
   }, function errorCallback(response) {
+    $scope.username = "anonymous";
       // vex.dialog.alert("Error loading device names, please reload the page and try again!");
   }); 
   // $scope.isRole = function(role){

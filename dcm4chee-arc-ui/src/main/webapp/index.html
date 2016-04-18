@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="css/animate.css">
 </head>
 <body ng-controller="MainController" scroll>
-<div class="user" ng-show="username">
+<div class="user" ng-show="username && username != 'anonymous'">
     <span ng-click="showUserMenu = !showUserMenu"><i class="glyphicon glyphicon-user"></i> {{username}}</span>
     <ul ng-show="showUserMenu">
         <li><a ng-href="{{logoutUrl}}">Logout</a></li>

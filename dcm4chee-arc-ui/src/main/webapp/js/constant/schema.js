@@ -88,7 +88,10 @@ myApp.constant("$select",
           "dicomNetworkConnectionReference": "Network Connection Reference",
           "dicomAssociationInitiator": "Association Initiator",
           "dicomAssociationAcceptor": "Association Acceptor"
-        }
+        },
+        "requiredPart":[
+          "dicomNetworkConnection"
+        ]
       },
       "dicomTransferCapability":{
         "title" : "Transfer Capability",

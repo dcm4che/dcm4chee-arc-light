@@ -635,6 +635,25 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
             var validForm = true;
             var message = "";
             var count = 0;
+  			// console.log("$scope.devicename=",$scope.devicename);
+  			// console.log("$scope.wholeDevice.dicomDeviceName=",$scope.wholeDevice.dicomDeviceName);
+  			// console.log("$scope.editMode",$scope.editMode);
+  			console.log("$scope.selectedElement=",$scope.selectedElement);
+  			if($scope.selectedElement != "device" && $select[$scope.selectedElement].requiredPart){
+  				angular.forEach($select[$scope.selectedElement].requiredPart,function(i){
+  					//TODO
+  					console.log("$scope.selectedPart[i]=",$scope.selectedPart);
+  					console.log("i=",i);
+  					if($select[i].type === "array" && (!$scope.selectedPart[i] || ($scope.selectedPart && $scope.selectedPart[i] && $scope.selectedPart[i].length < 1))){
+  						validForm = false;
+  						message += "- Create first a " + $select[i].title + "</br>";
+  					}
+  				});
+  			}
+            if($scope.editMode && $scope.devicename === "CHANGE_ME" && $scope.wholeDevice.dicomDeviceName === "CHANGE_ME"){
+            	validForm = false;
+            	message += "- Change the name of the device first!";
+            }
             if ($select[$scope.selectedElement] && $select[$scope.selectedElement].type === "array" && $scope.selectModel[$scope.selectedElement] && $scope.selectModel[$scope.selectedElement].length > 0) {
                 angular.forEach($scope.selectModel[$scope.selectedElement], function(m, i) {
                     if (m[$select[$scope.selectedElement].optionValue] === $scope.dynamic_model[$select[$scope.selectedElement].optionValue]) {
@@ -644,7 +663,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
             }
             if (count > 1) {
                 validForm = false;
-                $log.debug("in count if", $select[$scope.selectedElement].required[$select[$scope.selectedElement].optionValue]);
+                // $log.debug("in count if", $select[$scope.selectedElement].required[$select[$scope.selectedElement].optionValue]);
                 message += "- " + $select[$scope.selectedElement].required[$select[$scope.selectedElement].optionValue] + " have to be unique!<br/>";
             }
             if ($select[$scope.selectedElement] && $select[$scope.selectedElement].required) {
@@ -1175,9 +1194,9 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                         }
                     }
                 } else {
-                	console.log("scope.selectedElement=",scope.selectedElement);
-                	console.log("$select[scope.selectedElement].optionRef=",$select[scope.selectedElement].optionRef);
-                	console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
+                	// console.log("scope.selectedElement=",scope.selectedElement);
+                	// console.log("$select[scope.selectedElement].optionRef=",$select[scope.selectedElement].optionRef);
+                	// console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
                     if (!scope.form[scope.selectedElement]) {
                         scope.form[scope.selectedElement] = {};
                     }

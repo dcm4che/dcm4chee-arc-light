@@ -101,9 +101,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   $scope.selectedPart.dicomTransferCapability  = null;
                   //$scope.transfareCapModel  = {};
                 }
-                $log.debug("selectedElement=",$scope.selectedElement);
+                // $log.debug("selectedElement=",$scope.selectedElement);
                 $scope.selectedElement  = element;
-                $log.debug("selectedElement2=",$scope.selectedElement);
+                // $log.debug("selectedElement2=",$scope.selectedElement);
                 $scope.lastBorder       = "active_border";
                 $scope.showSave         = true;
                 console.log("schemas vor init in mainCtrl =",angular.copy(schemas));
@@ -296,7 +296,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     };
 
     $scope.createDevice = function() {
-        $scope.editMode         = true;
         $scope.showSave         = true;
         $scope.showCancel       = true;
           $scope.wholeDevice      = {
@@ -331,6 +330,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             );
 
         }, 100);
+        
     };
 
     $scope.deletePart = function(element) {

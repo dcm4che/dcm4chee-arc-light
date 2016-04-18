@@ -204,7 +204,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
             // execute(scope,elm,attr);
             // warnEvent(scope);
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-
+            scope.editMode         = true;
             cfpLoadingBar.complete();
         }
 
