@@ -15,6 +15,11 @@
         "title": "AE Description",
         "description": "Unconstrained text description of the application entity",
         "type": "string"
+      },
+      "dcmHideNotRejectedInstances": {
+        "title": "Hide Not Rejected Instances",
+        "description": "Indicates that the Q/R Services of the AE hides instances not rejected by any reason; false if absent",
+        "type": "boolean"
       }
     }
   }

@@ -50,6 +50,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -67,6 +68,9 @@ public class QueryRejectionNotes {
     @Inject
     private Device device;
 
+    @QueryParam("dcmRevokeRejection")
+    private boolean revokeRejection;
+
     @GET
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
@@ -77,6 +81,9 @@ public class QueryRejectionNotes {
                 int count = 0;
                 w.write('[');
                 for (RejectionNote rjNote : device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNotes()) {
+                    if (rjNote.isRevokeRejection() != revokeRejection)
+                        continue;
+
                     Code code = rjNote.getRejectionNoteCode();
                     if (count++ > 0)
                         w.write(',');

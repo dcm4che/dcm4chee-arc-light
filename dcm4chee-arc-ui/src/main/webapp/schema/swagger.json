@@ -908,6 +908,14 @@
         "produces": [
           "application/json"
         ],
+        "parameters": [
+          {
+            "name": "dcmRevokeRejection",
+            "in": "query",
+            "description": "if true, return Rejection Note(s) used to revoke rejection; false if absent",
+            "type": "boolean"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Rejection Notes",

@@ -42,6 +42,8 @@ package org.dcm4chee.arc.qido;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.QueryRetrieveView;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -76,20 +78,23 @@ public class QueryAETs {
                 w.write('[');
                 for (String aet : device.getApplicationAETitles()) {
                     ApplicationEntity ae = device.getApplicationEntity(aet);
-                    if (ae.isInstalled()) {
-                        if (count++ > 0)
-                            w.write(',');
-                        w.write("{\"title\":\"");
-                        w.write(aet);
-                        String desc = ae.getDescription();
-                        if (desc != null) {
-                            w.write("\",\"description\":\"");
-                            w.write(desc);
-                            w.write("\"}");
-                        } else {
-                            w.write("\",\"description\":null}");
-                        }
+                    if (!ae.isInstalled())
+                        continue;
+                    if (count++ > 0)
+                        w.write(',');
+                    w.write("{\"title\":\"");
+                    w.write(aet);
+                    w.write('"');
+                    String desc = ae.getDescription();
+                    if (desc != null) {
+                        w.write(",\"description\":\"");
+                        w.write(desc);
+                        w.write('"');
                     }
+                    if (ae.getAEExtension(ArchiveAEExtension.class)
+                            .getQueryRetrieveView().isHideNotRejectedInstances())
+                        w.write(",\"dcmHideNotRejectedInstances\":true");
+                    w.write('}');
                 }
                 w.write(']');
                 w.flush();
