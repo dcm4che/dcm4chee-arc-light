@@ -11,7 +11,15 @@
     "dcmFuzzyAlgorithmClass": {
       "title": "Fuzzy Algorithm Class",
       "description": "Specifies Fuzzy Algorithm Implementation Class: 'org.dcm4che.soundex.Soundex', 'org.dcm4che.soundex.ESoundex', 'org.dcm4che.soundex.ESoundex9', 'org.dcm4che.soundex.Metaphone', 'org.dcm4che.soundex.KPhonetik', 'org.dcm4che.soundex.Phonem",
-      "type": "string"
+      "type": "string",
+      "enum":[
+      "org.dcm4che.soundex.Soundex",
+      "org.dcm4che.soundex.ESoundex",
+      "org.dcm4che.soundex.ESoundex9",
+      "org.dcm4che.soundex.Metaphone",
+      "org.dcm4che.soundex.KPhonetik",
+      "org.dcm4che.soundex.Phonem"
+      ]
     },
     "dcmStorageID": {
       "title": "Storage ID",
