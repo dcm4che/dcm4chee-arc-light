@@ -278,6 +278,7 @@ class ArchiveDeviceFactory {
             Tag.ReferencedRequestSequence,
             Tag.CompletionFlag,
             Tag.VerificationFlag,
+            Tag.ContentTemplateSequence,
             Tag.DocumentTitle,
             Tag.MIMETypeOfEncapsulatedDocument,
             Tag.ContentLabel,
