@@ -271,7 +271,9 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
 
     var addEmptyArrayFieldsPrivate = function(scope) {
         if (scope.dynamic_schema && scope.dynamic_schema.properties) {
+        	console.log("in if 1 addemptyarray",angular.copy(scope.dynamic_model));
             scope.dynamic_model = addEmptyArrayToModel(scope.dynamic_model, scope.dynamic_schema.properties);
+        	console.log("in if 1 addemptyarray after",angular.copy(scope.dynamic_model));
         }
     };
 
@@ -369,6 +371,14 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
         });
 
         return form;
+    };
+
+    var removeChilde = function(selectedElement){
+		if($select[selectedElement].parentOf){
+		  angular.forEach($select[selectedElement].parentOf,function(m,i){
+		      delete schemas[selectedElement][selectedElement][selectedElement].properties[$select[selectedElement].parentOf[i]];
+		  });
+		}
     };
     return {
 
@@ -931,14 +941,23 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                         schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement] &&
                         schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"]
                     );
-                    if (checkItems || checkProp) {
+                    var checkPropShort = (
+                        schemas[scope.selectedElement] &&
+                        schemas[scope.selectedElement][scope.selectedElement] &&
+                        schemas[scope.selectedElement][scope.selectedElement]["properties"]
+                    );
+                    if (checkItems || checkProp || checkPropShort) {
                         // console.warn("in getForm else if",schemas);
                         clearInterval(waitforschema);
                         var endArray = [];
                         if (checkItems) {
                             var schema = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]["properties"];
                         } else {
-                            var schema = schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"];
+                        	if(checkPropShort){
+                            	var schema = schemas[scope.selectedElement][scope.selectedElement]["properties"];
+                        	}else{
+                            	var schema = schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"];
+                        	}
                         }
                         // var schema = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]["properties"] ||
                         // 			schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"];
@@ -1007,7 +1026,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                         console.log("endarray=", JSON.stringify(endArray));
                         scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
                         scope.form[scope.selectedElement]["form"] = endArray;
-                        // $log.debug("in serviceFact getschema scope.formselectedelementform=",scope.form[scope.selectedElement]["form"]);
+                        $log.debug("in serviceFact getschema scope.formselectedelementform=",scope.form[scope.selectedElement]);
                         // return endArray;
                     }
                     if (timeout > 0) {
@@ -1051,10 +1070,14 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                             angular.copy(schemas[$select[selectedElement].optionRef[0]], localSchema2);
                             traverse(localSchema2, $select[selectedElement].optionRef[1], schemas[$select[selectedElement].optionRef[1]]);
                             replaceRef(schemas[$select[selectedElement].optionRef[1]], selectedElement, "", "");
+                           	$log.debug("befor return schema2", schemas);
+                           	removeChilde(selectedElement);
                             return schemas[selectedElement];
                         }
                     }, 10);
                 } else {
+                    $log.debug("befor return schema1", schemas);
+                    removeChilde(selectedElement);
                     return schemas[selectedElement];
                 }
             } else {
@@ -1063,8 +1086,13 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                     angular.copy(schemas.device, localSchema);
                     traverse(localSchema, selectedElement, schemas[selectedElement]);
                     replaceRef(schemas[selectedElement], selectedElement, "", "");
+                    $log.debug("befor return schema3", schemas);
+                    // removeChilde(selectedElement);
                     return schemas[selectedElement];
                 } else {
+                    $log.debug("befor return schema4", angular.copy(schemas));
+                    // removeChilde(selectedElement);
+
                     return schemas[selectedElement];
                 }
 
@@ -1149,11 +1177,15 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                 	console.log("scope.selectedElement=",scope.selectedElement);
                 	console.log("$select[scope.selectedElement].optionRef=",$select[scope.selectedElement].optionRef);
                 	console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
+                    if (!scope.form[scope.selectedElement]) {
+                        scope.form[scope.selectedElement] = {};
+                    }
                     if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
-                    	console.log("in if1234");
-                        if (!scope.form[scope.selectedElement]) {
-                            scope.form[scope.selectedElement] = {};
-                        }
+                    	console.log("in if1234",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
+                        scope.dynamic_model = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
+                    }else{
+                    	console.log("in else 1234");
+                    	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]] = {};
                         scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
                     }
                 }

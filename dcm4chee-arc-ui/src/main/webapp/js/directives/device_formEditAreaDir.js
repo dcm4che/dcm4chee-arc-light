@@ -49,6 +49,7 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                 scope.dynamic_form = DeviceService.getDeviceForm();
             }else{
                     // $log.debug("in else selectedElement=",scope.selectedElement);
+                    $log.debug("in formEditAreaDir else before getSchema call");
                     DeviceService.getSchema(scope.selectedElement);
                     var form = DeviceService.getForm(scope);
                     // console.log("form=",angular.copy(form));
@@ -57,43 +58,96 @@ myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService,
                     // console.log("scope.dynamic_form",angular.copy(scope.dynamic_form));
                     var timeout = 300;
                     var wait = setInterval(function(){
+                        console.log("in wait interval form editareadir");
+                            var checkItems = (
+                                schemas[scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement]["items"] &&
+                                schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]                            );
+                            var checkProp = (
+                                schemas[scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"]
+                            );                      
+                            var checkPropShort = (
+                                schemas[scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement]["properties"]
+                            );
                         if(
                             (
                                 // form &&
-                                schemas[scope.selectedElement] && 
-                                schemas[scope.selectedElement][scope.selectedElement] && 
-                                schemas[scope.selectedElement][scope.selectedElement]["items"] && 
-                                schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]
+                                checkItems
+                                // schemas[scope.selectedElement] && 
+                                // schemas[scope.selectedElement][scope.selectedElement] && 
+                                // schemas[scope.selectedElement][scope.selectedElement]["items"] && 
+                                // schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]
                             )
                             ||
                             (
                                 // form &&
-                                schemas[scope.selectedElement] && 
-                                schemas[scope.selectedElement][scope.selectedElement] && 
-                                schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement] &&
-                                schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"]
+                                checkProp
+                                // schemas[scope.selectedElement] && 
+                                // schemas[scope.selectedElement][scope.selectedElement] && 
+                                // schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement] &&
+                                // schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement]["properties"]
                             )
+                            ||
+                            checkPropShort
                            ){
                             clearInterval(wait);
                             // console.log("form=",angular.copy(form));
                             // console.log("in if scope.dynamic_form",angular.copy(scope.dynamic_form));
                             if($select[scope.selectedElement].parentOf){
                                 angular.forEach($select[scope.selectedElement].parentOf,function(m,i){
-                                    if(
-                                            schemas[scope.selectedElement][scope.selectedElement] &&
-                                            schemas[scope.selectedElement][scope.selectedElement]["items"] &&
-                                            schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement] &&
-                                            schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties &&
-                                            schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]]
+                                    if(     
+                                        checkItems &&
+                                        schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties &&
+                                        schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]]
                                         ){
+                                        console.log("in first if formEditAreaDir",schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]]);
                                         delete schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]];
                                     }
+                                    if(     
+                                        checkProp &&
+                                        schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]]
+                                        ){
+                                        console.log("in second if formEditAreaDir",schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]]);
+                                        delete schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]];
+                                    }
+                                    if(     
+                                        checkPropShort &&
+                                        schemas[scope.selectedElement][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]]
+                                        ){
+                                        delete schemas[scope.selectedElement][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]];
+                                    }
+
+                                    // if(checkItems){
+
+                                    // }
+                                    // if(
+                                    //         schemas[scope.selectedElement][scope.selectedElement] &&
+                                    //         schemas[scope.selectedElement][scope.selectedElement]["items"] &&
+                                    //         schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement] &&
+                                    //         schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties &&
+                                    //         schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]]
+                                    //     ){
+                                    //     console.log("before delete, m=",m);
+                                    //     console.log("before delete, i=",i);
+                                    // }else{
+                                    //     console.log("in form edit else delete");
+                                    // }
                                 });
                             }
-                            if(schemas[scope.selectedElement][scope.selectedElement]["items"]){
+                            if(checkItems){
                                 scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement];
                             }else{
-                                scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement];
+                                if(checkProp){
+                                    scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement];
+                                }else{
+                                    scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement];
+                                }
                             }
                             scope.dynamic_form = scope.form[scope.selectedElement]["form"];
                             DeviceService.addEmptyArrayFields(scope);

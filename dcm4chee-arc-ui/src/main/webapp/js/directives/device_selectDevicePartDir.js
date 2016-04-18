@@ -18,7 +18,6 @@ myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBa
                         // var wholeDeviceCopy                 = {};
                             //scope.selectedNetworkConnection = response.data.dicomNetworkConnection;
                             // scope.dicomNetworkAE            = response.data.dicomNetworkAE;
-                            scope.form                      = {};
                             scope.wholeDevice               = {};
                             scope.wholeDevice               = response.data;
                             DeviceService.addEmptyArrayFields(scope);

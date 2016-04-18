@@ -82,7 +82,7 @@ myApp.constant("$select",
         "optionRef" : ["dicomNetworkAE"],
         "optionValue" : "dicomAETitle",
         "type": "array",
-        "parentOf" : ["dicomTransferCapability","dcmArchiveNetworkAE"],
+        "parentOf" : ["dicomTransferCapability","dcmArchiveNetworkAE","dcmNetworkAE"],
         "required":{
           "dicomAETitle": "AE Title",
           "dicomNetworkConnectionReference": "Network Connection Reference",
@@ -106,6 +106,12 @@ myApp.constant("$select",
         "title" : "Archive Network AE",
         "optionRef" : ["dicomNetworkAE","dcmArchiveNetworkAE"],
         "optionValue" : "dcmStorageID",
+        "type": "object"
+      },
+      "dcmNetworkAE":{
+        "title" : "dcm4che Network AE Attributes",
+        "optionRef" : ["dicomNetworkAE","dcmNetworkAE"],
+        "optionValue" : "dcmAcceptedCallingAETitle",
         "type": "object"
       },
       "hl7Application":{
@@ -153,7 +159,16 @@ myApp.constant("$select",
         "title" : "Audit Logger",
         "optionRef" : ["dcmAuditLogger"],
         "optionValue": "dicomNetworkConnectionReference",
-        "type": "object"
+        "type": "object",
+        "parentOf": [
+          "dcmAuditSuppressCriteria"
+        ]
+      },
+      "dcmAuditSuppressCriteria":{
+        "title" : "Audit Suppress Criteria",
+        "optionRef" : ["dcmAuditLogger","dcmAuditSuppressCriteria"],
+        "optionValue": "cn",
+        "type": "array"
       },
       "dcmAuditRecordRepository":{
         "title" : "Audit Record Repository",
@@ -168,16 +183,16 @@ myApp.constant("$select",
         "optionValue": "dcmFuzzyAlgorithmClass",
         "type": "object",
         "parentOf": [
-                      "dcmAttributeFilter",
-                      "dcmStorage",
-                      "dcmQueryRetrieveView",
-                      "dcmQueue",
-                      "dcmExporter",
-                      "dcmExportRule",
-                      "dcmArchiveCompressionRule",
-                      "dcmArchiveAttributeCoercion",
-                      "dcmRejectionNote"
-                    ]
+          "dcmAttributeFilter",
+          "dcmStorage",
+          "dcmQueryRetrieveView",
+          "dcmQueue",
+          "dcmExporter",
+          "dcmExportRule",
+          "dcmArchiveCompressionRule",
+          "dcmArchiveAttributeCoercion",
+          "dcmRejectionNote"
+        ]
       
       },
       "dcmAttributeFilter":{

@@ -129,7 +129,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     //   DeviceService.getSchema($scope.selectedElement);
                     // }
                     DeviceService.setFormModel($scope);
-                    // console.log("$scope.form[$scope.selectedElement].model=",$scope.form[$scope.selectedElement].model);
+                    console.log("$scope.form[$scope.selectedElement].model=",$scope.form[$scope.selectedElement].model);
                     $scope.dynamic_model = $scope.form[$scope.selectedElement].model;
                 }
                 console.log("form model nach init = ",$scope.form);
@@ -206,9 +206,15 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   DeviceService.getSchema($scope.selectedElement);
                 }
                 DeviceService.setFormModel($scope);
+                // console.log("$scope.form[$scope.selectedElement].model=",$scope.form[$scope.selectedElement].model);
+                // if($scope.form[$scope.selectedElement] && $scope.form[$scope.selectedElement].model){
+
+                //   $scope.dynamic_model = $scope.form[$scope.selectedElement].model;
+                // }
+
             }
-            console.log("form model nach init = ",$scope.form);
-            console.log("schemas nach init in mainCtrl =",schemas);
+            // console.log("form model nach init = ",$scope.form);
+            // console.log("schemas nach init in mainCtrl =",schemas);
 
 
             // if($select[$scope.selectedElement] && $select[$scope.selectedElement].type != "array"){
@@ -230,6 +236,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
     //Edit selected device
     $scope.edit = function() {
+        $scope.form                      = {};
         cfpLoadingBar.start();
         if ($scope.devicename) {
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
@@ -477,6 +484,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                           }
                           if($select[$scope.selectedElement].parentOf){
                               angular.forEach($select[$scope.selectedElement].parentOf,function(m,i){
+                                
                                   delete $scope.form[$scope.selectedElement]["schema"].properties[$select[$scope.selectedElement].parentOf[i]];
                               });
                           }
