@@ -724,6 +724,7 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                     })
                     .error(function(data, status, headers, config) {
                         $log.error("Error sending data on put!", status);
+                        addEmptyArrayFieldsPrivate($scope);
                         msg($scope, {
                             "title": "error",
                             "text": "Error, changes could not be saved!",
