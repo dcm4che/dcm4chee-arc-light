@@ -9,15 +9,15 @@
   "description": "Web Frontend for dcm4chee-arc DICOM Archive",
   "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
   "dependencies": {
-    "angular": "~1.4.5",
-    "angular-route": "~1.4.5",
+    "angular": "~1.5.5",
+    "angular-route": "~1.5.5",
     "bootstrap": "~3.3.5",
     "vex": "~2.3.3",
     "tv4": "~1.2.7",
     "angular-loading-bar": "~0.8.0",
-    "angular-sanitize": "~1.5.0",
+    "angular-sanitize": "~1.5.5",
     "angular-schema-form": "~0.8.12",
-    "angular-touch": "~1.5.0",
+    "angular-touch": "~1.5.5",
     "jquery": "~2.2.0",
     "jsondiffpatch": "~0.1.38",
     "objectpath": "~1.2.1",
@@ -28,7 +28,7 @@
   },
   "resolutions": {
     "tv4": "~1.0.15",
-    "angular": "1.5.3",
+    "angular": "1.5.5",
     "objectpath": "~1.1.0",
     "moment": "^2.12.0"
   }
