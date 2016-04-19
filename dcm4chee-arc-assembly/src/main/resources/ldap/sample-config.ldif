@@ -370,10 +370,6 @@ dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=getscu,cn=Devices,
 dicomAETitle: GETSCU
 dicomAssociationAcceptor: TRUE
 
-dn: cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: hl7UniqueApplicationNamesRegistryRoot
-cn: Unique HL7 Application Names Registry
-
 dn: hl7ApplicationName=HL7RCV|DCM4CHEE,cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: hl7UniqueApplicationName
 hl7ApplicationName: HL7RCV|DCM4CHEE
