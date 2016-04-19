@@ -251,23 +251,6 @@
     </attributes>
   </entity>
 
-  <embeddable class="org.dcm4che3.data.Code">
-    <attributes>
-      <basic name="codeValue" optional="false">
-        <column name="code_value"/>
-      </basic>
-      <basic name="codingSchemeDesignator" optional="false">
-        <column name="code_designator"/>
-      </basic>
-      <basic name="codingSchemeVersion" optional="true">
-        <column name="code_version"/>
-      </basic>
-      <basic name="codeMeaning" optional="false">
-        <column name="code_meaning"/>
-      </basic>
-    </attributes>
-  </embeddable>
-
   <embeddable class="org.dcm4che3.data.Issuer">
     <attributes>
       <basic name="localNamespaceEntityID" optional="true">

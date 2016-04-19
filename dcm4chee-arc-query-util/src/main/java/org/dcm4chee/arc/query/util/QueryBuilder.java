@@ -57,7 +57,6 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -549,11 +548,11 @@ public class QueryBuilder {
             return null;
 
         return ExpressionUtils.allOf(
-                wildCard(QCodeEntity.codeEntity.code.codeValue,
+                wildCard(QCodeEntity.codeEntity.codeValue,
                         item.getString(Tag.CodeValue, "*")),
-                wildCard(QCodeEntity.codeEntity.code.codingSchemeDesignator,
+                wildCard(QCodeEntity.codeEntity.codingSchemeDesignator,
                         item.getString(Tag.CodingSchemeDesignator, "*")),
-                wildCard(QCodeEntity.codeEntity.code.codingSchemeVersion,
+                wildCard(QCodeEntity.codeEntity.codingSchemeVersion,
                         item.getString(Tag.CodingSchemeVersion, "*")));
     }
 
@@ -576,12 +575,6 @@ public class QueryBuilder {
         return matchUnknown(JPAExpressions.selectFrom(QCodeEntity.codeEntity)
                         .where(codes.contains(QCodeEntity.codeEntity), predicate).exists(),
                 codes, matchUnknown);
-    }
-
-    public static void andNotInCodes(BooleanBuilder builder, QCode code,
-                                     List<Code> codes) {
-        if (codes != null && !codes.isEmpty())
-            builder.and(ExpressionUtils.or(code.isNull(), code.notIn(codes)));
     }
 
     static Predicate requestAttributes(Attributes item, QueryParam queryParam) {

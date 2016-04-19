@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.util.StringUtils;
 
 import javax.persistence.*;
 
@@ -49,27 +50,17 @@ import javax.persistence.*;
  * @since Jul 2015
  */
 
-@NamedQueries({
-@NamedQuery(
-    name=CodeEntity.FIND_BY_CODE_VALUE_WITHOUT_SCHEME_VERSION,
-    query="select entity from CodeEntity entity " +
-            "where entity.code.codeValue = ?1 " +
-            "and entity.code.codingSchemeDesignator = ?2 " +
-            "and entity.code.codingSchemeVersion IS NULL"),
 @NamedQuery(
     name=CodeEntity.FIND_BY_CODE_VALUE_WITH_SCHEME_VERSION,
     query="select entity from CodeEntity entity " +
-            "where entity.code.codeValue = ?1 " +
-            "and entity.code.codingSchemeDesignator = ?2 " +
-            "and entity.code.codingSchemeVersion = ?3")
-})
+            "where entity.codeValue = ?1 " +
+            "and entity.codingSchemeDesignator = ?2 " +
+            "and entity.codingSchemeVersion = ?3")
 @Entity
 @Table(name = "code", uniqueConstraints =
-    @UniqueConstraint(columnNames = { "code_value", "code_designator" }))
+    @UniqueConstraint(columnNames = { "code_value", "code_designator", "code_version" }))
 public class CodeEntity {
 
-    public static final String FIND_BY_CODE_VALUE_WITHOUT_SCHEME_VERSION =
-            "CodeEntity.findByCodeValueWithoutSchemeVersion";
     public static final String FIND_BY_CODE_VALUE_WITH_SCHEME_VERSION =
             "CodeEntity.findByCodeValueWithSchemeVersion";
 
@@ -78,20 +69,57 @@ public class CodeEntity {
     @Column(name = "pk")
     private long pk;
 
-    @Embedded
-    private Code code;
+    @Basic(optional = false)
+    @Column(name = "code_value")
+    private String codeValue;
+
+    @Basic(optional = false)
+    @Column(name = "code_designator")
+    private String codingSchemeDesignator;
+
+    @Basic(optional = false)
+    @Column(name = "code_version")
+    private String codingSchemeVersion;
+
+    @Basic(optional = false)
+    @Column(name = "code_meaning")
+    private String codeMeaning;
 
     protected CodeEntity() {} // for JPA
 
     public CodeEntity(Code code) {
-        this.code = code;
+        codeValue = code.getCodeValue();
+        codingSchemeDesignator = code.getCodingSchemeDesignator();
+        codingSchemeVersion = StringUtils.maskNull(code.getCodingSchemeVersion(), "*");
+        codeMeaning = code.getCodeMeaning();
     }
 
     public long getPk() {
         return pk;
     }
 
+    public String getCodeValue() {
+        return codeValue;
+    }
+
+    public String getCodingSchemeDesignator() {
+        return codingSchemeDesignator;
+    }
+
+    public String getCodingSchemeVersion() {
+        return StringUtils.nullify(codingSchemeVersion, "*");
+    }
+
+    public String getCodeMeaning() {
+        return codeMeaning;
+    }
+
     public Code getCode() {
-        return code;
+        return new Code(codeValue, codingSchemeDesignator, StringUtils.nullify(codingSchemeVersion, "*"), codeMeaning);
+    }
+
+    @Override
+    public String toString() {
+        return getCode().toString();
     }
 }
