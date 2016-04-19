@@ -638,18 +638,8 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
   			// console.log("$scope.devicename=",$scope.devicename);
   			// console.log("$scope.wholeDevice.dicomDeviceName=",$scope.wholeDevice.dicomDeviceName);
   			// console.log("$scope.editMode",$scope.editMode);
-  			console.log("$scope.selectedElement=",$scope.selectedElement);
-  			if($scope.selectedElement != "device" && $select[$scope.selectedElement].requiredPart){
-  				angular.forEach($select[$scope.selectedElement].requiredPart,function(i){
-  					//TODO
-  					console.log("$scope.selectedPart[i]=",$scope.selectedPart);
-  					console.log("i=",i);
-  					if($select[i].type === "array" && (!$scope.selectedPart[i] || ($scope.selectedPart && $scope.selectedPart[i] && $scope.selectedPart[i].length < 1))){
-  						validForm = false;
-  						message += "- Create first a " + $select[i].title + "</br>";
-  					}
-  				});
-  			}
+  			// console.log("$scope.selectedElement=",$scope.selectedElement);
+
             if($scope.editMode && $scope.devicename === "CHANGE_ME" && $scope.wholeDevice.dicomDeviceName === "CHANGE_ME"){
             	validForm = false;
             	message += "- Change the name of the device first!";
@@ -678,6 +668,23 @@ myApp.factory('DeviceService', function($schema, $log, cfpLoadingBar, $http, $co
                 "valid": validForm,
                 "message": message
             };
+        },
+        checkValidProcess : function($scope, element){
+        	var validProcess = true;
+        	var message = "";
+
+  			if($select[element].requiredPart){
+  				angular.forEach($select[element].requiredPart,function(i){
+  					// //TODO
+  					console.log("$scope.selectedPart[i]=",$scope.selectedPart);
+  					console.log("i=",i);
+  					if($select[i].type === "array" && (!$scope.selectedPart[i] || ($scope.selectedPart && $scope.selectedPart[i] && $scope.selectedPart[i].length < 1))){
+  						validProcess = false;
+  						message += "- Create first a " + $select[i].title + "</br>";
+  					}
+  				});
+  			}
+  			return {"valid":validProcess,"message":message};
         },
         deleteDevice: function($scope) {
             // $log.debug("want to delete=",$scope.devicename);
