@@ -5,3 +5,16 @@ alter table ian_task add constraint UK_dq88edcjjxh7h92f89y5ueast  unique (study_
 create index UK_5shiir23exao1xpy2n5gvasrh on ian_task (device_name);
 alter table ian_task add constraint FK_1fuh251le2hid2byw90hd1mly foreign key (mpps_fk) references mpps;
 create sequence ian_task_pk_seq;
+alter table code alter code_version set not null;
+alter table code drop constraint UK_l01jou0o1rohy7a9p933ndrxg;
+alter table code add constraint UK_sb4oc9lkns36wswku831c33w6  unique (code_value, code_designator, code_version);
+alter table study drop scattered_storage;
+alter table study add storage_ids varchar(255);
+update study set storage_ids = (
+  select string_agg(distinct cast(storage_id as varchar), '\')
+  from location
+    join instance on location.instance_fk = instance.pk
+    join series on instance.series_fk = series.pk
+  where study_fk = study.pk);
+alter table study alter storage_ids set not null;
+create index UK_fypbtohf5skbd3bkyd792a6dt on study (storage_ids);

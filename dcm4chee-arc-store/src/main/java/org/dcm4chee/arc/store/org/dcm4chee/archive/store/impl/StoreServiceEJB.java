@@ -43,6 +43,7 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.conf.*;
@@ -347,15 +348,23 @@ public class StoreServiceEJB {
     private Study findStudy(StoreContext ctx) {
         StoreSession storeSession = ctx.getStoreSession();
         Study study = storeSession.getCachedStudy(ctx.getStudyInstanceUID());
-        if (study != null)
-            return study;
-        try {
-            return em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
-                    .setParameter(1, ctx.getStudyInstanceUID())
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        if (study == null)
+            try {
+                study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
+                        .setParameter(1, ctx.getStudyInstanceUID())
+                        .getSingleResult();
+                updateStorageIDs(study, storeSession.getArchiveAEExtension().getStorageID());
+            } catch (NoResultException e) {}
+        return study;
+    }
+
+    private void updateStorageIDs(Study study, String storageID) {
+        String prevStorageIDs = study.getStorageIDs();
+        for (String id : StringUtils.split(prevStorageIDs, '\\'))
+            if (id.equals(storageID))
+                return;
+
+        study.setStorageIDs(prevStorageIDs + '\\' + storageID);
     }
 
     private Series findSeries(StoreContext ctx) {
@@ -416,6 +425,7 @@ public class StoreServiceEJB {
         Attributes attrs = ctx.getAttributes();
         Study study = new Study();
         study.setAccessControlID(arcAE.getStoreAccessControlID());
+        study.setStorageIDs(arcAE.storageID());
         study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), fuzzyStr);
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);

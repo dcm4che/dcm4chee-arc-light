@@ -67,9 +67,7 @@ import java.util.Date;
                         "where i.rejectionNoteCode=?1 and i.updatedTime<?2"),
         @NamedQuery(name = Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE,
                 query = "select l from Location l join l.instance i " +
-                        "where i.conceptNameCode=?1 and i.updatedTime<?2"),
-        @NamedQuery(name = Location.FIND_STORAGE_IDS_BY_STUDY_PK,
-                query = "select distinct l.storageID from Location l where l.instance.series.study.pk=?1")
+                        "where i.conceptNameCode=?1 and i.updatedTime<?2")
 })
 public class Location {
 
@@ -79,7 +77,6 @@ public class Location {
     public static final String FIND_BY_REJECTION_OR_CONCEPT_NAME_CODE = "Location.FindByRejectionOrConceptNameCode";
     public static final String FIND_BY_REJECTION_CODE_BEFORE = "Location.FindByRejectionCodeBefore";
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
-    public static final String FIND_STORAGE_IDS_BY_STUDY_PK = "Location.FindStorageIDsByStudyPk";
 
     public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 

@@ -79,8 +79,7 @@ import java.util.Date;
 @NamedQuery(
     name=Study.FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME,
     query="select st.pk from Study st " +
-            "where st.scatteredStorage = false and exists ( " +
-            "select l from Location l where l.instance.series.study = st and l.storageID = ?1) " +
+            "where st.storageIDs = ?1 " +
             "order by st.accessTime"),
 @NamedQuery(
     name=Study.UPDATE_ACCESS_TIME,
@@ -103,6 +102,7 @@ import java.util.Date;
     indexes = {
         @Index(columnList = "access_time"),
         @Index(columnList = "access_control_id"),
+        @Index(columnList = "storage_ids"),
         @Index(columnList = "study_date"),
         @Index(columnList = "study_time"),
         @Index(columnList = "accession_no"),
@@ -147,8 +147,8 @@ public class Study {
     private Date accessTime;
 
     @Basic(optional = false)
-    @Column(name = "scattered_storage")
-    private boolean scatteredStorage;
+    @Column(name = "storage_ids")
+    private String storageIDs;
 
     @Column(name = "failed_iuids", length = 4000)
     private String failedSOPInstanceUIDList;
@@ -265,12 +265,12 @@ public class Study {
         this.accessTime = accessTime;
     }
 
-    public boolean isScatteredStorage() {
-        return scatteredStorage;
+    public String getStorageIDs() {
+        return storageIDs;
     }
 
-    public void setScatteredStorage(boolean scatteredStorage) {
-        this.scatteredStorage = scatteredStorage;
+    public void setStorageIDs(String storageIDs) {
+        this.storageIDs = storageIDs;
     }
 
     public String getStudyInstanceUID() {

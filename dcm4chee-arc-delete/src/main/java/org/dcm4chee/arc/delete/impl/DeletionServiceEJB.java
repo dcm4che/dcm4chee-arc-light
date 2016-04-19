@@ -92,17 +92,6 @@ public class DeletionServiceEJB {
 
     public boolean removeStudyOnStorage(StudyDeleteContext ctx, boolean deletePatient) {
         Long studyPk = ctx.getStudyPk();
-        List<String> storageIDs = em.createNamedQuery(Location.FIND_STORAGE_IDS_BY_STUDY_PK, String.class)
-                .setParameter(1, studyPk)
-                .getResultList();
-        if (storageIDs.size() > 1) {
-            Study study = em.find(Study.class, studyPk);
-            study.setScatteredStorage(true);
-            ctx.setStudy(study);
-            ctx.setPatient(study.getPatient());
-            ctx.setException(new Exception("objects scattered over multiple Storages" + storageIDs));
-            return false;
-        }
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                 .setParameter(1, studyPk)
                 .getResultList();
