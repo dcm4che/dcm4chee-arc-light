@@ -152,12 +152,12 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       "<div edit-area></div>"
                   );
             }
-            if ($scope.selectedPart.dicomNetworkConnection != undefined) {
+            // if ($scope.selectedPart.dicomNetworkConnection != undefined) {
 
-              $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
-              // $scope.networkAeForm     = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
-              $log.warn("scope.networkAeForm commented out");
-            }  
+            //   $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
+            //   // $scope.networkAeForm     = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
+            //   $log.warn("scope.networkAeForm commented out");
+            // }  
             $log.debug("selectedElement2=",$scope.selectedElement);
             cfpLoadingBar.complete();
             $log.debug("form=",$scope.form);
@@ -455,12 +455,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $log.debug("editMode Set in deletePart to=",$scope.editMode);
     };
     $scope.createPart = function(element) {
-                console.log("element createpart=",element);
-                console.log("$scope.selectModel=",$scope.selectModel);
                 var validProcess = DeviceService.checkValidProcess($scope, element);
-                  console.log("validProcess=",validProcess);
                 if(validProcess.valid){
-                  console.log("in if validProcess");
                   $scope.selectedElement = element;
                   $scope.activeMenu      = element;
                   $scope.form[$scope.selectedElement] = $scope.form[$scope.selectedElement] || {};
@@ -468,7 +464,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   if(!schemas[$scope.selectedElement]){
                     DeviceService.getSchema($scope.selectedElement);
                     var wait = setInterval(function(){
-                          $log.debug("waiting");
+                          // $log.debug("waiting");
                           var checkItems = (
                                             schemas[$scope.selectedElement] && 
                                             schemas[$scope.selectedElement][$scope.selectedElement] && 

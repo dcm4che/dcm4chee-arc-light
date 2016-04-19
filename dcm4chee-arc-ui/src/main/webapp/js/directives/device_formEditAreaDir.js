@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.directive("editArea",function($schema, cfpLoadingBar, $log, DeviceService, $compile, schemas, $select){
+myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile, schemas, $select){
     var execute = function(scope,elm,attr){
             console.log("in execute");
               if(scope.selectedElement === "device"){

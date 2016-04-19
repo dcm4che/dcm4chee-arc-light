@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.directive("selectDevicePart",function($schema,$http,$compile, cfpLoadingBar, $log, $timeout, DeviceService){
+myApp.directive("selectDevicePart",function($http,$compile, cfpLoadingBar, $log, $timeout, DeviceService){
     return{
         restrict: "A",
         templateUrl: 'templates/device_selectDevicePart.html',
