@@ -545,12 +545,10 @@ table.subtable_1, table.subtable_2 {
       color: black; }
     .repeat1 .subblock .thead3 .th:first-child {
       border-left: 2px solid rgba(0, 0, 0, 0.55); }
-  .repeat1 .subblock .repeat2 .td_cell {
-    overflow: hidden; }
-    .repeat1 .subblock .repeat2 .td_cell.colcell {
-      width: 3%;
-      height: 30px;
-      line-height: 30px; }
+  .repeat1 .subblock .repeat2 .td_cell.colcell {
+    width: 3%;
+    height: 30px;
+    line-height: 30px; }
   .repeat1 .subblock .repeat2 .subblock .tr_row > .td_cell {
     font-weight: bold;
     height: 30px;
@@ -574,7 +572,33 @@ table.subtable_1, table.subtable_2 {
   .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock {
     background: white; }
     .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn > a {
+      width: 12%; }
+    .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta {
+      background: #ddd none repeat scroll 0 0;
+      float: left;
       width: 14%; }
+      .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta > span {
+        text-align: center;
+        width: 100%; }
+        .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta > span:hover {
+          cursor: pointer; }
+      .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block {
+        background: white none repeat scroll 0 0;
+        height: 220px;
+        overflow-y: scroll;
+        position: relative;
+        width: 35px; }
+        .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block a {
+          color: black;
+          float: left;
+          height: 23px;
+          line-height: 23px;
+          text-align: center;
+          vertical-align: middle;
+          width: 100%; }
+          .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block a:hover {
+            cursor: pointer;
+            background: #ddd; }
     .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active {
       background: #999; }
     .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active:hover {
@@ -824,5 +848,9 @@ table.subtable_1, table.subtable_2 {
   top: 120px;
   width: 608px;
   z-index: 99999; }
+
+.vex-dialog-input {
+  float: left;
+  width: 100%; }
 
 /*# sourceMappingURL=style.css.map */

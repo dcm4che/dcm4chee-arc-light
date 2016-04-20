@@ -3,6 +3,9 @@
 myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile, schemas, $select){
     var execute = function(scope,elm,attr){
             console.log("in execute");
+                scope.dynamic_schema    = {};
+                scope.dynamic_model     = {};
+                scope.dynamic_form      = [];
               if(scope.selectedElement === "device"){
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
 

@@ -4,8 +4,8 @@
         <div class="row">
             <label for="aet" class="col-md-6 text-right control-label">AET:</label>
             <div class=" col-md-6">    
-                <select id="aet" ng-model="aet" class="col-md-12">
-                    <option ng-repeat="ae in aes" title="{{ae.description}}">{{ae.title}}</option>
+                <select id="aet" ng-model="aet" class="col-md-12" >
+                    <option ng-repeat="ae in aes" title="{{ae.description}}" ng-click="setTrash(ae)">{{ae.title}}</option>
                 </select>
             </div>
         </div>
@@ -123,16 +123,16 @@
     </div>
     <div class="col-md-3 block-2-2">
         <div class="row" ng-show="isRole('admin')">
-            <label for="reject" class="block_seid text-right">Reject:</label>
-            <div class="block_seid">
-                <select id="reject" ng-model="reject" class="col-md-9">
+<!--             <label for="reject" class="block_seid text-right">Reject:</label>
+            <div class="block_seid"> -->
+<!--                 <select id="reject" ng-model="reject" class="col-md-9">
                     <option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}"
                             value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
-                </select>
-                <a ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
+                </select> -->
+<!--                 <a ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
                     <span class="glyphicon glyphicon-remove"></span>
-                </a>
-            </div>
+                </a> -->
+            <!-- </div> -->
         </div>
         <div class="row">
             <label for="limit" class="block_seid text-right">Page Size:</label>
@@ -155,6 +155,9 @@
                 <button class="btn btn-link btn-xs" ng-click="queryStudies(0)" title="Query Studies">
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
+                <a ng-show="isRole('admin') && trashaktive" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </a>
 <!--                 <button class="btn btn-link btn-xs"
                         ng-disabled="studies[0].offset==0"
                         ng-click="queryStudies(studies[0].offset-limit)"
@@ -206,8 +209,11 @@
                             <a ng-click="exportStudy(study)" ng-show="exporterID" href="" title="Export Study">
                                 <span class="glyphicon glyphicon-export"></span>
                             </a>
-                            <a ng-show="isRole('admin')" ng-click="rejectStudy(study)" href="" title="Reject Study">
+                            <a ng-hide="trashaktive" ng-show="isRole('admin')" ng-click="rejectStudy(study)" href="" title="Reject Study">
                                 <span class="glyphicon glyphicon-trash"></span>
+                            </a>
+                            <a ng-show="trashaktive" ng-show="isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
+                                <span class="glyphicon glyphicon-repeat"></span>
                             </a>
                             <!--
                             <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
@@ -268,8 +274,11 @@
                                     <a ng-click="exportSeries(series)" ng-show="exporterID" href="" title="Export Series">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
-                                    <a ng-show="isRole('admin')" ng-click="rejectSeries(series)" href="" title="Reject Series">
-                                        <span class="glyphicon glyphicon-trash"></span>
+                                    <a ng-hide="trashaktive" ng-show="isRole('admin')" ng-click="rejectSeries(series)" href="" title="Reject Series">
+                                        <span  class="glyphicon glyphicon-trash"></span>
+                                    </a>
+                                    <a ng-show="trashaktive" ng-show="isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
+                                        <span class="glyphicon glyphicon-repeat"></span>
                                     </a>
                                     <!--
                                     <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
@@ -329,8 +338,11 @@
                                             <a ng-click="exportInstance(instance)" ng-show="exporterID" href="" title="Export Instance">
                                                 <span class="glyphicon glyphicon-export"></span>
                                             </a>
-                                            <a ng-show="isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
-                                                <span class="glyphicon glyphicon-trash"></span>
+                                            <a ng-hide="trashaktive" ng-show="isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
+                                                <span  class="glyphicon glyphicon-trash"></span>
+                                            </a>
+                                            <a ng-show="trashaktive" ng-show="isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
+                                                <span class="glyphicon glyphicon-repeat"></span>
                                             </a>
                                             <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
                                                 <span class="glyphicon glyphicon-save"></span>
@@ -338,13 +350,19 @@
                                             <a ng-href="{{downloadURL(instance, '*')}}" title="Download DICOM Object">
                                                 <span class="glyphicon glyphicon-download-alt"></span>
                                             </a>
-                                            <a ng-click="viewInstance(instance)" href="" title="View DICOM Object">
+                                            <a ng-hide="instance.views.length > 1" ng-click="viewInstance(instance)" href="" title="View DICOM Object">
                                                 <span class="glyphicon glyphicon-picture"></span>
-                                                <select ng-show="instance.views.length > 1"
+                                            </a>
+                                            <span ng-init="select_show=false" class="selecta" ng-show="instance.views.length > 1" href="" title="View DICOM Object">
+                                                <span class="glyphicon glyphicon-picture" ng-click="select_show = !select_show"></span>
+                                                <div ng-show="select_show" class="select_block" ng-click="select_show = false">
+                                                    <a ng-model="instance.view" ng-repeat="(key, value) in instance.views" ng-click="(instance.view=value);viewInstance(instance)">{{value}}</a>
+                                                </div>
+<!--                                                 <select ng-show="instance.views.length > 1"
                                                         ng-options="view for view in instance.views"
                                                         ng-model="instance.view">
-                                                </select>
-                                            </a>
+                                                </select> -->
+                                            </span>
                                         </div>
                                         <div class="td_cell"  ng-bind="(instance.attrs['00080016'].Value[0]) || '&nbsp;'"></div>
                                         <div class="td_cell"  ng-bind="(instance.attrs['00200013'].Value[0]) || '&nbsp;'"> </div>

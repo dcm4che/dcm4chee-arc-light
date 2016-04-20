@@ -6,11 +6,28 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.moreStudies = false;
     $scope.limit = 20;
     $scope.aes;
+    $scope.trashaktive = false;
     $scope.aet = null;
     $scope.exporters;
     $scope.exporterID = null;
     $scope.rjnotes;
     $scope.rjnote = null;
+    $scope.rjcode = null;
+    $scope.setTrash = function(ae){
+        console.log("ae");
+        if(ae.dcmHideNotRejectedInstances === true){
+            // http://192.168.2.233:8080/dcm4chee-arc/reject?dcmRevokeRejection=true'
+            if($scope.rjcode === null){
+                $http.get("../reject?dcmRevokeRejection=true").then(function (res) {
+                    console.log("res",res.data[0].codeValue);
+                    $scope.rjcode = res.data[0];
+                });
+            }
+            $scope.trashaktive = true;
+        }else{
+            $scope.trashaktive = false;
+        }
+    };
     $scope.advancedConfig = false;
     $scope.showModalitySelector = false;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
@@ -237,23 +254,115 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $http.get(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
     };
     $scope.rejectStudy = function(study) {
-        $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
-            $scope.queryStudies($scope.studies[0].offset);
-        });
+        if($scope.trashaktive){
+            $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
+                $scope.queryStudies($scope.studies[0].offset);
+            });
+        }else{
+            var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
+            vex.dialog.open({
+              message: 'Select rejected type',
+              input: html,
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Reject'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancle'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
+                        $scope.queryStudies($scope.studies[0].offset);
+                    });
+                }
+              }
+            });
+        }
     };
     $scope.rejectSeries = function(series) {
-        $http.get(seriesURL(series.attrs) + '/reject/' + $scope.reject).then(function (res) {
-            $scope.querySeries(series.study, series.study.series[0].offset);
-        });
+        if($scope.trashaktive){
+            $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
+                $scope.queryStudies($scope.studies[0].offset);
+            });
+        }else{
+            var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
+            vex.dialog.open({
+              message: 'Select rejected type',
+              input: html,
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Reject'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancle'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    $http.get(seriesURL(series.attrs) + '/reject/' + $scope.reject).then(function (res) {
+                        $scope.querySeries(series.study, series.study.series[0].offset);
+                    });
+                }
+              }
+            });
+        }
     };
     $scope.rejectInstance = function(instance) {
-        $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
-            $scope.queryInstances(instance.series, instance.series.instances[0].offset);
-        });
+        if($scope.trashaktive){
+            $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
+                $scope.queryStudies($scope.studies[0].offset);
+            });
+        }else{
+            var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
+            vex.dialog.open({
+              message: 'Select rejected type',
+              input: html,
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Reject'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancle'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
+                        $scope.queryInstances(instance.series, instance.series.instances[0].offset);
+                    });
+                }
+              }
+            });
+        }
     };
     $scope.deleteRejectedInstances = function() {
-        $http.delete('../reject/' + $scope.reject).then(function (res) {
-        });
+            var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
+            vex.dialog.open({
+              message: 'Select rejected type to delete all instances with that type that are in trash!',
+              input: html,
+              className:"vex-theme-os deleterejectedinstances",
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Delete all',
+                  className: "btn-danger btn"
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancle'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    // $http.delete('../reject/' + $scope.reject).then(function (res) {
+                    // });
+                }
+              }
+            });
     };
     $scope.downloadURL = function (inst, transferSyntax) {
         var exQueryParams = { contentType: 'application/dicom' };
@@ -426,6 +535,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     initRjNotes(retries-1);
             });
     }
+    // $scope.watch("dcmHideNotRejectedInstances",function(){
+
+    // });
+    // $scope.$watchCollection('wholeDevice', function(newValue, oldValue){
+    //   if(!DeviceService.equalJSON(oldValue,newValue) &&  newValue.dicomDeviceName == oldValue.dicomDeviceName){
+    //     $scope.saved = false;
+    //   }
+    // });  
     initAETs(1);
     initExporters(1);
     initRjNotes(1);

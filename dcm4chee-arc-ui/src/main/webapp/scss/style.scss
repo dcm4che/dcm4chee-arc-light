@@ -684,7 +684,7 @@ table{
 	    }
 		.repeat2{
 			.td_cell{
-				overflow: hidden;
+				// overflow: hidden;
 				&.colcell{
 					width: 3%;
 					height: 30px;
@@ -729,8 +729,53 @@ table{
 					}
 					.subblock{
 						background:white;
-						.td_cell.table_btn > a {
-							width:14%;
+						.td_cell.table_btn{
+							&> a {
+								width:12%;
+								// &:last-child{
+								// 	width: 28%;
+								// 	span{
+								// 		width:40%;
+								// 		float: left;
+								// 	}
+								// 	select{
+								// 		float: left;
+								// 		width:60%;
+								// 	}
+								// }
+							}
+							.selecta{
+							   	background: #ddd none repeat scroll 0 0;
+							    float: left;
+							    width: 14%;
+							    & > span{
+							    	text-align: center;
+    								width: 100%;
+    								&:hover{
+    									cursor: pointer;
+    								}
+							    }
+							    .select_block {
+								    background: white none repeat scroll 0 0;
+								    height: 220px;
+								    overflow-y: scroll;
+								    position:relative;
+								    width: 35px;
+								    a{
+									    color: black;
+									    float: left;
+									    height: 23px;
+									    line-height: 23px;
+									    text-align: center;
+									    vertical-align: middle;
+									    width: 100%;
+									    &:hover{
+									    	cursor: pointer;
+									    	background:#ddd;
+									    }
+								    }
+								}
+							}
 						}
 						a.active{
 							background:#999;
@@ -1052,4 +1097,9 @@ table{
     top: 120px;
     width: 608px;
     z-index: 99999;
+}
+
+.vex-dialog-input{
+	float: left;
+    width: 100%;
 }

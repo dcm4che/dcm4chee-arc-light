@@ -6,7 +6,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.showSave               = false;
     $scope.middleBorder           = "";
     $scope.lastBorder             = "";
-    vex.defaultOptions.className  = 'vex-theme-os';
     $scope.msg                    = [];
     $scope.loaderElement          = "";
     $scope.showDropdownLoader     = false;
