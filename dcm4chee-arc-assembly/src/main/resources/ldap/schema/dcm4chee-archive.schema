@@ -442,6 +442,24 @@ attributetype ( 1.2.40.0.13.1.15.110.3.74 NAME 'dcmIanTaskFetchSize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.75 NAME 'dcmPurgeQueueMessageCompletedDelay '
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which completed queue messages are purged. If absent, there is no deletion for that particular queue'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE)
+
+attributetype ( 1.2.40.0.13.1.15.110.3.76 NAME 'dcmPurgeQueueMessagePollingInterval '
+  DESC 'Polling Interval for purging queue messages in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE)
+
+attributetype ( 1.2.40.0.13.1.15.110.3.77 NAME 'dcmPurgeQueueMessageFetchSize '
+  DESC 'Number of queue messages to be purged; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE)
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -486,7 +504,9 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAuditAggregateDuration $
     dcmStowSpoolDirectory $
     hl7PatientUpdateTemplateURI $
-    dcmUnzipVendorDataToURI ) )
+    dcmUnzipVendorDataToURI $
+    dcmPurgeQueueMessagePollingInterval $
+    dcmPurgeQueueMessageFetchSize) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
@@ -568,7 +588,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmMaxRetries $
     dcmRetryDelay $
     dcmMaxRetryDelay $
-    dcmRetryDelayMultiplier ) )
+    dcmRetryDelayMultiplier $
+    dcmPurgeQueueMessageCompletedDelay) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   DESC 'Exporter Descriptor'

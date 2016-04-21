@@ -114,6 +114,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAuditPollingInterval", ext.getAuditPollingInterval());
         LdapUtils.storeNotNull(attrs, "dcmAuditAggregateDuration", ext.getAuditAggregateDuration());
         LdapUtils.storeNotNull(attrs, "dcmStowSpoolDirectory", ext.getStowSpoolDirectory());
+        LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
+        LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
     }
 
     @Override
@@ -171,6 +173,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditPollingInterval(toDuration(LdapUtils.stringValue(attrs.get("dcmAuditPollingInterval"), null)));
         ext.setAuditAggregateDuration(toDuration(LdapUtils.stringValue(attrs.get("dcmAuditAggregateDuration"), null)));
         ext.setStowSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmStowSpoolDirectory"), null));
+        ext.setPurgeQueueMessagePollingInterval(toDuration(LdapUtils.stringValue(
+                attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
+        ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
     }
 
     @Override
@@ -249,6 +254,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getAuditAggregateDuration(), bb.getAuditAggregateDuration());
         LdapUtils.storeDiff(mods, "dcmStowSpoolDirectory",
                 aa.getStowSpoolDirectory(), bb.getStowSpoolDirectory());
+        LdapUtils.storeDiff(mods, "dcmPurgeQueueMessageFetchSize", aa.getPurgeQueueMessageFetchSize(),
+                bb.getPurgeQueueMessageFetchSize());
+        LdapUtils.storeDiff(mods, "dcmPurgeQueueMessagePollingInterval", aa.getPurgeQueueMessagePollingInterval(),
+                bb.getPurgeQueueMessagePollingInterval());
     }
 
     @Override
@@ -654,6 +663,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmRetryDelay", descriptor.getRetryDelay());
         LdapUtils.storeNotNull(attrs, "dcmMaxRetryDelay", descriptor.getMaxRetryDelay());
         LdapUtils.storeNotDef(attrs, "dcmRetryDelayMultiplier", descriptor.getRetryDelayMultiplier(), 100);
+        LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessageCompletedDelay", descriptor.getPurgeQueueMessageCompletedDelay());
         return attrs;
     }
 
@@ -670,6 +680,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setRetryDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmRetryDelay"), null)));
                 desc.setMaxRetryDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmMaxRetryDelay"), null)));
                 desc.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 0));
+                desc.setPurgeQueueMessageCompletedDelay(toDuration(LdapUtils.stringValue(
+                        attrs.get("dcmPurgeQueueMessageCompletedDelay"), null)));
                 arcdev.addQueueDescriptor(desc);
             }
         } finally {

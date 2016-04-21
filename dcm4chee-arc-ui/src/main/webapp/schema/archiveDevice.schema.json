@@ -242,6 +242,18 @@
       "description": "Specifies URI of directory into which ZIP stream in Device Vendor Data attribute will be extracted",
       "type": "string"
     },
+    "dcmPurgeQueueMessagePollingInterval": {
+      "title": "Purge Queue Messages Polling Interval",
+      "description": "Polling Interval for purging queue messages in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion",
+      "type": "string"
+    },
+    "dcmPurgeQueueMessageFetchSize": {
+      "title": "Completed Queue Messages Fetch Size to be purged",
+      "description": "Number of Completed Queue Messages to be purged; 100 if absent",
+      "type": "integer",
+      "minimum": 100,
+      "exclusiveMinimum": true
+    },
     "dcmAttributeFilter": {
       "$ref": "attributeFilter.schema.json"
     },

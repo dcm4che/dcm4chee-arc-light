@@ -43,6 +43,11 @@
       "description": "Multiplier in % that will take effect on top of dcmRetryDelay with dcmMaxRetryDelay to be taken into account. 100 if absent.",
       "type": "integer",
       "minimum": 100
+    },
+    "dcmPurgeQueueMessageCompletedDelay": {
+      "title": "Delay for purging completed queue messages",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which completed queue messages are purged. If absent, there is no deletion for that particular queue",
+      "type": "string"
     }
   }
 }

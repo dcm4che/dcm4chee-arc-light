@@ -113,6 +113,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStowSpoolDirectory", arcDev.getStowSpoolDirectory());
         writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
         writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
+        writer.writeNotNull("dcmPurgeQueueMessagePollingInterval", arcDev.getPurgeQueueMessagePollingInterval());
+        writer.writeNotDef("dcmPurgeQueueMessageFetchSize", arcDev.getPurgeQueueMessageFetchSize(), 100);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -188,6 +190,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmRetryDelay", qd.getRetryDelay());
             writer.writeNotNull("dcmMaxRetryDelay", qd.getMaxRetryDelay());
             writer.writeNotDef("dcmRetryDelayMultiplier", qd.getRetryDelayMultiplier(), 100);
+            writer.writeNotNull("dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -450,6 +453,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmUnzipVendorDataToURI":
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());
                     break;
+                case "dcmPurgeQueueMessageFetchSize":
+                    arcDev.setPurgeQueueMessageFetchSize(reader.intValue());
+                    break;
+                case "dcmPurgeQueueMessagePollingInterval":
+                    arcDev.setPurgeQueueMessagePollingInterval(Duration.parse(reader.stringValue()));
+                    break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
                     break;
@@ -619,6 +628,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRetryDelayMultiplier":
                         qd.setRetryDelayMultiplier(reader.intValue());
+                        break;
+                    case "dcmPurgeQueueMessageCompletedDelay":
+                        qd.setPurgeQueueMessageCompletedDelay(Duration.parse(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();

@@ -153,6 +153,7 @@ class ArchiveDeviceFactory {
         desc.setRetryDelay(Duration.parse("PT30S"));
         desc.setRetryDelayMultiplier(200);
         desc.setMaxRetryDelay(Duration.parse("PT10M"));
+        desc.setPurgeQueueMessageCompletedDelay(Duration.parse("P1D"));
         return desc;
     }
 
@@ -723,6 +724,8 @@ class ArchiveDeviceFactory {
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final int IAN_TASK_FETCH_SIZE = 10;
+    static final int PURGE_QUEUE_MSG_FETCH_SIZE = 100;
+    static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String EXPORTER_ID = "STORESCP";
     static final String EXPORTER_DESC = "Export to STORESCP";
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
@@ -967,6 +970,8 @@ class ArchiveDeviceFactory {
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);
         ext.setIanTaskFetchSize(IAN_TASK_FETCH_SIZE);
+        ext.setPurgeQueueMessageFetchSize(PURGE_QUEUE_MSG_FETCH_SIZE);
+        ext.setPurgeQueueMessagePollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
         ext.setExportTaskFetchSize(EXPORT_TASK_FETCH_SIZE);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
