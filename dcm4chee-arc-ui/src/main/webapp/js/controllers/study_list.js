@@ -12,11 +12,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.exporterID = null;
     $scope.rjnotes;
     $scope.rjnote = null;
+    $scope.advancedConfig = false;
+    $scope.showModalitySelector = false;
+    $scope.filter = { orderby: "-StudyDate,-StudyTime" };
+    $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
+    // $scope.studyDate = { from: '', to: ''};
+    $scope.studyTime = { from: '', to: ''};
+    $scope.format = "yyyyMMdd";
+    $scope.modalities = $modalities;
+            // console.log("studies=",$scope.studies);
     $scope.rjcode = null;
     $scope.setTrash = function(ae){
-        console.log("ae");
         if(ae.dcmHideNotRejectedInstances === true){
-            // http://192.168.2.233:8080/dcm4chee-arc/reject?dcmRevokeRejection=true'
             if($scope.rjcode === null){
                 $http.get("../reject?dcmRevokeRejection=true").then(function (res) {
                     console.log("res",res.data[0].codeValue);
@@ -28,16 +35,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.trashaktive = false;
         }
     };
-    $scope.advancedConfig = false;
-    $scope.showModalitySelector = false;
-    $scope.filter = { orderby: "-StudyDate,-StudyTime" };
-    $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
-    // $scope.studyDate = { from: '', to: ''};
-    $scope.studyTime = { from: '', to: ''};
-    $scope.format = "yyyyMMdd";
-    $scope.modalities = $modalities;
-            // console.log("studies=",$scope.studies);
-
     $scope.addFileAttribute = function(studykey, serieskey, key){
         var id      = '#file-attribute-list-'+($scope.studies[studykey].series[serieskey].instances[key].attrs['00080018'].Value[0]).replace(/\./g, '');
         if(angular.element(id).find("*").length < 1){
@@ -128,7 +125,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         cfpLoadingBar.start();
         $scope.studyDateTo.opened = true;
         var watchPicker = setInterval(function(){ 
-            console.log("isOpen",angular.element(".uib-datepicker-popup .uib-close").length);
             if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
                 clearInterval(watchPicker);
                 cfpLoadingBar.complete();
@@ -147,13 +143,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
           }
     };
     $scope.studyDateFromChange = function(){
-        console.log("in studyDateFromChange",$scope.studyDate);
         cfpLoadingBar.start();
         StudiesService.updateFromDate($scope.studyDate);
 
     }
     $scope.studyDateToChange = function(){
-        console.log("in studyDateFromChange",$scope.studyDate);
         cfpLoadingBar.start();
         StudiesService.updateToDate($scope.studyDate);
 
@@ -245,13 +239,68 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         cfpLoadingBar.complete();
     };
     $scope.exportStudy = function(study) {
-        $http.get(studyURL(study.attrs) + '/export/' + $scope.exporterID);
+            var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
+            vex.dialog.open({
+              message: 'Select Exporter',
+              input: html,
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Export'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancle'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    $http.get(studyURL(study.attrs) + '/export/' + $scope.exporterID);
+                }
+              }
+            });
     };
     $scope.exportSeries = function(series) {
-        $http.get(seriesURL(series.attrs) + '/export/' + $scope.exporterID);
+            var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
+            vex.dialog.open({
+              message: 'Select Exporter',
+              input: html,
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Export'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancle'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    $http.get(seriesURL(series.attrs) + '/export/' + $scope.exporterID);
+                }
+              }
+            });
     };
     $scope.exportInstance = function(instance) {
-        $http.get(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
+            var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
+            vex.dialog.open({
+              message: 'Select Exporter',
+              input: html,
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Export'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancle'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    $http.get(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
+                }
+              }
+            });
+
     };
     $scope.rejectStudy = function(study) {
         if($scope.trashaktive){
@@ -284,7 +333,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.rejectSeries = function(series) {
         if($scope.trashaktive){
-            $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
+            $http.get(seriesURL(series.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 $scope.queryStudies($scope.studies[0].offset);
             });
         }else{
@@ -313,7 +362,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.rejectInstance = function(instance) {
         if($scope.trashaktive){
-            $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
+            $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 $scope.queryStudies($scope.studies[0].offset);
             });
         }else{
@@ -358,8 +407,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (data === false) {
                   return console.log('Cancelled');
                 }else{
-                    // $http.delete('../reject/' + $scope.reject).then(function (res) {
-                    // });
+                    $http.delete('../reject/' + $scope.reject).then(function (res) {
+                    });
                 }
               }
             });
@@ -507,9 +556,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $http.get("../export").then(
             function (res) {
                 $scope.exporters = res.data;
-                if(res.data && res.data[0]){
-                    $scope.exporterID = res.data[0].id;
-                }
+                $scope.exporterID = res.data[0].id;
             },
             function (res) {
                 if (retries)
@@ -534,15 +581,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (retries)
                     initRjNotes(retries-1);
             });
-    }
-    // $scope.watch("dcmHideNotRejectedInstances",function(){
-
-    // });
-    // $scope.$watchCollection('wholeDevice', function(newValue, oldValue){
-    //   if(!DeviceService.equalJSON(oldValue,newValue) &&  newValue.dicomDeviceName == oldValue.dicomDeviceName){
-    //     $scope.saved = false;
-    //   }
-    // });  
+    } 
     initAETs(1);
     initExporters(1);
     initRjNotes(1);

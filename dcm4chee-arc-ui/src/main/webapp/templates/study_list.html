@@ -4,7 +4,7 @@
         <div class="row">
             <label for="aet" class="col-md-6 text-right control-label">AET:</label>
             <div class=" col-md-6">    
-                <select id="aet" ng-model="aet" class="col-md-12" >
+                <select id="aet" ng-model="aet" class="col-md-12" ng-change="studies = {}">
                     <option ng-repeat="ae in aes" title="{{ae.description}}" ng-click="setTrash(ae)">{{ae.title}}</option>
                 </select>
             </div>
@@ -107,14 +107,14 @@
 <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
 <div class="row ng-hide" ng-show="advancedConfig">
     <div class="col-md-3 block-2-1">
-        <div class="row">
+<!--         <div class="row">
             <label for="exporter" class="col-md-6 text-right">Export:</label>
             <div class="col-md-6">
                 <select id="exporter" ng-model="exporterID" class="col-md-12">
                     <option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option>
                 </select>
             </div>
-        </div>
+        </div> -->
         <div class="row">
             <div class="col-md-6 col-md-offset-6">
                 <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder=" Study ID" class="col-md-12" />
@@ -152,11 +152,11 @@
     <div class="thead">
         <div class="tr_row">
             <div class="th">                
-                <button class="btn btn-link btn-xs" ng-click="queryStudies(0)" title="Query Studies">
+                <button class="execute btn btn-link btn-xs" ng-click="queryStudies(0)" title="Query Studies">
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
-                <a ng-show="isRole('admin') && trashaktive" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
-                    <span class="glyphicon glyphicon-remove"></span>
+                <a ng-show="isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="deleteRejctedI">
+                    <span class="glyphicon glyphicon-trash"></span>
                 </a>
 <!--                 <button class="btn btn-link btn-xs"
                         ng-disabled="studies[0].offset==0"

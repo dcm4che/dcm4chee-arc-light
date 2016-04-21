@@ -271,9 +271,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
 
     var addEmptyArrayFieldsPrivate = function(scope) {
         if (scope.dynamic_schema && scope.dynamic_schema.properties) {
-        	console.log("in if 1 addemptyarray",angular.copy(scope.dynamic_model));
             scope.dynamic_model = addEmptyArrayToModel(scope.dynamic_model, scope.dynamic_schema.properties);
-        	console.log("in if 1 addemptyarray after",angular.copy(scope.dynamic_model));
         }
     };
 
