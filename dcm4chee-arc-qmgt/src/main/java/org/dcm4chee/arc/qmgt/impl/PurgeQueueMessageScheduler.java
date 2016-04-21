@@ -38,65 +38,65 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.iocm.rs;
+package org.dcm4chee.arc.qmgt.impl;
 
-import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Pattern;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @since Apr 2016
  */
-@Path("reject")
-@RequestScoped
-public class DeleteRejected {
+@ApplicationScoped
+public class PurgeQueueMessageScheduler extends Scheduler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DeleteRejected.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PurgeQueueMessageScheduler.class);
 
     @Inject
     private Device device;
 
     @Inject
-    private DeletionService service;
+    private QueueManager ejb;
 
-    @Context
-    private HttpServletRequest request;
+    @Override
+    protected Logger log() {
+        return LOG;
+    }
 
-    @QueryParam("rejectedBefore")
-    @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
-    private String rejectedBefore;
-
-    @DELETE
-    @Path("{CodeValue}^{CodingSchemeDesignator}")
-    public void query(
-            @PathParam("CodeValue") String codeValue,
-            @PathParam("CodingSchemeDesignator") String designator)
-            throws Exception {
-        LOG.info("Process DELETE {} from {}@{}",
-                request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+    @Override
+    protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        Code code = new Code(codeValue, designator, null, "?");
-        RejectionNote rjNote = arcDev.getRejectionNote(code);
-        if (rjNote == null)
-            throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
-        service.deleteRejectedInstances(rjNote.getRejectionNoteCode(), arcDev.getDeleteRejectedFetchSize());
+        return arcDev.getPurgeQueueMessagePollingInterval();
+    }
+
+    @Override
+    protected void execute() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int fetchSize = arcDev.getPurgeQueueMessageFetchSize();
+        for (QueueDescriptor desc : arcDev.getQueueDescriptors())
+            delete(desc.getQueueName(), QueueMessage.Status.COMPLETED,
+                    desc.getPurgeQueueMessageCompletedDelay(), fetchSize);
+    }
+
+    private void delete(String queueName, QueueMessage.Status status, Duration delay, int fetchSize) {
+        if (delay == null)
+            return;
+
+        Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
+        int deleted;
+        do {
+            deleted = ejb.deleteMessages(queueName, status, before);
+        } while (deleted == fetchSize);
     }
 }

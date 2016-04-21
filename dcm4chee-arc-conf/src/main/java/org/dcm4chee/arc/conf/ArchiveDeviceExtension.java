@@ -93,6 +93,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration auditPollingInterval;
     private Duration auditAggregateDuration;
     private String stowSpoolDirectory;
+    private Duration purgeQueueMessagePollingInterval;
+    private int purgeQueueMessageFetchSize = 100;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -456,6 +458,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.stowSpoolDirectory = stowSpoolDirectory;
     }
 
+    public Duration getPurgeQueueMessagePollingInterval() {
+        return purgeQueueMessagePollingInterval;
+    }
+
+    public void setPurgeQueueMessagePollingInterval(Duration purgeQueueMessagePollingInterval) {
+        this.purgeQueueMessagePollingInterval = purgeQueueMessagePollingInterval;
+    }
+
+    public int getPurgeQueueMessageFetchSize() {
+        return purgeQueueMessageFetchSize;
+    }
+
+    public void setPurgeQueueMessageFetchSize(int purgeQueueMessageFetchSize) {
+        this.purgeQueueMessageFetchSize = purgeQueueMessageFetchSize;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         return attributeFilters.get(entity);
     }
@@ -650,6 +668,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditPollingInterval = arcdev.auditPollingInterval;
         auditAggregateDuration = arcdev.auditAggregateDuration;
         stowSpoolDirectory = arcdev.stowSpoolDirectory;
+        purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
+        purgeQueueMessageFetchSize = arcdev.purgeQueueMessageFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();
