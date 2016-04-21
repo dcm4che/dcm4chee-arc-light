@@ -43,6 +43,7 @@ package org.dcm4chee.arc.delete;
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.entity.Location;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,5 +51,7 @@ import java.util.List;
  * @since Nov 2015
  */
 public interface DeletionService {
-    int deleteRejectedInstances(Code rejectionCode, int fetchSize);
+    int deleteRejectedInstancesBefore(Code rjCode, Date before, int fetchSize);
+
+    int deleteRejectionNotesBefore(Code rjCode, Date before, int fetchSize);
 }

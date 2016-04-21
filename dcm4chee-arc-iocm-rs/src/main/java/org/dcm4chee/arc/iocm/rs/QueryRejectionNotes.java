@@ -47,6 +47,7 @@ import org.dcm4chee.arc.conf.RejectionNote;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -69,7 +70,8 @@ public class QueryRejectionNotes {
     private Device device;
 
     @QueryParam("dcmRevokeRejection")
-    private boolean revokeRejection;
+    @Pattern(regexp = "true|false")
+    private String revokeRejection;
 
     @GET
     @Produces("application/json")
@@ -80,8 +82,9 @@ public class QueryRejectionNotes {
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 int count = 0;
                 w.write('[');
+                boolean revoke = Boolean.parseBoolean(revokeRejection);
                 for (RejectionNote rjNote : device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNotes()) {
-                    if (rjNote.isRevokeRejection() != revokeRejection)
+                    if (rjNote.isRevokeRejection() == revoke)
                         continue;
 
                     Code code = rjNote.getRejectionNoteCode();
@@ -102,4 +105,5 @@ public class QueryRejectionNotes {
             }
         };
     }
+
 }

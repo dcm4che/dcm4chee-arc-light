@@ -49,6 +49,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -99,23 +100,14 @@ public class DeletionServiceEJB {
         return true;
     }
 
-    public int deleteRejectedInstancesAndRejectionNotes(Code rejectionCode, int limit) {
-        CodeEntity codeEntity = codeCahe.findOrCreate(rejectionCode);
-        List<Location> locations = em.createNamedQuery(Location.FIND_BY_REJECTION_OR_CONCEPT_NAME_CODE, Location.class)
-                .setParameter(1, codeEntity)
-                .setMaxResults(limit)
-                .getResultList();
-        return deleteInstances(locations, null, false);
-    }
-
     public int deleteRejectedInstancesOrRejectionNotesBefore(
             String queryName, Code rejectionCode, Date before, int limit) {
         CodeEntity codeEntity = codeCahe.findOrCreate(rejectionCode);
-        List<Location> locations = em.createNamedQuery(queryName, Location.class)
-                .setParameter(1, codeEntity)
-                .setParameter(2, before)
-                .setMaxResults(limit)
-                .getResultList();
+        TypedQuery<Location> query = em.createNamedQuery(queryName, Location.class).setParameter(1, codeEntity);
+        if (before != null)
+            query.setParameter(2, before);
+
+        List<Location> locations = query.setMaxResults(limit).getResultList();
         return deleteInstances(locations, null, false);
     }
 

@@ -41,10 +41,13 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.entity.Location;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -57,11 +60,22 @@ public class DeletionServiceImpl implements DeletionService {
     private DeletionServiceEJB ejb;
 
     @Override
-    public int deleteRejectedInstances(Code rejectionCode, int fetchSize) {
+    public int deleteRejectedInstancesBefore(Code rjCode, Date before, int fetchSize) {
+        return delete(before != null ? Location.FIND_BY_REJECTION_CODE_BEFORE : Location.FIND_BY_REJECTION_CODE,
+                rjCode, before, fetchSize);
+    }
+
+    @Override
+    public int deleteRejectionNotesBefore(Code rjCode, Date before, int fetchSize) {
+        return delete(before != null ? Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE : Location.FIND_BY_CONCEPT_NAME_CODE,
+                rjCode, before, fetchSize);
+    }
+
+    private int delete(String queryName, Code rjCode, Date before, int fetchSize) {
         int total = 0;
         int deleted;
         do {
-            total += deleted = ejb.deleteRejectedInstancesAndRejectionNotes(rejectionCode, fetchSize);
+            total += deleted = ejb.deleteRejectedInstancesOrRejectionNotesBefore(queryName, rjCode, before, fetchSize);
         } while (deleted == fetchSize);
         return total;
     }
