@@ -84,7 +84,7 @@ public class QueryRejectionNotes {
                 w.write('[');
                 boolean revoke = Boolean.parseBoolean(revokeRejection);
                 for (RejectionNote rjNote : device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNotes()) {
-                    if (rjNote.isRevokeRejection() == revoke)
+                    if (rjNote.isRevokeRejection() != revoke)
                         continue;
 
                     Code code = rjNote.getRejectionNoteCode();
