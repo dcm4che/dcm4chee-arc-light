@@ -39,6 +39,16 @@
       "title": "Custom Attribute 3",
       "description": "Custom Attribute 3",
       "type": "string"
+    },
+    "dcmAttributeUpdate": {
+      "title": "Attribute Update",
+      "description": "Action taken on updation of attributes on Series, Study & Patient level on receive of further instance of entity. If absent, there is no action",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "SUPPLEMENT",
+        "OVERWRITE"
+      ]
     }
   }
 }

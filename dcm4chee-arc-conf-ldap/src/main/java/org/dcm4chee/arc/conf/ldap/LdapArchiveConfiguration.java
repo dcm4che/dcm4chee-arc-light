@@ -479,6 +479,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute1", filter.getCustomAttribute1());
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute2", filter.getCustomAttribute2());
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute3", filter.getCustomAttribute3());
+        LdapUtils.storeNotNull(attrs, "dcmAttributeUpdate", filter.getAttributeUpdate());
         return attrs;
     }
     private static Attribute tagsAttr(String attrID, int[] tags) {
@@ -500,6 +501,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 filter.setCustomAttribute1(valueSelector(attrs.get("dcmCustomAttribute1")));
                 filter.setCustomAttribute2(valueSelector(attrs.get("dcmCustomAttribute2")));
                 filter.setCustomAttribute3(valueSelector(attrs.get("dcmCustomAttribute3")));
+                filter.setAttributeUpdate(LdapUtils.enumValue(AttributeUpdate.class,
+                        attrs.get("dcmAttributeUpdate"), null));
                 device.setAttributeFilter(
                         Entity.valueOf(LdapUtils.stringValue(attrs.get("dcmEntity"), null)),
                         filter);
@@ -541,6 +544,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getCustomAttribute2(), filter.getCustomAttribute2());
         LdapUtils.storeDiff(mods, "dcmCustomAttribute3",
                 prev.getCustomAttribute3(), filter.getCustomAttribute3());
+        LdapUtils.storeDiff(mods, "dcmAttributeUpdate", prev.getAttributeUpdate(), filter.getAttributeUpdate());
         return mods;
     }
 

@@ -136,6 +136,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmCustomAttribute1", arcDev.getAttributeFilter(entity).getCustomAttribute1());
             writer.writeNotNull("dcmCustomAttribute2", arcDev.getAttributeFilter(entity).getCustomAttribute2());
             writer.writeNotNull("dcmCustomAttribute3", arcDev.getAttributeFilter(entity).getCustomAttribute3());
+            writer.writeNotNull("dcmAttributeUpdate", arcDev.getAttributeFilter(entity).getAttributeUpdate());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -515,6 +516,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmCustomAttribute3":
                         af.setCustomAttribute3(ValueSelector.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmAttributeUpdate":
+                        af.setAttributeUpdate(AttributeUpdate.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();
