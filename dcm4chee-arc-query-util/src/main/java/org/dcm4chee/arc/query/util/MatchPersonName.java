@@ -71,9 +71,6 @@ class MatchPersonName {
                         ? fuzzyMatch(qpn, pn, queryParam)
                         : literalMatch(qpn, pn, queryParam);
 
-        if (queryParam.isMatchUnknown())
-            predicate = ExpressionUtils.or(predicate, qpn.isNull());
-
         return predicate;
     }
 

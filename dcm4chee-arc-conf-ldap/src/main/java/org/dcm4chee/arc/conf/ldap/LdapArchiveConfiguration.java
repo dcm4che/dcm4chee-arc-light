@@ -61,6 +61,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
@@ -77,7 +78,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmOverwritePolicy", ext.getOverwritePolicy());
         LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory());
         LdapUtils.storeNotNull(attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID());
-        LdapUtils.storeNotDef(attrs, "dcmQueryMatchUnknown", ext.isQueryMatchUnknown(), true);
         LdapUtils.storeNotDef(attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
                 ext.isPersonNameComponentOrderInsensitiveMatching(), false);
         LdapUtils.storeNotDef(attrs, "dcmSendPendingCGet", ext.isSendPendingCGet(), false);
@@ -130,7 +130,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
         ext.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
         ext.setQueryRetrieveViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
-        ext.setQueryMatchUnknown(LdapUtils.booleanValue(attrs.get("dcmQueryMatchUnknown"), true));
         ext.setPersonNameComponentOrderInsensitiveMatching(
                 LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), false));
         ext.setSendPendingCGet(LdapUtils.booleanValue(attrs.get("dcmSendPendingCGet"), false));
@@ -191,7 +190,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
         LdapUtils.storeDiff(mods, "dcmQueryRetrieveViewID", aa.getQueryRetrieveViewID(), bb.getQueryRetrieveViewID());
-        LdapUtils.storeDiff(mods, "dcmQueryMatchUnknown", aa.isQueryMatchUnknown(), bb.isQueryMatchUnknown(), true);
         LdapUtils.storeDiff(mods, "dcmPersonNameComponentOrderInsensitiveMatching",
                 aa.isPersonNameComponentOrderInsensitiveMatching(),
                 bb.isPersonNameComponentOrderInsensitiveMatching(),
@@ -331,7 +329,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmOverwritePolicy", ext.getOverwritePolicy());
         LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory());
         LdapUtils.storeNotNull(attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID());
-        LdapUtils.storeNotNull(attrs, "dcmQueryMatchUnknown", ext.getQueryMatchUnknown());
         LdapUtils.storeNotNull(attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
                 ext.getPersonNameComponentOrderInsensitiveMatching());
         LdapUtils.storeNotNull(attrs, "dcmSendPendingCGet", ext.getSendPendingCGet());
@@ -364,7 +361,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
         ext.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
         ext.setQueryRetrieveViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
-        ext.setQueryMatchUnknown(LdapUtils.booleanValue(attrs.get("dcmQueryMatchUnknown"), null));
         ext.setPersonNameComponentOrderInsensitiveMatching(
                 LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), null));
         ext.setSendPendingCGet(LdapUtils.booleanValue(attrs.get("dcmSendPendingCGet"), null));
@@ -400,7 +396,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
         LdapUtils.storeDiff(mods, "dcmQueryRetrieveViewID", aa.getQueryRetrieveViewID(), bb.getQueryRetrieveViewID());
-        LdapUtils.storeDiff(mods, "dcmQueryMatchUnknown", aa.getQueryMatchUnknown(), bb.getQueryMatchUnknown());
         LdapUtils.storeDiff(mods, "dcmPersonNameComponentOrderInsensitiveMatching",
                 aa.getPersonNameComponentOrderInsensitiveMatching(),
                 bb.getPersonNameComponentOrderInsensitiveMatching());

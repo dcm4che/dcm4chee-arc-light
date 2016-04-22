@@ -78,7 +78,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID());
         writer.writeNotNull("dcmOverwritePolicy", arcDev.getOverwritePolicy());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
-        writer.writeNotDef("dcmQueryMatchUnknown", arcDev.isQueryMatchUnknown(), true);
         writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching", arcDev.isPersonNameComponentOrderInsensitiveMatching(), false);
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
         writer.writeNotNull("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval());
@@ -296,7 +295,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy());
         writer.writeNotNull("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory());
-        writer.writeNotNull("dcmQueryMatchUnknown", arcAE.getQueryMatchUnknown());
         writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching", arcAE.getPersonNameComponentOrderInsensitiveMatching());
         writer.writeNotNull("dcmSendPendingCGet", arcAE.getSendPendingCGet());
         writer.writeNotNull("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval());
@@ -348,9 +346,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmBulkDataSpoolDirectory":
                     arcDev.setBulkDataSpoolDirectory(reader.stringValue());
-                    break;
-                case "dcmQueryMatchUnknown":
-                    arcDev.setQueryMatchUnknown(reader.booleanValue());
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcDev.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
@@ -885,9 +880,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmBulkDataSpoolDirectory":
                     arcAE.setBulkDataSpoolDirectory(reader.stringValue());
-                    break;
-                case "dcmQueryMatchUnknown":
-                    arcAE.setQueryMatchUnknown(reader.booleanValue());
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcAE.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());

@@ -66,6 +66,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.11 NAME 'dcmInstanceAvailability'
 
 attributetype ( 1.2.40.0.13.1.15.110.3.12 NAME 'dcmQueryMatchUnknown'
   DESC 'Indicates if missing Attributes or zero-length Attribute values in stored entities shall considered unknown and all matching against it shall be considered a successful match; enabled if absent'
+  OBSOLETE
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -476,7 +477,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   MAY (
     dcmOverwritePolicy $
     dcmBulkDataSpoolDirectory $
-    dcmQueryMatchUnknown $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $
@@ -524,7 +524,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmOverwritePolicy $
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $
-    dcmQueryMatchUnknown $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $

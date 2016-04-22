@@ -59,7 +59,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private OverwritePolicy overwritePolicy;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
-    private boolean queryMatchUnknown = true;
     private boolean sendPendingCGet = false;
     private Duration sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching = false;
@@ -167,14 +166,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setQueryRetrieveViewID(String queryRetrieveViewID) {
         this.queryRetrieveViewID = queryRetrieveViewID;
-    }
-
-    public boolean isQueryMatchUnknown() {
-        return queryMatchUnknown;
-    }
-
-    public void setQueryMatchUnknown(boolean queryMatchUnknown) {
-        this.queryMatchUnknown = queryMatchUnknown;
     }
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
@@ -632,7 +623,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         overwritePolicy = arcdev.overwritePolicy;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         queryRetrieveViewID = arcdev.queryRetrieveViewID;
-        queryMatchUnknown = arcdev.queryMatchUnknown;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
         sendPendingCGet = arcdev.sendPendingCGet;
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;

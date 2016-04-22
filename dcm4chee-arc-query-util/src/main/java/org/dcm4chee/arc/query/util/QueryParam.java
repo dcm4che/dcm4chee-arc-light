@@ -76,10 +76,6 @@ public class QueryParam {
         return arcAE.getAccessControlIDs();
     }
 
-    public boolean isMatchUnknown() {
-        return arcAE.queryMatchUnknown();
-    }
-
     public boolean isFuzzySemanticMatching() {
         return fuzzySemanticMatching;
     }

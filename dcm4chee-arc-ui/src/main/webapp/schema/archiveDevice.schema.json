@@ -48,11 +48,6 @@
       "description": "Path to Bulk Data Spool Directory",
       "type": "string"
     },
-    "dcmQueryMatchUnknown": {
-      "title": "Query Match Unknown",
-      "description": "Indicates if missing Attributes or zero-length Attribute values in stored entities shall considered unknown and all matching against it shall be considered a successful match; enabled if absent",
-      "type": "boolean"
-    },
     "dcmPersonNameComponentOrderInsensitiveMatching": {
       "title": "Person Name Component Order Insensitive Matching",
       "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names; disabled if absent",

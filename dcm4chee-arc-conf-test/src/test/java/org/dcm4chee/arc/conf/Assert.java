@@ -75,7 +75,6 @@ class Assert {
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
         assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
         assertEquals(expected.getBulkDataSpoolDirectory(), actual.getBulkDataSpoolDirectory());
-        assertEquals(expected.getQueryMatchUnknown(), actual.getQueryMatchUnknown());
         assertEquals(expected.getPersonNameComponentOrderInsensitiveMatching(), actual.getPersonNameComponentOrderInsensitiveMatching());
         assertEquals(expected.getSendPendingCGet(), actual.getSendPendingCGet());
         assertEquals(expected.getSendPendingCMoveInterval(), actual.getSendPendingCMoveInterval());
@@ -96,7 +95,6 @@ class Assert {
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
         assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());
         assertEquals(expected.getBulkDataSpoolDirectory(), actual.getBulkDataSpoolDirectory());
-        assertEquals(expected.isQueryMatchUnknown(), actual.isQueryMatchUnknown());
         assertEquals(expected.isPersonNameComponentOrderInsensitiveMatching(), actual.isPersonNameComponentOrderInsensitiveMatching());
         assertEquals(expected.isSendPendingCGet(), actual.isSendPendingCGet());
         assertEquals(expected.getSendPendingCMoveInterval(), actual.getSendPendingCMoveInterval());

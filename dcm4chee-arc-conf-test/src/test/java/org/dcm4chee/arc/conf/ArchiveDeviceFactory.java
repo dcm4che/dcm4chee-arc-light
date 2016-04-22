@@ -948,7 +948,6 @@ class ArchiveDeviceFactory {
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
         if (configType == configType.TEST) {
-            ext.setQueryMatchUnknown(false);
             ext.setPersonNameComponentOrderInsensitiveMatching(true);
             ext.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
             ext.setFallbackCMoveSCP("QRSCP");
@@ -1133,7 +1132,6 @@ class ArchiveDeviceFactory {
             aeExt.setAccessControlIDs(ACCESS_CONTROL_IDS);
             aeExt.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
             aeExt.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
-            aeExt.setQueryMatchUnknown(false);
             aeExt.setPersonNameComponentOrderInsensitiveMatching(true);
             aeExt.setSendPendingCGet(SEND_PENDING_C_GET);
             aeExt.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);
