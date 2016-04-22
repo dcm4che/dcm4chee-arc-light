@@ -81,7 +81,7 @@
       <xsl:with-param name="level" select="1"/>
     </xsl:call-template>
     <xsl:value-of select="$br"/>
-  <xsl:text>This page was generated from a DICOM Structured Reporting document by dcm4chee-arc 5.0.0 [https://github.com/dcm4che]
+  <xsl:text>This page was generated from a DICOM Structured Reporting document by dcm4chee-arc 5.x [https://github.com/dcm4che]
 </xsl:text>
   </xsl:template>
 

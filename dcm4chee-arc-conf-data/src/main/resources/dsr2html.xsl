@@ -102,7 +102,7 @@
           <small>
             <xsl:text>This page was generated from a DICOM Structured Reporting document by </xsl:text>
             <a href="https://github.com/dcm4che">dcm4chee-arc</a>
-            <xsl:text> 5.0.0</xsl:text>
+            <xsl:text> 5.x</xsl:text>
           </small>
         </div>
       </body>
