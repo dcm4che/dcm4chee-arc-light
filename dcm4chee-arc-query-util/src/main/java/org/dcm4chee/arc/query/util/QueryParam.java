@@ -48,6 +48,7 @@ import org.dcm4chee.arc.entity.CodeEntity;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 public class QueryParam {

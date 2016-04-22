@@ -58,6 +58,7 @@ import java.util.Iterator;
 /**
  * @author Michael Backhaus <michael.backhaus@agfa.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
 class MatchPersonName {
 
@@ -120,11 +121,11 @@ class MatchPersonName {
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(QueryBuilder.wildCard(familyName,
-                pn.get(group, PersonName.Component.FamilyName), false, ignoreCase));
+                pn.get(group, PersonName.Component.FamilyName), ignoreCase));
         builder.and(QueryBuilder.wildCard(givenName,
-                pn.get(group, PersonName.Component.GivenName), false, ignoreCase));
+                pn.get(group, PersonName.Component.GivenName), ignoreCase));
         builder.and(QueryBuilder.wildCard(middleName,
-                pn.get(group, PersonName.Component.MiddleName), false, ignoreCase));
+                pn.get(group, PersonName.Component.MiddleName), ignoreCase));
         return builder;
     }
 

@@ -54,6 +54,7 @@ import java.util.Date;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Michael Backhaus <michael.backhaus@agfa.com>
  * @author Hesham Elbadawi <bsdreko@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
 class MatchDateTimeRange {
     
@@ -80,44 +81,35 @@ class MatchDateTimeRange {
     }
 
     static Predicate rangeMatch(StringPath path,
-            Attributes keys, int tag, FormatDate dt,
-            boolean matchUnknown) {
+            Attributes keys, int tag, FormatDate dt) {
         DateRange dateRange = keys.getDateRange(tag, null);
         if (dateRange == null)
             return null;
-        
-        return matchUnknown(path, matchUnknown, range(path, dateRange, dt));
+
+        return ExpressionUtils.and(range(path, dateRange, dt), path.ne("*"));
     }
 
-    static Predicate rangeMatch(StringPath dateField, StringPath timeField, 
-            int dateTag, int timeTag, long dateAndTimeTag, 
-            Attributes keys, boolean combinedDatetimeMatching, boolean matchUnknown) {
+    static Predicate rangeMatch(StringPath dateField, StringPath timeField,
+            int dateTag, int timeTag, long dateAndTimeTag,
+            Attributes keys, boolean combinedDatetimeMatching) {
         final boolean containsDateTag = keys.containsValue(dateTag);
         final boolean containsTimeTag = keys.containsValue(timeTag);
         if (!containsDateTag && !containsTimeTag)
             return null;
-        
+
         BooleanBuilder predicates = new BooleanBuilder();
         if (containsDateTag && containsTimeTag && combinedDatetimeMatching) {
-            predicates.and(matchUnknown(dateField, matchUnknown,
-                    combinedRange(dateField, timeField, keys.getDateRange(dateAndTimeTag, null))));
-        } else { 
+            predicates.and(ExpressionUtils.and(combinedRange(
+                    dateField, timeField, keys.getDateRange(dateAndTimeTag, null)), dateField.ne("*")));
+        } else {
             if (containsDateTag)
-                predicates.and(matchUnknown(dateField, matchUnknown, 
-                        range(dateField, keys.getDateRange(dateTag, null), FormatDate.DA)));
+                predicates.and(ExpressionUtils.and(range(dateField, keys.getDateRange(dateTag, null), FormatDate.DA),
+                        dateField.ne("*")));
             if (containsTimeTag)
-            	predicates.and(matchUnknown(timeField, matchUnknown, 
-                        range(timeField, keys.getDateRange(timeTag, null), FormatDate.TM)));
-            
+                predicates.and(ExpressionUtils.and(range(timeField, keys.getDateRange(timeTag, null), FormatDate.TM),
+                        timeField.ne("*")));
         }
         return predicates;
-    }
-
-	private static Predicate matchUnknown(StringPath field, boolean matchUnknown, 
-            Predicate predicate) {
-        return matchUnknown 
-            ? ExpressionUtils.or(predicate, field.eq("*"))
-            : ExpressionUtils.and(predicate, field.ne("*"));
     }
 
     private static Predicate range(StringPath field, DateRange range, FormatDate dt) {

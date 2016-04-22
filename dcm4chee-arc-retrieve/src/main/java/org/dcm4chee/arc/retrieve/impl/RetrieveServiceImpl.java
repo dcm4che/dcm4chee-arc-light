@@ -85,6 +85,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 @ApplicationScoped
@@ -332,15 +333,15 @@ public class RetrieveServiceImpl implements RetrieveService {
         IDWithIssuer[] pids = ctx.getPatientIDs();
         if (pids.length > 0) {
             query = query.join(QStudy.study.patient, QPatient.patient);
-            query = QueryBuilder.applyPatientIDJoins(query, pids, false);
+            query = QueryBuilder.applyPatientIDJoins(query, pids);
         }
 
         BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QueryBuilder.patientIDPredicate(pids, false));
+        predicate.and(QueryBuilder.patientIDPredicate(pids));
         predicate.and(QueryBuilder.accessControl(ctx.getAccessControlIDs()));
-        predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs(), false));
-        predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs(), false));
-        predicate.and(QueryBuilder.uidsPredicate(QInstance.instance.sopInstanceUID, ctx.getSopInstanceUIDs(), false));
+        predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs()));
+        predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs()));
+        predicate.and(QueryBuilder.uidsPredicate(QInstance.instance.sopInstanceUID, ctx.getSopInstanceUIDs()));
         predicate.and(QueryBuilder.hideRejectedInstance(ctx.getShowInstancesRejectedByCode(),
                 ctx.isHideNotRejectedInstances()));
         predicate.and(QueryBuilder.hideRejectionNode(ctx.getHideRejectionNotesWithCode()));
