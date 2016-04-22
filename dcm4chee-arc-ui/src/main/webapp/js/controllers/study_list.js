@@ -425,7 +425,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 '<div class="checkbox">'+
                     '<label>'+
                         '<input type="checkbox" name="keepRejectionNote" ng-model="keepRejectionNote" />'+
-                        'if checked, keep rejection note instances - only delete rejected instances; don\'t check if absent'+
+                        'if checked, keep rejection note instances - only delete rejected instances'+
                     '</label>'+
                 '</div>'+
                 '')($scope);
