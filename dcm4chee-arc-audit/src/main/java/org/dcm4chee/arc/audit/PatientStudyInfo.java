@@ -77,7 +77,7 @@ class PatientStudyInfo {
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
                 ctx.getAttributes().getString(Tag.PatientID, AuditServiceUtils.noValue),
-                ctx.getAttributes().getString(Tag.PatientName),
+                StringUtils.maskEmpty(ctx.getAttributes().getString(Tag.PatientName), null),
                 null != ctx.getRejectionNote() ? null != ctx.getException()
                     ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
                     : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
@@ -97,7 +97,7 @@ class PatientStudyInfo {
                 ctx.getStudyInstanceUIDs()[0],
                 attrs.getString(Tag.AccessionNumber),
                 attrs.getString(Tag.PatientID, AuditServiceUtils.noValue),
-                attrs.getString(Tag.PatientName),
+                StringUtils.maskEmpty(attrs.getString(Tag.PatientName), null),
                 null != ctx.getException() ? ctx.getException().getMessage(): null,
                 attrs.getString(Tag.StudyDate)
         };

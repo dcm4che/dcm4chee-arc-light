@@ -86,8 +86,8 @@ class HL7Info {
                 hl7i.destUserID,
                 hl7i.podType,
                 hl7i.podValue,
-                id.getID(),
-                attrs.getString(Tag.PatientName),
+                id != null && id.getID() != null ? id.getID() : AuditServiceUtils.noValue,
+                StringUtils.maskEmpty(attrs.getString(Tag.PatientName), null),
                 hl7i.outcome
         };
     }
