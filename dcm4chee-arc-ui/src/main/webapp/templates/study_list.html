@@ -11,15 +11,25 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <input id="PatientName" type="text" ng-model="filter.PatientName" placeholder=" Patient Name" class="col-md-12" />
+                <input id="PatientName" type="text" ng-model="filter.PatientName" placeholder="Patient name" title="Patient name" class="col-md-12" />
             </div>
             <div class="col-md-6">
-                <input id="PatientID" type="text" ng-model="filter.PatientID" placeholder=" Patient ID" class="col-md-12" />
+                <label>
+                    <input type="checkbox" ng-model="filter.fuzzymatching"> Fuzzy Matching
+                </label>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder=" Accession Number" class="col-md-12" />
+                <input id="PatientID" type="text" ng-model="filter.PatientID" placeholder="Patient ID" title="Patient ID" class="col-md-12" />
+            </div>
+            <div class="col-md-6">
+                <input id="IssuerOfPatientID" type="text" ng-model="filter.IssuerOfPatientID" placeholder="Issuer of patient ID" title="Issuer of patient ID" class="col-md-12" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder="Accession number" title="Accession number" class="col-md-12" />
             </div>
             <div class="col-md-6">
                 <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)" />
@@ -52,7 +62,7 @@
             <div class="block_seid">
                 <input 
                     class="col-md-12"
-                    placeholder=" Study date from" 
+                    placeholder="Study date from" 
                     ng-change="studyDateFromChange()"
                     ng-click="studyDateFromOpen()" 
                     id="StudyDateFrom" 
@@ -97,6 +107,12 @@
                     data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
             </div>
         </div>
+        <div class="row">
+            <label for="limit" class="block_seid text-right">Page Size:</label>
+            <div class="block_seid">
+                <input class="col-md-12" id="limit" type="number" min="1" ng-model="limit" required/>
+            </div>
+        </div>
     </div>
     <a class="clearform_button" title="Clear filters" href="" ng-click="clearForm()">
         <span class="glyphicon glyphicon-remove"></span>
@@ -118,7 +134,7 @@
         </div> -->
         <div class="row">
             <div class="col-md-6 col-md-offset-6">
-                <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder=" Study ID" class="col-md-12" />
+                <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder="Study ID" title="Study ID" class="col-md-12" />
             </div>
         </div>    
 <!--         <div class="row">
@@ -128,7 +144,7 @@
         </div> -->
         <div class="row">
             <div class="col-md-6 col-md-offset-6">
-                <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder=" Study Description" class="col-md-12" />
+                <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder="Study description" title="Study description" class="col-md-12" />
             </div>
         </div>
 <!--         <div class="row">
@@ -138,7 +154,7 @@
         </div> -->
         <div class="row">
             <div class="col-md-6 col-md-offset-6">
-                <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder=" SOP Classes in Study" class="col-md-12" />
+                <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12" />
             </div>
         </div>
 <!--         <div class="row">
@@ -148,7 +164,7 @@
         </div> -->
         <div class="row">
             <div class="col-md-6 col-md-offset-6">
-                <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder=" Study Instance UID" class="col-md-12" />
+                <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12" />
             </div>
         </div>
 <!--         <div class="row">
@@ -158,7 +174,7 @@
         </div> -->
         <div class="row">
             <div class="col-md-6 col-md-offset-6">
-                <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder=" Referring Physician Name" class="col-md-12" />
+                <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
             </div>
         </div>
 <!--         <div class="row">
@@ -168,14 +184,10 @@
         </div> -->
         <div class="row">
             <div class="col-md-6 col-md-offset-6">
-                <input id="LocalNamespaceEntityID" type="text" ng-model="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder=" Issuer Accession Number" class="col-md-12" />
+                <input id="LocalNamespaceEntityID" type="text" ng-model="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder="Issuer of accession number" title="Issuer of accession number" class="col-md-12"  />
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-6">
-                <input id="IssuerOfPatientID" type="text" ng-model="filter.IssuerOfPatientID" placeholder=" Issuer of Patient ID" class="col-md-12" />
-            </div>
-        </div>
+
     </div>
     <div class="col-md-3 block-2-2">
         <div class="row" ng-show="isRole('admin')">
@@ -196,11 +208,11 @@
                 <input class="col-md-12" id="limit" type="number" min="1" ng-model="limit" required/>
             </div>
         </div>
-        <div class="row">
+<!--         <div class="row">
             <div class="col-md-5 col-md-offset-6">
                 <input type="checkbox" ng-model="filter.fuzzymatching"> Fuzzy Matching
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 <!-- Table -->
@@ -443,7 +455,7 @@
                     </div><!--  -->
                 </div>
                 </div>
-            </div>
+            </div>i
 
         </div>
     </div>

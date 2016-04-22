@@ -125,7 +125,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         cfpLoadingBar.start();
         $scope.studyDateFrom.opened = true;
         var watchPicker = setInterval(function(){ 
-            if(angular.element(".uib-datepicker-popup .uib-close").lengt > 0){
+                                //uib-datepicker-popup uib-close
+            if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
+                console.log("in if");
                 clearInterval(watchPicker);
                 cfpLoadingBar.complete();
 
