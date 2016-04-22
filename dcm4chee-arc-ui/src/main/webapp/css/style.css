@@ -749,9 +749,6 @@ table.subtable_1, table.subtable_2 {
   .block-1-1 label, .block-1-1 input, .block-1-2 label, .block-1-2 input, .block-2-1 label, .block-2-1 input, .block-2-2 label, .block-2-2 input {
     margin-top: 5px; }
 
-.block-2-1, .block-2-2 {
-  height: 121px; }
-
 .block-1-2 .block_seid {
   width: 49%;
   float: left;
@@ -859,5 +856,13 @@ table.subtable_1, table.subtable_2 {
 .execute {
   float: left;
   height: 100%; }
+
+.vex.vex-theme-os.deleterejectedinstances .vex-content {
+  width: 530px; }
+  .vex.vex-theme-os.deleterejectedinstances .vex-content .vex-dialog-form {
+    padding: 10px 5px; }
+    .vex.vex-theme-os.deleterejectedinstances .vex-content .vex-dialog-form .vex-dialog-message {
+      font-size: 23px;
+      margin-bottom: 35px; }
 
 /*# sourceMappingURL=style.css.map */

@@ -86,6 +86,26 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
                 studyDate.to      = "";
             }
             cfpLoadingBar.complete();
+        },getParams : function($scope){
+            var params = {};
+            if($scope.rejectedBefore.date){
+                var rejecteBeforeTimestamps     = Date.parse($scope.rejectedBefore.date);
+                var rejecteBeforeDate           = new Date(rejecteBeforeTimestamps);
+                var yyyy                        = rejecteBeforeDate.getFullYear();
+                var MM                          = rejecteBeforeDate.getMonth()+1;
+                var dd                          = rejecteBeforeDate.getDate();
+                if(MM<10){
+                    MM = '0'+MM;
+                }
+                if(dd<10){
+                    dd = '0'+dd;
+                }
+                params["rejectedBefore"]        = yyyy+"-"+MM+"-"+dd;
+            }
+            if($scope.keepRejectionNote === true){
+                params["keepRejectionNote"]     = true;
+            }
+            return params;
         }
     };
 });

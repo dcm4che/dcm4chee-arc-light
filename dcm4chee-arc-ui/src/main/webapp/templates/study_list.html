@@ -22,7 +22,7 @@
                 <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder=" Accession Number" class="col-md-12" />
             </div>
             <div class="col-md-6">
-                <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" />
+                <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)" />
                 <div class="modality_selector ng-hide" ng-show="showModalitySelector">
                     <a href="" ng-click="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                     <div class="common">
@@ -107,6 +107,7 @@
 <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
 <div class="row ng-hide" ng-show="advancedConfig">
     <div class="col-md-3 block-2-1">
+
 <!--         <div class="row">
             <label for="exporter" class="col-md-6 text-right">Export:</label>
             <div class="col-md-6">
@@ -118,6 +119,61 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-6">
                 <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder=" Study ID" class="col-md-12" />
+            </div>
+        </div>    
+<!--         <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="SeriesDescription" type="text" ng-model="filter.SeriesDescription" placeholder=" Series Description" class="col-md-12" />
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder=" Study Description" class="col-md-12" />
+            </div>
+        </div>
+<!--         <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="BodyPartExamined" type="text" ng-model="filter.BodyPartExamined" placeholder=" Body Part" class="col-md-12" />
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder=" SOP Classes in Study" class="col-md-12" />
+            </div>
+        </div>
+<!--         <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="InstitutionName" type="text" ng-model="filter.InstitutionName" placeholder=" Institution Name" class="col-md-12" />
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder=" Study Instance UID" class="col-md-12" />
+            </div>
+        </div>
+<!--         <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="SeriesInstanceUID" type="text" ng-model="filter.SeriesInstanceUID" placeholder=" Series Instance UID" class="col-md-12" />
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder=" Referring Physician Name" class="col-md-12" />
+            </div>
+        </div>
+<!--         <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="objectUID" type="text" ng-model="filter.ObjectUID" placeholder=" Object UID" class="col-md-12" />
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="LocalNamespaceEntityID" type="text" ng-model="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder=" Issuer Accession Number" class="col-md-12" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+                <input id="IssuerOfPatientID" type="text" ng-model="filter.IssuerOfPatientID" placeholder=" Issuer of Patient ID" class="col-md-12" />
             </div>
         </div>
     </div>

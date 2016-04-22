@@ -975,7 +975,7 @@ table{
     }
 }
 .block-2-1,.block-2-2{
-	height:121px;
+	// height:121px;
 }
 .block-1-2{
 	.block_seid{
@@ -1113,4 +1113,23 @@ table{
 .execute{
 	float:left;
 	height:100%;
+}
+.vex.vex-theme-os.deleterejectedinstances{
+	.vex-content{
+		width: 530px;
+		.vex-dialog-form{
+			padding: 10px 5px;
+			.vex-dialog-message{
+				font-size: 23px;
+			    margin-bottom: 35px;
+			}
+			.vex-dialog-input{
+				.form-group{
+					label{
+						// font-weight: normal;
+					}
+				}
+			}
+		}
+	}
 }

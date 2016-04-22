@@ -548,7 +548,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   DeviceService.saveWithChangedName($scope);
 
                 }else{
-                  $log.debug("before save");
+                  // $log.debug("before save");
                     DeviceService.save($scope);
                 }
             });

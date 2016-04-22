@@ -11,6 +11,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.exporters;
     $scope.exporterID = null;
     $scope.rjnotes;
+    $scope.keepRejectionNote = false;
     $scope.rjnote = null;
     $scope.advancedConfig = false;
     $scope.showModalitySelector = false;
@@ -19,7 +20,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     // $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
     $scope.format = "yyyyMMdd";
+    $scope.format2 = "yyyy-MM-dd";
     $scope.modalities = $modalities;
+    
             // console.log("studies=",$scope.studies);
     $scope.rjcode = null;
     $scope.setTrash = function(ae){
@@ -63,11 +66,19 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.filter.ModalitiesInStudy =key;
         $scope.showModalitySelector=false;
     }
+    $scope.checkKeyModality = function(keyEvent) {
+        if (keyEvent.which === 13){
+            $scope.showModalitySelector=false;
+        }
+    }
     $scope.studyDateFrom = {
         opened: false
     };
     $scope.studyDateTo = {
         opened: false
+    };
+    $scope.rejectedBefore = {
+        opened:false
     };
     $scope.toggleAttributs = function(instance,art){
         if(art==="fileattributs"){
@@ -119,7 +130,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 cfpLoadingBar.complete();
 
             }
-        }, 100);
+        }, 10);
     };
     $scope.studyDateToOpen = function() {
         cfpLoadingBar.start();
@@ -128,9 +139,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
                 clearInterval(watchPicker);
                 cfpLoadingBar.complete();
-
             }
-        }, 100);
+        }, 10);
     };
     $scope.clockpicker = {
           twelvehour: false,
@@ -389,10 +399,38 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             });
         }
     };
+    $scope.rejectedBeforeOpen = function(){
+        cfpLoadingBar.start();
+        $scope.rejectedBefore.opened = true;
+        $scope.studyDateTo.opened = true;
+        var watchPicker = setInterval(function(){ 
+            if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
+                clearInterval(watchPicker);
+                cfpLoadingBar.complete();
+            }
+        }, 10);
+    }
     $scope.deleteRejectedInstances = function() {
-            var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
+            var html = $compile(
+                '<div class="form-group">'+
+                    '<label>Delete instances with rejected type</label>'+
+                    '<select id="reject" ng-model="reject" name="reject" class="form-control">'+
+                        '<option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>'+
+                    '</select>'+
+                '</div>'+
+                '<div class="form-group">'+
+                    '<label>Maximum reject date of instances to delete</label>'+
+                    '<input class="form-control" ng-click="rejectedBeforeOpen()" placeholder="Delete all instances before this date" is-open="rejectedBefore.opened" id="rejectedBefore" title="Delete all instances before this date" type="text" uib-datepicker-popup="{{format2}}" ng-model="rejectedBefore.date" close-text="Close"/>'+
+                '</div>'+
+                '<div class="checkbox">'+
+                    '<label>'+
+                        '<input type="checkbox" name="keepRejectionNote" ng-model="keepRejectionNote" />'+
+                        'if checked, keep rejection note instances - only delete rejected instances; don\'t check if absent'+
+                    '</label>'+
+                '</div>'+
+                '')($scope);
             vex.dialog.open({
-              message: 'Select rejected type to delete all instances with that type that are in trash!',
+              message: 'Delete instances that are in trash',
               input: html,
               className:"vex-theme-os deleterejectedinstances",
               buttons: [
@@ -404,10 +442,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 })
               ],
               callback: function(data) {
+                cfpLoadingBar.start();
                 if (data === false) {
+                  cfpLoadingBar.complete();
                   return console.log('Cancelled');
                 }else{
-                    $http.delete('../reject/' + $scope.reject).then(function (res) {
+                    $http.delete('../reject/' + $scope.reject,{params: StudiesService.getParams($scope)}).then(function (res) {
+                        cfpLoadingBar.complete();
                     });
                 }
               }
