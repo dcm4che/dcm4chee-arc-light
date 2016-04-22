@@ -983,9 +983,9 @@ class ArchiveDeviceFactory {
         ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
         ext.setStowSpoolDirectory(STOW_SPOOL_DIR);
 
-        ext.setAttributeFilter(Entity.Patient, new AttributeFilter(PATIENT_ATTRS));
-        ext.setAttributeFilter(Entity.Study, new AttributeFilter(STUDY_ATTRS));
-        ext.setAttributeFilter(Entity.Series, new AttributeFilter(SERIES_ATTRS));
+        ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, AttributeUpdate.SUPPLEMENT));
+        ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, AttributeUpdate.OVERWRITE));
+        ext.setAttributeFilter(Entity.Series, newAttributeFilter(SERIES_ATTRS, AttributeUpdate.OVERWRITE));
         ext.setAttributeFilter(Entity.Instance, new AttributeFilter(INSTANCE_ATTRS));
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
 
@@ -1073,6 +1073,12 @@ class ArchiveDeviceFactory {
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, configType));
         }
+    }
+
+    private static AttributeFilter newAttributeFilter(int[] patientAttrs, AttributeUpdate attrUpdate) {
+        AttributeFilter filter = new AttributeFilter(patientAttrs);
+        filter.setAttributeUpdate(attrUpdate);
+        return filter;
     }
 
     private static RejectionNote createRejectionNote(String rejectionNoteLabel, Code rejectionNoteCode,
