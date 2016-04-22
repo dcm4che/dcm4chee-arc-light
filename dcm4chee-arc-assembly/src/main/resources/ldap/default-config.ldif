@@ -227,6 +227,7 @@ objectClass: dcmImageWriter
 dcmImageWriteParam: writeCodeStreamOnly=true
 
 dn: dcmEntity=Patient,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeUpdate: SUPPLEMENT
 dcmTag: 00080005
 dcmTag: 00100010
 dcmTag: 00100020
@@ -292,6 +293,7 @@ dcmEntity: Patient
 objectClass: dcmAttributeFilter
 
 dn: dcmEntity=Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeUpdate: OVERWRITE
 dcmTag: 00080005
 dcmTag: 00080020
 dcmTag: 00080030
@@ -313,6 +315,7 @@ dcmEntity: Study
 objectClass: dcmAttributeFilter
 
 dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeUpdate: OVERWRITE
 dcmTag: 00080005
 dcmTag: 00080060
 dcmTag: 00080070

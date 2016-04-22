@@ -308,7 +308,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.61 NAME 'dcmStoreAccessControlID'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.62 NAME 'dcmAccessControlID'
-  DESC 'AccessContolIDs assigned to Query/Retrieve requests received by this AE'
+  DESC 'AccessControlIDs assigned to Query/Retrieve requests received by this AE'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.63 NAME 'dcmAuditSpoolDirectory'
@@ -384,6 +384,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.77 NAME 'dcmPurgeQueueMessageFetchSi
   DESC 'Number of queue messages to be purged; 100 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE)
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdate'
+  DESC 'Action taken on updation of attributes on Series, Study & Patient level on receive of further instance of entity. If absent, there is no action'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE)
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -468,7 +473,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   MAY (
     dcmCustomAttribute1 $
     dcmCustomAttribute2 $
-    dcmCustomAttribute3 ) )
+    dcmCustomAttribute3 $
+    dcmAttributeUpdate) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
   DESC 'DICOM Archive HL7 Application related information'
   SUP top AUXILIARY
