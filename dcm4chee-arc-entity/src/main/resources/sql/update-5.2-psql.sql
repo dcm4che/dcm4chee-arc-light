@@ -21,7 +21,7 @@ create index UK_fypbtohf5skbd3bkyd792a6dt on study (storage_ids);
 alter table series add rejection_state int4;
 update series set rejection_state = 1;
 update series set rejection_state = 0 where not exists (
-  select 1 from instance where series.pk = instance.series_fk and instance.reject_code_fk is not null)
+  select 1 from instance where series.pk = instance.series_fk and instance.reject_code_fk is not null);
 update series set rejection_state = 2 where rejection_state = 1 and not exists (
   select 1 from instance where series.pk = instance.series_fk and instance.reject_code_fk is null);
 alter table series alter rejection_state set not null;
