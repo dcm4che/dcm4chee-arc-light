@@ -265,6 +265,7 @@ public class QueryBuilder {
             builder.and(idWithIssuer(QStudy.study.accessionNumber, QStudy.study.issuerOfAccessionNumber, accNo, issuer));
         }
         builder.and(modalitiesInStudy(keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase()));
+        builder.and(sopClassInStudy(keys.getString(Tag.SOPClassesInStudy, "*")));
         builder.and(code(QStudy.study.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence)));
         builder.and(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances.isNull()
                 .or(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances.ne(0)));
@@ -511,6 +512,17 @@ public class QueryBuilder {
         return JPAExpressions.selectFrom(QSeries.series)
                 .where(QSeries.series.study.eq(QStudy.study),
                         wildCard(QSeries.series.modality, modality,
+                                false)).exists();
+    }
+
+    static Predicate sopClassInStudy(String sopClass) {
+        if (sopClass.equals("*"))
+            return null;
+
+        return JPAExpressions.selectFrom(QInstance.instance)
+                .join(QInstance.instance.series, QSeries.series)
+                .where(QSeries.series.study.eq(QStudy.study),
+                        wildCard(QInstance.instance.sopClassUID, sopClass,
                                 false)).exists();
     }
 
