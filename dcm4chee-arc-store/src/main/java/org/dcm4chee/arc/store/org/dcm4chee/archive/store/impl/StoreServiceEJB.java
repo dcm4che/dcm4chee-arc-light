@@ -45,7 +45,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.code.CodeService;
+import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -92,7 +92,7 @@ public class StoreServiceEJB {
     private EntityManager em;
 
     @Inject
-    private CodeService codeService;
+    private CodeCache codeCache;
 
     @Inject
     private IssuerService issuerService;
@@ -160,7 +160,7 @@ public class StoreServiceEJB {
             if (rjNote != null) {
                 result.setRejectionNote(rjNote);
                 boolean revokeRejection = rjNote.isRevokeRejection();
-                rejectInstances(ctx, rjNote, revokeRejection ? null : conceptNameCode);
+                rejectInstances(ctx, rjNote, conceptNameCode);
                 if (revokeRejection)
                     return result;
             }
@@ -176,21 +176,56 @@ public class StoreServiceEJB {
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode)
             throws DicomServiceException {
         for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
-            Instance inst = null;
+            Series series = null;
             String studyUID = studyRef.getString(Tag.StudyInstanceUID);
             for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
+                Instance inst = null;
                 String seriesUID = seriesRef.getString(Tag.SeriesInstanceUID);
                 for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
                     String classUID = sopRef.getString(Tag.ReferencedSOPClassUID);
                     String objectUID = sopRef.getString(Tag.ReferencedSOPInstanceUID);
                     inst = rejectInstance(ctx, studyUID, seriesUID, objectUID, classUID, rjNote, rejectionCode);
                 }
-                if (inst != null)
-                    deleteSeriesQueryAttributes(inst.getSeries());
+                if (inst != null) {
+                    series = inst.getSeries();
+                    series.setRejectionState(rjNote.isRevokeRejection()
+                        ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
+                        : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE);
+                    deleteSeriesQueryAttributes(series);
+                }
             }
-            if (inst != null)
-                deleteStudyQueryAttributes(inst.getSeries().getStudy());
+            if (series != null) {
+                Study study = series.getStudy();
+                study.setRejectionState(rjNote.isRevokeRejection()
+                        ? hasRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.NONE
+                        : hasNotRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.COMPLETE);
+                deleteStudyQueryAttributes(study);
+            }
         }
+    }
+
+    private boolean hasRejectedInstances(Series series) {
+        return em.createNamedQuery(Instance.COUNT_REJECTED_INSTANCES_OF_SERIES, Long.class)
+                .setParameter(1, series)
+                .getSingleResult() > 0;
+    }
+
+    private boolean hasNotRejectedInstances(Series series) {
+        return em.createNamedQuery(Instance.COUNT_NOT_REJECTED_INSTANCES_OF_SERIES, Long.class)
+                .setParameter(1, series)
+                .getSingleResult() > 0;
+    }
+
+    private boolean hasRejectedInstances(Study study) {
+        return em.createNamedQuery(Instance.COUNT_REJECTED_INSTANCES_OF_STUDY, Long.class)
+                .setParameter(1, study)
+                .getSingleResult() > 0;
+    }
+
+    private boolean hasNotRejectedInstances(Study study) {
+        return em.createNamedQuery(Instance.COUNT_NOT_REJECTED_INSTANCES_OF_STUDY, Long.class)
+                .setParameter(1, study)
+                .getSingleResult() > 0;
     }
 
     private Instance rejectInstance(StoreContext ctx, String studyUID, String seriesUID,
@@ -205,14 +240,14 @@ public class StoreServiceEJB {
                     "Failed to reject Instance[uid=" + objectUID + "] - class-instance conflict");
         CodeEntity prevRjNoteCode = inst.getRejectionNoteCode();
         if (prevRjNoteCode != null) {
-            if (rejectionCode != null && rejectionCode.getPk() == prevRjNoteCode.getPk())
+            if (!rjNote.isRevokeRejection() && rejectionCode.getPk() == prevRjNoteCode.getPk())
                 return inst;
             if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
                 throw new DicomServiceException(REJECTION_FAILED_ALREADY_REJECTED,
                         "Failed to reject Instance[uid=" + objectUID + "] - already rejected");
         }
-        inst.setRejectionNoteCode(rejectionCode);
-        if (rejectionCode != null)
+        inst.setRejectionNoteCode(rjNote.isRevokeRejection() ? null : rejectionCode);
+        if (!rjNote.isRevokeRejection())
             LOG.info("{}: Reject {} by {}", ctx.getStoreSession(), inst, rejectionCode.getCode());
         else if (prevRjNoteCode != null)
             LOG.info("{}: Revoke Rejection of {} by {}", ctx.getStoreSession(), inst, prevRjNoteCode.getCode());
@@ -321,9 +356,9 @@ public class StoreServiceEJB {
     }
 
     private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result) {
-        Series series = findSeries(ctx);
+        Series series = findSeries(ctx, result);
         if (series == null) {
-            Study study = findStudy(ctx);
+            Study study = findStudy(ctx, result);
             if (study == null) {
                 StoreSession session = ctx.getStoreSession();
                 HttpServletRequest httpRequest = session.getHttpRequest();
@@ -345,7 +380,7 @@ public class StoreServiceEJB {
     }
 
 
-    private Study findStudy(StoreContext ctx) {
+    private Study findStudy(StoreContext ctx, UpdateDBResult result) {
         StoreSession storeSession = ctx.getStoreSession();
         Study study = storeSession.getCachedStudy(ctx.getStudyInstanceUID());
         if (study == null)
@@ -354,6 +389,8 @@ public class StoreServiceEJB {
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
                 updateStorageIDs(study, storeSession.getArchiveAEExtension().getStorageID());
+                if (result.getRejectionNote() == null)
+                    updateStudyRejectionState(ctx, study);
             } catch (NoResultException e) {}
         return study;
     }
@@ -367,18 +404,33 @@ public class StoreServiceEJB {
         study.setStorageIDs(prevStorageIDs + '\\' + storageID);
     }
 
-    private Series findSeries(StoreContext ctx) {
+    private void updateStudyRejectionState(StoreContext ctx, Study study) {
+        if (study.getRejectionState() == RejectionState.COMPLETE) {
+            study.setRejectionState(RejectionState.PARTIAL);
+            setStudyAttributes(ctx, study);
+        }
+    }
+
+    private Series findSeries(StoreContext ctx, UpdateDBResult result) {
         StoreSession storeSession = ctx.getStoreSession();
         Series series = storeSession.getCachedSeries(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID());
-        if (series != null)
-            return series;
-        try {
-            return em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
-                    .setParameter(1, ctx.getStudyInstanceUID())
-                    .setParameter(2, ctx.getSeriesInstanceUID())
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+        if (series == null)
+            try {
+                series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
+                        .setParameter(1, ctx.getStudyInstanceUID())
+                        .setParameter(2, ctx.getSeriesInstanceUID())
+                        .getSingleResult();
+                if (result.getRejectionNote() == null)
+                    updateSeriesRejectionState(ctx, series);
+            } catch (NoResultException e) {}
+        return series;
+    }
+
+    private void updateSeriesRejectionState(StoreContext ctx, Series series) {
+        if (series.getRejectionState() == RejectionState.COMPLETE) {
+            series.setRejectionState(RejectionState.PARTIAL);
+            setSeriesAttributes(ctx, series);
+            updateStudyRejectionState(ctx, series.getStudy());
         }
     }
 
@@ -420,35 +472,45 @@ public class StoreServiceEJB {
     private Study createStudy(StoreContext ctx, Patient patient) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
-        Attributes attrs = ctx.getAttributes();
         Study study = new Study();
-        study.setAccessControlID(arcAE.getStoreAccessControlID());
         study.setStorageIDs(arcAE.storageID());
-        study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), fuzzyStr);
-        study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
-        setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
+        study.setRejectionState(RejectionState.NONE);
+        setStudyAttributes(ctx, study);
         study.setPatient(patient);
         em.persist(study);
         LOG.info("{}: Create {}", ctx.getStoreSession(), study);
         return study;
     }
 
-    private Series createSeries(StoreContext ctx, Study study) {
-        StoreSession session = ctx.getStoreSession();
-        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
-        FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
+    private void setStudyAttributes(StoreContext ctx, Study study) {
+        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
+        study.setAccessControlID(arcAE.getStoreAccessControlID());
+        study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
+        study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
+        setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
+    }
+
+    private Series createSeries(StoreContext ctx, Study study) {
         Series series = new Series();
-        series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr);
-        series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
-        setRequestAttributes(series, attrs, fuzzyStr);
-        series.setSourceAET(session.getCallingAET());
+        series.setRejectionState(ctx.getRejectionNote() == null ? RejectionState.NONE : RejectionState.COMPLETE);
+        setSeriesAttributes(ctx, series);
         series.setStudy(study);
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
+    }
+
+    private void setSeriesAttributes(StoreContext ctx, Series series) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
+        FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
+        Attributes attrs = ctx.getAttributes();
+        series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr);
+        series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
+        setRequestAttributes(series, attrs, fuzzyStr);
+        series.setSourceAET(session.getCallingAET());
     }
 
     private Instance createInstance(StoreContext ctx, Series series, CodeEntity conceptNameCode) {
@@ -551,7 +613,7 @@ public class StoreServiceEJB {
         Attributes item = attrs.getNestedDataset(seqTag);
         if (item != null)
             try {
-                return codeService.findOrCreate(new Code(item));
+                return codeCache.findOrCreate(new Code(item));
             } catch (Exception e) {
                 LOG.info("Illegal code item in Sequence {}:\n{}", TagUtils.toString(seqTag), item);
             }
@@ -564,7 +626,7 @@ public class StoreServiceEJB {
         if (seq != null)
             for (Attributes item : seq) {
                 try {
-                    codes.add(codeService.findOrCreate(new Code(item)));
+                    codes.add(codeCache.findOrCreate(new Code(item)));
                 } catch (Exception e) {
                     LOG.info("Illegal code item in Sequence {}:\n{}", TagUtils.toString(seqTag), item);
                 }

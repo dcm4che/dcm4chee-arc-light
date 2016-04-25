@@ -102,6 +102,7 @@ import java.util.Date;
     indexes = {
         @Index(columnList = "access_time"),
         @Index(columnList = "access_control_id"),
+        @Index(columnList = "rejection_state"),
         @Index(columnList = "storage_ids"),
         @Index(columnList = "study_date"),
         @Index(columnList = "study_time"),
@@ -196,6 +197,10 @@ public class Study {
     @Basic(optional = false)
     @Column(name = "access_control_id")
     private String accessControlID = "*";
+
+    @Basic(optional = false)
+    @Column(name = "rejection_state")
+    private RejectionState rejectionState;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -337,6 +342,14 @@ public class Study {
         this.accessControlID = StringUtils.maskNull(accessControlID, "*");
     }
 
+    public RejectionState getRejectionState() {
+        return rejectionState;
+    }
+
+    public void setRejectionState(RejectionState rejectionState) {
+        this.rejectionState = rejectionState;
+    }
+
     public Collection<CodeEntity> getProcedureCodes() {
         if (procedureCodes == null)
             procedureCodes = new ArrayList<>();
@@ -383,6 +396,4 @@ public class Study {
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
     }
 
-    public class COUNT_STUDIES_OF_PATIENT {
-    }
 }

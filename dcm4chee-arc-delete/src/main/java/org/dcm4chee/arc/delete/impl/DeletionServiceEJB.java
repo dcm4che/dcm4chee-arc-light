@@ -65,7 +65,7 @@ public class DeletionServiceEJB {
     private EntityManager em;
 
     @Inject
-    private CodeCache codeCahe;
+    private CodeCache codeCache;
 
     public List<Location> findLocationsToDelete(String storageID, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
@@ -102,7 +102,7 @@ public class DeletionServiceEJB {
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
             String queryName, Code rejectionCode, Date before, int limit) {
-        CodeEntity codeEntity = codeCahe.findOrCreate(rejectionCode);
+        CodeEntity codeEntity = codeCache.findOrCreate(rejectionCode);
         TypedQuery<Location> query = em.createNamedQuery(queryName, Location.class).setParameter(1, codeEntity);
         if (before != null)
             query.setParameter(2, before);

@@ -42,12 +42,11 @@ package org.dcm4chee.arc.mpps.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.BasicMPPSSCP;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.code.CodeService;
+import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
@@ -80,7 +79,7 @@ public class MPPSServiceEJB {
     private PatientService patientService;
 
     @Inject
-    private CodeService codeService;
+    private CodeCache codeCache;
 
     @Inject
     private IssuerService issuerService;
@@ -132,6 +131,6 @@ public class MPPSServiceEJB {
 
     private CodeEntity discontinuationReasonCodeOf(Attributes attrs) {
         Attributes item = attrs.getNestedDataset(Tag.ProcedureStepDiscontinuationReasonCodeSequence);
-        return item != null ? codeService.findOrCreate(new Code(item)) : null;
+        return item != null ? codeCache.findOrCreate(new Code(item)) : null;
     }
 }

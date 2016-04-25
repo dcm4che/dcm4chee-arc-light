@@ -86,6 +86,7 @@ import java.util.Date;
 @Table(name = "series",
     uniqueConstraints = @UniqueConstraint(columnNames = { "study_fk", "series_iuid" }),
     indexes = {
+        @Index(columnList = "rejection_state"),
         @Index(columnList = "series_no"),
         @Index(columnList = "modality"),
         @Index(columnList = "station_name"),
@@ -191,6 +192,10 @@ public class Series {
 
     @Column(name = "src_aet")
     private String sourceAET;
+
+    @Basic(optional = false)
+    @Column(name = "rejection_state")
+    private RejectionState rejectionState;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -322,6 +327,14 @@ public class Series {
 
     public void setSourceAET(String sourceAET) {
         this.sourceAET = sourceAET;
+    }
+
+    public RejectionState getRejectionState() {
+        return rejectionState;
+    }
+
+    public void setRejectionState(RejectionState rejectionState) {
+        this.rejectionState = rejectionState;
     }
 
     public CodeEntity getInstitutionCode() {

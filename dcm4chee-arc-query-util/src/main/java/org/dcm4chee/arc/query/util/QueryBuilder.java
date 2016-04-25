@@ -267,8 +267,8 @@ public class QueryBuilder {
         builder.and(modalitiesInStudy(keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase()));
         builder.and(sopClassInStudy(keys.getString(Tag.SOPClassesInStudy, "*")));
         builder.and(code(QStudy.study.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence)));
-        builder.and(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances.isNull()
-                .or(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances.ne(0)));
+        if (queryParam.isHideNotRejectedInstances())
+            builder.and(QStudy.study.rejectionState.ne(RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Study);
         builder.and(wildCard(QStudy.study.studyCustomAttribute1,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true));
@@ -326,8 +326,8 @@ public class QueryBuilder {
                 true));
         builder.and(requestAttributes(keys.getNestedDataset(Tag.RequestAttributesSequence), queryParam));
         builder.and(code(QSeries.series.institutionCode, keys.getNestedDataset(Tag.InstitutionCodeSequence)));
-        builder.and(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances.isNull()
-                .or(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances.ne(0)));
+        if (queryParam.isHideNotRejectedInstances())
+            builder.and(QSeries.series.rejectionState.ne(RejectionState.NONE));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Series);
         builder.and(wildCard(QSeries.series.seriesCustomAttribute1,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true));

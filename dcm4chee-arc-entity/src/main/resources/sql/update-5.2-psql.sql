@@ -18,3 +18,19 @@ update study set storage_ids = (
   where study_fk = study.pk);
 alter table study alter storage_ids set not null;
 create index UK_fypbtohf5skbd3bkyd792a6dt on study (storage_ids);
+alter table series add rejection_state int4;
+update series set rejection_state = 1;
+update series set rejection_state = 0 where not exists (
+  select 1 from instance where series.pk = instance.series_fk and instance.reject_code_fk is not null)
+update series set rejection_state = 2 where rejection_state = 1 and not exists (
+  select 1 from instance where series.pk = instance.series_fk and instance.reject_code_fk is null);
+alter table series alter rejection_state set not null;
+create index UK_jlgy9ifvqak4g2bxkchismw8x on series (rejection_state);
+alter table study add rejection_state int4;
+update study set rejection_state = 1;
+update study set rejection_state = 0 where not exists (
+  select 1 from series where study.pk = series.study_fk and series.rejection_state != 0);
+update study set rejection_state = 2 where not exists (
+  select 1 from series where study.pk = series.study_fk and series.rejection_state != 2);
+alter table study alter rejection_state set not null;
+create index UK_hwu9omd369ju3nufufxd3vof2 on study (rejection_state);
