@@ -172,17 +172,22 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             rsURL(),
             createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
         ).then(function (res) {
-            $scope.studies = res.data.map(function (attrs, index) {
-                return {
-                        offset: offset + index,
-                        moreSeries: false,
-                        attrs: attrs,
-                        series: null,
-                        showAttributes: false
-                };
-            });
-            if ($scope.moreStudies = ($scope.studies.length > $scope.limit)) {
-                $scope.studies.pop();
+            if(res.data != ""){
+
+                $scope.studies = res.data.map(function (attrs, index) {
+                    return {
+                            offset: offset + index,
+                            moreSeries: false,
+                            attrs: attrs,
+                            series: null,
+                            showAttributes: false
+                    };
+                });
+                if ($scope.moreStudies = ($scope.studies.length > $scope.limit)) {
+                    $scope.studies.pop();
+                }
+            }else{
+                $scope.studies = [];
             }
         });
     };
