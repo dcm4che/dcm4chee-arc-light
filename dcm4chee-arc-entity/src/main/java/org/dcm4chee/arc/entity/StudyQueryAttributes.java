@@ -131,7 +131,7 @@ public class StudyQueryAttributes {
     }
 
     public String getRawSOPClassesInStudy() {
-        return retrieveAETs;
+        return sopClassesInStudy;
     }
 
     public String[] getSOPClassesInStudy() {
