@@ -216,7 +216,7 @@ public class StgCmtMDB implements MessageListener {
         Storage storage = storageMap.get(storageID);
         if (storage == null) {
             storage = storageFactory.getStorage(
-                    device.getDeviceExtension(ArchiveDeviceExtension.class).getStorageDescriptor(storageID));
+                    device.getDeviceExtension(ArchiveDeviceExtension.class).getStorageDescriptorNotNull(storageID));
             storageMap.put(storageID, storage);
         }
         return storage;

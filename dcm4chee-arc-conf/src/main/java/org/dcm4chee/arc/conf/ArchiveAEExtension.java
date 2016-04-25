@@ -382,7 +382,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public QueryRetrieveView getQueryRetrieveView() {
-        return getArchiveDeviceExtension().getQueryRetrieveView(queryRetrieveViewID());
+        return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
     }
 
     public void removeExportRule(ExportRule rule) {
@@ -472,7 +472,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public StorageDescriptor getStorageDescriptor() {
-        return getArchiveDeviceExtension().getStorageDescriptor(storageID());
+        return getArchiveDeviceExtension().getStorageDescriptorNotNull(storageID());
     }
 
     public Map<String, ExportRule> findExportRules(

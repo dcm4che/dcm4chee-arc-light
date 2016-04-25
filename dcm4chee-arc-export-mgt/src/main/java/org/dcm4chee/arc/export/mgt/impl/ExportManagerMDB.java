@@ -65,6 +65,6 @@ public class ExportManagerMDB implements MessageListener {
     }
 
     private ExporterDescriptor getExporterDescriptor(String exporterID) {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptor(exporterID);
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(exporterID);
     }
 }

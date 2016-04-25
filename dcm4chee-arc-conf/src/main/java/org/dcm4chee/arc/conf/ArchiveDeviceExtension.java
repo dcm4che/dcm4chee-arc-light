@@ -467,7 +467,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {
-        return attributeFilters.get(entity);
+        AttributeFilter filter = attributeFilters.get(entity);
+        if (filter == null)
+            throw new IllegalArgumentException("No Attribute Filter for " + entity + " configured");
+
+        return filter;
     }
 
     public void setAttributeFilter(Entity entity, AttributeFilter filter) {
@@ -490,8 +494,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return null;
     }
 
+    public QueryRetrieveView getQueryRetrieveViewNotNull(String viewID) {
+        QueryRetrieveView view = getQueryRetrieveView(viewID);
+        if (view == null)
+            throw new IllegalArgumentException("No Query Retrieve View configured with ID:" + viewID);
+        return view;
+    }
+
     public StorageDescriptor getStorageDescriptor(String storageID) {
         return storageDescriptorMap.get(storageID);
+    }
+
+    public StorageDescriptor getStorageDescriptorNotNull(String storageID) {
+        StorageDescriptor descriptor = getStorageDescriptor(storageID);
+        if (descriptor == null)
+            throw new IllegalArgumentException("No Storage configured with ID:" + storageID);
+        return descriptor;
     }
 
     public StorageDescriptor removeStorageDescriptor(String storageID) {
@@ -514,6 +532,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return queueDescriptorMap.get(queueName);
     }
 
+    public QueueDescriptor getQueueDescriptorNotNull(String queueName) {
+        QueueDescriptor descriptor = getQueueDescriptor(queueName);
+        if (descriptor == null)
+            throw new IllegalArgumentException("No Queue configured with name:" + queueName);
+        return descriptor;
+    }
+
     public QueueDescriptor removeQueueDescriptor(String queueName) {
         return queueDescriptorMap.remove(queueName);
     }
@@ -528,6 +553,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public ExporterDescriptor getExporterDescriptor(String exporterID) {
         return exporterDescriptorMap.get(exporterID);
+    }
+
+    public ExporterDescriptor getExporterDescriptorNotNull(String exporterID) {
+        ExporterDescriptor descriptor = getExporterDescriptor(exporterID);
+        if (descriptor == null)
+            throw new IllegalArgumentException("No Exporter configured with ID:" + exporterID);
+        return descriptor;
     }
 
     public ExporterDescriptor removeExporterDescriptor(String exporterID) {

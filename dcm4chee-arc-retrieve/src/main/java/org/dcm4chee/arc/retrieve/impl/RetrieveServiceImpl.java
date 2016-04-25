@@ -463,7 +463,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         Storage storage = ctx.getStorage(storageID);
         if (storage == null) {
             ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
-            storage = storageFactory.getStorage(arcDev.getStorageDescriptor(storageID));
+            storage = storageFactory.getStorage(arcDev.getStorageDescriptorNotNull(storageID));
             ctx.putStorage(storageID, storage);
         }
         return storage;

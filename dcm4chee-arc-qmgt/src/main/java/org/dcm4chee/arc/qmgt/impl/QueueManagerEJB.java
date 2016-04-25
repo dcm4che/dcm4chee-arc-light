@@ -224,7 +224,7 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     private QueueDescriptor descriptorOf(String queueName) {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueueDescriptor(queueName);
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
     private QueueMessage findQueueMessage(String msgId) {
