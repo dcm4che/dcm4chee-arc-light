@@ -33,15 +33,8 @@
 	</div>
 </div>
 <!-- Get hear messages from scope and show in a list -->
-<div class="msg_container">
-	<li ng-repeat="m in msg" class="{{m.status}} msg_{{m.id}} slideInRight animated"  ng-show="m.text" ng-click="closeBox(m)">
-  		<span class="close" data-dismiss="alert" aria-label="close">&times;</span>	
-  		<h4>{{m.title}}</h4>
-  		<p ng-bind-html="m.text"></p>
-  		<div class="progress"></div>
-	</li>
-</div>
-<pre style="display:none">
+
+<!-- <pre style="display:none">
 	wholeDevice: {{wholeDevice | json}}
 	selectModel: {{selectModel | json}}
-</pre>
+</pre> -->

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
     
     <!-- https://daneden.github.io/animate.css/ -->
     <link rel="stylesheet" href="css/animate.css">
@@ -39,6 +39,14 @@
     ng-show="showScrollButton" 
     ng-class="{fadeIn:showScrollButton, fadeOut:!showScrollButton}"
     ng-click="scrollUp()">
+</div>
+<div class="msg_container">
+    <li ng-repeat="m in msg" class="{{m.status}} msg_{{m.id}} slideInRight animated"  ng-show="m.text" ng-click="closeBox(m)">
+        <span class="close" data-dismiss="alert" aria-label="close">&times;</span>  
+        <h4>{{m.title}}</h4>
+        <p ng-bind-html="m.text"></p>
+        <div class="progress"></div>
+    </li>
 </div>
 <!--jQuery-->
 <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>

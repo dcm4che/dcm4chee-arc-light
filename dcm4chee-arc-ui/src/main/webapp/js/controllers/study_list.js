@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile) {
+myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.studies = [];
     $scope.moreStudies = false;
@@ -166,12 +166,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     }
 
     $scope.queryStudies = function(offset) {
+        console.log("offset",offset);
         cfpLoadingBar.start();
         if (offset < 0) offset = 0;
         QidoService.queryStudies(
             rsURL(),
             createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
         ).then(function (res) {
+            console.log("res",res);
             if(res.data != ""){
 
                 $scope.studies = res.data.map(function (attrs, index) {
@@ -183,12 +185,21 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             showAttributes: false
                     };
                 });
+                console.log("$scope.limit",$scope.limit);
+                console.log("$scope.studies.length",$scope.studies.length);
                 if ($scope.moreStudies = ($scope.studies.length > $scope.limit)) {
                     $scope.studies.pop();
                 }
             }else{
                 $scope.studies = [];
+                console.log("in empty")
+                DeviceService.msg($scope, {
+                    "title": "Info",
+                    "text": "No Instances found!",
+                    "status": "info"
+                });
             }
+            cfpLoadingBar.complete();
         });
     };
     $scope.querySeries = function(study, offset) {
@@ -409,7 +420,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.rejectedBeforeOpen = function(){
         cfpLoadingBar.start();
         $scope.rejectedBefore.opened = true;
-        $scope.studyDateTo.opened = true;
         var watchPicker = setInterval(function(){ 
             if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
                 clearInterval(watchPicker);
@@ -418,48 +428,47 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }, 10);
     }
     $scope.deleteRejectedInstances = function() {
-            var html = $compile(
-                '<div class="form-group">'+
-                    '<label>Delete instances with rejected type</label>'+
-                    '<select id="reject" ng-model="reject" name="reject" class="form-control">'+
-                        '<option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>'+
-                    '</select>'+
-                '</div>'+
-                '<div class="form-group">'+
-                    '<label>Maximum reject date of instances to delete</label>'+
-                    '<input class="form-control" ng-click="rejectedBeforeOpen()" placeholder="Delete all instances before this date" is-open="rejectedBefore.opened" id="rejectedBefore" title="Delete all instances before this date" type="text" uib-datepicker-popup="{{format2}}" ng-model="rejectedBefore.date" close-text="Close"/>'+
-                '</div>'+
-                '<div class="checkbox">'+
-                    '<label>'+
-                        '<input type="checkbox" name="keepRejectionNote" ng-model="keepRejectionNote" />'+
-                        'if checked, keep rejection note instances - only delete rejected instances'+
-                    '</label>'+
-                '</div>'+
-                '')($scope);
-            vex.dialog.open({
-              message: 'Delete instances that are in trash',
-              input: html,
-              className:"vex-theme-os deleterejectedinstances",
-              buttons: [
-                $.extend({}, vex.dialog.buttons.YES, {
-                  text: 'Delete all',
-                  className: "btn-danger btn"
-                }), $.extend({}, vex.dialog.buttons.NO, {
-                  text: 'Cancle'
-                })
-              ],
-              callback: function(data) {
-                cfpLoadingBar.start();
-                if (data === false) {
-                  cfpLoadingBar.complete();
-                  return console.log('Cancelled');
-                }else{
-                    $http.delete('../reject/' + $scope.reject,{params: StudiesService.getParams($scope)}).then(function (res) {
-                        cfpLoadingBar.complete();
-                    });
-                }
-              }
-            });
+        var html = $compile(
+            '<div class="form-group">'+
+                '<label>Delete instances with rejected type</label>'+
+                '<select id="reject" ng-model="reject" name="reject" class="form-control">'+
+                    '<option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>'+
+                '</select>'+
+            '</div>'+
+            '<div class="form-group">'+
+                '<label>Maximum reject date of instances to delete</label>'+
+                '<input ng-model="rejectedBefore.date" autocomplete="off" class="form-control" ng-click="rejectedBeforeOpen()" placeholder="Delete all instances before this date" is-open="rejectedBefore.opened" id="rejectedBefore" title="Delete all instances before this date" type="text" uib-datepicker-popup="{{format2}}" close-text="Close"/>'+
+            '</div>'+
+            '<div class="checkbox">'+
+                '<label>'+
+                    '<input type="checkbox" name="keepRejectionNote" ng-model="keepRejectionNote" />'+
+                    'if checked, keep rejection note instances - only delete rejected instances'+
+                '</label>'+
+            '</div>')($scope);
+        vex.dialog.open({
+          message: 'Delete instances that are in trash',
+          input: html,
+          className:"vex-theme-os deleterejectedinstances",
+          buttons: [
+            $.extend({}, vex.dialog.buttons.YES, {
+              text: 'Delete all',
+              className: "btn-danger btn"
+            }), $.extend({}, vex.dialog.buttons.NO, {
+              text: 'Cancle'
+            })
+          ],
+          callback: function(data) {
+            cfpLoadingBar.start();
+            if (data === false) {
+              cfpLoadingBar.complete();
+              return console.log('Cancelled');
+            }else{
+                $http.delete('../reject/' + $scope.reject,{params: StudiesService.getParams($scope)}).then(function (res) {
+                    cfpLoadingBar.complete();
+                });
+            }
+          }
+        });
     };
     $scope.downloadURL = function (inst, transferSyntax) {
         var exQueryParams = { contentType: 'application/dicom' };

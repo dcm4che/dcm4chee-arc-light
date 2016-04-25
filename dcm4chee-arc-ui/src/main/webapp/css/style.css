@@ -760,9 +760,11 @@ table.subtable_1, table.subtable_2 {
   line-height: 60px;
   vertical-align: middle;
   width: 1%; }
+  .block-1-2 .minus.dummy {
+    text-indent: 10000px; }
 
 .block-2-1 {
-  padding-top: 42px; }
+  padding-top: 22px; }
 
 .block-2-2 .block_seid {
   width: 49%;
@@ -864,5 +866,10 @@ table.subtable_1, table.subtable_2 {
     .vex.vex-theme-os.deleterejectedinstances .vex-content .vex-dialog-form .vex-dialog-message {
       font-size: 23px;
       margin-bottom: 35px; }
+
+.filter .col-md-3 .row {
+  height: 35px; }
+.filter .col-md-3 .datetime {
+  height: 70px; }
 
 /*# sourceMappingURL=style.css.map */

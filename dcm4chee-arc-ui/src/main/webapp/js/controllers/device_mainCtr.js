@@ -6,7 +6,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.showSave               = false;
     $scope.middleBorder           = "";
     $scope.lastBorder             = "";
-    $scope.msg                    = [];
     $scope.loaderElement          = "";
     $scope.showDropdownLoader     = false;
     $scope.showFormLoader         = false;
@@ -682,20 +681,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
       }
     });
 
-    /*
-    *Close button for the messages
-    *obj (Object) the message that need to bee closed
-    */
-    $scope.closeBox = function(obj){
-
-      angular.forEach($scope.msg, function(m, k){
-        if(m == obj){
-          $(".msg_container li").eq(k).fadeOut("400",function(){
-            $scope.msg.splice(k, 1);
-          });
-        }
-      });
-    };
 
     /*
     *Implementation of the cancle button

@@ -1,8 +1,9 @@
 "use strict";
 
 myApp.controller('MainController', function ($scope, $location, $http) {
-  $scope.logoutUrl = myApp.logoutUrl();
-  $scope.showUserMenu = false;
+  $scope.logoutUrl              = myApp.logoutUrl();
+  $scope.showUserMenu           = false;
+  $scope.msg                    = [];
   vex.defaultOptions.className  = 'vex-theme-os';
 	$scope.getClass = function (path) {
 		if($location.path().substr(0, path.length) === path) {
@@ -58,4 +59,19 @@ myApp.controller('MainController', function ($scope, $location, $http) {
 	$scope.getPathName = function(){
     return $location.path().replace(/\//g, '');;
   };
+    /*
+  *Close button for the messages
+  *obj (Object) the message that need to bee closed
+  */
+  $scope.closeBox = function(obj){
+
+    angular.forEach($scope.msg, function(m, k){
+      if(m == obj){
+        $(".msg_container li").eq(k).fadeOut("400",function(){
+          $scope.msg.splice(k, 1);
+        });
+      }
+    });
+  };
+
 });

@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row filter">
     <div>
     <div class="col-md-3 block-1-1">
         <div class="row">
@@ -27,9 +27,19 @@
                 <input id="IssuerOfPatientID" type="text" ng-model="filter.IssuerOfPatientID" placeholder="Issuer of patient ID" title="Issuer of patient ID" class="col-md-12" />
             </div>
         </div>
+    </div>
+    <div class="col-md-3 block-1-1">
         <div class="row">
             <div class="col-md-6">
                 <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder="Accession number" title="Accession number" class="col-md-12" />
+            </div>
+            <div class="col-md-6">
+                <input id="LocalNamespaceEntityID" type="text" ng-model="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder="Issuer of accession number" title="Issuer of accession number" class="col-md-12"  />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
             </div>
             <div class="col-md-6">
                 <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)" />
@@ -53,12 +63,21 @@
                 </div>
             </div>    
         </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="limit" class="block_seid pull-right">Page Size:</label>
+            </div>
+            <div class="col-md-6">
+                <input  id="limit" type="number" min="1" ng-model="limit" class="col-md-12" required/>
+            </div>
+        </div>
+        
     </div>
     <div class="col-md-3 block-1-2">
         <div class="row">
             <label for="StudyDateFrom" class="col-md-12">Study Date:</label>
         </div>
-        <div class="row">
+        <div class="row datetime">
             <div class="block_seid">
                 <input 
                     class="col-md-12"
@@ -107,12 +126,6 @@
                     data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
             </div>
         </div>
-        <div class="row">
-            <label for="limit" class="block_seid text-right">Page Size:</label>
-            <div class="block_seid">
-                <input class="col-md-12" id="limit" type="number" min="1" ng-model="limit" required/>
-            </div>
-        </div>
     </div>
     <a class="clearform_button" title="Clear filters" href="" ng-click="clearForm()">
         <span class="glyphicon glyphicon-remove"></span>
@@ -121,7 +134,7 @@
 </div>
 <a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
 <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
-<div class="row ng-hide" ng-show="advancedConfig">
+<div class="row ng-hide filter" ng-show="advancedConfig">
     <div class="col-md-3 block-2-1">
 
 <!--         <div class="row">
@@ -133,8 +146,11 @@
             </div>
         </div> -->
         <div class="row">
-            <div class="col-md-6 col-md-offset-6">
+            <div class="col-md-6">
                 <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder="Study ID" title="Study ID" class="col-md-12" />
+            </div>
+            <div class="col-md-6">
+                <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder="Study description" title="Study description" class="col-md-12" />
             </div>
         </div>    
 <!--         <div class="row">
@@ -142,55 +158,33 @@
                 <input id="SeriesDescription" type="text" ng-model="filter.SeriesDescription" placeholder=" Series Description" class="col-md-12" />
             </div>
         </div> -->
-        <div class="row">
-            <div class="col-md-6 col-md-offset-6">
-                <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder="Study description" title="Study description" class="col-md-12" />
-            </div>
-        </div>
 <!--         <div class="row">
             <div class="col-md-6 col-md-offset-6">
                 <input id="BodyPartExamined" type="text" ng-model="filter.BodyPartExamined" placeholder=" Body Part" class="col-md-12" />
             </div>
         </div> -->
-        <div class="row">
-            <div class="col-md-6 col-md-offset-6">
-                <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12" />
-            </div>
-        </div>
+
 <!--         <div class="row">
             <div class="col-md-6 col-md-offset-6">
                 <input id="InstitutionName" type="text" ng-model="filter.InstitutionName" placeholder=" Institution Name" class="col-md-12" />
             </div>
         </div> -->
-        <div class="row">
-            <div class="col-md-6 col-md-offset-6">
-                <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12" />
-            </div>
-        </div>
+<!--         <div class="row">
+        </div> -->
 <!--         <div class="row">
             <div class="col-md-6 col-md-offset-6">
                 <input id="SeriesInstanceUID" type="text" ng-model="filter.SeriesInstanceUID" placeholder=" Series Instance UID" class="col-md-12" />
             </div>
         </div> -->
-        <div class="row">
-            <div class="col-md-6 col-md-offset-6">
-                <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
-            </div>
-        </div>
 <!--         <div class="row">
             <div class="col-md-6 col-md-offset-6">
                 <input id="objectUID" type="text" ng-model="filter.ObjectUID" placeholder=" Object UID" class="col-md-12" />
             </div>
         </div> -->
-        <div class="row">
-            <div class="col-md-6 col-md-offset-6">
-                <input id="LocalNamespaceEntityID" type="text" ng-model="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder="Issuer of accession number" title="Issuer of accession number" class="col-md-12"  />
-            </div>
-        </div>
 
     </div>
-    <div class="col-md-3 block-2-2">
-        <div class="row" ng-show="isRole('admin')">
+    <div class="col-md-3 block-2-1">
+        <!-- <div class="row" ng-show="isRole('admin')"> -->
 <!--             <label for="reject" class="block_seid text-right">Reject:</label>
             <div class="block_seid"> -->
 <!--                 <select id="reject" ng-model="reject" class="col-md-9">
@@ -201,13 +195,21 @@
                     <span class="glyphicon glyphicon-remove"></span>
                 </a> -->
             <!-- </div> -->
-        </div>
+        <!-- </div> -->
         <div class="row">
+            <div class="col-md-6">
+                <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12 clearable" />
+            </div>
+            <div class="col-md-6">
+                <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12 clearable" />
+            </div>
+        </div>
+<!--         <div class="row">
             <label for="limit" class="block_seid text-right">Page Size:</label>
             <div class="block_seid">
                 <input class="col-md-12" id="limit" type="number" min="1" ng-model="limit" required/>
             </div>
-        </div>
+        </div> -->
 <!--         <div class="row">
             <div class="col-md-5 col-md-offset-6">
                 <input type="checkbox" ng-model="filter.fuzzymatching"> Fuzzy Matching
@@ -274,13 +276,13 @@
                             <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                                 <span class="glyphicon glyphicon-th-list"></span>
                             </a>
-                            <a ng-click="exportStudy(study)" ng-show="exporterID" href="" title="Export Study">
+                            <a ng-click="exportStudy(study)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
                                 <span class="glyphicon glyphicon-export"></span>
                             </a>
-                            <a ng-hide="trashaktive" ng-show="isRole('admin')" ng-click="rejectStudy(study)" href="" title="Reject Study">
+                            <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectStudy(study)" href="" title="Reject Study">
                                 <span class="glyphicon glyphicon-trash"></span>
                             </a>
-                            <a ng-show="trashaktive" ng-show="isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
+                            <a ng-show="trashaktive && isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
                                 <span class="glyphicon glyphicon-repeat"></span>
                             </a>
                             <!--
@@ -339,13 +341,13 @@
                                     <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>
-                                    <a ng-click="exportSeries(series)" ng-show="exporterID" href="" title="Export Series">
+                                    <a ng-click="exportSeries(series)" ng-show="exporterID && isRole('admin')" href="" title="Export Series">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
-                                    <a ng-hide="trashaktive" ng-show="isRole('admin')" ng-click="rejectSeries(series)" href="" title="Reject Series">
+                                    <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectSeries(series)" href="" title="Reject Series">
                                         <span  class="glyphicon glyphicon-trash"></span>
                                     </a>
-                                    <a ng-show="trashaktive" ng-show="isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
+                                    <a ng-show="trashaktive && isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
                                         <span class="glyphicon glyphicon-repeat"></span>
                                     </a>
                                     <!--
@@ -403,13 +405,13 @@
                                             <a ng-click="toggleAttributs(series.instances[key],'fileattributs');addFileAttribute(studykey,serieskey,key)" href="" title="Show Attributes from file" ng-class="{active:instance.showFileAttributes}">
                                                 <span class="glyphicon glyphicon-list"></span>
                                             </a>
-                                            <a ng-click="exportInstance(instance)" ng-show="exporterID" href="" title="Export Instance">
+                                            <a ng-click="exportInstance(instance)" ng-show="exporterID && isRole('admin')" href="" title="Export Instance">
                                                 <span class="glyphicon glyphicon-export"></span>
                                             </a>
-                                            <a ng-hide="trashaktive" ng-show="isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
+                                            <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
                                                 <span  class="glyphicon glyphicon-trash"></span>
                                             </a>
-                                            <a ng-show="trashaktive" ng-show="isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
+                                            <a ng-show="trashaktive && isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
                                                 <span class="glyphicon glyphicon-repeat"></span>
                                             </a>
                                             <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">

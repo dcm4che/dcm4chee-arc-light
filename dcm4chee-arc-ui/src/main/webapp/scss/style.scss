@@ -990,10 +990,13 @@ table{
 	    line-height: 60px;
 	    vertical-align: middle;
 	    width: 1%;
+	    &.dummy{
+	    	text-indent: 10000px;
+	    }
 	}
 }
 .block-2-1 {
-    padding-top: 42px;
+    padding-top: 22px;
 }
 .block-2-2{
 	.block_seid{
@@ -1130,6 +1133,16 @@ table{
 					}
 				}
 			}
+		}
+	}
+}
+.filter{
+	.col-md-3{
+		.row{
+			height:35px;
+		}
+		.datetime{
+			height: 70px;
 		}
 	}
 }
