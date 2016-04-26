@@ -150,7 +150,7 @@ public class PatientServiceEJB {
 
     private boolean updatePatient(Patient pat, PatientMgtContext ctx) {
         Attributes attrs = pat.getAttributes();
-        if (!attrs.update(ctx.getAttributes(), null))
+        if (!attrs.update(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), null))
             return false;
 
         pat.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());

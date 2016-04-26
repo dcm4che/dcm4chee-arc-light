@@ -45,7 +45,7 @@ import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.conf.ldap.LdapUtils;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.net.*;
 import org.dcm4chee.arc.conf.*;
@@ -135,7 +135,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmCustomAttribute1", arcDev.getAttributeFilter(entity).getCustomAttribute1());
             writer.writeNotNull("dcmCustomAttribute2", arcDev.getAttributeFilter(entity).getCustomAttribute2());
             writer.writeNotNull("dcmCustomAttribute3", arcDev.getAttributeFilter(entity).getCustomAttribute3());
-            writer.writeNotNull("dcmAttributeUpdate", arcDev.getAttributeFilter(entity).getAttributeUpdate());
+            writer.writeNotNull("dcmAttributeUpdatePolicy",
+                    arcDev.getAttributeFilter(entity).getAttributeUpdatePolicy());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -512,8 +513,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmCustomAttribute3":
                         af.setCustomAttribute3(ValueSelector.valueOf(reader.stringValue()));
                         break;
-                    case "dcmAttributeUpdate":
-                        af.setAttributeUpdate(AttributeUpdate.valueOf(reader.stringValue()));
+                    case "dcmAttributeUpdatePolicy":
+                        af.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();

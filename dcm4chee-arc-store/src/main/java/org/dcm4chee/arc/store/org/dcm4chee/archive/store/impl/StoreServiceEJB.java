@@ -370,15 +370,115 @@ public class StoreServiceEJB {
                 if (pat == null) {
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
+                } else {
+                    pat = updatePatient(ctx, pat);
                 }
                 study = createStudy(ctx, pat);
                 result.setCreatedStudy(study);
+            } else {
+                study = updateStudy(ctx, study);
+                updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study);
+        } else {
+            series = updateSeries(ctx, series);
+            updateStudy(ctx, series.getStudy());
+            updatePatient(ctx, series.getStudy().getPatient());
         }
         return createInstance(ctx, series, conceptNameCode);
     }
 
+    private Patient updatePatient(StoreContext ctx, Patient pat) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Patient);
+        Attributes.UpdatePolicy updatePolicy = filter.getAttributeUpdatePolicy();
+        if (updatePolicy == null)
+            return pat;
+
+        Attributes attrs = pat.getAttributes();
+        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
+            return pat;
+
+        updateInfo.log(session, pat, attrs);
+        pat = em.find(Patient.class, pat.getPk());
+        pat.setAttributes(attrs, filter, arcDev.getFuzzyStr());
+        return pat;
+    }
+
+    private Study updateStudy(StoreContext ctx, Study study) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
+        Attributes.UpdatePolicy updatePolicy = filter.getAttributeUpdatePolicy();
+        if (updatePolicy == null)
+            return study;
+
+        Attributes attrs = study.getAttributes();
+        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection()))
+            return study;
+
+        updateInfo.log(session, study, attrs);
+        study = em.find(Study.class, study.getPk());
+        study.setAttributes(attrs, filter, arcDev.getFuzzyStr());
+        study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
+        setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
+        return study;
+    }
+
+    private Series updateSeries(StoreContext ctx, Series series) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Series);
+        Attributes.UpdatePolicy updatePolicy = filter.getAttributeUpdatePolicy();
+        if (updatePolicy == null)
+            return series;
+
+        Attributes attrs = series.getAttributes();
+        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
+            return series;
+
+        updateInfo.log(session, series, attrs);
+        series = em.find(Series.class, series.getPk());
+        FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
+        series.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Series), fuzzyStr);
+        series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
+        setRequestAttributes(series, attrs, fuzzyStr);
+        return series;
+    }
+
+    private static class UpdateInfo {
+        int[] prevTags;
+        Attributes modified;
+        UpdateInfo(Attributes attrs, Attributes.UpdatePolicy updatePolicy) {
+            if (!LOG.isInfoEnabled())
+                return;
+
+            prevTags = attrs.tags();
+            modified = new Attributes();
+        }
+
+        public void log(StoreSession session, Object entity, Attributes attrs) {
+            if (!LOG.isInfoEnabled())
+                return;
+
+            if (!modified.isEmpty()) {
+                Attributes changedTo = new Attributes(modified.size());
+                changedTo.addSelected(attrs, modified.tags());
+                LOG.info("{}: Modify attributes of {}\nFrom:\n{}To:\n{}", session, entity, modified, changedTo);
+            }
+            Attributes supplemented = new Attributes();
+            supplemented.addNotSelected(attrs, prevTags);
+            if (!supplemented.isEmpty())
+                LOG.info("{}: Supplement attributes of {}:\n{}", session, entity, supplemented);
+        }
+    }
 
     private Study findStudy(StoreContext ctx, UpdateDBResult result) {
         StoreSession storeSession = ctx.getStoreSession();

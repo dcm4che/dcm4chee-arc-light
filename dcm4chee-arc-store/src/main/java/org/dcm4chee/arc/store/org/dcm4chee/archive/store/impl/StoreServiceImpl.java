@@ -221,9 +221,9 @@ class StoreServiceImpl implements StoreService {
         Attributes studyAttrs = study.getAttributes();
         Attributes patAttrs = patient.getAttributes();
         Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, attrs);
-        attrs.update(patAttrs, modified);
-        attrs.update(studyAttrs, modified);
-        attrs.update(seriesAttrs, modified);
+        attrs.update(Attributes.UpdatePolicy.OVERWRITE, patAttrs, modified);
+        attrs.update(Attributes.UpdatePolicy.OVERWRITE, studyAttrs, modified);
+        attrs.update(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified);
     }
 
     private Storage getStorage(StoreContext ctx) {

@@ -57,6 +57,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.11 NAME 'dcmInstanceAvailability'
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.12 NAME 'dcmQueryMatchUnknown'
   DESC 'Indicates if missing Attributes or zero-length Attribute values in stored entities shall considered unknown and all matching against it shall be considered a successful match; enabled if absent'
+  OBSOLETE
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -385,8 +386,8 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.77 NAME 'dcmPurgeQueueMessageFetchSi
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdate'
-  DESC 'Action taken on updation of attributes on Series, Study & Patient level on receive of further instance of entity. If absent, there is no action'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdatePolicy'
+  DESC 'Specifies update policy for extracted attributes into the DB on Series, Study & Patient level on receive of further instance of the entity. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE. If absent, the attributes will not be updated'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE)
@@ -474,7 +475,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
     dcmCustomAttribute1 $
     dcmCustomAttribute2 $
     dcmCustomAttribute3 $
-    dcmAttributeUpdate) )
+    dcmAttributeUpdatePolicy ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
   DESC 'DICOM Archive HL7 Application related information'
   SUP top AUXILIARY

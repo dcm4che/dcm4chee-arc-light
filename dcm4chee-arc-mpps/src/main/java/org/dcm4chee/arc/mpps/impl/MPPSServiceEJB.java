@@ -112,7 +112,7 @@ public class MPPSServiceEJB {
         if (mpps.getStatus() != MPPS.Status.IN_PROGRESS)
             BasicMPPSSCP.mayNoLongerBeUpdated();
         Attributes attrs = mpps.getAttributes();
-        if (attrs.updateSelected(ctx.getAttributes(), null, filter.getSelection())) {
+        if (attrs.updateSelected(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), null, filter.getSelection())) {
             mpps.setDiscontinuationReasonCode(discontinuationReasonCodeOf(attrs));
             mpps.setAttributes(attrs, filter);
         }

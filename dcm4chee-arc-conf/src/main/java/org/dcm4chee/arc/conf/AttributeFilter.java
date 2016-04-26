@@ -54,7 +54,7 @@ public class AttributeFilter implements Serializable {
     private static final long serialVersionUID = -2417549681350544302L;
 
     private int[] selection;
-    private AttributeUpdate attributeUpdate;
+    private Attributes.UpdatePolicy attributeUpdatePolicy;
     private ValueSelector customAttribute1;
     private ValueSelector customAttribute2;
     private ValueSelector customAttribute3;
@@ -74,12 +74,12 @@ public class AttributeFilter implements Serializable {
         Arrays.sort(this.selection = selection);
     }
 
-    public AttributeUpdate getAttributeUpdate() {
-        return attributeUpdate;
+    public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
+        return attributeUpdatePolicy;
     }
 
-    public void setAttributeUpdate(AttributeUpdate attributeUpdate) {
-        this.attributeUpdate = attributeUpdate;
+    public void setAttributeUpdatePolicy(Attributes.UpdatePolicy attributeUpdatePolicy) {
+        this.attributeUpdatePolicy = attributeUpdatePolicy;
     }
 
     public static String selectStringValue(Attributes attrs, ValueSelector selector, String defVal) {

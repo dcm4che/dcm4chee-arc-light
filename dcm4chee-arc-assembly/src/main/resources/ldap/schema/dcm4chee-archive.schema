@@ -461,8 +461,8 @@ attributetype ( 1.2.40.0.13.1.15.110.3.77 NAME 'dcmPurgeQueueMessageFetchSize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
 
-attributetype ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdate'
-  DESC 'Action taken on updation of attributes on Series, Study & Patient level on receive of further instance of entity. If absent, there is no action'
+attributetype ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdatePolicy'
+  DESC 'Specifies update policy for extracted attributes into the DB on Series, Study & Patient level on receive of further instance of the entity. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE. If absent, the attributes will not be updated'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE)
@@ -477,6 +477,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   MAY (
     dcmOverwritePolicy $
     dcmBulkDataSpoolDirectory $
+    dcmQueryMatchUnknown $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $
@@ -524,6 +525,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmOverwritePolicy $
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $
+    dcmQueryMatchUnknown $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $
@@ -551,7 +553,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
     dcmCustomAttribute1 $
     dcmCustomAttribute2 $
     dcmCustomAttribute3 $
-    dcmAttributeUpdate) )
+    dcmAttributeUpdatePolicy ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
   DESC 'DICOM Archive HL7 Application related information'

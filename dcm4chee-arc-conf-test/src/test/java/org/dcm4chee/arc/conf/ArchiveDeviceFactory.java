@@ -982,9 +982,9 @@ class ArchiveDeviceFactory {
         ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
         ext.setStowSpoolDirectory(STOW_SPOOL_DIR);
 
-        ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, AttributeUpdate.SUPPLEMENT));
-        ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, AttributeUpdate.OVERWRITE));
-        ext.setAttributeFilter(Entity.Series, newAttributeFilter(SERIES_ATTRS, AttributeUpdate.OVERWRITE));
+        ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
+        ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));
+        ext.setAttributeFilter(Entity.Series, newAttributeFilter(SERIES_ATTRS, Attributes.UpdatePolicy.MERGE));
         ext.setAttributeFilter(Entity.Instance, new AttributeFilter(INSTANCE_ATTRS));
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
 
@@ -1074,9 +1074,9 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static AttributeFilter newAttributeFilter(int[] patientAttrs, AttributeUpdate attrUpdate) {
+    private static AttributeFilter newAttributeFilter(int[] patientAttrs, Attributes.UpdatePolicy attrUpdate) {
         AttributeFilter filter = new AttributeFilter(patientAttrs);
-        filter.setAttributeUpdate(attrUpdate);
+        filter.setAttributeUpdatePolicy(attrUpdate);
         return filter;
     }
 

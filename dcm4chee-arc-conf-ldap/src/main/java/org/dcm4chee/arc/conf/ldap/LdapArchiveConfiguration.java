@@ -43,7 +43,7 @@ package org.dcm4chee.arc.conf.ldap;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.LdapUtils;
-import org.dcm4che3.data.ValueSelector;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
@@ -55,6 +55,7 @@ import org.dcm4chee.arc.conf.*;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+import javax.naming.directory.Attributes;
 import java.net.URI;
 import java.security.cert.CertificateException;
 import java.util.*;
@@ -474,7 +475,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute1", filter.getCustomAttribute1());
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute2", filter.getCustomAttribute2());
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute3", filter.getCustomAttribute3());
-        LdapUtils.storeNotNull(attrs, "dcmAttributeUpdate", filter.getAttributeUpdate());
+        LdapUtils.storeNotNull(attrs, "dcmAttributeUpdatePolicy", filter.getAttributeUpdatePolicy());
         return attrs;
     }
     private static Attribute tagsAttr(String attrID, int[] tags) {
@@ -496,8 +497,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 filter.setCustomAttribute1(valueSelector(attrs.get("dcmCustomAttribute1")));
                 filter.setCustomAttribute2(valueSelector(attrs.get("dcmCustomAttribute2")));
                 filter.setCustomAttribute3(valueSelector(attrs.get("dcmCustomAttribute3")));
-                filter.setAttributeUpdate(LdapUtils.enumValue(AttributeUpdate.class,
-                        attrs.get("dcmAttributeUpdate"), null));
+                filter.setAttributeUpdatePolicy(
+                        LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
+                        attrs.get("dcmAttributeUpdatePolicy"), null));
                 device.setAttributeFilter(
                         Entity.valueOf(LdapUtils.stringValue(attrs.get("dcmEntity"), null)),
                         filter);
@@ -539,7 +541,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getCustomAttribute2(), filter.getCustomAttribute2());
         LdapUtils.storeDiff(mods, "dcmCustomAttribute3",
                 prev.getCustomAttribute3(), filter.getCustomAttribute3());
-        LdapUtils.storeDiff(mods, "dcmAttributeUpdate", prev.getAttributeUpdate(), filter.getAttributeUpdate());
+        LdapUtils.storeDiff(mods, "dcmAttributeUpdatePolicy",
+                prev.getAttributeUpdatePolicy(), filter.getAttributeUpdatePolicy());
         return mods;
     }
 
