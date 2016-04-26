@@ -59,6 +59,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         angular.forEach($scope.filter,function(m,i){
             $scope.filter[i] = "";
         });
+        angular.element(".single_clear").hide();
         $scope.studyDate.fromObject = null;
         $scope.studyDate.toObject = null;
         $scope.studyDate.from = "";

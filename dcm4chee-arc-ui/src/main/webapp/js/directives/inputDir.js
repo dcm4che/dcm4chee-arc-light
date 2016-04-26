@@ -25,7 +25,7 @@ myApp.directive("input", function ($window, $log, $compile) {
             var ngmodel = getScopeModelFromString(scope, attrs.ngModel);
             if(attrs.type==="text"){
                 var div  = angular.element('<div class="input"></div>');
-                var x    = angular.element('<span class="x glyphicon '+attrs.id+' glyphicon-remove-sign" ng-hide="'+attrs.ngModel+'===\'\'" ng-click="'+attrs.ngModel+'=\'\'"></span>');
+                var x    = angular.element('<span class="x glyphicon single_clear '+attrs.id+' glyphicon-remove-sign" ng-hide="'+attrs.ngModel+'===\'\'" ng-click="'+attrs.ngModel+'=\'\'"></span>');
                 div.insertAfter(element);
                 div.append(element);
                 div.append(x);
