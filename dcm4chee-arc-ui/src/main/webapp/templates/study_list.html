@@ -42,7 +42,7 @@
                 <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
             </div>
             <div class="col-md-6">
-                <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)" />
+                <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)" ng-change="changeModality()" />
                 <div class="modality_selector ng-hide" ng-show="showModalitySelector">
                     <a href="" ng-click="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                     <div class="common">
@@ -79,56 +79,65 @@
         </div>
         <div class="row datetime">
             <div class="block_seid">
-                <input 
-                    class="col-md-12"
-                    placeholder="Study date from" 
-                    ng-change="studyDateFromChange()"
-                    ng-click="studyDateFromOpen()" 
-                    id="StudyDateFrom" 
-                    type="text" 
-                    uib-datepicker-popup="{{format}}" 
-                    ng-model="studyDate.fromObject" 
-                    is-open="studyDateFrom.opened" 
-                    datepicker-options="dateOptions"
-                    close-text="Close"/>
-                <input 
-                    class="col-md-12"
-                    placeholder="Study time from" 
-                    id="StudyTimeFrom" 
-                    type="text" 
-                    size="10"  
-                    ng-model="studyTime.fromObject" 
-                    data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
+                <div class="col-md-12">
+                    <input 
+                        class="col-md-12"
+                        placeholder="Study date from" 
+                        ng-change="studyDateFromChange()"
+                        ng-click="studyDateFromOpen()" 
+                        id="StudyDateFrom" 
+                        type="text" 
+                        uib-datepicker-popup="{{format}}" 
+                        ng-model="studyDate.fromObject" 
+                        is-open="studyDateFrom.opened" 
+                        datepicker-options="dateOptions"
+                        close-text="Close"/>
+                </div>
+                <div class="col-md-12">
+                    <input 
+                        class="col-md-12"
+                        placeholder="Study time from" 
+                        id="StudyTimeFrom" 
+                        type="text" 
+                        size="10"  
+                        ng-model="studyTime.fromObject" 
+                        data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
+                </div>
             </div>
             <div class="minus text-center">
                 -
             </div>
             <div class="block_seid">
-                <input
-                    class="col-md-12"
-                    placeholder=" Study date to"  
-                    ng-change="studyDateToChange()"
-                    id="StudyDateTo" 
-                    ng-click="studyDateToOpen()"  
-                    is-open="studyDateTo.opened" 
-                    close-text="Close" 
-                    type="text" 
-                    size="10" 
-                    ng-model="studyDate.toObject" 
-                    uib-datepicker-popup="{{format}}"/>
-                <input 
-                    class="col-md-12"
-                    placeholder="Study time to" 
-                    id="StudyTimeTo" 
-                    type="text" 
-                    size="10"  
-                    ng-model="studyTime.toObject" 
-                    data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
+                <div class="col-md-12">
+                    <input
+                        class="col-md-12"
+                        placeholder=" Study date to"  
+                        class="col-md-12"
+                        ng-change="studyDateToChange()"
+                        id="StudyDateTo" 
+                        ng-click="studyDateToOpen()"  
+                        is-open="studyDateTo.opened" 
+                        close-text="Close" 
+                        type="text" 
+                        size="10" 
+                        ng-model="studyDate.toObject" 
+                        uib-datepicker-popup="{{format}}"/>
+                </div>
+                <div class="col-md-12">
+                    <input 
+                        class="col-md-12"
+                        placeholder="Study time to" 
+                        id="StudyTimeTo" 
+                        type="text" 
+                        size="10"  
+                        ng-model="studyTime.toObject" 
+                        data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
+                </div>
             </div>
         </div>
     </div>
-    <a class="clearform_button" title="Clear filters" href="" ng-click="clearForm()">
-        <span class="glyphicon glyphicon-remove"></span>
+    <a class="clearform_button" title="Clear all filters" href="" ng-click="clearForm()">
+        Clear <span class="glyphicon glyphicon-remove"></span>
     </a>
     </div>
 </div>

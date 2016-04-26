@@ -6,7 +6,7 @@ myApp.directive("scroll", function ($window, $log) {
             if (this.pageYOffset >= 150) {
                 scope.showScrollButton = true;
             } else {
-             	scope.showScrollButton = false;
+                scope.showScrollButton = false;
             }
             setTimeout(function(){ 
                 scope.$apply();

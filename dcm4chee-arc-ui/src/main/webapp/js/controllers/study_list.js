@@ -29,13 +29,19 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         if(ae.dcmHideNotRejectedInstances === true){
             if($scope.rjcode === null){
                 $http.get("../reject?dcmRevokeRejection=true").then(function (res) {
-                    console.log("res",res.data[0].codeValue);
                     $scope.rjcode = res.data[0];
                 });
             }
             $scope.trashaktive = true;
         }else{
             $scope.trashaktive = false;
+        }
+    };
+    $scope.changeModality = function(){
+        if(filter.ModalitiesInStudy){
+            angular.element(".Modality").hide();
+        }else{
+            angular.element(".Modality").show();
         }
     };
     $scope.addFileAttribute = function(studykey, serieskey, key){
@@ -63,7 +69,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.studyTime.to = "";
     }
     $scope.selectModality = function(key){
-        $scope.filter.ModalitiesInStudy =key;
+        $scope.filter.ModalitiesInStudy = key;
+        angular.element(".Modality").show();
         $scope.showModalitySelector=false;
     }
     $scope.checkKeyModality = function(keyEvent) {
@@ -127,7 +134,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         var watchPicker = setInterval(function(){ 
                                 //uib-datepicker-popup uib-close
             if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
-                console.log("in if");
                 clearInterval(watchPicker);
                 cfpLoadingBar.complete();
 
@@ -154,13 +160,24 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     StudiesService.updateTime($scope.studyTime);
           }
     };
+
     $scope.studyDateFromChange = function(){
         cfpLoadingBar.start();
+        if($scope.studyDate.fromObject){
+            angular.element(".StudyDateFrom").show();
+        }else{
+            angular.element(".StudyDateFrom").hide();
+        }
         StudiesService.updateFromDate($scope.studyDate);
 
     }
     $scope.studyDateToChange = function(){
         cfpLoadingBar.start();
+        if($scope.studyDate.toObject){
+            angular.element(".StudyDateTo").show();
+        }else{
+            angular.element(".StudyDateTo").hide();
+        }
         StudiesService.updateToDate($scope.studyDate);
 
     }
@@ -173,7 +190,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             rsURL(),
             createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
         ).then(function (res) {
-            console.log("res",res);
             if(res.data != ""){
 
                 $scope.studies = res.data.map(function (attrs, index) {
@@ -185,14 +201,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             showAttributes: false
                     };
                 });
-                console.log("$scope.limit",$scope.limit);
-                console.log("$scope.studies.length",$scope.studies.length);
                 if ($scope.moreStudies = ($scope.studies.length > $scope.limit)) {
                     $scope.studies.pop();
                 }
             }else{
                 $scope.studies = [];
-                console.log("in empty")
                 DeviceService.msg($scope, {
                     "title": "Info",
                     "text": "No Instances found!",

@@ -1041,7 +1041,7 @@ table{
 	}
 }
 .clearform_button{
-	left: -33px;
+	left: -66px;
     position: relative;
     top: -23px;
     // border-radius: 3px;
@@ -1052,6 +1052,9 @@ table{
     // margin-left: 2px;
     // text-align: center;
     // width: 44px;
+	&:active,&:visited{
+		color: #999;
+	}
     &:hover{
 	  	color: #555;
 	}
@@ -1138,11 +1141,32 @@ table{
 }
 .filter{
 	.col-md-3{
+		input{
+			padding-left:7px;
+		}
 		.row{
 			height:35px;
 		}
 		.datetime{
 			height: 70px;
+			& > .block_seid{
+				& > .col-md-12{
+					padding-left:0;
+					padding-right:0;
+				}
+			}
+		}
+	}
+}
+.input{
+	position:relative;
+	span{
+		color: #919191;
+		position:absolute;
+		right: 7px;
+    	top: 12px;
+		&:hover{
+			cursor: pointer;
 		}
 	}
 }
