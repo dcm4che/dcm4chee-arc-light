@@ -10,16 +10,12 @@ alter table code drop constraint UK_l01jou0o1rohy7a9p933ndrxg;
 alter table code add constraint UK_sb4oc9lkns36wswku831c33w6  unique (code_value, code_designator, code_version);
 alter table study drop column scattered_storage;
 alter table study add (storage_ids varchar2(255 char));
---not sure start---
 update study set storage_ids = (
-select listagg(storage_id, '\') WITHIN GROUP (ORDER BY STORAGE_ID)
-from(
-  select DISTINCT STORAGE_ID
+  select regexp_replace(listagg(storage_id, '\') within group (order by storage_id),'([^\\]+)(\\\1)+', '\1')
   from location
     join instance on location.instance_fk = instance.pk
-    join series on instance.series_fk = series.pk))
-where study_fk=study.pk
---not sure end--
+    join series on instance.series_fk = series.pk
+  where study_fk = study.pk);
 alter table study modify storage_ids not null;
 create index UK_fypbtohf5skbd3bkyd792a6dt on study (storage_ids);
 alter table series add (rejection_state number(10,0));
