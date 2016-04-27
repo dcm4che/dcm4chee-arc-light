@@ -1,5 +1,5 @@
 alter table queue_msg modify msg_props varchar2(4000 char);
-ALTER TABLE LOCATION MODIFY OBJECT_SIZE NOT NULL MODIFY STORAGE_PATH NOT NULL MODIFY TSUID NOT NULL;
+alter table location modify object_size not null modify storage_path not null modify tsuid not null;
 create table ian_task (pk number(19,0) not null, calling_aet varchar2(255 char) not null, device_name varchar2(255 char) not null, ian_dests varchar2(255 char) not null, scheduled_time timestamp, study_iuid varchar2(255 char), mpps_fk number(19,0), primary key (pk));
 alter table ian_task add constraint UK_dq88edcjjxh7h92f89y5ueast  unique (study_iuid);
 create index UK_5shiir23exao1xpy2n5gvasrh on ian_task (device_name);
@@ -34,4 +34,3 @@ update study set rejection_state = 2 where not exists (
   select 1 from series where study.pk = series.study_fk and series.rejection_state != 2);
 alter table study modify rejection_state not null;
 create index UK_hwu9omd369ju3nufufxd3vof2 on study (rejection_state);
-
