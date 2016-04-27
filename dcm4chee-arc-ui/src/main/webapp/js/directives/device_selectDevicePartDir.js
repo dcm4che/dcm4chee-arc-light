@@ -76,6 +76,12 @@ myApp.directive("selectDevicePart",function($http,$compile, cfpLoadingBar, $log,
                         //     });
                         // });
                     }, function errorCallback(response) {
+                        scope.wholeDevice               = {};
+                        DeviceService.msg($scope, {
+                            "title": "Error",
+                            "text": response.status+":"+response.statusText,
+                            "status": "error"
+                        });
                         $log.error("Error",response);
                     });
                 }

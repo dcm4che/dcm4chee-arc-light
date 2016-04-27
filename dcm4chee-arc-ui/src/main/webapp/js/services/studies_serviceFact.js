@@ -58,7 +58,6 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
                 if(MMFrom<10){
                     MMFrom = '0'+MMFrom;
                 }
-                console.log("MMFrom",MMFrom);
                 if(ddFrom<10){
                     ddFrom = '0'+ddFrom;
                 }

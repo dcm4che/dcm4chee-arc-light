@@ -14,19 +14,12 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.dynamicform            = {};
     $scope.selectedPart           = {};
     $scope.selectObject           = $select;
-    //Just for debuging
     $scope.schemas                = schemas;
-    // var schemas = {};
     setTimeout(function(){
       $scope.$apply(function(){
         $scope.activeMenu         = "";
       });
     }, 2000);
-    // console.log("TESTCHNAGES.....");
-      //TEST
-    // DeviceService.addMissingCheckboxes($scope);
-      //TEST
-
     $scope.loadSchemaPart = function(href, name){
       $log.debug("laodschemaclicked href=",href);
       $log.debug("name=",name);
@@ -35,27 +28,21 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     *Watch when the user trys to leave the page
     */
     window.addEventListener("beforeunload", function(e) {
-        // if (!DeviceService.equalJSON($scope.wholeDevice, $scope.wholeDeviceCopy)) {
         if ($scope.saved === false) {
-
             var confirmationMessage = 'It looks like you have been editing something. ' + 'If you leave before saving, your changes will be lost.';
-
             (e || window.event).returnValue = confirmationMessage; //Gecko + IE
             return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
         }
     });
 
-
+    /*
+    *Get device schema
+    */
     $http({
         method: 'GET',
         url: 'schema/device.schema.json'
-        // url: '../devices'
     }).then(function successCallback(response) {
-        // $log.debug("before schemas=",schemas);
-        // $log.debug("new schemas=",response.data);
         schemas.device  = response.data;
-        // schemas.whole   = response.data;
-        $log.debug("after schemas=",schemas);
     }, function errorCallback(response) {
         $log.error("Error loading device names", response);
         vex.dialog.alert("Error loading device names, please reload the page and try again!");
@@ -63,8 +50,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
     //Warn if the user want to leav the page without saving the changes
     $scope.$on('$locationChangeStart', function(event) {
-        // $log.debug("check changes=", DeviceService.equalJSON($scope.wholeDevice, $scope.wholeDeviceCopy));
-        $log.debug("$scope.saved=",$scope.saved);
         if ($scope.saved === false) {
             var answer = confirm("Are you sure you want to leave this page without saving changes?")
             if (!answer) {
@@ -73,8 +58,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }
     });
     $scope.changeElement = function(element){
-            $log.warn("in changeElement selectedPart=", $scope.selectedPart);
-            $log.debug("element=",element);
             var checkDevice = element === "device";
             angular.forEach($select, function(m, j){
               if(element === j && $scope.selectedPart[j]  != undefined ){
@@ -97,52 +80,20 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 cfpLoadingBar.start();
                 if(element === 'dicomNetworkAE'){
                   $scope.selectedPart.dicomTransferCapability  = null;
-                  //$scope.transfareCapModel  = {};
                 }
-                // $log.debug("selectedElement=",$scope.selectedElement);
                 $scope.selectedElement  = element;
-                // $log.debug("selectedElement2=",$scope.selectedElement);
                 $scope.lastBorder       = "active_border";
                 $scope.showSave         = true;
-                console.log("schemas vor init in mainCtrl =",angular.copy(schemas));
-                console.log("form model vor init = ",angular.copy($scope.form));
-                // if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
-                //                 console.log("getschema 2");
 
-                //   DeviceService.getSchema($scope.selectedElement);
-                // }
-                // DeviceService.setFormModel($scope);
-
-                // $scope.dynamic_model = null;
-                // if($scope.form[$scope.selectedElement] && $scope.form[$scope.selectedElement].model){
-                //   $scope.form[$scope.selectedElement].model = null;
-                // }
                 if($scope.selectedElement === "device"){
-                    // $scope.dynamic_schema = DeviceService.getDeviceSchema();
                     $scope.dynamic_model  = $scope.wholeDevice;
                 }else{
 
-                    // if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
-                    //   console.log("getschema 1");
-                    //   DeviceService.getSchema($scope.selectedElement);
-                    // }
                     DeviceService.setFormModel($scope);
-                    console.log("$scope.form[$scope.selectedElement].model=",$scope.form[$scope.selectedElement].model);
                     $scope.dynamic_model = $scope.form[$scope.selectedElement].model;
                 }
-                console.log("form model nach init = ",$scope.form);
-                console.log("schemas nach init in mainCtrl =",schemas);
             }
-            // if ($scope.selectedPart.dicomNetworkAE != undefined && !$scope.selectedPart.dicomTransferCapability && $scope.devicename === "CHANGE_ME") {
-            //     DeviceService
-            //     .addDirectiveToDom(
-            //         $scope, 
-            //         "SelectDicomTransferCapability",
-            //         "<div select-transfare-capability></div>"
-            //     );
-            // }
             if($scope.devicename === "CHANGE_ME"){
-                // $timeout(function() {
                   DeviceService
                   .addDirectiveToDom(
                       $scope, 
@@ -150,19 +101,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       "<div edit-area></div>"
                   );
             }
-            // if ($scope.selectedPart.dicomNetworkConnection != undefined) {
-
-            //   $scope.networkAeSchema   = DeviceService.getSchemaNetworkAe();
-            //   // $scope.networkAeForm     = DeviceService.getFormNetworkAe($scope.wholeDevice.dicomNetworkConnection);
-            //   $log.warn("scope.networkAeForm commented out");
-            // }  
-            $log.debug("selectedElement2=",$scope.selectedElement);
             cfpLoadingBar.complete();
-            $log.debug("form=",$scope.form);
-            $log.debug("dynamic_model=",$scope.dynamic_model);
     };
     $scope.selectElement = function(element) {
-        $log.warn("in selectElement");
         var checkDevice = element === "device";
         angular.forEach($select, function(m, j){
             //Differentiate between array elements and not array elements becouse just the array elements (Select element) has selectedPart model
@@ -192,7 +133,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             //TODO Make this generic
             if(element === 'dicomNetworkAE'){
               $scope.selectedPart.dicomTransferCapability  = null;
-              //$scope.transfareCapModel  = {};
             }
             $scope.selectedElement  = element;
             if($scope.selectedElement === "device"){
@@ -200,35 +140,13 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.dynamic_model  = $scope.wholeDevice;
             }else{
                 if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
-                  console.log("getschema 1");
                   DeviceService.getSchema($scope.selectedElement);
                 }
                 DeviceService.setFormModel($scope);
-                // console.log("$scope.form[$scope.selectedElement].model=",$scope.form[$scope.selectedElement].model);
-                // if($scope.form[$scope.selectedElement] && $scope.form[$scope.selectedElement].model){
-
-                //   $scope.dynamic_model = $scope.form[$scope.selectedElement].model;
-                // }
-
             }
-            // console.log("form model nach init = ",$scope.form);
-            // console.log("schemas nach init in mainCtrl =",schemas);
-
-
-            // if($select[$scope.selectedElement] && $select[$scope.selectedElement].type != "array"){
-            //   DeviceService
-            //         .addDirectiveToDom(
-            //             $scope, 
-            //             "add_edit_area",
-            //             "<div edit-area></div>"
-            //         );
-            // }
             $scope.lastBorder       = "active_border";
             $scope.showSave         = true;
             cfpLoadingBar.complete();
-
-                        $log.debug("dynamic_model=",$scope.dynamic_model);
-
         }
     };
 
@@ -251,9 +169,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 "<div select-device-part></div>"
             );
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
-            //cfpLoadingBar.inc();
             //Wait a little bit so the angularjs has time to render the first directive otherwise some input fields are not showing
-            
             window.setTimeout(function() {
 
               DeviceService
@@ -268,7 +184,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
 
         } else {
             cfpLoadingBar.complete();
-            vex.dialog.alert("Select device"); //TODO add beautiful vex.dialog.alert
+            vex.dialog.alert("Select device");
         }
         setTimeout(function(){
             DeviceService.warnEvent($scope);
@@ -284,7 +200,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     if(value){
                       DeviceService.deleteDevice($scope);
                     }else{
-                      $log.debug("deleting canceled");
+                      $log.log("deleting canceled");
                     }
                   }
                });
@@ -292,7 +208,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
           vex.dialog.alert('Please select device first!');
         }
     };
-
+    /*
+    *Create new Device
+    */
     $scope.createDevice = function() {
         $scope.showSave         = true;
         $scope.showCancel       = true;
@@ -307,9 +225,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.middleBorder     = "active_border";
         $scope.lastBorder       = "active_border";
         $scope.showSave         = true;
-
-        // angular.element(document.getElementById('add_dropdowns'))
-        //     .html($compile("<div select-device-part></div>")($scope));
         DeviceService
         .addDirectiveToDom(
                 $scope,
@@ -318,8 +233,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         );
         //Wait a little bit so the angularjs has time to render the first directive otherwise some input fields are not showing
         window.setTimeout(function() {
-            // angular.element(document.getElementById('add_edit_area'))
-            //     .html($compile("<div edit-area></div>")($scope));
             DeviceService
             .addDirectiveToDom(
                     $scope,
@@ -330,7 +243,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }, 100);
         
     };
-
+    /*
+    *Delete part
+    */
     $scope.deletePart = function(element) {
         $scope.deletPartProcess = true;
         //TODO Make service for this

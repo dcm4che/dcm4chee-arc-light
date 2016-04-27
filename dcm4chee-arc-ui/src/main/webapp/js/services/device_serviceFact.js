@@ -701,7 +701,6 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
   			return {"valid":validProcess,"message":message};
         },
         deleteDevice: function($scope) {
-            // $log.debug("want to delete=",$scope.devicename);
             cfpLoadingBar.start();
             $http.delete("../devices/" + $scope.devicename)
                 .success(function(data, status, headers, config) {
@@ -726,12 +725,16 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                     $scope.showCancel	 	= false;
                     $scope.showSave	 		= false;
                     $scope.lastBorder	 	= "";
+                    // $scope.dynamic_model    = {};
+                    // $scope.dynamic_form     = [];
+                    // $scope.dynamic_schema   = {};
                     msg($scope, {
                         "title": "Info",
                         "text": "Device deleted successfully!",
                         "status": "info"
                     });
-                    angular.element(document.getElementById("add_dropdowns")).html("");
+                    angular.element("#add_dropdowns").html("");
+                    angular.element("#editDevice").html("");
                     cfpLoadingBar.complete();
                     return true;
                 })
@@ -1018,7 +1021,6 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                     // path["/dicomNetworkConnection/"+k] = m.cn;
 
                                     connObject.push(path);
-                                    $log.debug("connObject=", connObject);
                                 });
                                 $log.debug("connObject=", connObject);
                                 endArray.push("select");
@@ -1029,7 +1031,6 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                 };
                                 $log.debug("temp=", temp);
                                 endArray.push(temp);
-                                $log.debug("endarrayinif=", JSON.stringify(endArray));
                             } else {
 
                                 if (m.type === "array") {
@@ -1063,8 +1064,6 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                             }
                         });
                         // return Object.keys(schemas[scope.selectedElement][scope.selectedElement].items[scope.selectedElement].properties);
-                        console.log("endarray=", endArray);
-                        console.log("endarray=", JSON.stringify(endArray));
                         scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
                         scope.form[scope.selectedElement]["form"] = endArray;
                         $log.debug("in serviceFact getschema scope.formselectedelementform=",scope.form[scope.selectedElement]);
@@ -1082,7 +1081,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
         getSchema: function(selectedElement) {
             var localSchema = {};
 
-            if ($select[selectedElement].optionRef.length > 1) {
+            if ($select[selectedElement] && $select[selectedElement].optionRef.length > 1) {
                 schemas[selectedElement] = schemas[selectedElement] || {};
                 if (Object.keys(schemas[$select[selectedElement].optionRef[1]]).length < 1) {
                     var refs = $select[selectedElement].optionRef;
@@ -1145,93 +1144,105 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
         },
 
         setFormModel: function(scope) {
-            if ($select[scope.selectedElement].type === "array") {
-                if ($select[scope.selectedElement].optionRef.length > 1) {
-                    if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
-                        if ($select[$select[scope.selectedElement].optionRef[0]].type === "object") {
-                            angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]], function(k, j) {
-                                if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
+            if(scope.selectedElement){
+                if ($select[scope.selectedElement] && $select[scope.selectedElement].type === "array") {
+                    if ($select[scope.selectedElement].optionRef.length > 1) {
+                        if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
+                            if ($select[$select[scope.selectedElement].optionRef[0]].type === "object") {
+                                angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]], function(k, j) {
+                                    if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
+                                        if (!scope.form[scope.selectedElement]) {
+                                            scope.form[scope.selectedElement] = {};
+                                        }
+                                        scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j];
+                                    }
+                                });
+                            } else {
+                                angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i) {
+                                    if (scope.selectedPart[$select[scope.selectedElement].optionRef[0]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[$select[scope.selectedElement].optionRef[0]].optionValue]) {
+                                        angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]], function(k, j) {
+                                            if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
+                                                if (!scope.form[scope.selectedElement]) {
+                                                    scope.form[scope.selectedElement] = {};
+                                                }
+                                                scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j];
+                                            }
+
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    } else {
+                        if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
+                            angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i) {
+                                if (scope.selectedPart[scope.selectedElement] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionValue]) {
+                                    // console.log("in if2setFormmodel");
                                     if (!scope.form[scope.selectedElement]) {
                                         scope.form[scope.selectedElement] = {};
                                     }
-                                    scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j];
-                                }
-                            });
-                        } else {
-                            angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i) {
-                                if (scope.selectedPart[$select[scope.selectedElement].optionRef[0]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[$select[scope.selectedElement].optionRef[0]].optionValue]) {
-                                    angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]], function(k, j) {
-                                        if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
-                                            if (!scope.form[scope.selectedElement]) {
-                                                scope.form[scope.selectedElement] = {};
-                                            }
-                                            scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j];
-                                        }
-
-                                    });
+                                    scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i];
                                 }
                             });
                         }
                     }
                 } else {
-                    if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
-                        angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i) {
-                            if (scope.selectedPart[scope.selectedElement] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionValue]) {
-                                // console.log("in if2setFormmodel");
-                                if (!scope.form[scope.selectedElement]) {
-                                    scope.form[scope.selectedElement] = {};
-                                }
-                                scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i];
-                            }
-                        });
-                    }
-                }
-            } else {
-                if ($select[scope.selectedElement].optionRef.length > 1) {
-                    if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
-                        if ($select[$select[scope.selectedElement].optionRef[0]].type === "object") {
-                            angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]], function(k, j) {
-                                if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
-                                    if (!scope.form[scope.selectedElement]) {
-                                        scope.form[scope.selectedElement] = {};
+                    if ($select[scope.selectedElement] && $select[scope.selectedElement].optionRef.length > 1) {
+                        console.log("$select[scope.selectedElement]",$select[scope.selectedElement]);
+                        console.log("scope.wholeDevice",angular.copy(scope.wholeDevice));
+                        console.log("in if 1234",angular.copy(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]]));
+                        if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
+                            if ($select[$select[scope.selectedElement].optionRef[0]].type === "object") {
+                                console.log("in if if 1234");
+                                console.log("scope.wholeDevice",angular.copy(scope.wholeDevice));
+                                angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]], function(k, j) {
+                                    if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
+                                        if (!scope.form[scope.selectedElement]) {
+                                            scope.form[scope.selectedElement] = {};
+                                        }
+                                        scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j];
                                     }
-                                    scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j];
-                                }
-                            });
-                        } else {
-                            angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i) {
-                                if (scope.selectedPart[$select[scope.selectedElement].optionRef[0]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[$select[scope.selectedElement].optionRef[0]].optionValue]) {
-                                    angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]], function(k, j) {
-                                        if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
-                                            if (!scope.form[scope.selectedElement]) {
+                                });
+                            } else {
+                                angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i) {
+                                    if (scope.selectedPart[$select[scope.selectedElement].optionRef[0]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[$select[scope.selectedElement].optionRef[0]].optionValue]) {
+                                        if($select[$select[scope.selectedElement].optionRef[1]].type === "object"){
+                                            if(!scope.form[scope.selectedElement]) {
                                                 scope.form[scope.selectedElement] = {};
                                             }
                                             scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]];
+                                        }else{
+                                            angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]], function(k, j) {
+                                                if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] && scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
+                                                    if (!scope.form[scope.selectedElement]) {
+                                                        scope.form[scope.selectedElement] = {};
+                                                    }
+                                                    scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[scope.selectedElement].optionRef[1]];
+                                                }else{
+                                                    console.log("in else")
+                                                }
+                                            });
                                         }
-
-                                    });
-                                }
-                            });
+                                    }
+                                });
+                            }
+                        }else{
+                            console.log("in if 1234 else scope.wholeDevice", angular.copy(scope.wholeDevice));
                         }
-                    }
-                } else {
-                	// console.log("scope.selectedElement=",scope.selectedElement);
-                	// console.log("$select[scope.selectedElement].optionRef=",$select[scope.selectedElement].optionRef);
-                	// console.log("scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]=",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
-                    if (!scope.form[scope.selectedElement]) {
-                        scope.form[scope.selectedElement] = {};
-                    }
-                    if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
-                    	console.log("in if1234",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
-                        scope.dynamic_model = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
-                    }else{
-                    	console.log("in else 1234");
-                    	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]] = {};
-                        scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
+                    } else {
+                        console.log("in else 1234")
+                        if (!scope.form[scope.selectedElement]) {
+                            scope.form[scope.selectedElement] = {};
+                        }
+                        if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
+                            scope.dynamic_model = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
+                        }else{
+                        	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]] = {};
+                            scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
+                        }
                     }
                 }
             }
-            console.log("scope.form=",scope.form);
         },
         createPart: function($scope) {
             if ($select[$scope.selectedElement].optionRef.length > 1) {
@@ -1305,6 +1316,9 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                 }
             }
         },
+        /*
+        *Bind warn event to devicename, to warn the user if he wants to change the name of the device
+        */
         warnEvent: function(scope) {
             if (scope.selectedElement === 'device') {
                 var timeout = 300;

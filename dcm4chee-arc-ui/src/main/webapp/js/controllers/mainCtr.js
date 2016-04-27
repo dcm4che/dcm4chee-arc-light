@@ -35,21 +35,6 @@ myApp.controller('MainController', function ($scope, $location, $http) {
   }, function errorCallback(response) {
       // vex.dialog.alert("Error loading device names, please reload the page and try again!");
   }); 
-  // $scope.isRole = function(role){
-  //   console.log("role=",role);
-  //   console.log("$scope.user.roles=",$scope.user.roles);
-  //   if($scope.user && $scope.user.roles && $scope.user.roles.indexOf(role) > 0){
-  //     return true;
-  //   }else{
-  //     return false;
-  //   }
-  // };
-  // (function(){
-  //   angular.forEach(angular.element("input"),function(m, i){
-  //     console.log("input m =",m);
-  //     console.log("i=",i);
-  //   });
-  // })();
   $scope.toggleMenu = function(){
     if($scope.showMenu){
       	$scope.showMenu = false;

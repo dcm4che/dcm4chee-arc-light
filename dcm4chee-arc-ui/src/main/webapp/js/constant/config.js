@@ -76,7 +76,7 @@ myApp.constant("$select",
           "cn": "Conneciton name",
           "dicomHostname":"Hostname"
         }
-      },
+      },      
       "dicomNetworkAE":{
         "title" : "Network AE",
         "optionRef" : ["dicomNetworkAE"],

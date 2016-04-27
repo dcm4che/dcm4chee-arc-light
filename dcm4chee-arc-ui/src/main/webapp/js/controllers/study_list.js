@@ -17,13 +17,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.showModalitySelector = false;
     $scope.filter = { orderby: "-StudyDate,-StudyTime" };
     $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
-    // $scope.studyDate = { from: '', to: ''};
     $scope.studyTime = { from: '', to: ''};
     $scope.format = "yyyyMMdd";
     $scope.format2 = "yyyy-MM-dd";
     $scope.modalities = $modalities;
-    
-            // console.log("studies=",$scope.studies);
     $scope.rjcode = null;
     $scope.setTrash = function(ae){
         if(ae.dcmHideNotRejectedInstances === true){
@@ -35,13 +32,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.trashaktive = true;
         }else{
             $scope.trashaktive = false;
-        }
-    };
-    $scope.changeModality = function(){
-        if(filter.ModalitiesInStudy){
-            angular.element(".Modality").hide();
-        }else{
-            angular.element(".Modality").show();
         }
     };
     $scope.addFileAttribute = function(studykey, serieskey, key){
@@ -184,7 +174,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     }
 
     $scope.queryStudies = function(offset) {
-        console.log("offset",offset);
         cfpLoadingBar.start();
         if (offset < 0) offset = 0;
         QidoService.queryStudies(
