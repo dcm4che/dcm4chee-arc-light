@@ -152,26 +152,27 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
           }
     };
 
-    $scope.studyDateFromChange = function(){
+    $scope.$watchCollection('studyDate', function(newValue, oldValue){
         cfpLoadingBar.start();
-        if($scope.studyDate.fromObject){
-            angular.element(".StudyDateFrom").show();
-        }else{
-            angular.element(".StudyDateFrom").hide();
+        if(newValue.fromObject != oldValue.fromObject){
+            if($scope.studyDate.fromObject){
+                angular.element(".StudyDateFrom").show();
+            }else{
+                angular.element(".StudyDateFrom").hide();
+            }
+            StudiesService.updateFromDate($scope.studyDate);
         }
-        StudiesService.updateFromDate($scope.studyDate);
-
-    }
-    $scope.studyDateToChange = function(){
-        cfpLoadingBar.start();
-        if($scope.studyDate.toObject){
-            angular.element(".StudyDateTo").show();
-        }else{
-            angular.element(".StudyDateTo").hide();
+        if(newValue.toObject != oldValue.toObject){
+            cfpLoadingBar.start();
+            if($scope.studyDate.toObject){
+                angular.element(".StudyDateTo").show();
+            }else{
+                angular.element(".StudyDateTo").hide();
+            }
+            StudiesService.updateToDate($scope.studyDate);
         }
-        StudiesService.updateToDate($scope.studyDate);
-
-    }
+        cfpLoadingBar.complete();
+    });
 
     $scope.queryStudies = function(offset) {
         cfpLoadingBar.start();
