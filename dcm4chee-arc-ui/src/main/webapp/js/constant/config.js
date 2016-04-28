@@ -72,11 +72,18 @@ myApp.constant("$select",
         "optionRef" : ["dicomNetworkConnection"],
         "optionValue": "cn",
         "type": "array",
+        "parentOf" : ["dcmNetworkConnection"],
         "required":{
           "cn": "Conneciton name",
           "dicomHostname":"Hostname"
         }
-      },      
+      },
+      "dcmNetworkConnection":{
+        "title" : "dcm4che Network Connection Attributes",
+        "optionRef" : ["dicomNetworkConnection","dcmNetworkConnection"],
+        "optionValue": "dcmProtocol",
+        "type": "object"
+      },    
       "dicomNetworkAE":{
         "title" : "Network AE",
         "optionRef" : ["dicomNetworkAE"],
@@ -177,7 +184,10 @@ myApp.constant("$select",
         "title" : "Audit Suppress Criteria",
         "optionRef" : ["dcmAuditLogger","dcmAuditSuppressCriteria"],
         "optionValue": "cn",
-        "type": "array"
+        "type": "array",        
+        "required":{
+          "cn": "Name"
+        }
       },
       "dcmAuditRecordRepository":{
         "title" : "Audit Record Repository",

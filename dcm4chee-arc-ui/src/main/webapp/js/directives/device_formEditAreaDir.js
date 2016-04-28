@@ -2,15 +2,12 @@
 
 myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile, schemas, $select){
     var execute = function(scope,elm,attr){
-            // console.log("in execute");
                 scope.dynamic_schema    = {};
-                scope.dynamic_model     = {};
                 scope.dynamic_form      = [];
               if(scope.selectedElement === "device"){
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
 
                 scope.dynamic_schema = DeviceService.getDeviceSchema();
-                // $log.debug("scope.deviceSchema",scope.deviceSchema);
                 if(!scope.deviceSchema){
                     var timeOut = 0;
                     var schema  = {};
@@ -34,7 +31,6 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                     var waitForWholeDevice = setInterval(function(){
                         if(scope.wholeDevice !== undefined){
                             clearInterval(waitForWholeDevice);
-                            console.log("wholeDevice",scope.dynamic_model);
                             scope.dynamic_model = scope.wholeDevice;
                         }
                         if(timeOut > 100){  //If the program is waiting more than 10 sec than break up and show alert
@@ -46,7 +42,6 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                     }, 100);
                 }else{
                     scope.dynamic_model = scope.wholeDevice;
-                    console.log("2wholeDevice",scope.dynamic_model);
                 }
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
                 scope.dynamic_form = DeviceService.getDeviceForm();
@@ -57,11 +52,18 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                     scope.dynamic_form = scope.form[scope.selectedElement]["form"];
                     var timeout = 300;
                     var wait = setInterval(function(){
+                            var checkItemsProperties = (
+                                schemas[scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement] &&
+                                schemas[scope.selectedElement][scope.selectedElement]["items"] &&
+                                schemas[scope.selectedElement][scope.selectedElement]["items"]["properties"] 
+                                );
                             var checkItems = (
                                 schemas[scope.selectedElement] &&
                                 schemas[scope.selectedElement][scope.selectedElement] &&
                                 schemas[scope.selectedElement][scope.selectedElement]["items"] &&
-                                schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]                            );
+                                schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement]
+                                );
                             var checkProp = (
                                 schemas[scope.selectedElement] &&
                                 schemas[scope.selectedElement][scope.selectedElement] &&
@@ -73,17 +75,7 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                                 schemas[scope.selectedElement][scope.selectedElement] &&
                                 schemas[scope.selectedElement][scope.selectedElement]["properties"]
                             );
-                        if(
-                            (
-                                checkItems
-                            )
-                            ||
-                            (
-                                checkProp
-                            )
-                            ||
-                            checkPropShort
-                           ){
+                        if(checkItems || checkProp|| checkPropShort || checkItemsProperties){
                             clearInterval(wait);
                             if($select[scope.selectedElement].parentOf){
                                 angular.forEach($select[scope.selectedElement].parentOf,function(m,i){
@@ -106,18 +98,24 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                                         ){
                                         delete schemas[scope.selectedElement][scope.selectedElement].properties[$select[scope.selectedElement].parentOf[i]];
                                     }
+                                    if(checkItemsProperties &&
+                                        schemas[scope.selectedElement][scope.selectedElement].itmes.properties[$select[scope.selectedElement].parentOf[i]]
+                                        ){
+                                            delete schemas[scope.selectedElement][scope.selectedElement].itmes.properties[$select[scope.selectedElement].parentOf[i]]
+                                    }
                                 });
                             }
                             if(checkItems){
                                 scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement]["items"][scope.selectedElement];
-                                console.log("in if checkitems",angular.copy(scope.dynamic_schema));
                             }else{
                                 if(checkProp){
                                     scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement][scope.selectedElement];
-                                    console.log("in else1 checkitems",angular.copy(scope.dynamic_schema));
                                 }else{
-                                    scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement];
-                                    console.log("in else2 checkitems",angular.copy(scope.dynamic_schema));
+                                    if(checkItemsProperties){
+                                        scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement].items;
+                                    }else{
+                                        scope.dynamic_schema = schemas[scope.selectedElement][scope.selectedElement];
+                                    }
                                 }
                             }
                             scope.dynamic_form = scope.form[scope.selectedElement]["form"];
@@ -132,28 +130,15 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                     },10);
 
                     DeviceService.setFormModel(scope);
-                    // var waitSchemaForm = setInterval(function(){
-                    //     if(Object.keys(scope.dynamic_schema).length > 0 && scope.dynamic_form && scope.dynamic_form.length > 0){
-                    //         clearInterval(waitSchemaForm);
-                    //         console.log("xscope.dynamic_form=",angular.copy(scope.dynamic_form));
-                    //         console.log("scope.dynamic_model=",angular.copy(scope.dynamic_schema));
-                            if(scope.form[scope.selectedElement] && scope.form[scope.selectedElement]["model"]){
-                                scope.dynamic_model = scope.form[scope.selectedElement]["model"];
-                            }else{
-                                scope.dynamic_model = {};
-                            }
-                            if(($select[scope.selectedElement].optionRef.length > 1 && $select[$select[scope.selectedElement].optionRef[1]].type === "object") || ($select[scope.selectedElement].optionRef.length === 1 && $select[$select[scope.selectedElement].optionRef[0]].type === "object")){
-                                DeviceService.createPart(scope);
-                            }
-                    //     }else{
-                    //         console.log("in wait");
-                    //     }
-                    // },10);
-                    console.log("selectedElement=",scope.selectedElement);
-                    console.log("form=",scope.form);
-                    console.log("scope.dynamic_schema=",scope.dynamic_schema);
-                    console.log("scope.dynamic_form=",scope.dynamic_form);
-                    // console.log("scope.dynamic_model=",scope.dynamic_model);
+                    if(scope.form[scope.selectedElement] && scope.form[scope.selectedElement]["model"]){
+                        scope.dynamic_model = {};
+                        scope.dynamic_model = scope.form[scope.selectedElement]["model"];
+                    }else{
+                        scope.dynamic_model = {};
+                    }
+                    if(($select[scope.selectedElement].optionRef.length > 1 && $select[$select[scope.selectedElement].optionRef[1]].type === "object") || ($select[scope.selectedElement].optionRef.length === 1 && $select[$select[scope.selectedElement].optionRef[0]].type === "object")){
+                        DeviceService.createPart(scope);
+                    }
                 }
                 scope.showSave = true;
     };

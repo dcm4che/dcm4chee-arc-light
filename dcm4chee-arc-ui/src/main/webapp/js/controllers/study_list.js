@@ -617,7 +617,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $http.get("../export").then(
             function (res) {
                 $scope.exporters = res.data;
-                $scope.exporterID = res.data[0].id;
+                if(res.data && res.data[0] && res.data[0].id){
+                    $scope.exporterID = res.data[0].id;
+                }
             },
             function (res) {
                 if (retries)

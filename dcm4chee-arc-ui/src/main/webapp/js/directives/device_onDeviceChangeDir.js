@@ -8,7 +8,6 @@ myApp.directive('onDeviceChange', function($compile, $log, DeviceService) {
 		restrict: 'A',
       	link: function(scope, elm, attrs) {    
            	elm.bind('change', function() {
-           		$log.debug("on change onDeviceChangeDir");
            		//Print warning if something was changed, and the user want to select an other device
 	      		if(scope.currentDevice != undefined && scope.saved != undefined && !scope.saved){		          
 		          	vex.dialog.confirm({
