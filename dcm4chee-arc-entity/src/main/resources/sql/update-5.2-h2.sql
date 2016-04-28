@@ -1,4 +1,4 @@
-alter table queue_msg alter column msg_props varchar(4000) not null;  --uncertain
+alter table queue_msg alter column msg_props varchar(4000) not null;
 alter table location alter column object_size set not null;
 alter table location alter column storage_id set not null;
 alter table location alter column storage_path set not null;
@@ -11,42 +11,30 @@ update code set code_version = '*' where code_version is null;
 alter table code alter column code_version set not null;
 alter table code drop constraint UK_l01jou0o1rohy7a9p933ndrxg;
 alter table code add constraint UK_sb4oc9lkns36wswku831c33w6  unique (code_value, code_designator, code_version);
-alter table study drop scattered_storage;   --uncertain
+alter table study drop scattered_storage;
 alter table study add storage_ids varchar(255);
-
----uncertain-start--------
 update study set storage_ids = (
-  select string_agg(distinct cast(storage_id as varchar), '\')
+  select group_concat(distinct cast(storage_id as varchar) separator '\')
   from location
     join instance on location.instance_fk = instance.pk
     join series on instance.series_fk = series.pk
   where study_fk = study.pk);
----uncertain-end---------
-
 alter table study alter column storage_ids set not null;
 create index UK_fypbtohf5skbd3bkyd792a6dt on study (storage_ids);
 alter table series add rejection_state integer;
 update series set rejection_state = 1;
-
----uncertain-start--------
 update series set rejection_state = 0 where not exists (
   select 1 from instance where series.pk = instance.series_fk and instance.reject_code_fk is not null);
 update series set rejection_state = 2 where rejection_state = 1 and not exists (
   select 1 from instance where series.pk = instance.series_fk and instance.reject_code_fk is null);
----uncertain-end---------
-
 alter table series alter column rejection_state set not null;
 create index UK_jlgy9ifvqak4g2bxkchismw8x on series (rejection_state);
 alter table study add rejection_state integer;
 update study set rejection_state = 1;
-
----uncertain-start--------
 update study set rejection_state = 0 where not exists (
   select 1 from series where study.pk = series.study_fk and series.rejection_state != 0);
 update study set rejection_state = 2 where not exists (
   select 1 from series where study.pk = series.study_fk and series.rejection_state != 2);
----uncertain-end--------
-
 alter table study alter column rejection_state set not null;
 create index UK_hwu9omd369ju3nufufxd3vof2 on study (rejection_state);
 
