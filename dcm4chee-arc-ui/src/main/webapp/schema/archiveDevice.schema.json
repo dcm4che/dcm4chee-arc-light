@@ -249,6 +249,11 @@
       "minimum": 100,
       "exclusiveMinimum": true
     },
+    "dcmWadoSpoolDirectory": {
+      "title": "Wado-RS Spool Directory",
+      "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.",
+      "type": "string"
+    },
     "dcmAttributeFilter": {
       "$ref": "attributeFilter.schema.json"
     },
