@@ -93,6 +93,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration auditPollingInterval;
     private Duration auditAggregateDuration;
     private String stowSpoolDirectory;
+    private String wadoSpoolDirectory;
     private Duration purgeQueueMessagePollingInterval;
     private int purgeQueueMessageFetchSize = 100;
 
@@ -450,6 +451,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.stowSpoolDirectory = stowSpoolDirectory;
     }
 
+    public String getWadoSpoolDirectory() {
+        return wadoSpoolDirectory;
+    }
+
+    public void setWadoSpoolDirectory(String wadoSpoolDirectory) {
+        this.wadoSpoolDirectory = wadoSpoolDirectory;
+    }
+
     public Duration getPurgeQueueMessagePollingInterval() {
         return purgeQueueMessagePollingInterval;
     }
@@ -691,6 +700,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditPollingInterval = arcdev.auditPollingInterval;
         auditAggregateDuration = arcdev.auditAggregateDuration;
         stowSpoolDirectory = arcdev.stowSpoolDirectory;
+        wadoSpoolDirectory = arcdev.wadoSpoolDirectory;
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
         purgeQueueMessageFetchSize = arcdev.purgeQueueMessageFetchSize;
         attributeFilters.clear();

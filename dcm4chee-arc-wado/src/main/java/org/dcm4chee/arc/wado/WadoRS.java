@@ -52,6 +52,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -59,6 +60,7 @@ import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.action.GetPropertyAction;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
@@ -67,6 +69,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.Path;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
@@ -75,7 +78,10 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.*;
 import java.util.*;
+
+import static java.security.AccessController.doPrivileged;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -86,6 +92,7 @@ import java.util.*;
 public class WadoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadoRS.class);
+    private static final String TMPDIR = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
 
     @Inject
     private RetrieveService service;
@@ -115,6 +122,9 @@ public class WadoRS {
     private List<MediaType> acceptableMediaTypes;
     private Map<String, MediaType> selectedMediaTypes;
     private CompressedMFPixelDataOutput compressedMFPixelDataOutput;
+    private UncompressedFramesOutput uncompressedFramesOutput;
+    private Response.Status responseStatus;
+    private java.nio.file.Path spoolDirectory;
 
     @Override
     public String toString() {
@@ -234,7 +244,6 @@ public class WadoRS {
                 null, new AttributePath(attributePath).path, ar, Output.BULKDATA_PATH);
     }
 
-/*
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
     @Produces("multipart/related")
@@ -248,6 +257,7 @@ public class WadoRS {
                 new FrameList(frameList).frames, null, ar, Output.BULKDATA_FRAME);
     }
 
+/*
     @GET
     @Path("/studies/{studyUID}/rendered")
     @Produces("multipart/related")
@@ -339,13 +349,15 @@ public class WadoRS {
                 @Override
                 public void onComplete(Throwable throwable) {
                     SafeClose.close(compressedMFPixelDataOutput);
+                    SafeClose.close(uncompressedFramesOutput);
+                    purgeSpoolDirectory();
                     ctx.setException(throwable);
                     retrieveEnd.fire(ctx);
                 }
             });
-            ar.resume(Response.status(
-                    notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT)
-                    .entity(output.entity(this, ctx, frameList, attributePath)).build());
+            responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
+            Object entity = output.entity(this, ctx, frameList, attributePath);
+            ar.resume(Response.status(responseStatus).entity(entity).build());
         } catch (Exception e) {
             ar.resume(e);
         }
@@ -385,8 +397,8 @@ public class WadoRS {
             }
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
-                super.addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
+                wadoRS.writeFrames(output, ctx, inst, frameList);
             }
         },
         BULKDATA_PATH {
@@ -403,14 +415,14 @@ public class WadoRS {
         RENDER {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
                 super.addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
         },
         RENDER_FRAME {
             @Override
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                                   InstanceLocations inst, int[] frameList, int[] attributePath) {
+                                   InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
                 super.addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
         },
@@ -436,7 +448,8 @@ public class WadoRS {
             }
         };
 
-        public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+        public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath)
+                throws IOException {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             for (InstanceLocations inst : ctx.getMatches()) {
                 addPart(output, wadoRS, ctx, inst, frameList, attributePath);
@@ -477,7 +490,7 @@ public class WadoRS {
         }
 
         protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
-                               InstanceLocations inst, int[] frameList, int[] attributePath) {
+                               InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
              throw new WebApplicationException(name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE);
         }
 
@@ -519,6 +532,77 @@ public class WadoRS {
         }
         OutputPart outputPart = output.addPart(entity, mediaType);
         outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
+    }
+
+    private void writeFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
+                             int[] frameList) throws IOException {
+        int numFrames = inst.getAttributes().getInt(Tag.NumberOfFrames, 1);
+        frameList = adjustFrameList(frameList, numFrames);
+        MediaType mediaType = selectedMediaTypes.get(inst.getSopInstanceUID());
+        StringBuffer bulkdataURL = request.getRequestURL();
+        mkInstanceURL(bulkdataURL, inst);
+        StreamingOutput entity;
+        ObjectType objectType = ObjectType.objectTypeOf(inst, null);
+        switch (objectType) {
+            case UncompressedMultiFrameImage:
+                writeUncompressedFrames(output, ctx, inst, frameList, bulkdataURL);
+                return;
+            case CompressedMultiFrameImage:
+                if (mediaType == MediaType.APPLICATION_OCTET_STREAM_TYPE)
+                    writeDecompressedFrames(output, ctx, inst, frameList, bulkdataURL);
+                else
+                    writeCompressedFrames(output, ctx, inst, frameList, mediaType, bulkdataURL);
+                return;
+            case UncompressedSingleFrameImage:
+                entity = new BulkdataOutput(ctx, inst, Tag.PixelData);
+                break;
+            case CompressedSingleFrameImage:
+                entity = mediaType == MediaType.APPLICATION_OCTET_STREAM_TYPE
+                        ? new DecompressPixelDataOutput(ctx, inst)
+                        : new CompressedPixelDataOutput(ctx, inst);
+                break;
+            default:
+                throw new AssertionError("Unexcepted object type: " + objectType);
+        }
+        OutputPart outputPart = output.addPart(entity, mediaType);
+        outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
+    }
+
+    private int[] adjustFrameList(int[] frameList, int numFrames) {
+        int len = 0;
+        for (int frame : frameList) {
+            if (frame <= numFrames)
+                frameList[len++] = frame;
+        }
+        if (len == frameList.length)
+            return frameList;
+
+        if (len == 0)
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+
+        responseStatus = Response.Status.PARTIAL_CONTENT;
+        return Arrays.copyOf(frameList, len);
+    }
+
+    private void writeUncompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
+                                         int[] frameList, StringBuffer bulkdataURL) throws IOException {
+        bulkdataURL.append("/frames/");
+        int length = bulkdataURL.length();
+        uncompressedFramesOutput = new UncompressedFramesOutput(ctx, inst, frameList, spoolDirectory(frameList));
+        for (int frame : frameList) {
+            OutputPart outputPart = output.addPart(uncompressedFramesOutput, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+            bulkdataURL.setLength(length);
+            bulkdataURL.append(frame);
+            outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
+        }
+    }
+
+    private void writeDecompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
+                                         int[] frameList, StringBuffer bulkdataURL) {
+    }
+
+    private void writeCompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
+                                       int[] frameList, MediaType mediaType, StringBuffer bulkdataURL) {
     }
 
     private void writeCompressedMultiFrameImage(MultipartRelatedOutput output, RetrieveContext ctx,
@@ -702,9 +786,48 @@ public class WadoRS {
             String[] split = StringUtils.split(s, ',');
             int[] frames = new int[split.length];
             for (int i = 0; i < split.length; i++) {
-                frames[i] = Integer.parseInt(split[i]);
+                if ((frames[i] = Integer.parseInt(split[i])) <= 0)
+                    throw new IllegalArgumentException(s);
             }
             this.frames = frames;
         }
+    }
+
+    private java.nio.file.Path spoolDirectoryRoot() throws IOException {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String dirPath = arcDev.getWadoSpoolDirectory();
+        if (dirPath == null)
+            return Paths.get(TMPDIR);
+
+        return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(dirPath)));
+    }
+
+    private java.nio.file.Path spoolDirectory(int[] frameList) throws IOException {
+        for (int i = 1; i < frameList.length; i++) {
+            if (frameList[i-1] > frameList[i])
+                return (spoolDirectory = Files.createTempDirectory(spoolDirectoryRoot(), null));
+        }
+        return null;
+    }
+
+    private void purgeSpoolDirectory() {
+        if (spoolDirectory == null)
+            return;
+
+        try {
+            try (DirectoryStream<java.nio.file.Path> dir = Files.newDirectoryStream(spoolDirectory)) {
+                for (java.nio.file.Path file : dir) {
+                    try {
+                        Files.delete(file);
+                    } catch (IOException e) {
+                        LOG.warn("Failed to delete frame spool file {}", file, e);
+                    }
+                }
+            }
+            Files.delete(spoolDirectory);
+        } catch (IOException e) {
+            LOG.warn("Failed to purge spool directory {}", spoolDirectory, e);
+        }
+
     }
 }
