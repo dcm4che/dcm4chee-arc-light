@@ -507,7 +507,6 @@ dicomAuthorizedNodeCertificateReference: dicomDeviceName=movescu,cn=Devices,cn=D
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=hl7snd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmStorageID: fs1
 dicomManufacturer: dcm4che.org
-dcmStowSpoolDirectory: ${jboss.server.data.dir}/stow-spool
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret

@@ -313,7 +313,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.62 NAME 'dcmAccessControlID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.63 NAME 'dcmAuditSpoolDirectory'
-  DESC 'Path to Audit Service Spool Directory used to aggregate Audit Messages. Audit Message aggregation disabled, if absent.'
+  DESC 'Path to Audit Service Spool Directory used to aggregate Audit Messages. If absent, aggregation done in temp directory.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
@@ -391,6 +391,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdatePolicy'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE)
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.79 NAME 'dcmWadoSpoolDirectory'
+  DESC 'Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -434,10 +439,11 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAuditPollingInterval $
     dcmAuditAggregateDuration $
     dcmStowSpoolDirectory $
+    dcmWadoSpoolDirectory $
     hl7PatientUpdateTemplateURI $
     dcmUnzipVendorDataToURI $
     dcmPurgeQueueMessagePollingInterval $
-    dcmPurgeQueueMessageFetchSize) )
+    dcmPurgeQueueMessageFetchSize ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY

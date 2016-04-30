@@ -736,10 +736,8 @@ class ArchiveDeviceFactory {
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
     static final int DELETE_REJECTED_FETCH_SIZE = 10;
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
-    static final String WADO_SPOOL_DIR =  "${jboss.server.data.dir}/wado-spool";
     static final Duration AUDIT_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration AUDIT_AGGREGATE_DURATION = Duration.parse("PT1M");
-    static final String STOW_SPOOL_DIR =  "${jboss.server.data.dir}/stow-spool";
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
     }
@@ -981,8 +979,6 @@ class ArchiveDeviceFactory {
         ext.setAuditSpoolDirectory(AUDIT_SPOOL_DIR);
         ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
         ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
-        ext.setStowSpoolDirectory(STOW_SPOOL_DIR);
-        ext.setWadoSpoolDirectory(WADO_SPOOL_DIR);
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));

@@ -61,7 +61,6 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.action.GetPropertyAction;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -69,7 +68,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.Path;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
@@ -79,10 +77,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
-
-import static java.security.AccessController.doPrivileged;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -93,7 +91,7 @@ import static java.security.AccessController.doPrivileged;
 public class StowRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StowRS.class);
-    private static final String TMPDIR = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
+    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp}";
 
     @Inject
     private StoreService service;
@@ -438,11 +436,8 @@ public class StowRS {
 
     private java.nio.file.Path spoolDirectoryRoot() throws IOException {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String dirPath = arcDev.getStowSpoolDirectory();
-        if (dirPath == null)
-            return Paths.get(TMPDIR);
-
-        return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(dirPath)));
+        return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(
+                StringUtils.maskNull(arcDev.getStowSpoolDirectory(), JBOSS_SERVER_TEMP))));
     }
 
     private Attributes mkSOPRefWithRetrieveURL(StoreContext ctx) {

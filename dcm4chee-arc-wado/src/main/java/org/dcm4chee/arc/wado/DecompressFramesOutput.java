@@ -46,29 +46,76 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Apr 2016
  */
-public class DecompressPixelDataOutput extends DecompressSupport implements StreamingOutput {
+public class DecompressFramesOutput extends DecompressSupport implements StreamingOutput {
 
-    public DecompressPixelDataOutput(RetrieveContext ctx, InstanceLocations inst) {
+    private final int[] frameList;
+    private final Path[] spoolFiles;
+    private final Path spoolDirectory;
+    private int frame = 1;
+    private int frameListIndex;
+
+    public DecompressFramesOutput(RetrieveContext ctx, InstanceLocations inst, int[] frameList, Path spoolDirectory) {
         super(ctx, inst);
+        this.frameList = frameList;
+        this.spoolDirectory = spoolDirectory;
+        this.spoolFiles = spoolDirectory != null ? new Path[this.frameList.length] : null;
     }
 
     @Override
     public void write(OutputStream out) throws IOException {
         try {
-            initEncapsulatedPixelData();
-            int frame = 1;
-            while (!encapsulatedPixelData.isEndOfStream()) {
-                decompressFrame(frame++);
-                writeFrameTo(out);
+            if (frameListIndex == 0)
+                initEncapsulatedPixelData();
+
+            if (encapsulatedPixelData == null) {
+                Files.copy(spoolFiles[frameListIndex++], out);
+                return;
             }
-        } finally {
+            int nextFrame = frameList[frameListIndex++];
+            while (frame < nextFrame) {
+                skipFrame();
+                frame++;
+            }
+
+            decompressFrame(frame);
+            writeFrameTo(out);
+            frame++;
+            if (allFramesRead())
+                close();
+        } catch (IOException e) {
             close();
+            throw e;
         }
+    }
+
+    private void skipFrame() throws IOException {
+        for (int i = frameListIndex; i < frameList.length; i++) {
+            if (frame == frameList[i]) {
+                spoolFiles[i] = Files.createTempFile(spoolDirectory, null, null);
+                try (OutputStream out = Files.newOutputStream(spoolFiles[i])) {
+                    decompressFrame(frame);
+                    writeFrameTo(out);
+                }
+                return;
+            }
+        }
+        if (!encapsulatedPixelData.seekNextFrame())
+            throw new IOException("Number of data fragments not sufficient for number of frames in requested object");
+    }
+
+    private boolean allFramesRead() {
+        for (int i = frameListIndex; i < frameList.length; i++) {
+            if (frame <= frameList[i])
+                return false;
+        }
+        return true;
     }
 
 }

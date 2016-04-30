@@ -40,9 +40,10 @@
 
 package org.dcm4chee.arc.audit;
 
-
 import org.dcm4che3.audit.*;
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
@@ -60,7 +61,6 @@ import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.action.GetPropertyAction;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -74,8 +74,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
-import static java.security.AccessController.doPrivileged;
-
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -84,7 +82,7 @@ import static java.security.AccessController.doPrivileged;
 @ApplicationScoped
 public class AuditService {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
-    private static final String TMPDIR = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
+    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp}";
     private static final String NO_VALUE = "<none>";
     private static final String studyDate = "StudyDate";
 
@@ -166,12 +164,10 @@ public class AuditService {
     private void writeSpoolFile(String eventType, LinkedHashSet<Object> obj) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
-        boolean append = Files.exists(dir);
+        Path dir = Paths.get(StringUtils.replaceSystemProperties(
+                auditAggregate? arcDev.getAuditSpoolDirectory() : JBOSS_SERVER_TEMP));
         try {
-            if (!append)
-                Files.createDirectories(dir);
+            Files.createDirectories(dir);
             Path file = Files.createTempFile(dir, eventType, null);
             try (LineWriter writer = new LineWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                     StandardOpenOption.APPEND))) {
@@ -328,13 +324,11 @@ public class AuditService {
     void spoolQuery(QueryContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
-        boolean append = Files.exists(dir);
+        Path dir = Paths.get(StringUtils.replaceSystemProperties(
+                auditAggregate? arcDev.getAuditSpoolDirectory() : JBOSS_SERVER_TEMP));
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forQuery(ctx);
         try {
-            if (!append)
-                Files.createDirectories(dir);
+            Files.createDirectories(dir);
             Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
             try (BufferedOutputStream out = new BufferedOutputStream(
                     Files.newOutputStream(file, StandardOpenOption.APPEND))) {
@@ -399,8 +393,8 @@ public class AuditService {
     private void writeSpoolFileStoreOrWadoRetrieve(String fileName, Object patStudyInfo, Object instanceInfo) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
-        Path dir = Paths.get(
-                auditAggregate ? StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()) : TMPDIR);
+        Path dir = Paths.get(StringUtils.replaceSystemProperties(
+                auditAggregate? arcDev.getAuditSpoolDirectory() : JBOSS_SERVER_TEMP));
         Path file = dir.resolve(fileName);
         boolean append = Files.exists(file);
         try {

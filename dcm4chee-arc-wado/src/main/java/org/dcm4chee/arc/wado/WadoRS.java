@@ -60,7 +60,6 @@ import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.action.GetPropertyAction;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
@@ -69,7 +68,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.Path;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
@@ -78,10 +76,10 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
-
-import static java.security.AccessController.doPrivileged;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -92,7 +90,7 @@ import static java.security.AccessController.doPrivileged;
 public class WadoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadoRS.class);
-    private static final String TMPDIR = doPrivileged(new GetPropertyAction("java.io.tmpdir"));
+    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp}";
 
     @Inject
     private RetrieveService service;
@@ -123,6 +121,8 @@ public class WadoRS {
     private Map<String, MediaType> selectedMediaTypes;
     private CompressedMFPixelDataOutput compressedMFPixelDataOutput;
     private UncompressedFramesOutput uncompressedFramesOutput;
+    private CompressedFramesOutput compressedFramesOutput;
+    private DecompressFramesOutput decompressFramesOutput;
     private Response.Status responseStatus;
     private java.nio.file.Path spoolDirectory;
 
@@ -350,6 +350,8 @@ public class WadoRS {
                 public void onComplete(Throwable throwable) {
                     SafeClose.close(compressedMFPixelDataOutput);
                     SafeClose.close(uncompressedFramesOutput);
+                    SafeClose.close(compressedFramesOutput);
+                    SafeClose.close(decompressFramesOutput);
                     purgeSpoolDirectory();
                     ctx.setException(throwable);
                     retrieveEnd.fire(ctx);
@@ -597,12 +599,31 @@ public class WadoRS {
         }
     }
 
-    private void writeDecompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
-                                         int[] frameList, StringBuffer bulkdataURL) {
+    private void writeCompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
+                                       int[] frameList, MediaType mediaType, StringBuffer bulkdataURL)
+            throws IOException {
+        bulkdataURL.append("/frames/");
+        int length = bulkdataURL.length();
+        compressedFramesOutput = new CompressedFramesOutput(ctx, inst, frameList, spoolDirectory(frameList));
+        for (int frame : frameList) {
+            OutputPart outputPart = output.addPart(compressedFramesOutput, mediaType);
+            bulkdataURL.setLength(length);
+            bulkdataURL.append(frame);
+            outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
+        }
     }
 
-    private void writeCompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
-                                       int[] frameList, MediaType mediaType, StringBuffer bulkdataURL) {
+    private void writeDecompressedFrames(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst,
+                                         int[] frameList, StringBuffer bulkdataURL) throws IOException {
+        bulkdataURL.append("/frames/");
+        int length = bulkdataURL.length();
+        decompressFramesOutput = new DecompressFramesOutput(ctx, inst, frameList, spoolDirectory(frameList));
+        for (int frame : frameList) {
+            OutputPart outputPart = output.addPart(decompressFramesOutput, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+            bulkdataURL.setLength(length);
+            bulkdataURL.append(frame);
+            outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
+        }
     }
 
     private void writeCompressedMultiFrameImage(MultipartRelatedOutput output, RetrieveContext ctx,
@@ -795,11 +816,8 @@ public class WadoRS {
 
     private java.nio.file.Path spoolDirectoryRoot() throws IOException {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String dirPath = arcDev.getWadoSpoolDirectory();
-        if (dirPath == null)
-            return Paths.get(TMPDIR);
-
-        return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(dirPath)));
+        return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(
+                StringUtils.maskNull(arcDev.getWadoSpoolDirectory(), JBOSS_SERVER_TEMP))));
     }
 
     private java.nio.file.Path spoolDirectory(int[] frameList) throws IOException {
