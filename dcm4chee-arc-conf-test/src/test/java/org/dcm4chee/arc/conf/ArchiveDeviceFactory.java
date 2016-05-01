@@ -65,6 +65,8 @@ import static org.dcm4che3.net.TransferCapability.Role.SCU;
  */
 class ArchiveDeviceFactory {
 
+    private static final Duration DELETE_REJECTED_INSTANCE_DELAY = Duration.parse("P1D");
+
     enum ConfigType {
         DEFAULT,
         SAMPLE,
@@ -702,11 +704,11 @@ class ArchiveDeviceFactory {
             "ADT^A31",
             "ADT^A40",
             "ADT^A47",
-            "ORM^O01"
+            "ORM^O01",
+            "OMI^O23"
     };
     static final String DCM4CHEE_ARC_VERSION = "5.2.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
-    static final String BULK_DATA_SPOOL_DIR = "${jboss.server.temp.dir}";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
     static final String DSR2TEXT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl";
@@ -723,18 +725,13 @@ class ArchiveDeviceFactory {
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
-    static final int IAN_TASK_FETCH_SIZE = 10;
-    static final int PURGE_QUEUE_MSG_FETCH_SIZE = 100;
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String EXPORTER_ID = "STORESCP";
     static final String EXPORTER_DESC = "Export to STORESCP";
     static final URI EXPORT_URI = URI.create("dicom:STORESCP");
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
-    static final int EXPORT_TASK_FETCH_SIZE = 2;
     static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.parse("PT5M");
-    static final int PURGE_STORAGE_FETCH_SIZE = 10;
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
-    static final int DELETE_REJECTED_FETCH_SIZE = 10;
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
     static final Duration AUDIT_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration AUDIT_AGGREGATE_DURATION = Duration.parse("PT1M");
@@ -945,7 +942,6 @@ class ArchiveDeviceFactory {
         ext.setStorageID(STORAGE_ID);
         ext.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
-        ext.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
         if (configType == configType.TEST) {
             ext.setPersonNameComponentOrderInsensitiveMatching(true);
             ext.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
@@ -967,15 +963,10 @@ class ArchiveDeviceFactory {
         ext.setUnzipVendorDataToURI(UNZIP_VENDOR_DATA);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);
-        ext.setIanTaskFetchSize(IAN_TASK_FETCH_SIZE);
-        ext.setPurgeQueueMessageFetchSize(PURGE_QUEUE_MSG_FETCH_SIZE);
         ext.setPurgeQueueMessagePollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
-        ext.setExportTaskFetchSize(EXPORT_TASK_FETCH_SIZE);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
-        ext.setPurgeStorageFetchSize(PURGE_STORAGE_FETCH_SIZE);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
-        ext.setDeleteRejectedFetchSize(DELETE_REJECTED_FETCH_SIZE);
         ext.setAuditSpoolDirectory(AUDIT_SPOOL_DIR);
         ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
         ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
@@ -1030,6 +1021,8 @@ class ArchiveDeviceFactory {
         RejectionNote retentionExpired = createRejectionNote("Retention Expired", DATA_RETENTION_POLICY_EXPIRED,
                 RejectionNote.AcceptPreviousRejectedInstance.RESTORE, configType,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
+        retentionExpired.setDeleteRejectedInstanceDelay(DELETE_REJECTED_INSTANCE_DELAY);
+        retentionExpired.setDeleteRejectionNoteDelay(DELETE_REJECTED_INSTANCE_DELAY);
         ext.addRejectionNote(retentionExpired);
         ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
                 configType, REJECTION_CODES));
@@ -1129,7 +1122,6 @@ class ArchiveDeviceFactory {
             aeExt.setStoreAccessControlID("Graz");
             aeExt.setAccessControlIDs(ACCESS_CONTROL_IDS);
             aeExt.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
-            aeExt.setBulkDataSpoolDirectory(BULK_DATA_SPOOL_DIR);
             aeExt.setPersonNameComponentOrderInsensitiveMatching(true);
             aeExt.setSendPendingCGet(SEND_PENDING_C_GET);
             aeExt.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);

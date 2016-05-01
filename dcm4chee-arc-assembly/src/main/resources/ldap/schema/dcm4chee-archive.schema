@@ -373,7 +373,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.62 NAME 'dcmAccessControlID'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
 
 attributetype ( 1.2.40.0.13.1.15.110.3.63 NAME 'dcmAuditSpoolDirectory'
-  DESC 'Path to Audit Service Spool Directory used to aggregate Audit Messages. If absent, aggregation done in temp directory.'
+  DESC 'Path to Audit Service Spool Directory used to aggregate Audit Messages. Audit Message aggregation disabled, if absent.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )

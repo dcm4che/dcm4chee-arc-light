@@ -55,6 +55,7 @@ import java.util.*;
  * @since Jul 2015
  */
 public class ArchiveAEExtension extends AEExtension {
+    private static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
     private String storageID;
     private String storeAccessControlID;
     private String[] accessControlIDs = {};
@@ -140,7 +141,8 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public File getBulkDataSpoolDirectoryFile() {
-        return fileOf(bulkDataSpoolDirectory());
+        return new File(StringUtils.replaceSystemProperties(
+                StringUtils.maskNull(bulkDataSpoolDirectory(), JBOSS_SERVER_TEMP_DIR)));
     }
 
     public String getQueryRetrieveViewID() {
@@ -514,7 +516,4 @@ public class ArchiveAEExtension extends AEExtension {
         return coercion1;
     }
 
-    private File fileOf(String s) {
-        return s != null ? new File(StringUtils.replaceSystemProperties(s)) : null;
-    }
 }

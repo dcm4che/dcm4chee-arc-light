@@ -35,7 +35,6 @@ objectClass: dcmArchiveDevice
 objectClass: pkiUser
 dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
-dcmIanTaskFetchSize: 10
 dcmKeyStoreType: JKS
 dcmPurgeStoragePollingInterval: PT5M
 dicomInstalled: TRUE
@@ -44,19 +43,15 @@ dcmSendPendingCMoveInterval: PT5S
 dcmQidoMaxNumberOfResults: 1000
 dicomManufacturer: dcm4che.org
 dcmDeleteRejectedPollingInterval: PT5M
-dcmBulkDataSpoolDirectory: ${jboss.server.temp.dir}
 dicomDeviceName: dcm4chee-arc
 dcmAuditPollingInterval: PT1M
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
-dcmDeleteRejectedFetchSize: 10
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomThisNodeCertificateReference: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSendPendingCGet: TRUE
-dcmExportTaskFetchSize: 2
-dcmPurgeStorageFetchSize: 10
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.65
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.34
@@ -549,6 +544,8 @@ objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
 dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
+dcmDeleteRejectedInstanceDelay: P1D
+dcmDeleteRejectionNoteDelay: P1D
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7DefaultCharacterSet: 8859/1
@@ -565,6 +562,7 @@ hl7AcceptedMessageType: ADT^A31
 hl7AcceptedMessageType: ADT^A40
 hl7AcceptedMessageType: ADT^A47
 hl7AcceptedMessageType: ORM^O01
+hl7AcceptedMessageType: OMI^O23
 hl7ApplicationName: *
 
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
