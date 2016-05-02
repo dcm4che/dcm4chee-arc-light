@@ -57,9 +57,9 @@
     <!-- Versions -->
     <dcm4che.version>dcm4chee-arc-light-5.2.0</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
-    <hibernate.version>4.3.10.Final</hibernate.version>
-    <jboss-ejb3-ext-api.version>2.1.0</jboss-ejb3-ext-api.version>
-    <resteasy.version>3.0.11.Final</resteasy.version>
+    <hibernate.version>5.0.7.Final</hibernate.version>
+    <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
+    <resteasy.version>3.0.14.Final</resteasy.version>
     <jclouds.version>1.9.1</jclouds.version>
     <querydsl.version>4.0.3</querydsl.version>
     <keycloak.version>1.9.1.Final</keycloak.version>
@@ -90,7 +90,7 @@
       <dependency>
         <groupId>org.jboss.spec</groupId>
         <artifactId>jboss-javaee-7.0</artifactId>
-        <version>1.0.0.Final</version>
+        <version>1.0.2.Final</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
