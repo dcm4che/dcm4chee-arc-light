@@ -1717,7 +1717,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}": {
+    "/aets/{aet}/rs/studies/{Study_InstanceUID}": {
       "get": {
         "tags": [
           "STOW-RS"
@@ -1738,7 +1738,7 @@
             "type": "string"
           },
           {
-            "name": "StudyInstanceUID",
+            "name": "Study_InstanceUID",
             "in": "path",
             "description": "study instance UID for a single study",
             "required": true,
