@@ -56,8 +56,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.11 NAME 'dcmInstanceAvailability'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.12 NAME 'dcmQueryMatchUnknown'
-  DESC 'Indicates if missing Attributes or zero-length Attribute values in stored entities shall considered unknown and all matching against it shall be considered a successful match; enabled if absent'
-  OBSOLETE
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLATE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
