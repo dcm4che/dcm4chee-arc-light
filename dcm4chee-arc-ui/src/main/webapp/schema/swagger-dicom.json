@@ -1718,7 +1718,7 @@
       }
     },
     "/aets/{aet}/rs/studies/{Study_InstanceUID}": {
-      "get": {
+      "put": {
         "tags": [
           "STOW-RS"
         ],
