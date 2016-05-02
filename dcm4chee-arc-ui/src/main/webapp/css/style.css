@@ -195,10 +195,20 @@ device and create an other one with the new name*/
     /* For Safari 3.1 to 6.0 */
     transition: width 0.4s; }
   .main_select .active_menu {
-    width: 65%; }
+    width: 55%; }
   .main_select .edit.btn {
     margin-right: 8%;
     margin-top: 20px; }
+  .main_select .more_menu .delete_create_buttons {
+    width: 130px; }
+    .main_select .more_menu .delete_create_buttons > div {
+      width: 33%;
+      font-size: 22px;
+      padding-top: 4px;
+      text-align: center;
+      color: #878A84; }
+      .main_select .more_menu .delete_create_buttons > div:hover {
+        color: #547CD0; }
 
 #add_dropdowns {
   overflow: hidden; }
