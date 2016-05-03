@@ -1717,7 +1717,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{Study_InstanceUID}": {
+    "/aets/{aet}/rs/studies/": {
       "put": {
         "tags": [
           "STOW-RS"
@@ -1736,24 +1736,17 @@
             "description": "Archive AE Title",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Study_InstanceUID",
-            "in": "path",
-            "description": "study instance UID for a single study",
-            "required": false,
-            "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "object",
             "schema": {
               "type": "file"
             }
           },
           "404": {
-            "description": "no study with specified UID found"
+            "description": "object not found"
           },
           "default": {
             "description": "unexpected error"
