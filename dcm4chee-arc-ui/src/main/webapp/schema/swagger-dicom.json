@@ -1716,6 +1716,50 @@
           }
         }
       }
+    },
+    "/aets/{aet}/rs/studies/{Study_InstanceUID}": {
+      "put": {
+        "tags": [
+          "STOW-RS"
+        ],
+        "summary": "Store Instances",
+        "operationId": "Store Instances",
+        "consumes": [
+          "multipart/related;type=application/dicom;boundary={messageBoundary}",
+          "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
+          "multipart/related;type=application/json;boundary={messageBoundary}"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Study_InstanceUID",
+            "in": "path",
+            "description": "study instance UID for a single study",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no study with specified UID found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
     }
   }
 }
