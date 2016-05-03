@@ -1724,7 +1724,7 @@
         ],
         "summary": "Store Instances",
         "operationId": "Store Instances",
-        "produces": [
+        "consumes": [
           "multipart/related;type=application/dicom;boundary={messageBoundary}",
           "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
           "multipart/related;type=application/json;boundary={messageBoundary}"
