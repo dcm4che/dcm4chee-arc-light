@@ -1729,6 +1729,10 @@
           "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
           "multipart/related;type=application/json;boundary={messageBoundary}"
         ],
+        "produces": [
+          "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/json"
+        ],
         "parameters": [
           {
             "name": "aet",
