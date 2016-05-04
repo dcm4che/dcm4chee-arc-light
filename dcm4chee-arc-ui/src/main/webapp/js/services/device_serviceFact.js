@@ -300,7 +300,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
 		}
     };
 //$scope.wholeDevice , selectedElement, selectedPart, $select[selectedElement].optionRef[0])
-    var getSubModel = function($scope, wholeDevice , selectedElement, selectedPart, current, newCloneName){
+    var clonePartHelper = function($scope, wholeDevice , selectedElement, selectedPart, current, newCloneName){
         if($select[current].type === "array"){
             angular.forEach(wholeDevice[current], function(m, i){
                 if(m[$select[current].optionValue] === selectedPart[current]){
@@ -334,7 +334,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                         if(index >= 0 && index < $select[selectedElement].optionRef.length - 1){
                           var nextItem = $select[selectedElement].optionRef[index + 1];
                         }
-                        getSubModel($scope, wholeDevice[current][i], selectedElement, selectedPart, nextItem, newCloneName);
+                        clonePartHelper($scope, wholeDevice[current][i], selectedElement, selectedPart, nextItem, newCloneName);
                     }
                 }
             });
@@ -369,7 +369,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                 if(index >= 0 && index < $select[selectedElement].optionRef.length - 1){
                   var nextItem = $select[selectedElement].optionRef[index + 1];
                 }
-                getSubModel($scope, wholeDevice[current], selectedElement, selectedPart, nextItem, newCloneName);
+                clonePartHelper($scope, wholeDevice[current], selectedElement, selectedPart, nextItem, newCloneName);
             }
         }
 
@@ -1181,7 +1181,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
         },
 
         clonePart: function($scope, selectedElement, selectedPart){
-            getSubModel($scope, $scope.wholeDevice , selectedElement, selectedPart, $select[selectedElement].optionRef[0], $scope.newCloneName);
+            clonePartHelper($scope, $scope.wholeDevice , selectedElement, selectedPart, $select[selectedElement].optionRef[0], $scope.newCloneName);
         }
 
     }
