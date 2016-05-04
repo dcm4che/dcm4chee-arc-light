@@ -299,6 +299,81 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
 		  });
 		}
     };
+//$scope.wholeDevice , selectedElement, selectedPart, $select[selectedElement].optionRef[0])
+    var getSubModel = function($scope, wholeDevice , selectedElement, selectedPart, current, newCloneName){
+        if($select[current].type === "array"){
+            angular.forEach(wholeDevice[current], function(m, i){
+                if(m[$select[current].optionValue] === selectedPart[current]){
+                    if($select[selectedElement].optionRef[$select[selectedElement].optionRef.length-1] === current){
+                        var isAlreadyThere = false;
+                        angular.forEach(wholeDevice[current], function(m){
+                            if(m[$select[selectedElement].optionValue] === newCloneName){
+                                isAlreadyThere = true;
+                            }
+                        });
+                        if(!isAlreadyThere){
+                            var clone = {};
+                            angular.copy(wholeDevice[current][i], clone);
+                            clone[$select[current].optionValue] = newCloneName;
+                            wholeDevice[current].push(clone);
+                            msg($scope, {
+                                "title": "Info",
+                                "text": 'Clone with the name "'+newCloneName+'" created sucessfully!',
+                                "status": "info"
+                            });
+                        }else{
+                            msg($scope, {
+                                "title": "Error",
+                                "text": 'Name need to be unique!',
+                                "status": "error"
+                            });
+                        }
+                        cfpLoadingBar.complete();
+                    }else{
+                        var index = $select[selectedElement].optionRef.indexOf(current);
+                        if(index >= 0 && index < $select[selectedElement].optionRef.length - 1){
+                          var nextItem = $select[selectedElement].optionRef[index + 1];
+                        }
+                        getSubModel($scope, wholeDevice[current][i], selectedElement, selectedPart, nextItem, newCloneName);
+                    }
+                }
+            });
+        }else{
+            if($select[selectedElement].optionRef[$select[selectedElement].optionRef.length-1] === current){
+                var isAlreadyThere = false;
+                angular.forEach(wholeDevice[current], function(m){
+                    if(m[$select[selectedElement].optionValue] === newCloneName){
+                        isAlreadyThere = true;
+                    }
+                });
+                if(!isAlreadyThere){
+                    var clone = {};
+                    angular.copy(wholeDevice[current][i], clone);
+                    clone[$select[current].optionValue] = newCloneName;
+                    wholeDevice[current].push(clone);
+                    msg($scope, {
+                        "title": "Info",
+                        "text": 'Clone with the name "'+newCloneName+'" created sucessfully!',
+                        "status": "info"
+                    });
+                }else{
+                    msg($scope, {
+                        "title": "Error",
+                        "text": 'Name need to be unique!',
+                        "status": "error"
+                    });
+                }
+                cfpLoadingBar.complete();
+            }else{
+                var index = $select[selectedElement].optionRef.indexOf(current);
+                if(index >= 0 && index < $select[selectedElement].optionRef.length - 1){
+                  var nextItem = $select[selectedElement].optionRef[index + 1];
+                }
+                getSubModel($scope, wholeDevice[current], selectedElement, selectedPart, nextItem, newCloneName);
+            }
+        }
+
+    }
     return {
 
         /*
@@ -1103,6 +1178,10 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                     }
                 }, 100);
             }
+        },
+
+        clonePart: function($scope, selectedElement, selectedPart){
+            getSubModel($scope, $scope.wholeDevice , selectedElement, selectedPart, $select[selectedElement].optionRef[0], $scope.newCloneName);
         }
 
     }

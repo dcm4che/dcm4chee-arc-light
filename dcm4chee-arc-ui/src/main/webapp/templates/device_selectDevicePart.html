@@ -10,10 +10,6 @@
 	<div ng-repeat="(key, value) in selectObject | testFilter:selectedElement:selectedPart" ng-class="{child:value.optionRef.length > 1}">
 		<label>Select dicom {{value.title}} to edit or delete:</label>
 		{{splitStringToObject(value,key)}}
-<!-- 		<pre> 
-		test: {{"wholeDevice.dicomNetworkAE".substring(str.lastIndexOf(":")+1,str.lastIndexOf(";"))}}
-		test: {{"wholeDevice.dicomNetworkAE".substring("wholeDevice.dicomNetworkAE".lastIndexOf(".")+1)}}
-		</pre> -->
 		<select 
 			ng-if="value.type==='array'"
 			class="form-control" 
@@ -36,45 +32,12 @@
 		<create-delete-button 
 			ng-if="value.type==='array'"
 			part="{{key}}" 
-			create-text="Create new network dicomNetworkConnection" 
-			delete-text="Delete selected network dicomNetworkConnection">
+			create-text="Create new {{value.title}}" 
+			delete-text="Delete selected {{value.title}}"
+			clone-text="Clone {{value.title}}"
+			>
 		</create-delete-button>
 	</div>
-<!-- 
-	<div>
-		<label>Select dicom Network Connection to edit or delete:</label>
-		<select 
-			class="form-control" 
-			ng-class="{active_dropbox:selectedElement == 'dicomNetworkConnection',active_menu:activeMenu == 'dicomNetworkConnection'}" 
-			ng-click='selectElement("dicomNetworkConnection")' 
-			name="dicomNetworkConnection" 
-			ng-model="selectedDicomNetworkConnection" 
-			ng-change='changeElement("dicomNetworkConnection")'
-			ng-options="obj.cn as obj.cn for obj in wholeDevice.dicomNetworkConnection track by obj.cn">
-		</select>
-		<create-delete-button 
-			part="dicomNetworkConnection" 
-			create-text="Create new network dicomNetworkConnection" 
-			delete-text="Delete selected network dicomNetworkConnection">
-		</create-delete-button>
-	</div>
-	<div>	
-		<label>Select Network AE to edit or delete:</label>
-		<select 
-			class="form-control" 
-			ng-class="{active_dropbox:selectedElement == 'dicomNetworkAE',active_menu:activeMenu == 'dicomNetworkAE'}" 
-			name="dicomNetworkAE" 
-			ng-model="selectedNetworkAE" 
-			ng-change='changeElement("dicomNetworkAE")' 
-			ng-click='selectElement("dicomNetworkAE")'
-			ng-options="obj.dicomAETitle as obj.dicomAETitle for obj in wholeDevice.dicomNetworkAE track by obj.dicomAETitle">
-		</select>
-		<create-delete-button 
-			part="dicomNetworkAE" 
-			create-text="Create new Network AE" 
-			delete-text="Delete selected Network AE">
-		</create-delete-button>
-	</div> -->
 	<div id="endLoadSelect"></div>
 	<!-- <div id="SelectDicomTransferCapability"></div> -->
 </div>

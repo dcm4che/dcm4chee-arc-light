@@ -221,7 +221,9 @@ device and create an other one with the new name*/
     /* For Safari 3.1 to 6.0 */
     transition: width 0.4s; }
   #add_dropdowns .form-control.active_menu {
-    width: 65%; }
+    width: 55%; }
+  #add_dropdowns .child .form-control.active_menu {
+    width: 50%; }
 
 .col-md-5.active_border {
   width: 48%; }
@@ -239,12 +241,18 @@ device and create an other one with the new name*/
   .more_menu .delete_create_buttons {
     display: block;
     height: 35px;
-    width: 90px; }
+    width: 130px; }
     .more_menu .delete_create_buttons > div {
       display: block;
       float: left;
       height: 100%;
-      width: 50%; }
+      width: 33%;
+      font-size: 22px;
+      padding-top: 4px;
+      text-align: center;
+      color: #878A84; }
+      .more_menu .delete_create_buttons > div:hover {
+        color: #547CD0; }
     .more_menu .delete_create_buttons .delete {
       background: url(../img/delete.png);
       background-repeat: no-repeat;

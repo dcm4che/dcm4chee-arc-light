@@ -708,6 +708,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         ],
         callback: function(data) {
           if (data === false) {
+            cfpLoadingBar.complete();
             return console.log('Cancelled');
           }else{
               if($scope.devicename != undefined && $scope.devicename != "" && $scope.clonename != undefined && $scope.clonename != ""){
@@ -765,6 +766,41 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
           }
         }
       });
+    };
+
+    $scope.clonePart = function(part){
+      cfpLoadingBar.start();
+      if($scope.selectedPart[part]){
+        var html = $compile(
+                      '<input type="text" ng-model="newCloneName" required/>'
+                    )($scope);
+        vex.dialog.open({
+          message: 'Set the new name to clone "'+$scope.selectedPart[part]+'"!',
+          input: html,
+          buttons: [
+            $.extend({}, vex.dialog.buttons.YES, {
+              text: 'Clone'
+            }), $.extend({}, vex.dialog.buttons.NO, {
+              text: 'Cancle'
+            })
+          ],
+          callback: function(data) {
+            if (data === false) {
+              cfpLoadingBar.complete();
+              return console.log('Cancelled');
+            }else{
+              DeviceService.clonePart($scope, part, $scope.selectedPart);
+            }
+          }
+        });
+      }else{
+          DeviceService.msg($scope, {
+              "title": "Error",
+              "text": "Select first a "+$select[part].title,
+              "status": "error"
+          });
+          cfpLoadingBar.complete();
+      }
     };
 });
 

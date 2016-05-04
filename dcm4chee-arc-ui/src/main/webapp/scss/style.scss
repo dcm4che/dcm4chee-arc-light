@@ -277,7 +277,12 @@ device and create an other one with the new name*/
     	transition: width 0.4s;
 	}
 	.form-control.active_menu{
-		width:65%;
+		width:55%;
+	}
+	.child{
+		.form-control.active_menu{
+			width:50%;
+		}
 	}
 }
 .col-md-5.active_border{
@@ -296,12 +301,19 @@ device and create an other one with the new name*/
 	.delete_create_buttons {
 		display: block;
 	    height: 35px;
-	    width: 90px;
+	    width:130px;
 		&> div {
 		    display: block;
 		    float: left;
 		    height: 100%;
-		    width: 50%;
+			width:33%;
+			font-size: 22px;
+			padding-top:4px;
+			text-align: center;
+			color:#878A84;
+			&:hover{
+				color:#547CD0;
+			}
 		}
 		.delete{
 			background: url(../img/delete.png);
