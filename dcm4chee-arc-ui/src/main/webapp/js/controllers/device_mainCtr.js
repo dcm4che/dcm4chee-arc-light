@@ -690,7 +690,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             'class="form-control"'+
             'name="device"'+
             'ng-model="devicename"'+
-            'ng-options="obj.dicomDeviceName as obj.dicomDeviceName for obj in devices track by obj.dicomDeviceName"'+
+            'ng-options="obj.dicomDeviceName as obj.dicomDeviceName for obj in devices"'+
             'on-device-change required>'+
         '</select>'+
         '<label>set the name for the new devace</label>'+
@@ -711,7 +711,13 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             cfpLoadingBar.complete();
             return console.log('Cancelled');
           }else{
-              if($scope.devicename != undefined && $scope.devicename != "" && $scope.clonename != undefined && $scope.clonename != ""){
+              var isAlreadyThere = false;
+              angular.forEach($scope.devices, function(m){
+                  if(m.dicomDeviceName === $scope.clonename){
+                      isAlreadyThere = true;
+                  }
+              });
+              if(!isAlreadyThere && $scope.devicename != undefined && $scope.devicename != "" && $scope.clonename != undefined && $scope.clonename != ""){
                 $http({
                         method: 'GET',
                         url: '../devices/'+$scope.devicename
@@ -755,12 +761,21 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       });
               }else{
                 $scope.$apply(function() {
+                  if(isAlreadyThere){
+                      DeviceService.msg($scope, {
+                          "title": "Error",
+                          "text": "Name need to be unique!",
+                          "status": "error"
+                      });
+                  }else{
+                    
                       DeviceService.msg($scope, {
                           "title": "Error",
                           "text": "Error, fealds required",
                           "status": "error"
                       });
-                      cfpLoadingBar.complete();
+                  }
+                  cfpLoadingBar.complete();
                 });
               }
           }

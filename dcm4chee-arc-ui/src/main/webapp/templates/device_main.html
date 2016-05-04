@@ -9,7 +9,7 @@
 	    		name="device" 
 	    		ng-model="devicename" 
 	    		ng-class="activeMenu == 'device_menu' ? 'active_menu': ''" 
-	    		ng-options="obj.dicomDeviceName as obj.dicomDeviceName for obj in devices track by obj.dicomDeviceName" 
+	    		ng-options="obj.dicomDeviceName as obj.dicomDeviceName for obj in devices" 
 	    		on-device-change>
 	    </select>
 	    <div class="more_menu"  ng-click="toggle('device_menu')" ng-swipe-left="toggle('dicomNetworkConnection')" ng-swipe-right="activeMenu = ''">
