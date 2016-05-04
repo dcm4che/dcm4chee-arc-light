@@ -93,6 +93,10 @@ public class AuditService {
         return device.getDeviceExtension(AuditLogger.class);
     }
 
+    boolean isAuditInstalled() {
+        return log() != null && log().isInstalled() ? true : false;
+    }
+
     void aggregateAuditMessage(Path path) throws IOException {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
         switch (eventType.eventClass) {

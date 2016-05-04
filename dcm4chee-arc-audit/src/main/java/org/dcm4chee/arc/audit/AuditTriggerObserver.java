@@ -71,45 +71,40 @@ public class AuditTriggerObserver {
     private AuditService auditService;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        AuditServiceUtils.EventType et = null;
-        switch (event.getType()) {
-            case STARTED:
-                et = AuditServiceUtils.EventType.APPLNSTART;
-                break;
-            case STOPPED:
-                et = AuditServiceUtils.EventType.APPLN_STOP;
-                break;
-            case RELOADED:
-                return;
+        if (auditService.isAuditInstalled()) {
+            AuditServiceUtils.EventType et = null;
+            switch (event.getType()) {
+                case STARTED:
+                    et = AuditServiceUtils.EventType.APPLNSTART;
+                    break;
+                case STOPPED:
+                    et = AuditServiceUtils.EventType.APPLN_STOP;
+                    break;
+                case RELOADED:
+                    return;
+            }
+            HttpServletRequest request = event.getRequest();
+            auditService.auditApplicationActivity(et, request);
         }
-        HttpServletRequest request = event.getRequest();
-        auditService.auditApplicationActivity(et, request);
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getRejectionNote() != null)
-            auditService.spoolInstancesDeleted(ctx);
-        else if (ctx.getLocation() != null || ctx.getException() != null)
-            auditService.spoolInstanceStoredOrWadoRetrieve(ctx, null);
+        if (auditService.isAuditInstalled()) {
+            if (ctx.getRejectionNote() != null)
+                auditService.spoolInstancesDeleted(ctx);
+            else if (ctx.getLocation() != null || ctx.getException() != null)
+                auditService.spoolInstanceStoredOrWadoRetrieve(ctx, null);
+        }
     }
 
     public void onQuery(@Observes QueryContext ctx) {
-        auditService.spoolQuery(ctx);
+        if (auditService.isAuditInstalled())
+            auditService.spoolQuery(ctx);
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
-        String etFile = null;
-        for (AuditServiceUtils.EventType eventType : et)
-            etFile = String.valueOf(eventType);
-        auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
-    }
-
-    public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
-        if (ctx.failedSOPInstanceUIDs().length > 0)
-            auditService.spoolPartialRetrieve(ctx, et);
-        else {
+        if (auditService.isAuditInstalled()) {
+            HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
             String etFile = null;
             for (AuditServiceUtils.EventType eventType : et)
                 etFile = String.valueOf(eventType);
@@ -117,12 +112,28 @@ public class AuditTriggerObserver {
         }
     }
 
+    public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
+        if (auditService.isAuditInstalled()) {
+            HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
+            if (ctx.failedSOPInstanceUIDs().length > 0)
+                auditService.spoolPartialRetrieve(ctx, et);
+            else {
+                String etFile = null;
+                for (AuditServiceUtils.EventType eventType : et)
+                    etFile = String.valueOf(eventType);
+                auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
+            }
+        }
+    }
+
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        auditService.spoolInstanceStoredOrWadoRetrieve(null, ctx);
+        if (auditService.isAuditInstalled())
+            auditService.spoolInstanceStoredOrWadoRetrieve(null, ctx);
     }
 
     public void onStudyDeleted(@Observes StudyDeleteContext ctx) {
-        auditService.spoolStudyDeleted(ctx);
+        if (auditService.isAuditInstalled())
+            auditService.spoolStudyDeleted(ctx);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
@@ -160,7 +171,8 @@ public class AuditTriggerObserver {
     }
 
     private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
-        auditService.spoolConnectionRejected(conn, s, e);
+        if (auditService.isAuditInstalled())
+            auditService.spoolConnectionRejected(conn, s, e);
     }
 
     private void onConnectionAccepted(Connection conn, Socket s) {
