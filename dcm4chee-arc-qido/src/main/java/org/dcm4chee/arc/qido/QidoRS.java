@@ -89,6 +89,13 @@ public class QidoRS {
 
     private static ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 
+    private final static int[] PATIENT_FIELDS = {
+            Tag.PatientName,
+            Tag.PatientID,
+            Tag.PatientBirthDate,
+            Tag.PatientSex,
+    };
+
     private final static int[] STUDY_FIELDS = {
             Tag.StudyDate,
             Tag.StudyTime,
@@ -162,6 +169,22 @@ public class QidoRS {
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
+    }
+
+    @GET
+    @Path("/patients")
+    @Produces("multipart/related;type=application/dicom+xml")
+    public Response searchForPatientsXML() throws Exception {
+        return search("searchForPatientsXML", QueryRetrieveLevel2.PATIENT,
+                null, null, PATIENT_FIELDS, Output.DICOM_XML);
+    }
+
+    @GET
+    @Path("/patients")
+    @Produces("application/json")
+    public Response searchForPatientsJSON() throws Exception {
+        return search("searchForPatientsJSON", QueryRetrieveLevel2.PATIENT,
+                null, null, PATIENT_FIELDS, Output.JSON);
     }
 
     @GET
@@ -534,8 +557,7 @@ public class QidoRS {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
-                    for (int i = 0, n=matches.size(); i < n; i++) {
-                        Attributes match = matches.get(i);
+                    for (Attributes match : matches) {
                         writer.write(match);
                     }
                     gen.writeEnd();
@@ -546,7 +568,8 @@ public class QidoRS {
 
     private Attributes adjust(Attributes match, QueryRetrieveLevel2 qrlevel, Query query) {
         match = query.adjust(match);
-        match.setString(Tag.RetrieveURL, VR.UR, retrieveURL(match, qrlevel));
+        if (qrlevel != QueryRetrieveLevel2.PATIENT)
+            match.setString(Tag.RetrieveURL, VR.UR, retrieveURL(match, qrlevel));
         return match;
     }
 
