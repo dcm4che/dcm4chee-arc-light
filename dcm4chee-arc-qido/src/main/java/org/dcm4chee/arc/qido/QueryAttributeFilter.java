@@ -51,10 +51,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -77,15 +75,23 @@ public class QueryAttributeFilter {
     @GET
     @Path("/{Entity}")
     @Produces("application/json")
-    public StreamingOutput getAttributeFilter(@PathParam("Entity") String entity) throws Exception {
+    public StreamingOutput getAttributeFilter(@PathParam("Entity") final String entity) throws Exception {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
                 JsonGenerator gen = Json.createGenerator(out);
                 JsonWriter writer = new JsonWriter(gen);
                 JsonArchiveConfiguration jac = jsonConf.getJsonConfigurationExtension(JsonArchiveConfiguration.class);
-                jac.writeAttributeFilter(writer, Entity.Patient,
-                        device.getDeviceExtension(ArchiveDeviceExtension.class).getAttributeFilter(Entity.Patient));
+                try {
+                    Entity e = Entity.valueOf(entity);
+                    if (device.getDeviceExtension(ArchiveDeviceExtension.class).getAttributeFilter(e) != null)
+                        jac.writeAttributeFilter(writer, e,
+                                device.getDeviceExtension(ArchiveDeviceExtension.class).getAttributeFilter(e));
+                    else
+                        throw new WebApplicationException(Response.Status.NOT_FOUND);
+                } catch (Exception e) {
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                }
                 gen.flush();
             }
         };
