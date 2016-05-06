@@ -44,12 +44,99 @@
     }
   ],
   "paths": {
+    "/aets/{aet}/rs/patients": {
+      "get": {
+        "tags": [
+          "QIDO-RS"
+        ],
+        "summary": "Search for Patients",
+        "operationId": "SearchForPatients",
+        "produces": [
+          "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "includefield",
+            "in": "query",
+            "description": "includefield={attributeID} | all",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "orderby=[-]{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset={skippedResults}",
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit={maximumResults}",
+            "type": "integer",
+            "default": 50
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no matching patient found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies": {
       "get": {
         "tags": [
           "QIDO-RS"
         ],
-        "summary": "Search For Studies",
+        "summary": "Search for Studies",
         "operationId": "SearchForStudies",
         "produces": [
           "multipart/related;type=application/dicom+xml",
@@ -230,7 +317,7 @@
         "tags": [
           "QIDO-RS"
         ],
-        "summary": "Search For Series",
+        "summary": "Search for Series",
         "operationId": "SearchForSeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
