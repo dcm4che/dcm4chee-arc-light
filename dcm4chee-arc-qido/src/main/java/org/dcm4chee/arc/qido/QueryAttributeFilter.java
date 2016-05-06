@@ -40,10 +40,17 @@
 
 package org.dcm4chee.arc.qido;
 
+import org.dcm4che3.conf.json.JsonConfiguration;
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.json.JsonArchiveConfiguration;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -54,6 +61,7 @@ import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2016
  */
 @Path("attribute-filter")
@@ -63,6 +71,9 @@ public class QueryAttributeFilter {
     @Inject
     private Device device;
 
+    @Inject
+    private JsonConfiguration jsonConf;
+
     @GET
     @Path("/{Entity}")
     @Produces("application/json")
@@ -70,7 +81,12 @@ public class QueryAttributeFilter {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                //TODO
+                JsonGenerator gen = Json.createGenerator(out);
+                JsonWriter writer = new JsonWriter(gen);
+                JsonArchiveConfiguration jac = jsonConf.getJsonConfigurationExtension(JsonArchiveConfiguration.class);
+                jac.writeAttributeFilter(writer, Entity.Patient,
+                        device.getDeviceExtension(ArchiveDeviceExtension.class).getAttributeFilter(Entity.Patient));
+                gen.flush();
             }
         };
     }

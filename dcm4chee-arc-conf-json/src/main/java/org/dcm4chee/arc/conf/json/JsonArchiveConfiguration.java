@@ -130,16 +130,21 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     protected void writeAttributeFilters(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmAttributeFilter");
         for (Entity entity : Entity.values()) {
-            writer.writeStartObject();
-            writer.writeNotNull("dcmEntity", entity.name());
-            writer.writeNotEmpty("dcmTag", arcDev.getAttributeFilter(entity).getSelection());
-            writer.writeNotNull("dcmCustomAttribute1", arcDev.getAttributeFilter(entity).getCustomAttribute1());
-            writer.writeNotNull("dcmCustomAttribute2", arcDev.getAttributeFilter(entity).getCustomAttribute2());
-            writer.writeNotNull("dcmCustomAttribute3", arcDev.getAttributeFilter(entity).getCustomAttribute3());
-            writer.writeNotNull("dcmAttributeUpdatePolicy",
-                    arcDev.getAttributeFilter(entity).getAttributeUpdatePolicy());
-            writer.writeEnd();
+            AttributeFilter attributeFilter = arcDev.getAttributeFilter(entity);
+            writeAttributeFilter(writer, entity, attributeFilter);
         }
+        writer.writeEnd();
+    }
+
+    public void writeAttributeFilter(JsonWriter writer, Entity entity, AttributeFilter attributeFilter) {
+        writer.writeStartObject();
+        writer.writeNotNull("dcmEntity", entity.name());
+        writer.writeNotEmpty("dcmTag", attributeFilter.getSelection());
+        writer.writeNotNull("dcmCustomAttribute1", attributeFilter.getCustomAttribute1());
+        writer.writeNotNull("dcmCustomAttribute2", attributeFilter.getCustomAttribute2());
+        writer.writeNotNull("dcmCustomAttribute3", attributeFilter.getCustomAttribute3());
+        writer.writeNotNull("dcmAttributeUpdatePolicy",
+                attributeFilter.getAttributeUpdatePolicy());
         writer.writeEnd();
     }
 
