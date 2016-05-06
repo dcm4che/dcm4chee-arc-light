@@ -234,6 +234,41 @@
         }
       }
     },
+    "/attribute-filter/{entityName}": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "get attribute filter",
+        "operationId": "getAttributeFilter",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "entityName",
+            "in": "path",
+            "description": "name of entity which attribute filter to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "attributeFilter.schema.json"
+            }
+          },
+          "404": {
+            "description": "entity not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/queue": {
       "get": {
         "tags": [
