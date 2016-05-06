@@ -234,21 +234,21 @@
         }
       }
     },
-    "/attribute-filter/{entityName}": {
+    "/attribute-filter/{entity}": {
       "get": {
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "get attribute filter",
+        "summary": "get Attribute Filter",
         "operationId": "getAttributeFilter",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "entityName",
+            "name": "entity",
             "in": "path",
-            "description": "name of entity which attribute filter to return",
+            "description": "entity which Attribute Filter to return",
             "required": true,
             "type": "string"
           }
