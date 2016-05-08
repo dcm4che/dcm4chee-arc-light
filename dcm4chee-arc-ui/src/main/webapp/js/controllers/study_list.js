@@ -604,16 +604,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         return seriesURL(attrs) + "/instances/" + attrs['00080018'].Value[0];
     }
     function createPatientFilterParams() {
-        var filter = {
+        return {
             PatientName: $scope.filter.PatientName,
             PatientID: $scope.filter.PatientID,
             IssuerOfPatientID: $scope.filter.IssuerOfPatientID,
-            fuzzymatching: $scope.filter.fuzzymatching
+            fuzzymatching: $scope.filter.fuzzymatching,
+            orderby: $scope.filter.orderby !== "-PatientName" ? "PatientName" :  $scope.filter.orderby
         };
-        var orderby = $scope.filter.orderby;
-        if (orderby && orderby.endsWith("PatientName"))
-            filter.orderby = orderby;
-        return filter;
     }
     function createStudyFilterParams() {
         var filter = angular.extend({}, $scope.filter);
