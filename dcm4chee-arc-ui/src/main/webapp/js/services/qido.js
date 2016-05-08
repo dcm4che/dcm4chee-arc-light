@@ -10,6 +10,10 @@ myApp.factory('QidoService', function($http) {
         }
     };
 
+    srv.queryPatients = function(url, params) {
+        return $http.get(url + '/patients', srv._config(params));
+    };
+
     srv.queryStudies = function(url, params) {
         return $http.get(url + '/studies', srv._config(params));
     };
@@ -28,6 +32,9 @@ myApp.factory('QidoService', function($http) {
 
    // Public API
     return {
+        queryPatients: function(url, params) {
+            return srv.queryPatients(url, params);
+        },
         queryStudies: function(url, params) {
             return srv.queryStudies(url, params);
         },

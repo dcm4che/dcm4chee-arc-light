@@ -176,6 +176,36 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         cfpLoadingBar.complete();
     });
 
+    $scope.queryPatients = function(offset) {
+        cfpLoadingBar.start();
+        if (offset < 0) offset = 0;
+        QidoService.queryPatients(
+            rsURL(),
+            createQueryParams(offset, $scope.limit+1, createPatientFilterParams())
+        ).then(function (res) {
+            if(res.data != ""){
+                $scope.patients = res.data.map(function (attrs, index) {
+                    return {
+                        offset: offset + index,
+                        attrs: attrs,
+                        studies: null,
+                        showAttributes: false
+                    };
+                });
+                if ($scope.moreStudies = ($scope.patients.length > $scope.limit)) {
+                    $scope.patients.pop();
+                }
+            } else {
+                $scope.patients = [];
+                DeviceService.msg($scope, {
+                    "title": "Info",
+                    "text": "No matching Patients found!",
+                    "status": "info"
+                });
+            }
+            cfpLoadingBar.complete();
+        });
+    };
     $scope.queryStudies = function(offset) {
         cfpLoadingBar.start();
         if (offset < 0) offset = 0;
@@ -210,8 +240,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     $scope.studies.push(study);
                 });
                 if ($scope.moreStudies = (res.data.length > $scope.limit)) {
-                    patient.studies.pop();
-                    if (patient.studies.length === 0)
+                    pat.studies.pop();
+                    if (pat.studies.length === 0)
                         $scope.patients.pop;
                     $scope.studies.pop();
                 }
@@ -536,6 +566,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     }
     function instanceURL(attrs) {
         return seriesURL(attrs) + "/instances/" + attrs['00080018'].Value[0];
+    }
+    function createPatientFilterParams() {
+        var filter = {
+            PatientName: $scope.filter.PatientName,
+            PatientID: $scope.filter.PatientID,
+            IssuerOfPatientID: $scope.filter.IssuerOfPatientID,
+            fuzzymatching: $scope.filter.fuzzymatching
+        };
+        var orderby = $scope.filter.orderby;
+        if (orderby && orderby.endsWith("PatientName"))
+            filter.orderby = orderby;
+        return filter;
     }
     function createStudyFilterParams() {
         var filter = angular.extend({}, $scope.filter);
