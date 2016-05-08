@@ -2,6 +2,7 @@
 
 myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService) {
     $scope.logoutUrl = myApp.logoutUrl();
+    $scope.patients = [];
     $scope.studies = [];
     $scope.moreStudies = false;
     $scope.limit = 20;
@@ -10,6 +11,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.aet = null;
     $scope.exporters;
     $scope.exporterID = null;
+    $scope.attributeFilters = {};
     $scope.rjnotes;
     $scope.keepRejectionNote = false;
     $scope.rjnote = null;
@@ -181,25 +183,42 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             rsURL(),
             createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
         ).then(function (res) {
+            $scope.patients = [];
+            $scope.studies = [];
             if(res.data != ""){
-
-                $scope.studies = res.data.map(function (attrs, index) {
-                    return {
-                            offset: offset + index,
-                            moreSeries: false,
-                            attrs: attrs,
-                            series: null,
+                var pat, study, patAttrs, studyAttrs, tags = $scope.attributeFilters.Patient.dcmTag;
+                res.data.forEach(function (attrs, index) {
+                    patAttrs = {};
+                    studyAttrs = {};
+                    extractAttrs(attrs, tags, patAttrs, studyAttrs);
+                    if (!(pat && angular.equals(pat.attrs, patAttrs))) {
+                        pat = {
+                            attrs: patAttrs,
+                            studies: [],
                             showAttributes: false
+                        };
+                        $scope.patients.push(pat);
+                    }
+                    study = {
+                        offset: offset + index,
+                        moreSeries: false,
+                        attrs: studyAttrs,
+                        series: null,
+                        showAttributes: false
                     };
+                    pat.studies.push(study);
+                    $scope.studies.push(study);
                 });
-                if ($scope.moreStudies = ($scope.studies.length > $scope.limit)) {
+                if ($scope.moreStudies = (res.data.length > $scope.limit)) {
+                    patient.studies.pop();
+                    if (patient.studies.length === 0)
+                        $scope.patients.pop;
                     $scope.studies.pop();
                 }
-            }else{
-                $scope.studies = [];
+            } else {
                 DeviceService.msg($scope, {
                     "title": "Info",
-                    "text": "No Instances found!",
+                    "text": "No matching Studies found!",
                     "status": "info"
                 });
             }
@@ -561,6 +580,33 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         };
         return url;
     }
+    function extractAttrs(attrs, tags, extracted, remaining) {
+        angular.forEach(attrs, function (value, tag) {
+            if (tag === '00080005') {
+                remaining[tag] = value;
+                extracted[tag] = value;
+            } else if (binarySearch(tags, parseInt(tag, 16)) >= 0)
+                extracted[tag] = value;
+            else
+                remaining[tag] = value;
+        });
+    }
+    function binarySearch(ar, el) {
+        var m = 0;
+        var n = ar.length - 1;
+        while (m <= n) {
+            var k = (n + m) >> 1;
+            var cmp = el - ar[k];
+            if (cmp > 0) {
+                m = k + 1;
+            } else if(cmp < 0) {
+                n = k - 1;
+            } else {
+                return k;
+            }
+        }
+        return -m - 1;
+    }
     function createGSPSQueryParams(attrs) {
         var sopClass = valueOf(attrs['00080016']),
             refSeries = valuesOf(attrs['00081115']),
@@ -613,6 +659,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     initAETs(retries-1);
             });
     }
+    function initAttributeFilter(entity, retries) {
+        $http.get("../attribute-filter/" + entity).then(
+            function (res) {
+                $scope.attributeFilters[entity] = res.data;
+            },
+            function (res) {
+                if (retries)
+                    initAttributeFilter(entity, retries-1);
+            });
+    }
     function initExporters(retries) {
         $http.get("../export").then(
             function (res) {
@@ -644,8 +700,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (retries)
                     initRjNotes(retries-1);
             });
-    } 
+    }
     initAETs(1);
+    initAttributeFilter("Patient", 1);
     initExporters(1);
     initRjNotes(1);
 });
