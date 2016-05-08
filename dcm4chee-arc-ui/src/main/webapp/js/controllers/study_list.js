@@ -273,7 +273,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             createQueryParams(offset, $scope.limit+1, {
                 PatientID: valueOf(patient.attrs['00100020']),
                 IssuerOfPatientID: valueOf(patient.attrs['00100021']),
-                orderby: '-StudyDate,-StudyTime'
+                orderby: $scope.filter.orderby !== "StudyDate,StudyTime" ? "-StudyDate,-StudyTime" : $scope.filter.orderby
             })
         ).then(function (res) {
             patient.studies = res.data.map(function (attrs, index) {
