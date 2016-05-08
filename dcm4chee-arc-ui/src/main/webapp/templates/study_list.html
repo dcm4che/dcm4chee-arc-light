@@ -252,10 +252,10 @@
                 </button>  -->
             </div>
             <div style="width:16.7%" class="th">Patient Name
-                <a href="" class="order_arrow" ng-click="filter.orderby = 'PatientName';queryStudies(0)">
+                <a href="" class="order_arrow" ng-click="filter.orderby = 'PatientName';patientQuery ? queryPatients(0) : queryStudies(0)">
                     <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
                 </a>
-                <a href="" class="order_arrow" ng-click="filter.orderby = '-PatientName';queryStudies(0)">
+                <a href="" class="order_arrow" ng-click="filter.orderby = '-PatientName';patientQuery ? queryPatients(0) : queryStudies(0)">
                     <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                 </a>
                 </div>
@@ -473,16 +473,30 @@
     </div>
 </div>
 <div class="arrows">
-    <div class="arrows_block">
+    <div class="arrows_block" ng-show="patientQuery" >
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="studies[0].offset==0||!studies[0].offset"
-                        ng-click="queryStudies(studies[0].offset-limit);addEffect('left')"
+                        ng-disabled="!previous"
+                        ng-click="queryPatients(patients[0].offset-limit);addEffect('left')"
+                        title="Previous Patients">
+                    <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                </button>
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="!more"
+                        ng-click="queryPatients(patients[0].offset+limit);addEffect('right')"
+                        title="Next Patients">
+                    <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                </button> 
+    </div>
+    <div class="arrows_block" ng-hide="patientQuery" >
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="!previous"
+                        ng-click="queryStudies(patients[0].studies[0].offset-limit);addEffect('left')"
                         title="Previous Studies">
                     <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
-                        ng-disabled="!moreStudies"
-                        ng-click="queryStudies(studies[0].offset+limit);addEffect('right')"
+                        ng-disabled="!more"
+                        ng-click="queryStudies(patients[0].studies[0].offset+limit);addEffect('right')"
                         title="Next Studies">
                     <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
                 </button> 

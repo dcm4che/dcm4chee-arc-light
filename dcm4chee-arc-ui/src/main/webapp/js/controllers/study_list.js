@@ -4,7 +4,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.patients = [];
     $scope.studies = [];
-    $scope.moreStudies = false;
+    $scope.patientQuery = false;
+    $scope.previous = false;
+    $scope.more = false;
     $scope.limit = 20;
     $scope.aes;
     $scope.trashaktive = false;
@@ -183,20 +185,24 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             rsURL(),
             createQueryParams(offset, $scope.limit+1, createPatientFilterParams())
         ).then(function (res) {
+            $scope.patientQuery = true;
+            $scope.previous = offset > 0;
             if(res.data != ""){
                 $scope.patients = res.data.map(function (attrs, index) {
                     return {
+                        moreStudies: false,
                         offset: offset + index,
                         attrs: attrs,
                         studies: null,
                         showAttributes: false
                     };
                 });
-                if ($scope.moreStudies = ($scope.patients.length > $scope.limit)) {
+                if ($scope.more = ($scope.patients.length > $scope.limit)) {
                     $scope.patients.pop();
                 }
             } else {
                 $scope.patients = [];
+                $scope.more = false;
                 DeviceService.msg($scope, {
                     "title": "Info",
                     "text": "No matching Patients found!",
@@ -215,6 +221,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         ).then(function (res) {
             $scope.patients = [];
             $scope.studies = [];
+            $scope.patientQuery = false;
+            $scope.previous = offset > 0;
             if(res.data != ""){
                 var pat, study, patAttrs, studyAttrs, tags = $scope.attributeFilters.Patient.dcmTag;
                 res.data.forEach(function (attrs, index) {
@@ -223,6 +231,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     extractAttrs(attrs, tags, patAttrs, studyAttrs);
                     if (!(pat && angular.equals(pat.attrs, patAttrs))) {
                         pat = {
+                            moreStudies: false,
                             attrs: patAttrs,
                             studies: [],
                             showAttributes: false
@@ -230,6 +239,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         $scope.patients.push(pat);
                     }
                     study = {
+                        patient: pat,
                         offset: offset + index,
                         moreSeries: false,
                         attrs: studyAttrs,
@@ -239,13 +249,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     pat.studies.push(study);
                     $scope.studies.push(study);
                 });
-                if ($scope.moreStudies = (res.data.length > $scope.limit)) {
+                if ($scope.more = (res.data.length > $scope.limit)) {
                     pat.studies.pop();
                     if (pat.studies.length === 0)
                         $scope.patients.pop;
                     $scope.studies.pop();
                 }
             } else {
+                $scope.more = false;
                 DeviceService.msg($scope, {
                     "title": "Info",
                     "text": "No matching Studies found!",
