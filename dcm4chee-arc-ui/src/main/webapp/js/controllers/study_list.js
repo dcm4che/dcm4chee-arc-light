@@ -265,6 +265,33 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             cfpLoadingBar.complete();
         });
     };
+    $scope.queryAllStudiesOfPatient = function(patient, offset) {
+        cfpLoadingBar.start();
+        if (offset < 0) offset = 0;
+        QidoService.queryStudies(
+            rsURL(),
+            createQueryParams(offset, $scope.limit+1, {
+                PatientID: valueOf(patient.attrs['00100020']),
+                IssuerOfPatientID: valueOf(patient.attrs['00100021']),
+                orderby: '-StudyDate,-StudyTime'
+            })
+        ).then(function (res) {
+            patient.studies = res.data.map(function (attrs, index) {
+                return {
+                    patient: patient,
+                    offset: offset + index,
+                    moreSeries: false,
+                    attrs: attrs,
+                    series: null,
+                    showAttributes: false
+                };
+            });
+            if (patient.moreStudies = (patient.studies.length > $scope.limit)) {
+                patient.studies.pop();
+            }
+            cfpLoadingBar.complete();
+        });
+    };
     $scope.querySeries = function(study, offset) {
          cfpLoadingBar.start();
         if (offset < 0) offset = 0;
@@ -288,7 +315,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
             cfpLoadingBar.complete();
         });
-        cfpLoadingBar.complete();
     };
     $scope.queryInstances = function (series, offset) {
          cfpLoadingBar.start();
@@ -304,7 +330,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 var numberOfFrames = valueOf(attrs['00280008']),
                     gspsQueryParams = createGSPSQueryParams(attrs),
                     video = isVideo(attrs);
-                    cfpLoadingBar.complete();   
+                    cfpLoadingBar.complete();
                 return {
                     series: series,
                     offset: offset + index,
@@ -326,8 +352,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             if (series.moreInstances = (series.instances.length > $scope.limit)) {
                 series.instances.pop();
             }
+            cfpLoadingBar.complete();
         });
-        cfpLoadingBar.complete();
     };
     $scope.exportStudy = function(study) {
             var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
