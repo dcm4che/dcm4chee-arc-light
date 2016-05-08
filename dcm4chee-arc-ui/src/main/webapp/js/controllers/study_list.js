@@ -231,7 +231,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     extractAttrs(attrs, tags, patAttrs, studyAttrs);
                     if (!(pat && angular.equals(pat.attrs, patAttrs))) {
                         pat = {
-                            moreStudies: false,
                             attrs: patAttrs,
                             studies: [],
                             showAttributes: false
