@@ -364,7 +364,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $.extend({}, vex.dialog.buttons.YES, {
                   text: 'Export'
                 }), $.extend({}, vex.dialog.buttons.NO, {
-                  text: 'Cancle'
+                  text: 'Cancel'
                 })
               ],
               callback: function(data) {
@@ -385,7 +385,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $.extend({}, vex.dialog.buttons.YES, {
                   text: 'Export'
                 }), $.extend({}, vex.dialog.buttons.NO, {
-                  text: 'Cancle'
+                  text: 'Cancel'
                 })
               ],
               callback: function(data) {
@@ -406,7 +406,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $.extend({}, vex.dialog.buttons.YES, {
                   text: 'Export'
                 }), $.extend({}, vex.dialog.buttons.NO, {
-                  text: 'Cancle'
+                  text: 'Cancel'
                 })
               ],
               callback: function(data) {
@@ -433,7 +433,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $.extend({}, vex.dialog.buttons.YES, {
                   text: 'Reject'
                 }), $.extend({}, vex.dialog.buttons.NO, {
-                  text: 'Cancle'
+                  text: 'Cancel'
                 })
               ],
               callback: function(data) {
@@ -462,7 +462,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $.extend({}, vex.dialog.buttons.YES, {
                   text: 'Reject'
                 }), $.extend({}, vex.dialog.buttons.NO, {
-                  text: 'Cancle'
+                  text: 'Cancel'
                 })
               ],
               callback: function(data) {
@@ -491,7 +491,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $.extend({}, vex.dialog.buttons.YES, {
                   text: 'Reject'
                 }), $.extend({}, vex.dialog.buttons.NO, {
-                  text: 'Cancle'
+                  text: 'Cancel'
                 })
               ],
               callback: function(data) {
@@ -543,7 +543,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               text: 'Delete all',
               className: "btn-danger btn"
             }), $.extend({}, vex.dialog.buttons.NO, {
-              text: 'Cancle'
+              text: 'Cancel'
             })
           ],
           callback: function(data) {
