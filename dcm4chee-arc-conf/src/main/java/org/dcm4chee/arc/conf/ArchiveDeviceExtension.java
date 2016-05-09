@@ -67,6 +67,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String patientUpdateTemplateURI;
+    private String importReportTemplateURI;
     private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
@@ -229,6 +230,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPatientUpdateTemplateURI(String patientUpdateTemplateURI) {
         this.patientUpdateTemplateURI = patientUpdateTemplateURI;
+    }
+
+    public String getImportReportTemplateURI() {
+        return importReportTemplateURI;
+    }
+
+    public void setImportReportTemplateURI(String importReportTemplateURI) {
+        this.importReportTemplateURI = importReportTemplateURI;
     }
 
     public String getUnzipVendorDataToURI() {
@@ -673,6 +682,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
+        importReportTemplateURI = arcdev.importReportTemplateURI;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         mppsForwardDestinations = arcdev.mppsForwardDestinations;

@@ -2,6 +2,7 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.imageio.codec.TransferSyntaxType;
@@ -35,6 +36,7 @@ import javax.xml.transform.Templates;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -57,12 +59,17 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public StoreSession newStoreSession(Association as) {
-        return new StoreSessionImpl(as);
+        return new StoreSessionImpl(null, as, as.getApplicationEntity(), as.getSocket(), null);
     }
 
     @Override
     public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae) {
-        return new StoreSessionImpl(httpRequest, ae);
+        return new StoreSessionImpl(httpRequest, null, ae, null, null);
+    }
+
+    @Override
+    public StoreSession newStoreSession(Socket socket, HL7Segment msh, ApplicationEntity ae) {
+        return new StoreSessionImpl(null, null, ae, socket, msh);
     }
 
     @Override

@@ -48,7 +48,9 @@ import org.dcm4che3.net.hl7.HL7ApplicationExtension;
  */
 public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
+    private String aeTitle;
     private String patientUpdateTemplateURI;
+    private String importReportTemplateURI;
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -57,7 +59,17 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     @Override
     public void reconfigure(HL7ApplicationExtension src) {
         ArchiveHL7ApplicationExtension arcapp = (ArchiveHL7ApplicationExtension) src;
+        aeTitle = arcapp.aeTitle;
         patientUpdateTemplateURI = arcapp.patientUpdateTemplateURI;
+        importReportTemplateURI = arcapp.importReportTemplateURI;
+    }
+
+    public String getAETitle() {
+        return aeTitle;
+    }
+
+    public void setAETitle(String aeTitle) {
+        this.aeTitle = aeTitle;
     }
 
     public String getPatientUpdateTemplateURI() {
@@ -71,5 +83,18 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     public String patientUpdateTemplateURI() {
         return patientUpdateTemplateURI != null ? patientUpdateTemplateURI
                 : getArchiveDeviceExtension().getPatientUpdateTemplateURI();
+    }
+
+    public String getImportReportTemplateURI() {
+        return importReportTemplateURI;
+    }
+
+    public void setImportReportTemplateURI(String importReportTemplateURI) {
+        this.importReportTemplateURI = importReportTemplateURI;
+    }
+
+    public String importReportTemplateURI() {
+        return importReportTemplateURI != null ? importReportTemplateURI
+                : getArchiveDeviceExtension().getImportReportTemplateURI();
     }
 }

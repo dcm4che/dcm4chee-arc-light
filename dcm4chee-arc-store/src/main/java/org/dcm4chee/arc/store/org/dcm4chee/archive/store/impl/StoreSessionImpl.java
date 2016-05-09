@@ -1,5 +1,6 @@
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.util.SafeClose;
@@ -12,6 +13,7 @@ import org.dcm4chee.arc.store.StoreSession;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,20 +25,19 @@ class StoreSessionImpl implements StoreSession {
     private final Association as;
     private final HttpServletRequest httpRequest;
     private final ApplicationEntity ae;
+    private final Socket socket;
+    private final HL7Segment msh;
     private Storage storage;
     private Study cachedStudy;
     private final Map<String,Series> seriesCache = new HashMap<>();
 
-    public StoreSessionImpl(Association as) {
-        this.as = as;
-        this.ae = as.getApplicationEntity();
-        this.httpRequest = null;
-    }
-
-    public StoreSessionImpl(HttpServletRequest httpRequest, ApplicationEntity ae) {
-        this.as = null;
+    StoreSessionImpl(HttpServletRequest httpRequest, Association as, ApplicationEntity ae,
+                            Socket socket, HL7Segment msh) {
         this.httpRequest = httpRequest;
+        this.as = as;
         this.ae = ae;
+        this.socket = socket;
+        this.msh = msh;
     }
 
     @Override
@@ -47,6 +48,11 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public HttpServletRequest getHttpRequest() {
         return httpRequest;
+    }
+
+    @Override
+    public HL7Segment getHL7MessageHeader() {
+        return msh;
     }
 
     @Override
@@ -81,7 +87,7 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost() : as.getSocket().getInetAddress().getHostName();
+        return httpRequest != null ? httpRequest.getRemoteHost() : socket.getInetAddress().getHostName();
     }
 
     @Override
@@ -115,9 +121,8 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String toString() {
-        if (as != null)
-            return as.toString();
-
-        return httpRequest.getRemoteUser() + '@' + httpRequest.getRemoteHost() + "->" + ae.getAETitle();
+        return httpRequest != null
+                ? httpRequest.getRemoteUser() + '@' + httpRequest.getRemoteHost() + "->" + ae.getAETitle()
+                : as != null ? as.toString() : msh.toString();
     }
 }
