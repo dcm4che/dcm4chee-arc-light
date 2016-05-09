@@ -118,6 +118,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
+        LdapUtils.storeNotNull(attrs, "dcmImportReportTemplateURI", ext.getImportReportTemplateURI());
     }
 
     @Override
@@ -178,6 +179,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
+        ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("dcmImportReportTemplateURI"), null));
     }
 
     @Override
@@ -261,6 +263,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(), bb.getWadoSpoolDirectory());
+        LdapUtils.storeDiff(mods, "dcmImportReportTemplateURI",
+                aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI());
     }
 
     @Override

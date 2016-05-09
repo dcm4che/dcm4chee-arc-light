@@ -246,4 +246,36 @@
       </Item>
     </DicomAttribute>
   </xsl:template>
+  <xsl:template name="attrDATM">
+    <xsl:param name="datag"/>
+    <xsl:param name="tmtag"/>
+    <xsl:param name="val"/>
+    <xsl:variable name="str" select="normalize-space($val)" />
+    <xsl:if test="$str">
+      <DicomAttribute tag="{$datag}" vr="DA">
+        <xsl:if test="$str != '&quot;&quot;'">
+          <xsl:value-of select="substring($str,1,8)" />
+        </xsl:if>
+      </DicomAttribute>
+      <DicomAttribute tag="{$tmtag}" vr="TM">
+        <xsl:if test="$str != '&quot;&quot;'">
+          <xsl:variable name="tm" select="substring($str,9)"/>
+          <!-- Skip Time Zone-->
+          <xsl:variable name="tm_plus" select="substring-before($tm,'+')"/>
+          <xsl:variable name="tm_minus" select="substring-before($tm,'-')"/>
+          <xsl:choose>
+            <xsl:when test="$tm_plus">
+              <xsl:value-of select="$tm_plus"/>
+            </xsl:when>
+            <xsl:when test="$tm_minus">
+              <xsl:value-of select="$tm_minus"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$tm"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
+      </DicomAttribute>
+    </xsl:if>
+  </xsl:template>
 </xsl:stylesheet>

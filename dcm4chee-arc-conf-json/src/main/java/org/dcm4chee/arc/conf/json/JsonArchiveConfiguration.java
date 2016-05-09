@@ -115,6 +115,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmPurgeQueueMessagePollingInterval", arcDev.getPurgeQueueMessagePollingInterval());
         writer.writeNotDef("dcmPurgeQueueMessageFetchSize", arcDev.getPurgeQueueMessageFetchSize(), 100);
         writer.writeNotNull("dcmWadoSpoolDirectory", arcDev.getWadoSpoolDirectory());
+        writer.writeNotNull("dcmImportReportTemplateURI", arcDev.getImportReportTemplateURI());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -464,6 +465,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSpoolDirectory":
                     arcDev.setWadoSpoolDirectory(reader.stringValue());
+                    break;
+                case "dcmImportReportTemplateURI":
+                    arcDev.setImportReportTemplateURI(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
