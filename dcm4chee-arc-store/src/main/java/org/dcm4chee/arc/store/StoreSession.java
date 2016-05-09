@@ -50,6 +50,7 @@ import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
+import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -59,6 +60,8 @@ public interface StoreSession extends Closeable {
     Association getAssociation();
 
     HttpServletRequest getHttpRequest();
+
+    Socket getSocket();
 
     HL7Segment getHL7MessageHeader();
 

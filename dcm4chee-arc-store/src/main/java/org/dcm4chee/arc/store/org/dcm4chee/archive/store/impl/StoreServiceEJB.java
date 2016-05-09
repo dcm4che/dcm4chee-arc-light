@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
@@ -362,9 +363,11 @@ public class StoreServiceEJB {
             if (study == null) {
                 StoreSession session = ctx.getStoreSession();
                 HttpServletRequest httpRequest = session.getHttpRequest();
-                PatientMgtContext patMgtCtx = httpRequest != null
+                Association as = session.getAssociation();
+                PatientMgtContext patMgtCtx = as != null ? patientService.createPatientMgtContextDICOM(as)
+                        : httpRequest != null
                         ? patientService.createPatientMgtContextDICOM(httpRequest, session.getLocalApplicationEntity())
-                        : patientService.createPatientMgtContextDICOM(session.getAssociation());
+                        : patientService.createPatientMgtContextHL7(session.getSocket(), session.getHL7MessageHeader());
                 patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);
                 if (pat == null) {

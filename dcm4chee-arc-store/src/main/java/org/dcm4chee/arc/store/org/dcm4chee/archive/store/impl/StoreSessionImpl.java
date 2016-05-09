@@ -51,6 +51,11 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
+    public Socket getSocket() {
+        return socket;
+    }
+
+    @Override
     public HL7Segment getHL7MessageHeader() {
         return msh;
     }
