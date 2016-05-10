@@ -3,6 +3,8 @@
   <xsl:output method="xml" indent="yes"/>
   <xsl:include href="hl7-common.xsl"/>
   <xsl:param name="VerifyingOrganization">Verifying Organization</xsl:param>
+  <xsl:param name="suid"></xsl:param>
+  <xsl:param name="seriesuid"></xsl:param>
   <xsl:template match="/hl7">
     <dataset>
       <xsl:call-template name="const-attrs"/>
@@ -137,11 +139,31 @@
       <xsl:with-param name="val" select="field[7]"/>
     </xsl:call-template>
     <!-- Take Study Instance UID from first referenced Image - if available -->
-    <xsl:variable name="suid"
-      select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
-    <!-- Study Instance UID -->
     <DicomAttribute tag="0020000D" vr="UI">
-      <Value number="1"><xsl:value-of select="$suid"/></Value>
+      <Value number="1">
+      <xsl:variable name="suid1" select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
+      <xsl:choose>
+        <xsl:when test="$suid1">
+          <xsl:value-of select="$suid1"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$suid"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      </Value>
+    </DicomAttribute>
+    <DicomAttribute tag="0020000E" vr="UI">
+      <Value number="1">
+        <xsl:variable name="seriesuid1" select="normalize-space(../OBX[field[3]/component='Series Instance UID'][1]/field[5])"/>
+        <xsl:choose>
+          <xsl:when test="$seriesuid1">
+            <xsl:value-of select="$seriesuid1"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$seriesuid"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </Value>
     </DicomAttribute>
     <!--Referenced Request Sequence-->
     <DicomAttribute tag="0040A370" vr="SQ">

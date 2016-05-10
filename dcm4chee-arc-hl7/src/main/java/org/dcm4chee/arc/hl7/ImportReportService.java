@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.SAXTransformer.SetupTransformer;
@@ -51,6 +53,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -90,12 +93,16 @@ class ImportReportService extends DefaultHL7Service {
                     new SetupTransformer() {
                         @Override
                         public void setup(Transformer transformer) {
-
+                            transformer.setParameter("suid", UIDUtils.createUID());
+                            transformer.setParameter("seriesuid", UIDUtils.createUID());
                         }
                     });
             ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(arcHL7App.getAETitle());
             try (StoreSession session = storeService.newStoreSession(s, msh, ae)) {
                 StoreContext ctx = storeService.newStoreContext(session);
+                ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
+                ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
+                ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
                 storeService.store(ctx, attrs);
             }
             return super.onMessage(hl7App, conn, s, msh, msg, off, len, mshlen);
