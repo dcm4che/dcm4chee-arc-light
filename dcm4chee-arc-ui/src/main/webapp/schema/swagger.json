@@ -587,6 +587,48 @@
         }
       }
     },
+    "/aets/{aet}/rs/patients": {
+      "put": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "update or create patient",
+        "operationId": "updatePatient",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "PatientID",
+            "in": "query",
+            "description": "Patient ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "IssuerOfPatientID",
+            "in": "query",
+            "description": "Issuer of Patient ID",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
       "get": {
         "tags": [

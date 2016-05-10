@@ -48,6 +48,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.query.util.AttributesBuilder;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
@@ -375,6 +376,7 @@ public class QidoRS {
     public static class QueryAttributes {
         private static final OrderSpecifier<?>[] EMPTY_ORDER_SPECIFIERS = new OrderSpecifier<?>[]{};
         private final Attributes keys = new Attributes();
+        private final AttributesBuilder builder = new AttributesBuilder(keys);
         private boolean includeAll;
         private final ArrayList<OrderByTag> orderByTags = new ArrayList<>();
         private boolean orderByPatientName;
@@ -400,9 +402,7 @@ public class QidoRS {
                 }
                 for (String field : StringUtils.split(s, ',')) {
                     try {
-                        int[] tagPath = TagUtils.parseTagPath(field);
-                        int tag = tagPath[tagPath.length-1];
-                        nestedKeys(tagPath).setNull(tag, DICT.vrOf(tag));
+                        builder.setNull(field);
                     } catch (IllegalArgumentException e2) {
                         throw new IllegalArgumentException("includefield=" + s);
                     }
@@ -469,27 +469,10 @@ public class QidoRS {
 
         private void addQueryKey(String attrPath, List<String> values) {
             try {
-                int[] tagPath = TagUtils.parseTagPath(attrPath);
-                int tag = tagPath[tagPath.length-1];
-                nestedKeys(tagPath).setString(tag, DICT.vrOf(tag),
-                        values.toArray(new String[values.size()]));
+                builder.setString(attrPath, values.toArray(new String[values.size()]));
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(attrPath + "=" + values.get(0));
             }
-        }
-
-        private Attributes nestedKeys(int[] tags) {
-            Attributes item = keys;
-            for (int i = 0; i < tags.length-1; i++) {
-                int tag = tags[i];
-                Sequence sq = item.getSequence(tag);
-                if (sq == null)
-                    sq = item.newSequence(tag, 1);
-                if (sq.isEmpty())
-                    sq.add(new Attributes());
-                item = sq.get(0);
-            }
-            return item;
         }
 
     }
