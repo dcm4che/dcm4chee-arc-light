@@ -43,6 +43,7 @@ package org.dcm4chee.arc.hl7;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.io.SAXTransformer.SetupTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
@@ -58,6 +59,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
+import javax.xml.transform.Transformer;
 import java.net.Socket;
 
 /**
@@ -84,7 +86,13 @@ class ImportReportService extends DefaultHL7Service {
                     hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
             Attributes attrs = SAXTransformer.transform(msg, off, len, hl7cs,
                     TemplatesCache.getDefault().get(
-                        StringUtils.replaceSystemProperties(arcHL7App.importReportTemplateURI())));
+                            StringUtils.replaceSystemProperties(arcHL7App.importReportTemplateURI())),
+                    new SetupTransformer() {
+                        @Override
+                        public void setup(Transformer transformer) {
+
+                        }
+                    });
             ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(arcHL7App.getAETitle());
             try (StoreSession session = storeService.newStoreSession(s, msh, ae)) {
                 StoreContext ctx = storeService.newStoreContext(session);

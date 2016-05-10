@@ -6,6 +6,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Charset;
 import org.dcm4che3.hl7.HL7Parser;
 import org.dcm4che3.io.ContentHandlerAdapter;
+import org.dcm4che3.io.SAXTransformer.SetupTransformer;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.Templates;
@@ -28,7 +29,8 @@ class SAXTransformer {
 
     private static SAXTransformerFactory factory = (SAXTransformerFactory) TransformerFactory.newInstance();
 
-    public static Attributes transform(byte[] msg, int off, int len, String hl7charset, Templates tpl)
+    public static Attributes transform(byte[] msg, int off, int len, String hl7charset, Templates tpl,
+                                       SetupTransformer setup)
             throws TransformerConfigurationException, IOException, SAXException {
         Attributes attrs = new Attributes();
         String dicomCharset = HL7Charset.toDicomCharacterSetCode(hl7charset);
@@ -36,6 +38,8 @@ class SAXTransformer {
             attrs.setString(Tag.SpecificCharacterSet, VR.CS, dicomCharset);
         TransformerHandler th = factory.newTransformerHandler(tpl);
         th.setResult(new SAXResult(new ContentHandlerAdapter(attrs)));
+        if (setup != null)
+            setup.setup(th.getTransformer());
         new HL7Parser(th).parse(new InputStreamReader(
                 new ByteArrayInputStream(msg, off, len),
                 HL7Charset.toCharsetName(hl7charset)));
