@@ -42,7 +42,7 @@ class PatientUpdateService extends DefaultHL7Service {
                             byte[] msg, int off, int len, int mshlen) throws HL7Exception {
         try {
             String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
-            Attributes attrs = SAXTransformer.transform(msg, off, len, hl7cs, getTemplate(hl7App));
+            Attributes attrs = SAXTransformer.transform(msg, off, len, hl7cs, getTemplate(hl7App), null);
             PatientMgtContext ctx = patientService.createPatientMgtContextHL7(s, msh);
             ctx.setAttributes(attrs);
             if (ctx.getPatientID() == null)
