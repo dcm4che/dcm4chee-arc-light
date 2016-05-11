@@ -267,14 +267,15 @@
             <div class="th" style="width:12%">
                 Patient ID
             </div>
+            <div class="th" style="width:12%">
+                <!-- Referring Physician's Name -->
+                Issuer of patient ID
+            </div>
             <div class="th" style="width:8%">
                 Birth Date
             </div>
             <div class="th" style="width:4%">
                 Sex
-            </div>
-            <div class="th" style="width:14%">
-                Referring Physician's Name
             </div>
             <div class="th" style="width:38%">
                 Patient Comments
@@ -292,10 +293,10 @@
                     <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
                 </div>
                 <div  style="width:14%" class="th txt" ng-bind="(patient.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'" title="{{patient.attrs['00100010'].Value[0].Alphabetic}}">&nbsp;</div>
-                <div style="width:12%" class="th txt" ng-bind="(patient.attrs['00100020'].Value[0]) || '&nbsp;'" ng-attr-title="{{patient.attrs['00100020'].Value[0]}}">&nbsp;</div>
+                <div style="width:12%" class="th txt" ng-bind="(patient.attrs['00100020'].Value[0]) || '&nbsp;'" ng-attr-title="{{patient.attrs['00100020'].Value[0]}}">&nbsp;</div>                
+                <div style="width:12%" class="th txt" ng-bind="(patient.attrs['00100021'].Value[0]) || '&nbsp;'" ng-attr-title="{{patient.attrs['00100021'].Value[0]}}">&nbsp;</div>
                 <div style="width:8%" class="th txt" ng-bind="(patient.attrs['00100030'].Value[0] | date:'yyyy-MM-dd') || '&nbsp;'" title="{{patient.attrs['00100030'].Value[0]}}">&nbsp;</div>                
                 <div style="width:4%" class="th txt" ng-bind="(patient.attrs['00100040'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00100040'].Value[0]}}">&nbsp;</div>              
-                <div style="width:14%" class="th txt" ng-bind="(patient.attrs['00080090'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00080090'].Value[0]}}">&nbsp;</div>
                 <div style="width:38%" class="th txt" ng-bind="(patient.attrs['00104000'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00104000'].Value[0]}}">&nbsp;</div>           
             </div>
         </div>
@@ -308,7 +309,7 @@
             <div class="thead">
                 <div class="tr_row">
                     <div class="th">                
-                        Studys
+                        
                     </div>
                     <div class="th">
                             Study ID
@@ -324,9 +325,10 @@
                             <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                         </a>
                     </div>
-                    <div class="th">Study Time</div>
+                    <div class="th" title="Referring Physician's Name">R. Physician's Name</div>
+                    <div style="width:5%" class="th">Study Time</div>
                     <div class="th">Accession Number</div>
-                    <div class="th">Modalities</div>
+                    <div style="width:5%" class="th">Modalities</div>
                     <div style="width:17.3%" class="th">Study Description</div>
                     <div style="width:3%" class="th">#S</div>
                     <div style="width:3%" class="th">#I</div>
@@ -361,9 +363,10 @@
                             <div style="width:10.4%" class="td_cell txt" ng-bind="(patient.attrs['00200010'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00200010'].Value[0]}}">&nbsp;</div>
                             <div  style="width:17.3%" title="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt" ng-bind="(study.attrs['0020000D'].Value[0]) || '&nbsp;'"> </div>
                             <div class="td_cell txt" title="{{study.attrs['00080020'].Value[0]}}" ng-bind="(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'"></div>
-                            <div class="td_cell txt" title="{{study.attrs['00080030'].Value[0]}}" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div>
+                            <div style="width:10.2%" class="td_cell txt" ng-bind="(study.attrs['00080090'].Value[0]) || '&nbsp;'" title="{{study.attrs['00080090'].Value[0]}}">&nbsp;</div>
+                            <div style="width:5.1%" class="td_cell txt" title="{{study.attrs['00080030'].Value[0]}}" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div>
                             <div class="td_cell txt" title="{{study.attrs['00080050'].Value[0]}}" ng-bind="(study.attrs['00080050'].Value[0]) || '&nbsp;'"> </div>
-                            <div class="td_cell txt" title="{{study.attrs['00080061'].Value}}" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'"> </div>
+                            <div style="width:5.2%" class="td_cell txt" title="{{study.attrs['00080061'].Value}}" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'"> </div>
                             <div style="width:18%" class="td_cell txt" ng-bind="(study.attrs['00081030'].Value[0]) || '&nbsp;'" title="{{study.attrs['00081030'].Value[0]}}"> </div>
                             <div style="width:3%" class="td_cell txt" ng-bind="(study.attrs['00201206'].Value[0]) || '&nbsp;'"> </div>
                             <div style="width:3%" class="td_cell txt" ng-bind="(study.attrs['00201208'].Value[0]) || '&nbsp;'"> </div>
