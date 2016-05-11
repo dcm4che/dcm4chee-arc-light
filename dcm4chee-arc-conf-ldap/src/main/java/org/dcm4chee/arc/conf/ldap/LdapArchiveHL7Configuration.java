@@ -52,6 +52,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtension {
@@ -65,7 +66,7 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         attrs.get("objectclass").add("dcmArchiveHL7Application");
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmImportReportTemplateURI", ext.getImportReportTemplateURI());
-        LdapUtils.storeNotNull(attrs, "dcmAETitle", ext.getAETitle());
+        LdapUtils.storeNotNull(attrs, "dcmOtherAETitle", ext.getAETitle());
     }
 
     @Override
@@ -78,7 +79,7 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         hl7App.addHL7ApplicationExtension(ext);
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("dcmImportReportTemplateURI"), null));
-        ext.setAETitle(LdapUtils.stringValue(attrs.get("dcmAETitle"), null));
+        ext.setAETitle(LdapUtils.stringValue(attrs.get("dcmOtherAETitle"), null));
     }
 
     @Override
@@ -95,6 +96,6 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI());
         LdapUtils.storeDiff(mods, "dcmImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI());
-        LdapUtils.storeDiff(mods, "dcmAETitle", aa.getAETitle(), bb.getAETitle());
+        LdapUtils.storeDiff(mods, "dcmOtherAETitle", aa.getAETitle(), bb.getAETitle());
     }
 }

@@ -705,7 +705,8 @@ class ArchiveDeviceFactory {
             "ADT^A40",
             "ADT^A47",
             "ORM^O01",
-            "OMI^O23"
+            "OMI^O23",
+            "ORU^R01"
     };
     static final String DCM4CHEE_ARC_VERSION = "5.2.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";

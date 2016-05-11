@@ -11,6 +11,7 @@ import javax.json.stream.JsonParser;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2016
  */
 public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension {
@@ -23,7 +24,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeStartObject("dcmArchiveHL7Application");
         writer.writeNotNull("hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         writer.writeNotNull("dcmImportReportTemplateURI", ext.getImportReportTemplateURI());
-        writer.writeNotNull("dcmAETitle", ext.getAETitle());
+        writer.writeNotNull("dcmOtherAETitle", ext.getAETitle());
         writer.writeEnd();
     }
 
@@ -50,7 +51,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                 case "dcmImportReportTemplateURI":
                     ext.setImportReportTemplateURI(reader.stringValue());
                     break;
-                case "dcmAETitle":
+                case "dcmOtherAETitle":
                     ext.setAETitle(reader.stringValue());
                     break;
                 default:

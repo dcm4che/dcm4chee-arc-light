@@ -15,7 +15,7 @@
       "description": "Specifies URI for the style sheet used to Import Text Report received by HL7 ORU^R01 as DICOM SR.",
       "type": "string"
     },
-    "dcmAETitle": {
+    "dcmOtherAETitle": {
       "title": "AE Title",
       "description": "Associated AE Title.",
       "type": "string"
