@@ -277,7 +277,7 @@
             <div class="th" style="width:4%">
                 Sex
             </div>
-            <div class="th" style="width:38%">
+            <div class="th" style="width:40%">
                 Patient Comments
             </div>
         </div>
@@ -297,7 +297,7 @@
                 <div style="width:12%" class="th txt" ng-bind="(patient.attrs['00100021'].Value[0]) || '&nbsp;'" ng-attr-title="{{patient.attrs['00100021'].Value[0]}}">&nbsp;</div>
                 <div style="width:8%" class="th txt" ng-bind="(patient.attrs['00100030'].Value[0] | date:'yyyy-MM-dd') || '&nbsp;'" title="{{patient.attrs['00100030'].Value[0]}}">&nbsp;</div>                
                 <div style="width:4%" class="th txt" ng-bind="(patient.attrs['00100040'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00100040'].Value[0]}}">&nbsp;</div>              
-                <div style="width:38%" class="th txt" ng-bind="(patient.attrs['00104000'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00104000'].Value[0]}}">&nbsp;</div>           
+                <div style="width:40%" class="th txt" ng-bind="(patient.attrs['00104000'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00104000'].Value[0]}}">&nbsp;</div>           
             </div>
         </div>
         <div class="tr_row"  ng-show="patient.showAttributes">
