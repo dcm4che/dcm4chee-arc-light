@@ -1,3 +1,8 @@
+<!-- <pre>
+    patients:{{patients | json}}
+    <div ng-repeat="(key, value) in patients">{{value.attrs}}</div>
+</pre> -->
+
 <div class="row filter">
     <div>
     <div class="col-md-3 block-1-1">
@@ -251,7 +256,7 @@
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>  -->
             </div>
-            <div style="width:16.7%" class="th">Patient Name
+            <div style="width:14%" class="th">Patient Name
                 <a href="" class="order_arrow" ng-click="filter.orderby = 'PatientName';morePatients !== undefined ? queryPatients(0) : queryStudies(0)">
                     <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
                 </a>
@@ -259,216 +264,267 @@
                     <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                 </a>
                 </div>
-            <div class="th">Patient ID</div>
-            <div class="th">Study Date
-                <a href="" class="order_arrow" ng-click="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)">
-                    <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
-                </a>
-                <a href="" class="order_arrow" ng-click="filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)">
-                    <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
-                </a>
+            <div class="th" style="width:12%">
+                Patient ID
             </div>
-            <div class="th">Study Time</div>
-            <div class="th">Accession Number</div>
-            <div class="th">Modalities</div>
-            <div style="width:17.3%" class="th">Study Description</div>
-            <div style="width:3%" class="th">#S</div>
-            <div style="width:3%" class="th">#I</div>
+            <div class="th" style="width:8%">
+                Birth Date
+            </div>
+            <div class="th" style="width:4%">
+                Sex
+            </div>
+            <div class="th" style="width:14%">
+                Referring Physician's Name
+            </div>
+            <div class="th" style="width:38%">
+                Patient Comments
+            </div>
         </div>
     </div>
-    <div class="repeat1" ng-repeat="(studykey, study) in studies">
-        <div class="tbody">
+    <div class="repeat0" ng-repeat="(patientkey, patient) in patients">
+        <div class="thead">
             <div class="tr_row">
-                <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
-                <div class="subblock">
-                    <div class="td_row thead">
-                        <div class="td_cell table_btn">
-                            <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
-                                <span class="glyphicon glyphicon-th-list"></span>
-                            </a>
-                            <a ng-click="exportStudy(study)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
-                                <span class="glyphicon glyphicon-export"></span>
-                            </a>
-                            <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectStudy(study)" href="" title="Reject Study">
-                                <span class="glyphicon glyphicon-trash"></span>
-                            </a>
-                            <a ng-show="trashaktive && isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
-                                <span class="glyphicon glyphicon-repeat"></span>
-                            </a>
-                            <!--
-                            <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
-                                <span class="glyphicon glyphicon-save"></span>
-                            </a>
-                            -->
-                            <a ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
-                            <a ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
-                        </div>
-                        <div style="width:17.3%" class="td_cell" ng-bind="(study.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'" title="{{study.attrs['00100010'].Value[0].Alphabetic}}">&nbsp;</div>
-                        <div class="td_cell" ng-bind="(study.attrs['00100020'].Value[0]) || '&nbsp;'"> </div>
-                        <div class="td_cell" ng-bind="(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'"></div>
-                        <div class="td_cell" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div>
-                        <div class="td_cell" ng-bind="(study.attrs['00080050'].Value[0]) || '&nbsp;'"> </div>
-                        <div class="td_cell" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'"> </div>
-                        <div style="width:18%" class="td_cell" ng-bind="(study.attrs['00081030'].Value[0]) || '&nbsp;'" title="{{study.attrs['00081030'].Value[0]}}"> </div>
-                        <div style="width:3%" class="td_cell" ng-bind="(study.attrs['00201206'].Value[0]) || '&nbsp;'"> </div>
-                        <div style="width:3%" class="td_cell" ng-bind="(study.attrs['00201208'].Value[0]) || '&nbsp;'"> </div>
+                <div class="th" style="width:10%">                
+                    <a class="table_btn" ng-click="patient.showAttributes = !patient.showAttributes" href="" title="Show Attributes">
+                        <span class="glyphicon glyphicon-th-list"></span>
+                    </a>
+                    <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
+                    <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
+                </div>
+                <div  style="width:14%" class="th txt" ng-bind="(patient.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'" title="{{patient.attrs['00100010'].Value[0].Alphabetic}}">&nbsp;</div>
+                <div style="width:12%" class="th txt" ng-bind="(patient.attrs['00100020'].Value[0]) || '&nbsp;'" ng-attr-title="{{patient.attrs['00100020'].Value[0]}}">&nbsp;</div>
+                <div style="width:8%" class="th txt" ng-bind="(patient.attrs['00100030'].Value[0] | date:'yyyy-MM-dd') || '&nbsp;'" title="{{patient.attrs['00100030'].Value[0]}}">&nbsp;</div>                
+                <div style="width:4%" class="th txt" ng-bind="(patient.attrs['00100040'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00100040'].Value[0]}}">&nbsp;</div>              
+                <div style="width:14%" class="th txt" ng-bind="(patient.attrs['00080090'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00080090'].Value[0]}}">&nbsp;</div>
+                <div style="width:38%" class="th txt" ng-bind="(patient.attrs['00104000'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00104000'].Value[0]}}">&nbsp;</div>           
+            </div>
+        </div>
+        <div class="tr_row"  ng-show="patient.showAttributes">
+            <div class="td_cell attribute_list">
+                <attribute-list attrs="patient.attrs"></attribute-list>
+            </div>
+        </div>
+        <div class="repeat1" ng-repeat="(studykey, study) in patient.studies">
+            <div class="thead">
+                <div class="tr_row">
+                    <div class="th">                
+                        Studys
                     </div>
-                    <div class="td_row">
-                        <div class="tr_row"  ng-show="study.showAttributes">
-                            <div class="td_cell attribute_list"> 
-                                <attribute-list attrs="study.attrs"></attribute-list>
+                    <div class="th">
+                            Study ID
+                    </div>
+                    <div class="th"  style="width:16.6%">
+                            Study Instance UID
+                    </div>
+                    <div class="th">Study Date
+                        <a href="" class="order_arrow" ng-click="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)">
+                            <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
+                        </a>
+                        <a href="" class="order_arrow" ng-click="filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)">
+                            <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <div class="th">Study Time</div>
+                    <div class="th">Accession Number</div>
+                    <div class="th">Modalities</div>
+                    <div style="width:17.3%" class="th">Study Description</div>
+                    <div style="width:3%" class="th">#S</div>
+                    <div style="width:3%" class="th">#I</div>
+                </div>
+            </div>
+            <div class="tbody">
+                <div class="tr_row">
+                    <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
+                    <div class="subblock">
+                        <div class="td_row thead">
+                            <div class="td_cell table_btn">
+                                <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
+                                    <span class="glyphicon glyphicon-th-list"></span>
+                                </a>
+                                <a ng-click="exportStudy(study)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
+                                    <span class="glyphicon glyphicon-export"></span>
+                                </a>
+                                <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectStudy(study)" href="" title="Reject Study">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                                <a ng-show="trashaktive && isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
+                                    <span class="glyphicon glyphicon-repeat"></span>
+                                </a>
+                                <!--
+                                <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
+                                    <span class="glyphicon glyphicon-save"></span>
+                                </a>
+                                -->
+                                <a ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
+                                <a ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
                             </div>
+                            <div style="width:10.4%" class="td_cell txt" ng-bind="(patient.attrs['00200010'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00200010'].Value[0]}}">&nbsp;</div>
+                            <div  style="width:17.3%" title="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt" ng-bind="(study.attrs['0020000D'].Value[0]) || '&nbsp;'"> </div>
+                            <div class="td_cell txt" title="{{study.attrs['00080020'].Value[0]}}" ng-bind="(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'"></div>
+                            <div class="td_cell txt" title="{{study.attrs['00080030'].Value[0]}}" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div>
+                            <div class="td_cell txt" title="{{study.attrs['00080050'].Value[0]}}" ng-bind="(study.attrs['00080050'].Value[0]) || '&nbsp;'"> </div>
+                            <div class="td_cell txt" title="{{study.attrs['00080061'].Value}}" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'"> </div>
+                            <div style="width:18%" class="td_cell txt" ng-bind="(study.attrs['00081030'].Value[0]) || '&nbsp;'" title="{{study.attrs['00081030'].Value[0]}}"> </div>
+                            <div style="width:3%" class="td_cell txt" ng-bind="(study.attrs['00201206'].Value[0]) || '&nbsp;'"> </div>
+                            <div style="width:3%" class="td_cell txt" ng-bind="(study.attrs['00201208'].Value[0]) || '&nbsp;'"> </div>
                         </div>
-                        <div class="tr_row thead2"  ng-show="study.series && study.series.length">
-                            <div class="th">
-                                <button class="btn btn-link btn-xs"
-                                        ng-disabled="study.series[0].offset==0"
-                                        ng-click="querySeries(study, study.series[0].offset-limit)"
-                                        title="Previous Series">
-                                    <span class="glyphicon glyphicon-menu-left"></span>
-                                </button>
-                                <button class="btn btn-link btn-xs"
-                                        ng-disabled="!study.moreSeries"
-                                        ng-click="querySeries(study, study.series[0].offset+limit)"
-                                        title="Next Series">
-                                    <span class="glyphicon glyphicon-menu-right"></span>
-                                </button>
-                            </div>
-                            <div class="th">Station Name</div>
-                            <div class="th">Series Number</div>
-                            <div class="th">PPS Start Date</div>
-                            <div class="th">PPS Start Time</div>
-                            <div class="th">Body Part</div>
-                            <div class="th">Modality</div>
-                            <div style="width:21%" class="th">Series Description</div>
-                            <div style="width:2%" class="th">#I</div>
-                        </div>
-                        <div class="repeat2" ng-repeat="(serieskey,series) in study.series">
-                                <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
-                        <div class="subblock">
-                            <div class="tr_row">
-                                <div class="td_cell table_btn">
-                                    <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
-                                        <span class="glyphicon glyphicon-th-list"></span>
-                                    </a>
-                                    <a ng-click="exportSeries(series)" ng-show="exporterID && isRole('admin')" href="" title="Export Series">
-                                        <span class="glyphicon glyphicon-export"></span>
-                                    </a>
-                                    <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectSeries(series)" href="" title="Reject Series">
-                                        <span  class="glyphicon glyphicon-trash"></span>
-                                    </a>
-                                    <a ng-show="trashaktive && isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
-                                        <span class="glyphicon glyphicon-repeat"></span>
-                                    </a>
-                                    <!--
-                                    <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
-                                        <span class="glyphicon glyphicon-save"></span>
-                                    </a>
-                                    -->
-                                    <a ng-hide="series.instances" ng-click="queryInstances(series,0)" href="" title="Show Instances">&#9658;</a>
-                                    <a ng-show="series.instances" ng-click="series.instances = null" href="" title="Hide Instances">&#9660;</a>
-                                </div>
-                                <div class="td_cell" ng-bind="(series.attrs['00081010'].Value[0]) || '&nbsp;'"> </div>
-                                <div class="td_cell" ng-bind="(series.attrs['00200011'].Value[0]) || '&nbsp;'"> </div>
-                                <div class="td_cell" ng-bind="(series.attrs['00400244'].Value[0] | formatDA) || '&nbsp;'"> </div>
-                                <div class="td_cell" ng-bind="(series.attrs['00400245'].Value[0] | formatTM) || '&nbsp;'"> </div>
-                                <div class="td_cell" ng-bind="(series.attrs['00180015'].Value[0]) || '&nbsp;'"> </div>
-                                <div class="td_cell" ng-bind="(series.attrs['00080060'].Value[0]) || '&nbsp;'"> </div>
-                                <div style="width:21.5%" class="td_cell" ng-bind="(series.attrs['0008103E'].Value[0] | trim: 45) || '&nbsp;'" title="{{(series.attrs['0008103E'].Value[0]) || '&nbsp;'}}"> </div>
-                                <div style="width:2%" class="td_cell" ng-bind="(series.attrs['00201209'].Value[0]) || '&nbsp;'"> </div>
-                            </div>
-                            <div class="tr_row"  ng-show="series.showAttributes">
-                                <div class="td_cell attribute_list">
-                                    <attribute-list attrs="series.attrs"></attribute-list>
+                        <div class="td_row">
+                            <div class="tr_row"  ng-show="study.showAttributes">
+                                <div class="td_cell attribute_list"> 
+                                    <attribute-list attrs="study.attrs"></attribute-list>
                                 </div>
                             </div>
-                            <div class="tr_row thead3"  ng-show="series.instances && series.instances.length">
+                            <div class="tr_row thead2"  ng-show="study.series && study.series.length">
                                 <div class="th">
                                     <button class="btn btn-link btn-xs"
-                                    ng-disabled="series.instances[0].offset==0"
-                                    ng-click="queryInstances(series, series.instances[0].offset-limit)"
-                                    title="Previous Instances">
-                                    <span class="glyphicon glyphicon-menu-left"></span>
+                                            ng-disabled="study.series[0].offset==0"
+                                            ng-click="querySeries(study, study.series[0].offset-limit)"
+                                            title="Previous Series">
+                                        <span class="glyphicon glyphicon-menu-left"></span>
                                     </button>
                                     <button class="btn btn-link btn-xs"
-                                            ng-disabled="!series.moreInstances"
-                                            ng-click="queryInstances(series, series.instances[0].offset+limit)"
-                                            title="Next Instances">
+                                            ng-disabled="!study.moreSeries"
+                                            ng-click="querySeries(study, study.series[0].offset+limit)"
+                                            title="Next Series">
                                         <span class="glyphicon glyphicon-menu-right"></span>
                                     </button>
                                 </div>
-                                <div class="th">SOP Class UID</div>
-                                <div class="th">Instance Number</div>
-                                <div class="th">Content Date</div>
-                                <div class="th">Content Time</div>
-                                <div style="width:28%" class="th">Content Description</div>
-                                <div style="width:2%" class="th">#F</div>
+                                <div class="th">Station Name</div>
+                                <div class="th">Series Number</div>
+                                <div class="th">PPS Start Date</div>
+                                <div class="th">PPS Start Time</div>
+                                <div class="th">Body Part</div>
+                                <div class="th">Modality</div>
+                                <div style="width:21%" class="th">Series Description</div>
+                                <div style="width:2%" class="th">#I</div>
                             </div>
-                            <div class="repeat3"  ng-repeat="(key,instance) in series.instances">
-                                <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
-                                <div class="subblock">
-                                    <div class="tr_row">
-                                        <div class="td_cell table_btn">   
-                                            <a ng-click="toggleAttributs(series.instances[key],'attributs')" href="" title="Show Attributes" ng-class="{active:instance.showAttributes}">
-                                                <span class="glyphicon glyphicon-th-list"></span>
-                                            </a>   
-                                            <a ng-click="toggleAttributs(series.instances[key],'fileattributs');addFileAttribute(studykey,serieskey,key)" href="" title="Show Attributes from file" ng-class="{active:instance.showFileAttributes}">
-                                                <span class="glyphicon glyphicon-list"></span>
-                                            </a>
-                                            <a ng-click="exportInstance(instance)" ng-show="exporterID && isRole('admin')" href="" title="Export Instance">
-                                                <span class="glyphicon glyphicon-export"></span>
-                                            </a>
-                                            <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
-                                                <span  class="glyphicon glyphicon-trash"></span>
-                                            </a>
-                                            <a ng-show="trashaktive && isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
-                                                <span class="glyphicon glyphicon-repeat"></span>
-                                            </a>
-                                            <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
-                                                <span class="glyphicon glyphicon-save"></span>
-                                            </a>
-                                            <a ng-href="{{downloadURL(instance, '*')}}" title="Download DICOM Object">
-                                                <span class="glyphicon glyphicon-download-alt"></span>
-                                            </a>
-                                            <a ng-hide="instance.views.length > 1" ng-click="viewInstance(instance)" href="" title="View DICOM Object">
-                                                <span class="glyphicon glyphicon-picture"></span>
-                                            </a>
-                                            <span ng-init="select_show=false" class="selecta" ng-show="instance.views.length > 1" href="" title="View DICOM Object">
-                                                <span class="glyphicon glyphicon-picture" ng-click="select_show = !select_show"></span>
-                                                <div ng-show="select_show" class="select_block" ng-click="select_show = false">
-                                                    <a ng-model="instance.view" ng-repeat="(key, value) in instance.views" ng-click="(instance.view=value);viewInstance(instance)">{{value}}</a>
-                                                </div>
-<!--                                                 <select ng-show="instance.views.length > 1"
-                                                        ng-options="view for view in instance.views"
-                                                        ng-model="instance.view">
-                                                </select> -->
-                                            </span>
-                                        </div>
-                                        <div class="td_cell"  ng-bind="(instance.attrs['00080016'].Value[0]) || '&nbsp;'"></div>
-                                        <div class="td_cell"  ng-bind="(instance.attrs['00200013'].Value[0]) || '&nbsp;'"> </div>
-                                        <div class="td_cell" ng-bind="((instance.attrs['00080023'] || instance.attrs['00700082']).Value[0] | formatDA) || '&nbsp;'"> </div>
-                                        <div class="td_cell" ng-bind="((instance.attrs['00080033'] || instance.attrs['00700083']).Value[0] | formatTM) || '&nbsp;'"> </div>
-                                        <div style="width:28%" class="td_cell" ng-bind="(instance.attrs | contentDescription) || '&nbsp;'"> </div>
-                                        <div style="width:2%" class="td_cell" ng-bind="(instance.attrs['00280008'].Value[0]) || '&nbsp;'"> </div>
+                            <div class="repeat2" ng-repeat="(serieskey,series) in study.series">
+                                    <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
+                            <div class="subblock">
+                                <div class="tr_row">
+                                    <div class="td_cell table_btn">
+                                        <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
+                                            <span class="glyphicon glyphicon-th-list"></span>
+                                        </a>
+                                        <a ng-click="exportSeries(series)" ng-show="exporterID && isRole('admin')" href="" title="Export Series">
+                                            <span class="glyphicon glyphicon-export"></span>
+                                        </a>
+                                        <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectSeries(series)" href="" title="Reject Series">
+                                            <span  class="glyphicon glyphicon-trash"></span>
+                                        </a>
+                                        <a ng-show="trashaktive && isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
+                                            <span class="glyphicon glyphicon-repeat"></span>
+                                        </a>
+                                        <!--
+                                        <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
+                                            <span class="glyphicon glyphicon-save"></span>
+                                        </a>
+                                        -->
+                                        <a ng-hide="series.instances" ng-click="queryInstances(series,0)" href="" title="Show Instances">&#9658;</a>
+                                        <a ng-show="series.instances" ng-click="series.instances = null" href="" title="Hide Instances">&#9660;</a>
                                     </div>
-                                    <div class="tr_row"  ng-show="instance.showAttributes">
-                                        <div class="td_cell attribute_list">
-                                            <attribute-list attrs="instance.attrs"></attribute-list>
-                                        </div>
+                                    <div class="td_cell txt" title="{{series.attrs['00081010'].Value[0]}}" ng-bind="(series.attrs['00081010'].Value[0]) || '&nbsp;'"> </div>
+                                    <div class="td_cell txt" title="{{series.attrs['00200011'].Value[0]}}" ng-bind="(series.attrs['00200011'].Value[0]) || '&nbsp;'"> </div>
+                                    <div class="td_cell txt" title="{{series.attrs['00400244'].Value[0]}}" ng-bind="(series.attrs['00400244'].Value[0] | formatDA) || '&nbsp;'"> </div>
+                                    <div class="td_cell txt" title="{{series.attrs['00400245'].Value[0]}}" ng-bind="(series.attrs['00400245'].Value[0] | formatTM) || '&nbsp;'"> </div>
+                                    <div class="td_cell txt" title="{{series.attrs['00180015'].Value[0]}}" ng-bind="(series.attrs['00180015'].Value[0]) || '&nbsp;'"> </div>
+                                    <div class="td_cell txt" title="{{series.attrs['00080060'].Value[0]}}" ng-bind="(series.attrs['00080060'].Value[0]) || '&nbsp;'"> </div>
+                                    <div style="width:21.5%" class="td_cell txt" ng-bind="(series.attrs['0008103E'].Value[0]) || '&nbsp;'" title="{{(series.attrs['0008103E'].Value[0]) || '&nbsp;'}}"> </div>
+                                    <div style="width:2%" class="td_cell txt" ng-bind="(series.attrs['00201209'].Value[0]) || '&nbsp;'"> </div>
+                                </div>
+                                <div class="tr_row"  ng-show="series.showAttributes">
+                                    <div class="td_cell attribute_list">
+                                        <attribute-list attrs="series.attrs"></attribute-list>
                                     </div>
-                                    <div class="tr_row"  ng-show="instance.showFileAttributes">
-                                        <div class="td_cell attribute_list file-attribute-list" id="file-attribute-list-{{instance.attrs['00080018'].Value[0] | removedots}}">
-                                            <!-- <file-attribute-list attrs="instance.attrs" instance="instance" aet="aet"></file-attribute-list> -->
+                                </div>
+                                <div class="tr_row thead3"  ng-show="series.instances && series.instances.length">
+                                    <div class="th">
+                                        <button class="btn btn-link btn-xs"
+                                        ng-disabled="series.instances[0].offset==0"
+                                        ng-click="queryInstances(series, series.instances[0].offset-limit)"
+                                        title="Previous Instances">
+                                        <span class="glyphicon glyphicon-menu-left"></span>
+                                        </button>
+                                        <button class="btn btn-link btn-xs"
+                                                ng-disabled="!series.moreInstances"
+                                                ng-click="queryInstances(series, series.instances[0].offset+limit)"
+                                                title="Next Instances">
+                                            <span class="glyphicon glyphicon-menu-right"></span>
+                                        </button>
+                                    </div>
+                                    <div class="th">SOP Class UID</div>
+                                    <div class="th">Instance Number</div>
+                                    <div class="th">Content Date</div>
+                                    <div class="th">Content Time</div>
+                                    <div style="width:28%" class="th">Content Description</div>
+                                    <div style="width:2%" class="th">#F</div>
+                                </div>
+                                <div class="repeat3"  ng-repeat="(key,instance) in series.instances">
+                                    <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
+                                    <div class="subblock">
+                                        <div class="tr_row">
+                                            <div class="td_cell table_btn">   
+                                                <a ng-click="toggleAttributs(series.instances[key],'attributs')" href="" title="Show Attributes" ng-class="{active:instance.showAttributes}">
+                                                    <span class="glyphicon glyphicon-th-list"></span>
+                                                </a>   
+                                                <a ng-click="toggleAttributs(series.instances[key],'fileattributs');addFileAttribute(instance)" href="" title="Show Attributes from file" ng-class="{active:instance.showFileAttributes}">
+                                                    <span class="glyphicon glyphicon-list"></span>
+                                                </a>
+                                                <a ng-click="exportInstance(instance)" ng-show="exporterID && isRole('admin')" href="" title="Export Instance">
+                                                    <span class="glyphicon glyphicon-export"></span>
+                                                </a>
+                                                <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
+                                                    <span  class="glyphicon glyphicon-trash"></span>
+                                                </a>
+                                                <a ng-show="trashaktive && isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
+                                                    <span class="glyphicon glyphicon-repeat"></span>
+                                                </a>
+                                                <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
+                                                    <span class="glyphicon glyphicon-save"></span>
+                                                </a>
+                                                <a ng-href="{{downloadURL(instance, '*')}}" title="Download DICOM Object">
+                                                    <span class="glyphicon glyphicon-download-alt"></span>
+                                                </a>
+                                                <a ng-hide="instance.views.length > 1" ng-click="viewInstance(instance)" href="" title="View DICOM Object">
+                                                    <span class="glyphicon glyphicon-picture"></span>
+                                                </a>
+                                                <span ng-init="select_show=false" class="selecta" ng-show="instance.views.length > 1" href="" title="View DICOM Object">
+                                                    <span class="glyphicon glyphicon-picture" ng-click="select_show = !select_show"></span>
+                                                    <div ng-show="select_show" class="select_block" ng-click="select_show = false">
+                                                        <a ng-model="instance.view" ng-repeat="(key, value) in instance.views" ng-click="(instance.view=value);viewInstance(instance)">{{value}}</a>
+                                                    </div>
+    <!--                                                 <select ng-show="instance.views.length > 1"
+                                                            ng-options="view for view in instance.views"
+                                                            ng-model="instance.view">
+                                                    </select> -->
+                                                </span>
+                                            </div>
+                                            <div class="td_cell txt"  title="{{instance.attrs['00080016'].Value[0]}}" ng-bind="(instance.attrs['00080016'].Value[0]) || '&nbsp;'"></div>
+                                            <div class="td_cell txt"  title="{{instance.attrs['00200013'].Value[0]}}" ng-bind="(instance.attrs['00200013'].Value[0]) || '&nbsp;'"> </div>
+                                            <div class="td_cell txt" ng-bind="((instance.attrs['00080023'] || instance.attrs['00700082']).Value[0] | formatDA) || '&nbsp;'"> </div>
+                                            <div class="td_cell txt" ng-bind="((instance.attrs['00080033'] || instance.attrs['00700083']).Value[0] | formatTM) || '&nbsp;'"> </div>
+                                            <div style="width:28%" class="td_cell txt" ng-bind="(instance.attrs | contentDescription) || '&nbsp;'"> </div>
+                                            <div style="width:2%" class="td_cell txt" ng-bind="(instance.attrs['00280008'].Value[0]) || '&nbsp;'"> </div>
+                                        </div>
+                                        <div class="tr_row"  ng-show="instance.showAttributes">
+                                            <div class="td_cell attribute_list">
+                                                <attribute-list attrs="instance.attrs"></attribute-list>
+                                            </div>
+                                        </div>
+                                        <div class="tr_row"  ng-show="instance.showFileAttributes">
+                                            <div class="td_cell attribute_list file-attribute-list" id="file-attribute-list-{{instance.attrs['00080018'].Value[0] | removedots}}">
+                                                <!-- <file-attribute-list attrs="instance.attrs" instance="instance" aet="aet"></file-attribute-list> -->
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div><!--  -->
+                        </div><!--  -->
+                    </div>
+                    </div>
                 </div>
-                </div>
-            </div>
 
+            </div>
         </div>
     </div>
 </div>

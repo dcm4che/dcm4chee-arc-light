@@ -85,7 +85,8 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
                 studyDate.to      = "";
             }
             cfpLoadingBar.complete();
-        },getParams : function($scope){
+        },
+        getParams : function($scope){
             var params = {};
             if($scope.rejectedBefore.date){
                 var rejecteBeforeTimestamps     = Date.parse($scope.rejectedBefore.date);
@@ -105,7 +106,30 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
                 params["keepRejectionNote"]     = true;
             }
             return params;
+        },
+        trim: function(selector){
+            setTimeout(function(){ 
+                  angular.forEach($('.txt'), function(m, i){
+                    if ($(m)[0].scrollWidth >  $(m).innerWidth() || $(m)[0].scrollHeight >  $(m).innerHeight()) {
+                            $(m).text(function (_,txt) {
+                                return txt.trim();
+                            });
+                            if ($(m)[0].scrollWidth >  $(m).innerWidth() || $(m)[0].scrollHeight >  $(m).innerHeight()) {
+                                while($(m)[0].scrollWidth >  $(m).innerWidth() || $(m)[0].scrollHeight >  $(m).innerHeight()){
+                                    $(m).text(function (_,txt) {
+                                        return txt.slice(0, -5);
+                                    });
+                                };
+                                $(m).text(function (_,txt) {
+                                    return txt.slice(0, -4)+"...";
+                                });
+                            }
+                    }
+                    $(m).removeClass('txt');
+                  });
+            }, 200);  
         }
+
     };
 });
 

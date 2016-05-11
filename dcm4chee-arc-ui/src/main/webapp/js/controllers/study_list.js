@@ -3,7 +3,7 @@
 myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.patients = [];
-    $scope.studies = [];
+//   $scope.studies = [];
     $scope.morePatients;
     $scope.moreStudies;
     $scope.limit = 20;
@@ -37,11 +37,19 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.trashaktive = false;
         }
     };
-    $scope.addFileAttribute = function(studykey, serieskey, key){
-        var id      = '#file-attribute-list-'+($scope.studies[studykey].series[serieskey].instances[key].attrs['00080018'].Value[0]).replace(/\./g, '');
+    $scope.$watchCollection('patients', function(newValue, oldValue){
+        StudiesService.trim();
+    });
+    // $scope.trim = function(selector){
+    //     StudiesService.trim(selector);
+    // };
+    $scope.addFileAttribute = function(instance){
+        console.log("1instance=",instance);
+        var id      = '#file-attribute-list-'+(instance.attrs['00080018'].Value[0]).replace(/\./g, '');
         if(angular.element(id).find("*").length < 1){
             cfpLoadingBar.start();
-            var html    = '<file-attribute-list studykey="'+studykey+'" serieskey="'+serieskey+'" key="'+key+'"></file-attribute-list>';
+            var html    = '<file-attribute-list studyuid="'+ instance.wadoQueryParams.studyUID +'" seriesuid="'+ instance.wadoQueryParams.seriesUID +'"  objectuid="'+ instance.wadoQueryParams.objectUID+ '"></file-attribute-list>';
+            console.log("html=",html);
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
             angular.element(id).html(
                         $compile(html)($scope)
@@ -211,6 +219,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         });
     };
     $scope.queryStudies = function(offset) {
+
         cfpLoadingBar.start();
         if (offset < 0) offset = 0;
         QidoService.queryStudies(
@@ -218,7 +227,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
         ).then(function (res) {
             $scope.patients = [];
-            $scope.studies = [];
+ //           $scope.studies = [];
             $scope.morePatients = undefined;
             $scope.moreStudies = undefined;
             if(res.data != ""){
@@ -233,7 +242,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             studies: [],
                             showAttributes: false
                         };
-                        $scope.patients.push(pat);
+                        // $scope.$apply(function () {
+                            $scope.patients.push(pat);
+                        // });
                     }
                     study = {
                         patient: pat,
@@ -244,13 +255,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         showAttributes: false
                     };
                     pat.studies.push(study);
-                    $scope.studies.push(study);
+ //                   $scope.studies.push(study); //sollte weg kommen
                 });
                 if ($scope.moreStudies = (res.data.length > $scope.limit)) {
                     pat.studies.pop();
                     if (pat.studies.length === 0)
-                        $scope.patients.pop;
-                    $scope.studies.pop();
+                        $scope.patients.pop();
+                    // $scope.studies.pop();
                 }
             } else {
                 DeviceService.msg($scope, {
@@ -260,6 +271,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 });
             }
             cfpLoadingBar.complete();
+            console.log("$scope.patients2=",$scope.patients);
         });
     };
     $scope.queryAllStudiesOfPatient = function(patient, offset) {
@@ -273,18 +285,29 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 orderby: $scope.filter.orderby !== "StudyDate,StudyTime" ? "-StudyDate,-StudyTime" : $scope.filter.orderby
             })
         ).then(function (res) {
-            patient.studies = res.data.map(function (attrs, index) {
-                return {
-                    patient: patient,
-                    offset: offset + index,
-                    moreSeries: false,
-                    attrs: attrs,
-                    series: null,
-                    showAttributes: false
-                };
-            });
-            if (patient.moreStudies = (patient.studies.length > $scope.limit)) {
-                patient.studies.pop();
+            console.log("res",res);
+            if(res.data.length > 0){
+
+                patient.studies = res.data.map(function (attrs, index) {
+                    return {
+                        patient: patient,
+                        offset: offset + index,
+                        moreSeries: false,
+                        attrs: attrs,
+                        series: null,
+                        showAttributes: false
+                    };
+                });
+                if (patient.moreStudies = (patient.studies.length > $scope.limit)) {
+                    patient.studies.pop();
+                }
+                StudiesService.trim();
+            }else{
+                DeviceService.msg($scope, {
+                    "title": "Info",
+                    "text": "No matching Studies found!",
+                    "status": "info"
+                });
             }
             cfpLoadingBar.complete();
         });
@@ -311,6 +334,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 study.series.pop();
             }
             cfpLoadingBar.complete();
+            StudiesService.trim();
         });
     };
     $scope.queryInstances = function (series, offset) {
@@ -349,6 +373,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             if (series.moreInstances = (series.instances.length > $scope.limit)) {
                 series.instances.pop();
             }
+            StudiesService.trim();
             cfpLoadingBar.complete();
         });
     };
@@ -419,7 +444,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.rejectStudy = function(study) {
         if($scope.trashaktive){
             $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
-                $scope.queryStudies($scope.studies[0].offset);
+                // $scope.queryStudies($scope.studies[0].offset);
+                $scope.queryStudies($scope.patients[0].offset);
             });
         }else{
             var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
@@ -435,10 +461,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               ],
               callback: function(data) {
                 if (data === false) {
+                    console.log("$scope.patients",$scope.patients);
                   return console.log('Cancelled');
                 }else{
                     $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
-                        $scope.queryStudies($scope.studies[0].offset);
+                        // $scope.queryStudies($scope.studies[0].offset);
+                        $scope.queryStudies($scope.patients[0].offset);
                     });
                 }
               }
@@ -448,7 +476,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.rejectSeries = function(series) {
         if($scope.trashaktive){
             $http.get(seriesURL(series.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
-                $scope.queryStudies($scope.studies[0].offset);
+                // $scope.queryStudies($scope.studies[0].offset);
+                $scope.queryStudies($scope.patients[0].offset);
             });
         }else{
             var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
@@ -477,7 +506,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.rejectInstance = function(instance) {
         if($scope.trashaktive){
             $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
-                $scope.queryStudies($scope.studies[0].offset);
+                // $scope.queryStudies($scope.studies[0].offset);
+                $scope.queryStudies($scope.patients[0].offset);
             });
         }else{
             var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);

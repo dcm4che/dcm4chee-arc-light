@@ -13,6 +13,9 @@ myApp.controller('MainController', function ($scope, $location, $http) {
 		}
 			  
 	};
+
+ 
+
   $http({
       method: 'GET',
       url: 'rs/realm'

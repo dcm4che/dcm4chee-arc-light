@@ -19,21 +19,21 @@ myApp.directive("fileAttributeList", function($http, cfpLoadingBar) {
     return {
         restrict: 'E',
         scope: {
-            studykey:'=', 
-            serieskey: '=', 
-            key: '='
+            studyuid:'=',
+            seriesuid:'=',
+            objectuid:'='
         },
         templateUrl: 'templates/file_attribute_list.html',
-        link: function(scope) {
+        link: function(scope, element, attr) {
             cfpLoadingBar.set(cfpLoadingBar.status()+(0.3));
             var url = "../aets/" + 
                         scope.$parent.aet + 
                         "/rs/studies/" + 
-                        scope.$parent.studies[scope.studykey].series[scope.serieskey].instances[scope.key].wadoQueryParams.studyUID +
+                        attr.studyuid +
                         "/series/" +
-                        scope.$parent.studies[scope.studykey].series[scope.serieskey].instances[scope.key].wadoQueryParams.seriesUID +
+                        attr.seriesuid +
                         "/instances/" +
-                        scope.$parent.studies[scope.studykey].series[scope.serieskey].instances[scope.key].wadoQueryParams.objectUID +
+                        attr.objectuid +
                         "/metadata";
             $http({
                 method: 'GET',
