@@ -66,7 +66,7 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         attrs.get("objectclass").add("dcmArchiveHL7Application");
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmImportReportTemplateURI", ext.getImportReportTemplateURI());
-        LdapUtils.storeNotNull(attrs, "dcmOtherAETitle", ext.getAETitle());
+        LdapUtils.storeNotNull(attrs, "dicomAETitle", ext.getAETitle());
     }
 
     @Override
@@ -79,7 +79,7 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         hl7App.addHL7ApplicationExtension(ext);
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("dcmImportReportTemplateURI"), null));
-        ext.setAETitle(LdapUtils.stringValue(attrs.get("dcmOtherAETitle"), null));
+        ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
     }
 
     @Override
