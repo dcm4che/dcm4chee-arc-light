@@ -629,6 +629,42 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{studyUID}": {
+      "put": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "update or create study",
+        "operationId": "updateStudy",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
       "get": {
         "tags": [
