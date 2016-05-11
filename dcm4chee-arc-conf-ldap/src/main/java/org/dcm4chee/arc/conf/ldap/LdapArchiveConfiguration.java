@@ -91,6 +91,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
+        LdapUtils.storeNotNull(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI());
         LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
@@ -118,7 +119,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
-        LdapUtils.storeNotNull(attrs, "dcmImportReportTemplateURI", ext.getImportReportTemplateURI());
     }
 
     @Override
@@ -147,6 +147,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
+        ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
         ext.setUnzipVendorDataToURI(LdapUtils.stringValue(attrs.get("dcmUnzipVendorDataToURI"), null));
         ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
@@ -179,7 +180,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
-        ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("dcmImportReportTemplateURI"), null));
     }
 
     @Override
@@ -214,6 +214,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI());
         LdapUtils.storeDiff(mods, "dcmWadoSR2TextTemplateURI",
                 aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI());
+        LdapUtils.storeDiff(mods, "hl7ImportReportTemplateURI",
+                aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI());
         LdapUtils.storeDiff(mods, "hl7PatientUpdateTemplateURI",
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI());
         LdapUtils.storeDiff(mods, "dcmUnzipVendorDataToURI",
@@ -263,8 +265,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(), bb.getWadoSpoolDirectory());
-        LdapUtils.storeDiff(mods, "dcmImportReportTemplateURI",
-                aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI());
     }
 
     @Override

@@ -37,6 +37,7 @@ dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmKeyStoreType: JKS
 dcmPurgeStoragePollingInterval: PT5M
+hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/oru2sr.xsl
 dicomInstalled: TRUE
 dcmIanTaskPollingInterval: PT1M
 dcmSendPendingCMoveInterval: PT5S
@@ -563,6 +564,7 @@ hl7AcceptedMessageType: ADT^A40
 hl7AcceptedMessageType: ADT^A47
 hl7AcceptedMessageType: ORM^O01
 hl7AcceptedMessageType: OMI^O23
+hl7AcceptedMessageType: ORU^R01
 hl7ApplicationName: *
 
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

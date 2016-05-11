@@ -23,7 +23,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
 
         writer.writeStartObject("dcmArchiveHL7Application");
         writer.writeNotNull("hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
-        writer.writeNotNull("dcmImportReportTemplateURI", ext.getImportReportTemplateURI());
+        writer.writeNotNull("hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
         writer.writeNotNull("dicomAETitle", ext.getAETitle());
         writer.writeEnd();
     }
@@ -48,7 +48,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                 case "hl7PatientUpdateTemplateURI":
                     ext.setPatientUpdateTemplateURI(reader.stringValue());
                     break;
-                case "dcmImportReportTemplateURI":
+                case "hl7ImportReportTemplateURI":
                     ext.setImportReportTemplateURI(reader.stringValue());
                     break;
                 case "dicomAETitle":

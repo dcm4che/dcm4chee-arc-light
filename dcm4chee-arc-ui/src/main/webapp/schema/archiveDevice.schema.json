@@ -232,6 +232,11 @@
       "description": "Specifies URI for the style sheet used by HL7v2 Patient Update Service.",
       "type": "string"
     },
+    "hl7ImportReportTemplateURI": {
+      "title": "HL7 Import Report Template URI",
+      "description": "Specifies URI for the style sheet used to Import Text Report received by HL7 ORU^R01 as DICOM SR.",
+      "type": "string"
+    },
     "dcmUnzipVendorDataToURI": {
       "title": "Unzip Vendor Data To URI",
       "description": "Specifies URI of directory into which ZIP stream in Device Vendor Data attribute will be extracted",
@@ -252,11 +257,6 @@
     "dcmWadoSpoolDirectory": {
       "title": "Wado-RS Spool Directory",
       "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.",
-      "type": "string"
-    },
-    "dcmImportReportTemplateURI": {
-      "title": "Import Report Template URI",
-      "description": "Specifies URI for the style sheet used to Import Text Report received by HL7 ORU^R01 as DICOM SR.",
       "type": "string"
     },
     "dcmAttributeFilter": {

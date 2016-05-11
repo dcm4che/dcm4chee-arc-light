@@ -10,8 +10,8 @@
       "description": "Specifies URI for the style sheet used by HL7v2 Patient Update Service.",
       "type": "string"
     },
-    "dcmImportReportTemplateURI": {
-      "title": "Import Report Template URI",
+    "hl7ImportReportTemplateURI": {
+      "title": "HL7 Import Report Template URI",
       "description": "Specifies URI for the style sheet used to Import Text Report received by HL7 ORU^R01 as DICOM SR.",
       "type": "string"
     },
