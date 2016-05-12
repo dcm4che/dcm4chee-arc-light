@@ -43,6 +43,7 @@ package org.dcm4chee.arc.hl7;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.SAXTransformer.SetupTransformer;
@@ -93,11 +94,12 @@ class ImportReportService extends DefaultHL7Service {
                             StringUtils.replaceSystemProperties(arcHL7App.importReportTemplateURI())),
                     new SetupTransformer() {
                         @Override
-                        public void setup(Transformer transformer) {
-                            transformer.setParameter("suid", UIDUtils.createUID());
-                            transformer.setParameter("seriesuid", UIDUtils.createUID());
-                        }
+                        public void setup(Transformer transformer) {}
                     });
+            if (attrs.getString(Tag.StudyInstanceUID) == null)
+                attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+            if (attrs.getString(Tag.SeriesInstanceUID) == null)
+                attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"), UIDUtils.createUID(attrs.getString(Tag.SOPInstanceUID)));
             ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(arcHL7App.getAETitle());
             try (StoreSession session = storeService.newStoreSession(s, msh, ae)) {
                 StoreContext ctx = storeService.newStoreContext(session);

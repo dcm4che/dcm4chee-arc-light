@@ -3,82 +3,59 @@
   <xsl:output method="xml" indent="yes"/>
   <xsl:include href="hl7-common.xsl"/>
   <xsl:param name="VerifyingOrganization">Verifying Organization</xsl:param>
-  <xsl:param name="suid"></xsl:param>
-  <xsl:param name="seriesuid"></xsl:param>
   <xsl:template match="/hl7">
-    <dataset>
+    <NativeDicomModel>
       <xsl:call-template name="const-attrs"/>
       <!--SOP Instance UID-->
       <DicomAttribute tag="00080018" vr="UI">
-        <Value number="1">
-          <xsl:value-of select="OBX[field[3]/component='SR Instance UID']/field[5]"/>
-        </Value>
+        <Value number="1"><xsl:value-of select="OBX[field[3]/component='SR Instance UID']/field[5]"/></Value>
       </DicomAttribute>
       <xsl:apply-templates select="PID"/>
       <xsl:apply-templates select="OBR"/>
       <!--Current Requested Procedure Evidence Sequence-->
       <DicomAttribute tag="0040A375" vr="SQ">
-        <Value number="1">
-          <xsl:apply-templates select="OBX[field[3]/component='Study Instance UID']" mode="refstudy"/>
-        </Value>
+        <xsl:apply-templates select="OBX[field[3]/component='Study Instance UID']" mode="refstudy"/>
       </DicomAttribute>
       <!--Content Sequence-->
       <DicomAttribute tag="0040A730" vr="SQ">
         <xsl:call-template name="const-obsctx"/>
         <xsl:apply-templates select="OBR" mode="obsctx"/>
         <xsl:apply-templates select="OBX[field[3]/component='SR Text']"
-          mode="txt"/>
+                             mode="txt"/>
         <xsl:if test="OBX[field[3]/component='SOP Instance UID']">
-          <item>
+          <Item number="1">
             <!--Relationship Type-->
-            <DicomAttribute tag="0040A010" vr="CS">
-              <Value number="1">CONTAINS</Value>
-            </DicomAttribute>
+            <DicomAttribute tag="0040A010" vr="CS">CONTAINS</DicomAttribute>
             <!--Value Type-->
-            <DicomAttribute tag="0040A040" vr="CS">
-              <Value number="1">CONTAINER</Value>
-            </DicomAttribute>
+            <DicomAttribute tag="0040A040" vr="CS">CONTAINER</DicomAttribute>
             <!--Concept Name Code Sequence-->
             <DicomAttribute tag="0040A043">
-              <item>
+              <Item number="1">
                 <!--Code Value-->
-                <DicomAttribute tag="00080100" vr="SH">
-                  <Value number="1">121180</Value>
-                </DicomAttribute>
+                <DicomAttribute tag="00080100" vr="SH">121180</DicomAttribute>
                 <!--Coding Scheme Designator-->
-                <DicomAttribute tag="00080102" vr="SH">
-                  <Value number="1">DCM</Value>
-                </DicomAttribute>
+                <DicomAttribute tag="00080102" vr="SH">DCM</DicomAttribute>
                 <!--Code Meaning-->
-                <DicomAttribute tag="00080104" vr="LO">
-                  <Value number="1">Key Images</Value>
-                </DicomAttribute>
-              </item>
+                <DicomAttribute tag="00080104" vr="LO">Key Images</DicomAttribute>
+              </Item>
             </DicomAttribute>
             <!--Continuity Of Content-->
-            <DicomAttribute tag="0040A050" vr="CS">
-              <Value number="1">SEPARATE</Value>
-            </DicomAttribute>
+            <DicomAttribute tag="0040A050" vr="CS">SEPARATE</DicomAttribute>
             <!--Content Sequence-->
             <DicomAttribute tag="0040A730" vr="SQ">
-              <Value number="1">
-                <xsl:apply-templates select="OBX[field[3]/component='SOP Instance UID']" mode="img"/>
-              </Value>
+              <xsl:apply-templates
+                      select="OBX[field[3]/component='SOP Instance UID']" mode="img"/>
             </DicomAttribute>
-          </item>
+          </Item>
         </xsl:if>
       </DicomAttribute>
-    </dataset>
+    </NativeDicomModel>
   </xsl:template>
   <xsl:template name="const-attrs">
     <!-- Specific Character Set -->
-    <DicomAttribute tag="00080005" vr="CS">
-      <Value number="1">ISO_IR 100</Value>
-    </DicomAttribute>
+    <DicomAttribute tag="00080005" vr="CS"><Value number="1">ISO_IR 100</Value></DicomAttribute>
     <!--SOP Class UID-->
-    <DicomAttribute tag="00080016" vr="UI">
-      <Value number="1">1.2.840.10008.5.1.4.1.1.88.11</Value>
-    </DicomAttribute>
+    <DicomAttribute tag="00080016" vr="UI"><Value number="1">1.2.840.10008.5.1.4.1.1.88.11</Value></DicomAttribute>
     <!--Study Date-->
     <DicomAttribute tag="00080020" vr="DA"/>
     <!--Study Time-->
@@ -86,9 +63,7 @@
     <!--Accession Number-->
     <DicomAttribute tag="00080050" vr="SH"/>
     <!--Modality-->
-    <DicomAttribute tag="00080060" vr="CS">
-      <Value number="1">SR</Value>
-    </DicomAttribute>
+    <DicomAttribute tag="00080060" vr="CS"><Value number="1">SR</Value></DicomAttribute>
     <!--Manufacturer-->
     <DicomAttribute tag="00080070" vr="LO"/>
     <!--Referring Physician's Name-->
@@ -100,34 +75,22 @@
     <!--Series Number-->
     <DicomAttribute tag="00200011" vr="IS"/>
     <!--Instance Number-->
-    <DicomAttribute tag="00200013" vr="IS">
-      <Value number="1">1</Value>
-    </DicomAttribute>
+    <DicomAttribute tag="00200013" vr="IS"><Value number="1">1</Value></DicomAttribute>
     <!--Value Type-->
-    <DicomAttribute tag="0040A040" vr="CS">
-      <Value number="1">CONTAINER</Value>
-    </DicomAttribute>
+    <DicomAttribute tag="0040A040" vr="CS"><Value number="1">CONTAINER</Value></DicomAttribute>
     <!--Concept Name Code Sequence-->
     <DicomAttribute tag="0040A043" vr="SQ">
-      <item>
+      <Item number="1">
         <!--Code Value-->
-        <DicomAttribute tag="00080100" vr="SH">
-          <Value number="1">11528-7</Value>
-        </DicomAttribute>
+        <DicomAttribute tag="00080100" vr="SH">11528-7</DicomAttribute>
         <!--Coding Scheme Designator-->
-        <DicomAttribute tag="00080102" vr="SH">
-          <Value number="1">LN</Value>
-        </DicomAttribute>
+        <DicomAttribute tag="00080102" vr="SH">LN</DicomAttribute>
         <!--Code Meaning-->
-        <DicomAttribute tag="00080104" vr="LO">
-          <Value number="1">Radiology Report</Value>
-        </DicomAttribute>
-      </item>
+        <DicomAttribute tag="00080104" vr="LO">Radiology Report</DicomAttribute>
+      </Item>
     </DicomAttribute>
     <!--Continuity Of Content-->
-    <DicomAttribute tag="0040A050" vr="CS">
-      <Value number="1">SEPARATE</Value>
-    </DicomAttribute>
+    <DicomAttribute tag="0040A050" vr="CS"><Value number="1">SEPARATE</Value></DicomAttribute>
     <!--Content Template Sequence-->
     <DicomAttribute tag="0040A504" vr="SQ"/>
   </xsl:template>
@@ -139,35 +102,15 @@
       <xsl:with-param name="val" select="field[7]"/>
     </xsl:call-template>
     <!-- Take Study Instance UID from first referenced Image - if available -->
+    <xsl:variable name="suid"
+                  select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
+    <!-- Study Instance UID -->
     <DicomAttribute tag="0020000D" vr="UI">
-      <Value number="1">
-      <xsl:variable name="suid1" select="normalize-space(../OBX[field[3]/component='Study Instance UID'][1]/field[5])"/>
-      <xsl:choose>
-        <xsl:when test="$suid1">
-          <xsl:value-of select="$suid1"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$suid"/>
-        </xsl:otherwise>
-      </xsl:choose>
-      </Value>
-    </DicomAttribute>
-    <DicomAttribute tag="0020000E" vr="UI">
-      <Value number="1">
-        <xsl:variable name="seriesuid1" select="normalize-space(../OBX[field[3]/component='Series Instance UID'][1]/field[5])"/>
-        <xsl:choose>
-          <xsl:when test="$seriesuid1">
-            <xsl:value-of select="$seriesuid1"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$seriesuid"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </Value>
+      <Value number="1"><xsl:value-of select="$suid"/></Value>
     </DicomAttribute>
     <!--Referenced Request Sequence-->
     <DicomAttribute tag="0040A370" vr="SQ">
-      <item>
+      <Item number="1">
         <!--Accession Number-->
         <DicomAttribute tag="00080050" vr="SH"/>
         <!--Referenced Study Sequence-->
@@ -176,49 +119,47 @@
         <xsl:value-of select="$suid"/>
         <!--Requested Procedure Description-->
         <DicomAttribute tag="00321060" vr="LO">
-          <Value number="1">
-            <xsl:value-of select="field[4]/component"/>
-          </Value>
+          <xsl:value-of select="field[4]/component"/>
         </DicomAttribute>
         <!--Requested Procedure Code Sequence-->
         <DicomAttribute tag="00321064" vr="SQ">
-          <item>
+          <Item number="1">
             <!--Code Value-->
             <DicomAttribute tag="00080100" vr="SH">
-              <Value number="1"><xsl:value-of select="field[4]"/></Value>
+              <xsl:value-of select="field[4]"/>
             </DicomAttribute>
             <!--Coding Scheme Designator-->
             <DicomAttribute tag="00080102" vr="SH">
-              <Value number="1"><xsl:value-of select="field[4]/component[2]"/></Value>
+              <xsl:value-of select="field[4]/component[2]"/>
             </DicomAttribute>
             <!--Code Meaning-->
             <DicomAttribute tag="00080104" vr="LO">
-              <Value number="1"><xsl:value-of select="field[4]/component"/></Value>
+              <xsl:value-of select="field[4]/component"/>
             </DicomAttribute>
-          </item>
+          </Item>
         </DicomAttribute>
         <!--Requested Procedure ID-->
         <DicomAttribute tag="00401001" vr="SH"/>
         <!--Placer Order Number / Imaging Service Request-->
         <DicomAttribute tag="00402016" vr="LO">
-          <Value number="1"><xsl:value-of select="field[2]"/></Value>
+          <xsl:value-of select="field[2]"/>
         </DicomAttribute>
         <!--Filler Order Number / Imaging Service Request-->
         <DicomAttribute tag="00402017" vr="LO">
-          <Value number="1"><xsl:value-of select="field[3]"/></Value>
+          <xsl:value-of select="field[3]"/>
         </DicomAttribute>
-      </item>
+      </Item>
     </DicomAttribute>
     <!-- Verifying Observer Sequence -->
     <DicomAttribute tag="0040A073" vr="SQ">
-      <item>
+      <Item number="1">
         <!-- Verifying Organization -->
         <DicomAttribute tag="0040A027" vr="LO">
-          <Value number="1"><xsl:value-of select="$VerifyingOrganization"/></Value>
+          <xsl:value-of select="$VerifyingOrganization"/>
         </DicomAttribute>
         <!-- Verification DateTime -->
         <DicomAttribute tag="0040A030" vr="DT">
-          <Value number="1"><xsl:value-of select="field[7]"/></Value>
+          <xsl:value-of select="field[7]"/>
         </DicomAttribute>
         <!-- Verifying Observer Name -->
         <xsl:choose>
@@ -229,171 +170,142 @@
             </xsl:call-template>
           </xsl:when>
           <xsl:otherwise>
-              <DicomAttribute tag="0040A075" vr="PN">
-                <Value number="1">UNKNOWN</Value>
-              </DicomAttribute>
+            <DicomAttribute tag="0040A075" vr="PN">
+              <PersonName number="1">UNKNOWN</PersonName>
+            </DicomAttribute>
           </xsl:otherwise>
-        </xsl:choose>       
+        </xsl:choose>
         <!-- Verifying Observer Identification Code Sequence -->
         <DicomAttribute tag="0040A088" vr="SQ"/>
-      </item>
+      </Item>
     </DicomAttribute>
     <xsl:variable name="resultStatus" select="normalize-space(field[25])"/>
     <!--Completion Flag-->
     <DicomAttribute tag="0040A491" vr="CS">
-      <xsl:choose>
-        <xsl:when test="$resultStatus='P'"><Value number="1">PARTIAL</Value></xsl:when>
-        <xsl:otherwise><Value number="1">COMPLETE</Value></xsl:otherwise>
-      </xsl:choose>
+      <Value number="1">
+        <xsl:choose>
+          <xsl:when test="$resultStatus='P'">PARTIAL</xsl:when>
+          <xsl:otherwise>COMPLETE</xsl:otherwise>
+        </xsl:choose>
+      </Value>
     </DicomAttribute>
     <!--Verification Flag-->
     <DicomAttribute tag="0040A493" vr="CS">
-      <xsl:choose>
-        <xsl:when test="$resultStatus='P' or $resultStatus='F'"><Value number="1">VERIFIED</Value></xsl:when>
-        <xsl:otherwise><Value number="1">UNVERIFIED</Value></xsl:otherwise>
-      </xsl:choose>
+      <Value number="1">
+        <xsl:choose>
+          <xsl:when test="$resultStatus='P' or $resultStatus='F'">VERIFIED</xsl:when>
+          <xsl:otherwise>UNVERIFIED</xsl:otherwise>
+        </xsl:choose>
+      </Value>
     </DicomAttribute>
   </xsl:template>
   <xsl:template name="const-obsctx">
-    <item>
+    <Item number="1">
       <!--Relationship Type-->
-      <DicomAttribute tag="0040A010" vr="CS">
-        <Value number="1">HAS CONCEPT MOD</Value>
-      </DicomAttribute>
+      <DicomAttribute tag="0040A010" vr="CS">HAS CONCEPT MOD</DicomAttribute>
       <!--Value Type-->
-      <DicomAttribute tag="0040A040" vr="CS">
-        <Value number="1">CODE</Value>
-      </DicomAttribute>
+      <DicomAttribute tag="0040A040" vr="CS">CODE</DicomAttribute>
       <!--Concept Name Code Sequence-->
       <DicomAttribute tag="0040A043" vr="SQ">
-        <item>
+        <Item number="1">
           <!--Code Value-->
-          <DicomAttribute tag="00080100" vr="SH">
-            <Value number="1">121049</Value>
-          </DicomAttribute>
+          <DicomAttribute tag="00080100" vr="SH">121049</DicomAttribute>
           <!--Coding Scheme Designator-->
-          <DicomAttribute tag="00080102" vr="SH">
-            <Value number="1">DCM</Value>
-          </DicomAttribute>
+          <DicomAttribute tag="00080102" vr="SH">DCM</DicomAttribute>
           <!--Code Meaning-->
-          <DicomAttribute tag="00080104" vr="LO">
-            <Value number="1">Language of Content Item and Descendants</Value>
-          </DicomAttribute>
-        </item>
+          <DicomAttribute tag="00080104" vr="LO">Language of Content Item and
+            Descendants</DicomAttribute>
+        </Item>
       </DicomAttribute>
       <!--Concept Code Sequence-->
       <DicomAttribute tag="0040A168" vr="SQ">
-        <item>
+        <Item number="2">
           <!--Code Value-->
-          <DicomAttribute tag="00080100" vr="SH">
-            <Value number="1">eng</Value>
-          </DicomAttribute>
+          <DicomAttribute tag="00080100" vr="SH">eng</DicomAttribute>
           <!--Coding Scheme Designator-->
-          <DicomAttribute tag="00080102" vr="SH">
-            <Value number="1">ISO639_2</Value>
-          </DicomAttribute>
+          <DicomAttribute tag="00080102" vr="SH">ISO639_2</DicomAttribute>
           <!--Code Meaning-->
-          <DicomAttribute tag="00080104" vr="LO">
-            <Value number="1">English</Value>
-          </DicomAttribute>
-        </item>
+          <DicomAttribute tag="00080104" vr="LO">English</DicomAttribute>
+        </Item>
       </DicomAttribute>
-    </item>
+    </Item>
   </xsl:template>
   <xsl:template match="OBR" mode="obsctx">
     <xsl:if test="field[32]/component">
-      <item>
+      <Item number="1">
         <!--Relationship Type-->
-        <DicomAttribute tag="0040A010" vr="CS">
-          <Value number="1">HAS OBS CONTEXT</Value>
-        </DicomAttribute>
+        <DicomAttribute tag="0040A010" vr="CS">HAS OBS CONTEXT</DicomAttribute>
         <!--Value Type-->
-        <DicomAttribute tag="0040A040" vr="CS">
-          <Value number="1">PNAME</Value>
-        </DicomAttribute>
+        <DicomAttribute tag="0040A040" vr="CS">PNAME</DicomAttribute>
         <!--Concept Name Code Sequence-->
         <DicomAttribute tag="0040A043" vr="SQ">
-          <item>
+          <Item number="1">
             <!--Code Value-->
-            <DicomAttribute tag="00080100" vr="SH">
-              <Value number="1">121008</Value>
-            </DicomAttribute>
+            <DicomAttribute tag="00080100" vr="SH">121008</DicomAttribute>
             <!--Coding Scheme Designator-->
-            <DicomAttribute tag="00080102" vr="SH">
-              <Value number="1">DCM</Value>
-            </DicomAttribute>
+            <DicomAttribute tag="00080102" vr="SH">DCM</DicomAttribute>
             <!--Code Meaning-->
-            <DicomAttribute tag="00080104" vr="LO">
-              <Value number="1">Person Observer Name</Value>
-            </DicomAttribute>
-          </item>
+            <DicomAttribute tag="00080104" vr="LO">Person Observer Name</DicomAttribute>
+          </Item>
         </DicomAttribute>
         <!--Person Name-->
         <xsl:call-template name="cn2pnAttr">
           <xsl:with-param name="tag" select="'0040A123'"/>
           <xsl:with-param name="cn" select="field[32]"/>
         </xsl:call-template>
-      </item>
+      </Item>
     </xsl:if>
-    <item>
+    <Item number="1">
       <!--Relationship Type-->
-      <DicomAttribute tag="0040A010" vr="CS">
-        <Value number="1">HAS OBS CONTEXT</Value>
-      </DicomAttribute>
+      <DicomAttribute tag="0040A010" vr="CS">HAS OBS CONTEXT</DicomAttribute>
       <!--Value Type-->
-      <DicomAttribute tag="0040A040" vr="CS">
-        <Value number="1">CODE</Value>
-      </DicomAttribute>
+      <DicomAttribute tag="0040A040" vr="CS">CODE</DicomAttribute>
       <!--Concept Name Code Sequence-->
       <DicomAttribute tag="0040A043" vr="SQ">
-        <item>
-          <DicomAttribute tag="00080100" vr="SH">
-            <Value number="1">121023</Value>
-          </DicomAttribute>
+        <Item number="1">
+          <DicomAttribute tag="00080100" vr="SH">121023</DicomAttribute>
           <!--Coding Scheme Designator-->
-          <DicomAttribute tag="00080102" vr="SH">
-            <Value number="1">DCM</Value>
-          </DicomAttribute>
+          <DicomAttribute tag="00080102" vr="SH">DCM</DicomAttribute>
           <!--Code Meaning-->
-          <DicomAttribute tag="00080104" vr="LO">
-            <Value number="1">Procedure Code</Value>
-          </DicomAttribute>
-        </item>
+          <DicomAttribute tag="00080104" vr="LO">Procedure Code</DicomAttribute>
+        </Item>
       </DicomAttribute>
       <!--Concept Code Sequence-->
       <DicomAttribute tag="0040A168" vr="SQ">
-        <item>
+        <Item number="2">
           <!--Code Value-->
           <DicomAttribute tag="00080100" vr="SH">
-            <Value number="1"><xsl:value-of select="field[4]"/></Value>
+            <xsl:value-of select="field[4]"/>
           </DicomAttribute>
           <!--Coding Scheme Designator-->
           <DicomAttribute tag="00080102" vr="SH">
-            <Value number="1"><xsl:value-of select="field[4]/component[2]"/></Value>
+            <xsl:value-of select="field[4]/component[2]"/>
           </DicomAttribute>
           <!--Code Meaning-->
           <DicomAttribute tag="00080104" vr="LO">
-            <Value number="1"><xsl:value-of select="field[4]/component"/></Value>
+            <xsl:value-of select="field[4]/component"/>
           </DicomAttribute>
-        </item>
+        </Item>
       </DicomAttribute>
-    </item>
+    </Item>
   </xsl:template>
   <xsl:template match="OBX" mode="refstudy">
     <xsl:variable name="suid">
       <xsl:value-of select="field[5]"/>
     </xsl:variable>
     <xsl:if test="not(preceding-sibling::*[field[5]=$suid])">
-      <item>
+      <Item number="1">
         <!-- Study Instance UID -->
         <DicomAttribute tag="0020000D" vr="UI">
-          <Value number="1"><xsl:value-of select="$suid"/></Value>
+          <xsl:value-of select="$suid"/>
         </DicomAttribute>
         <!-- >Referenced Series Sequence (0008,1115) -->
         <DicomAttribute tag="00081115" vr="SQ">
-          <Value number="1"><xsl:apply-templates select="../OBX[field[5]=$suid]/following-sibling::*[1]" mode="refseries"/></Value>
+          <xsl:apply-templates
+                  select="../OBX[field[5]=$suid]/following-sibling::*[1]"
+                  mode="refseries"/>
         </DicomAttribute>
-      </item>
+      </Item>
     </xsl:if>
   </xsl:template>
   <xsl:template match="OBX" mode="refseries">
@@ -401,54 +313,52 @@
       <xsl:value-of select="field[5]"/>
     </xsl:variable>
     <xsl:if test="not(preceding-sibling::*[field[5]=$suid])">
-      <item>
+      <Item number="1">
         <!-- Series Instance UID -->
         <DicomAttribute tag="0020000E" vr="UI">
-          <Value number="1"><xsl:value-of select="$suid"/></Value>
+          <xsl:value-of select="$suid"/>
         </DicomAttribute>
         <!-- Referenced SOP Sequence -->
         <DicomAttribute tag="00081199" vr="SQ">
-          <Value number="1"><xsl:apply-templates select="../OBX[field[5]=$suid]/following-sibling::*[1]" mode="refsop"/></Value>
+          <xsl:apply-templates
+                  select="../OBX[field[5]=$suid]/following-sibling::*[1]"
+                  mode="refsop"/>
         </DicomAttribute>
-      </item>
+      </Item>
     </xsl:if>
   </xsl:template>
   <xsl:template match="OBX" mode="refsop">
-    <item>
+    <Item number="1">
       <!--Referenced SOP Class UID-->
       <DicomAttribute tag="00081150" vr="UI">
-        <Value number="1"><xsl:value-of select="following-sibling::*[1]/field[5]"/></Value>
+        <xsl:value-of select="following-sibling::*[1]/field[5]"/>
       </DicomAttribute>
       <!--Referenced SOP Instance UID-->
       <DicomAttribute tag="00081155" vr="UI">
-        <Value number="1"><xsl:value-of select="field[5]"/></Value>
+        <xsl:value-of select="field[5]"/>
       </DicomAttribute>
-    </item>
+    </Item>
   </xsl:template>
   <xsl:template match="OBX" mode="img">
-    <item>
+    <Item number="1">
       <!--Referenced SOP Sequence-->
       <DicomAttribute tag="00081199" vr="SQ">
-        <item>
+        <Item number="1">
           <!--Referenced SOP Class UID-->
           <DicomAttribute tag="00081150" vr="UI">
-            <Value number="1"><xsl:value-of select="following-sibling::*[1]/field[5]"/></Value>
+            <xsl:value-of select="following-sibling::*[1]/field[5]"/>
           </DicomAttribute>
           <!--Referenced SOP Instance UID-->
           <DicomAttribute tag="00081155" vr="UI">
-            <Value number="1"><xsl:value-of select="field[5]"/></Value>
+            <xsl:value-of select="field[5]"/>
           </DicomAttribute>
-        </item>
+        </Item>
       </DicomAttribute>
       <!--Relationship Type-->
-      <DicomAttribute tag="0040A010" vr="CS">
-        <Value number="1">CONTAINS</Value>
-      </DicomAttribute>
+      <DicomAttribute tag="0040A010" vr="CS">CONTAINS</DicomAttribute>
       <!--Value Type-->
-      <DicomAttribute tag="0040A040" vr="CS">
-        <Value number="1">IMAGE</Value>
-      </DicomAttribute>
-    </item>
+      <DicomAttribute tag="0040A040" vr="CS">IMAGE</DicomAttribute>
+    </Item>
   </xsl:template>
   <xsl:template match="OBX" mode="txt">
     <xsl:variable name="text">
@@ -520,70 +430,56 @@
     <xsl:param name="ecode">121071</xsl:param>
     <xsl:param name="ename">Finding</xsl:param>
     <xsl:param name="text"/>
-    <item>
+    <Item number="1">
       <!--Relationship Type-->
-      <DicomAttribute tag="0040A010" vr="CS">
-        <Value number="1">CONTAINS</Value>
-      </DicomAttribute>
+      <DicomAttribute tag="0040A010" vr="CS">CONTAINS</DicomAttribute>
       <!--Value Type-->
-      <DicomAttribute tag="0040A040" vr="CS">
-        <Value number="1">CONTAINER</Value>
-      </DicomAttribute>
+      <DicomAttribute tag="0040A040" vr="CS">CONTAINER</DicomAttribute>
       <!--Concept Name Code Sequence-->
       <DicomAttribute tag="0040A043">
-        <item>
+        <Item number="1">
           <!--Code Value-->
           <DicomAttribute tag="00080100" vr="SH">
-            <Value number="1"><xsl:value-of select="$hcode"/></Value>
+            <xsl:value-of select="$hcode"/>
           </DicomAttribute>
           <!--Coding Scheme Designator-->
-          <DicomAttribute tag="00080102" vr="SH">
-            <Value number="1">DCM</Value>
-          </DicomAttribute>
+          <DicomAttribute tag="00080102" vr="SH">DCM</DicomAttribute>
           <!--Code Meaning-->
           <DicomAttribute tag="00080104" vr="LO">
-            <Value number="1"><xsl:value-of select="$hname"/></Value>
+            <xsl:value-of select="$hname"/>
           </DicomAttribute>
-        </item>
+        </Item>
       </DicomAttribute>
       <!--Continuity Of Content-->
-      <DicomAttribute tag="0040A050" vr="CS">
-        <Value number="1">SEPARATE</Value>
-      </DicomAttribute>
+      <DicomAttribute tag="0040A050" vr="CS">SEPARATE</DicomAttribute>
       <!--Content Sequence-->
       <DicomAttribute tag="0040A730" vr="SQ">
-        <item>
+        <Item number="2">
           <!--Relationship Type-->
-          <DicomAttribute tag="0040A010" vr="CS">
-            <Value number="1">CONTAINS</Value>
-          </DicomAttribute>
+          <DicomAttribute tag="0040A010" vr="CS">CONTAINS</DicomAttribute>
           <!--Value Type-->
-          <DicomAttribute tag="0040A040" vr="CS">
-            <Value number="1">TEXT</Value>
-          </DicomAttribute>
+          <DicomAttribute tag="0040A040" vr="CS">TEXT</DicomAttribute>
           <!--Concept Name Code Sequence-->
           <DicomAttribute tag="0040A043" vr="SQ">
-            <item>
+            <Item number="1">
               <!--Code Value-->
               <DicomAttribute tag="00080100" vr="SH">
-                <Value number="1"><xsl:value-of select="$ecode"/></Value>
+                <xsl:value-of select="$ecode"/>
               </DicomAttribute>
               <!--Coding Scheme Designator-->
-              <DicomAttribute tag="00080102" vr="SH">
-                <Value number="1">DCM</Value>
-              </DicomAttribute>
+              <DicomAttribute tag="00080102" vr="SH">DCM</DicomAttribute>
               <!--Code Meaning-->
               <DicomAttribute tag="00080104" vr="LO">
-                <Value number="1"><xsl:value-of select="$ename"/></Value>
+                <xsl:value-of select="$ename"/>
               </DicomAttribute>
-            </item>
+            </Item>
           </DicomAttribute>
           <!--Text Value-->
           <DicomAttribute tag="0040A160" vr="UT">
-            <Value number="1"><xsl:value-of select="$text"/></Value>
+            <xsl:value-of select="$text"/>
           </DicomAttribute>
-        </item>
+        </Item>
       </DicomAttribute>
-    </item>
+    </Item>
   </xsl:template>
 </xsl:stylesheet>
