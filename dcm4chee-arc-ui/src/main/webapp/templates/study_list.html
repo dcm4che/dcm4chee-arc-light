@@ -277,7 +277,7 @@
             <div class="th" style="width:4%">
                 Sex
             </div>
-            <div class="th" style="width:40%">
+            <div uib-tooltip="After today restriction" class="th" style="width:40%">
                 Patient Comments
             </div>
         </div>
@@ -288,6 +288,9 @@
                 <div class="th" style="width:10%">                
                     <a class="table_btn" ng-click="patient.showAttributes = !patient.showAttributes" href="" title="Show Attributes">
                         <span class="glyphicon glyphicon-th-list"></span>
+                    </a>               
+                    <a class="table_btn" ng-click="editPatient(patient)" href="" title="Edit Patient">
+                        <span class="glyphicon glyphicon-pencil"></span>
                     </a>
                     <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
                     <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
@@ -363,7 +366,7 @@
                             <div style="width:10.4%" class="td_cell txt" ng-bind="(patient.attrs['00200010'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00200010'].Value[0]}}">&nbsp;</div>
                             <div  style="width:17.3%" title="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt" ng-bind="(study.attrs['0020000D'].Value[0]) || '&nbsp;'"> </div>
                             <div class="td_cell txt" title="{{study.attrs['00080020'].Value[0]}}" ng-bind="(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'"></div>
-                            <div style="width:10.2%" class="td_cell txt" ng-bind="(study.attrs['00080090'].Value[0]) || '&nbsp;'" title="{{study.attrs['00080090'].Value[0]}}">&nbsp;</div>
+                            <div style="width:10.2%" class="td_cell txt" ng-bind="(study.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'" title="{{study.attrs['00080090'].Value[0].Alphabetic}}">&nbsp;</div>
                             <div style="width:5.1%" class="td_cell txt" title="{{study.attrs['00080030'].Value[0]}}" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div>
                             <div class="td_cell txt" title="{{study.attrs['00080050'].Value[0]}}" ng-bind="(study.attrs['00080050'].Value[0]) || '&nbsp;'"> </div>
                             <div style="width:5.2%" class="td_cell txt" title="{{study.attrs['00080061'].Value}}" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'"> </div>

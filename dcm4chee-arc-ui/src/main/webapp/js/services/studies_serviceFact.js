@@ -114,12 +114,37 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
                             $(m).text(function (_,txt) {
                                 return txt.trim();
                             });
-                            if ($(m)[0].scrollWidth >  $(m).innerWidth() || $(m)[0].scrollHeight >  $(m).innerHeight()) {
-                                while($(m)[0].scrollWidth >  $(m).innerWidth() || $(m)[0].scrollHeight >  $(m).innerHeight()){
-                                    $(m).text(function (_,txt) {
-                                        return txt.slice(0, -5);
-                                    });
-                                };
+                            var check1 = (Math.round($(m)[0].scrollWidth) >  Math.round($(m).innerWidth()) && Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) > 1 );
+                            var check2 = (Math.round($(m)[0].scrollHeight) >  Math.round($(m).innerHeight())&& Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) > 1);
+                            if ((check1 || check2) && $(m).text().length > 0) {
+                                if(check1){
+
+                                    while($(m)[0].scrollWidth >  $(m).innerWidth() && Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) > 1 ){
+                                        var slice = Math.round(Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) / 6);
+                                        if(slice > 0){
+                                            $(m).text(function (_,txt) {
+                                                return txt.slice(0, -slice);
+                                            });
+                                        }else{
+                                            $(m).text(function (_,txt) {
+                                                return txt.slice(0, -1);
+                                            });
+                                        }
+                                    }
+                                }else{
+                                        while($(m)[0].scrollHeight >  $(m).innerHeight() && Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) > 1){
+                                            var slice =  Math.round(Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) / 2);
+                                            if(slice > 0){
+                                                $(m).text(function (_,txt) {
+                                                    return txt.slice(0, -slice);
+                                                });
+                                            }else{
+                                                $(m).text(function (_,txt) {
+                                                    return txt.slice(0, -1);
+                                                });
+                                            }
+                                        }
+                                }
                                 $(m).text(function (_,txt) {
                                     return txt.slice(0, -4)+"...";
                                 });
@@ -127,7 +152,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar) {
                     }
                     $(m).removeClass('txt');
                   });
-            }, 200);  
+            }, 300);  
         }
 
     };

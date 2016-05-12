@@ -481,6 +481,9 @@ table.subtable_1, table.subtable_2 {
   float: left;
   width: 100%; }
 
+.txt {
+  overflow-y: auto; }
+
 .repeat0 > .thead > .tr_row {
   height: 35px;
   background: rgba(176, 176, 176, 0.62);
@@ -488,7 +491,6 @@ table.subtable_1, table.subtable_2 {
   .repeat0 > .thead > .tr_row:hover {
     background: rgba(176, 176, 176, 0.98); }
   .repeat0 > .thead > .tr_row .th {
-    overflow-y: auto;
     height: 35px; }
     .repeat0 > .thead > .tr_row .th .table_btn {
       background: #ddd none repeat scroll 0 0;
@@ -548,8 +550,6 @@ table.subtable_1, table.subtable_2 {
     float: left;
     width: 97%;
     border: 1px solid #aaa; }
-    .repeat0 .repeat1 .subblock .td_cell {
-      overflow-y: auto; }
     .repeat0 .repeat1 .subblock .td_cell.table_btn > a {
       background: #ddd none repeat scroll 0 0;
       border: 1px solid #ccc;

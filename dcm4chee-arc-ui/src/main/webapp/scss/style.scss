@@ -587,6 +587,9 @@ table{
     width: 100%;
 }
 //.repeat1 .tbody .subblock .td_cell
+.txt{
+	overflow-y: auto;
+}
 .repeat0{
 	& > .thead{
 		& > .tr_row{
@@ -610,7 +613,7 @@ table{
 						text-decoration: none;
 					}
 				}
-				overflow-y: auto;
+				// overflow-y: auto;
 				height: 35px;
 				a{
 				    color: black;
@@ -693,7 +696,7 @@ table{
 		    // 	background:#eee;
 		    // }
 		    .td_cell{
-		    	overflow-y: auto;
+		    	// overflow-y: auto;
 		    }
 		    .td_cell.table_btn > a {
 			   background: #ddd none repeat scroll 0 0;

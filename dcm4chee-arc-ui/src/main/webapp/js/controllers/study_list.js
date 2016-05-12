@@ -56,6 +56,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     );
         }
     };
+    $scope.editPatient = function(patient){
+        console.log("patient",patient);
+        console.log("aet=",$scope.aet);
+    };
     $scope.clearForm = function(){
         angular.forEach($scope.filter,function(m,i){
             $scope.filter[i] = "";
@@ -69,17 +73,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.studyTime.toObject = null;
         $scope.studyTime.from = "";
         $scope.studyTime.to = "";
-    }
+    };
     $scope.selectModality = function(key){
         $scope.filter.ModalitiesInStudy = key;
         angular.element(".Modality").show();
         $scope.showModalitySelector=false;
-    }
+    };
     $scope.checkKeyModality = function(keyEvent) {
         if (keyEvent.which === 13){
             $scope.showModalitySelector=false;
         }
-    }
+    };
     $scope.studyDateFrom = {
         opened: false
     };
