@@ -647,9 +647,8 @@ public class AuditService {
             if (ctx.getHttpRequest() != null)
                 obj.add(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
                         new HL7Info(outcome, ctx.getHttpRequest().getRemoteAddr(),
-                            ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
-                                ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
-                                KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                            ctx.getHttpRequest().getAttribute("org.keycloak.KeycloakSecurityContext") != null
+                                ? getPreferredUsername(ctx)
                                 : ctx.getHttpRequest().getRemoteAddr(),
                             ctx.getCalledAET(), null, null)));
             if (ctx.getHL7MessageHeader() != null) {
@@ -669,6 +668,12 @@ public class AuditService {
                                 ctx.getAssociation().getCalledAET(), null, null)));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
+    }
+
+    private String getPreferredUsername(PatientMgtContext ctx) {
+        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
+                ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName());
+        return securityContext.getToken().getPreferredUsername();
     }
 
     private void auditPatientRecord(Path file, AuditServiceUtils.EventType et) {
