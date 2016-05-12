@@ -43,8 +43,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.query.QueryContext;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
+
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -64,9 +63,8 @@ public class QueryInfo {
         fields = new String[] {
                 ctx.getCallingAET() != null
                 ? ctx.getCallingAET()
-                : ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
-                ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
-                KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                : ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
                 : ctx.getRemoteHostName(),
                 ctx.getRemoteHostName(),
                 ctx.getCalledAET(),

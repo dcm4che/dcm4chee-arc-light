@@ -46,9 +46,12 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -59,6 +62,7 @@ import java.util.*;
 public class AuditServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     static final String noValue = "<none>";
+    static final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
     enum EventClass {
         QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7
     }
@@ -296,5 +300,11 @@ public class AuditServiceUtils {
 
     static String getLocalHostName(AuditLogger log) {
         return log.getConnections().get(0).getHostname();
+    }
+
+    static String getPreferredUsername(HttpServletRequest req) {
+        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
+                req.getAttribute(KeycloakSecurityContext.class.getName());
+        return securityContext.getToken().getPreferredUsername();
     }
 }

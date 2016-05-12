@@ -46,8 +46,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
+
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -69,9 +68,8 @@ class PatientStudyInfo {
         fields = new String[] {
                 ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCallingAET() != null ? ctx.getStoreSession().getCallingAET()
-                    : ctx.getStoreSession().getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
-                    ? ((RefreshableKeycloakSecurityContext) ctx.getStoreSession().getHttpRequest().getAttribute(
-                    KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                    : ctx.getStoreSession().getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                    ? AuditServiceUtils.getPreferredUsername(ctx.getStoreSession().getHttpRequest())
                     : ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
@@ -89,9 +87,8 @@ class PatientStudyInfo {
     PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
         fields = new String[] {
                 ctx.getHttpRequest().getRemoteAddr(),
-                ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
-                    ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
-                    KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
                     : ctx.getHttpRequest().getRemoteAddr(),
                 ctx.getLocalAETitle(),
                 ctx.getStudyInstanceUIDs()[0],

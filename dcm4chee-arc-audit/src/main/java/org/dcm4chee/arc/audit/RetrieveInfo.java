@@ -43,8 +43,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
+
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -65,9 +64,8 @@ public class RetrieveInfo {
         fields = new String[] {
                 ctx.getLocalAETitle(),
                 ctx.getHttpRequest() != null
-                    ? ctx.getHttpRequest().getAttribute(KeycloakSecurityContext.class.getName()) != null
-                    ? ((RefreshableKeycloakSecurityContext) ctx.getHttpRequest().getAttribute(
-                    KeycloakSecurityContext.class.getName())).getToken().getPreferredUsername()
+                    ? ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
                     : ctx.getHttpRequest().getRemoteAddr()
                     : ctx.getDestinationAETitle(),
                 null == ctx.getHttpRequest()

@@ -260,7 +260,7 @@
           <defaultLibBundleDir>lib</defaultLibBundleDir>
           <applicationName>dcm4chee-arc</applicationName>
           <displayName>dcm4chee-arc</displayName>
-          <earSourceDirectory>${authentication-classifier}</earSourceDirectory>
+          <earSourceDirectory>${earSourceDirectory}</earSourceDirectory>
           <workDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</workDirectory>
           <modules>
             <webModule>
@@ -288,7 +288,7 @@
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
         <classifier>${db}</classifier>
-        <authentication-classifier>${basedir}/src/main/application</authentication-classifier>
+        <earSourceDirectory>${basedir}/src/main/application</earSourceDirectory>
         <dcm4chee-arc-war-classifier>unsecure</dcm4chee-arc-war-classifier>
         <dcm4chee-arc-ui-classifier>unsecure</dcm4chee-arc-ui-classifier>
       </properties>
@@ -298,7 +298,7 @@
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web-secure.xml</webXml>
         <classifier>${db}-secure</classifier>
-        <authentication-classifier>${basedir}/src/main/application-secure</authentication-classifier>
+        <earSourceDirectory>${basedir}/src/main/application-secure</earSourceDirectory>
         <dcm4chee-arc-war-classifier>secure</dcm4chee-arc-war-classifier>
         <dcm4chee-arc-ui-classifier>secure</dcm4chee-arc-ui-classifier>
       </properties>
@@ -308,7 +308,7 @@
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web-secure.xml</webXml>
         <classifier>${db}-secure-ui</classifier>
-        <authentication-classifier>${basedir}/src/main/application-secure</authentication-classifier>
+        <earSourceDirectory>${basedir}/src/main/application-secure</earSourceDirectory>
         <dcm4chee-arc-war-classifier>unsecure</dcm4chee-arc-war-classifier>
         <dcm4chee-arc-ui-classifier>secure</dcm4chee-arc-ui-classifier>
       </properties>
