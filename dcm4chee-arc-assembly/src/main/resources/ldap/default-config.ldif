@@ -37,7 +37,7 @@ dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmKeyStoreType: JKS
 dcmPurgeStoragePollingInterval: PT5M
-hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/oru2sr.xsl
+hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl
 dicomInstalled: TRUE
 dcmIanTaskPollingInterval: PT1M
 dcmSendPendingCMoveInterval: PT5S

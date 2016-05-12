@@ -479,7 +479,7 @@ dicomAuthorizedNodeCertificateReference: dicomDeviceName=getscu,cn=Devices,cn=DI
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=hl7snd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmPurgeStoragePollingInterval: PT5M
-hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/oru2sr.xsl
+hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl
 dicomInstalled: TRUE
 dcmIanTaskPollingInterval: PT1M
 dcmSendPendingCMoveInterval: PT5S
