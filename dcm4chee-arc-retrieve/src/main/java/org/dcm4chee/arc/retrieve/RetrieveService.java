@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.retrieve;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
@@ -80,5 +81,5 @@ public interface RetrieveService {
 
     void clearFailedSOPInstanceUIDList(String studyInstanceUID);
 
-    void coerceAttributes(RetrieveContext ctx, InstanceLocations inst, Attributes dataset);
+    AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst);
 }

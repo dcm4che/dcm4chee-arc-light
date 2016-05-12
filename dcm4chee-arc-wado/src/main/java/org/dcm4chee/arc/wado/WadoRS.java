@@ -688,19 +688,6 @@ public class WadoRS {
         return null;
     }
 
-    private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) throws Exception {
-        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
-        ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
-                request.getRemoteHost(), null, TransferCapability.Role.SCP, Dimse.C_STORE_RQ, inst.getSopClassUID());
-        if (coercion == null)
-            return null;
-        LOG.debug("{}: apply {}", this, coercion);
-        String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
-        Templates tpls = TemplatesCache.getDefault().get(uri);
-        return new XSLTAttributesCoercion(tpls, null)
-                .includeKeyword(!coercion.isNoKeywords());
-    }
-
     private void writeMetadataXML(MultipartRelatedOutput output, final RetrieveContext ctx,
                                   final InstanceLocations inst) {
         output.addPart(
@@ -769,9 +756,7 @@ public class WadoRS {
             bulkData.setURI(sb.toString());
             sb.setLength(length);
         }
-
-        MergeAttributesCoercion coerce = new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
-        coerce.coerce(attrs, null);
+        service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
         return attrs;
     }
 

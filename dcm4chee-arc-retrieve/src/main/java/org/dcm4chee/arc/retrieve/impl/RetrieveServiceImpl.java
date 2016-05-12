@@ -400,14 +400,14 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public void coerceAttributes(RetrieveContext ctx, InstanceLocations inst, Attributes dataset) {
-        new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst)).coerce(dataset, null);
+    public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst) {
+        return new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
         ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
-                ctx.getRequestorHostName(), null, TransferCapability.Role.SCP, Dimse.C_STORE_RQ, inst.getSopClassUID());
+                ctx.getRequestorHostName(), ctx.getRequestorAET(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ, inst.getSopClassUID());
         if (coercion == null)
             return null;
         String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());

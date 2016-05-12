@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
 
@@ -51,7 +52,6 @@ import java.util.Arrays;
  */
 public class ArchiveAttributeCoercion {
 
-    //    private final String commonName;
     private String commonName;
     private int priority;
     private Dimse dimse;
@@ -61,10 +61,8 @@ public class ArchiveAttributeCoercion {
     private String[] hostNames = {};
     private String xsltStylesheetURI;
     private boolean noKeywords;
-
-//    public ArchiveAttributeCoercion(String commonName) {
-//        this.commonName = commonName;
-//    }
+    private String leadingCFindSCP;
+    private Attributes.UpdatePolicy attributeUpdatePolicy;
 
     public ArchiveAttributeCoercion() {
     }
@@ -145,6 +143,22 @@ public class ArchiveAttributeCoercion {
         this.noKeywords = noKeywords;
     }
 
+    public String getLeadingCFindSCP() {
+        return leadingCFindSCP;
+    }
+
+    public void setLeadingCFindSCP(String leadingCFindSCP) {
+        this.leadingCFindSCP = leadingCFindSCP;
+    }
+
+    public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
+        return attributeUpdatePolicy;
+    }
+
+    public void setAttributeUpdatePolicy(Attributes.UpdatePolicy attributeUpdatePolicy) {
+        this.attributeUpdatePolicy = attributeUpdatePolicy;
+    }
+
     public boolean match(String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
         return this.role == role && this.dimse == dimse
                 && isEmptyOrContains(hostNames, hostName)
@@ -174,6 +188,8 @@ public class ArchiveAttributeCoercion {
                 + ", cuids=" + Arrays.toString(sopClasses)
                 + ", xslturi=" + xsltStylesheetURI
                 + ", noKeywords=" + noKeywords
+                + ", leadingCFindSCP=" + leadingCFindSCP
+                + ", attributeUpdatePolicy=" + attributeUpdatePolicy
                 + "]";
     }
 }

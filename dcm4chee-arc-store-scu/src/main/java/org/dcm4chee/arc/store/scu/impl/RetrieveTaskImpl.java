@@ -54,6 +54,7 @@ import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,10 +155,11 @@ final class RetrieveTaskImpl implements RetrieveTask {
             if (tsuids.isEmpty()) {
                 throw new NoPresentationContextException(cuid);
             }
-            try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, false)) {
+            RetrieveService service = ctx.getRetrieveService();
+            try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 DataWriter data = new TranscoderDataWriter(transcoder,
-                        new MergeAttributesCoercion(inst.getAttributes(), coercion(cuid)));
+                        service.getAttributesCoercion(ctx, inst));
                 outstandingRSP.add(inst);
                 if (ctx.getMoveOriginatorAETitle() != null) {
                     storeas.cstore(cuid, iuid, priority,
@@ -173,18 +175,6 @@ final class RetrieveTaskImpl implements RetrieveTask {
             ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
             LOG.info("{}: failed to send {} to {}:", rqas, inst, ctx.getDestinationAETitle(), e);
         }
-    }
-
-    private AttributesCoercion coercion(String cuid) throws Exception {
-        ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
-                hostName, storeas.getRemoteAET(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ, cuid);
-        if (coercion == null)
-            return null;
-        LOG.debug("{}: Apply {}", storeas, coercion);
-        String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
-        Templates tpls = TemplatesCache.getDefault().get(uri);
-        return new XSLTAttributesCoercion(tpls, null)
-                .includeKeyword(!coercion.isNoKeywords());
     }
 
     private void writeFinalRSP() {
