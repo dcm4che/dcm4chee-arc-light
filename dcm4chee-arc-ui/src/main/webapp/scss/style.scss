@@ -829,6 +829,9 @@ table{
 								height: 31px;
 							}
 						}
+						.attribute_list{
+							overflow-x: scroll;
+						}
 						.subblock{
 							background:white;
 							.td_cell.table_btn{
@@ -1273,4 +1276,32 @@ table{
 			cursor: pointer;
 		}
 	}
+}
+.tooltip_container{
+	// position:relative;
+	position: absolute;
+    z-index: 999999999;
+	.dir-tooltip{
+	   	background: rgba(0, 0, 0, 0.71) none repeat scroll 0 0;
+	    border-radius: 5px;
+	    box-sizing: border-box;
+	    color: white;
+	    display: block;
+	    float: left;
+	    padding: 2px 10px;
+	    // position: absolute;
+	    // top: -77px;
+	    top: 0;
+	    box-shadow: 3px 3px 8px 2px rgba(0, 0, 0, 0.41);
+	}
+}
+// .text_value{
+// 	height: 100%;
+//     overflow: scroll;
+//     position: absolute;
+//     width: 100%;
+// }
+div[tooltip]{
+	position:relative;
+	// overflow:visible;
 }

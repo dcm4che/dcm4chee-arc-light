@@ -631,6 +631,8 @@ table.subtable_1, table.subtable_2 {
       width: 3%;
       border-left: 2px solid rgba(0, 0, 0, 0.55);
       height: 31px; }
+    .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .attribute_list {
+      overflow-x: scroll; }
     .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock {
       background: white; }
       .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn > a {
@@ -951,5 +953,22 @@ table.subtable_1, table.subtable_2 {
     top: 12px; }
     .input span:hover {
       cursor: pointer; }
+
+.tooltip_container {
+  position: absolute;
+  z-index: 999999999; }
+  .tooltip_container .dir-tooltip {
+    background: rgba(0, 0, 0, 0.71) none repeat scroll 0 0;
+    border-radius: 5px;
+    box-sizing: border-box;
+    color: white;
+    display: block;
+    float: left;
+    padding: 2px 10px;
+    top: 0;
+    box-shadow: 3px 3px 8px 2px rgba(0, 0, 0, 0.41); }
+
+div[tooltip] {
+  position: relative; }
 
 /*# sourceMappingURL=style.css.map */

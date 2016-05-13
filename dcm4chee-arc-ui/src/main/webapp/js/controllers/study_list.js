@@ -4,6 +4,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.patients = [];
 //   $scope.studies = [];
+    $scope.patientmode = true;
     $scope.morePatients;
     $scope.moreStudies;
     $scope.limit = 20;
@@ -38,7 +39,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
     };
     $scope.$watchCollection('patients', function(newValue, oldValue){
-        StudiesService.trim();
+        StudiesService.trim($scope);
     });
     // $scope.trim = function(selector){
     //     StudiesService.trim(selector);
@@ -305,7 +306,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (patient.moreStudies = (patient.studies.length > $scope.limit)) {
                     patient.studies.pop();
                 }
-                StudiesService.trim();
+                StudiesService.trim($scope);
             }else{
                 DeviceService.msg($scope, {
                     "title": "Info",
@@ -338,7 +339,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 study.series.pop();
             }
             cfpLoadingBar.complete();
-            StudiesService.trim();
+            StudiesService.trim($scope);
         });
     };
     $scope.queryInstances = function (series, offset) {
@@ -377,7 +378,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             if (series.moreInstances = (series.instances.length > $scope.limit)) {
                 series.instances.pop();
             }
-            StudiesService.trim();
+            StudiesService.trim($scope);
             cfpLoadingBar.complete();
         });
     };

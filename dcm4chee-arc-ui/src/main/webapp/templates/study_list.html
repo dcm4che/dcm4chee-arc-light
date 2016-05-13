@@ -153,7 +153,7 @@
             <label for="exporter" class="col-md-6 text-right">Export:</label>
             <div class="col-md-6">
                 <select id="exporter" ng-model="exporterID" class="col-md-12">
-                    <option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option>
+                    <option ng-repeat="exporter in exporters" tooltip="{{exporter.description}}">{{exporter.id}}</option>
                 </select>
             </div>
         </div> -->
@@ -200,10 +200,10 @@
 <!--             <label for="reject" class="block_seid text-right">Reject:</label>
             <div class="block_seid"> -->
 <!--                 <select id="reject" ng-model="reject" class="col-md-9">
-                    <option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}"
+                    <option ng-repeat="rjn in rjnotes" tooltip="{{rjn.codeMeaning}}"
                             value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
                 </select> -->
-<!--                 <a ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
+<!--                 <a ng-click="deleteRejectedInstances()" href="" tooltip="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
                     <span class="glyphicon glyphicon-remove"></span>
                 </a> -->
             <!-- </div> -->
@@ -234,10 +234,10 @@
     <div class="thead">
         <div class="tr_row">
             <div class="th">                
-                <button class="execute btn btn-link btn-xs" ng-click="queryPatients(0)" title="Query Patients">
+                <button class="execute btn btn-link btn-xs" ng-click="queryPatients(0);patientmode=true" title="Query Patients">
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
-                <button class="execute btn btn-link btn-xs" ng-click="queryStudies(0)" title="Query Studies">
+                <button class="execute btn btn-link btn-xs" ng-click="queryStudies(0);patientmode=false" title="Query Studies">
                     <span class="glyphicon glyphicon-refresh"></span>
                 </button>
                 <a ng-show="isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="deleteRejctedI">
@@ -246,17 +246,17 @@
 <!--                 <button class="btn btn-link btn-xs"
                         ng-disabled="studies[0].offset==0"
                         ng-click="queryStudies(studies[0].offset-limit)"
-                        title="Previous Studies">
+                        tooltip="Previous Studies">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!moreStudies"
                         ng-click="queryStudies(studies[0].offset+limit)"
-                        title="Next Studies">
+                        tooltip="Next Studies">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>  -->
             </div>
-            <div style="width:14%" class="th">Patient Name
+            <div style="width:14%" class="th" >Patient Name
                 <a href="" class="order_arrow" ng-click="filter.orderby = 'PatientName';morePatients !== undefined ? queryPatients(0) : queryStudies(0)">
                     <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
                 </a>
@@ -277,7 +277,7 @@
             <div class="th" style="width:4%">
                 Sex
             </div>
-            <div uib-tooltip="After today restriction" class="th" style="width:40%">
+            <div class="th" style="width:40%">
                 Patient Comments
             </div>
         </div>
@@ -285,7 +285,8 @@
     <div class="repeat0" ng-repeat="(patientkey, patient) in patients">
         <div class="thead">
             <div class="tr_row">
-                <div class="th" style="width:10%">                
+                <div class="th" style="width:10%">   
+                    <div ng-show="patientmode" class="table_btn" ng-bind="patient.offset+1+'.'"> </div>          
                     <a class="table_btn" ng-click="patient.showAttributes = !patient.showAttributes" href="" title="Show Attributes">
                         <span class="glyphicon glyphicon-th-list"></span>
                     </a>               
@@ -295,12 +296,12 @@
                     <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
                     <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
                 </div>
-                <div  style="width:14%" class="th txt" ng-bind="(patient.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'" title="{{patient.attrs['00100010'].Value[0].Alphabetic}}">&nbsp;</div>
-                <div style="width:12%" class="th txt" ng-bind="(patient.attrs['00100020'].Value[0]) || '&nbsp;'" ng-attr-title="{{patient.attrs['00100020'].Value[0]}}">&nbsp;</div>                
-                <div style="width:12%" class="th txt" ng-bind="(patient.attrs['00100021'].Value[0]) || '&nbsp;'" ng-attr-title="{{patient.attrs['00100021'].Value[0]}}">&nbsp;</div>
-                <div style="width:8%" class="th txt" ng-bind="(patient.attrs['00100030'].Value[0] | date:'yyyy-MM-dd') || '&nbsp;'" title="{{patient.attrs['00100030'].Value[0]}}">&nbsp;</div>                
-                <div style="width:4%" class="th txt" ng-bind="(patient.attrs['00100040'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00100040'].Value[0]}}">&nbsp;</div>              
-                <div style="width:40%" class="th txt" ng-bind="(patient.attrs['00104000'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00104000'].Value[0]}}">&nbsp;</div>           
+                <div  style="width:14%" class="th txt" tooltip="{{patient.attrs['00100010'].Value[0].Alphabetic}}">{{(patient.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'}}</div>
+                <div style="width:12%" class="th txt" ng-attr-tooltip="{{patient.attrs['00100020'].Value[0]}}">{{(patient.attrs['00100020'].Value[0]) || '&nbsp;'}}</div>                
+                <div style="width:12%" class="th txt" ng-attr-tooltip="{{patient.attrs['00100021'].Value[0]}}">{{(patient.attrs['00100021'].Value[0]) || '&nbsp;'}}</div>
+                <div style="width:8%" class="th txt" ng-bind="(patient.attrs['00100030'].Value[0] | date:'yyyy-MM-dd') || '&nbsp;'"></div>                
+                <div style="width:4%" class="th txt" ng-bind="(patient.attrs['00100040'].Value[0]) || '&nbsp;'">&nbsp;</div>              
+                <div style="width:40%" class="th txt" tooltip="{{patient.attrs['00104000'].Value[0]}}">{{(patient.attrs['00104000'].Value[0]) || '&nbsp;'}}</div>           
             </div>
         </div>
         <div class="tr_row"  ng-show="patient.showAttributes">
@@ -328,8 +329,8 @@
                             <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                         </a>
                     </div>
-                    <div class="th" title="Referring Physician's Name">R. Physician's Name</div>
                     <div style="width:5%" class="th">Study Time</div>
+                    <div class="th" title="Referring Physician's Name">R. Physician's Name</div>
                     <div class="th">Accession Number</div>
                     <div style="width:5%" class="th">Modalities</div>
                     <div style="width:17.3%" class="th">Study Description</div>
@@ -356,23 +357,23 @@
                                     <span class="glyphicon glyphicon-repeat"></span>
                                 </a>
                                 <!--
-                                <a ng-href="{{study.attrs['00081190'].Value[0]}}" title="Download Study">
+                                <a ng-href="{{study.attrs['00081190'].Value[0]}}" tooltip="Download Study">
                                     <span class="glyphicon glyphicon-save"></span>
                                 </a>
                                 -->
                                 <a ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
                                 <a ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
                             </div>
-                            <div style="width:10.4%" class="td_cell txt" ng-bind="(patient.attrs['00200010'].Value[0]) || '&nbsp;'" title="{{patient.attrs['00200010'].Value[0]}}">&nbsp;</div>
-                            <div  style="width:17.3%" title="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt" ng-bind="(study.attrs['0020000D'].Value[0]) || '&nbsp;'"> </div>
-                            <div class="td_cell txt" title="{{study.attrs['00080020'].Value[0]}}" ng-bind="(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'"></div>
-                            <div style="width:10.2%" class="td_cell txt" ng-bind="(study.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'" title="{{study.attrs['00080090'].Value[0].Alphabetic}}">&nbsp;</div>
-                            <div style="width:5.1%" class="td_cell txt" title="{{study.attrs['00080030'].Value[0]}}" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div>
-                            <div class="td_cell txt" title="{{study.attrs['00080050'].Value[0]}}" ng-bind="(study.attrs['00080050'].Value[0]) || '&nbsp;'"> </div>
-                            <div style="width:5.2%" class="td_cell txt" title="{{study.attrs['00080061'].Value}}" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'"> </div>
-                            <div style="width:18%" class="td_cell txt" ng-bind="(study.attrs['00081030'].Value[0]) || '&nbsp;'" title="{{study.attrs['00081030'].Value[0]}}"> </div>
-                            <div style="width:3%" class="td_cell txt" ng-bind="(study.attrs['00201206'].Value[0]) || '&nbsp;'"> </div>
-                            <div style="width:3%" class="td_cell txt" ng-bind="(study.attrs['00201208'].Value[0]) || '&nbsp;'"> </div>
+                            <div style="width:10.4%" class="td_cell txt" tooltip="{{patient.attrs['00200010'].Value[0]}}">{{(patient.attrs['00200010'].Value[0]) || '&nbsp;'}}</div>
+                            <div  style="width:17.3%" tooltip="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt" >{{(study.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div>
+                            <div class="td_cell txt" tooltip="{{study.attrs['00080020'].Value[0]}}" >{{(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'}}</div>
+                            <div style="width:5.1%" class="td_cell txt" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'">&nbsp;</div>
+                            <div style="width:10.2%" class="td_cell txt"  tooltip="{{study.attrs['00080090'].Value[0].Alphabetic}}">{{(study.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'}}</div>
+                            <div class="td_cell txt" tooltip="{{study.attrs['00080050'].Value[0]}}" >{{(study.attrs['00080050'].Value[0]) || '&nbsp;'}}</div>
+                            <div style="width:5.2%" class="td_cell txt" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'">&nbsp;</div>
+                            <div style="width:18%" class="td_cell txt" tooltip="{{study.attrs['00081030'].Value[0]}}">{{(study.attrs['00081030'].Value[0]) || '&nbsp;'}}</div>
+                            <div style="width:3%" class="td_cell txt" >{{(study.attrs['00201206'].Value[0]) || '&nbsp;'}}</div>
+                            <div style="width:3%" class="td_cell txt" >{{(study.attrs['00201208'].Value[0]) || '&nbsp;'}}</div>
                         </div>
                         <div class="td_row">
                             <div class="tr_row"  ng-show="study.showAttributes">
@@ -385,13 +386,13 @@
                                     <button class="btn btn-link btn-xs"
                                             ng-disabled="study.series[0].offset==0"
                                             ng-click="querySeries(study, study.series[0].offset-limit)"
-                                            title="Previous Series">
+                                            tooltip="Previous Series">
                                         <span class="glyphicon glyphicon-menu-left"></span>
                                     </button>
                                     <button class="btn btn-link btn-xs"
                                             ng-disabled="!study.moreSeries"
                                             ng-click="querySeries(study, study.series[0].offset+limit)"
-                                            title="Next Series">
+                                            tooltip="Next Series">
                                         <span class="glyphicon glyphicon-menu-right"></span>
                                     </button>
                                 </div>
@@ -422,21 +423,21 @@
                                             <span class="glyphicon glyphicon-repeat"></span>
                                         </a>
                                         <!--
-                                        <a ng-href="{{series.attrs['00081190'].Value[0]}}" title="Download Series">
+                                        <a ng-href="{{series.attrs['00081190'].Value[0]}}" tooltip="Download Series">
                                             <span class="glyphicon glyphicon-save"></span>
                                         </a>
                                         -->
                                         <a ng-hide="series.instances" ng-click="queryInstances(series,0)" href="" title="Show Instances">&#9658;</a>
                                         <a ng-show="series.instances" ng-click="series.instances = null" href="" title="Hide Instances">&#9660;</a>
                                     </div>
-                                    <div class="td_cell txt" title="{{series.attrs['00081010'].Value[0]}}" ng-bind="(series.attrs['00081010'].Value[0]) || '&nbsp;'"> </div>
-                                    <div class="td_cell txt" title="{{series.attrs['00200011'].Value[0]}}" ng-bind="(series.attrs['00200011'].Value[0]) || '&nbsp;'"> </div>
-                                    <div class="td_cell txt" title="{{series.attrs['00400244'].Value[0]}}" ng-bind="(series.attrs['00400244'].Value[0] | formatDA) || '&nbsp;'"> </div>
-                                    <div class="td_cell txt" title="{{series.attrs['00400245'].Value[0]}}" ng-bind="(series.attrs['00400245'].Value[0] | formatTM) || '&nbsp;'"> </div>
-                                    <div class="td_cell txt" title="{{series.attrs['00180015'].Value[0]}}" ng-bind="(series.attrs['00180015'].Value[0]) || '&nbsp;'"> </div>
-                                    <div class="td_cell txt" title="{{series.attrs['00080060'].Value[0]}}" ng-bind="(series.attrs['00080060'].Value[0]) || '&nbsp;'"> </div>
-                                    <div style="width:21.5%" class="td_cell txt" ng-bind="(series.attrs['0008103E'].Value[0]) || '&nbsp;'" title="{{(series.attrs['0008103E'].Value[0]) || '&nbsp;'}}"> </div>
-                                    <div style="width:2%" class="td_cell txt" ng-bind="(series.attrs['00201209'].Value[0]) || '&nbsp;'"> </div>
+                                    <div class="td_cell txt" tooltip="{{series.attrs['00081010'].Value[0]}}" >{{(series.attrs['00081010'].Value[0]) || '&nbsp;'}}</div>
+                                    <div class="td_cell txt" tooltip="{{series.attrs['00200011'].Value[0]}}" >{{(series.attrs['00200011'].Value[0]) || '&nbsp;'}}</div>
+                                    <div class="td_cell txt" tooltip="{{series.attrs['00400244'].Value[0]}}" >{{(series.attrs['00400244'].Value[0] | formatDA) || '&nbsp;'}}</div>
+                                    <div class="td_cell txt" tooltip="{{series.attrs['00400245'].Value[0]}}" >{{(series.attrs['00400245'].Value[0] | formatTM) || '&nbsp;'}}</div>
+                                    <div class="td_cell txt" tooltip="{{series.attrs['00180015'].Value[0]}}" >{{(series.attrs['00180015'].Value[0]) || '&nbsp;'}}</div>
+                                    <div class="td_cell txt" ng-bind="(series.attrs['00080060'].Value[0]) || '&nbsp;'" >&nbsp;</div>
+                                    <div style="width:21.5%" class="td_cell txt" tooltip="{{(series.attrs['0008103E'].Value[0]) || '&nbsp;'}}">{{(series.attrs['0008103E'].Value[0]) || '&nbsp;'}}</div>
+                                    <div style="width:2%" class="td_cell txt" >{{(series.attrs['00201209'].Value[0]) || '&nbsp;'}}</div>
                                 </div>
                                 <div class="tr_row"  ng-show="series.showAttributes">
                                     <div class="td_cell attribute_list">
@@ -448,13 +449,13 @@
                                         <button class="btn btn-link btn-xs"
                                         ng-disabled="series.instances[0].offset==0"
                                         ng-click="queryInstances(series, series.instances[0].offset-limit)"
-                                        title="Previous Instances">
+                                        tooltip="Previous Instances">
                                         <span class="glyphicon glyphicon-menu-left"></span>
                                         </button>
                                         <button class="btn btn-link btn-xs"
                                                 ng-disabled="!series.moreInstances"
                                                 ng-click="queryInstances(series, series.instances[0].offset+limit)"
-                                                title="Next Instances">
+                                                tooltip="Next Instances">
                                             <span class="glyphicon glyphicon-menu-right"></span>
                                         </button>
                                     </div>
@@ -505,12 +506,12 @@
                                                     </select> -->
                                                 </span>
                                             </div>
-                                            <div class="td_cell txt"  title="{{instance.attrs['00080016'].Value[0]}}" ng-bind="(instance.attrs['00080016'].Value[0]) || '&nbsp;'"></div>
-                                            <div class="td_cell txt"  title="{{instance.attrs['00200013'].Value[0]}}" ng-bind="(instance.attrs['00200013'].Value[0]) || '&nbsp;'"> </div>
-                                            <div class="td_cell txt" ng-bind="((instance.attrs['00080023'] || instance.attrs['00700082']).Value[0] | formatDA) || '&nbsp;'"> </div>
-                                            <div class="td_cell txt" ng-bind="((instance.attrs['00080033'] || instance.attrs['00700083']).Value[0] | formatTM) || '&nbsp;'"> </div>
-                                            <div style="width:28%" class="td_cell txt" ng-bind="(instance.attrs | contentDescription) || '&nbsp;'"> </div>
-                                            <div style="width:2%" class="td_cell txt" ng-bind="(instance.attrs['00280008'].Value[0]) || '&nbsp;'"> </div>
+                                            <div class="td_cell txt"  tooltip="{{instance.attrs['00080016'].Value[0]}}" >{{(instance.attrs['00080016'].Value[0]) || '&nbsp;'}}</div>
+                                            <div class="td_cell txt"  tooltip="{{instance.attrs['00200013'].Value[0]}}" >{{(instance.attrs['00200013'].Value[0]) || '&nbsp;'}}</div>
+                                            <div class="td_cell txt" >{{((instance.attrs['00080023'] || instance.attrs['00700082']).Value[0] | formatDA) || '&nbsp;'}}</div>
+                                            <div class="td_cell txt" >{{((instance.attrs['00080033'] || instance.attrs['00700083']).Value[0] | formatTM) || '&nbsp;'}}</div>
+                                            <div style="width:28%" class="td_cell txt" >{{(instance.attrs | contentDescription) || '&nbsp;'}}</div>
+                                            <div style="width:2%" class="td_cell txt" >{{(instance.attrs['00280008'].Value[0]) || '&nbsp;'}}</div>
                                         </div>
                                         <div class="tr_row"  ng-show="instance.showAttributes">
                                             <div class="td_cell attribute_list">

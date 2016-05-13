@@ -1168,7 +1168,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                     });
                                 }
                             });
-                        }, 100);
+                        }, 400);
                     } else {
                         if (timeout > 0) {
                             timeout--;
