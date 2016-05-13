@@ -99,7 +99,8 @@ class ImportReportService extends DefaultHL7Service {
             if (attrs.getString(Tag.StudyInstanceUID) == null)
                 attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
             if (attrs.getString(Tag.SeriesInstanceUID) == null)
-                attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"), UIDUtils.createUID(attrs.getString(Tag.SOPInstanceUID)));
+                attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
+                        UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
             ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(arcHL7App.getAETitle());
             try (StoreSession session = storeService.newStoreSession(s, msh, ae)) {
                 StoreContext ctx = storeService.newStoreContext(session);
