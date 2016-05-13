@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.hl7;
 
+import org.dcm4che3.conf.api.ConfigurationAlreadyExistsException;
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
@@ -86,9 +88,19 @@ class ImportReportService extends DefaultHL7Service {
     public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, HL7Segment msh,
                             byte[] msg, int off, int len, int mshlen) throws HL7Exception {
         try {
-            String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
             ArchiveHL7ApplicationExtension arcHL7App =
                     hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+            String aet = arcHL7App.getAETitle();
+            if (aet == null) {
+                throw new ConfigurationException("No AE Title associated with HL7 Application: "
+                        + hl7App.getApplicationName());
+            }
+            ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(aet);
+            if (ae == null) {
+                throw new ConfigurationException("No local AE with AE Title " + aet
+                        + " associated with HL7 Application: " + hl7App.getApplicationName());
+            }
+            String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
             Attributes attrs = SAXTransformer.transform(msg, off, len, hl7cs,
                     TemplatesCache.getDefault().get(
                             StringUtils.replaceSystemProperties(arcHL7App.importReportTemplateURI())),
@@ -101,7 +113,6 @@ class ImportReportService extends DefaultHL7Service {
             if (attrs.getString(Tag.SeriesInstanceUID) == null)
                 attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
                         UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
-            ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(arcHL7App.getAETitle());
             try (StoreSession session = storeService.newStoreSession(s, msh, ae)) {
                 StoreContext ctx = storeService.newStoreContext(session);
                 ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
