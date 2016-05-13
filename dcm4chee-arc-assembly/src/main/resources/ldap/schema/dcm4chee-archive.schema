@@ -479,6 +479,24 @@ attributetype ( 1.2.40.0.13.1.15.110.3.80 NAME 'hl7ImportReportTemplateURI'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.81 NAME 'dcmAECacheStaleTimeout'
+  DESC 'Duration of AE Cache Stale Timeout in ISO-8601 duration format PnDTnHnMn.nS'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.82 NAME 'dcmLeadingCFindSCPQueryCacheStaleTimeout'
+  DESC 'Duration of Leading C-Find SCP Query Cache Stale Timeout in ISO-8601 duration format PnDTnHnMn.nS'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.83 NAME 'dcmLeadingCFindSCPQueryCacheSize '
+  DESC 'Maximum number of Leading C-Find SCP Query Cache Size; 10 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -527,7 +545,10 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7ImportReportTemplateURI $
     dcmUnzipVendorDataToURI $
     dcmPurgeQueueMessagePollingInterval $
-    dcmPurgeQueueMessageFetchSize ) )
+    dcmPurgeQueueMessageFetchSize $
+    dcmAECacheStaleTimeout $
+    dcmLeadingCFindSCPQueryCacheStaleTimeout $
+    dcmLeadingCFindSCPQueryCacheSize) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'

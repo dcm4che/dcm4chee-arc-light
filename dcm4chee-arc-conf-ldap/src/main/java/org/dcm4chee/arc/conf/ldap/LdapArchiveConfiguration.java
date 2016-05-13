@@ -119,6 +119,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
+        LdapUtils.storeNotNull(attrs, "dcmAECacheStaleTimeout", ext.getAECacheStaleTimeout());
+        LdapUtils.storeNotNull(attrs, "dcmLeadingCFindSCPQueryCacheStaleTimeout", ext.getLeadingCFindSCPQueryCacheStaleTimeout());
+        LdapUtils.storeNotDef(attrs, "dcmLeadingCFindSCPQueryCacheSize", ext.getLeadingCFindSCPQueryCacheSize(), 10);
     }
 
     @Override
@@ -180,6 +183,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
+        ext.setAECacheStaleTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmAECacheStaleTimeout"), null)));
+        ext.setLeadingCFindSCPQueryCacheStaleTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCPQueryCacheStaleTimeout"), null)));
+        ext.setLeadingCFindSCPQueryCacheSize(LdapUtils.intValue(attrs.get("dcmLeadingCFindSCPQueryCacheSize"), 10));
     }
 
     @Override
@@ -265,6 +271,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(), bb.getWadoSpoolDirectory());
+        LdapUtils.storeDiff(mods, "dcmAECacheStaleTimeout",
+                aa.getAECacheStaleTimeout(), bb.getAECacheStaleTimeout());
+        LdapUtils.storeDiff(mods, "dcmLeadingCFindSCPQueryCacheStaleTimeout",
+                aa.getLeadingCFindSCPQueryCacheStaleTimeout(), bb.getLeadingCFindSCPQueryCacheStaleTimeout());
+        LdapUtils.storeDiff(mods, "dcmLeadingCFindSCPQueryCacheSize",
+                aa.getLeadingCFindSCPQueryCacheSize(), bb.getLeadingCFindSCPQueryCacheSize(), 10);
     }
 
     @Override

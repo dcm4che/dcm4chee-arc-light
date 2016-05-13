@@ -116,6 +116,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmPurgeQueueMessagePollingInterval", arcDev.getPurgeQueueMessagePollingInterval());
         writer.writeNotDef("dcmPurgeQueueMessageFetchSize", arcDev.getPurgeQueueMessageFetchSize(), 100);
         writer.writeNotNull("dcmWadoSpoolDirectory", arcDev.getWadoSpoolDirectory());
+        writer.writeNotNull("dcmAECacheStaleTimeout", arcDev.getAECacheStaleTimeout());
+        writer.writeNotNull("dcmLeadingCFindSCPQueryCacheStaleTimeout", arcDev.getLeadingCFindSCPQueryCacheStaleTimeout());
+        writer.writeNotDef("dcmLeadingCFindSCPQueryCacheSize", arcDev.getLeadingCFindSCPQueryCacheSize(), 10);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -468,6 +471,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSpoolDirectory":
                     arcDev.setWadoSpoolDirectory(reader.stringValue());
+                    break;
+                case "dcmAECacheStaleTimeout":
+                    arcDev.setAECacheStaleTimeout(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmLeadingCFindSCPQueryCacheStaleTimeout":
+                    arcDev.setLeadingCFindSCPQueryCacheStaleTimeout(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmLeadingCFindSCPQueryCacheSize":
+                    arcDev.setLeadingCFindSCPQueryCacheSize(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

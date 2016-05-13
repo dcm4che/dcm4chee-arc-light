@@ -973,6 +973,8 @@ class ArchiveDeviceFactory {
         ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
         ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
         ext.setImportReportTemplateURI(HL7_ORU2DSR_XSL);
+        ext.setAECacheStaleTimeout(Duration.parse("PT5M"));
+        ext.setLeadingCFindSCPQueryCacheStaleTimeout(Duration.parse("PT5M"));
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));

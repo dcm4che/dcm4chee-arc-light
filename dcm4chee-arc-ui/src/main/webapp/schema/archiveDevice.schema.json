@@ -259,6 +259,23 @@
       "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.",
       "type": "string"
     },
+    "dcmAECacheStaleTimeout": {
+      "title": "AE Cache Stale Timeout",
+      "description": "Duration of AE Cache Stale Timeout in ISO-8601 duration format PnDTnHnMn.nS",
+      "type": "string"
+    },
+    "dcmLeadingCFindSCPQueryCacheStaleTimeout": {
+      "title": "Leading C-Find SCP Query Cache Stale Timeout",
+      "description": "Duration of Leading C-Find SCP Query Cache Stale Timeout in ISO-8601 duration format PnDTnHnMn.nS",
+      "type": "string"
+    },
+    "dcmLeadingCFindSCPQueryCacheSize": {
+      "title": "Leading C-Find SCP Query Cache Size",
+      "description": "Maximum number of Leading C-Find SCP Query Cache Size; 10 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "dcmAttributeFilter": {
       "$ref": "attributeFilter.schema.json"
     },
