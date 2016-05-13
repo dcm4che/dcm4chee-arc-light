@@ -90,6 +90,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int deleteStudyBatchSize = 10;
     private boolean deletePatientOnDeleteLastStudy = false;
     private Duration maxAccessTimeStaleness;
+    private Duration aeCacheStaleTimeout;
+    private Duration leadingCFindSCPQueryCacheStaleTimeout;
+    private int leadingCFindSCPQueryCacheSize = 10;
     private String auditSpoolDirectory;
     private Duration auditPollingInterval;
     private Duration auditAggregateDuration;
@@ -424,6 +427,42 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.maxAccessTimeStaleness = maxAccessTimeStaleness;
     }
 
+    public Duration getAECacheStaleTimeout() {
+        return aeCacheStaleTimeout;
+    }
+
+    public void setAECacheStaleTimeout(Duration aeCacheStaleTimeout) {
+        this.aeCacheStaleTimeout = aeCacheStaleTimeout;
+    }
+
+    public int getAECacheStaleTimeoutSeconds() {
+        return toSeconds(aeCacheStaleTimeout);
+    }
+
+    public Duration getLeadingCFindSCPQueryCacheStaleTimeout() {
+        return leadingCFindSCPQueryCacheStaleTimeout;
+    }
+
+    public void setLeadingCFindSCPQueryCacheStaleTimeout(Duration leadingCFindSCPQueryCacheStaleTimeout) {
+        this.leadingCFindSCPQueryCacheStaleTimeout = leadingCFindSCPQueryCacheStaleTimeout;
+    }
+
+    public int getLeadingCFindSCPQueryCacheStaleTimeoutSeconds() {
+        return toSeconds(leadingCFindSCPQueryCacheStaleTimeout);
+    }
+
+    private static int toSeconds(Duration timeout) {
+        return timeout != null ? (int) timeout.getSeconds() : 0;
+    }
+
+    public int getLeadingCFindSCPQueryCacheSize() {
+        return leadingCFindSCPQueryCacheSize;
+    }
+
+    public void setLeadingCFindSCPQueryCacheSize(int leadingCFindSCPQueryCacheSize) {
+        this.leadingCFindSCPQueryCacheSize = leadingCFindSCPQueryCacheSize;
+    }
+
     public String getAuditSpoolDirectory() {
         return auditSpoolDirectory;
     }
@@ -706,6 +745,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         deleteStudyBatchSize = arcdev.deleteStudyBatchSize;
         deletePatientOnDeleteLastStudy = arcdev.deletePatientOnDeleteLastStudy;
         maxAccessTimeStaleness = arcdev.maxAccessTimeStaleness;
+        aeCacheStaleTimeout = arcdev.aeCacheStaleTimeout;
+        leadingCFindSCPQueryCacheStaleTimeout = arcdev.leadingCFindSCPQueryCacheStaleTimeout;
+        leadingCFindSCPQueryCacheSize = arcdev.leadingCFindSCPQueryCacheSize;
         auditSpoolDirectory = arcdev.auditSpoolDirectory;
         auditPollingInterval = arcdev.auditPollingInterval;
         auditAggregateDuration = arcdev.auditAggregateDuration;
@@ -730,4 +772,5 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
     }
+
 }

@@ -56,8 +56,11 @@ import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -133,6 +136,12 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Inject
     private RetrieveServiceEJB ejb;
+
+    @Inject
+    private CFindSCU cfindscu;
+
+    @Inject
+    private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     StatelessSession openStatelessSession() {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
@@ -406,18 +415,27 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
-        ArchiveAttributeCoercion coercion = aeExt.findAttributeCoercion(
-                ctx.getRequestorHostName(), ctx.getRequestorAET(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ, inst.getSopClassUID());
-        if (coercion == null)
+        ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
+                ctx.getRequestorHostName(), ctx.getRequestorAET(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ,
+                inst.getSopClassUID());
+        if (rule == null)
             return null;
-        String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
+
+        AttributesCoercion coercion = null;
+        String xsltStylesheetURI = rule.getXSLTStylesheetURI();
+        if (xsltStylesheetURI != null)
         try {
-            Templates tpls = TemplatesCache.getDefault().get(uri);
-            return new XSLTAttributesCoercion(tpls, null).includeKeyword(!coercion.isNoKeywords());
+            Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
+            coercion = new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
         } catch (TransformerConfigurationException e) {
-            LOG.warn("{}: Failed to coerce Attributes", ctx.getLocalAETitle(), e);
-            return null;
+            LOG.error("{}: Failed to compile XSL: {}", ctx.getLocalAETitle(), xsltStylesheetURI, e);
         }
+        String leadingCFindSCP = rule.getLeadingCFindSCP();
+        if (leadingCFindSCP != null) {
+            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), ctx.getLocalAETitle(),
+                    leadingCFindSCP, rule.attributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
+        }
+        return coercion;
     }
 
     private boolean isAccessable(ArchiveDeviceExtension arcDev, InstanceLocations match) {

@@ -357,6 +357,7 @@
     <module>dcm4chee-arc-qmgt</module>
     <module>dcm4chee-arc-qmgt-rs</module>
     <module>dcm4chee-arc-query</module>
+    <module>dcm4chee-arc-query-scu</module>
     <module>dcm4chee-arc-query-scp</module>
     <module>dcm4chee-arc-query-util</module>
     <module>dcm4chee-arc-realm-rs</module>

@@ -43,6 +43,7 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.util.StringUtils;
 
 import java.util.Arrays;
 
@@ -153,6 +154,10 @@ public class ArchiveAttributeCoercion {
 
     public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
         return attributeUpdatePolicy;
+    }
+
+    public Attributes.UpdatePolicy attributeUpdatePolicy() {
+        return StringUtils.maskNull(attributeUpdatePolicy, Attributes.UpdatePolicy.MERGE);
     }
 
     public void setAttributeUpdatePolicy(Attributes.UpdatePolicy attributeUpdatePolicy) {

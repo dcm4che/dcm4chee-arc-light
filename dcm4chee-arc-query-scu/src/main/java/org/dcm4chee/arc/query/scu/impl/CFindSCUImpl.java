@@ -38,56 +38,73 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve.scu.impl;
+package org.dcm4chee.arc.query.scu.impl;
 
 import org.dcm4che3.conf.api.IApplicationEntityCache;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.Status;
+import org.dcm4che3.data.*;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
-import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
-import org.dcm4chee.arc.retrieve.scu.ForwardRetrieveTask;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Dec 2015
+ * @since May 2016
  */
 @ApplicationScoped
-public class CMoveSCUImpl implements CMoveSCU {
+public class CFindSCUImpl implements CFindSCU {
+
+    private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
+
+    @Inject
+    private Device device;
 
     @Inject
     private IApplicationEntityCache aeCache;
 
     @Override
-    public ForwardRetrieveTask newForwardRetrieveTask(
-            ApplicationEntity localAE, Association as, PresentationContext pc, Attributes rq, Attributes keys,
-            String callingAET, String retrieveAET, boolean bwdRSPs, boolean fwdCancel) throws DicomServiceException {
+    public Attributes queryStudy(ApplicationEntity localAE, String callingAET, String calledAET, String studyIUID)
+            throws Exception {
+        ApplicationEntity remoteAE = aeCache.get(calledAET);
+        Association as = localAE.connect(remoteAE, createAARQ(callingAET));
         try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(retrieveAET);
-            return new ForwardRetrieveTaskImpl(as, pc, rq, keys,
-                    localAE.connect(remoteAE,
-                            createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), callingAET)),
-                    bwdRSPs, fwdCancel);
-        } catch (Exception e) {
-            throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
+            DimseRSP rsp = as.cfind(UID.StudyRootQueryRetrieveInformationModelFIND, Priority.NORMAL,
+                    mkQueryStudyKeys(studyIUID), UID.ImplicitVRLittleEndian, 0);
+            rsp.next();
+            return rsp.getDataset();
+        } finally {
+            as.waitForOutstandingRSP();
+            as.release();
         }
     }
 
-    private AAssociateRQ createAARQ(PresentationContext pc, String callingAET) {
+    private Attributes mkQueryStudyKeys(String studyIUID) {
+        ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int[] patTags = arcdev.getAttributeFilter(Entity.Patient).getSelection();
+        int[] studyTags = arcdev.getAttributeFilter(Entity.Study).getSelection();
+        Attributes keys = new Attributes(patTags.length + studyTags.length);
+        setReturnKeys(keys, patTags);
+        setReturnKeys(keys, studyTags);
+        keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        return keys;
+    }
+
+    private void setReturnKeys(Attributes keys, int[] tags) {
+        for (int tag : tags)
+            if (tag != Tag.SpecificCharacterSet)
+                keys.setNull(tag, DICT.vrOf(tag));
+    }
+
+    private AAssociateRQ createAARQ(String callingAET) {
         AAssociateRQ aarq = new AAssociateRQ();
         aarq.setCallingAET(callingAET);
-        aarq.addPresentationContext(pc);
-        aarq.addExtendedNegotiation(new ExtendedNegotiation(pc.getAbstractSyntax(),
-                QueryOption.toExtendedNegotiationInformation(EnumSet.of(QueryOption.RELATIONAL))));
+        aarq.addPresentationContext(new PresentationContext(
+                1, UID.StudyRootQueryRetrieveInformationModelFIND, UID.ImplicitVRLittleEndian));
         return aarq;
     }
 }

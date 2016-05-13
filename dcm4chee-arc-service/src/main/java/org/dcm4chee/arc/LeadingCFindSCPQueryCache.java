@@ -38,56 +38,17 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve.scu.impl;
+package org.dcm4chee.arc;
 
-import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.Status;
-import org.dcm4che3.net.pdu.AAssociateRQ;
-import org.dcm4che3.net.pdu.ExtendedNegotiation;
-import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
-import org.dcm4chee.arc.retrieve.scu.ForwardRetrieveTask;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Dec 2015
+ * @since May 2016
  */
 @ApplicationScoped
-public class CMoveSCUImpl implements CMoveSCU {
+public class LeadingCFindSCPQueryCache extends Cache<String,Attributes> {
 
-    @Inject
-    private IApplicationEntityCache aeCache;
-
-    @Override
-    public ForwardRetrieveTask newForwardRetrieveTask(
-            ApplicationEntity localAE, Association as, PresentationContext pc, Attributes rq, Attributes keys,
-            String callingAET, String retrieveAET, boolean bwdRSPs, boolean fwdCancel) throws DicomServiceException {
-        try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(retrieveAET);
-            return new ForwardRetrieveTaskImpl(as, pc, rq, keys,
-                    localAE.connect(remoteAE,
-                            createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), callingAET)),
-                    bwdRSPs, fwdCancel);
-        } catch (Exception e) {
-            throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
-        }
-    }
-
-    private AAssociateRQ createAARQ(PresentationContext pc, String callingAET) {
-        AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(callingAET);
-        aarq.addPresentationContext(pc);
-        aarq.addExtendedNegotiation(new ExtendedNegotiation(pc.getAbstractSyntax(),
-                QueryOption.toExtendedNegotiationInformation(EnumSet.of(QueryOption.RELATIONAL))));
-        return aarq;
-    }
 }

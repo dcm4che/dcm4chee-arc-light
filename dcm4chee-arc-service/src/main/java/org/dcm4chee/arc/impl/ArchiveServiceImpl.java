@@ -50,7 +50,9 @@ import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceRegistry;
 import org.dcm4chee.arc.ArchiveService;
 import org.dcm4chee.arc.ArchiveServiceEvent;
+import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.Scheduler;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -86,6 +88,9 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Inject
     private IApplicationEntityCache aeCache;
+
+    @Inject
+    private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     @Inject
     private Device device;
@@ -128,6 +133,7 @@ public class ArchiveServiceImpl implements ArchiveService {
             if (hl7Extension != null) {
                 hl7Extension.setHL7MessageListener(hl7ServiceRegistry);
             }
+            configure();
             start(null);
         } catch (RuntimeException re) {
             destroy();
@@ -178,7 +184,15 @@ public class ArchiveServiceImpl implements ArchiveService {
         for (Scheduler scheduler : schedulers) scheduler.reload();
         device.rebindConnections();
         aeCache.clear();
+        configure();
         archiveServiceEvent.fire(new ArchiveServiceEvent(ArchiveServiceEvent.Type.RELOADED, request));
+    }
+
+    private void configure() {
+        ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        aeCache.setStaleTimeout(arcdev.getAECacheStaleTimeoutSeconds());
+        leadingCFindSCPQueryCache.setStaleTimeout(arcdev.getLeadingCFindSCPQueryCacheStaleTimeoutSeconds());
+        leadingCFindSCPQueryCache.setMaxSize(arcdev.getLeadingCFindSCPQueryCacheSize());
     }
 
 }
