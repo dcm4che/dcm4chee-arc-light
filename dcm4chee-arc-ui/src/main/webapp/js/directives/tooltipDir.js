@@ -44,15 +44,9 @@ myApp.directive("tooltip", function ($window, $log, $compile) {
         link: function(scope, element, attrs) {
             if(attrs.tooltip != "" && attrs.tooltip != undefined){
                 tooltipExecute(scope, element, attrs.tooltip);
+                //Check again if the tooltip-text was changed (on the first time the rendering process was not finished)
                 setTimeout(function(){
-                    console.log("element",element);
-                    console.log("attrs.tooltip",attrs.tooltip);
-                    console.log("angular.element(element).text()",angular.element(element).text());
-                    console.log("attrs.tooltip.length",attrs.tooltip.length);
-                    console.log("2attrs.tooltip.length",angular.element(element).find(".tooltip_container .dir-tooltip").text().length);
-                    console.log("3attrs.tooltip.length",angular.element(element).find(".tooltip_container .dir-tooltip"));
                     if(angular.element(element).text().length != angular.element(element).find(".tooltip_container .dir-tooltip").text().length && angular.element(element).find(".tooltip_container .dir-tooltip").text().length > 0){
-                        console.log("*****in if");
                             angular.element(element).find(".tooltip_container").remove();
                             tooltipExecute(scope, element, angular.element(element).attr("tooltip"));
                     }   
