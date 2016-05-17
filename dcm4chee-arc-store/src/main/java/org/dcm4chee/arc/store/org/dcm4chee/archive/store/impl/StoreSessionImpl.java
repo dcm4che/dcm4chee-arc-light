@@ -87,7 +87,7 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String getCallingAET() {
-        return as != null ? as.getCallingAET() : null;
+        return as != null ? as.getCallingAET() : msh != null ? msh.getSendingApplicationWithFacility() : null;
     }
 
     @Override
