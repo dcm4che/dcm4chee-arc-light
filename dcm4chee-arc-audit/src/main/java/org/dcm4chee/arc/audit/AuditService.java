@@ -423,8 +423,8 @@ public class AuditService {
             eventType = AuditServiceUtils.EventType.forInstanceStored(storeCtx);
             if (eventType == null)
                 return; // no audit message for duplicate received instance
-            fileName = String.valueOf(eventType) + '-' + AuditServiceUtils.getStoreCallingAE(storeCtx) + '-'
-                                + storeCtx.getStoreSession().getCalledAET() + '-' + storeCtx.getStudyInstanceUID();
+            fileName = String.valueOf(eventType) + '-' + storeCtx.getStoreSession().getCallingAET().replace('|', '-')
+                    + '-' + storeCtx.getStoreSession().getCalledAET() + '-' + storeCtx.getStudyInstanceUID();
             writeSpoolFileStoreOrWadoRetrieve(fileName, new PatientStudyInfo(storeCtx), new InstanceInfo(storeCtx));
         }
         if (retrieveCtx != null) {
