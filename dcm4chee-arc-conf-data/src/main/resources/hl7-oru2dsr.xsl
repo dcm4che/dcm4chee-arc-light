@@ -12,10 +12,6 @@
       </DicomAttribute>
       <xsl:apply-templates select="PID"/>
       <xsl:apply-templates select="OBR"/>
-      <!--Current Requested Procedure Evidence Sequence-->
-      <DicomAttribute tag="0040A375" vr="SQ">
-        <xsl:apply-templates select="OBX[field[3]/component='Study Instance UID']" mode="refstudy"/>
-      </DicomAttribute>
       <!--Content Sequence-->
       <DicomAttribute tag="0040A730" vr="SQ">
         <xsl:call-template name="const-obsctx"/>
@@ -230,56 +226,6 @@
         <xsl:with-param name="scheme"><xsl:value-of select="field[4]/component[2]"/></xsl:with-param>
         <xsl:with-param name="meaning"><xsl:value-of select="field[4]/component"/></xsl:with-param>
       </xsl:call-template>
-    </Item>
-  </xsl:template>
-  <xsl:template match="OBX" mode="refstudy">
-    <xsl:variable name="suid">
-      <xsl:value-of select="field[5]"/>
-    </xsl:variable>
-    <xsl:if test="not(preceding-sibling::*[field[5]=$suid])">
-      <Item number="1">
-        <!-- Study Instance UID -->
-        <DicomAttribute tag="0020000D" vr="UI">
-          <Value number="1"><xsl:value-of select="$suid"/></Value>
-        </DicomAttribute>
-        <!-- >Referenced Series Sequence (0008,1115) -->
-        <DicomAttribute tag="00081115" vr="SQ">
-          <xsl:apply-templates
-                  select="../OBX[field[5]=$suid]/following-sibling::*[1]"
-                  mode="refseries"/>
-        </DicomAttribute>
-      </Item>
-    </xsl:if>
-  </xsl:template>
-  <xsl:template match="OBX" mode="refseries">
-    <xsl:variable name="suid">
-      <xsl:value-of select="field[5]"/>
-    </xsl:variable>
-    <xsl:if test="not(preceding-sibling::*[field[5]=$suid])">
-      <Item number="1">
-        <!-- Series Instance UID -->
-        <DicomAttribute tag="0020000E" vr="UI">
-          <Value number="1"><xsl:value-of select="$suid"/></Value>
-        </DicomAttribute>
-        <!-- Referenced SOP Sequence -->
-        <DicomAttribute tag="00081199" vr="SQ">
-          <xsl:apply-templates
-                  select="../OBX[field[5]=$suid]/following-sibling::*[1]"
-                  mode="refsop"/>
-        </DicomAttribute>
-      </Item>
-    </xsl:if>
-  </xsl:template>
-  <xsl:template match="OBX" mode="refsop">
-    <Item number="1">
-      <!--Referenced SOP Class UID-->
-      <DicomAttribute tag="00081150" vr="UI">
-        <Value number="1"><xsl:value-of select="following-sibling::*[1]/field[5]"/></Value>
-      </DicomAttribute>
-      <!--Referenced SOP Instance UID-->
-      <DicomAttribute tag="00081155" vr="UI">
-        <Value number="1"><xsl:value-of select="field[5]"/></Value>
-      </DicomAttribute>
     </Item>
   </xsl:template>
   <xsl:template match="OBX" mode="img">
