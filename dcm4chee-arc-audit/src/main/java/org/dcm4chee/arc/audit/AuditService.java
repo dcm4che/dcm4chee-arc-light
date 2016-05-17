@@ -56,7 +56,6 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -424,9 +423,8 @@ public class AuditService {
             eventType = AuditServiceUtils.EventType.forInstanceStored(storeCtx);
             if (eventType == null)
                 return; // no audit message for duplicate received instance
-            StoreSession session = storeCtx.getStoreSession();
-            fileName = String.valueOf(eventType) + '-' + session.getCallingAET() + '-'
-                                + session.getCalledAET() + '-' + storeCtx.getStudyInstanceUID();
+            fileName = String.valueOf(eventType) + '-' + AuditServiceUtils.getStoreCallingAE(storeCtx) + '-'
+                                + storeCtx.getStoreSession().getCalledAET() + '-' + storeCtx.getStudyInstanceUID();
             writeSpoolFileStoreOrWadoRetrieve(fileName, new PatientStudyInfo(storeCtx), new InstanceInfo(storeCtx));
         }
         if (retrieveCtx != null) {

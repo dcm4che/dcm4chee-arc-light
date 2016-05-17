@@ -67,10 +67,7 @@ class PatientStudyInfo {
     PatientStudyInfo(StoreContext ctx) {
         fields = new String[] {
                 ctx.getStoreSession().getRemoteHostName(),
-                ctx.getStoreSession().getCallingAET() != null ? ctx.getStoreSession().getCallingAET()
-                    : ctx.getStoreSession().getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                    ? AuditServiceUtils.getPreferredUsername(ctx.getStoreSession().getHttpRequest())
-                    : ctx.getStoreSession().getRemoteHostName(),
+                AuditServiceUtils.getStoreCallingAE(ctx),
                 ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
