@@ -314,7 +314,7 @@ public class AuditServiceUtils {
                 && ctx.getStoreSession().getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
                 ? AuditServiceUtils.getPreferredUsername(ctx.getStoreSession().getHttpRequest())
                 : ctx.getStoreSession().getHL7MessageHeader() != null
-                ? ctx.getStoreSession().getHL7MessageHeader().getSendingApplicationWithFacility()
+                ? ctx.getStoreSession().getHL7MessageHeader().getSendingApplicationWithFacility().replace('|', '-')
                 : ctx.getStoreSession().getRemoteHostName();
     }
 }

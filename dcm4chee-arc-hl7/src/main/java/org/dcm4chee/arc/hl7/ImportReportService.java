@@ -110,6 +110,8 @@ class ImportReportService extends DefaultHL7Service {
                     });
             if (attrs.getString(Tag.StudyInstanceUID) == null)
                 attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+            if (attrs.getString(Tag.SOPInstanceUID) == null)
+                attrs.setString(Tag.SOPInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
             if (attrs.getString(Tag.SeriesInstanceUID) == null)
                 attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
                         UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
