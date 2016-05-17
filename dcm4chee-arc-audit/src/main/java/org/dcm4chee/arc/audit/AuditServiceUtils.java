@@ -313,8 +313,7 @@ public class AuditServiceUtils {
                 : ctx.getStoreSession().getHttpRequest() != null
                 && ctx.getStoreSession().getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
                 ? AuditServiceUtils.getPreferredUsername(ctx.getStoreSession().getHttpRequest())
-                : ctx.getStoreSession().getAssociation() == null && ctx.getStoreSession().getHttpRequest() == null
-                && ctx.getStoreSession().getHL7MessageHeader() != null
+                : ctx.getStoreSession().getHL7MessageHeader() != null
                 ? ctx.getStoreSession().getHL7MessageHeader().getSendingApplicationWithFacility()
                 : ctx.getStoreSession().getRemoteHostName();
     }
