@@ -112,6 +112,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmDeletePatientOnDeleteLastStudy",
                 ext.isDeletePatientOnDeleteLastStudy(), false);
         LdapUtils.storeNotNull(attrs, "dcmMaxAccessTimeStaleness", ext.getMaxAccessTimeStaleness());
+        LdapUtils.storeNotNull(attrs, "dcmAECacheStaleTimeout", ext.getAECacheStaleTimeout());
+        LdapUtils.storeNotNull(attrs, "dcmLeadingCFindSCPQueryCacheStaleTimeout", ext.getLeadingCFindSCPQueryCacheStaleTimeout());
+        LdapUtils.storeNotDef(attrs, "dcmLeadingCFindSCPQueryCacheSize", ext.getLeadingCFindSCPQueryCacheSize(), 10);
         LdapUtils.storeNotNull(attrs, "dcmAuditSpoolDirectory", ext.getAuditSpoolDirectory());
         LdapUtils.storeNotNull(attrs, "dcmAuditPollingInterval", ext.getAuditPollingInterval());
         LdapUtils.storeNotNull(attrs, "dcmAuditAggregateDuration", ext.getAuditAggregateDuration());
@@ -119,9 +122,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
-        LdapUtils.storeNotNull(attrs, "dcmAECacheStaleTimeout", ext.getAECacheStaleTimeout());
-        LdapUtils.storeNotNull(attrs, "dcmLeadingCFindSCPQueryCacheStaleTimeout", ext.getLeadingCFindSCPQueryCacheStaleTimeout());
-        LdapUtils.storeNotDef(attrs, "dcmLeadingCFindSCPQueryCacheSize", ext.getLeadingCFindSCPQueryCacheSize(), 10);
     }
 
     @Override
@@ -175,6 +175,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDeletePatientOnDeleteLastStudy(
                 LdapUtils.booleanValue(attrs.get("dcmDeletePatientOnDeleteLastStudy"), false));
         ext.setMaxAccessTimeStaleness(toDuration(LdapUtils.stringValue(attrs.get("dcmMaxAccessTimeStaleness"), null)));
+        ext.setAECacheStaleTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmAECacheStaleTimeout"), null)));
+        ext.setLeadingCFindSCPQueryCacheStaleTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCPQueryCacheStaleTimeout"), null)));
+        ext.setLeadingCFindSCPQueryCacheSize(LdapUtils.intValue(attrs.get("dcmLeadingCFindSCPQueryCacheSize"), 10));
         ext.setAuditSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmAuditSpoolDirectory"), null));
         ext.setAuditPollingInterval(toDuration(LdapUtils.stringValue(attrs.get("dcmAuditPollingInterval"), null)));
         ext.setAuditAggregateDuration(toDuration(LdapUtils.stringValue(attrs.get("dcmAuditAggregateDuration"), null)));
@@ -183,9 +186,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
-        ext.setAECacheStaleTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmAECacheStaleTimeout"), null)));
-        ext.setLeadingCFindSCPQueryCacheStaleTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCPQueryCacheStaleTimeout"), null)));
-        ext.setLeadingCFindSCPQueryCacheSize(LdapUtils.intValue(attrs.get("dcmLeadingCFindSCPQueryCacheSize"), 10));
     }
 
     @Override
@@ -257,6 +257,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isDeletePatientOnDeleteLastStudy(), bb.isDeletePatientOnDeleteLastStudy(), false);
         LdapUtils.storeDiff(mods, "dcmMaxAccessTimeStaleness",
                 aa.getMaxAccessTimeStaleness(), bb.getMaxAccessTimeStaleness());
+        LdapUtils.storeDiff(mods, "dcmAECacheStaleTimeout",
+                aa.getAECacheStaleTimeout(), bb.getAECacheStaleTimeout());
+        LdapUtils.storeDiff(mods, "dcmLeadingCFindSCPQueryCacheStaleTimeout",
+                aa.getLeadingCFindSCPQueryCacheStaleTimeout(), bb.getLeadingCFindSCPQueryCacheStaleTimeout());
+        LdapUtils.storeDiff(mods, "dcmLeadingCFindSCPQueryCacheSize",
+                aa.getLeadingCFindSCPQueryCacheSize(), bb.getLeadingCFindSCPQueryCacheSize(), 10);
         LdapUtils.storeDiff(mods, "dcmAuditSpoolDirectory",
                 aa.getAuditSpoolDirectory(), bb.getAuditSpoolDirectory());
         LdapUtils.storeDiff(mods, "dcmAuditPollingInterval",
@@ -271,12 +277,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(), bb.getWadoSpoolDirectory());
-        LdapUtils.storeDiff(mods, "dcmAECacheStaleTimeout",
-                aa.getAECacheStaleTimeout(), bb.getAECacheStaleTimeout());
-        LdapUtils.storeDiff(mods, "dcmLeadingCFindSCPQueryCacheStaleTimeout",
-                aa.getLeadingCFindSCPQueryCacheStaleTimeout(), bb.getLeadingCFindSCPQueryCacheStaleTimeout());
-        LdapUtils.storeDiff(mods, "dcmLeadingCFindSCPQueryCacheSize",
-                aa.getLeadingCFindSCPQueryCacheSize(), bb.getLeadingCFindSCPQueryCacheSize(), 10);
     }
 
     @Override
@@ -1086,6 +1086,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmSOPClass", coercion.getSOPClasses());
         LdapUtils.storeNotNull(attrs, "dcmURI", coercion.getXSLTStylesheetURI());
         LdapUtils.storeNotDef(attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
+        LdapUtils.storeNotNull(attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP());
+        LdapUtils.storeNotNull(attrs, "dcmAttributeUpdatePolicy", coercion.getAttributeUpdatePolicy());
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
         return attrs;
     }
@@ -1107,6 +1109,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setSOPClasses(LdapUtils.stringArray(attrs.get("dcmSOPClass")));
                 coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 coercion.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
+                coercion.setLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCP"), null));
+                coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
+                        attrs.get("dcmAttributeUpdatePolicy"), null));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 coercions.add(coercion);
             }
@@ -1125,6 +1130,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
         LdapUtils.storeDiff(mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI());
         LdapUtils.storeDiff(mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);
+        LdapUtils.storeDiff(mods, "dcmLeadingCFindSCP", prev.getLeadingCFindSCP(), coercion.getLeadingCFindSCP());
+        LdapUtils.storeDiff(mods, "dcmAttributeUpdatePolicy", prev.getAttributeUpdatePolicy(), coercion.getAttributeUpdatePolicy());
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
         return mods;
     }

@@ -88,6 +88,7 @@ public class CFindSCUImpl implements CFindSCU {
         int[] patTags = arcdev.getAttributeFilter(Entity.Patient).getSelection();
         int[] studyTags = arcdev.getAttributeFilter(Entity.Study).getSelection();
         Attributes keys = new Attributes(patTags.length + studyTags.length);
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         setReturnKeys(keys, patTags);
         setReturnKeys(keys, studyTags);
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);

@@ -207,6 +207,23 @@
       "description": "Maximal staleness of recorded study accession time in ISO-8601 duration format PnDTnHnMn.nS. update of the access time disabled, if absent.",
       "type": "string"
     },
+    "dcmAECacheStaleTimeout": {
+      "title": "AE Cache Stale Timeout",
+      "description": "Maximal staleness of cached AE in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached AE entries will not be refetched from LDAP.",
+      "type": "string"
+    },
+    "dcmLeadingCFindSCPQueryCacheStaleTimeout": {
+      "title": "Leading C-Find SCP Query Cache Stale Timeout",
+      "description": "Maximal staleness of cached Patient and Study attributes fetched from leading C-Find SCP in ISO-8601 duration format PnDTnHnMn.nS. If absent, cache Study attributes are only removed on reaching the maximal cache size.",
+      "type": "string"
+    },
+    "dcmLeadingCFindSCPQueryCacheSize": {
+      "title": "Leading C-Find SCP Query Cache Size",
+      "description": "Maximum number of cached Patient and Study attributes fetched from leading C-Find SCP; 10 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "dcmAuditSpoolDirectory": {
       "title": "Audit Spool Directory",
       "description": "Path to Audit Service Spool Directory used to aggregate Audit Messages. Audit Message aggregation disabled, if absent.",
@@ -234,7 +251,7 @@
     },
     "hl7ImportReportTemplateURI": {
       "title": "HL7 Import Report Template URI",
-      "description": "Specifies URI for the style sheet used to Import Text Report received by HL7 ORU^R01 as DICOM SR.",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR.",
       "type": "string"
     },
     "dcmUnzipVendorDataToURI": {
@@ -258,23 +275,6 @@
       "title": "Wado-RS Spool Directory",
       "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.",
       "type": "string"
-    },
-    "dcmAECacheStaleTimeout": {
-      "title": "AE Cache Stale Timeout",
-      "description": "Duration of AE Cache Stale Timeout in ISO-8601 duration format PnDTnHnMn.nS",
-      "type": "string"
-    },
-    "dcmLeadingCFindSCPQueryCacheStaleTimeout": {
-      "title": "Leading C-Find SCP Query Cache Stale Timeout",
-      "description": "Duration of Leading C-Find SCP Query Cache Stale Timeout in ISO-8601 duration format PnDTnHnMn.nS",
-      "type": "string"
-    },
-    "dcmLeadingCFindSCPQueryCacheSize": {
-      "title": "Leading C-Find SCP Query Cache Size",
-      "description": "Maximum number of Leading C-Find SCP Query Cache Size; 10 if absent",
-      "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
     },
     "dcmAttributeFilter": {
       "$ref": "attributeFilter.schema.json"

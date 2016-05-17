@@ -65,8 +65,6 @@ import static org.dcm4che3.net.TransferCapability.Role.SCU;
  */
 class ArchiveDeviceFactory {
 
-    private static final Duration DELETE_REJECTED_INSTANCE_DELAY = Duration.parse("P1D");
-
     enum ConfigType {
         DEFAULT,
         SAMPLE,
@@ -708,7 +706,7 @@ class ArchiveDeviceFactory {
             "OMI^O23",
             "ORU^R01"
     };
-    static final String DCM4CHEE_ARC_VERSION = "5.2.0";
+    static final String DCM4CHEE_ARC_VERSION = "5.2.1";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -737,6 +735,11 @@ class ArchiveDeviceFactory {
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
     static final Duration AUDIT_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration AUDIT_AGGREGATE_DURATION = Duration.parse("PT1M");
+    static final Duration DELETE_REJECTED_INSTANCE_DELAY = Duration.parse("P1D");
+    static final Duration MAX_ACCESS_TIME_STALENESS = Duration.parse("PT5M");
+    static final Duration AE_CACHE_STALE_TIMEOUT = Duration.parse("PT5M");
+    static final Duration LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT = Duration.parse("PT5M");
+
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
     }
@@ -878,13 +881,15 @@ class ArchiveDeviceFactory {
     }
 
     private static ArchiveAttributeCoercion createAttributeCoercion(
-            String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI, ConfigType configType) {
+            String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI, String leadingCFindSCP,
+            ConfigType configType) {
         ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
         coercion.setAETitles(aet);
         coercion.setRole(role);
         coercion.setDIMSE(dimse);
         coercion.setXSLTStylesheetURI(xsltURI);
-        coercion.setNoKeywords(true);
+        coercion.setNoKeywords(xsltURI != null);
+        coercion.setLeadingCFindSCP(leadingCFindSCP);
         if (configType == configType.TEST) {
             coercion.setPriority(3);
             coercion.setHostNames("localhost", "testenv");
@@ -953,7 +958,7 @@ class ArchiveDeviceFactory {
             ext.setAlternativeCMoveSCP("DCM4CHEE");
             ext.setDeleteStudyBatchSize(20);
             ext.setDeletePatientOnDeleteLastStudy(true);
-            ext.setMaxAccessTimeStaleness(Duration.parse("PT5M"));
+            ext.setMaxAccessTimeStaleness(MAX_ACCESS_TIME_STALENESS);
         }
         ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
@@ -973,8 +978,8 @@ class ArchiveDeviceFactory {
         ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
         ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
         ext.setImportReportTemplateURI(HL7_ORU2DSR_XSL);
-        ext.setAECacheStaleTimeout(Duration.parse("PT5M"));
-        ext.setLeadingCFindSCPQueryCacheStaleTimeout(Duration.parse("PT5M"));
+        ext.setAECacheStaleTimeout(AE_CACHE_STALE_TIMEOUT);
+        ext.setLeadingCFindSCPQueryCacheStaleTimeout(LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT);
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));
@@ -1064,9 +1069,11 @@ class ArchiveDeviceFactory {
             ext.addCompressionRule(JPEG_2000);
 
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, configType));
+                    "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, null, configType));
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, configType));
+                    "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, null, configType));
+            ext.addAttributeCoercion(createAttributeCoercion(
+                    "Leading DCMQRSCP", Dimse.C_STORE_RQ, SCP, "LEADING_DCMQRSCP", null, "DCMQRSCP", configType));
         }
     }
 

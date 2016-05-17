@@ -106,6 +106,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval());
         writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
         writer.writeNotNull("dcmMaxAccessTimeStaleness", arcDev.getMaxAccessTimeStaleness());
+        writer.writeNotNull("dcmAECacheStaleTimeout", arcDev.getAECacheStaleTimeout());
+        writer.writeNotNull("dcmLeadingCFindSCPQueryCacheStaleTimeout", arcDev.getLeadingCFindSCPQueryCacheStaleTimeout());
+        writer.writeNotDef("dcmLeadingCFindSCPQueryCacheSize", arcDev.getLeadingCFindSCPQueryCacheSize(), 10);
         writer.writeNotNull("dcmAuditSpoolDirectory", arcDev.getAuditSpoolDirectory());
         writer.writeNotNull("dcmAuditPollingInterval", arcDev.getAuditPollingInterval());
         writer.writeNotNull("dcmAuditAggregateDuration", arcDev.getAuditAggregateDuration());
@@ -116,9 +119,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmPurgeQueueMessagePollingInterval", arcDev.getPurgeQueueMessagePollingInterval());
         writer.writeNotDef("dcmPurgeQueueMessageFetchSize", arcDev.getPurgeQueueMessageFetchSize(), 100);
         writer.writeNotNull("dcmWadoSpoolDirectory", arcDev.getWadoSpoolDirectory());
-        writer.writeNotNull("dcmAECacheStaleTimeout", arcDev.getAECacheStaleTimeout());
-        writer.writeNotNull("dcmLeadingCFindSCPQueryCacheStaleTimeout", arcDev.getLeadingCFindSCPQueryCacheStaleTimeout());
-        writer.writeNotDef("dcmLeadingCFindSCPQueryCacheSize", arcDev.getLeadingCFindSCPQueryCacheSize(), 10);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -266,12 +266,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("cn", aac.getCommonName());
             writer.writeNotNull("dcmDIMSE", aac.getDIMSE());
             writer.writeNotNull("dicomTransferRole", aac.getRole());
-            writer.writeNotNull("dcmURI", aac.getXSLTStylesheetURI());
             writer.writeNotDef("dcmRulePriority", aac.getPriority(), 0);
             writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
             writer.writeNotEmpty("dcmHostname", aac.getHostNames());
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
             writer.writeNotNull("dcmNoKeywords", aac.isNoKeywords());
+            writer.writeNotNull("dcmURI", aac.getXSLTStylesheetURI());
+            writer.writeNotNull("dcmLeadingCFindSCP", aac.getLeadingCFindSCP());
+            writer.writeNotNull("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -442,6 +444,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmMaxAccessTimeStaleness":
                     arcDev.setMaxAccessTimeStaleness(Duration.parse(reader.stringValue()));
                     break;
+                case "dcmAECacheStaleTimeout":
+                    arcDev.setAECacheStaleTimeout(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmLeadingCFindSCPQueryCacheStaleTimeout":
+                    arcDev.setLeadingCFindSCPQueryCacheStaleTimeout(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmLeadingCFindSCPQueryCacheSize":
+                    arcDev.setLeadingCFindSCPQueryCacheSize(reader.intValue());
+                    break;
                 case "dcmAuditSpoolDirectory":
                     arcDev.setAuditSpoolDirectory(reader.stringValue());
                     break;
@@ -471,15 +482,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSpoolDirectory":
                     arcDev.setWadoSpoolDirectory(reader.stringValue());
-                    break;
-                case "dcmAECacheStaleTimeout":
-                    arcDev.setAECacheStaleTimeout(Duration.parse(reader.stringValue()));
-                    break;
-                case "dcmLeadingCFindSCPQueryCacheStaleTimeout":
-                    arcDev.setLeadingCFindSCPQueryCacheStaleTimeout(Duration.parse(reader.stringValue()));
-                    break;
-                case "dcmLeadingCFindSCPQueryCacheSize":
-                    arcDev.setLeadingCFindSCPQueryCacheSize(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -797,9 +799,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dicomTransferRole":
                         aac.setRole(TransferCapability.Role.valueOf(reader.stringValue()));
                         break;
-                    case "dcmURI":
-                        aac.setXSLTStylesheetURI(reader.stringValue());
-                        break;
                     case "dcmRulePriority":
                         aac.setPriority(reader.intValue());
                         break;
@@ -812,8 +811,17 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmSOPClass":
                         aac.setSOPClasses(reader.stringArray());
                         break;
+                    case "dcmURI":
+                        aac.setXSLTStylesheetURI(reader.stringValue());
+                        break;
                     case "dcmNoKeywords":
                         aac.setNoKeywords(reader.booleanValue());
+                        break;
+                    case "dcmLeadingCFindSCP":
+                        aac.setLeadingCFindSCP(reader.stringValue());
+                        break;
+                    case "dcmAttributeUpdatePolicy":
+                        aac.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();

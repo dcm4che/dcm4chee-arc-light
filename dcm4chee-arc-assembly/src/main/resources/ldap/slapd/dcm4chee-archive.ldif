@@ -396,10 +396,30 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.79 NAME 'dcmWadoSpoolDirectory'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.80 NAME 'hl7ImportReportTemplateURI'
-  DESC 'Specifies URI for the style sheet used to Import Text Report received by HL7 ORU^R01 as DICOM SR.'
+  DESC 'Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.81 NAME 'dcmAECacheStaleTimeout'
+  DESC 'Maximal staleness of cached AE in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached AE entries will not be refetched from LDAP.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.82 NAME 'dcmLeadingCFindSCP'
+  DESC 'AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.83 NAME 'dcmLeadingCFindSCPQueryCacheStaleTimeout'
+  DESC 'Maximal staleness of cached Patient and Study attributes fetched from leading C-Find SCP in ISO-8601 duration format PnDTnHnMn.nS. If absent, cache Study attributes are only removed on reaching the maximal cache size.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.84 NAME 'dcmLeadingCFindSCPQueryCacheSize'
+  DESC 'Maximum number of cached Patient and Study attributes fetched from leading C-Find SCP; 10 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -440,6 +460,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDeleteRejectedPollingInterval $
     dcmDeleteRejectedFetchSize $
     dcmMaxAccessTimeStaleness $
+    dcmAECacheStaleTimeout $
+    dcmLeadingCFindSCPQueryCacheStaleTimeout $
+    dcmLeadingCFindSCPQueryCacheSize $
     dcmAuditSpoolDirectory $
     dcmAuditPollingInterval $
     dcmAuditAggregateDuration $
@@ -529,7 +552,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmRetryDelay $
     dcmMaxRetryDelay $
     dcmRetryDelayMultiplier $
-    dcmPurgeQueueMessageCompletedDelay) )
+    dcmPurgeQueueMessageCompletedDelay ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   DESC 'Exporter Descriptor'
   SUP top STRUCTURAL
@@ -569,14 +592,16 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
   MUST (
     cn $
     dcmDIMSE $
-    dicomTransferRole $
-    dcmURI )
+    dicomTransferRole )
   MAY (
     dcmRulePriority $
     dcmAETitle $
     dcmHostname $
     dcmSOPClass $
-    dcmNoKeywords ) )
+    dcmURI $
+    dcmNoKeywords $
+    dcmLeadingCFindSCP $
+    dcmAttributeUpdatePolicy ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.19 NAME 'dcmRejectionNote'
   DESC 'Specifies behavior on Rejection Note Stored'
   SUP top STRUCTURAL

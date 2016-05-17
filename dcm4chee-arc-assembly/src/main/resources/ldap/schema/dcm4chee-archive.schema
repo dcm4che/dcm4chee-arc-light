@@ -473,26 +473,32 @@ attributetype ( 1.2.40.0.13.1.15.110.3.79 NAME 'dcmWadoSpoolDirectory'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.80 NAME 'hl7ImportReportTemplateURI'
-  DESC 'Specifies URI for the style sheet used to Import Text Report received by HL7 ORU^R01 as DICOM SR.'
+  DESC 'Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.81 NAME 'dcmAECacheStaleTimeout'
-  DESC 'Duration of AE Cache Stale Timeout in ISO-8601 duration format PnDTnHnMn.nS'
+  DESC 'Maximal staleness of cached AE in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached AE entries will not be refetched from LDAP.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.82 NAME 'dcmLeadingCFindSCPQueryCacheStaleTimeout'
-  DESC 'Duration of Leading C-Find SCP Query Cache Stale Timeout in ISO-8601 duration format PnDTnHnMn.nS'
+attributetype ( 1.2.40.0.13.1.15.110.3.82 NAME 'dcmLeadingCFindSCP'
+  DESC 'AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.83 NAME 'dcmLeadingCFindSCPQueryCacheSize '
-  DESC 'Maximum number of Leading C-Find SCP Query Cache Size; 10 if absent'
+attributetype ( 1.2.40.0.13.1.15.110.3.83 NAME 'dcmLeadingCFindSCPQueryCacheStaleTimeout'
+  DESC 'Maximal staleness of cached Patient and Study attributes fetched from leading C-Find SCP in ISO-8601 duration format PnDTnHnMn.nS. If absent, cache Study attributes are only removed on reaching the maximal cache size.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.84 NAME 'dcmLeadingCFindSCPQueryCacheSize'
+  DESC 'Maximum number of cached Patient and Study attributes fetched from leading C-Find SCP; 10 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -536,6 +542,9 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmDeleteRejectedPollingInterval $
     dcmDeleteRejectedFetchSize $
     dcmMaxAccessTimeStaleness $
+    dcmAECacheStaleTimeout $
+    dcmLeadingCFindSCPQueryCacheStaleTimeout $
+    dcmLeadingCFindSCPQueryCacheSize $
     dcmAuditSpoolDirectory $
     dcmAuditPollingInterval $
     dcmAuditAggregateDuration $
@@ -545,10 +554,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7ImportReportTemplateURI $
     dcmUnzipVendorDataToURI $
     dcmPurgeQueueMessagePollingInterval $
-    dcmPurgeQueueMessageFetchSize $
-    dcmAECacheStaleTimeout $
-    dcmLeadingCFindSCPQueryCacheStaleTimeout $
-    dcmLeadingCFindSCPQueryCacheSize) )
+    dcmPurgeQueueMessageFetchSize ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
@@ -634,7 +640,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmRetryDelay $
     dcmMaxRetryDelay $
     dcmRetryDelayMultiplier $
-    dcmPurgeQueueMessageCompletedDelay) )
+    dcmPurgeQueueMessageCompletedDelay ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   DESC 'Exporter Descriptor'
@@ -678,14 +684,16 @@ objectclass ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
   MUST (
     cn $
     dcmDIMSE $
-    dicomTransferRole $
-    dcmURI )
+    dicomTransferRole )
   MAY (
     dcmRulePriority $
     dcmAETitle $
     dcmHostname $
     dcmSOPClass $
-    dcmNoKeywords ) )
+    dcmURI $
+    dcmNoKeywords $
+    dcmLeadingCFindSCP $
+    dcmAttributeUpdatePolicy ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.19 NAME 'dcmRejectionNote'
   DESC 'Specifies behavior on Rejection Note Stored'

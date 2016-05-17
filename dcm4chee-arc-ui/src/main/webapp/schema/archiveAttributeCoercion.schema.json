@@ -5,8 +5,7 @@
   "required": [
     "cn",
     "dcmDIMSE",
-    "dicomTransferRole",
-    "dcmURI"
+    "dicomTransferRole"
   ],
   "properties": {
     "cn": {
@@ -27,11 +26,6 @@
     "dicomTransferRole": {
       "title": "DICOM Transfer Role",
       "description": "Transfer role (either 'SCU' or 'SCP')",
-      "type": "string"
-    },
-    "dcmURI": {
-      "title": "URI",
-      "description": "RFC2079: Uniform Resource Identifier",
       "type": "string"
     },
     "dcmRulePriority": {
@@ -64,10 +58,30 @@
         "type": "string"
       }
     },
+    "dcmURI": {
+      "title": "URI",
+      "description": "Specifies URI of the style sheet for Attribute Coercion",
+      "type": "string"
+    },
     "dcmNoKeywords": {
       "title": "No Keywords",
       "description": "Indicates if keywords shall be omitted in generated DICOM XML or JSON presentations; false if absent",
       "type": "boolean"
+    },
+    "dcmLeadingCFindSCP": {
+      "title": "Leading C-FIND SCP",
+      "description": "AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.",
+      "type": "string"
+    },
+    "dcmAttributeUpdatePolicy": {
+      "title": "Attribute Update Policy",
+      "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP; MERGE, if absent",
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE"
+      ]
     }
   }
 }

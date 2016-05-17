@@ -191,7 +191,8 @@ public class ArchiveServiceImpl implements ArchiveService {
     private void configure() {
         ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         aeCache.setStaleTimeout(arcdev.getAECacheStaleTimeoutSeconds());
-        leadingCFindSCPQueryCache.setStaleTimeout(arcdev.getLeadingCFindSCPQueryCacheStaleTimeoutSeconds());
+        leadingCFindSCPQueryCache.setStaleTimeout(
+                arcdev.getLeadingCFindSCPQueryCacheStaleTimeoutSeconds() * 1000L);
         leadingCFindSCPQueryCache.setMaxSize(arcdev.getLeadingCFindSCPQueryCacheSize());
     }
 

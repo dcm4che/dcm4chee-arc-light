@@ -12,7 +12,7 @@
     },
     "hl7ImportReportTemplateURI": {
       "title": "HL7 Import Report Template URI",
-      "description": "Specifies URI for the style sheet used to Import Text Report received by HL7 ORU^R01 as DICOM SR.",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR.",
       "type": "string"
     },
     "dicomAETitle": {
