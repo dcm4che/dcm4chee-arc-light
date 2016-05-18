@@ -204,6 +204,7 @@ public class QueryBuilder {
 
     public static void addPatientLevelPredicates(
             BooleanBuilder builder, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        builder.and(QPatient.patient.mergedWith.isNull());
         builder.and(patientIDPredicate(pids));
         builder.and(MatchPersonName.match(QueryBuilder.patientName, keys.getString(Tag.PatientName, "*"), queryParam));
         builder.and(wildCard(QPatient.patient.patientSex, keys.getString(Tag.PatientSex, "*").toUpperCase(),
