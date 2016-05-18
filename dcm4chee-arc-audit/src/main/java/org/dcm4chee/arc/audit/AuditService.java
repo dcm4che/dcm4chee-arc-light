@@ -638,30 +638,7 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forHL7(ctx);
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            String outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
-            HL7Info hl7i;
-            if (ctx.getHttpRequest() != null)
-                obj.add(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
-                        new HL7Info(outcome, ctx.getHttpRequest().getRemoteAddr(),
-                            ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                                ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
-                                : ctx.getHttpRequest().getRemoteAddr(),
-                            ctx.getCalledAET(), null, null)));
-            if (ctx.getHL7MessageHeader() != null) {
-                hl7i = new HL7Info(outcome, ctx.getRemoteHostName(),
-                        ctx.getHL7MessageHeader().getSendingApplicationWithFacility(),
-                        ctx.getHL7MessageHeader().getReceivingApplicationWithFacility(), "MSH-10",
-                        ctx.getHL7MessageHeader().getField(9, ""));
-                if (et.equals(String.valueOf(AuditServiceUtils.EventType.HL7_DELT_E))
-                        || et.equals(String.valueOf(AuditServiceUtils.EventType.HL7_DELT_P)))
-                    obj.add(new HL7Info(ctx.getPreviousPatientID(), ctx.getPreviousAttributes(), hl7i));
-                else
-                    obj.add(new HL7Info(ctx.getPatientID(), ctx.getAttributes(), hl7i));
-            }
-            if (ctx.getAssociation() != null)
-                obj.add(new HL7Info(ctx.getPatientID(), ctx.getAttributes(),
-                        new HL7Info(outcome, ctx.getRemoteHostName(), ctx.getAssociation().getCallingAET(),
-                                ctx.getAssociation().getCalledAET(), null, null)));
+            obj.add(new HL7Info(ctx, eventType));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
     }

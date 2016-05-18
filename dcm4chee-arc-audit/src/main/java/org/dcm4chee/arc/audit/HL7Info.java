@@ -40,10 +40,9 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -61,36 +60,41 @@ class HL7Info {
 
     private String[] fields;
 
-    private String remoteHost;
-    private String sourceUserID;
-    private String destUserID;
-    private String podType;
-    private String podValue;
-    private String outcome;
-
-
-    HL7Info(String outcome, String remoteHost, String sourceUserID, String destUserID,
-            String podType, String podValue) {
-        this.outcome = outcome;
-        this.remoteHost = remoteHost;
-        this.sourceUserID = sourceUserID;
-        this.destUserID = destUserID;
-        this.podType = podType;
-        this.podValue = podValue;
-    }
-
-    HL7Info (IDWithIssuer id, Attributes attrs, HL7Info hl7i) {
+    HL7Info (PatientMgtContext ctx, AuditServiceUtils.EventType et) {
+        String source = null;
+        String dest = null;
+        if (ctx.getHttpRequest() != null) {
+            source = ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
+                    : ctx.getHttpRequest().getRemoteAddr();
+            dest = ctx.getCalledAET();
+        }
+        if (ctx.getHL7MessageHeader() != null) {
+            source = ctx.getHL7MessageHeader().getSendingApplicationWithFacility();
+            dest = ctx.getHL7MessageHeader().getReceivingApplicationWithFacility();
+        }
+        if (ctx.getAssociation() != null) {
+            source = ctx.getAssociation().getCallingAET();
+            dest = ctx.getAssociation().getCalledAET();
+        }
+        String patID = (et == AuditServiceUtils.EventType.HL7_DELT_E || et == AuditServiceUtils.EventType.HL7_DELT_P)
+                && (ctx.getPreviousPatientID() != null && ctx.getPreviousPatientID().getID() != null)
+                ? ctx.getPreviousPatientID().getID()
+                : ctx.getPatientID() != null && ctx.getPatientID().getID() != null
+                ? ctx.getPatientID().getID() : AuditServiceUtils.noValue;
         fields = new String[] {
-                hl7i.remoteHost,
-                hl7i.sourceUserID,
-                hl7i.destUserID,
-                hl7i.podType,
-                hl7i.podValue,
-                id != null && id.getID() != null ? id.getID() : AuditServiceUtils.noValue,
-                StringUtils.maskEmpty(attrs.getString(Tag.PatientName), null),
-                hl7i.outcome
+                ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRemoteAddr() : ctx.getRemoteHostName(),
+                source,
+                dest,
+                ctx.getHL7MessageHeader() != null ? "MSH-10" : null,
+                ctx.getHL7MessageHeader() != null ? ctx.getHL7MessageHeader().getField(9, "") : null,
+                patID,
+                StringUtils.maskEmpty(ctx.getAttributes().getString(Tag.PatientName), null),
+                ctx.getException() != null ? ctx.getException().getMessage() : null
         };
     }
+
+
 
     HL7Info(String s) {
         fields = StringUtils.split(s, '\\');
@@ -105,3 +109,4 @@ class HL7Info {
         return StringUtils.concat(fields, '\\');
     }
 }
+
