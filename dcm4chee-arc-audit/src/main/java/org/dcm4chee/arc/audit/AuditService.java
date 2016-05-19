@@ -434,14 +434,11 @@ public class AuditService {
     }
 
     private void auditStoreOrWADORetrieve(Path path, AuditServiceUtils.EventType eventType) throws IOException {
-//        String outcome;
-//        PatientStudyInfo patientStudyInfo;
         HashSet<Accession> accNos = new HashSet<>();
         HashSet<String> mppsUIDs = new HashSet<>();
         HashMap<String, List<String>> sopClassMap = new HashMap<>();
         LineReader readerObj = new LineReader(path);
         PatientStudyInfo patientStudyInfo = new PatientStudyInfo(readerObj.getMainInfo());
-//        outcome = patientStudyInfo.getField(PatientStudyInfo.OUTCOME);
         if (patientStudyInfo.getField(PatientStudyInfo.ACCESSION_NO) != null)
             accNos.add(AuditMessages.createAccession(patientStudyInfo.getField(PatientStudyInfo.ACCESSION_NO)));
         for (String line : readerObj.getInstanceLines()) {
@@ -456,10 +453,7 @@ public class AuditService {
 //                for (int i = InstanceInfo.ACCESSION_NO; instanceInfo.getField(i) != null; i++)
 //                    accNos.add(instanceInfo.getField(i));
         }
-//        accNos.remove("");
         mppsUIDs.remove("");
-//        auditInstancesStoredOrWADORetrieve(patientStudyInfo, accNos, mppsUIDs, sopClassMap,
-//                AuditServiceUtils.getEventTime(path, log()), eventType, outcome);
         List<ActiveParticipant> apList = new ArrayList<>();
         List<ParticipantObjectIdentification> poiList = new ArrayList<>();
         apList.add(AuditMessages.createActiveParticipant(
@@ -470,11 +464,8 @@ public class AuditService {
                 patientStudyInfo.getField(PatientStudyInfo.CALLED_AET), AuditLogger.processID(),
                 null, eventType.isDest, AuditServiceUtils.getLocalHostName(log()),
                 AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.destination));
-//        HashSet<Accession> acc = new HashSet<>();
         HashSet<MPPS> mpps = new HashSet<>();
         HashSet<SOPClass> sopC = new HashSet<>();
-//        for (String accNo : accNos)
-//            acc.add(AuditMessages.createAccession(accNo));
         for (String mppsUID : mppsUIDs)
             mpps.add(AuditMessages.createMPPS(mppsUID));
         for (Map.Entry<String, List<String>> entry : sopClassMap.entrySet())
@@ -503,52 +494,6 @@ public class AuditService {
         AuditServiceUtils.emitAuditMessage(eventType, patientStudyInfo.getField(PatientStudyInfo.OUTCOME), apList,
                 poiList, log(), AuditServiceUtils.getEventTime(path, log()));
     }
-
-//    private void auditInstancesStoredOrWADORetrieve(PatientStudyInfo patientStudyInfo, HashSet<Accession> acc,
-//                                                    HashSet<String> mppsUIDs, HashMap<String, List<String>> sopClassMap,
-//                                                    Calendar eventTime, AuditServiceUtils.EventType eventType, String outcomeDesc) {
-//        List<ActiveParticipant> apList = new ArrayList<>();
-//        List<ParticipantObjectIdentification> poiList = new ArrayList<>();
-//        apList.add(AuditMessages.createActiveParticipant(
-//                patientStudyInfo.getField(PatientStudyInfo.CALLING_AET), null, null, eventType.isSource,
-//                patientStudyInfo.getField(PatientStudyInfo.CALLING_HOSTNAME),
-//                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.source));
-//        apList.add(AuditMessages.createActiveParticipant(
-//                patientStudyInfo.getField(PatientStudyInfo.CALLED_AET), AuditLogger.processID(),
-//                null, eventType.isDest, AuditServiceUtils.getLocalHostName(log()),
-//                AuditMessages.NetworkAccessPointTypeCode.IPAddress, null, eventType.destination));
-////        HashSet<Accession> acc = new HashSet<>();
-//        HashSet<MPPS> mpps = new HashSet<>();
-//        HashSet<SOPClass> sopC = new HashSet<>();
-////        for (String accNo : accNos)
-////            acc.add(AuditMessages.createAccession(accNo));
-//        for (String mppsUID : mppsUIDs)
-//            mpps.add(AuditMessages.createMPPS(mppsUID));
-//        for (Map.Entry<String, List<String>> entry : sopClassMap.entrySet())
-//            sopC.add(AuditMessages.createSOPClass(null, entry.getKey(), entry.getValue().size()));
-//        ParticipantObjectContainsStudy pocs = new ParticipantObjectContainsStudy();
-//        pocs.getStudyIDs().add(AuditMessages.createStudyIDs(patientStudyInfo.getField(PatientStudyInfo.STUDY_UID)));
-//        if (patientStudyInfo.getField(PatientStudyInfo.STUDY_DATE) != null)
-//            poiList.add(AuditMessages.createParticipantObjectIdentification(
-//                    patientStudyInfo.getField(PatientStudyInfo.STUDY_UID),
-//                    AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID, null, null,
-//                    AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report,
-//                    null, null, null, acc, mpps, sopC, null, null, pocs, AuditMessages.createParticipantObjectDetail(
-//                            studyDate, patientStudyInfo.getField(PatientStudyInfo.STUDY_DATE).getBytes())));
-//        else
-//            poiList.add(AuditMessages.createParticipantObjectIdentification(
-//                    patientStudyInfo.getField(PatientStudyInfo.STUDY_UID),
-//                    AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID, null, null,
-//                    AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report,
-//                    null, null, null, acc, mpps, sopC, null, null, pocs));
-//        poiList.add(AuditMessages.createParticipantObjectIdentification(
-//                patientStudyInfo.getField(PatientStudyInfo.PATIENT_ID),
-//                AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
-//                patientStudyInfo.getField(PatientStudyInfo.PATIENT_NAME), null,
-//                AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient,
-//                null, null, null, null, null, null, null, null, null));
-//        AuditServiceUtils.emitAuditMessage(eventType, outcomeDesc, apList, poiList, log(), eventTime);
-//    }
 
     void spoolPartialRetrieve(RetrieveContext ctx, HashSet<AuditServiceUtils.EventType> et) {
         List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
