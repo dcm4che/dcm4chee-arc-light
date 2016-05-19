@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -272,10 +273,10 @@ public class AuditServiceUtils {
     }
 
     static void emitAuditMessage(EventType eventType, String outcomeDesc, List<ActiveParticipant> apList,
-                                 List<ParticipantObjectIdentification> poiList, AuditLogger log) {
+                                 List<ParticipantObjectIdentification> poiList, AuditLogger log, Calendar eventTime) {
         AuditMessage msg = new AuditMessage();
         msg.setEventIdentification(AuditMessages.createEventIdentification(
-                eventType.eventID, eventType.eventActionCode, log.timeStamp(), eventType.outcomeIndicator,
+                eventType.eventID, eventType.eventActionCode, eventTime, eventType.outcomeIndicator,
                 outcomeDesc, eventType.eventTypeCode));
         for (ActiveParticipant ap : apList)
             msg.getActiveParticipant().add(ap);
@@ -287,6 +288,16 @@ public class AuditServiceUtils {
         } catch (Exception e) {
             LOG.warn("Failed to emit audit message", e);
         }
+    }
+
+    static Calendar getEventTime(Path path, AuditLogger log){
+        Calendar eventTime = log.timeStamp();
+        try {
+            eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
+        } catch (Exception e) {
+            LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", path, e);
+        }
+        return eventTime;
     }
 
     static String buildAET(Device device) {
