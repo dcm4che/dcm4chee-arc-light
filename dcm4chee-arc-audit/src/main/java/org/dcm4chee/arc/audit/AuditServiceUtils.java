@@ -40,6 +40,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -52,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -64,6 +66,8 @@ public class AuditServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     static final String noValue = "<none>";
     static final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
+    static final String studyDate = "StudyDate";
+
     enum EventClass {
         QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7
     }
@@ -246,11 +250,11 @@ public class AuditServiceUtils {
         }
 
         static EventType getDicomInstTrfdErrorEventType(RetrieveContext ctx) {
-            return ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_E_E
-                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? AuditServiceUtils.EventType.RTRV_T_M_E
+            return ctx.isLocalRequestor() ? RTRV_T_E_E
+                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_T_M_E
                     : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                    && ctx.isDestinationRequestor() ? AuditServiceUtils.EventType.RTRV_T_G_E
-                    : null != ctx.getHttpRequest() ? AuditServiceUtils.EventType.RTRV_T_W_E : null;
+                    && ctx.isDestinationRequestor() ? RTRV_T_G_E
+                    : null != ctx.getHttpRequest() ? RTRV_T_W_E : null;
         }
 
         static HashSet<EventType> forHL7(PatientMgtContext ctx) {
@@ -317,5 +321,75 @@ public class AuditServiceUtils {
         RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
                 req.getAttribute(KeycloakSecurityContext.class.getName());
         return securityContext.getToken().getPreferredUsername();
+    }
+
+    static HashSet<SOPClass> getSopClasses(HashSet<String> instanceLines) {
+        HashSet<SOPClass> sopC = new HashSet<>();
+        for (String line : instanceLines) {
+            InstanceInfo ii = new InstanceInfo(line);
+            sopC.add(AuditMessages.createSOPClass(null,
+                    ii.getField(InstanceInfo.CLASS_UID),
+                    Integer.parseInt(ii.getField(InstanceInfo.INSTANCE_UID))));
+        }
+        return sopC;
+    }
+
+    static HashSet<ParticipantObjectDetail> getParticipantObjectDetail(PatientStudyInfo psi, HL7Info hl7i,
+                                     EventType et) {
+        HashSet<ParticipantObjectDetail> details = new HashSet<>();
+        if (psi != null && psi.getField(PatientStudyInfo.STUDY_DATE) != null)
+            details.add(pod(studyDate, psi.getField(PatientStudyInfo.STUDY_DATE).getBytes()));
+        if (hl7i != null && hl7i.getField(HL7Info.POD_VALUE) != null)
+            details.add(pod(hl7i.getField(HL7Info.POD_TYPE), hl7i.getField(HL7Info.POD_VALUE).getBytes()));
+        if (et == EventType.QUERY_QIDO)
+            details.add(pod("QueryEncoding", String.valueOf(StandardCharsets.UTF_8).getBytes()));
+        if (et == EventType.QUERY_FIND)
+            details.add(pod("TransferSyntax", UID.ImplicitVRLittleEndian.getBytes()));
+        return details;
+    }
+
+     private static ParticipantObjectDetail pod(String s, byte[] b) {
+        return AuditMessages.createParticipantObjectDetail(s, b);
+    }
+
+    private static ParticipantObjectIdentification patientPOIForDeletion(PatientStudyInfo psi) {
+        return AuditMessages.createParticipantObjectIdentification(psi.getField(PatientStudyInfo.PATIENT_ID),
+                AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                psi.getField(PatientStudyInfo.PATIENT_NAME), null, AuditMessages.ParticipantObjectTypeCode.Person,
+                AuditMessages.ParticipantObjectTypeCodeRole.Patient, null, null, null, null, null, null, null, null,
+                null, null);
+    }
+
+    private static ParticipantObjectIdentification studyPOIForDeletion(PatientStudyInfo psi, EventType et,
+                            HashSet<String> instanceLines) {
+        return AuditMessages.createParticipantObjectIdentification(
+                psi.getField(PatientStudyInfo.STUDY_UID),
+                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                null, null, AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                AuditMessages.ParticipantObjectTypeCodeRole.Report, null, null, null,
+                et.eventClass == EventClass.PERM_DELETE
+                        ? getAccessions(psi.getField(PatientStudyInfo.ACCESSION_NO)) : null,
+                null, getSopClasses(instanceLines), null, null, getParticipantObjectContainsStudy(psi),
+                getParticipantObjectDetail(psi, null, et));
+    }
+
+    static List<ParticipantObjectIdentification> poiListForDeletion(PatientStudyInfo psi, EventType et,
+                                                                    HashSet<String> instanceLines) {
+        List<ParticipantObjectIdentification> poiList = new ArrayList<>();
+        poiList.add(studyPOIForDeletion(psi, et, instanceLines));
+        poiList.add(patientPOIForDeletion(psi));
+        return poiList;
+    }
+
+    static ParticipantObjectContainsStudy getParticipantObjectContainsStudy(PatientStudyInfo psi) {
+        return AuditMessages.createParticipantObjectContainsStudy(
+                AuditMessages.createStudyIDs(psi.getField(PatientStudyInfo.STUDY_UID)));
+    }
+
+    static HashSet<Accession> getAccessions(String accNum) {
+        HashSet<Accession> accList = new HashSet<>();
+        if (accNum != null)
+            accList.add(AuditMessages.createAccession(accNum));
+        return accList;
     }
 }
