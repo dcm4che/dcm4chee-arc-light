@@ -323,73 +323,28 @@ public class AuditServiceUtils {
         return securityContext.getToken().getPreferredUsername();
     }
 
-    static HashSet<SOPClass> getSopClasses(HashSet<String> instanceLines) {
-        HashSet<SOPClass> sopC = new HashSet<>();
-        for (String line : instanceLines) {
-            InstanceInfo ii = new InstanceInfo(line);
-            sopC.add(AuditMessages.createSOPClass(null,
-                    ii.getField(InstanceInfo.CLASS_UID),
-                    Integer.parseInt(ii.getField(InstanceInfo.INSTANCE_UID))));
-        }
-        return sopC;
-    }
-
-    static HashSet<ParticipantObjectDetail> getParticipantObjectDetail(PatientStudyInfo psi, HL7Info hl7i,
-                                     EventType et) {
-        HashSet<ParticipantObjectDetail> details = new HashSet<>();
-        if (psi != null && psi.getField(PatientStudyInfo.STUDY_DATE) != null)
-            details.add(pod(studyDate, psi.getField(PatientStudyInfo.STUDY_DATE).getBytes()));
-        if (hl7i != null && hl7i.getField(HL7Info.POD_VALUE) != null)
-            details.add(pod(hl7i.getField(HL7Info.POD_TYPE), hl7i.getField(HL7Info.POD_VALUE).getBytes()));
-        if (et == EventType.QUERY_QIDO)
-            details.add(pod("QueryEncoding", String.valueOf(StandardCharsets.UTF_8).getBytes()));
-        if (et == EventType.QUERY_FIND)
-            details.add(pod("TransferSyntax", UID.ImplicitVRLittleEndian.getBytes()));
-        return details;
-    }
-
-     private static ParticipantObjectDetail pod(String s, byte[] b) {
-        return AuditMessages.createParticipantObjectDetail(s, b);
-    }
-
-    private static ParticipantObjectIdentification patientPOIForDeletion(PatientStudyInfo psi) {
-        return AuditMessages.createParticipantObjectIdentification(psi.getField(PatientStudyInfo.PATIENT_ID),
-                AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
-                psi.getField(PatientStudyInfo.PATIENT_NAME), null, AuditMessages.ParticipantObjectTypeCode.Person,
-                AuditMessages.ParticipantObjectTypeCodeRole.Patient, null, null, null, null, null, null, null, null,
-                null, null);
-    }
-
-    private static ParticipantObjectIdentification studyPOIForDeletion(PatientStudyInfo psi, EventType et,
-                            HashSet<String> instanceLines) {
-        return AuditMessages.createParticipantObjectIdentification(
-                psi.getField(PatientStudyInfo.STUDY_UID),
-                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
-                null, null, AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Report, null, null, null,
-                et.eventClass == EventClass.PERM_DELETE
-                        ? getAccessions(psi.getField(PatientStudyInfo.ACCESSION_NO)) : null,
-                null, getSopClasses(instanceLines), null, null, getParticipantObjectContainsStudy(psi),
-                getParticipantObjectDetail(psi, null, et));
-    }
-
-    static List<ParticipantObjectIdentification> poiListForDeletion(PatientStudyInfo psi, EventType et,
-                                                                    HashSet<String> instanceLines) {
-        List<ParticipantObjectIdentification> poiList = new ArrayList<>();
-        poiList.add(studyPOIForDeletion(psi, et, instanceLines));
-        poiList.add(patientPOIForDeletion(psi));
-        return poiList;
-    }
-
-    static ParticipantObjectContainsStudy getParticipantObjectContainsStudy(PatientStudyInfo psi) {
-        return AuditMessages.createParticipantObjectContainsStudy(
-                AuditMessages.createStudyIDs(psi.getField(PatientStudyInfo.STUDY_UID)));
-    }
-
     static HashSet<Accession> getAccessions(String accNum) {
         HashSet<Accession> accList = new HashSet<>();
         if (accNum != null)
             accList.add(AuditMessages.createAccession(accNum));
         return accList;
+    }
+
+    static HashSet<ParticipantObjectDetail> getParticipantObjectDetail(PatientStudyInfo psi, HL7Info hl7i,
+                                                                       AuditServiceUtils.EventType et) {
+        HashSet<ParticipantObjectDetail> details = new HashSet<>();
+        if (psi != null && psi.getField(PatientStudyInfo.STUDY_DATE) != null)
+            details.add(pod(AuditServiceUtils.studyDate, psi.getField(PatientStudyInfo.STUDY_DATE).getBytes()));
+        if (hl7i != null && hl7i.getField(HL7Info.POD_VALUE) != null)
+            details.add(pod(hl7i.getField(HL7Info.POD_TYPE), hl7i.getField(HL7Info.POD_VALUE).getBytes()));
+        if (et == AuditServiceUtils.EventType.QUERY_QIDO)
+            details.add(pod("QueryEncoding", String.valueOf(StandardCharsets.UTF_8).getBytes()));
+        if (et == AuditServiceUtils.EventType.QUERY_FIND)
+            details.add(pod("TransferSyntax", UID.ImplicitVRLittleEndian.getBytes()));
+        return details;
+    }
+
+    private static ParticipantObjectDetail pod(String s, byte[] b) {
+        return AuditMessages.createParticipantObjectDetail(s, b);
     }
 }

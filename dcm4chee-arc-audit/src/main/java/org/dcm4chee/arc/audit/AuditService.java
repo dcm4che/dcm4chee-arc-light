@@ -137,8 +137,6 @@ public class AuditService {
     void spoolInstancesDeleted(StoreContext ctx) {
         AuditServiceUtils.EventType et = (ctx.getException() != null)
                 ? AuditServiceUtils.EventType.DELETE_ERR : AuditServiceUtils.EventType.DELETE_PAS;
-        LinkedHashSet<Object> obj = new LinkedHashSet<>();
-        obj.add(new PatientStudyInfo(ctx));
         Attributes attrs = ctx.getAttributes();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
@@ -154,10 +152,8 @@ public class AuditService {
                 }
             }
         }
-        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-            obj.add(new InstanceInfo(entry.getKey(), String.valueOf(entry.getValue().size())));
-        }
-        writeSpoolFile(String.valueOf(et), obj);
+        writeSpoolFile(String.valueOf(et),
+                PatientStudyInfoUtils.getDeletionObjForSpooling(sopClassMap, new PatientStudyInfo(ctx)));
     }
 
     private void writeSpoolFile(String eventType, LinkedHashSet<Object> obj) {
@@ -197,15 +193,13 @@ public class AuditService {
                 AuditServiceUtils.getLocalHostName(log()),
                 AuditMessages.NetworkAccessPointTypeCode.IPAddress, null));
         AuditServiceUtils.emitAuditMessage(eventType, deleteInfo.getField(PatientStudyInfo.OUTCOME),
-                apList, AuditServiceUtils.poiListForDeletion(deleteInfo, eventType, readerObj.getInstanceLines()),
+                apList, PatientStudyInfoUtils.poiListForDeletion(deleteInfo, eventType, readerObj.getInstanceLines()),
                 log(), log().timeStamp());
     }
 
     void spoolStudyDeleted(StudyDeleteContext ctx) {
-        LinkedHashSet<Object> obj = new LinkedHashSet<>();
         AuditServiceUtils.EventType eventType = (ctx.getException() != null)
                 ? AuditServiceUtils.EventType.PERM_DEL_E : AuditServiceUtils.EventType.PERM_DEL_S;
-        obj.add(new PatientStudyInfo(ctx));
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances()) {
             String cuid = i.getSopClassUID();
@@ -216,10 +210,8 @@ public class AuditService {
             }
             iuids.add(i.getSopInstanceUID());
         }
-        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-            obj.add(new InstanceInfo(entry.getKey(), String.valueOf(entry.getValue().size())));
-        }
-        writeSpoolFile(String.valueOf(eventType), obj);
+        writeSpoolFile(String.valueOf(eventType),
+                PatientStudyInfoUtils.getDeletionObjForSpooling(sopClassMap, new PatientStudyInfo(ctx)));
     }
 
     void spoolConnectionRejected(Connection conn, Socket s, Throwable e) {
@@ -405,7 +397,7 @@ public class AuditService {
                 null, null, null,
                 AuditServiceUtils.getAccessions(patientStudyInfo.getField(PatientStudyInfo.ACCESSION_NO)),
                 mpps, sopC, null, null,
-                AuditServiceUtils.getParticipantObjectContainsStudy(patientStudyInfo),
+                PatientStudyInfoUtils.getParticipantObjectContainsStudy(patientStudyInfo),
                 AuditServiceUtils.getParticipantObjectDetail(patientStudyInfo, null, eventType)));
         poiList.add(AuditMessages.createParticipantObjectIdentification(
                 patientStudyInfo.getField(PatientStudyInfo.PATIENT_ID),

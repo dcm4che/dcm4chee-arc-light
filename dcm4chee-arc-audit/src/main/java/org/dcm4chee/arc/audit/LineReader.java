@@ -62,6 +62,7 @@ class LineReader {
             String line;
             while ((line = reader.readLine()) != null)
                 this.instanceLines.add(line);
+            reader.close();
         }
     }
 
