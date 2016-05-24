@@ -45,6 +45,8 @@ body {
     right: 32px;
     top: 44px;
     width: 140px; }
+    body .logo:hover {
+      cursor: pointer; }
 
 ul.nav {
   background: rgba(0, 0, 0, 0.74) none repeat scroll 0 0;
@@ -970,5 +972,147 @@ table.subtable_1, table.subtable_2 {
 
 div[tooltip] {
   position: relative; }
+
+.vex.vex-theme-os.edit-patient .vex-content {
+  width: 90%;
+  padding: 30px; }
+  .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr:hover {
+    background: rgba(204, 204, 204, 0.2); }
+  .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td input, .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td textarea {
+    float: left;
+    width: 97%; }
+  .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td span {
+    float: right;
+    height: 33px;
+    line-height: 33px;
+    text-align: center;
+    width: 3%;
+    display: none; }
+    .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td span:hover {
+      cursor: pointer; }
+  .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td:hover span {
+    color: #7e7b7b;
+    display: inline-block; }
+
+.editform fieldset.schema-form-fieldset {
+  border: 1px solid #ccc;
+  margin: 10px 0 10px 38px;
+  padding: 10px; }
+  .editform fieldset.schema-form-fieldset > legend {
+    border: 0 none;
+    margin-bottom: 4px;
+    width: auto;
+    padding: 0 14px; }
+    .editform fieldset.schema-form-fieldset > legend .glyphicon {
+      padding-left: 10px; }
+    .editform fieldset.schema-form-fieldset > legend:hover {
+      cursor: pointer; }
+  .editform fieldset.schema-form-fieldset sf-decorator label.control-label {
+    display: none; }
+
+.vex.vex-theme-os.edit-patient .vex-dialog-form .vex-dialog-message {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 30px; }
+.vex.vex-theme-os.edit-patient .vex-dialog-form .addPatientAttribut {
+  margin-bottom: 20px; }
+.vex.vex-theme-os.edit-patient .vex-dialog-form .dropdown {
+  max-height: 300px;
+  overflow-y: scroll;
+  width: 34%;
+  box-shadow: 4px 6px 16px 5px #ccc;
+  z-index: 99999;
+  position: absolute;
+  background: white;
+  margin-top: -20px; }
+  .vex.vex-theme-os.edit-patient .vex-dialog-form .dropdown .dropdown_element {
+    padding-left: 7px;
+    display: inline-block;
+    width: 100%;
+    color: black; }
+    .vex.vex-theme-os.edit-patient .vex-dialog-form .dropdown .dropdown_element.selected {
+      background: rgba(3, 0, 255, 0.5); }
+    .vex.vex-theme-os.edit-patient .vex-dialog-form .dropdown .dropdown_element:hover {
+      background: #ccc;
+      cursor: pointer;
+      text-decoration: none; }
+.vex.vex-theme-os.edit-patient .vex-dialog-form .item1, .vex.vex-theme-os.edit-patient .vex-dialog-form .item1first {
+  min-height: 35px;
+  line-height: 35px;
+  vertical-align: middle; }
+.vex.vex-theme-os.edit-patient .vex-dialog-form .item1, .vex.vex-theme-os.edit-patient .vex-dialog-form .item1input {
+  margin-left: 20px; }
+.vex.vex-theme-os.edit-patient .vex-dialog-form .item2input {
+  margin-left: 20px; }
+.vex.vex-theme-os.edit-patient .vex-dialog-form .item1input:nth-of-type(1) {
+  margin-top: 35px; }
+.vex.vex-theme-os.edit-patient .vex-dialog-form .item2input:nth-of-type(1) {
+  float: left;
+  margin-left: 2%;
+  padding-top: 35px;
+  width: 98%; }
+
+.vex.vex-theme-os.info-dialog .vex-content {
+  width: 580px;
+  color: black; }
+  .vex.vex-theme-os.info-dialog .vex-content .vex-dialog-message {
+    display: none; }
+  .vex.vex-theme-os.info-dialog .vex-content .head {
+    text-align: center;
+    font-weight: bold; }
+    .vex.vex-theme-os.info-dialog .vex-content .head h1, .vex.vex-theme-os.info-dialog .vex-content .head h3, .vex.vex-theme-os.info-dialog .vex-content .head h4 {
+      color: black;
+      font-weight: bold;
+      margin: 0; }
+  .vex.vex-theme-os.info-dialog .vex-content .info-block {
+    border: 1px solid black;
+    float: left;
+    width: 100%; }
+    .vex.vex-theme-os.info-dialog .vex-content .info-block .content {
+      background: url(../img/factoryblack.png);
+      background-repeat: no-repeat;
+      background-position: 20px 5px;
+      padding-left: 120px;
+      margin-top: 42px;
+      height: 105px; }
+      .vex.vex-theme-os.info-dialog .vex-content .info-block .content p {
+        line-height: 20px;
+        font-size: 18px; }
+    .vex.vex-theme-os.info-dialog .vex-content .info-block .pre_footer {
+      background: url(../img/factorywhite.png);
+      background-repeat: no-repeat;
+      padding-left: 120px;
+      background-position: 170px top;
+      height: 25px; }
+      .vex.vex-theme-os.info-dialog .vex-content .info-block .pre_footer span {
+        font-weight: bold;
+        color: black;
+        height: 25px;
+        line-height: 40px;
+        vertical-align: bottom;
+        font-size: 17px; }
+    .vex.vex-theme-os.info-dialog .vex-content .info-block .footer {
+      height: 60px;
+      margin-bottom: 30px;
+      margin-top: 20px; }
+      .vex.vex-theme-os.info-dialog .vex-content .info-block .footer .footer_left {
+        background: url(../img/book.png);
+        background-repeat: no-repeat;
+        height: 61px;
+        background-position: 60px center; }
+      .vex.vex-theme-os.info-dialog .vex-content .info-block .footer .footer_right {
+        background: url(../img/ce.png);
+        background-repeat: no-repeat;
+        height: 61px;
+        background-position: 32px center; }
+        .vex.vex-theme-os.info-dialog .vex-content .info-block .footer .footer_right span {
+          color: black;
+          display: inline-block;
+          height: 60px;
+          line-height: 108px;
+          padding-left: 105px;
+          vertical-align: bottom;
+          font-weight: bold;
+          font-size: 17px; }
 
 /*# sourceMappingURL=style.css.map */

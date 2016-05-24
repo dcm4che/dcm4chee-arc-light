@@ -1,9 +1,10 @@
 "use strict";
 
-myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService) {
+myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService,  $filter, $templateRequest, $timeout) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.patients = [];
 //   $scope.studies = [];
+    $scope.opendropdown = false;
     $scope.patientmode = true;
     $scope.morePatients;
     $scope.moreStudies;
@@ -57,10 +58,273 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     );
         }
     };
+    $(".logo").click(function(){
+        console.log("logo click");
+        var html =  '<div class="info-block">'
+        html +=         '<div class="head">'
+        html +=             '<h1>J4Care</h1>'
+        html +=             '<h3>SMooTH Archive</h3>'
+        html +=             '<h4>Version 5.2.0</h4>'
+        html +=         '</div>'
+        html +=         '<div class="content">'
+        html +=             '<p><b>J4Care GmbH</b><br/>Enzersdorfer Strasse 7<br/>A-2340 Mödling</p>'
+        html +=         '</div>'
+        html +=         '<div class="pre_footer">'
+        html +=             '<span>2009</span>'
+        html +=         '</div>'
+        html +=         '<div class="footer">'
+        html +=             '<div class="footer_left col-sm-6">'
+        html +=             '</div>'
+        html +=             '<div class="footer_right col-sm-6">'
+        html +=             '<span>0408</span>'
+        html +=             '</div>'
+        html +=         '</div>'
+        html +=     '</div>'
+        vex.dialog.alert({
+            // input:'<img src="img/kenn.jpg">',
+            input:html,
+            className:"vex-theme-os info-dialog"
+        });
+    });
     $scope.editPatient = function(patient){
+        cfpLoadingBar.start();
         console.log("patient",patient);
+
         console.log("aet=",$scope.aet);
+        console.log("DCM4CHE.elementName",DCM4CHE.elementName);
+        var editpatient     = {};
+        angular.forEach(patient.attrs,function(value, index) {
+            console.log("value",value);
+            console.log("index",index);
+            if(!(value.Value && value.Value[0] && value.Value[0] != "")){
+                // re patient.attrs[value];
+                console.log("about to delete",index);
+                console.log("about to delete",patient.attrs);
+                console.log("about to delete",patient.attrs[index].Value);
+                delete patient.attrs[index];
+            }
+        });
+        console.log("patientmap=,",patient);
+        angular.copy(patient, editpatient);
+        console.log("editpatient=",editpatient);
+        $scope.editpatient  = editpatient;
+        editpatient         = {};
+        $scope.lastPressedCode = 0;
+        $scope.removeAttr = function(attrcode){
+            delete  $scope.editpatient.attrs[attrcode];
+        };
+        // $scope.toggleDropdown = function(){
+        //     return $scope.addPatientAttribut != '' || $scope.opendropdown;
+        // };
+        $http.get('iod/patient.iod.json',{ cache: true}).then(function (res) {
+            var dropdown                = StudiesService.getArrayFromIod(res);
+            $templateRequest('templates/edit_patient.html').then(function(tpl) {
+            $scope.dropdown             = dropdown;
+            $scope.DCM4CHE              = DCM4CHE;
+            $scope.addPatientAttribut   = "";
+            $scope.opendropdown         = false;
+            var html                    = $compile(tpl)($scope);
+            var $vex = vex.dialog.open({
+              message: 'Edit patient',
+              input: html,
+              className:"vex-theme-os edit-patient",
+              overlayClosesOnClick: false,
+              escapeButtonCloses: false,
+              afterOpen: function($vexContent) {
+                cfpLoadingBar.complete();
+                setTimeout(function(){
+                    $(".editform .schema-form-fieldset > legend").append('<span class="glyphicon glyphicon-triangle-right"></span>');
+                    $(".editform .schema-form-fieldset > legend").bind("click",function(){
+                        // console.log("toggle",$(this));
+                        $(this).siblings("sf-decorator").toggle();
+                        var icon = $(this).find(".glyphicon");
+                        if(icon.hasClass('glyphicon-triangle-right')){
+                            icon.removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
+                        }else{
+                            icon.removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+                        }
+                    });
+                    $scope.addAttribute = function(attrcode){
+                        if($scope.editpatient.attrs[attrcode] != undefined){
+                            if(res.data[attrcode].multi){
+                                console.log("multi attrcode=",attrcode);
+                                console.log("multi attrcode=",$scope.editpatient.attrs[attrcode]);
+                                $timeout(function() {
+                                    $scope.$apply(function(){
+                                        // $scope.editpatient.attrs[attrcode]  = res.data[attrcode];
+                                        console.log("before", $scope.editpatient.attrs[attrcode]);
+                                        console.log("before", $scope.editpatient.attrs[attrcode]["Value"]);
+                                        $scope.editpatient.attrs[attrcode]["Value"].push("");
+                                        console.log("after", $scope.editpatient.attrs[attrcode]["Value"]);
+                                        $scope.addPatientAttribut           = "";
+                                        $scope.opendropdown                 = false;
+                                    });
+                                });
+                            }else{
+                                console.log("element exists");
+                            }
+                        }else{
+                            $timeout(function() {
+                                $scope.$apply(function(){
+                                    $scope.editpatient.attrs[attrcode]  = res.data[attrcode];
+                                    $scope.editpatient.attrs[attrcode]["Value"] = $scope.editpatient.attrs[attrcode]["Value"] || [];
+                                    $scope.editpatient.attrs[attrcode]["Value"].push("");
+                                    $scope.addPatientAttribut           = "";
+                                    $scope.opendropdown                 = false;
+                                });
+                            });
+                        }
+                        console.log("$scope.editpatient.attrs[attrcode] = ",$scope.editpatient.attrs[attrcode]);
+                    };
+                    $(".addPatientAttribut").bind("keydown",function(e){
+                        $scope.opendropdown = true;
+                        var code = (e.keyCode ? e.keyCode : e.which);
+                        console.log("keypress =",code);
+                        $scope.lastPressedCode = code;
+                        console.log("res.data.attrs",res.data);
+                        if(code === 13){
+                            var filter = $filter("filter");
+                            var filtered = filter($scope.dropdown, $scope.addPatientAttribut);
+                            if(filtered){
+                                $scope.opendropdown = true;
+                            }
+                            console.log("filtered",filtered[0].code);
+
+                            if($(".dropdown_element.selected").length){
+                                var attrcode = $(".dropdown_element.selected").attr("name"); 
+                                if($scope.editpatient.attrs[attrcode] != undefined){
+                                    if(res.data[attrcode].multi){
+                                        console.log("1multi $scope.editpatient.attrs[attrcode]",$scope.editpatient.attrs[attrcode]);
+                                    }
+                                }else{
+                                    $scope.$apply(function(){
+                                        $scope.editpatient.attrs[attrcode] = res.data[attrcode];
+                                        $scope.addPatientAttribut = "";
+                                        $scope.opendropdown = false;
+                                    });
+                                }
+                            }else{
+                                var attrcode = filtered[0].code;
+                                if($scope.editpatient.attrs[attrcode] != undefined){
+                                    if(res.data[attrcode].multi){
+                                        console.log("2multi $scope.editpatient.attrs[attrcode]",$scope.editpatient.attrs[attrcode]);
+                                    }else{
+                                        $scope.$apply(function(){
+                                            DeviceService.msg($scope, {
+                                                "title": "Error",
+                                                "text": "Attribut exist!",
+                                                "status": "error"
+                                            });
+                                        });
+                                    }
+                                }else{
+                                    console.log("attr",$(".dropdown_element.selected").attr("name"));
+                                    $scope.$apply(function(){
+                                        $scope.editpatient.attrs[attrcode]  = res.data[attrcode];
+                                        $scope.addPatientAttribut           = "";
+                                        $scope.opendropdown                 = false;
+                                    });
+                                }
+                            }
+                            setTimeout(function(){
+                                $scope.lastPressedCode = 0;
+                            },1000);
+                        }
+                        //Arrow down pressed
+                        if(code === 40){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = true;
+                            });
+                            if(!$(".dropdown_element.selected").length){
+                                $(".dropdown_element").first().addClass('selected');
+                            }else{
+                                if($(".dropdown_element.selected").next().length){
+                                    $(".dropdown_element.selected").removeClass('selected').next().addClass('selected');
+                                }else{
+                                    $(".dropdown_element.selected").removeClass('selected');
+                                    $(".dropdown_element").first().addClass('selected');
+                                }
+                            }
+
+                                if($(".dropdown_element.selected").position()){
+                                    $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+                                }
+                        }
+                        //Arrow up pressed
+                        if(code === 38){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = true;
+                            });
+                            if(!$(".dropdown_element.selected").length){
+                                $(".dropdown_element").prev().addClass('selected');
+                            }else{
+                                if($(".dropdown_element.selected").index() === 0){
+                                    $(".dropdown_element.selected").removeClass('selected');
+                                    $(".dropdown_element").last().addClass('selected');
+                                }else{
+                                    $(".dropdown_element.selected").removeClass('selected').prev().addClass('selected');
+                                }
+                            }
+                            $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+                        }
+                        if(code === 27){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = false;
+                            });
+                        }
+                    });
+                    $(".editform .schema-form-fieldset > sf-decorator").hide();
+                },1000);//TODO make it dynamic
+              },
+                onSubmit: function(e) {
+                    //Prevent submit/close if ENTER was clicked
+                    if($scope.lastPressedCode === 13){
+                        e.preventDefault();
+                    }else{
+                        $vex.data().vex.callback();
+                    }
+                  },
+                buttons: [
+                    $.extend({}, vex.dialog.buttons.YES, {
+                      text: 'Save'
+                    }), $.extend({}, vex.dialog.buttons.NO, {
+                      text: 'Cancel'
+                    })
+                ],
+                callback: function(data) {
+                    cfpLoadingBar.start();
+                    if (data === false) {
+                      cfpLoadingBar.complete();
+
+                      // console.log("in cancle",$scope.editmodel);
+                      console.log("in $scope.editpatient",$scope.editpatient);
+                      return console.log('Cancelled');
+                    }else{
+                        // $scope.editmodel["PatientID"] = $scope.editmodel["00100020"];
+                        $http.put(
+                            "../aets/"+$scope.aet+"/rs/patients?PatientID="+patient.attrs["00100020"].Value[0],
+                            $scope.editpatient.attrs
+                        ).then(function successCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Info",
+                                "text": "Patient saved successfully!",
+                                "status": "info"
+                            });
+                        }, function errorCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Error",
+                                "text": "Error saving patient!",
+                                "status": "error"
+                            });
+                        });
+                    }
+                    vex.close($vex.data().vex.id);
+                }
+            });
+        });
+        });
     };
+
     $scope.clearForm = function(){
         angular.forEach($scope.filter,function(m,i){
             $scope.filter[i] = "";

@@ -1,6 +1,60 @@
 "use strict";
 
 myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
+    var getSchemaModelFromIodHelper = function(iod, patient, schema, patientedit){
+
+            // $scope.patientedit = {};
+            angular.forEach(iod, function(m,i){
+                schema.properties  = schema.properties || {};
+                schema.properties[i]  = schema.properties[i] || {};
+                patientedit[i] = "";
+                switch(m.vr) {
+                    case "PN":
+                            schema.properties[i]["properties"] = schema.properties[i]["properties"] || {};
+                            schema.properties[i]["title"] = DCM4CHE.elementName.forTag(i);
+                            schema.properties[i]["type"] = "object";
+                            schema.properties[i]["properties"]["Alphabetic"] = schema.properties[i]["properties"]["Alphabetic"] || {};
+                            schema.properties[i]["properties"]["Alphabetic"]["title"] = DCM4CHE.elementName.forTag(i) + " Alphabetic";
+                            schema.properties[i]["properties"]["Alphabetic"]["type"] = "string";
+                            schema.properties[i]["properties"]["Ideographic"] = schema.properties[i]["properties"]["Ideographic"] || {};
+                            schema.properties[i]["properties"]["Ideographic"]["title"] = DCM4CHE.elementName.forTag(i) + " Ideographic";;
+                            schema.properties[i]["properties"]["Ideographic"]["type"] = "string";
+                            schema.properties[i]["properties"]["Phonetic"] = schema.properties[i]["properties"]["Phonetic"] || {};
+                            schema.properties[i]["properties"]["Phonetic"]["title"] = DCM4CHE.elementName.forTag(i) + " Phonetic";
+                            schema.properties[i]["properties"]["Phonetic"]["type"] = "string";
+                        break;
+                    case 'SQ':
+                            schema.properties[i]["title"] = DCM4CHE.elementName.forTag(i);
+                            schema.properties[i]["type"] = "object";
+                            schema.properties[i] = getSchemaModelFromIodHelper(m.items, patient, schema.properties[i], patientedit);
+                        break;
+                    default:
+                        schema.properties[i]["title"] = DCM4CHE.elementName.forTag(i);
+                        if(m.multi === true){
+                            schema.properties[i]["type"] = "array";
+                            schema.properties[i]["items"] = {
+                                                                    "type": "string",
+                                                                    "title": DCM4CHE.elementName.forTag(i)
+                                                                  };
+                            patientedit[i] = [];
+                        }else{
+                            schema.properties[i]["type"] = "string";
+                        }
+                }
+            });
+            return schema;
+
+    };
+    var getArrayFromIodHelper = function(data, dropdown){
+        angular.forEach(data, function(m, i){
+            dropdown.push({
+                "code":i,
+                "codeComma": i.slice(0, 4)+","+i.slice(4),
+                "name":DCM4CHE.elementName.forTag(i)
+            });
+        });
+        return dropdown;
+    };
 
     return {
         getTodayDate: function() {
@@ -160,6 +214,40 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     $(m).removeClass('txt');
                   });
             }, 300);  
+        },
+        getSchemaModelFromIod: function(res, patient){
+            var schema = {
+                  "type": "object",
+                  "title": "Comment",
+                  "properties": {}
+                };
+            var patientedit = {};
+            console.log("2res=",res.data);
+
+            getSchemaModelFromIodHelper(res.data, patient, schema, patientedit);
+            console.log("afterhelper patientedit",angular.copy(patientedit));
+            angular.forEach(patient.attrs,function(m, i){
+                console.log("m=",m);
+                if(m.Value && m.Value[0]){
+                    if(res.data[i].multi === true){
+                        patientedit[i] = m.Value;
+                    }else{
+                        patientedit[i] = m.Value[0];
+                    }
+                    // console.log("in if value=",value);
+                }
+            });
+            console.log("schema in service =",schema);
+            console.log("schema in patientedit =",patientedit);
+            return {
+                    "schema":schema,
+                    "patientedit":patientedit
+                    };
+        },
+        getArrayFromIod :function(res){
+            var dropdown = [];
+            getArrayFromIodHelper(res.data, dropdown);
+            return dropdown;
         }
 
     };
