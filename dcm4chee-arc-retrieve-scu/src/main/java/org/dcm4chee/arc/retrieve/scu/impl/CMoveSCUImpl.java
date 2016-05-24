@@ -42,16 +42,17 @@ package org.dcm4chee.arc.retrieve.scu.impl;
 
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.Status;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
-import org.dcm4chee.arc.retrieve.scu.ForwardRetrieveTask;
+import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -67,16 +68,30 @@ public class CMoveSCUImpl implements CMoveSCU {
     @Inject
     private IApplicationEntityCache aeCache;
 
+    @Inject
+    private CStoreForwardSCU storeForwardSCU;
+
     @Override
-    public ForwardRetrieveTask newForwardRetrieveTask(
-            ApplicationEntity localAE, Association as, PresentationContext pc, Attributes rq, Attributes keys,
-            String callingAET, String retrieveAET, boolean bwdRSPs, boolean fwdCancel) throws DicomServiceException {
+    public RetrieveTask newForwardRetrieveTask(
+            final RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
+            String fallbackCMoveSCP, String fallbackCMoveSCPDestination)
+            throws DicomServiceException {
+        Association as = ctx.getRequestAssociation();
         try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(retrieveAET);
-            return new ForwardRetrieveTaskImpl(as, pc, rq, keys,
-                    localAE.connect(remoteAE,
-                            createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), callingAET)),
-                    bwdRSPs, fwdCancel);
+            ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
+            Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
+                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
+            if (fallbackCMoveSCPDestination != null) {
+                rq.setString(Tag.MoveDestination, VR.AE, fallbackCMoveSCPDestination);
+                storeForwardSCU.activateCStoreForward(ctx);
+                fwdas.addAssociationListener(new AssociationListener() {
+                    @Override
+                    public void onClose(Association association) {
+                        storeForwardSCU.deactivateCStoreForward(ctx);
+                    }
+                });
+            }
+            return new ForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCPDestination, fwdas);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }

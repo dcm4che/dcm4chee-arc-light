@@ -43,6 +43,7 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
@@ -60,6 +61,10 @@ public interface RetrieveContext extends Closeable {
     Association getRequestAssociation();
 
     void setRequestAssociation(Association requestAssociation);
+
+    QueryRetrieveLevel2 getQueryRetrieveLevel();
+
+    void setQueryRetrieveLevel(QueryRetrieveLevel2 qrLevel);
 
     Association getStoreAssociation();
 
@@ -96,6 +101,8 @@ public interface RetrieveContext extends Closeable {
     String getDestinationAETitle();
 
     void setDestinationAETitle(String destinationAETitle);
+
+    ApplicationEntity getDestinationAE();
 
     void setDestinationAE(ApplicationEntity remoteAE);
 
@@ -134,6 +141,8 @@ public interface RetrieveContext extends Closeable {
     Collection<InstanceLocations> getMatches();
 
     Collection<StudyInfo> getStudyInfos();
+
+    Collection<SeriesInfo> getSeriesInfos();
 
     int getNumberOfMatches();
 

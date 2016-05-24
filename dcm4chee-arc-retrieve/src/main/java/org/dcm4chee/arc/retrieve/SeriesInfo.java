@@ -38,24 +38,20 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve.scu;
+package org.dcm4chee.arc.retrieve;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Dec 2015
+ * @since May 2016
  */
-public interface CMoveSCU {
+public interface SeriesInfo {
+    String getStudyInstanceUID();
 
-    RetrieveTask newForwardRetrieveTask(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
-            String fallbackCMoveSCP, String fallbackCMoveSCPDestination)
-            throws DicomServiceException;
+    String getSeriesInstanceUID();
+
+    String getFailedSOPInstanceUIDList();
+
+    int getFailedRetrieves();
 }

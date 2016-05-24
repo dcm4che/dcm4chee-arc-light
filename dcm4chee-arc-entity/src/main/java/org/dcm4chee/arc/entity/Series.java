@@ -78,6 +78,31 @@ import java.util.Date;
             "where st.studyInstanceUID = ?1 " +
             "and se.seriesInstanceUID = ?2"),
 @NamedQuery(
+    name=Series.SET_FAILED_SOP_INSTANCE_UID_LIST,
+    query="update Series ser set ser.failedSOPInstanceUIDList = ?3 " +
+            "where ser.pk in (" +
+            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
+@NamedQuery(
+    name=Series.SET_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY,
+    query="update Series ser set ser.failedSOPInstanceUIDList = ?2 " +
+            "where ser.pk in (" +
+            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1)"),
+@NamedQuery(
+    name=Series.INCREMENT_FAILED_RETRIEVES,
+    query="update Series ser set ser.failedRetrieves = ser.failedRetrieves + 1, ser.failedSOPInstanceUIDList = ?3 " +
+            "where ser.pk in (" +
+            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
+@NamedQuery(
+    name=Series.CLEAR_FAILED_SOP_INSTANCE_UID_LIST,
+    query="update Series ser set ser.failedSOPInstanceUIDList = NULL " +
+            "where ser.pk in (" +
+            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
+@NamedQuery(
+    name=Series.CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY,
+    query="update Series ser set ser.failedSOPInstanceUIDList = NULL " +
+            "where ser.pk in (" +
+            "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1)"),
+@NamedQuery(
     name=Series.COUNT_SERIES_OF_STUDY,
     query="select count(se) from Series se " +
             "where se.study = ?1")
@@ -106,6 +131,11 @@ public class Series {
     public static final java.lang.String FIND_BY_SERIES_IUID = "Series.findBySeriesIUID";
     public static final java.lang.String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
     public static final java.lang.String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
+    public static final String SET_FAILED_SOP_INSTANCE_UID_LIST = "Series.SetFailedSOPInstanceUIDList";
+    public static final String SET_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.SetFailedSOPInstanceUIDListOfStudy";
+    public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
+    public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Series.ClearFailedSOPInstanceUIDList";
+    public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.ClearFailedSOPInstanceUIDListOfStudy";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -125,6 +155,13 @@ public class Series {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_time")
     private Date updatedTime;
+
+    @Column(name = "failed_iuids", length = 4000)
+    private String failedSOPInstanceUIDList;
+
+    @Basic(optional = false)
+    @Column(name = "failed_retrieves")
+    private int failedRetrieves;
 
     @Basic(optional = false)
     @Column(name = "series_iuid", updatable = false)

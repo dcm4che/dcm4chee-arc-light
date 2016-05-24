@@ -38,24 +38,59 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve.scu;
+package org.dcm4chee.arc.store.scu.impl;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreSession;
+
+import java.util.IdentityHashMap;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Dec 2015
+ * @since May 2016
  */
-public interface CMoveSCU {
+class CStoreForward {
+    private final RetrieveContext retrieveContext;
+    private final IdentityHashMap<StoreSession,CStoreForwardTask> forwardTasks = new IdentityHashMap<>();
+    private Exception ex;
 
-    RetrieveTask newForwardRetrieveTask(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
-            String fallbackCMoveSCP, String fallbackCMoveSCPDestination)
-            throws DicomServiceException;
+    public CStoreForward(RetrieveContext retrieveContext) {
+        this.retrieveContext = retrieveContext;
+    }
+
+    public void onStore(StoreContext storeContext) {
+        if (ex == null)
+            try {
+                StoreSession session = storeContext.getStoreSession();
+                CStoreForwardTask task = forwardTasks.get(session);
+                if (task == null) {
+                    ApplicationEntity localAE = retrieveContext.getLocalApplicationEntity();
+                    Association storeas = localAE.connect(retrieveContext.getDestinationAE(), createAARQ(session));
+                    task = new CStoreForwardTask(retrieveContext, storeas);
+                    session.getAssociation().addAssociationListener(task);
+                    forwardTasks.put(session, task);
+                    localAE.getDevice().execute(task);
+                }
+                task.onStore(storeContext);
+            } catch (Exception e) {
+                this.ex = e;
+            }
+        else {
+            //TODO
+        }
+    }
+
+    private AAssociateRQ createAARQ(StoreSession session) {
+        AAssociateRQ aarq = new AAssociateRQ();
+        aarq.setCallingAET(retrieveContext.getLocalAETitle());
+        for (PresentationContext pc : session.getAssociation().getAAssociateRQ().getPresentationContexts())
+            aarq.addPresentationContext(pc);
+        return aarq;
+    }
+
 }

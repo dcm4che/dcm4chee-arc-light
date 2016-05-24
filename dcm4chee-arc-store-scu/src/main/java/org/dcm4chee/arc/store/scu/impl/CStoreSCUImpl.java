@@ -40,8 +40,6 @@
 
 package org.dcm4chee.arc.store.scu.impl;
 
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.ApplicationEntity;
@@ -55,9 +53,9 @@ import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.store.scu.CStoreSCU;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
+import org.dcm4chee.arc.store.scu.CStoreSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -70,9 +68,6 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class CStoreSCUImpl implements CStoreSCU {
 
-    @Inject
-    private IApplicationEntityCache aeCache;
-
     @Inject @RetrieveStart
     private Event<RetrieveContext> retrieveStart;
 
@@ -83,13 +78,8 @@ public class CStoreSCUImpl implements CStoreSCU {
             throws DicomServiceException {
         try {
             try {
-                ApplicationEntity remoteAE = aeCache.findApplicationEntity(ctx.getDestinationAETitle());
-                ctx.setDestinationAE(remoteAE);
                 ApplicationEntity localAE = ctx.getLocalApplicationEntity();
-                return localAE.connect(remoteAE, createAARQ(ctx, callingAET));
-            } catch (ConfigurationNotFoundException e) {
-                throw new DicomServiceException(Status.MoveDestinationUnknown,
-                        "Unknown Destination: " + ctx.getDestinationAETitle());
+                return localAE.connect(ctx.getDestinationAE(), createAARQ(ctx, callingAET));
             } catch (Exception e) {
                 throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
             }

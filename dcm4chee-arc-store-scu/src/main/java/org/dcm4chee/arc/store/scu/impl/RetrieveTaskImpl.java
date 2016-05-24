@@ -40,17 +40,15 @@
 
 package org.dcm4chee.arc.store.scu.impl;
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.io.TemplatesCache;
-import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -59,7 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
-import javax.xml.transform.Templates;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;

@@ -94,7 +94,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmIanTaskFetchSize", arcDev.getIanTaskFetchSize(), 100);
         writer.writeNotNull("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination());
-        writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcDev.getFallbackCMoveSCPLevel());
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcDev.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNull("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP());
         writer.writeNotNull("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval());
@@ -321,7 +320,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmIanOnTimeout", arcAE.getIanOnTimeout());
         writer.writeNotNull("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
-        writer.writeNotNull("dcmFallbackCMoveSCPLevel", arcAE.getFallbackCMoveSCPLevel());
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
         writer.writeEnd();
@@ -407,9 +405,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPDestination":
                     arcDev.setFallbackCMoveSCPDestination(reader.stringValue());
-                    break;
-                case "dcmFallbackCMoveSCPLevel":
-                    arcDev.setFallbackCMoveSCPLevel(MoveForwardLevel.valueOf(reader.stringValue()));
                     break;
                 case "dcmFallbackCMoveSCPRetries":
                     arcDev.setFallbackCMoveSCPRetries(reader.intValue());
@@ -953,9 +948,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPDestination":
                     arcAE.setFallbackCMoveSCPDestination(reader.stringValue());
-                    break;
-                case "dcmFallbackCMoveSCPLevel":
-                    arcAE.setFallbackCMoveSCPLevel(MoveForwardLevel.valueOf(reader.stringValue()));
                     break;
                 case "dcmFallbackCMoveSCPRetries":
                     arcAE.setFallbackCMoveSCPRetries(reader.intValue());

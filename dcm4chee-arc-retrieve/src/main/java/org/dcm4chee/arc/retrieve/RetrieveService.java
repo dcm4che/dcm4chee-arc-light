@@ -40,16 +40,21 @@
 
 package org.dcm4chee.arc.retrieve;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.entity.Instance;
+import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.retrieve.impl.InstanceLocationsImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -60,15 +65,19 @@ public interface RetrieveService {
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
 
     RetrieveContext newRetrieveContextMOVE(
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
+            throws ConfigurationException;
 
     RetrieveContext newRetrieveContextWADO(
             HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID);
 
     RetrieveContext newRetrieveContextSTORE(
-            String localAET, String studyUID, String seriesUID, String objectUID, String destAET);
+            String localAET, String studyUID, String seriesUID, String objectUID, String destAET)
+            throws ConfigurationException;
 
     boolean calculateMatches(RetrieveContext ctx);
+
+    InstanceLocationsImpl newInstanceLocations(String sopClassUID, String sopInstanceUID, Attributes attrs);
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException;
@@ -77,9 +86,9 @@ public interface RetrieveService {
 
     Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx);
 
-    void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList);
-
-    void clearFailedSOPInstanceUIDList(String studyInstanceUID);
+    List<Location> findLocations(Instance inst);
 
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst);
+
+    void updateFailedSOPInstanceUIDList(RetrieveContext ctx, String failedSOPInstanceUIDList);
 }

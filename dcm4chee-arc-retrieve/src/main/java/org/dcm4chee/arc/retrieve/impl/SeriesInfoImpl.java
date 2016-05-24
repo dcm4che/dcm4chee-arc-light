@@ -38,24 +38,45 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve.scu;
+package org.dcm4chee.arc.retrieve.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.SeriesInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Dec 2015
+ * @since May 2016
  */
-public interface CMoveSCU {
+public class SeriesInfoImpl implements SeriesInfo {
+    private final String studyInstanceUID;
+    private final String seriesInstanceUID;
+    private final int failedRetrieves;
+    private final String failedSOPInstanceUIDList;
 
-    RetrieveTask newForwardRetrieveTask(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
-            String fallbackCMoveSCP, String fallbackCMoveSCPDestination)
-            throws DicomServiceException;
+    public SeriesInfoImpl(String studyInstanceUID, String seriesInstanceUID, int failedRetrieves,
+                          String failedSOPInstanceUIDList) {
+        this.studyInstanceUID = studyInstanceUID;
+        this.seriesInstanceUID = seriesInstanceUID;
+        this.failedRetrieves = failedRetrieves;
+        this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
+    }
+
+    @Override
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
+    }
+
+    @Override
+    public String getSeriesInstanceUID() {
+        return seriesInstanceUID;
+    }
+
+    @Override
+    public int getFailedRetrieves() {
+        return failedRetrieves;
+    }
+
+    @Override
+    public String getFailedSOPInstanceUIDList() {
+        return failedSOPInstanceUIDList;
+    }
 }

@@ -22,9 +22,11 @@ class StoreContextImpl implements StoreContext {
     private String receiveTranferSyntaxUID;
     private String storeTranferSyntaxUID;
     private String acceptedStudyInstanceUID;
+    private int moveOriginatorMessageID;
+    private String moveOriginatorAETitle;
+    private WriteContext writeContext;
     private Attributes attributes;
     private Attributes coercedAttributes;
-    private WriteContext writeContext;
     private String studyInstanceUID;
     private String seriesInstanceUID;
     private String mppsInstanceUID;
@@ -41,7 +43,6 @@ class StoreContextImpl implements StoreContext {
     public StoreSession getStoreSession() {
         return storeSession;
     }
-
 
     @Override
     public String getSopClassUID() {
@@ -107,6 +108,26 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setAcceptedStudyInstanceUID(String acceptedStudyInstanceUID) {
         this.acceptedStudyInstanceUID = acceptedStudyInstanceUID;
+    }
+
+    @Override
+    public int getMoveOriginatorMessageID() {
+        return moveOriginatorMessageID;
+    }
+
+    @Override
+    public void setMoveOriginatorMessageID(int moveOriginatorMessageID) {
+        this.moveOriginatorMessageID = moveOriginatorMessageID;
+    }
+
+    @Override
+    public String getMoveOriginatorAETitle() {
+        return moveOriginatorAETitle;
+    }
+
+    @Override
+    public void setMoveOriginatorAETitle(String moveOriginatorAETitle) {
+        this.moveOriginatorAETitle = moveOriginatorAETitle;
     }
 
     @Override

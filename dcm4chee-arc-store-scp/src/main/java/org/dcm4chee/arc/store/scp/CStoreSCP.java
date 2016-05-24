@@ -41,6 +41,8 @@ class CStoreSCP extends BasicCStoreSCP {
         ctx.setSopClassUID(rq.getString(Tag.AffectedSOPClassUID));
         ctx.setSopInstanceUID(rq.getString(Tag.AffectedSOPInstanceUID));
         ctx.setReceiveTransferSyntax(pc.getTransferSyntax());
+        ctx.setMoveOriginatorMessageID(rq.getInt(Tag.MoveOriginatorMessageID, 0));
+        ctx.setMoveOriginatorAETitle(rq.getString(Tag.MoveOriginatorApplicationEntityTitle));
         return ctx;
 
     }

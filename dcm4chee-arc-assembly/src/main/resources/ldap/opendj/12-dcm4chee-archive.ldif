@@ -280,7 +280,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.55 NAME 'dcmFallbackCMoveSCPDestination
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.56 NAME 'dcmFallbackCMoveSCPLevel'
-  DESC 'Retrieve Level in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP. Enumerated values: STUDY, SERIES. Use original Retrieve Level if absent'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLATE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -333,7 +333,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.66 NAME 'dcmReadOnly'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.67 NAME 'dcmFallbackCMoveSCPRetries'
-  DESC 'Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. Only effective with dcmFallbackCMoveSCPLevel=STUDY. -1 = forever. 0 if absent.'
+  DESC 'Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever. 0 if absent.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )

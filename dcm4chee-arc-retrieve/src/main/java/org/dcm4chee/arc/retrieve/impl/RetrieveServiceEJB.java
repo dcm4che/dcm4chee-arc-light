@@ -40,8 +40,9 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
-import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -63,16 +64,82 @@ public class RetrieveServiceEJB {
                 .executeUpdate();
     }
 
-    public void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList) {
+    public void updateFailedSOPInstanceUIDList(RetrieveContext ctx, String failedIUIDList) {
+        String[] studyIUIDs = ctx.getStudyInstanceUIDs();
+        String[] seriesIUIDs = ctx.getSeriesInstanceUIDs();
+        switch (ctx.getQueryRetrieveLevel()) {
+            case STUDY:
+                for (String studyIUID : studyIUIDs) {
+                    if (failedIUIDList == null)
+                        clearFailedSOPInstanceUIDListOfStudy(studyIUID);
+                    else
+                        failedToRetrieveStudy(studyIUID, failedIUIDList);
+                }
+                break;
+            case SERIES:
+                for (String seriesIUID : seriesIUIDs) {
+                    if (failedIUIDList == null)
+                        clearFailedSOPInstanceUIDListOfSeries(studyIUIDs[0], seriesIUID);
+                    else
+                        failedToRetrieveSeries(studyIUIDs[0], seriesIUID, failedIUIDList);
+                }
+                setFailedSOPInstanceUIDListOfStudy(studyIUIDs[0], "*");
+                break;
+            case IMAGE:
+                setFailedSOPInstanceUIDListOfSeries(studyIUIDs[0], seriesIUIDs[0], "*");
+                setFailedSOPInstanceUIDListOfStudy(studyIUIDs[0], "*");
+                break;
+        }
+    }
+
+    private void failedToRetrieveStudy(String studyInstanceUID, String failedIUIDList) {
         em.createNamedQuery(Study.INCREMENT_FAILED_RETRIEVES)
                 .setParameter(1, studyInstanceUID)
-                .setParameter(2, failedSOPInstanceUIDList)
+                .setParameter(2, failedIUIDList)
+                .executeUpdate();
+        em.createNamedQuery(Series.SET_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY)
+                .setParameter(1, studyInstanceUID)
+                .setParameter(2, failedIUIDList)
                 .executeUpdate();
     }
 
-    public void clearFailedSOPInstanceUIDList(String studyInstanceUID) {
+    private void clearFailedSOPInstanceUIDListOfStudy(String studyInstanceUID) {
         em.createNamedQuery(Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST)
                 .setParameter(1, studyInstanceUID)
+                .executeUpdate();
+        em.createNamedQuery(Series.CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY)
+                .setParameter(1, studyInstanceUID)
+                .executeUpdate();
+    }
+
+    private void setFailedSOPInstanceUIDListOfStudy(String studyInstanceUID, String failedIUIDList) {
+        em.createNamedQuery(Study.SET_FAILED_SOP_INSTANCE_UID_LIST)
+                .setParameter(1, studyInstanceUID)
+                .setParameter(2, failedIUIDList)
+                .executeUpdate();
+    }
+
+    private void failedToRetrieveSeries(String studyInstanceUID, String seriesInstanceUID, String failedIUIDList) {
+        em.createNamedQuery(Series.INCREMENT_FAILED_RETRIEVES)
+                .setParameter(1, studyInstanceUID)
+                .setParameter(2, seriesInstanceUID)
+                .setParameter(3, failedIUIDList)
+                .executeUpdate();
+    }
+
+    private void clearFailedSOPInstanceUIDListOfSeries(String studyInstanceUID, String seriesInstanceUID) {
+        em.createNamedQuery(Series.CLEAR_FAILED_SOP_INSTANCE_UID_LIST)
+                .setParameter(1, studyInstanceUID)
+                .setParameter(2, seriesInstanceUID)
+                .executeUpdate();
+    }
+
+    private void setFailedSOPInstanceUIDListOfSeries(String studyInstanceUID, String seriesInstanceUID,
+                                                     String failedIUIDList) {
+        em.createNamedQuery(Series.SET_FAILED_SOP_INSTANCE_UID_LIST)
+                .setParameter(1, studyInstanceUID)
+                .setParameter(2, seriesInstanceUID)
+                .setParameter(3, failedIUIDList)
                 .executeUpdate();
     }
 }
