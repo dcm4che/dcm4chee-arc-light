@@ -94,7 +94,8 @@ public class AuditService {
 
     void aggregateAuditMessage(Path path) throws IOException {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
-        LineReader readerObj = new LineReader(path);
+        LineReader readerObj = eventType.eventClass != AuditServiceUtils.EventClass.QUERY
+                ? new LineReader(path) : null;
         Calendar eventTime = AuditServiceUtils.getEventTime(path, log());
         switch (eventType.eventClass) {
             case CONN_REJECT:
