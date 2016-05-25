@@ -491,7 +491,7 @@ public class StoreServiceEJB {
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
-                updateStorageIDs(study, storeSession.getArchiveAEExtension().getStorageID());
+                updateStorageIDs(study, storeSession.getArchiveAEExtension().storageID());
                 if (result.getRejectionNote() == null)
                     updateStudyRejectionState(ctx, study);
             } catch (NoResultException e) {}
