@@ -50,8 +50,11 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.impl.InstanceLocationsImpl;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreSession;
 
+import javax.enterprise.event.Event;
 import java.io.IOException;
+import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -61,25 +64,23 @@ import static org.dcm4che3.net.Dimse.LOG;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2016
  */
-class CStoreForwardTask implements AssociationListener, Runnable {
+class CStoreForwardTask implements Runnable {
     private final RetrieveContext ctx;
     private final Association rqas;
     private final Association storeas;
+    private final Event<RetrieveContext> retrieveEnd;
     private final LinkedBlockingQueue<WrappedStoreContext> queue = new LinkedBlockingQueue();
 
-    public CStoreForwardTask(RetrieveContext retrieveCtx, Association storeas) {
-        this.ctx = retrieveCtx;
+    public CStoreForwardTask(RetrieveContext ctx, Event<RetrieveContext> retrieveEnd) {
+        this.ctx = ctx;
         this.rqas = ctx.getRequestAssociation();
-        this.storeas = storeas;
+        this.storeas = ctx.getStoreAssociation();
+        this.retrieveEnd = retrieveEnd;
     }
 
     public void onStore(StoreContext storeContext) {
-        queue.offer(new WrappedStoreContext(storeContext));
-    }
-
-    @Override
-    public void onClose(Association association) {
-        queue.offer(new WrappedStoreContext(null));
+        if (storeas != null)
+            queue.offer(new WrappedStoreContext(storeContext));
     }
 
     @Override
@@ -95,6 +96,7 @@ class CStoreForwardTask implements AssociationListener, Runnable {
         } finally {
             releaseStoreAssociation();
         }
+        retrieveEnd.fire(ctx);
     }
 
     private void releaseStoreAssociation() {
@@ -116,6 +118,7 @@ class CStoreForwardTask implements AssociationListener, Runnable {
         else
             inst.getLocations().addAll(service.findLocations(storeCtx.getPreviousInstance()));
 
+        ctx.getMatches().add(inst);
         Set<String> tsuids = storeas.getTransferSyntaxesFor(cuid);
         try {
             if (tsuids.isEmpty()) {

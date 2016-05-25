@@ -42,12 +42,15 @@ package org.dcm4chee.arc.store.scu.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.AssociationListener;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.StoreSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
 import java.util.IdentityHashMap;
 
 /**
@@ -55,42 +58,72 @@ import java.util.IdentityHashMap;
  * @since May 2016
  */
 class CStoreForward {
-    private final RetrieveContext retrieveContext;
-    private final IdentityHashMap<StoreSession,CStoreForwardTask> forwardTasks = new IdentityHashMap<>();
-    private Exception ex;
 
-    public CStoreForward(RetrieveContext retrieveContext) {
-        this.retrieveContext = retrieveContext;
+    static final Logger LOG = LoggerFactory.getLogger(CStoreForward.class);
+
+    private final RetrieveContext retrieveCtx;
+    private final IdentityHashMap<Association,CStoreForwardTask> forwardTasks = new IdentityHashMap<>();
+    private final Event<RetrieveContext> retrieveEnd;
+    private int count;
+
+    public CStoreForward(RetrieveContext retrieveCtx, Event<RetrieveContext> retrieveEnd) {
+        this.retrieveCtx = retrieveCtx;
+        this.retrieveEnd = retrieveEnd;
     }
 
-    public void onStore(StoreContext storeContext) {
-        if (ex == null)
-            try {
-                StoreSession session = storeContext.getStoreSession();
-                CStoreForwardTask task = forwardTasks.get(session);
-                if (task == null) {
-                    ApplicationEntity localAE = retrieveContext.getLocalApplicationEntity();
-                    Association storeas = localAE.connect(retrieveContext.getDestinationAE(), createAARQ(session));
-                    task = new CStoreForwardTask(retrieveContext, storeas);
-                    session.getAssociation().addAssociationListener(task);
-                    forwardTasks.put(session, task);
-                    localAE.getDevice().execute(task);
-                }
-                task.onStore(storeContext);
-            } catch (Exception e) {
-                this.ex = e;
+    public void onStore(StoreContext storeCtx) {
+            Association as = storeCtx.getStoreSession().getAssociation();
+            CStoreForwardTask task = forwardTasks.get(as);
+            if (task == null)
+                task = createTask(as);
+            task.onStore(storeCtx);
+    }
+
+    private CStoreForwardTask createTask(final Association as) {
+        ApplicationEntity localAE = retrieveCtx.getLocalApplicationEntity();
+        Association storeas = openAssociation(as, localAE);
+        RetrieveContext ctx = retrieveCtx.getRetrieveService().cloneRetrieveContext(retrieveCtx);
+        ctx.setStoreAssociation(storeas);
+        final CStoreForwardTask task = new CStoreForwardTask(ctx, retrieveEnd);
+        forwardTasks.put(as, task);
+        as.addAssociationListener(new AssociationListener() {
+            @Override
+            public void onClose(Association association) {
+                task.onStore(null);
+                forwardTasks.remove(as);
             }
-        else {
-            //TODO
+        });
+        if (storeas != null)
+            localAE.getDevice().execute(task);
+        return task;
+    }
+
+    private Association openAssociation(Association as, ApplicationEntity localAE) {
+        try {
+            return localAE.connect(retrieveCtx.getDestinationAE(), createAARQ(as));
+        } catch (Exception e) {
+            LOG.warn("{}: failed to open association to {}:\n",
+                    retrieveCtx.getRequestAssociation(),
+                    retrieveCtx.getDestinationAETitle(),
+                    e);
+            return null;
         }
     }
 
-    private AAssociateRQ createAARQ(StoreSession session) {
+    private AAssociateRQ createAARQ(Association as) {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(retrieveContext.getLocalAETitle());
-        for (PresentationContext pc : session.getAssociation().getAAssociateRQ().getPresentationContexts())
+        aarq.setCallingAET(retrieveCtx.getLocalAETitle());
+        for (PresentationContext pc : as.getAAssociateRQ().getPresentationContexts())
             aarq.addPresentationContext(pc);
         return aarq;
+    }
+
+    public int activate() {
+        return ++count;
+    }
+
+    public int deactivate() {
+        return --count;
     }
 
 }

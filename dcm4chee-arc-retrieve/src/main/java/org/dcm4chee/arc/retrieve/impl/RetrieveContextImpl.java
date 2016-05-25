@@ -65,7 +65,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public class RetrieveContextImpl implements RetrieveContext {
+class RetrieveContextImpl implements RetrieveContext {
     private Association requestAssociation;
     private Association storeAssociation;
     private HttpServletRequest httpRequest;
@@ -97,11 +97,28 @@ public class RetrieveContextImpl implements RetrieveContext {
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
-    public RetrieveContextImpl(RetrieveService retrieveService, ApplicationEntity ae, String localAETitle) {
+    RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle) {
         this.retrieveService = retrieveService;
-        this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        this.arcAE = arcAE;
         this.localAETitle = localAETitle;
         this.qrView = arcAE.getQueryRetrieveView();
+    }
+
+    RetrieveContextImpl(RetrieveContext other) {
+        this(other.getRetrieveService(), other.getArchiveAEExtension(), other.getLocalAETitle());
+        requestAssociation = other.getRequestAssociation();
+        storeAssociation = other.getStoreAssociation();
+        httpRequest = other.getHttpRequest();
+        qrLevel = other.getQueryRetrieveLevel();
+        priority = other.getPriority();
+        moveOriginatorMessageID = other.getMoveOriginatorMessageID();
+        moveOriginatorAETitle = other.getMoveOriginatorAETitle();
+        destinationAETitle = other.getDestinationAETitle();
+        destinationAE = other.getDestinationAE();
+        patientIDs = other.getPatientIDs();
+        studyInstanceUIDs = other.getStudyInstanceUIDs();
+        seriesInstanceUIDs = other.getSeriesInstanceUIDs();
+        sopInstanceUIDs = other.getSopInstanceUIDs();
     }
 
     @Override

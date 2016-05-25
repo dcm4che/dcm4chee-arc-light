@@ -41,11 +41,14 @@
 package org.dcm4chee.arc.store.scu.impl;
 
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,26 +59,41 @@ import java.util.Map;
 @ApplicationScoped
 public class CStoreForwardSCUImpl implements CStoreForwardSCU {
 
+    @Inject
+    @RetrieveEnd
+    private Event<RetrieveContext> retrieveEnd;
+
     private final Map<MoveOriginator,CStoreForward> registry = new HashMap<>();
 
     @Override
-    public synchronized boolean activateCStoreForward(RetrieveContext ctx) {
+    public synchronized int activate(RetrieveContext ctx) {
         MoveOriginator key = new MoveOriginator(ctx);
-        if (registry.containsKey(key))
-            return false;
-        registry.put(key, new CStoreForward(ctx));
-        return true;
+        CStoreForward forward = registry.get(key);
+        if (forward == null) {
+            forward = new CStoreForward(ctx, retrieveEnd);
+            registry.put(key, forward);
+        }
+        return forward.activate();
     }
 
     @Override
-    public synchronized boolean deactivateCStoreForward(RetrieveContext ctx) {
-        return registry.remove(new MoveOriginator(ctx)) != null;
+    public synchronized int deactivate(RetrieveContext ctx) {
+        MoveOriginator key = new MoveOriginator(ctx);
+        CStoreForward forward = registry.get(key);
+        if (forward == null)
+            return -1;
+
+        int active = forward.deactivate();
+        if (active == 0)
+            registry.remove(key);
+
+        return active;
     }
 
     public void onStore(@Observes StoreContext storeContext) {
-        CStoreForward entry = forStoreContext(storeContext);
-        if (entry != null)
-            entry.onStore(storeContext);
+        CStoreForward forward = forStoreContext(storeContext);
+        if (forward != null)
+            forward.onStore(storeContext);
     }
 
     private CStoreForward forStoreContext(StoreContext storeContext) {

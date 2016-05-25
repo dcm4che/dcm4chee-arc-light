@@ -83,11 +83,11 @@ public class CMoveSCUImpl implements CMoveSCU {
                     createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
             if (fallbackCMoveSCPDestination != null) {
                 rq.setString(Tag.MoveDestination, VR.AE, fallbackCMoveSCPDestination);
-                storeForwardSCU.activateCStoreForward(ctx);
+                storeForwardSCU.activate(ctx);
                 fwdas.addAssociationListener(new AssociationListener() {
                     @Override
                     public void onClose(Association association) {
-                        storeForwardSCU.deactivateCStoreForward(ctx);
+                        storeForwardSCU.deactivate(ctx);
                     }
                 });
             }

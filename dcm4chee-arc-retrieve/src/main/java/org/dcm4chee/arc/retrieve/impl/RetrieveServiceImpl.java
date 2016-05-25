@@ -175,6 +175,11 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
+    public RetrieveContext cloneRetrieveContext(RetrieveContext other) {
+       return new RetrieveContextImpl(other);
+    }
+
+    @Override
     public RetrieveContext newRetrieveContextWADO(
             HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID) {
         RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
@@ -193,7 +198,8 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
-        RetrieveContext ctx = new RetrieveContextImpl(this, device.getApplicationEntity(localAET, true), localAET);
+        RetrieveContext ctx = new RetrieveContextImpl(this,
+                device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class), localAET);
         initCodes(ctx);
         if (studyUID != null)
             ctx.setStudyInstanceUIDs(studyUID);
@@ -205,7 +211,8 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private RetrieveContext newRetrieveContext(Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
-        RetrieveContext ctx = new RetrieveContextImpl(this, as.getApplicationEntity(), as.getLocalAET());
+        RetrieveContext ctx = new RetrieveContextImpl(this,
+                as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class), as.getLocalAET());
         ctx.setRequestAssociation(as);
         ctx.setQueryRetrieveLevel(qrLevel);
         initCodes(ctx);
