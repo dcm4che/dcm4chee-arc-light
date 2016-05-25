@@ -45,6 +45,8 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             return schema;
 
     };
+
+
     var getArrayFromIodHelper = function(data, dropdown){
         angular.forEach(data, function(m, i){
             dropdown.push({
@@ -54,6 +56,51 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             });
         });
         return dropdown;
+    };
+
+    var clearPatientObjectHelper = function(object, parent){
+        angular.forEach(object, function(m,i){
+            console.log("1m",m);
+            console.log("1m",i);
+                if(i === "items"){
+                    console.log("********* 1i items",i);
+                    console.log("********* 1 items",m);
+                    console.log("********* 1i items",object);
+                    object["Value"] = object.items;
+                }
+            // if(m.vr === "SQ" && m.Value && m.items){
+            //     // delete object[i].Value;
+            //     object[i].Value = object[i].items;
+            //     // delete object[i].Value;
+            //     console.log("sequ to delte",m);
+            // }
+            // // console.log("1i",i);
+            // console.log("typeof(m)",typeof(m));
+
+            if(typeof(m) === "object" && i != "Value" && i != "vr"){
+                clearPatientObjectHelper(m,object);
+            }else{
+                if(i === "items"){
+                    console.log("********* i items",i);
+                    console.log("********* i items",m);
+                    console.log("********* i items",object);
+                }
+                var check = typeof(i) === "number" || i === "vr" || i === "Value" || i === "Alphabetic" || i === "Ideographic" || i === "Phonetic" || i === "items";
+                if(!check){
+
+                    console.log("delete object",object);
+                    console.log("m",m);
+                    console.log("i",i);
+                    console.log("abotu to delete",object[i]);
+                    delete object[i];
+                    console.log("typeofi",typeof(i));
+                    console.log("parent",parent);
+                }else{
+                    console.log("in else",i);
+                    console.log("in else",m);
+                }
+            }
+        });
     };
 
     return {
@@ -222,12 +269,12 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                   "properties": {}
                 };
             var patientedit = {};
-            console.log("2res=",res.data);
+            // console.log("2res=",res.data);
 
             getSchemaModelFromIodHelper(res.data, patient, schema, patientedit);
-            console.log("afterhelper patientedit",angular.copy(patientedit));
+            // console.log("afterhelper patientedit",angular.copy(patientedit));
             angular.forEach(patient.attrs,function(m, i){
-                console.log("m=",m);
+                // console.log("m=",m);
                 if(m.Value && m.Value[0]){
                     if(res.data[i].multi === true){
                         patientedit[i] = m.Value;
@@ -237,8 +284,8 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     // console.log("in if value=",value);
                 }
             });
-            console.log("schema in service =",schema);
-            console.log("schema in patientedit =",patientedit);
+            // console.log("schema in service =",schema);
+            // console.log("schema in patientedit =",patientedit);
             return {
                     "schema":schema,
                     "patientedit":patientedit
@@ -248,6 +295,9 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             var dropdown = [];
             getArrayFromIodHelper(res.data, dropdown);
             return dropdown;
+        },
+        clearPatientObject : function(patient){
+            clearPatientObjectHelper(patient);
         }
 
     };

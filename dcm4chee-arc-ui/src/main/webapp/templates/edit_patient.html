@@ -1,11 +1,11 @@
-<input class="addPatientAttribut" ng-model="addPatientAttribut" placeholder="Add new attribute"  ng-click="opendropdown = !opendropdown" />
+<input id="addPatientAttribut" class="addPatientAttribut" ng-model="addPatientAttribut" placeholder="Add new attribute"  ng-click="opendropdown = !opendropdown" />
 <div class="dropdown" ng-show="opendropdown">
 	<a class="dropdown_element" name="{{m.code}}" ng-repeat="(i,m) in dropdown | filter:addPatientAttribut" ng-click="addAttribute(m.code)">({{m.codeComma}}) {{m.name}}</a>
 </div>
 <table class="table">
    <tr ng-repeat="(i, p) in editpatient.attrs">
-      <td ng-if="p.vr != 'SQ'" class="col-md-2 control-label">{{i}}</td>
-      <td ng-if="p.vr === 'SQ'"  class="col-md-2 control-label">
+      <td ng-if="p.vr != 'SQ'" class="col-md-2 control-label first_td">{{i}}</td>
+      <td ng-if="p.vr === 'SQ'"  class="col-md-2 control-label first_td">
          <div class="item1first">{{i}}</div>
          <div class="item1" ng-repeat="(j,item) in editpatient.attrs[i].items">
             >{{j}}
@@ -21,11 +21,16 @@
          </div>
       </td>
       <td>
-         <textarea ng-if="i === '00104000' && p.vr != 'SQ'" class="form-control" ng-model="editpatient.attrs[i].Value[0]"></textarea><span ng-click="removeAttr(i)" ng-if="i==='00104000'" class="glyphicon glyphicon-remove"></span>
-         <input ng-if="i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" ng-repeat-start="(vi, value) in editpatient.attrs[i].Value  track by $index" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Alphabetic" ng-model="editpatient.attrs[i].Value[vi]['Alphabetic']"><span ng-click="removeAttr(i)" ng-if="i != '00104000' && p.vr==='PN'" class="glyphicon glyphicon-remove"></span>
-         <input ng-if="i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Ideographic" ng-model="editpatient.attrs[i].Value[vi]['Ideographic']">
-         <input ng-if="i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" ng-repeat-end="" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Phonetic" ng-model="editpatient.attrs[i].Value[vi]['Phonetic']">
-         <input ng-if="i != '00104000' && p.vr!='PN' && p.vr!='SQ'" ng-repeat="(vi, value) in editpatient.attrs[i].Value  track by $index" class="form-control" ng-model="editpatient.attrs[i].Value[vi]"><span ng-click="removeAttr(i)" ng-if="i != '00104000' && p.vr!='PN'" class="glyphicon glyphicon-remove"></span>
+         <textarea ng-if="i != '00100040' && i === '00104000' && p.vr != 'SQ'" class="form-control" ng-model="editpatient.attrs[i].Value[0]"></textarea><span ng-click="removeAttr(i)" ng-if="i==='00104000'" class="glyphicon glyphicon-remove"></span>
+         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" ng-repeat-start="(vi, value) in editpatient.attrs[i].Value  track by $index" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Alphabetic" ng-model="editpatient.attrs[i].Value[vi]['Alphabetic']"><span ng-click="removeAttr(i,vi)" ng-if="i != '00104000' && p.vr==='PN'" class="glyphicon glyphicon-remove"></span>
+         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Ideographic" ng-model="editpatient.attrs[i].Value[vi]['Ideographic']">
+         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" ng-repeat-end="" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Phonetic" ng-model="editpatient.attrs[i].Value[vi]['Phonetic']">
+         <input ng-if="i != '00100040' && i != '00104000' && p.vr!='PN' && p.vr!='SQ'" ng-repeat-start="(vi, value) in editpatient.attrs[i].Value  track by $index" class="form-control" ng-model="editpatient.attrs[i].Value[vi]">
+        <select ng-if="i === '00100040'"name="00100040"
+  				ng-options="o as o.title for o in options.genders track by o.Value[0]"
+  				ng-model="editpatient.attrs[i]">
+  		</select>
+         <span ng-repeat-end="" ng-click="removeAttr(i,vi)" ng-if="i != '00104000' && p.vr!='PN'" class="glyphicon glyphicon-remove"></span>
          <div class="item1input" ng-if="p.vr === 'SQ'" ng-repeat="(j,item) in editpatient.attrs[i].items">
             <span ng-click="removeAttr(i)" ng-if="j != '00104000' && item.vr==='PN'" class="glyphicon glyphicon-remove"></span>
             <input ng-if="j != '00104000' && item.vr != 'PN' && item.vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(j)}}" ng-model="editpatient.attrs[i].items[j].Value[0]"/>

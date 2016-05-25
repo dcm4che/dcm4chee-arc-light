@@ -977,7 +977,8 @@ div[tooltip] {
   width: 90%;
   padding: 30px; }
   .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr:hover {
-    background: rgba(204, 204, 204, 0.2); }
+    background: rgba(0, 0, 0, 0.3) none repeat scroll 0 0;
+    color: black; }
   .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td input, .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td textarea {
     float: left;
     width: 97%; }
@@ -990,6 +991,8 @@ div[tooltip] {
     display: none; }
     .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td span:hover {
       cursor: pointer; }
+  .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td.first_td {
+    padding-left: 5%; }
   .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td:hover span {
     color: #7e7b7b;
     display: inline-block; }
@@ -1051,6 +1054,9 @@ div[tooltip] {
   margin-left: 2%;
   padding-top: 35px;
   width: 98%; }
+.vex.vex-theme-os.edit-patient .vex-dialog-form select {
+  height: 29px;
+  margin: 2px 0; }
 
 .vex.vex-theme-os.info-dialog .vex-content {
   width: 580px;
