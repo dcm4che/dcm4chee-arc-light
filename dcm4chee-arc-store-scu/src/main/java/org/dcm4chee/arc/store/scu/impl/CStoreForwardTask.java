@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.*;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -95,6 +96,7 @@ class CStoreForwardTask implements Runnable {
             LOG.warn("{}: failed to wait for outstanding RSP on association to {}", rqas, storeas.getRemoteAET(), e);
         } finally {
             releaseStoreAssociation();
+            SafeClose.close(ctx);
         }
         retrieveEnd.fire(ctx);
     }
@@ -167,11 +169,6 @@ class CStoreForwardTask implements Runnable {
             else {
                 ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
             }
-        }
-
-        @Override
-        public void onClose(Association as) {
-            super.onClose(as);
         }
     }
 }
