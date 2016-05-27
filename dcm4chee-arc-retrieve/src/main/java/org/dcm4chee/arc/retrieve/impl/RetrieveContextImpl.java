@@ -302,6 +302,11 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public String getStudyInstanceUID() {
+        return studyInstanceUIDs.length > 0 ? studyInstanceUIDs[0] : null;
+    }
+
+    @Override
     public String[] getStudyInstanceUIDs() {
         return studyInstanceUIDs;
     }
@@ -309,6 +314,11 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setStudyInstanceUIDs(String... studyInstanceUIDs) {
         this.studyInstanceUIDs = studyInstanceUIDs != null ? studyInstanceUIDs : StringUtils.EMPTY_STRING;
+    }
+
+    @Override
+    public String getSeriesInstanceUID() {
+        return seriesInstanceUIDs.length > 0 ? seriesInstanceUIDs[0] : null;
     }
 
     @Override

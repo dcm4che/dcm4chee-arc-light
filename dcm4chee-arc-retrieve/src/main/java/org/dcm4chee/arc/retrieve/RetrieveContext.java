@@ -126,9 +126,13 @@ public interface RetrieveContext extends Closeable {
 
     void setPatientIDs(IDWithIssuer... patientIDs);
 
+    String getStudyInstanceUID();
+
     String[] getStudyInstanceUIDs();
 
     void setStudyInstanceUIDs(String... studyInstanceUIDs);
+
+    String getSeriesInstanceUID();
 
     String[] getSeriesInstanceUIDs();
 
