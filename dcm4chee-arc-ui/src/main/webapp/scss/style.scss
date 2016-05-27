@@ -1190,6 +1190,14 @@ table{
 	    	color: #4D4D4D;
 	    }
     }
+    .username{
+    	border-right:1px solid #ccc;
+    }
+    i.config{
+	    position: absolute;
+	    right: 10px;
+	    top: 9px;
+    }
     ul{
     	list-style: outside none none;
     	padding: 0;
@@ -1202,6 +1210,7 @@ table{
     			display: block;
     			&:hover{
     				color: #4D4D4D;
+    				cursor: pointer;
     			}
 		    }
     	}

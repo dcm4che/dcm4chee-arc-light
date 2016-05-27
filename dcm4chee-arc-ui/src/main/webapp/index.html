@@ -13,11 +13,14 @@
     <link rel="stylesheet" href="css/animate.css">
 </head>
 <body ng-controller="MainController" scroll>
-<div class="user" ng-show="username && username != 'anonymous'">
-    <span ng-click="showUserMenu = !showUserMenu"><i class="glyphicon glyphicon-user"></i> {{username}}  
-    <!-- <i class="glyphicon glyphicon-cog"></i> --></span>
+<div class="user">
+    <span ng-click="showUserMenu = !showUserMenu">
+        <div class="username" ng-show="username && username != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{username}}</div>
+        <i class="config glyphicon glyphicon-cog"></i>
+    </span>
     <ul ng-show="showUserMenu">
-        <li><a ng-href="{{logoutUrl}}">Logout</a></li>
+        <li><a  ng-controller="StudyListCtrl" ng-click="createPatient()">Create new patient</a></li>
+        <li ng-show="username && username != 'anonymous'"><a ng-href="{{logoutUrl}}">Logout</a></li>
      </ul>
 </div>
 <div class="background"></div>

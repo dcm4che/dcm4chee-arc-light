@@ -893,6 +893,12 @@ table.subtable_1, table.subtable_2 {
     .user span:hover {
       cursor: pointer;
       color: #4D4D4D; }
+  .user .username {
+    border-right: 1px solid #ccc; }
+  .user i.config {
+    position: absolute;
+    right: 10px;
+    top: 9px; }
   .user ul {
     list-style: outside none none;
     padding: 0;
@@ -904,7 +910,8 @@ table.subtable_1, table.subtable_2 {
         color: #7d7d7d;
         display: block; }
         .user ul li a:hover {
-          color: #4D4D4D; }
+          color: #4D4D4D;
+          cursor: pointer; }
 
 #kc-container-wrapper {
   background: black none repeat scroll 0 0;

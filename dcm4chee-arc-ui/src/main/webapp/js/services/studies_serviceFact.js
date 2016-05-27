@@ -57,47 +57,29 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         });
         return dropdown;
     };
-
+    var replaceKeyInJsonHelper = function(object, key, key2){
+        angular.forEach(object,function(m, k){
+            if(m[key]){
+                object[k][key2] = [object[k][key]];
+                delete object[k][key];
+            }
+            if(m.vr && m.vr !="SQ" && !m.Value){
+                object[k]["Value"] = [""];
+            }
+            if((Object.prototype.toString.call(m) === '[object Array]') || (object[k] !== null && typeof(object[k]) == "object")) {
+                replaceKeyInJsonHelper(m, key, key2);
+            }
+        });
+        return object;
+    }
     var clearPatientObjectHelper = function(object, parent){
         angular.forEach(object, function(m,i){
-            console.log("1m",m);
-            console.log("1m",i);
-                if(i === "items"){
-                    console.log("********* 1i items",i);
-                    console.log("********* 1 items",m);
-                    console.log("********* 1i items",object);
-                    object["Value"] = object.items;
-                }
-            // if(m.vr === "SQ" && m.Value && m.items){
-            //     // delete object[i].Value;
-            //     object[i].Value = object[i].items;
-            //     // delete object[i].Value;
-            //     console.log("sequ to delte",m);
-            // }
-            // // console.log("1i",i);
-            // console.log("typeof(m)",typeof(m));
-
-            if(typeof(m) === "object" && i != "Value" && i != "vr"){
+            if(typeof(m) === "object" && i != "vr"){
                 clearPatientObjectHelper(m,object);
             }else{
-                if(i === "items"){
-                    console.log("********* i items",i);
-                    console.log("********* i items",m);
-                    console.log("********* i items",object);
-                }
                 var check = typeof(i) === "number" || i === "vr" || i === "Value" || i === "Alphabetic" || i === "Ideographic" || i === "Phonetic" || i === "items";
                 if(!check){
-
-                    console.log("delete object",object);
-                    console.log("m",m);
-                    console.log("i",i);
-                    console.log("abotu to delete",object[i]);
                     delete object[i];
-                    console.log("typeofi",typeof(i));
-                    console.log("parent",parent);
-                }else{
-                    console.log("in else",i);
-                    console.log("in else",m);
                 }
             }
         });
@@ -298,6 +280,10 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         },
         clearPatientObject : function(patient){
             clearPatientObjectHelper(patient);
+        },
+        replaceKeyInJson : function(object, key, key2){
+            replaceKeyInJsonHelper(object, key, key2);
+            return object;
         }
 
     };
