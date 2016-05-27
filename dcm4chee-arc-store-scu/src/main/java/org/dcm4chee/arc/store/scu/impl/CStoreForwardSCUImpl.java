@@ -65,68 +65,41 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
     @RetrieveEnd
     private Event<RetrieveContext> retrieveEnd;
 
-    private final Map<MoveOriginator,CStoreForward> registry = new HashMap<>();
+    private final Map<String,Map<Integer,CStoreForward>> registry = new HashMap<>();
 
     @Override
     public synchronized int activate(RetrieveContext ctx) {
-        String aeTitle = ctx.getMoveOriginatorAETitle();
-        MoveOriginator key = new MoveOriginator(aeTitle, ctx.getMoveOriginatorMessageID());
-        CStoreForward forward = registry.get(key);
+        int messageID = ctx.getMoveOriginatorMessageID();
+        Map<Integer,CStoreForward> map = forMoveOriginatorAET(ctx.getMoveOriginatorAETitle());
+        CStoreForward forward = map.get(messageID);
         if (forward == null) {
             forward = new CStoreForward(ctx, retrieveEnd);
-            registry.put(key, forward);
-            switch (ctx.getQueryRetrieveLevel()) {
-                case STUDY:
-                    for (String studyIUID : ctx.getStudyInstanceUIDs()) {
-                       registry.put(new MoveOriginator(aeTitle, studyIUID, null, null), forward);
-                    }
-                    break;
-                case SERIES:
-                    for (String seriesIUID : ctx.getSeriesInstanceUIDs()) {
-                        registry.put(new MoveOriginator(aeTitle, ctx.getStudyInstanceUID(), seriesIUID, null), forward);
-                    }
-                    break;
-                case IMAGE:
-                    for (String sopIUID : ctx.getSopInstanceUIDs()) {
-                        registry.put(new MoveOriginator(aeTitle, ctx.getStudyInstanceUID(),
-                                ctx.getSeriesInstanceUID(), sopIUID), forward);
-                    }
-                    break;
-            }
+            map.put(messageID, forward);
         }
         return forward.activate();
     }
 
+    private Map<Integer,CStoreForward> forMoveOriginatorAET(String aet) {
+        Map<Integer,CStoreForward> map = registry.get(aet);
+        if (map == null) {
+            map = new HashMap<>();
+            registry.put(aet, map);
+        }
+        return map;
+    }
+
     @Override
     public synchronized int deactivate(RetrieveContext ctx) {
-        String aeTitle = ctx.getMoveOriginatorAETitle();
-        MoveOriginator key = new MoveOriginator(aeTitle, ctx.getMoveOriginatorMessageID());
-        CStoreForward forward = registry.get(key);
+        int messageID = ctx.getMoveOriginatorMessageID();
+        Map<Integer,CStoreForward> map = forMoveOriginatorAET(ctx.getMoveOriginatorAETitle());
+        CStoreForward forward = map.get(messageID);
         if (forward == null)
             return -1;
 
         int active = forward.deactivate();
-        if (active == 0) {
-            registry.remove(key);
-            switch (ctx.getQueryRetrieveLevel()) {
-                case STUDY:
-                    for (String studyIUID : ctx.getStudyInstanceUIDs()) {
-                        registry.remove(new MoveOriginator(aeTitle, studyIUID, null, null));
-                    }
-                    break;
-                case SERIES:
-                    for (String seriesIUID : ctx.getSeriesInstanceUIDs()) {
-                        registry.remove(new MoveOriginator(aeTitle, ctx.getStudyInstanceUID(), seriesIUID, null));
-                    }
-                    break;
-                case IMAGE:
-                    for (String sopIUID : ctx.getSopInstanceUIDs()) {
-                        registry.remove(new MoveOriginator(aeTitle, ctx.getStudyInstanceUID(),
-                                ctx.getSeriesInstanceUID(), sopIUID));
-                    }
-                    break;
-            }
-        }
+        if (active == 0)
+            map.remove(messageID);
+
         return active;
     }
 
@@ -141,70 +114,23 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
         if (aeTitle == null)
             return null;
 
-        CStoreForward forward = registry.get(new MoveOriginator(aeTitle, storeContext.getMoveOriginatorMessageID()));
+        Map<Integer,CStoreForward> map = registry.get(aeTitle);
+        if (map == null)
+            return null;
+
+        CStoreForward forward = map.get(storeContext.getMoveOriginatorMessageID());
         if (forward != null)
             return forward;
 
         Attributes attrs = storeContext.getAttributes();
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         String seriesIUID = attrs.getString(Tag.SeriesInstanceUID);
-        forward = registry.get(new MoveOriginator(aeTitle, studyIUID, seriesIUID, storeContext.getSopInstanceUID()));
-        if (forward == null) {
-            forward = registry.get(new MoveOriginator(aeTitle, studyIUID, seriesIUID, null));
-            if (forward == null) {
-                forward = registry.get(new MoveOriginator(aeTitle, studyIUID, null, null));
-            }
+        String sopIUID = storeContext.getSopInstanceUID();
+        for (CStoreForward forward1 : map.values()) {
+            if (forward1.match(studyIUID, seriesIUID, sopIUID))
+                return forward1;
         }
-        return forward;
+        return null;
     }
 
-    private static class MoveOriginator {
-        final String aeTitle;
-        final int messageID;
-        final String studyIUID;
-        final String seriesIUID;
-        final String sopIUID;
-        final int hash;
-
-        MoveOriginator(String aeTitle, int messageID) {
-            this(aeTitle, messageID, null, null, null);
-        }
-
-        MoveOriginator(String aeTitle, String studyIUID, String seriesIUID, String sopIUID) {
-            this(aeTitle, -1, studyIUID, seriesIUID, sopIUID);
-        }
-
-        MoveOriginator(String aeTitle, int messageID, String studyIUID, String seriesIUID, String sopIUID) {
-            this.aeTitle = aeTitle;
-            this.messageID = messageID;
-            this.studyIUID = studyIUID;
-            this.seriesIUID = seriesIUID;
-            this.sopIUID = sopIUID;
-            int h = aeTitle.hashCode();
-            h = 31 * h + messageID;
-            h = 31 * h + (studyIUID != null ? studyIUID.hashCode() : 0);
-            h = 31 * h + (seriesIUID != null ? seriesIUID.hashCode() : 0);
-            h = 31 * h + (sopIUID != null ? sopIUID.hashCode() : 0);
-            this.hash = h;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            MoveOriginator that = (MoveOriginator) o;
-
-            if (messageID != that.messageID) return false;
-            if (!aeTitle.equals(that.aeTitle)) return false;
-            if (studyIUID != null ? !studyIUID.equals(that.studyIUID) : that.studyIUID != null) return false;
-            if (seriesIUID != null ? !seriesIUID.equals(that.seriesIUID) : that.seriesIUID != null) return false;
-            return sopIUID != null ? sopIUID.equals(that.sopIUID) : that.sopIUID == null;
-        }
-
-        @Override
-        public int hashCode() {
-            return hash;
-        }
-    }
 }

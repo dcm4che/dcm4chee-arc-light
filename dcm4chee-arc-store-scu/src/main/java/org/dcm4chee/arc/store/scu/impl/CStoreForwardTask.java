@@ -49,13 +49,10 @@ import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.retrieve.impl.InstanceLocationsImpl;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.StoreSession;
 
 import javax.enterprise.event.Event;
 import java.io.IOException;
-import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -71,12 +68,14 @@ class CStoreForwardTask implements Runnable {
     private final Association storeas;
     private final Event<RetrieveContext> retrieveEnd;
     private final LinkedBlockingQueue<WrappedStoreContext> queue = new LinkedBlockingQueue();
+    private final int[] filter;
 
     public CStoreForwardTask(RetrieveContext ctx, Event<RetrieveContext> retrieveEnd) {
         this.ctx = ctx;
         this.rqas = ctx.getRequestAssociation();
         this.storeas = ctx.getStoreAssociation();
         this.retrieveEnd = retrieveEnd;
+        this.filter = ctx.getArchiveAEExtension().getArchiveDeviceExtension().getCompositeAttributeFilter();
     }
 
     public void onStore(StoreContext storeContext) {
@@ -111,15 +110,16 @@ class CStoreForwardTask implements Runnable {
 
     private void store(StoreContext storeCtx) {
         RetrieveService service = ctx.getRetrieveService();
-        String iuid = storeCtx.getSopInstanceUID();
         String cuid = storeCtx.getSopClassUID();
-        InstanceLocationsImpl inst = service.newInstanceLocations(cuid, iuid, storeCtx.getAttributes());
+        String iuid = storeCtx.getSopInstanceUID();
+        Attributes attrs = new Attributes(filter.length);
+        attrs.addSelected(storeCtx.getAttributes(), filter);
+        InstanceLocations inst = service.newInstanceLocations(cuid, iuid, attrs);
         Location location = storeCtx.getLocation();
         if (location != null)
             inst.getLocations().add(location);
         else
             inst.getLocations().addAll(service.findLocations(storeCtx.getPreviousInstance()));
-
         ctx.getMatches().add(inst);
         Set<String> tsuids = storeas.getTransferSyntaxesFor(cuid);
         try {

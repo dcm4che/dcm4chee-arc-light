@@ -126,4 +126,32 @@ class CStoreForward {
         return --count;
     }
 
+    boolean match(String studyIUID, String seriesIUID, String sopIUID) {
+        switch (retrieveCtx.getQueryRetrieveLevel()) {
+            case STUDY:
+                for (String uid : retrieveCtx.getStudyInstanceUIDs()) {
+                    if (studyIUID.equals(uid))
+                        return true;
+                }
+                break;
+            case SERIES:
+                if (studyIUID.equals(retrieveCtx.getStudyInstanceUID())) {
+                    for (String uid : retrieveCtx.getSeriesInstanceUIDs()) {
+                        if (seriesIUID.equals(uid))
+                            return true;
+                    }
+                }
+                break;
+            case IMAGE:
+                if (studyIUID.equals(retrieveCtx.getStudyInstanceUID())
+                        && seriesIUID.equals(retrieveCtx.getSeriesInstanceUID())) {
+                    for (String uid : retrieveCtx.getSopInstanceUIDs()) {
+                        if (sopIUID.equals(uid))
+                            return true;
+                    }
+                }
+                break;
+        }
+        return false;
+    }
 }
