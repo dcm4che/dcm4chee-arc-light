@@ -128,8 +128,9 @@ public class AuditService {
                 AuditMessages.RoleIDCode.Application));
         if (req != null) {
             apList.add(AuditMessages.createActiveParticipant(
-                    req.getRemoteUser() != null ? req.getRemoteUser() : req.getRemoteAddr(), null, null, true,
-                    req.getRemoteAddr(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
+                    req.getAttribute(AuditServiceUtils.keycloakClassName) != null
+                    ? AuditServiceUtils.getPreferredUsername(req) : req.getRemoteAddr(),
+                    null, null, true, req.getRemoteAddr(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null,
                     AuditMessages.RoleIDCode.ApplicationLauncher));
         }
         AuditServiceUtils.emitAuditMessage(eventType, null, apList, poiList, log(), log().timeStamp());
