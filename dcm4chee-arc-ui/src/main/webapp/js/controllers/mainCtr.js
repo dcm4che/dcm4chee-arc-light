@@ -50,8 +50,20 @@ myApp.controller('MainController', function ($scope, $location, $http) {
           scrollTop: 0
       }, 300);
   };
-	$scope.getPathName = function(){
-    return $location.path().replace(/\//g, '');;
+
+  var getPathName = function(){
+    return $location.path().replace(/\//g, '');
+  };
+  $scope.isOnPage = function(page){
+    console.log("getPathName()=",getPathName());
+    if(page === getPathName()){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  $scope.getPathName = function(){
+    return getPathName();
   };
     /*
   *Close button for the messages

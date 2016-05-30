@@ -527,7 +527,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.queryStudies = function(offset) {
 
         cfpLoadingBar.start();
-        if (offset < 0) offset = 0;
+        if (offset < 0 || offset === undefined) offset = 0;
         QidoService.queryStudies(
             rsURL(),
             createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
@@ -751,7 +751,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         if($scope.trashaktive){
             $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
+                console.log("$scope.patients",angular.copy($scope.patients));
+                console.log("$scope.offset",angular.copy($scope.patients[0].offset));
                 $scope.queryStudies($scope.patients[0].offset);
+                console.log("$scope.patients",angular.copy($scope.patients));
+                console.log("$scope.offset",angular.copy($scope.patients[0].offset));
             });
         }else{
             var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
@@ -772,7 +776,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }else{
                     $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
                         // $scope.queryStudies($scope.studies[0].offset);
+                        console.log("2$scope.patients",angular.copy($scope.patients));
+                        console.log("2$scope.offset",angular.copy($scope.patients[0].offset));
                         $scope.queryStudies($scope.patients[0].offset);
+                        console.log("2$scope.patients",angular.copy($scope.patients));
+                        console.log("2$scope.offset",angular.copy($scope.patients[0].offset));
                     });
                 }
               }

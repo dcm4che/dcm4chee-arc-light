@@ -19,7 +19,7 @@
         <i class="config glyphicon glyphicon-cog"></i>
     </span>
     <ul ng-show="showUserMenu">
-        <li><a  ng-controller="StudyListCtrl" ng-click="createPatient()">Create new patient</a></li>
+        <li ng-show="isOnPage('studies')"><a  ng-controller="StudyListCtrl" ng-click="createPatient()">Create new patient</a></li>
         <li ng-show="username && username != 'anonymous'"><a ng-href="{{logoutUrl}}">Logout</a></li>
      </ul>
 </div>
