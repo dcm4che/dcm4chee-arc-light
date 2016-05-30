@@ -79,7 +79,7 @@ public interface RetrieveService {
 
     boolean calculateMatches(RetrieveContext ctx);
 
-    InstanceLocationsImpl newInstanceLocations(String sopClassUID, String sopInstanceUID, Attributes attrs);
+    InstanceLocations newInstanceLocations(String sopClassUID, String sopInstanceUID, Attributes attrs);
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException;

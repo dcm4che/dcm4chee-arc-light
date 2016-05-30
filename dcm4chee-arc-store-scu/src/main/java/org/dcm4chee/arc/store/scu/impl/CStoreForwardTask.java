@@ -45,7 +45,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -68,14 +68,12 @@ class CStoreForwardTask implements Runnable {
     private final Association storeas;
     private final Event<RetrieveContext> retrieveEnd;
     private final LinkedBlockingQueue<WrappedStoreContext> queue = new LinkedBlockingQueue();
-    private final int[] filter;
 
     public CStoreForwardTask(RetrieveContext ctx, Event<RetrieveContext> retrieveEnd) {
         this.ctx = ctx;
         this.rqas = ctx.getRequestAssociation();
         this.storeas = ctx.getStoreAssociation();
         this.retrieveEnd = retrieveEnd;
-        this.filter = ctx.getArchiveAEExtension().getArchiveDeviceExtension().getCompositeAttributeFilter();
     }
 
     public void onStore(StoreContext storeContext) {
@@ -109,23 +107,16 @@ class CStoreForwardTask implements Runnable {
     }
 
     private void store(StoreContext storeCtx) {
-        RetrieveService service = ctx.getRetrieveService();
-        String cuid = storeCtx.getSopClassUID();
-        String iuid = storeCtx.getSopInstanceUID();
-        Attributes attrs = new Attributes(filter.length);
-        attrs.addSelected(storeCtx.getAttributes(), filter);
-        InstanceLocations inst = service.newInstanceLocations(cuid, iuid, attrs);
-        Location location = storeCtx.getLocation();
-        if (location != null)
-            inst.getLocations().add(location);
-        else
-            inst.getLocations().addAll(service.findLocations(storeCtx.getPreviousInstance()));
+        InstanceLocations inst = createInstanceLocations(storeCtx);
         ctx.getMatches().add(inst);
+        String cuid = inst.getSopClassUID();
+        String iuid = inst.getSopInstanceUID();
         Set<String> tsuids = storeas.getTransferSyntaxesFor(cuid);
         try {
             if (tsuids.isEmpty()) {
                 throw new NoPresentationContextException(cuid);
             }
+            RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 DataWriter data = new TranscoderDataWriter(transcoder,
@@ -136,9 +127,33 @@ class CStoreForwardTask implements Runnable {
                             data, tsuid, rspHandler);
             }
         } catch (Exception e) {
-            ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+            ctx.addFailedSOPInstanceUID(iuid);
             LOG.info("{}: failed to send {} to {}:", rqas, inst, ctx.getDestinationAETitle(), e);
         }
+    }
+
+    private InstanceLocations createInstanceLocations(StoreContext storeCtx) {
+        Location location = storeCtx.getLocation();
+        Instance inst = location != null ? location.getInstance() : storeCtx.getPreviousInstance();
+        Series series = inst.getSeries();
+        Study study = series.getStudy();
+        Patient patient = study.getPatient();
+        Attributes instAttrs = inst.getAttributes();
+        Attributes seriesAttrs = series.getAttributes();
+        Attributes studyAttrs = study.getAttributes();
+        Attributes patAttrs = patient.getAttributes();
+        Attributes.unifyCharacterSets(patAttrs, studyAttrs, seriesAttrs, instAttrs);
+        instAttrs.addAll(seriesAttrs);
+        instAttrs.addAll(studyAttrs);
+        instAttrs.addAll(patAttrs);
+        RetrieveService service = ctx.getRetrieveService();
+        InstanceLocations instanceLocations = service.newInstanceLocations(
+                storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), instAttrs);
+        if (location != null)
+            instanceLocations.getLocations().add(location);
+        else
+            instanceLocations.getLocations().addAll(service.findLocations(inst));
+        return instanceLocations;
     }
 
     private static class WrappedStoreContext {

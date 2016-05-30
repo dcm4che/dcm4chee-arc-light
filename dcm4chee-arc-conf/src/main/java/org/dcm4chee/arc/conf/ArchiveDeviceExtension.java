@@ -113,7 +113,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private transient FuzzyStr fuzzyStr;
-    private transient int[] compositeAttributeFilter;
 
     public String getFuzzyAlgorithmClass() {
         return fuzzyAlgorithmClass;
@@ -526,33 +525,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setAttributeFilter(Entity entity, AttributeFilter filter) {
         attributeFilters.put(entity, filter);
-        compositeAttributeFilter = null;
-    }
-
-    public int[] getCompositeAttributeFilter() {
-        if (compositeAttributeFilter == null)
-            compositeAttributeFilter = mergeAttributeFilters(
-                    Entity.Patient, Entity.Study, Entity.Series, Entity.Instance);
-        return compositeAttributeFilter;
-    }
-
-    private int[] mergeAttributeFilters(Entity... entities) {
-        int[][] filters = new int[entities.length][];
-        int tot = 1;
-        for (int i = 0; i < entities.length; i++) {
-            filters[i] = getAttributeFilter(entities[i]).getSelection();
-            tot += filters[i].length - 1;
-        }
-        int[] filter = new int[tot];
-        int off = 1;
-        filter[0] = Tag.SpecificCharacterSet;
-        for (int i = 0; i < filters.length; i++) {
-            int length = filters[i].length - 1;
-            System.arraycopy(filters[i], 1, filter, off, length);
-            off += length;
-        }
-        Arrays.sort(filter);
-        return filter;
     }
 
     public QueryRetrieveView[] getQueryRetrieveViews() {
