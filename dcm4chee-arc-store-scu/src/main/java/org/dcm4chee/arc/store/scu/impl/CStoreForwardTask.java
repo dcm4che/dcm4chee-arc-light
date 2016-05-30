@@ -69,10 +69,10 @@ class CStoreForwardTask implements Runnable {
     private final Event<RetrieveContext> retrieveEnd;
     private final LinkedBlockingQueue<WrappedStoreContext> queue = new LinkedBlockingQueue();
 
-    public CStoreForwardTask(RetrieveContext ctx, Event<RetrieveContext> retrieveEnd) {
+    public CStoreForwardTask(RetrieveContext ctx, Association storeas, Event<RetrieveContext> retrieveEnd) {
         this.ctx = ctx;
         this.rqas = ctx.getRequestAssociation();
-        this.storeas = ctx.getStoreAssociation();
+        this.storeas = storeas;
         this.retrieveEnd = retrieveEnd;
     }
 
@@ -83,19 +83,23 @@ class CStoreForwardTask implements Runnable {
 
     @Override
     public void run() {
+        RetrieveContext event = ctx.getRetrieveService().cloneRetrieveContext(ctx);
+        event.setStoreAssociation(storeas);
+        ctx.incrementPendingCStoreForward();
         try {
             StoreContext storeCtx;
             while ((storeCtx = queue.take().storeContext) != null) {
-                store(storeCtx);
+                store(storeCtx, event);
             }
             storeas.waitForOutstandingRSP();
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to wait for outstanding RSP on association to {}", rqas, storeas.getRemoteAET(), e);
         } finally {
+            ctx.decrementPendingCStoreForward();
             releaseStoreAssociation();
-            SafeClose.close(ctx);
+            SafeClose.close(event);
         }
-        retrieveEnd.fire(ctx);
+        retrieveEnd.fire(event);
     }
 
     private void releaseStoreAssociation() {
@@ -106,9 +110,9 @@ class CStoreForwardTask implements Runnable {
         }
     }
 
-    private void store(StoreContext storeCtx) {
+    private void store(StoreContext storeCtx, RetrieveContext event) {
         InstanceLocations inst = createInstanceLocations(storeCtx);
-        ctx.getMatches().add(inst);
+        event.getMatches().add(inst);
         String cuid = inst.getSopClassUID();
         String iuid = inst.getSopInstanceUID();
         Set<String> tsuids = storeas.getTransferSyntaxesFor(cuid);
@@ -121,12 +125,13 @@ class CStoreForwardTask implements Runnable {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 DataWriter data = new TranscoderDataWriter(transcoder,
                         service.getAttributesCoercion(ctx, inst));
-                DimseRSPHandler rspHandler = new CStoreRSPHandler(inst);
+                DimseRSPHandler rspHandler = new CStoreRSPHandler(inst, event);
                 storeas.cstore(cuid, iuid, ctx.getPriority(),
                             ctx.getMoveOriginatorAETitle(), ctx.getMoveOriginatorMessageID(),
                             data, tsuid, rspHandler);
             }
         } catch (Exception e) {
+            event.addFailedSOPInstanceUID(iuid);
             ctx.addFailedSOPInstanceUID(iuid);
             LOG.info("{}: failed to send {} to {}:", rqas, inst, ctx.getDestinationAETitle(), e);
         }
@@ -167,10 +172,12 @@ class CStoreForwardTask implements Runnable {
     private final class CStoreRSPHandler extends DimseRSPHandler {
 
         private final InstanceLocations inst;
+        private final RetrieveContext event;
 
-        public CStoreRSPHandler(InstanceLocations inst) {
+        public CStoreRSPHandler(InstanceLocations inst, RetrieveContext event) {
             super(storeas.nextMessageID());
             this.inst = inst;
+            this.event = event;
         }
 
         @Override
@@ -178,10 +185,11 @@ class CStoreForwardTask implements Runnable {
             super.onDimseRSP(as, cmd, data);
             int storeStatus = cmd.getInt(Tag.Status, -1);
             if (storeStatus == Status.Success)
-                ctx.incrementCompleted();
+                event.incrementCompleted();
             else if ((storeStatus & 0xB000) == 0xB000)
-                ctx.incrementWarning();
+                event.incrementWarning();
             else {
+                event.addFailedSOPInstanceUID(inst.getSopInstanceUID());
                 ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
             }
         }

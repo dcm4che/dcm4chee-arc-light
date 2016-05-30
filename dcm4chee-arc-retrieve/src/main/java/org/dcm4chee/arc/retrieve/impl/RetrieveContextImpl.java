@@ -90,6 +90,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private final Collection<SeriesInfo> seriesInfos = new ArrayList<>();
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
+    private final AtomicInteger pendingCStoreForward = new AtomicInteger();
     private final Collection<String> failedSOPInstanceUIDs =
             Collections.synchronizedCollection(new ArrayList<String>());
     private final HashMap<String, Storage> storageMap = new HashMap<>();
@@ -460,6 +461,27 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setHideRejectionNotesWithCode(CodeEntity[] hideRejectionNotesWithCode) {
         this.hideRejectionNotesWithCode = hideRejectionNotesWithCode;
+    }
+
+    @Override
+    public void incrementPendingCStoreForward() {
+        pendingCStoreForward.incrementAndGet();
+    }
+
+    @Override
+    public void decrementPendingCStoreForward() {
+        synchronized (pendingCStoreForward) {
+            pendingCStoreForward.decrementAndGet();
+            pendingCStoreForward.notifyAll();
+        }
+    }
+
+    @Override
+    public void waitForPendingCStoreForward() throws InterruptedException {
+        synchronized (pendingCStoreForward) {
+            while (pendingCStoreForward.get() > 0)
+                pendingCStoreForward.wait();
+        }
     }
 
     @Override

@@ -82,9 +82,7 @@ class CStoreForward {
     private CStoreForwardTask createTask(final Association as) {
         ApplicationEntity localAE = retrieveCtx.getLocalApplicationEntity();
         Association storeas = openAssociation(as, localAE);
-        RetrieveContext ctx = retrieveCtx.getRetrieveService().cloneRetrieveContext(retrieveCtx);
-        ctx.setStoreAssociation(storeas);
-        final CStoreForwardTask task = new CStoreForwardTask(ctx, retrieveEnd);
+        final CStoreForwardTask task = new CStoreForwardTask(retrieveCtx, storeas, retrieveEnd);
         forwardTasks.put(as, task);
         as.addAssociationListener(new AssociationListener() {
             @Override
