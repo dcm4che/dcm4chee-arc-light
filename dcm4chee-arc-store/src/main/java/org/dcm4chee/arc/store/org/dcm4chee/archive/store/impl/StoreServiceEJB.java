@@ -491,7 +491,7 @@ public class StoreServiceEJB {
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
-                updateStorageIDs(study, storeSession.getArchiveAEExtension().getStorageID());
+                updateStorageIDs(study, storeSession.getArchiveAEExtension().storageID());
                 if (result.getRejectionNote() == null)
                     updateStudyRejectionState(ctx, study);
             } catch (NoResultException e) {}
@@ -552,7 +552,7 @@ public class StoreServiceEJB {
 
     private Instance findInstance(String objectUID) {
         try {
-            return em.createNamedQuery(Instance.FIND_BY_SOP_IUID, Instance.class)
+            return em.createNamedQuery(Instance.FIND_BY_SOP_IUID_EAGER, Instance.class)
                     .setParameter(1, objectUID)
                     .getSingleResult();
         } catch (NoResultException e) {
@@ -562,7 +562,7 @@ public class StoreServiceEJB {
 
     private Instance findInstance(String studyUID, String seriesUID, String objectUID) {
         try {
-            return em.createNamedQuery(Instance.FIND_BY_STUDY_SERIES_SOP_IUID, Instance.class)
+            return em.createNamedQuery(Instance.FIND_BY_STUDY_SERIES_SOP_IUID_EAGER, Instance.class)
                     .setParameter(1, studyUID)
                     .setParameter(2, seriesUID)
                     .setParameter(3, objectUID)

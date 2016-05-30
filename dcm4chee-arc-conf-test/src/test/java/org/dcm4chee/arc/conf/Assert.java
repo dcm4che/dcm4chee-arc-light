@@ -84,7 +84,6 @@ class Assert {
         assertArrayEquals(expected.getMppsForwardDestinations(), actual.getMppsForwardDestinations());
         assertEquals(expected.getFallbackCMoveSCP(), actual.getFallbackCMoveSCP());
         assertEquals(expected.getFallbackCMoveSCPDestination(), actual.getFallbackCMoveSCPDestination());
-        assertEquals(expected.getFallbackCMoveSCPLevel(), actual.getFallbackCMoveSCPLevel());
         assertEquals(expected.getAlternativeCMoveSCP(), actual.getAlternativeCMoveSCP());
     }
 
@@ -105,7 +104,6 @@ class Assert {
         assertArrayEquals(expected.getMppsForwardDestinations(), actual.getMppsForwardDestinations());
         assertEquals(expected.getFallbackCMoveSCP(), actual.getFallbackCMoveSCP());
         assertEquals(expected.getFallbackCMoveSCPDestination(), actual.getFallbackCMoveSCPDestination());
-        assertEquals(expected.getFallbackCMoveSCPLevel(), actual.getFallbackCMoveSCPLevel());
         assertEquals(expected.getAlternativeCMoveSCP(), actual.getAlternativeCMoveSCP());
         assertEquals(expected.getExportTaskPollingInterval(), actual.getExportTaskPollingInterval());
         assertEquals(expected.getExportTaskFetchSize(), actual.getExportTaskFetchSize());

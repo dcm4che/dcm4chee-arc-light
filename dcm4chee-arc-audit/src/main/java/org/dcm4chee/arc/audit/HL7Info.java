@@ -82,6 +82,9 @@ class HL7Info {
                 ? ctx.getPreviousPatientID().getID()
                 : ctx.getPatientID() != null && ctx.getPatientID().getID() != null
                 ? ctx.getPatientID().getID() : AuditServiceUtils.noValue;
+        String patName = (et == AuditServiceUtils.EventType.HL7_DELT_E || et == AuditServiceUtils.EventType.HL7_DELT_P)
+                ? StringUtils.maskEmpty(ctx.getPreviousAttributes().getString(Tag.PatientName), null)
+                : StringUtils.maskEmpty(ctx.getAttributes().getString(Tag.PatientName), null);
         fields = new String[] {
                 ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRemoteAddr() : ctx.getRemoteHostName(),
                 source,
@@ -89,7 +92,7 @@ class HL7Info {
                 ctx.getHL7MessageHeader() != null ? "MSH-10" : null,
                 ctx.getHL7MessageHeader() != null ? ctx.getHL7MessageHeader().getField(9, "") : null,
                 patID,
-                StringUtils.maskEmpty(ctx.getAttributes().getString(Tag.PatientName), null),
+                patName,
                 ctx.getException() != null ? ctx.getException().getMessage() : null
         };
     }

@@ -44,6 +44,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
@@ -61,12 +63,9 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
-import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.StudyInfo;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -117,6 +116,9 @@ public class RetrieveServiceImpl implements RetrieveService {
             QStudy.study.accessTime,
             QStudy.study.failedRetrieves,
             QStudy.study.failedSOPInstanceUIDList,
+            QSeries.series.seriesInstanceUID,
+            QSeries.series.failedRetrieves,
+            QSeries.series.failedSOPInstanceUIDList,
             QueryBuilder.seriesAttributesBlob.encodedAttributes,
             QueryBuilder.studyAttributesBlob.encodedAttributes,
             QueryBuilder.patientAttributesBlob.encodedAttributes
@@ -141,6 +143,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     private CFindSCU cfindscu;
 
     @Inject
+    private IApplicationEntityCache aeCache;
+
+    @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     StatelessSession openStatelessSession() {
@@ -158,13 +163,20 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public RetrieveContext newRetrieveContextMOVE(
-            Association as, Attributes rqCmd, QueryRetrieveLevel2 qrLevel, Attributes keys) {
+            Association as, Attributes rqCmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
+            throws ConfigurationException {
         RetrieveContext ctx = newRetrieveContext(as, qrLevel, keys);
         ctx.setPriority(rqCmd.getInt(Tag.Priority, 0));
         ctx.setDestinationAETitle(rqCmd.getString(Tag.MoveDestination));
         ctx.setMoveOriginatorMessageID(rqCmd.getInt(Tag.MessageID, 0));
         ctx.setMoveOriginatorAETitle(as.getRemoteAET());
+        ctx.setDestinationAE(aeCache.findApplicationEntity(ctx.getDestinationAETitle()));
         return ctx;
+    }
+
+    @Override
+    public RetrieveContext cloneRetrieveContext(RetrieveContext other) {
+       return new RetrieveContextImpl(other);
     }
 
     @Override
@@ -177,14 +189,17 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public RetrieveContext newRetrieveContextSTORE(
-            String localAET, String studyUID, String seriesUID, String objectUID, String destAET) {
+            String localAET, String studyUID, String seriesUID, String objectUID, String destAET)
+            throws ConfigurationException {
         RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
         ctx.setDestinationAETitle(destAET);
+        ctx.setDestinationAE(aeCache.findApplicationEntity(destAET));
         return ctx;
     }
 
     private RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
-        RetrieveContext ctx = new RetrieveContextImpl(this, device.getApplicationEntity(localAET, true), localAET);
+        RetrieveContext ctx = new RetrieveContextImpl(this,
+                device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class), localAET);
         initCodes(ctx);
         if (studyUID != null)
             ctx.setStudyInstanceUIDs(studyUID);
@@ -196,8 +211,10 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private RetrieveContext newRetrieveContext(Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
-        RetrieveContext ctx = new RetrieveContextImpl(this, as.getApplicationEntity(), as.getLocalAET());
+        RetrieveContext ctx = new RetrieveContextImpl(this,
+                as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class), as.getLocalAET());
         ctx.setRequestAssociation(as);
+        ctx.setQueryRetrieveLevel(qrLevel);
         initCodes(ctx);
         IDWithIssuer pid = IDWithIssuer.pidOf(keys);
         if (pid != null)
@@ -239,13 +256,14 @@ public class RetrieveServiceImpl implements RetrieveService {
                     if (seriesAttrs == null) {
                         SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
                         studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
+                        ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
                         seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
                     }
                     Attributes instAttrs = AttributesBlob.decodeAttributes(
                             tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
                     Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
                     instAttrs.addAll(seriesAttrs);
-                    match = new InstanceLocationsImpl(
+                    match = newInstanceLocations(
                             tuple.get(QInstance.instance.sopClassUID),
                             tuple.get(QInstance.instance.sopInstanceUID),
                             instAttrs);
@@ -261,6 +279,11 @@ public class RetrieveServiceImpl implements RetrieveService {
         } finally {
             session.close();
         }
+    }
+
+    @Override
+    public InstanceLocationsImpl newInstanceLocations(String sopClassUID, String sopInstanceUID, Attributes attrs) {
+        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, attrs);
     }
 
     private void updateStudyAccessTime(RetrieveContext ctx) {
@@ -292,10 +315,12 @@ public class RetrieveServiceImpl implements RetrieveService {
     private static class SeriesAttributes {
         final Attributes attrs;
         final StudyInfo studyInfo;
+        final SeriesInfo seriesInfo;
 
-        SeriesAttributes(Attributes attrs, StudyInfo studyInfo) {
+        SeriesAttributes(Attributes attrs, StudyInfo studyInfo, SeriesInfo seriesInfo) {
             this.attrs = attrs;
             this.studyInfo = studyInfo;
+            this.seriesInfo = seriesInfo;
         }
 
     }
@@ -315,8 +340,12 @@ public class RetrieveServiceImpl implements RetrieveService {
                 tuple.get(QStudy.study.studyInstanceUID),
                 tuple.get(QStudy.study.accessTime),
                 tuple.get(QStudy.study.failedRetrieves),
-                tuple.get(QStudy.study.failedSOPInstanceUIDList)
-        );
+                tuple.get(QStudy.study.failedSOPInstanceUIDList));
+        SeriesInfo seriesInfo = new SeriesInfoImpl(
+                studyInfo.getStudyInstanceUID(),
+                tuple.get(QSeries.series.seriesInstanceUID),
+                tuple.get(QSeries.series.failedRetrieves),
+                tuple.get(QSeries.series.failedSOPInstanceUIDList));
         Attributes patAttrs = AttributesBlob.decodeAttributes(
                 tuple.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         Attributes studyAttrs = AttributesBlob.decodeAttributes(
@@ -328,7 +357,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
-        return new SeriesAttributes(attrs, studyInfo);
+        return new SeriesAttributes(attrs, studyInfo, seriesInfo);
 }
 
     private HibernateQuery<Tuple> createQuery(RetrieveContext ctx, StatelessSession session) {
@@ -399,18 +428,20 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public void failedToRetrieveStudy(String studyInstanceUID, String failedSOPInstanceUIDList) {
-        ejb.failedToRetrieveStudy(studyInstanceUID, failedSOPInstanceUIDList);
-    }
-
-    @Override
-    public void clearFailedSOPInstanceUIDList(String studyInstanceUID) {
-        ejb.clearFailedSOPInstanceUIDList(studyInstanceUID);
+    public List<Location> findLocations(Instance inst) {
+        return em.createNamedQuery(Location.FIND_BY_INSTANCE, Location.class)
+                .setParameter(1, inst)
+                .getResultList();
     }
 
     @Override
     public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst) {
         return new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
+    }
+
+    @Override
+    public void updateFailedSOPInstanceUIDList(RetrieveContext ctx, String failedSOPInstanceUIDList) {
+        ejb.updateFailedSOPInstanceUIDList(ctx, failedSOPInstanceUIDList);
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {

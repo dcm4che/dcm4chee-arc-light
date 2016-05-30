@@ -61,23 +61,29 @@ import java.util.Date;
  */
 @NamedQueries({
 @NamedQuery(
-    name=Instance.FIND_BY_SOP_IUID,
+    name=Instance.FIND_BY_SOP_IUID_EAGER,
     query="select i from Instance i " +
+            "join fetch i.series se " +
+            "join fetch se.study st " +
+            "join fetch st.patient p " +
+            "left join fetch p.patientID " +
+            "left join fetch p.patientName " +
+            "left join fetch st.referringPhysicianName " +
+            "left join fetch se.performingPhysicianName " +
+            "left join fetch i.conceptNameCode " +
+            "left join fetch i.rejectionNoteCode " +
+            "join fetch i.attributesBlob " +
+            "join fetch se.attributesBlob " +
+            "join fetch st.attributesBlob " +
+            "join fetch p.attributesBlob " +
             "where i.sopInstanceUID = ?1"),
-@NamedQuery(
-    name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID,
-    query="select i from Instance i " +
-            "join i.series se " +
-            "join se.study st " +
-            "where st.studyInstanceUID = ?1 " +
-            "and se.seriesInstanceUID = ?2 " +
-            "and i.sopInstanceUID = ?3"),
 @NamedQuery(
     name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID_EAGER,
     query="select i from Instance i " +
             "join fetch i.series se " +
             "join fetch se.study st " +
             "join fetch st.patient p " +
+            "left join fetch p.patientID " +
             "left join fetch p.patientName " +
             "left join fetch st.referringPhysicianName " +
             "left join fetch se.performingPhysicianName " +
@@ -129,8 +135,7 @@ import java.util.Date;
     })
 public class Instance {
 
-    public static final String FIND_BY_SOP_IUID = "Instance.findBySopIUID";
-    public static final String FIND_BY_STUDY_SERIES_SOP_IUID = "Instance.findByStudySeriesSopIUID";
+    public static final String FIND_BY_SOP_IUID_EAGER = "Instance.findBySopIUIDEager";
     public static final String FIND_BY_STUDY_SERIES_SOP_IUID_EAGER = "Instance.findByStudySeriesSopIUIDEager";
     public static final String COUNT_INSTANCES_OF_SERIES = "Instance.countInstancesOfSeries";
     public static final String COUNT_REJECTED_INSTANCES_OF_SERIES = "Instance.countRejectedInstancesOfSeries";

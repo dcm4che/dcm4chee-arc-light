@@ -85,7 +85,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval());
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP());
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination());
-        LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPLevel", ext.getFallbackCMoveSCPLevel());
         LdapUtils.storeNotDef(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries(), 0);
         LdapUtils.storeNotNull(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP());
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI());
@@ -143,8 +142,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 toDuration(LdapUtils.stringValue(attrs.get("dcmSendPendingCMoveInterval"), null)));
         ext.setFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCP"), null));
         ext.setFallbackCMoveSCPDestination(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPDestination"), null));
-        ext.setFallbackCMoveSCPLevel(
-                LdapUtils.enumValue(MoveForwardLevel.class, attrs.get("dcmFallbackCMoveSCPLevel"), null));
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), 0));
         ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
@@ -211,8 +208,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP());
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPDestination",
                 aa.getFallbackCMoveSCPDestination(), bb.getFallbackCMoveSCPDestination());
-        LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPLevel",
-                aa.getFallbackCMoveSCPLevel(), bb.getFallbackCMoveSCPLevel());
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPRetries",
                 aa.getFallbackCMoveSCPRetries(), bb.getFallbackCMoveSCPRetries(),  0);
         LdapUtils.storeDiff(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP());
@@ -356,7 +351,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval());
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP());
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination());
-        LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPLevel", ext.getFallbackCMoveSCPLevel());
         LdapUtils.storeNotDef(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries(), 0);
         LdapUtils.storeNotNull(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP());
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI());
@@ -389,8 +383,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 toDuration(LdapUtils.stringValue(attrs.get("dcmSendPendingCMoveInterval"), null)));
         ext.setFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCP"), null));
         ext.setFallbackCMoveSCPDestination(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPDestination"), null));
-        ext.setFallbackCMoveSCPLevel(
-                LdapUtils.enumValue(MoveForwardLevel.class, attrs.get("dcmFallbackCMoveSCPLevel"), null));
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), 0));
         ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
@@ -426,8 +418,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP());
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPDestination",
                 aa.getFallbackCMoveSCPDestination(), bb.getFallbackCMoveSCPDestination());
-        LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPLevel",
-                aa.getFallbackCMoveSCPLevel(), bb.getFallbackCMoveSCPLevel());
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPRetries",
                 aa.getFallbackCMoveSCPRetries(), bb.getFallbackCMoveSCPRetries(),  0);
         LdapUtils.storeDiff(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP());

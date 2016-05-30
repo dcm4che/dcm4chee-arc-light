@@ -64,6 +64,11 @@ public class InstanceLocationsImpl implements InstanceLocations {
     }
 
     @Override
+    public String toString() {
+        return "Instance[iuid=" + sopInstanceUID + ",cuid=" + sopClassUID + "]";
+    }
+
+    @Override
     public String getSopInstanceUID() {
         return sopInstanceUID;
     }

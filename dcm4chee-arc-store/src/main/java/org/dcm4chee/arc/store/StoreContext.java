@@ -37,6 +37,14 @@ public interface StoreContext {
 
     void setAcceptedStudyInstanceUID(String acceptedStudyInstanceUID);
 
+    int getMoveOriginatorMessageID();
+
+    void setMoveOriginatorMessageID(int moveOriginatorMessageID);
+
+    String getMoveOriginatorAETitle();
+
+    void setMoveOriginatorAETitle(String moveOriginatorAETitle);
+
     Attributes getAttributes();
 
     void setAttributes(Attributes dataset);

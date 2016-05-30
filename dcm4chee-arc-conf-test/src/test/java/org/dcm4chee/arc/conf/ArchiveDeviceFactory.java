@@ -954,7 +954,6 @@ class ArchiveDeviceFactory {
             ext.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
             ext.setFallbackCMoveSCP("QRSCP");
             ext.setFallbackCMoveSCPDestination("DCM4CHEE");
-            ext.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
             ext.setAlternativeCMoveSCP("DCM4CHEE");
             ext.setDeleteStudyBatchSize(20);
             ext.setDeletePatientOnDeleteLastStudy(true);
@@ -1142,7 +1141,6 @@ class ArchiveDeviceFactory {
             aeExt.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
             aeExt.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
             aeExt.setFallbackCMoveSCPDestination("DCM4CHEE");
-            aeExt.setFallbackCMoveSCPLevel(MoveForwardLevel.STUDY);
             aeExt.setAlternativeCMoveSCP("DCM4CHEE");
         }
         return ae;

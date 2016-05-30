@@ -45,14 +45,12 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.retrieve.StudyInfo;
+import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,7 +65,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public class RetrieveContextImpl implements RetrieveContext {
+class RetrieveContextImpl implements RetrieveContext {
     private Association requestAssociation;
     private Association storeAssociation;
     private HttpServletRequest httpRequest;
@@ -75,6 +73,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private final ArchiveAEExtension arcAE;
     private final String localAETitle;
     private final QueryRetrieveView qrView;
+    private QueryRetrieveLevel2 qrLevel;
     private int priority = Priority.NORMAL;
     private int moveOriginatorMessageID;
     private String moveOriginatorAETitle;
@@ -88,6 +87,7 @@ public class RetrieveContextImpl implements RetrieveContext {
     private int numberOfMatches;
     private final Collection<InstanceLocations> matches = new ArrayList<>();
     private final Collection<StudyInfo> studyInfos = new ArrayList<>();
+    private final Collection<SeriesInfo> seriesInfos = new ArrayList<>();
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
     private final Collection<String> failedSOPInstanceUIDs =
@@ -97,11 +97,28 @@ public class RetrieveContextImpl implements RetrieveContext {
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
-    public RetrieveContextImpl(RetrieveService retrieveService, ApplicationEntity ae, String localAETitle) {
+    RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle) {
         this.retrieveService = retrieveService;
-        this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        this.arcAE = arcAE;
         this.localAETitle = localAETitle;
         this.qrView = arcAE.getQueryRetrieveView();
+    }
+
+    RetrieveContextImpl(RetrieveContext other) {
+        this(other.getRetrieveService(), other.getArchiveAEExtension(), other.getLocalAETitle());
+        requestAssociation = other.getRequestAssociation();
+        storeAssociation = other.getStoreAssociation();
+        httpRequest = other.getHttpRequest();
+        qrLevel = other.getQueryRetrieveLevel();
+        priority = other.getPriority();
+        moveOriginatorMessageID = other.getMoveOriginatorMessageID();
+        moveOriginatorAETitle = other.getMoveOriginatorAETitle();
+        destinationAETitle = other.getDestinationAETitle();
+        destinationAE = other.getDestinationAE();
+        patientIDs = other.getPatientIDs();
+        studyInstanceUIDs = other.getStudyInstanceUIDs();
+        seriesInstanceUIDs = other.getSeriesInstanceUIDs();
+        sopInstanceUIDs = other.getSopInstanceUIDs();
     }
 
     @Override
@@ -112,6 +129,16 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setRequestAssociation(Association requestAssociation) {
         this.requestAssociation = requestAssociation;
+    }
+
+    @Override
+    public QueryRetrieveLevel2 getQueryRetrieveLevel() {
+        return qrLevel;
+    }
+
+    @Override
+    public void setQueryRetrieveLevel(QueryRetrieveLevel2 qrLevel) {
+        this.qrLevel = qrLevel;
     }
 
     @Override
@@ -205,6 +232,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public ApplicationEntity getDestinationAE() {
+        return destinationAE;
+    }
+
+    @Override
     public void setDestinationAE(ApplicationEntity destinationAE) {
         this.destinationAE = destinationAE;
     }
@@ -270,6 +302,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public String getStudyInstanceUID() {
+        return studyInstanceUIDs.length > 0 ? studyInstanceUIDs[0] : null;
+    }
+
+    @Override
     public String[] getStudyInstanceUIDs() {
         return studyInstanceUIDs;
     }
@@ -277,6 +314,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setStudyInstanceUIDs(String... studyInstanceUIDs) {
         this.studyInstanceUIDs = studyInstanceUIDs != null ? studyInstanceUIDs : StringUtils.EMPTY_STRING;
+    }
+
+    @Override
+    public String getSeriesInstanceUID() {
+        return seriesInstanceUIDs.length > 0 ? seriesInstanceUIDs[0] : null;
     }
 
     @Override
@@ -307,6 +349,11 @@ public class RetrieveContextImpl implements RetrieveContext {
     @Override
     public Collection<StudyInfo> getStudyInfos() {
         return studyInfos;
+    }
+
+    @Override
+    public Collection<SeriesInfo> getSeriesInfos() {
+        return seriesInfos;
     }
 
     @Override

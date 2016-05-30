@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
@@ -78,7 +79,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int ianTaskFetchSize = 100;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
-    private MoveForwardLevel fallbackCMoveSCPLevel;
     private int fallbackCMoveSCPRetries;
     private String alternativeCMoveSCP;
     private Duration exportTaskPollingInterval;
@@ -321,14 +321,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFallbackCMoveSCPDestination(String fallbackCMoveSCPDestination) {
         this.fallbackCMoveSCPDestination = fallbackCMoveSCPDestination;
-    }
-
-    public MoveForwardLevel getFallbackCMoveSCPLevel() {
-        return fallbackCMoveSCPLevel;
-    }
-
-    public void setFallbackCMoveSCPLevel(MoveForwardLevel fallbackCMoveSCPLevel) {
-        this.fallbackCMoveSCPLevel = fallbackCMoveSCPLevel;
     }
 
     public int getFallbackCMoveSCPRetries() {
@@ -733,7 +725,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         ianTaskFetchSize = arcdev.ianTaskFetchSize;
         fallbackCMoveSCP = arcdev.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = arcdev.fallbackCMoveSCPDestination;
-        fallbackCMoveSCPLevel = arcdev.fallbackCMoveSCPLevel;
         fallbackCMoveSCPRetries = arcdev.fallbackCMoveSCPRetries;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
@@ -772,5 +763,4 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
     }
-
 }

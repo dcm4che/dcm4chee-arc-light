@@ -74,7 +74,6 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCPDestination;
     private Duration ianTimeout;
     private Boolean ianOnTimeout;
-    private MoveForwardLevel fallbackCMoveSCPLevel;
     private int fallbackCMoveSCPRetries;
     private String alternativeCMoveSCP;
     private int qidoMaxNumberOfResults;
@@ -327,20 +326,6 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackCMoveSCPDestination();
     }
 
-    public MoveForwardLevel getFallbackCMoveSCPLevel() {
-        return fallbackCMoveSCPLevel;
-    }
-
-    public void setFallbackCMoveSCPLevel(MoveForwardLevel fallbackCMoveSCPLevel) {
-        this.fallbackCMoveSCPLevel = fallbackCMoveSCPLevel;
-    }
-
-    public MoveForwardLevel fallbackCMoveSCPLevel() {
-        return fallbackCMoveSCPLevel != null
-                ? fallbackCMoveSCPLevel
-                : getArchiveDeviceExtension().getFallbackCMoveSCPLevel();
-    }
-
     public void setFallbackCMoveSCPRetries(int fallbackCMoveSCPRetries) {
         this.fallbackCMoveSCPRetries = fallbackCMoveSCPRetries;
     }
@@ -457,7 +442,6 @@ public class ArchiveAEExtension extends AEExtension {
         ianOnTimeout = aeExt.ianOnTimeout;
         fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
-        fallbackCMoveSCPLevel = aeExt.fallbackCMoveSCPLevel;
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
