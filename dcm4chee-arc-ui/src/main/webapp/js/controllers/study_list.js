@@ -81,7 +81,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             html +=         '<div class="head">'
             html +=             '<h1>J4Care</h1>'
             html +=             '<h3>SMooTH Archive</h3>'
-            html +=             '<h4>Version 5.2.0</h4>'
+            html +=             '<h4>Version 5.3.1</h4>'
             html +=         '</div>'
             html +=         '<div class="content">'
             html +=             '<p><b>J4Care GmbH</b><br/>Enzersdorfer Strasse 7<br/>A-2340 Mödling</p>'
