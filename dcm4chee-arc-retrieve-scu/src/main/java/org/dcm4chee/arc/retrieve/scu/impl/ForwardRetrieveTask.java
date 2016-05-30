@@ -42,6 +42,7 @@ package org.dcm4chee.arc.retrieve.scu.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -157,20 +158,56 @@ class ForwardRetrieveTask implements RetrieveTask {
         @Override
         public void onDimseRSP(Association as, Attributes cmd, Attributes data) {
             super.onDimseRSP(as, cmd, data);
-            try {
-                rqas.writeDimseRSP(pc, cmd, data);
-            } catch (IOException e) {
-                LOG.warn("{}: Unable to backward C-MOVE RSP on association to {}", rqas, rqas.getRemoteAET(), e);
-            }
-
+            int failed = ctx.failed();
             if (!Status.isPending(cmd.getInt(Tag.Status, -1))) {
                 synchronized (this) {
                     finalMoveRSP = cmd;
                     finalMoveRSPData = data;
                     notify();
                 }
+                if (fallbackCMoveSCPDestination != null) {
+                    try {
+                        LOG.info("{}: Wait for pending forward of C-STORE-RQs from {} to {}",
+                                rqas, fwdas.getRemoteAET(), ctx.getDestinationAETitle());
+                        ctx.waitForPendingCStoreForward();
+                        LOG.info("{}: Complete forward of C-STORE-RQs from {} to {}",
+                                rqas, fwdas.getRemoteAET(), ctx.getDestinationAETitle());
+                    } catch (InterruptedException e) {
+                        LOG.warn("{}: failed to wait for pending forward of C-STORE-RQs from {} to {}",
+                                rqas, fwdas.getRemoteAET(), ctx.getDestinationAETitle(), e);
+                    }
+                    if (failed > 0) {
+                        String[] failedIUIDs = ctx.failedSOPInstanceUIDs();
+                        if (data != null)
+                            failedIUIDs = cat(failedIUIDs, data.getStrings(Tag.FailedSOPInstanceUIDList));
+                        data = new Attributes(1);
+                        data.setString(Tag.FailedSOPInstanceUIDList, VR.UI, failedIUIDs);
+                    }
+                }
+            }
+            if (fallbackCMoveSCPDestination != null && failed > 0) {
+                cmd = new Attributes(cmd);
+                cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US,
+                        cmd.getInt(Tag.NumberOfCompletedSuboperations, 0) - failed);
+                cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US,
+                        cmd.getInt(Tag.NumberOfFailedSuboperations, 0) + failed);
+            }
+            try {
+                rqas.writeDimseRSP(pc, cmd, data);
+            } catch (IOException e) {
+                LOG.warn("{}: Unable to backward C-MOVE RSP on association to {}", rqas, rqas.getRemoteAET(), e);
             }
         }
+    }
+
+    private static String[] cat(String[] ss1, String[] ss2) {
+        if (ss2 == null || ss2.length == 0)
+            return ss1;
+
+        String[] ss = new String[ss1.length + ss2.length];
+        System.arraycopy(ss1, 0, ss, 0, ss1.length);
+        System.arraycopy(ss2, 0, ss, ss1.length, ss2.length);
+        return ss;
     }
 
     private void updateFailedSOPInstanceUIDList() {

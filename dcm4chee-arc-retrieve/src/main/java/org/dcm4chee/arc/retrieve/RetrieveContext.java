@@ -185,4 +185,10 @@ public interface RetrieveContext extends Closeable {
     CodeEntity[] getHideRejectionNotesWithCode();
 
     void setHideRejectionNotesWithCode(CodeEntity[] hideRejectionNotesWithCode);
+
+    void incrementPendingCStoreForward();
+
+    void decrementPendingCStoreForward();
+
+    void waitForPendingCStoreForward() throws InterruptedException;
 }
