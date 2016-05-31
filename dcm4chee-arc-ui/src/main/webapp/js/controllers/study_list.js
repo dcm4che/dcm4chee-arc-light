@@ -75,8 +75,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             );
         }
     };
-    $(".logo").click(function(){
-        // console.log("logo click");
+    $(".logo").unbind("click").bind("click",function(){
+        console.log("logo click");
         var html =  '<div class="info-block">'
             html +=         '<div class="head">'
             html +=             '<h1>J4Care</h1>'
