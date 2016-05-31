@@ -79,6 +79,8 @@ class CStoreForwardTask implements Runnable {
     public void onStore(StoreContext storeContext) {
         if (storeas != null)
             queue.offer(new WrappedStoreContext(storeContext));
+        else if (storeContext != null)
+            ctx.addFailedSOPInstanceUID(storeContext.getSopInstanceUID());
     }
 
     @Override

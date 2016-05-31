@@ -158,14 +158,35 @@ class ForwardRetrieveTask implements RetrieveTask {
         @Override
         public void onDimseRSP(Association as, Attributes cmd, Attributes data) {
             super.onDimseRSP(as, cmd, data);
-            int failed = ctx.failed();
-            if (!Status.isPending(cmd.getInt(Tag.Status, -1))) {
+            boolean pending = Status.isPending(cmd.getInt(Tag.Status, -1));
+            if (!pending) {
                 synchronized (this) {
                     finalMoveRSP = cmd;
                     finalMoveRSPData = data;
                     notify();
                 }
-                if (fallbackCMoveSCPDestination != null) {
+            }
+            if (fallbackCMoveSCPDestination != null) {
+                int failed = fallbackCMoveSCPDestination != null ? ctx.failed() : 0;
+                if (failed > 0) {
+                    cmd = new Attributes(cmd);
+                    int completed = cmd.getInt(Tag.NumberOfCompletedSuboperations, 0) - failed;
+                    cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US,
+                            completed);
+                    cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US,
+                            cmd.getInt(Tag.NumberOfFailedSuboperations, 0) + failed);
+                    if (!pending) {
+                        int retrieved = cmd.getInt(Tag.NumberOfWarningSuboperations, 0) + completed;
+                        cmd.setInt(Tag.Status, VR.US,
+                                retrieved > 0 ? Status.OneOrMoreFailures : Status.UnableToPerformSubOperations);
+                        String[] failedIUIDs = ctx.failedSOPInstanceUIDs();
+                        if (data != null)
+                            failedIUIDs = cat(failedIUIDs, data.getStrings(Tag.FailedSOPInstanceUIDList));
+                        data = new Attributes(1);
+                        data.setString(Tag.FailedSOPInstanceUIDList, VR.UI, failedIUIDs);
+                    }
+                }
+                if (!pending) {
                     try {
                         LOG.info("{}: Wait for pending forward of C-STORE-RQs from {} to {}",
                                 rqas, fwdas.getRemoteAET(), ctx.getDestinationAETitle());
@@ -176,21 +197,7 @@ class ForwardRetrieveTask implements RetrieveTask {
                         LOG.warn("{}: failed to wait for pending forward of C-STORE-RQs from {} to {}",
                                 rqas, fwdas.getRemoteAET(), ctx.getDestinationAETitle(), e);
                     }
-                    if (failed > 0) {
-                        String[] failedIUIDs = ctx.failedSOPInstanceUIDs();
-                        if (data != null)
-                            failedIUIDs = cat(failedIUIDs, data.getStrings(Tag.FailedSOPInstanceUIDList));
-                        data = new Attributes(1);
-                        data.setString(Tag.FailedSOPInstanceUIDList, VR.UI, failedIUIDs);
-                    }
                 }
-            }
-            if (fallbackCMoveSCPDestination != null && failed > 0) {
-                cmd = new Attributes(cmd);
-                cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US,
-                        cmd.getInt(Tag.NumberOfCompletedSuboperations, 0) - failed);
-                cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US,
-                        cmd.getInt(Tag.NumberOfFailedSuboperations, 0) + failed);
             }
             try {
                 rqas.writeDimseRSP(pc, cmd, data);
