@@ -81,19 +81,20 @@ public class PatientStudyInfoUtils extends AuditServiceUtils {
                 psi.getField(PatientStudyInfo.STUDY_UID),
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 null, null, AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.Report, null, null, null,
-                et.eventClass == AuditServiceUtils.EventClass.PERM_DELETE
+                AuditMessages.ParticipantObjectTypeCodeRole.Report, null, null,
+                AuditMessages.createParticipantObjectDescription(
+                    et.eventClass == AuditServiceUtils.EventClass.PERM_DELETE
                         ? getAccessions(psi.getField(PatientStudyInfo.ACCESSION_NO)) : null,
-                null, getSopClasses(instanceLines), null, null, getParticipantObjectContainsStudy(psi),
+                    null, getSopClasses(instanceLines), null, null, getParticipantObjectContainsStudy(psi)),
                 getParticipantObjectDetail(psi, null, et));
     }
 
     private static ParticipantObjectIdentification patientPOIForDeletion(PatientStudyInfo psi) {
-        return AuditMessages.createParticipantObjectIdentification(psi.getField(PatientStudyInfo.PATIENT_ID),
+        return AuditMessages.createParticipantObjectIdentification(
+                psi.getField(PatientStudyInfo.PATIENT_ID),
                 AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 psi.getField(PatientStudyInfo.PATIENT_NAME), null, AuditMessages.ParticipantObjectTypeCode.Person,
-                AuditMessages.ParticipantObjectTypeCodeRole.Patient, null, null, null, null, null, null, null, null,
-                null, null);
+                AuditMessages.ParticipantObjectTypeCodeRole.Patient, null, null, null, null);
     }
 
     private static HashSet<SOPClass> getSopClasses(HashSet<String> instanceLines) {
@@ -101,8 +102,8 @@ public class PatientStudyInfoUtils extends AuditServiceUtils {
         for (String line : instanceLines) {
             InstanceInfo ii = new InstanceInfo(line);
             sopC.add(AuditMessages.createSOPClass(null,
-                    ii.getField(InstanceInfo.CLASS_UID),
-                    Integer.parseInt(ii.getField(InstanceInfo.INSTANCE_UID))));
+                ii.getField(InstanceInfo.CLASS_UID),
+                Integer.parseInt(ii.getField(InstanceInfo.INSTANCE_UID))));
         }
         return sopC;
     }
