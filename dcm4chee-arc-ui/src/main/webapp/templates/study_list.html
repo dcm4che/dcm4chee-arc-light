@@ -231,7 +231,7 @@
 </div>
 <!-- Table -->
 <div class="div-table animated">
-    <div class="thead">
+    <div class="thead header1">
         <div class="tr_row">
             <div class="th">                
                 <button class="execute btn btn-link btn-xs" ng-click="queryPatients(0);patientmode=true" title="Query Patients">
@@ -280,6 +280,86 @@
             <div class="th" style="width:40%">
                 Patient Comments
             </div>
+        </div>
+    </div>
+    <div class="thead header2">
+        <div class="tr_row">
+            <div class="th">                
+                
+            </div>
+            <div class="th">
+                    Study ID
+            </div>
+            <div class="th"  style="width:16.6%">
+                    Study Instance UID
+            </div>
+            <div class="th">Study Date
+                <a href="" class="order_arrow" ng-click="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)">
+                    <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
+                </a>
+                <a href="" class="order_arrow" ng-click="filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)">
+                    <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                </a>
+            </div>
+            <div style="width:5%" class="th">Study Time</div>
+            <div class="th" title="Referring Physician's Name">R. Physician's Name</div>
+            <div class="th">Accession Number</div>
+            <div style="width:5%" class="th">Modalities</div>
+            <div style="width:17.3%" class="th">Study Description</div>
+            <div style="width:3%" class="th">#S</div>
+            <div style="width:3%" class="th">#I</div>
+        </div>
+    </div>
+    <div class="thead header3">
+        
+        <div class="tr_row ">
+            <div class="th">
+                <button class="btn btn-link btn-xs"
+                ng-disabled="series.instances[0].offset==0"
+                ng-click="queryInstances(series, series.instances[0].offset-limit)"
+                tooltip="Previous Instances">
+                <span class="glyphicon glyphicon-menu-left"></span>
+                </button>
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="!series.moreInstances"
+                        ng-click="queryInstances(series, series.instances[0].offset+limit)"
+                        tooltip="Next Instances">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                </button>
+            </div>
+            <div class="th">SOP Class UID</div>
+            <div class="th">Instance Number</div>
+            <div class="th">Content Date</div>
+            <div class="th">Content Time</div>
+            <div style="width:28%" class="th">Content Description</div>
+            <div style="width:2%" class="th">#F</div>
+        </div>
+    </div>
+    <div class="thead header4">
+        
+        <div class="tr_row">
+            <div class="th">
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="study.series[0].offset==0"
+                        ng-click="querySeries(study, study.series[0].offset-limit)"
+                        tooltip="Previous Series">
+                    <span class="glyphicon glyphicon-menu-left"></span>
+                </button>
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="!study.moreSeries"
+                        ng-click="querySeries(study, study.series[0].offset+limit)"
+                        tooltip="Next Series">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                </button>
+            </div>
+            <div class="th">Station Name</div>
+            <div class="th">Series Number</div>
+            <div class="th">PPS Start Date</div>
+            <div class="th">PPS Start Time</div>
+            <div class="th">Body Part</div>
+            <div class="th">Modality</div>
+            <div style="width:21%" class="th">Series Description</div>
+            <div style="width:2%" class="th">#I</div>
         </div>
     </div>
     <div class="repeat0" ng-repeat="(patientkey, patient) in patients">

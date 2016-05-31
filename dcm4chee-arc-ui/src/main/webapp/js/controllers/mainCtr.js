@@ -80,4 +80,42 @@ myApp.controller('MainController', function ($scope, $location, $http) {
     });
   };
 
+  // console.log("$('.div-table .thead .tr_row')=",$('.div-table .thead .tr_row'));
+  var headers = [
+    ".div-table > .header1 > .tr_row",
+    ".div-table > .header2 > .tr_row",
+    ".div-table > .header3 > .tr_row",
+    ".div-table > .header4 > .tr_row"
+  ]
+  var items = {};
+  console.log("items=",items);
+  angular.forEach(headers, function(m, i){
+    console.log("i=",i);
+    items[i] = items[i] || {};
+    $(window).scroll(function(){
+      console.log("m=",m);
+      if($(m).length){
+
+        items[i].itemOffset = $(m).offset().top;
+        console.log("i",i);
+        console.log("items[i].itemOffset",items[i].itemOffset);
+        console.log("items[i].itemOffset2",items[i].itemOffset + i * 28);
+        items[i].scrollTop = $(window).scrollTop() + i * 29;
+        if(items[i].scrollTop >= items[i].itemOffset){
+            items[i].itemOffsetOld = items[i].itemOffsetOld || $(m).offset().top;
+            $(m).css({
+                "position":"fixed",
+                "width":"auto"
+            });
+        }
+        if(items[i].itemOffsetOld  && (items[i].scrollTop < items[i].itemOffsetOld)){
+            $(m).css({
+                "position":"static",
+                "width":"100%"
+            });
+        }
+      }
+    });
+  });
+
 });

@@ -381,9 +381,9 @@ device and create an other one with the new name*/
   -moz-animation-duration: 300ms; }
 
 .animated.div-table {
-  -webkit-animation-duration: 200ms;
-  animation-duration: 200ms;
-  -moz-animation-duration: 200ms; }
+  -webkit-animation-duration: 300ms;
+  animation-duration: 300ms;
+  -moz-animation-duration: 300ms; }
 
 .echo {
   border: 1px solid #ccc;
@@ -456,6 +456,25 @@ table.subtable_1, table.subtable_2 {
 .div-table {
   float: left;
   width: 100%; }
+  .div-table > .thead {
+    height: 29px; }
+    .div-table > .thead > .tr_row {
+      left: 74px;
+      position: static;
+      /*fixed*/
+      right: 65px;
+      width: 100%;
+      /*auto%*/
+      z-index: 99999999; }
+    .div-table > .thead.header1 > .tr_row {
+      top: 0; }
+    .div-table > .thead.header2 > .tr_row {
+      top: 29px;
+      padding-left: 3%; }
+    .div-table > .thead.header3 > .tr_row {
+      top: 58px; }
+    .div-table > .thead.header4 > .tr_row {
+      top: 87px; }
 
 .div-table .thead .td_cell {
   font-size: 14px;
