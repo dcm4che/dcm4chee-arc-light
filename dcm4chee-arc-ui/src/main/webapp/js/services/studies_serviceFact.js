@@ -202,7 +202,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                             var check2 = (Math.round($(m)[0].scrollHeight) >  Math.round($(m).innerHeight())&& Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) > 1);
                             if ((check1 || check2) && $(m).text().length > 0) {
                                 var fulltext = $(m).text();
-                                $(m).attr("tooltip",fulltext);
+                                // $(m).attr("tooltip",fulltext);
                                 if(check1){
 
                                     while($(m)[0].scrollWidth >  $(m).innerWidth() && Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) > 1 ){
