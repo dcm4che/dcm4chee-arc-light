@@ -562,21 +562,55 @@ table{
 		    width: 100%;     /*auto%*/
 		    z-index: 99999999;
 		}
-		&.header1 > .tr_row{
-			top:0;
+		&.header1 {
+			& > .tr_row{
+				top:0;
+			}
 		}
-		&.header2 > .tr_row{
-			top:29px;		
-			padding-left: 3%;	
+		&.header2 {
+			& > .tr_row{
+				top:29px;		
+				padding-left: 3%;	
+			}
 		}
-		&.header3 > .tr_row{
-			top:58px;
-			
+		&.header3 {
+			& > .tr_row{
+				top:58px;
+				padding-left:6%;
+				.th{
+					width: 11%;
+				}
+			}
 		}
-		&.header4 > .tr_row{
-			top:87px;
+		&.header4 {
+			& > .tr_row{
+				top:87px;
+				padding-left:9%;
+				.th{
+					width: 14%;
+				}
+			}
+		}
+	}
+	.arrows{
+		width: 100%;
+		float: left;
+		height: 25px;
+		.arrows_block{
+			display: table;
+	    	margin: 0 auto;
+			.btn{
+				font-size: 15px;
+				font-weight: bold;
+				color: rgba(0, 0, 0, 0.60);
+				&:hover{
+					color: rgba(0, 0, 0, 0.8);
+					font-size: 15px;
+				}
+			}
 
 		}
+
 	}
 }
 .div-table .thead {
@@ -619,7 +653,11 @@ table{
 	overflow-y: auto;
 }
 .repeat0{
+    border: 1px solid #ccc;
+    float: left;
+    width: 100%;
 	& > .thead{
+		height: 35px;
 		& > .tr_row{
 			height: 35px;
 			background:rgba(176, 176, 176, 0.62);
@@ -628,12 +666,13 @@ table{
 				background:rgba(176, 176, 176, 0.98);
 			}
 			.th{
+				height: 35px;
 				.table_btn{
 					background: #ddd none repeat scroll 0 0;
 				    border: 1px solid #bab6b6;
 				    color: black;
 				    float: left;
-				    height: 30px;
+				    height: 35px;
 				    text-align: center;
 				    width: 25%;
 				    &:hover{
@@ -641,8 +680,6 @@ table{
 						text-decoration: none;
 					}
 				}
-				// overflow-y: auto;
-				height: 35px;
 				a{
 				    color: black;
 				}
@@ -653,11 +690,12 @@ table{
 		}
 	}
 	.repeat1 {
-		box-shadow: 10px 10px 10px black inset;
+		// box-shadow: 0px 0px 10px 5px rgba(55, 54, 54, 0.47) inset;
+		  box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.20) inset;
 	    float: left;
 	    margin-left: 3%;
 	    width: 97%;
-	    margin-bottom: 4px;
+	    // margin-bottom: 4px;
     	.thead {
     		.tr_row {
     			.th{
@@ -727,8 +765,8 @@ table{
 		    	// overflow-y: auto;
 		    }
 		    .td_cell.table_btn > a {
-			   background: #ddd none repeat scroll 0 0;
-			    border: 1px solid #ccc;
+			   // background: #ddd none repeat scroll 0 0;
+			    // border: 1px solid #ccc;
 			    float: left;
 			    text-align: center;
 			    width: 25%;
@@ -736,7 +774,8 @@ table{
 			    height: 30px;
 				&:hover{
 					background:#C2C2C2;
-				}
+					text-decoration: none;
+	 			}
 
 			}
 		    .td_row{
@@ -758,11 +797,12 @@ table{
 
 		    }
 		    &>.thead.td_row{
-		    	background:white;
+		    	// background:white;
 		    	box-shadow:none;
 		    }
 		    &>.td_row{
-		    	box-shadow: inset 3px 7px 10px 1px black;
+		    	// box-shadow: inset 3px 7px 10px 1px black;
+		    	  box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.25) inset;
 		    	background: rgba(204, 204, 204, 0.38) none repeat scroll 0 0;
 			    display: block;
 			    float: left;
@@ -821,6 +861,9 @@ table{
 						line-height: 30px;
 					}
 				}
+				& > .subblock{
+					background: rgba(167, 167, 167, 0.5) none repeat scroll 0 0;
+				}
 				.subblock{
 					.tr_row > .td_cell{
 						// background: #848484 none repeat scroll 0 0;
@@ -853,7 +896,7 @@ table{
 						
 							&.colcell{
 								width: 3%;
-								border-left: 2px solid rgba(0, 0, 0, 0.55);
+								// border-left: 2px solid rgba(0, 0, 0, 0.55);
 								height: 31px;
 							}
 						}
@@ -979,6 +1022,7 @@ table{
 .arrows{
 	width: 100%;
 	float: left;
+	height:50px;
 	.arrows_block{
 		display: table;
     	margin: 0 auto;
@@ -986,7 +1030,7 @@ table{
 			font-size: 30px;
 			color: rgba(0, 0, 0, 0.60);
 			&:hover{
-				font-size: 31px;
+				color: rgba(0, 0, 0, 0.80);
 			}
 		}
 

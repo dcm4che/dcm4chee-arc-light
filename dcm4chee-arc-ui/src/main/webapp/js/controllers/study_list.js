@@ -558,7 +558,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         moreSeries: false,
                         attrs: studyAttrs,
                         series: null,
-                        showAttributes: false
+                        showAttributes: false,
+                        fromAllStudies:false
                     };
                     pat.studies.push(study);
  //                   $scope.studies.push(study); //sollte weg kommen
@@ -577,7 +578,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 });
             }
             cfpLoadingBar.complete();
-            console.log("$scope.patients2=",$scope.patients);
         });
     };
     $scope.queryAllStudiesOfPatient = function(patient, offset) {
@@ -591,7 +591,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 orderby: $scope.filter.orderby !== "StudyDate,StudyTime" ? "-StudyDate,-StudyTime" : $scope.filter.orderby
             })
         ).then(function (res) {
-            console.log("res",res);
             if(res.data.length > 0){
 
                 patient.studies = res.data.map(function (attrs, index) {
@@ -601,13 +600,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         moreSeries: false,
                         attrs: attrs,
                         series: null,
-                        showAttributes: false
+                        showAttributes: false,
+                        fromAllStudies:true
                     };
                 });
                 if (patient.moreStudies = (patient.studies.length > $scope.limit)) {
                     patient.studies.pop();
                 }
                 StudiesService.trim($scope);
+                console.log("patient",patient);
             }else{
                 DeviceService.msg($scope, {
                     "title": "Info",
@@ -751,11 +752,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         if($scope.trashaktive){
             $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
-                console.log("$scope.patients",angular.copy($scope.patients));
-                console.log("$scope.offset",angular.copy($scope.patients[0].offset));
                 $scope.queryStudies($scope.patients[0].offset);
-                console.log("$scope.patients",angular.copy($scope.patients));
-                console.log("$scope.offset",angular.copy($scope.patients[0].offset));
             });
         }else{
             var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
@@ -776,11 +773,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }else{
                     $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
                         // $scope.queryStudies($scope.studies[0].offset);
-                        console.log("2$scope.patients",angular.copy($scope.patients));
-                        console.log("2$scope.offset",angular.copy($scope.patients[0].offset));
                         $scope.queryStudies($scope.patients[0].offset);
-                        console.log("2$scope.patients",angular.copy($scope.patients));
-                        console.log("2$scope.offset",angular.copy($scope.patients[0].offset));
                     });
                 }
               }
@@ -1038,7 +1031,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         frameNumber: valueOf(objRef['00081160']) || 1,
                         presentationSeriesUID: attrs['0020000E'].Value[0],
                         presentationUID: attrs['00080018'].Value[0]
-                     })
+                    })
                 })
             })
         }

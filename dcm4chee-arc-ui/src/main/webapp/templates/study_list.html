@@ -285,7 +285,7 @@
     <div class="thead header2">
         <div class="tr_row">
             <div class="th">                
-                
+
             </div>
             <div class="th">
                     Study ID
@@ -310,47 +310,23 @@
             <div style="width:3%" class="th">#I</div>
         </div>
     </div>
+
     <div class="thead header3">
         
-        <div class="tr_row ">
-            <div class="th">
-                <button class="btn btn-link btn-xs"
-                ng-disabled="series.instances[0].offset==0"
-                ng-click="queryInstances(series, series.instances[0].offset-limit)"
-                tooltip="Previous Instances">
-                <span class="glyphicon glyphicon-menu-left"></span>
-                </button>
-                <button class="btn btn-link btn-xs"
-                        ng-disabled="!series.moreInstances"
-                        ng-click="queryInstances(series, series.instances[0].offset+limit)"
-                        tooltip="Next Instances">
-                    <span class="glyphicon glyphicon-menu-right"></span>
-                </button>
-            </div>
-            <div class="th">SOP Class UID</div>
-            <div class="th">Instance Number</div>
-            <div class="th">Content Date</div>
-            <div class="th">Content Time</div>
-            <div style="width:28%" class="th">Content Description</div>
-            <div style="width:2%" class="th">#F</div>
-        </div>
-    </div>
-    <div class="thead header4">
-        
         <div class="tr_row">
-            <div class="th">
-                <button class="btn btn-link btn-xs"
+             <div class="th">
+<!--                <button class="btn btn-link btn-xs"
                         ng-disabled="study.series[0].offset==0"
                         ng-click="querySeries(study, study.series[0].offset-limit)"
-                        tooltip="Previous Series">
+                        title="Previous Series">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!study.moreSeries"
                         ng-click="querySeries(study, study.series[0].offset+limit)"
-                        tooltip="Next Series">
+                        title="Next Series">
                     <span class="glyphicon glyphicon-menu-right"></span>
-                </button>
+                </button> -->
             </div>
             <div class="th">Station Name</div>
             <div class="th">Series Number</div>
@@ -360,6 +336,30 @@
             <div class="th">Modality</div>
             <div style="width:21%" class="th">Series Description</div>
             <div style="width:2%" class="th">#I</div>
+        </div>
+    </div>
+    <div class="thead header4">
+        <div class="tr_row ">
+            <div class="th">
+<!--                 <button class="btn btn-link btn-xs"
+                ng-disabled="series.instances[0].offset==0"
+                ng-click="queryInstances(series, series.instances[0].offset-limit)"
+                title="Previous Instances">
+                <span class="glyphicon glyphicon-menu-left"></span>
+                </button>
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="!series.moreInstances"
+                        ng-click="queryInstances(series, series.instances[0].offset+limit)"
+                        title="Next Instances">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                </button> -->
+            </div>
+            <div class="th">SOP Class UID</div>
+            <div class="th">Instance Number</div>
+            <div class="th">Content Date</div>
+            <div class="th">Content Time</div>
+            <div style="width:28%" class="th">Content Description</div>
+            <div style="width:2%" class="th">#F</div>
         </div>
     </div>
     <div class="repeat0" ng-repeat="(patientkey, patient) in patients">
@@ -390,10 +390,10 @@
             </div>
         </div>
         <div class="repeat1" ng-repeat="(studykey, study) in patient.studies">
-            <div class="thead">
+<!--             <div class="thead">
                 <div class="tr_row">
-                    <div class="th">                
-                        
+                    <div class="th">     
+         
                     </div>
                     <div class="th">
                             Study ID
@@ -417,7 +417,7 @@
                     <div style="width:3%" class="th">#S</div>
                     <div style="width:3%" class="th">#I</div>
                 </div>
-            </div>
+            </div> -->
             <div class="tbody">
                 <div class="tr_row">
                     <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
@@ -445,7 +445,7 @@
                                 <a ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
                             </div>
                             <div style="width:10.4%" class="td_cell txt" tooltip="{{patient.attrs['00200010'].Value[0]}}">{{(patient.attrs['00200010'].Value[0]) || '&nbsp;'}}</div>
-                            <div  style="width:17.3%" tooltip="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt" >{{(study.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div>
+                            <div  style="width:17.3%" tooltip="{{study.attrs['0020000D'].Value[0]}}" test="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt" >{{(study.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div>
                             <div class="td_cell txt" tooltip="{{study.attrs['00080020'].Value[0]}}" >{{(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'}}</div>
                             <div style="width:5.1%" class="td_cell txt" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'">&nbsp;</div>
                             <div style="width:10.2%" class="td_cell txt"  tooltip="{{study.attrs['00080090'].Value[0].Alphabetic}}">{{(study.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'}}</div>
@@ -461,20 +461,9 @@
                                     <attribute-list attrs="study.attrs"></attribute-list>
                                 </div>
                             </div>
-                            <div class="tr_row thead2"  ng-show="study.series && study.series.length">
+<!--                             <div class="tr_row thead2"  ng-show="study.series && study.series.length">
                                 <div class="th">
-                                    <button class="btn btn-link btn-xs"
-                                            ng-disabled="study.series[0].offset==0"
-                                            ng-click="querySeries(study, study.series[0].offset-limit)"
-                                            tooltip="Previous Series">
-                                        <span class="glyphicon glyphicon-menu-left"></span>
-                                    </button>
-                                    <button class="btn btn-link btn-xs"
-                                            ng-disabled="!study.moreSeries"
-                                            ng-click="querySeries(study, study.series[0].offset+limit)"
-                                            tooltip="Next Series">
-                                        <span class="glyphicon glyphicon-menu-right"></span>
-                                    </button>
+
                                 </div>
                                 <div class="th">Station Name</div>
                                 <div class="th">Series Number</div>
@@ -484,7 +473,7 @@
                                 <div class="th">Modality</div>
                                 <div style="width:21%" class="th">Series Description</div>
                                 <div style="width:2%" class="th">#I</div>
-                            </div>
+                            </div> -->
                             <div class="repeat2" ng-repeat="(serieskey,series) in study.series">
                                     <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
                             <div class="subblock">
@@ -524,7 +513,7 @@
                                         <attribute-list attrs="series.attrs"></attribute-list>
                                     </div>
                                 </div>
-                                <div class="tr_row thead3"  ng-show="series.instances && series.instances.length">
+<!--                                 <div class="tr_row thead3"  ng-show="series.instances && series.instances.length">
                                     <div class="th">
                                         <button class="btn btn-link btn-xs"
                                         ng-disabled="series.instances[0].offset==0"
@@ -545,7 +534,7 @@
                                     <div class="th">Content Time</div>
                                     <div style="width:28%" class="th">Content Description</div>
                                     <div style="width:2%" class="th">#F</div>
-                                </div>
+                                </div> -->
                                 <div class="repeat3"  ng-repeat="(key,instance) in series.instances">
                                     <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
                                     <div class="subblock">
@@ -605,14 +594,62 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="arrows" ng-show="series.instances && series.instances.length">
+                                    <div class="arrows_block">
+                                        <button class="btn btn-link btn-xs"
+                                        ng-disabled="series.instances[0].offset==0"
+                                        ng-click="queryInstances(series, series.instances[0].offset-limit)"
+                                        title="Previous Instances">
+                                        <span class="glyphicon glyphicon-menu-left"></span>
+                                        </button>
+                                        <button class="btn btn-link btn-xs"
+                                                ng-disabled="!series.moreInstances"
+                                                ng-click="queryInstances(series, series.instances[0].offset+limit)"
+                                                title="Next Instances">
+                                            <span class="glyphicon glyphicon-menu-right"></span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div><!--  -->
+                        <div class="arrows" ng-show="study.series && study.series.length">
+                            <div class="arrows_block">
+                                <button class="btn btn-link btn-xs"
+                                        ng-disabled="study.series[0].offset==0"
+                                        ng-click="querySeries(study, study.series[0].offset-limit)"
+                                        title="Previous Series">
+                                    <span class="glyphicon glyphicon-menu-left"></span>
+                                </button>
+                                <button class="btn btn-link btn-xs"
+                                        ng-disabled="!study.moreSeries"
+                                        ng-click="querySeries(study, study.series[0].offset+limit)"
+                                        title="Next Series">
+                                    <span class="glyphicon glyphicon-menu-right"></span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     </div>
                 </div>
 
             </div>
         </div>
+        <div class="arrows" ng-show="patient.studies[0].fromAllStudies">
+            <div class="arrows_block">
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="patient.studies[0].offset===0"
+                        ng-click="queryAllStudiesOfPatient(patient, patient[0].offset-limit)"
+                        title="Previous Study">
+                    <span class="glyphicon glyphicon-menu-left"></span>
+                </button>
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="!patient.moreStudies"
+                        ng-click="queryAllStudiesOfPatient(patient, patient[0].offset+limit)"
+                        title="Next Study">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                </button>
+            </div>  
+        </div>  
     </div>
 </div>
 <div class="arrows">
