@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,19 +35,50 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.conf;
+package org.dcm4chee.arc.procedure.impl;
+
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.procedure.ProcedureContext;
+
+import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @since Jun 2016
  */
-public enum Entity {
-    Patient,
-    Study,
-    Series,
-    Instance,
-    MPPS,
-    MWL
+public class ProcedureContextImpl implements ProcedureContext {
+    private final Socket socket;
+    private final HL7Segment msh;
+    private Patient patient;
+    private Attributes attributes;
+
+    ProcedureContextImpl(Socket socket, HL7Segment msh) {
+        this.socket = socket;
+        this.msh = msh;
+    }
+
+    @Override
+    public Patient getPatient() {
+        return patient;
+    }
+
+    @Override
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
+
+    @Override
+    public Attributes getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public void setAttributes(Attributes attributes) {
+        this.attributes = attributes;
+    }
 }

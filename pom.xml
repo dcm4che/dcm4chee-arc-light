@@ -352,7 +352,9 @@
     <module>dcm4chee-arc-mpps</module>
     <module>dcm4chee-arc-mpps-scp</module>
     <module>dcm4chee-arc-mpps-scu</module>
+    <module>dcm4chee-arc-mwl-scp</module>
     <module>dcm4chee-arc-patient</module>
+    <module>dcm4chee-arc-procedure</module>
     <module>dcm4chee-arc-qido</module>
     <module>dcm4chee-arc-qmgt</module>
     <module>dcm4chee-arc-qmgt-rs</module>

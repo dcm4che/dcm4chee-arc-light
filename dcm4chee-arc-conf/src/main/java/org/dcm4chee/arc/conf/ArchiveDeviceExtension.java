@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
@@ -69,6 +68,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String wadoSR2TextTemplateURI;
     private String patientUpdateTemplateURI;
     private String importReportTemplateURI;
+    private String scheduleProcedureTemplateURI;
     private String unzipVendorDataToURI;
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
@@ -241,6 +241,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setImportReportTemplateURI(String importReportTemplateURI) {
         this.importReportTemplateURI = importReportTemplateURI;
+    }
+
+    public String getScheduleProcedureTemplateURI() {
+        return scheduleProcedureTemplateURI;
+    }
+
+    public void setScheduleProcedureTemplateURI(String scheduleProcedureTemplateURI) {
+        this.scheduleProcedureTemplateURI = scheduleProcedureTemplateURI;
     }
 
     public String getUnzipVendorDataToURI() {
@@ -714,6 +722,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         importReportTemplateURI = arcdev.importReportTemplateURI;
+        scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViews = arcdev.queryRetrieveViews;
         mppsForwardDestinations = arcdev.mppsForwardDestinations;

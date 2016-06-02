@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,19 +35,21 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.conf;
+package org.dcm4chee.arc.procedure;
+
+import org.dcm4che3.hl7.HL7Segment;
+
+import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @since Jun 2016
  */
-public enum Entity {
-    Patient,
-    Study,
-    Series,
-    Instance,
-    MPPS,
-    MWL
+public interface ProcedureService {
+    ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh);
+
+    void updateProcedure(ProcedureContext ctx);
 }

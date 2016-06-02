@@ -26,7 +26,7 @@ dicomAETitle: DCM4CHEE
 dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmOverwritePolicy: SAME_SOURCE
 dcmQueryRetrieveViewID: hideRejected
-dicomSoftwareVersion: 5.3.1
+dicomSoftwareVersion: 5.4.0
 dcmAuditAggregateDuration: PT1M
 dcmStorageID: fs1
 objectClass: dicomDevice
@@ -411,6 +411,79 @@ dcmTag: 00408302
 dcmEntity: MPPS
 objectClass: dcmAttributeFilter
 
+dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmTag: 00080005
+dcmTag: 00080020
+dcmTag: 00080030
+dcmTag: 00080050
+dcmTag: 00080051
+dcmTag: 00080080
+dcmTag: 00080081
+dcmTag: 00080082
+dcmTag: 00080090
+dcmTag: 00080092
+dcmTag: 00080094
+dcmTag: 00080096
+dcmTag: 0008009C
+dcmTag: 0008009D
+dcmTag: 00081080
+dcmTag: 00081084
+dcmTag: 00081110
+dcmTag: 00081120
+dcmTag: 00101020
+dcmTag: 00101021
+dcmTag: 00101030
+dcmTag: 00102000
+dcmTag: 00102110
+dcmTag: 001021C0
+dcmTag: 0020000D
+dcmTag: 00321031
+dcmTag: 00321032
+dcmTag: 00321033
+dcmTag: 00321034
+dcmTag: 00321060
+dcmTag: 00321064
+dcmTag: 00380008
+dcmTag: 00380010
+dcmTag: 00380014
+dcmTag: 00380016
+dcmTag: 00380020
+dcmTag: 00380021
+dcmTag: 00380050
+dcmTag: 00380060
+dcmTag: 00380062
+dcmTag: 00380064
+dcmTag: 00380100
+dcmTag: 00380300
+dcmTag: 00380400
+dcmTag: 00380500
+dcmTag: 00384000
+dcmTag: 00400026
+dcmTag: 00400027
+dcmTag: 00400100
+dcmTag: 00401001
+dcmTag: 00401002
+dcmTag: 00401003
+dcmTag: 00401004
+dcmTag: 00401005
+dcmTag: 00401008
+dcmTag: 00401009
+dcmTag: 0040100A
+dcmTag: 00401010
+dcmTag: 00401011
+dcmTag: 00401400
+dcmTag: 00402004
+dcmTag: 00402005
+dcmTag: 00402008
+dcmTag: 00402009
+dcmTag: 00402010
+dcmTag: 00402011
+dcmTag: 00402016
+dcmTag: 00402017
+dcmTag: 00402400
+dcmEntity: MWL
+objectClass: dcmAttributeFilter
+
 dn: dcmStorageID=fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmInstanceAvailability: ONLINE
 dcmRetrieveAET: DCM4CHEE
@@ -566,6 +639,7 @@ hl7AcceptedMessageType: ADT^A40
 hl7AcceptedMessageType: ADT^A47
 hl7AcceptedMessageType: ORM^O01
 hl7AcceptedMessageType: OMI^O23
+hl7AcceptedMessageType: OMG^O19
 hl7AcceptedMessageType: ORU^R01
 hl7ApplicationName: *
 

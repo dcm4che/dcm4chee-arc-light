@@ -333,6 +333,77 @@ class ArchiveDeviceFactory {
             Tag.ReasonForPerformedProcedureCodeSequence,
             Tag.EntranceDoseInmGy
     };
+    static final int[] MWL_ATTRS = {
+            Tag.SpecificCharacterSet,
+            Tag.StudyDate,
+            Tag.StudyTime,
+            Tag.AccessionNumber,
+            Tag.IssuerOfAccessionNumberSequence,
+            Tag.InstitutionName,
+            Tag.InstitutionAddress,
+            Tag.InstitutionCodeSequence,
+            Tag.ReferringPhysicianName,
+            Tag.ReferringPhysicianAddress,
+            Tag.ReferringPhysicianTelephoneNumbers,
+            Tag.ReferringPhysicianIdentificationSequence,
+            Tag.ConsultingPhysicianName,
+            Tag.ConsultingPhysicianIdentificationSequence,
+            Tag.AdmittingDiagnosesDescription,
+            Tag.AdmittingDiagnosesCodeSequence,
+            Tag.ReferencedStudySequence,
+            Tag.ReferencedPatientSequence,
+            Tag.PatientSize,
+            Tag.PatientSizeCodeSequence,
+            Tag.PatientWeight,
+            Tag.MedicalAlerts,
+            Tag.Allergies,
+            Tag.PregnancyStatus,
+            Tag.StudyInstanceUID,
+            Tag.RequestingPhysicianIdentificationSequence,
+            Tag.RequestingPhysician,
+            Tag.RequestingService,
+            Tag.RequestingServiceCodeSequence,
+            Tag.RequestedProcedureDescription,
+            Tag.RequestedProcedureCodeSequence,
+            Tag.VisitStatusID,
+            Tag.AdmissionID,
+            Tag.IssuerOfAdmissionIDSequence,
+            Tag.RouteOfAdmissions,
+            Tag.AdmittingDate,
+            Tag.AdmittingTime,
+            Tag.SpecialNeeds,
+            Tag.ServiceEpisodeID,
+            Tag.ServiceEpisodeDescription,
+            Tag.IssuerOfServiceEpisodeIDSequence,
+            Tag.PertinentDocumentsSequence,
+            Tag.CurrentPatientLocation,
+            Tag.PatientInstitutionResidence,
+            Tag.PatientState,
+            Tag.VisitComments,
+            Tag.ScheduledProcedureStepSequence,
+            Tag.RequestedProcedureID,
+            Tag.ReasonForTheRequestedProcedure,
+            Tag.RequestedProcedurePriority,
+            Tag.PatientTransportArrangements,
+            Tag.RequestedProcedureLocation,
+            Tag.ConfidentialityCode,
+            Tag.ReportingPriority,
+            Tag.NamesOfIntendedRecipientsOfResults,
+            Tag.ReasonForRequestedProcedureCodeSequence,
+            Tag.IntendedRecipientsOfResultsIdentificationSequence,
+            Tag.OrderPlacerIdentifierSequence,
+            Tag.OrderFillerIdentifierSequence,
+            Tag.RequestedProcedureComments,
+            Tag.IssueDateOfImagingServiceRequest,
+            Tag.IssueTimeOfImagingServiceRequest,
+            Tag.OrderEnteredBy,
+            Tag.OrderEntererLocation,
+            Tag.OrderCallbackPhoneNumber,
+            Tag.OrderCallbackTelecomInformation,
+            Tag.PlacerOrderNumberImagingServiceRequest,
+            Tag.FillerOrderNumberImagingServiceRequest,
+            Tag.ImagingServiceRequestComments
+    };
     static final String[] IMAGE_CUIDS = {
             UID.ComputedRadiographyImageStorage,
             UID.DigitalXRayImageStorageForPresentation,
@@ -704,9 +775,10 @@ class ArchiveDeviceFactory {
             "ADT^A47",
             "ORM^O01",
             "OMI^O23",
+            "OMG^O19",
             "ORU^R01"
     };
-    static final String DCM4CHEE_ARC_VERSION = "5.3.1";
+    static final String DCM4CHEE_ARC_VERSION = "5.4.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -985,6 +1057,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.Series, newAttributeFilter(SERIES_ATTRS, Attributes.UpdatePolicy.MERGE));
         ext.setAttributeFilter(Entity.Instance, new AttributeFilter(INSTANCE_ATTRS));
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
+        ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
 
         if (configType == configType.TEST) {
             ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));

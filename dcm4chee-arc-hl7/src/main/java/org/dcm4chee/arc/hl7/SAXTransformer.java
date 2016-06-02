@@ -7,6 +7,10 @@ import org.dcm4che3.hl7.HL7Charset;
 import org.dcm4che3.hl7.HL7Parser;
 import org.dcm4che3.io.ContentHandlerAdapter;
 import org.dcm4che3.io.SAXTransformer.SetupTransformer;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.Templates;
@@ -29,9 +33,10 @@ class SAXTransformer {
 
     private static SAXTransformerFactory factory = (SAXTransformerFactory) TransformerFactory.newInstance();
 
-    public static Attributes transform(byte[] msg, int off, int len, String hl7charset, Templates tpl,
-                                       SetupTransformer setup)
+    public static Attributes transform(
+            byte[] msg, int off, int len, String hl7charset, String uri, SetupTransformer setup)
             throws TransformerConfigurationException, IOException, SAXException {
+        Templates tpl = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri));
         Attributes attrs = new Attributes();
         String dicomCharset = HL7Charset.toDicomCharacterSetCode(hl7charset);
         if (dicomCharset != null)
