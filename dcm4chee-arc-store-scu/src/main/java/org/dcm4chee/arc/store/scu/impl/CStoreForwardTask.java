@@ -97,8 +97,8 @@ class CStoreForwardTask implements Runnable {
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to wait for outstanding RSP on association to {}", rqas, storeas.getRemoteAET(), e);
         } finally {
-            ctx.decrementPendingCStoreForward();
             releaseStoreAssociation();
+            ctx.decrementPendingCStoreForward();
             SafeClose.close(event);
         }
         retrieveEnd.fire(event);
