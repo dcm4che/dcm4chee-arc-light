@@ -4,6 +4,7 @@ myApp.controller('MainController', function ($scope, $location, $http) {
   $scope.logoutUrl              = myApp.logoutUrl();
   $scope.showUserMenu           = false;
   $scope.msg                    = [];
+  $scope.visibleHeaderIndex     = 0;
   vex.defaultOptions.className  = 'vex-theme-os';
 	$scope.getClass = function (path) {
 		if($location.path().substr(0, path.length) === path) {
@@ -55,7 +56,6 @@ myApp.controller('MainController', function ($scope, $location, $http) {
     return $location.path().replace(/\//g, '');
   };
   $scope.isOnPage = function(page){
-    console.log("getPathName()=",getPathName());
     if(page === getPathName()){
       return true;
     }else{
@@ -82,40 +82,78 @@ myApp.controller('MainController', function ($scope, $location, $http) {
 
   // console.log("$('.div-table .thead .tr_row')=",$('.div-table .thead .tr_row'));
   var headers = [
-    ".div-table > .header1 > .tr_row",
-    ".div-table > .header2 > .tr_row",
-    ".div-table > .header3 > .tr_row",
-    ".div-table > .header4 > .tr_row"
+    ".div-table > .hader_block > .thead"
+    // ,
+    // ".div-table > .hader_block > .header2 > .tr_row",
+    // ".div-table > .hader_block > .header3 > .tr_row",
+    // ".div-table > .hader_block > .header4 > .tr_row"
   ]
   var items = {};
-  console.log("items=",items);
   angular.forEach(headers, function(m, i){
-    console.log("i=",i);
     items[i] = items[i] || {};
     $(window).scroll(function(){
-      console.log("m=",m);
       if($(m).length){
-
         items[i].itemOffset = $(m).offset().top;
-        console.log("i",i);
-        console.log("items[i].itemOffset",items[i].itemOffset);
-        console.log("items[i].itemOffset2",items[i].itemOffset + i * 28);
-        items[i].scrollTop = $(window).scrollTop() + i * 29;
+        items[i].scrollTop = $(window).scrollTop();
         if(items[i].scrollTop >= items[i].itemOffset){
             items[i].itemOffsetOld = items[i].itemOffsetOld || $(m).offset().top;
             $(m).css({
                 "position":"fixed",
-                "width":"auto"
+                "width":"auto",
+                "box-shadow":"0px 7px 12px rgba(58, 58, 58, 0.61)"
             });
         }
         if(items[i].itemOffsetOld  && (items[i].scrollTop < items[i].itemOffsetOld)){
             $(m).css({
                 "position":"static",
-                "width":"100%"
+                "width":"100%",
+                "box-shadow":"none"
             });
         }
       }
     });
   });
+  var hoverdic = {
+    ".repeat0 .thead .tr_row":".div-table > .hader_block > .header1",
+    ".repeat1_hover":".div-table > .hader_block > .header2",
+    ".repeat2_hover":".div-table > .hader_block > .header3",
+    ".repeat3_hover":".div-table > .hader_block > .header4"
+  }
+  angular.forEach(hoverdic, function(m, i){
+    // console.log("m",m);
+    // console.log("i",i);
+    $(document.body).on("mouseover mouseleave",i,function(e){
+      // console.log("e",e);
+      // console.log("hover2");
+      // console.log("e.relatedTarget",e.relatedTarget);
+      // console.log("$e.relatedTarget",$(e.relatedTarget));
+      // console.log("this index",$(this).children(".th").index(e.relatedTarget));
+      $(".header1").removeClass('hover');
+      if(e.type === "mouseover"){
+        $(this).addClass('hover');
+        $(m).addClass('hover');
+        $(".header1").removeClass('gray');
+      }else{
+        $(m).removeClass('hover');
+        $(this).removeClass('hover');
+      }
+      if(!$(".hader_block .hover").length){
+        // setTimeout(function(){
+          // if(!$(".hader_block .hover").length){
+            $(".header1").addClass('hover gray');
+        //   }
+        // }, 2000);
+      }
+    });
+  });
+  // $(document.body).on("mouseover mouseleave",".hover_cell",function(e){
+  //   console.log("hovercell e",e);
+  //   console.log("index",$(this).index());
+  //   $(".div-table > .hader_block > .thead.hover > .tr_row > .th").removeClass("cellhover");
+  //   console.log("selectedelemten",$(".div-table > .hader_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")"));
+  //   $(".div-table > .hader_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")").addClass('cellhover');
+  // });
+
+
 
 });

@@ -385,6 +385,11 @@ device and create an other one with the new name*/
   animation-duration: 300ms;
   -moz-animation-duration: 300ms; }
 
+.animated.hover {
+  -webkit-animation-duration: 200ms;
+  animation-duration: 200ms;
+  -moz-animation-duration: 200ms; }
+
 .echo {
   border: 1px solid #ccc;
   box-shadow: 1px 1px 9px 0 #b8b8b8 inset;
@@ -456,31 +461,41 @@ table.subtable_1, table.subtable_2 {
 .div-table {
   float: left;
   width: 100%; }
-  .div-table > .thead {
-    height: 29px; }
-    .div-table > .thead > .tr_row {
-      left: 74px;
-      position: static;
-      /*fixed*/
-      right: 65px;
-      width: 100%;
-      /*auto%*/
-      z-index: 99999999; }
-    .div-table > .thead.header1 > .tr_row {
-      top: 0; }
-    .div-table > .thead.header2 > .tr_row {
-      top: 29px;
+  .div-table > .hader_block > .thead {
+    height: 29px;
+    display: none;
+    left: 74px;
+    position: static;
+    /*fixed*/
+    right: 65px;
+    width: 100%;
+    /*auto%*/
+    z-index: 99999999;
+    top: 0px; }
+    .div-table > .hader_block > .thead .cellhover {
+      background: #3b6b8c; }
+    .div-table > .hader_block > .thead .close_allpatients:hover, .div-table > .hader_block > .thead .open_allpatients:hover {
+      cursor: pointer; }
+    .div-table > .hader_block > .thead.hover {
+      display: block; }
+    .div-table > .hader_block > .thead.header1 > .tr_row.hover {
+      background: #5293C1; }
+    .div-table > .hader_block > .thead.header2 > .tr_row {
       padding-left: 3%; }
-    .div-table > .thead.header3 > .tr_row {
-      top: 58px;
+      .div-table > .hader_block > .thead.header2 > .tr_row .th:first-child {
+        border: none; }
+    .div-table > .hader_block > .thead.header3 > .tr_row {
       padding-left: 6%; }
-      .div-table > .thead.header3 > .tr_row .th {
+      .div-table > .hader_block > .thead.header3 > .tr_row .th {
         width: 11%; }
-    .div-table > .thead.header4 > .tr_row {
-      top: 87px;
+      .div-table > .hader_block > .thead.header3 > .tr_row .th:first-child {
+        border: none; }
+    .div-table > .hader_block > .thead.header4 > .tr_row {
       padding-left: 9%; }
-      .div-table > .thead.header4 > .tr_row .th {
+      .div-table > .hader_block > .thead.header4 > .tr_row .th {
         width: 14%; }
+      .div-table > .hader_block > .thead.header4 > .tr_row .th:first-child {
+        border: none; }
   .div-table .arrows {
     width: 100%;
     float: left;
@@ -528,30 +543,49 @@ table.subtable_1, table.subtable_2 {
 .repeat0 {
   border: 1px solid #ccc;
   float: left;
-  width: 100%; }
+  width: 100%;
+  position: relative;
+  min-height: 10px; }
+  .repeat0 .close_patient {
+    position: absolute;
+    left: -1px;
+    top: -3px;
+    font-size: 11px; }
+    .repeat0 .close_patient:hover {
+      cursor: pointer; }
+  .repeat0 .open_patient {
+    font-size: 11px;
+    left: -3px;
+    position: absolute;
+    top: -6px; }
+    .repeat0 .open_patient:hover {
+      cursor: pointer; }
   .repeat0 > .thead {
     height: 35px; }
     .repeat0 > .thead > .tr_row {
       height: 35px;
-      background: rgba(176, 176, 176, 0.62);
+      background: rgba(254, 254, 254, 0.56);
       color: black; }
-      .repeat0 > .thead > .tr_row:hover {
-        background: rgba(176, 176, 176, 0.98); }
+      .repeat0 > .thead > .tr_row.hover {
+        background: #5293C1;
+        color: white; }
       .repeat0 > .thead > .tr_row .th {
         height: 35px; }
         .repeat0 > .thead > .tr_row .th .table_btn {
-          background: #ddd none repeat scroll 0 0;
           border: 1px solid #bab6b6;
           color: black;
           float: left;
-          height: 35px;
+          height: 32px;
           text-align: center;
           width: 25%; }
           .repeat0 > .thead > .tr_row .th .table_btn:hover {
             background: #C2C2C2;
-            text-decoration: none; }
+            text-decoration: none;
+            color: white; }
         .repeat0 > .thead > .tr_row .th a {
           color: black; }
+        .repeat0 > .thead > .tr_row .th:first-child {
+          padding-left: 16px; }
   .repeat0 .repeat1 {
     box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.2) inset;
     float: left;
@@ -683,7 +717,6 @@ table.subtable_1, table.subtable_2 {
         .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn > a {
           width: 12%; }
         .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta {
-          background: #ddd none repeat scroll 0 0;
           float: left;
           width: 14%; }
           .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta > span {
@@ -696,7 +729,8 @@ table.subtable_1, table.subtable_2 {
             height: 220px;
             overflow-y: scroll;
             position: relative;
-            width: 35px; }
+            width: 35px;
+            z-index: 999999999; }
             .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block a {
               color: black;
               float: left;
@@ -713,7 +747,6 @@ table.subtable_1, table.subtable_2 {
         .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active:hover {
           background: #888; }
         .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell {
-          background: white;
           color: black;
           width: 14.5%;
           height: 30px; }
@@ -732,7 +765,7 @@ table.subtable_1, table.subtable_2 {
   display: none; }
 
 .order_arrow {
-  display: inline-block;
+  display: inline-block !important;
   text-align: center;
   width: 20px; }
   .order_arrow:first-child {
@@ -855,7 +888,8 @@ table.subtable_1, table.subtable_2 {
   border: 1px solid #ccc;
   margin-bottom: 18px;
   padding: 18px 15px 15px;
-  margin-right: 15px; }
+  margin-right: 15px;
+  width: 32%; }
   .block-1-1 label, .block-1-1 input, .block-1-2 label, .block-1-2 input, .block-2-1 label, .block-2-1 input, .block-2-2 label, .block-2-2 input {
     margin-top: 5px; }
 
@@ -909,10 +943,10 @@ table.subtable_1, table.subtable_2 {
     color: #555; }
 
 .clearform_button {
-  left: -66px;
-  position: relative;
-  top: -23px;
-  color: #999; }
+  color: #999;
+  position: absolute;
+  right: 26px;
+  top: -23px; }
   .clearform_button:active, .clearform_button:visited {
     color: #999; }
   .clearform_button:hover {
@@ -986,6 +1020,8 @@ table.subtable_1, table.subtable_2 {
       font-size: 23px;
       margin-bottom: 35px; }
 
+.filter.hidden_filters {
+  width: 81%; }
 .filter .col-md-3 input {
   padding-left: 7px;
   padding-right: 0; }
@@ -996,6 +1032,21 @@ table.subtable_1, table.subtable_2 {
   .filter .col-md-3 .datetime > .block_seid > .col-md-12 {
     padding-left: 0;
     padding-right: 0; }
+.filter .buttons_block {
+  border: 1px solid #ccc;
+  display: block;
+  float: left;
+  padding: 11px 17px 16px;
+  width: 197px; }
+  .filter .buttons_block .btn {
+    margin-top: 3px;
+    width: 161px; }
+  .filter .buttons_block button {
+    background-color: #5293C1; }
+.filter .main_filter_block {
+  float: left;
+  position: relative;
+  width: 80%; }
 
 .input {
   position: relative; }
@@ -1171,5 +1222,16 @@ div[tooltip] {
           vertical-align: bottom;
           font-weight: bold;
           font-size: 17px; }
+
+.hover, .hover .td_cell, .hover .td_cell a, .hover .tr_row, .hover .th .table_btn {
+  background: #5293C1 !important;
+  color: white !important;
+  display: block; }
+
+.hover.gray .thead, .hover.gray .tr_row {
+  background: #666 !important; }
+
+.hover_cell:hover {
+  background: #3b6b8c !important; }
 
 /*# sourceMappingURL=style.css.map */

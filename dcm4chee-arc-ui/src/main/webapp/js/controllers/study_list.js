@@ -4,6 +4,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.patients = [];
 //   $scope.studies = [];
+    $scope.allhidden = false; 
     $scope.opendropdown = false;
     $scope.patientmode = true;
     $scope.morePatients;
@@ -521,6 +522,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     "status": "info"
                 });
             }
+            var state = ($scope.allhidden) ? "hide" : "show";
+            setTimeout(function(){
+                togglePatientsHelper(state);
+            }, 1000);
             cfpLoadingBar.complete();
         });
     };
@@ -577,6 +582,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     "status": "info"
                 });
             }
+            setTimeout(function(){
+                togglePatientsHelper("hide");
+            }, 1000);
             cfpLoadingBar.complete();
         });
     };
@@ -925,6 +933,25 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.instanceRowspan = function(instance) {
         return instance.showAttributes ? 2 : 1;
     };
+    $scope.togglePatients = function(state){
+        togglePatientsHelper(state);
+    }
+    var togglePatientsHelper = function(state){
+
+        cfpLoadingBar.start();
+        if(state === "hide"){
+          angular.forEach($scope.patients, function(m, i){
+            $scope.patients[i].hide = true;
+          });
+          $scope.allhidden  = true;
+        }else{
+          angular.forEach($scope.patients, function(m, i){
+            $scope.patients[i].hide = false;
+          });
+          $scope.allhidden  = false;
+        }
+        cfpLoadingBar.complete();
+    };
     function rsURL() {
         return "../aets/" + $scope.aet + "/rs";
     }
@@ -1110,6 +1137,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     initRjNotes(retries-1);
             });
     }
+    $(".div-table > .repeat0 > .thead .tr_row").bind("click",".div-table",function(){
+        console.log("in hover", $(".div-table > .header1 > .tr_row"));
+        $(".div-table > .header1 > .tr_row").css({
+            background:"blue"
+        });
+    });
+
     initAETs(1);
     initAttributeFilter("Patient", 1);
     initExporters(1);
