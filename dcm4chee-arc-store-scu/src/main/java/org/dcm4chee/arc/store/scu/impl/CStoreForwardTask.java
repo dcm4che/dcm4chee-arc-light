@@ -159,7 +159,7 @@ class CStoreForwardTask implements Runnable {
         if (location != null)
             instanceLocations.getLocations().add(location);
         else
-            instanceLocations.getLocations().addAll(service.findLocations(inst));
+            instanceLocations.getLocations().addAll(inst.getLocations());
         return instanceLocations;
     }
 

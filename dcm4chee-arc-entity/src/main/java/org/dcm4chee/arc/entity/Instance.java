@@ -229,6 +229,9 @@ public class Instance {
     @JoinColumn(name = "instance_fk")
     private Collection<ContentItem> contentItems;
 
+    @OneToMany(mappedBy = "instance")
+    private Collection<Location> locations;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "series_fk")
     private Series series;
@@ -360,6 +363,12 @@ public class Instance {
         if (contentItems == null)
             contentItems = new ArrayList<ContentItem>();
         return contentItems;
+    }
+
+    public Collection<Location> getLocations() {
+        if (locations == null)
+            locations = new ArrayList<>();
+        return locations;
     }
 
     public Series getSeries() {

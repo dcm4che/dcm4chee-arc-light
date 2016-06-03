@@ -428,13 +428,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public List<Location> findLocations(Instance inst) {
-        return em.createNamedQuery(Location.FIND_BY_INSTANCE, Location.class)
-                .setParameter(1, inst)
-                .getResultList();
-    }
-
-    @Override
     public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst) {
         return new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
     }
