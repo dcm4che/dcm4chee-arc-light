@@ -52,11 +52,9 @@ class HL7Info {
     static final int CALLING_HOSTNAME = 0;
     static final int CALLING_AET = 1;
     static final int CALLED_AET = 2;
-    static final int POD_TYPE = 3;
-    static final int POD_VALUE = 4;
-    static final int PATIENT_ID = 5;
-    static final int PATIENT_NAME = 6;
-    static final int OUTCOME = 7;
+    static final int PATIENT_ID = 3;
+    static final int PATIENT_NAME = 4;
+    static final int OUTCOME = 5;
 
     private String[] fields;
 
@@ -89,8 +87,6 @@ class HL7Info {
                 ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRemoteAddr() : ctx.getRemoteHostName(),
                 source,
                 dest,
-                ctx.getHL7MessageHeader() != null ? "MSH-10" : null,
-                ctx.getHL7MessageHeader() != null ? ctx.getHL7MessageHeader().getField(9, "") : null,
                 patID,
                 patName,
                 ctx.getException() != null ? ctx.getException().getMessage() : null

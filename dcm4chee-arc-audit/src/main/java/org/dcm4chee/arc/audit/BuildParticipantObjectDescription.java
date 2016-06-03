@@ -40,54 +40,68 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4che3.audit.*;
+
+import java.util.HashSet;
 
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since March 2016
+ * @since June 2016
  */
-public class RetrieveInfo {
-    static final int LOCALAET = 0;
-    static final int DESTAET = 1;
-    static final int DESTNAPID = 2;
-    static final int REQUESTORHOST = 3;
-    static final int MOVEAET = 4;
-    static final int OUTCOME = 5;
-    static final int PARTIAL_ERROR = 6;
-    private final String[] fields;
 
-    RetrieveInfo(RetrieveContext ctx, String etFile) {
-        fields = new String[] {
-                ctx.getLocalAETitle(),
-                ctx.getHttpRequest() != null
-                    ? ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
-                    : ctx.getHttpRequest().getRemoteAddr()
-                    : ctx.getDestinationAETitle(),
-                null != ctx.getHttpRequest() ? ctx.getHttpRequest().getRemoteAddr() : ctx.getDestinationHostName(),
-                ctx.getRequestorHostName(),
-                ctx.getMoveOriginatorAETitle(),
-                null != ctx.getException()
-                    ? ctx.getException().getMessage() != null ? ctx.getException().getMessage() : ctx.getException().toString()
-                    : (ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")) || ctx.warning() != 0
-                        ? ctx.getOutcomeDescription() : null,
-                ctx.failedSOPInstanceUIDs().length > 0 && etFile.substring(9,10).equals("E")
-                    ? Boolean.toString(true) : Boolean.toString(false)
-        };
+class BuildParticipantObjectDescription {
+    final HashSet<Accession> acc;
+    final HashSet<MPPS> mpps;
+    final HashSet<SOPClass> sopC;
+    final Boolean encrypted;
+    final Boolean anonymized;
+    final ParticipantObjectContainsStudy pocs;
+
+    static class Builder {
+        private HashSet<Accession> acc;
+        private HashSet<MPPS> mpps;
+        private final HashSet<SOPClass> sopC;
+        private Boolean encrypted;
+        private Boolean anonymized;
+        private final ParticipantObjectContainsStudy pocs;
+
+        Builder(HashSet<SOPClass> sopC, ParticipantObjectContainsStudy pocs) {
+            this.sopC = sopC;
+            this.pocs = pocs;
+        }
+
+        Builder acc(HashSet<Accession> val) {
+            acc = val;
+            return this;
+        }
+
+        Builder mpps(HashSet<MPPS> val) {
+            mpps = val;
+            return this;
+        }
+
+        Builder encrypted(Boolean val) {
+            encrypted = val;
+            return this;
+        }
+
+        Builder anonymized(Boolean val) {
+            anonymized = val;
+            return this;
+        }
+
+        BuildParticipantObjectDescription build() {
+            return new BuildParticipantObjectDescription(this);
+        }
     }
 
-    RetrieveInfo(String s) {
-        fields = StringUtils.split(s, '\\');
-    }
-
-    String getField(int field) {
-        return StringUtils.maskEmpty(fields[field], null);
-    }
-
-    @Override
-    public String toString() {
-        return StringUtils.concat(fields, '\\');
+    private BuildParticipantObjectDescription(Builder builder) {
+        acc = builder.acc;
+        mpps = builder.mpps;
+        sopC = builder.sopC;
+        encrypted = builder.encrypted;
+        anonymized = builder.anonymized;
+        pocs = builder.pocs;
     }
 }
