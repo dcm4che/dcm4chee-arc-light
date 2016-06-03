@@ -146,13 +146,13 @@ myApp.controller('MainController', function ($scope, $location, $http) {
       }
     });
   });
-  // $(document.body).on("mouseover mouseleave",".hover_cell",function(e){
-  //   console.log("hovercell e",e);
-  //   console.log("index",$(this).index());
-  //   $(".div-table > .hader_block > .thead.hover > .tr_row > .th").removeClass("cellhover");
-  //   console.log("selectedelemten",$(".div-table > .hader_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")"));
-  //   $(".div-table > .hader_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")").addClass('cellhover');
-  // });
+  $(document.body).on("mouseover mouseleave",".hover_cell",function(e){
+    console.log("hovercell e",e);
+    console.log("index",$(this).index());
+    $(".div-table > .hader_block > .thead.hover > .tr_row > .th").removeClass("cellhover");
+    console.log("selectedelemten",$(".div-table > .hader_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")"));
+    $(".div-table > .hader_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")").addClass('cellhover');
+  });
 
 
 
