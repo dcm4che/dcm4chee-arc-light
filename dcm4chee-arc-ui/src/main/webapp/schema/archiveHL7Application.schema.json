@@ -15,14 +15,14 @@
       "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR.",
       "type": "string"
     },
+    "hl7ScheduleProcedureTemplateURI": {
+      "title": "HL7 Schedule Procedure Template URI",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items.",
+      "type": "string"
+    },
     "dicomAETitle": {
       "title": "AE Title",
       "description": "Associated AE Title.",
-      "type": "string"
-    },
-    "hl7ScheduleProcedureTemplateURI": {
-      "title": "HL7 Schedule Procedure Template URI",
-      "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19.",
       "type": "string"
     }
   }

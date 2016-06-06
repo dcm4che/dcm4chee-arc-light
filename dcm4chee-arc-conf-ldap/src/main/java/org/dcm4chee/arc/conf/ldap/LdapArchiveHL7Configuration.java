@@ -66,8 +66,8 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         attrs.get("objectclass").add("dcmArchiveHL7Application");
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
-        LdapUtils.storeNotNull(attrs, "dicomAETitle", ext.getAETitle());
         LdapUtils.storeNotNull(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
+        LdapUtils.storeNotNull(attrs, "dicomAETitle", ext.getAETitle());
     }
 
     @Override
@@ -80,8 +80,8 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         hl7App.addHL7ApplicationExtension(ext);
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
-        ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
         ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
+        ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
     }
 
     @Override
@@ -98,8 +98,9 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI());
         LdapUtils.storeDiff(mods, "hl7ImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI());
-        LdapUtils.storeDiff(mods, "dcmOtherAETitle", aa.getAETitle(), bb.getAETitle());
-        LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
+        LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI",
+                aa.getScheduleProcedureTemplateURI(),
                 bb.getScheduleProcedureTemplateURI());
+        LdapUtils.storeDiff(mods, "dcmOtherAETitle", aa.getAETitle(), bb.getAETitle());
     }
 }

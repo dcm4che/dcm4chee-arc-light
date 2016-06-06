@@ -91,6 +91,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
+        LdapUtils.storeNotNull(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI());
         LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
@@ -121,7 +122,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
-        LdapUtils.storeNotNull(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
     }
 
     @Override
@@ -149,6 +149,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
+        ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
         ext.setUnzipVendorDataToURI(LdapUtils.stringValue(attrs.get("dcmUnzipVendorDataToURI"), null));
         ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
@@ -184,7 +185,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
-        ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
     }
 
     @Override
@@ -221,6 +221,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI());
         LdapUtils.storeDiff(mods, "hl7PatientUpdateTemplateURI",
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI());
+        LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
+                bb.getScheduleProcedureTemplateURI());
         LdapUtils.storeDiff(mods, "dcmUnzipVendorDataToURI",
                 aa.getUnzipVendorDataToURI(), bb.getUnzipVendorDataToURI());
         LdapUtils.storeDiff(mods, "dcmWadoSupportedSRClasses",
@@ -274,8 +276,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(), bb.getWadoSpoolDirectory());
-        LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
-                bb.getScheduleProcedureTemplateURI());
     }
 
     @Override

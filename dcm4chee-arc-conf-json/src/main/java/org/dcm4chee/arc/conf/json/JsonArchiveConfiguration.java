@@ -114,11 +114,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStowSpoolDirectory", arcDev.getStowSpoolDirectory());
         writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
         writer.writeNotNull("hl7ImportReportTemplateURI", arcDev.getImportReportTemplateURI());
+        writer.writeNotNull("hl7ScheduleProcedureTemplateURI", arcDev.getScheduleProcedureTemplateURI());
         writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
         writer.writeNotNull("dcmPurgeQueueMessagePollingInterval", arcDev.getPurgeQueueMessagePollingInterval());
         writer.writeNotDef("dcmPurgeQueueMessageFetchSize", arcDev.getPurgeQueueMessageFetchSize(), 100);
         writer.writeNotNull("dcmWadoSpoolDirectory", arcDev.getWadoSpoolDirectory());
-        writer.writeNotNull("hl7ScheduleProcedureTemplateURI", arcDev.getScheduleProcedureTemplateURI());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -467,6 +467,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "hl7ImportReportTemplateURI":
                     arcDev.setImportReportTemplateURI(reader.stringValue());
                     break;
+                case "hl7ScheduleProcedureTemplateURI":
+                    arcDev.setScheduleProcedureTemplateURI(reader.stringValue());
+                    break;
                 case "dcmUnzipVendorDataToURI":
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());
                     break;
@@ -478,9 +481,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSpoolDirectory":
                     arcDev.setWadoSpoolDirectory(reader.stringValue());
-                    break;
-                case "hl7ScheduleProcedureTemplateURI":
-                    arcDev.setScheduleProcedureTemplateURI(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

@@ -46,6 +46,7 @@ dicomManufacturer: dcm4che.org
 dcmDeleteRejectedPollingInterval: PT5M
 dicomDeviceName: dcm4chee-arc
 dcmAuditPollingInterval: PT1M
+hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
 dcmExportTaskPollingInterval: PT1M
