@@ -121,6 +121,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
+        LdapUtils.storeNotNull(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
     }
 
     @Override
@@ -183,6 +184,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
+        ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
     }
 
     @Override
@@ -272,6 +274,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(), bb.getWadoSpoolDirectory());
+        LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
+                bb.getScheduleProcedureTemplateURI());
     }
 
     @Override

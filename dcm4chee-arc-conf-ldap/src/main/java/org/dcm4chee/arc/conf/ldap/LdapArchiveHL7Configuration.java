@@ -67,6 +67,7 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
         LdapUtils.storeNotNull(attrs, "dicomAETitle", ext.getAETitle());
+        LdapUtils.storeNotNull(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
     }
 
     @Override
@@ -80,6 +81,7 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
         ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+        ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
     }
 
     @Override
@@ -97,5 +99,7 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         LdapUtils.storeDiff(mods, "hl7ImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI());
         LdapUtils.storeDiff(mods, "dcmOtherAETitle", aa.getAETitle(), bb.getAETitle());
+        LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
+                bb.getScheduleProcedureTemplateURI());
     }
 }

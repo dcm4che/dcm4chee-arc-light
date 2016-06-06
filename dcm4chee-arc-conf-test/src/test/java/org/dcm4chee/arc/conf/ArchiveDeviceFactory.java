@@ -784,6 +784,7 @@ class ArchiveDeviceFactory {
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
     static final String DSR2TEXT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl";
     static final String HL7_ORU2DSR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl";
+    static final String HL7_ORDER2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl";
     static final String UNZIP_VENDOR_DATA = "${jboss.server.temp.url}/dcm4chee-arc";
     static final String NULLIFY_PN = "${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl";
     static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
@@ -1051,6 +1052,7 @@ class ArchiveDeviceFactory {
         ext.setImportReportTemplateURI(HL7_ORU2DSR_XSL);
         ext.setAECacheStaleTimeout(AE_CACHE_STALE_TIMEOUT);
         ext.setLeadingCFindSCPQueryCacheStaleTimeout(LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT);
+        ext.setScheduleProcedureTemplateURI(HL7_ORDER2DCM_XSL);
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));
