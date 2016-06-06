@@ -186,11 +186,13 @@ class CStoreForwardTask implements Runnable {
         public void onDimseRSP(Association as, Attributes cmd, Attributes data) {
             super.onDimseRSP(as, cmd, data);
             int storeStatus = cmd.getInt(Tag.Status, -1);
-            if (storeStatus == Status.Success)
+            if (storeStatus == Status.Success) {
                 event.incrementCompleted();
-            else if ((storeStatus & 0xB000) == 0xB000)
+                ctx.incrementCompleted();
+            } else if ((storeStatus & 0xB000) == 0xB000) {
                 event.incrementWarning();
-            else {
+                ctx.incrementWarning();
+            } else {
                 event.addFailedSOPInstanceUID(inst.getSopInstanceUID());
                 ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
             }

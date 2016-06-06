@@ -42,18 +42,18 @@ package org.dcm4chee.arc.retrieve.scu.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
-import org.dcm4che3.net.*;
+import org.dcm4che3.net.Association;
+import org.dcm4che3.net.DataWriterAdapter;
+import org.dcm4che3.net.DimseRSPHandler;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -63,9 +63,6 @@ class ForwardRetrieveTask implements RetrieveTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(ForwardRetrieveTask.class);
 
-    private static final int MAX_FAILED_IUIDS_LEN = 4000;
-
-    private final RetrieveContext ctx;
     private final PresentationContext pc;
     private final Attributes rqCmd;
     private final int msgId;
@@ -74,14 +71,9 @@ class ForwardRetrieveTask implements RetrieveTask {
     private final Association rqas;
     private final Association fwdas;
     private final CMoveRSPHandler rspHandler;
-    private final String fallbackCMoveSCPDestination;
-    private Attributes finalMoveRSP;
-    private Attributes finalMoveRSPData;
 
     public ForwardRetrieveTask(RetrieveContext ctx, PresentationContext pc,
-                               Attributes rqCmd, Attributes keys,
-                               String fallbackCMoveSCPDestination, Association fwdas) {
-        this.ctx = ctx;
+                               Attributes rqCmd, Attributes keys, Association fwdas) {
         this.rqas = ctx.getRequestAssociation();
         this.fwdas = fwdas;
         this.pc = pc;
@@ -89,7 +81,6 @@ class ForwardRetrieveTask implements RetrieveTask {
         this.keys = keys;
         this.msgId = rqCmd.getInt(Tag.MessageID, 0);
         this.cuid = rqCmd.getString(Tag.AffectedSOPClassUID);
-        this.fallbackCMoveSCPDestination = fallbackCMoveSCPDestination;
         this.rspHandler = new CMoveRSPHandler(msgId);
     }
 
@@ -110,14 +101,11 @@ class ForwardRetrieveTask implements RetrieveTask {
             waitForFinalMoveRSP();
         } catch (DicomServiceException e) {
             Attributes rsp = e.mkRSP(0x8021, msgId);
-            finalMoveRSP = rsp;
             rqas.tryWriteDimseRSP(pc, rsp);
         } finally {
             releaseAssociation();
             rqas.removeCancelRQHandler(msgId);
         }
-        if (fallbackCMoveSCPDestination != null)
-            updateFailedSOPInstanceUIDList();
     }
 
     private void forwardMoveRQ() throws DicomServiceException{
@@ -132,10 +120,7 @@ class ForwardRetrieveTask implements RetrieveTask {
 
     private void waitForFinalMoveRSP() throws DicomServiceException {
         try {
-            synchronized (rspHandler) {
-                while (finalMoveRSP == null)
-                    rspHandler.wait();
-            }
+            fwdas.waitForOutstandingRSP();
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to wait for outstanding RSP on association to {}", rqas, fwdas.getRemoteAET(), e);
             throw new DicomServiceException(Status.ProcessingFailure, e);
@@ -158,99 +143,11 @@ class ForwardRetrieveTask implements RetrieveTask {
         @Override
         public void onDimseRSP(Association as, Attributes cmd, Attributes data) {
             super.onDimseRSP(as, cmd, data);
-            boolean pending = Status.isPending(cmd.getInt(Tag.Status, -1));
-            if (!pending) {
-                synchronized (this) {
-                    finalMoveRSP = cmd;
-                    finalMoveRSPData = data;
-                    notify();
-                }
-            }
-            if (fallbackCMoveSCPDestination != null) {
-                int failed = fallbackCMoveSCPDestination != null ? ctx.failed() : 0;
-                if (failed > 0) {
-                    cmd = new Attributes(cmd);
-                    int completed = cmd.getInt(Tag.NumberOfCompletedSuboperations, 0) - failed;
-                    cmd.setInt(Tag.NumberOfCompletedSuboperations, VR.US,
-                            completed);
-                    cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US,
-                            cmd.getInt(Tag.NumberOfFailedSuboperations, 0) + failed);
-                    if (!pending) {
-                        int retrieved = cmd.getInt(Tag.NumberOfWarningSuboperations, 0) + completed;
-                        cmd.setInt(Tag.Status, VR.US,
-                                retrieved > 0 ? Status.OneOrMoreFailures : Status.UnableToPerformSubOperations);
-                        String[] failedIUIDs = ctx.failedSOPInstanceUIDs();
-                        if (data != null)
-                            failedIUIDs = cat(failedIUIDs, data.getStrings(Tag.FailedSOPInstanceUIDList));
-                        data = new Attributes(1);
-                        data.setString(Tag.FailedSOPInstanceUIDList, VR.UI, failedIUIDs);
-                    }
-                }
-                if (!pending) {
-                    try {
-                        LOG.info("{}: Wait for pending forward of C-STORE-RQs from {} to {}",
-                                rqas, fwdas.getRemoteAET(), ctx.getDestinationAETitle());
-                        ctx.waitForPendingCStoreForward();
-                        LOG.info("{}: Complete forward of C-STORE-RQs from {} to {}",
-                                rqas, fwdas.getRemoteAET(), ctx.getDestinationAETitle());
-                    } catch (InterruptedException e) {
-                        LOG.warn("{}: failed to wait for pending forward of C-STORE-RQs from {} to {}",
-                                rqas, fwdas.getRemoteAET(), ctx.getDestinationAETitle(), e);
-                    }
-                }
-            }
             try {
                 rqas.writeDimseRSP(pc, cmd, data);
             } catch (IOException e) {
                 LOG.warn("{}: Unable to backward C-MOVE RSP on association to {}", rqas, rqas.getRemoteAET(), e);
             }
         }
-    }
-
-    private static String[] cat(String[] ss1, String[] ss2) {
-        if (ss2 == null || ss2.length == 0)
-            return ss1;
-
-        String[] ss = new String[ss1.length + ss2.length];
-        System.arraycopy(ss1, 0, ss, 0, ss1.length);
-        System.arraycopy(ss2, 0, ss, ss1.length, ss2.length);
-        return ss;
-    }
-
-    private void updateFailedSOPInstanceUIDList() {
-        int retrieved = finalMoveRSP.getInt(Tag.NumberOfCompletedSuboperations, 0) +
-                finalMoveRSP.getInt(Tag.NumberOfWarningSuboperations, 0);
-        if (retrieved > 0)
-            ctx.getRetrieveService().updateFailedSOPInstanceUIDList(ctx, failedIUIDList(
-                    ctx, finalMoveRSP.getInt(Tag.NumberOfFailedSuboperations, 0), retrieved, finalMoveRSPData));
-    }
-
-    private String failedIUIDList(RetrieveContext ctx, int failed, int retrieved, Attributes data) {
-        if (failed == 0)
-            return null;
-        Association as = ctx.getRequestAssociation();
-        String fallbackCMoveSCP = fwdas.getRemoteAET();
-        LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {}",
-                as, failed, failed + retrieved,
-                Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
-        String[] failedSOPInstanceUIDList = data != null
-                ? data.getStrings(Tag.FailedSOPInstanceUIDList)
-                : null;
-        if (failedSOPInstanceUIDList == null || failedSOPInstanceUIDList.length == 0) {
-            LOG.warn("{}: Missing Failed SOP Instance UID List in C-MOVE-RSP from {}", as, fallbackCMoveSCP);
-            return "*";
-        }
-        if (failedSOPInstanceUIDList.length != failed) {
-            LOG.warn("{}: Number Of Failed Suboperations [{}] does not match " +
-                            "size of Failed SOP Instance UID List [{}] in C-MOVE-RSP from {}",
-                    as, failed, failedSOPInstanceUIDList.length, fallbackCMoveSCP);
-        }
-        String concat = StringUtils.concat(failedSOPInstanceUIDList, '\\');
-        if (concat.length() > MAX_FAILED_IUIDS_LEN) {
-            LOG.warn("{}: Failed SOP Instance UID List [{}] in C-MOVE-RSP from {} too large to persist in DB",
-                    as, failed, fallbackCMoveSCP);
-            return "*";
-        }
-        return concat;
     }
 }
