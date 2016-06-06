@@ -1137,12 +1137,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     initRjNotes(retries-1);
             });
     }
-    $(".div-table > .repeat0 > .thead .tr_row").bind("click",".div-table",function(){
-        console.log("in hover", $(".div-table > .header1 > .tr_row"));
-        $(".div-table > .header1 > .tr_row").css({
-            background:"blue"
-        });
-    });
+    // $(".div-table > .repeat0 > .thead .tr_row").bind("click",".div-table",function(){
+    //     console.log("in hover", $(".div-table > .header1 > .tr_row"));
+    //     $(".div-table > .header1 > .tr_row").css({
+    //         background:"blue"
+    //     });
+    // });
 
     initAETs(1);
     initAttributeFilter("Patient", 1);

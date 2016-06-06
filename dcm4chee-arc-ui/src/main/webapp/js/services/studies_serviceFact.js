@@ -193,18 +193,18 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         trim: function(scope){
             setTimeout(function(){ 
                   angular.forEach($('.txt'), function(m, i){
-                    if ($(m)[0].scrollWidth >  $(m).innerWidth() || $(m)[0].scrollHeight >  $(m).innerHeight()) {
+                    if ($(m)[0].scrollWidth >  $(m).innerWidth() || $(m)[0].scrollHeight >  $(m).innerHeight()+1) {
                             var tooltip = $(m).find(".tooltip_container");
-                            $(m).text(function (_,txt) {
-                                return txt.trim();
-                            });
+                            // $(m).text(function (_,txt) {
+                            //     return txt.trim();
+                            // });
                             var check1 = (Math.round($(m)[0].scrollWidth) >  Math.round($(m).innerWidth()) && Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) > 1 );
                             var check2 = (Math.round($(m)[0].scrollHeight) >  Math.round($(m).innerHeight())&& Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) > 1);
                             if ((check1 || check2) && $(m).text().length > 0) {
                                 var fulltext = $(m).text();
                                 // $(m).attr("tooltip",fulltext);
                                 if(check1){
-
+                                    console.log("check1",$(m).text());
                                     while($(m)[0].scrollWidth >  $(m).innerWidth() && Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) > 1 ){
                                         var slice = Math.round(Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) / 6);
                                         if(slice > 0){
@@ -218,6 +218,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                                         }
                                     }
                                 }else{
+                                    // console.log("check1 else",$(m).text());
                                         while($(m)[0].scrollHeight >  $(m).innerHeight() && Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) > 1){
                                             var slice =  Math.round(Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) / 2);
                                             if(slice > 0){

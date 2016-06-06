@@ -122,9 +122,9 @@ ul.nav {
 .glyphicon.glyphicon-align-justify.toggle-button.out {
 	background: white none repeat scroll 0 0;
 	box-shadow: 5px 2px 7px 3px #7e7e7e;
-	height: 30px;
+	height: 25px;
 	left: 0;
-	line-height: 30px;
+	line-height: 25px;
 	position: fixed;
 	text-align: center;
 	top: 30px;
@@ -296,7 +296,7 @@ device and create an other one with the new name*/
 .more_menu{
 	display: block;
 	width:8%;
-	height: 35px;
+	height: 25px;
 	background: url("../img/dots.png");
 	background-repeat: no-repeat;
 	background-position: 70% center;
@@ -305,7 +305,7 @@ device and create an other one with the new name*/
 	padding-left: 8%;
 	.delete_create_buttons {
 		display: block;
-	    height: 35px;
+	    height: 25px;
 	    width:130px;
 		&> div {
 		    display: block;
@@ -471,6 +471,11 @@ device and create an other one with the new name*/
 	animation-duration: 300ms;
 	-moz-animation-duration: 300ms;
 }
+.header_block .thead.animtaed{
+	-webkit-animation-duration: 200ms;
+	animation-duration: 200ms;
+	-moz-animation-duration: 200ms;
+}
 .animated.hover{
 	-webkit-animation-duration: 200ms;
 	animation-duration: 200ms;
@@ -537,7 +542,7 @@ table{
 			border:1px solid #ddd;
 		}
 		tr{
-			height:30px;
+			height: 25px;
 		}
 	}
 
@@ -557,77 +562,96 @@ table{
 		margin-left: 10%;
 	}
 }
-.div-table{
-	float: left;
-    width: 100%;
-    & > .hader_block > .thead{
-		height: 29px;
-    	display: none;
-	    left: 74px;
-	    position: static; /*fixed*/
-	    right: 65px;
-	    width: 100%;     /*auto%*/
-	    z-index: 99999999;
-	    top: 0px;
-	    .cellhover{
- 			background: #3b6b8c;
-	    }
-	    .close_allpatients,.open_allpatients{
-	    	&:hover{
-	    		cursor: pointer;
+.headerblock{
+	    & > .header_block {
+    	background: #666;
+    	float: left;
+    	width: 100%;
+    	&> .thead{
+			height: 30px;
+	    	display: none;
+		    left: 74px;
+		    position: static; /*fixed*/
+		    right: 65px;
+		    width: 100%;     /*auto%*/
+		    z-index: 99999999;
+		    top: 0px;
+		    .cellhover{
+	 			background: #3b6b8c;
+		    }
+		    .close_allpatients,.open_allpatients{
+		    	&:hover{
+		    		cursor: pointer;
+		    	}
+		    }
+	    	&.hover{
+	    		display: block;
 	    	}
-	    }
-    	&.hover{
-    		display: block;
-    	}
-		& > .tr_row{
-		}
-		&.header1 {
 			& > .tr_row{
-				// top:0;
-				// top:0px;/
-				&.hover{
-					background:$hoverBlue;
+			    .th{
+			    	height: 30px;
+			    	line-height: 30px; 
+			    	float: left;
+				    //height: 25px;
+				    // line-height: 25px;
+				    padding-left: 7px;
+				    width: 10%;
+				    border-bottom: 1px solid rgb(221, 221, 221);
+				    border-right: 1px solid rgb(221, 221, 221);
+			    }
+			}
+			&.header1 {
+				& > .tr_row{
+					// top:0;
+					// top:0px;/
+					&.hover{
+						// background:$hoverBlue;
+					}
 				}
 			}
-		}
-		&.header2 {
-			& > .tr_row{
-				// top:29px;
-				// top:0px;/		
-				padding-left: 3%;	
-				.th:first-child{
-					border:none;
+			&.header2 {
+				& > .tr_row{
+					// top:29px;
+					// top:0px;/		
+					padding-left: 3%;	
+					.th:first-child{
+						border:none;
+					}
 				}
 			}
-		}
-		&.header3 {
-			& > .tr_row{
-				// top:58px;
-				// top:0px;/
-				padding-left:6%;
-				.th{
-					width: 11%;
-				}
-				.th:first-child{
-					border:none;
+			&.header3 {
+				& > .tr_row{
+					// top:58px;
+					// top:0px;/
+					padding-left:6%;
+					.th{
+						width: 11%;
+					}
+					.th:first-child{
+						border:none;
+					}
 				}
 			}
-		}
-		&.header4 {
-			& > .tr_row{
-				// top:87px;
-				// top:0px;/
-				padding-left:9%;
-				.th{
-					width: 14%;
-				}
-				.th:first-child{
-					border:none;
+			&.header4 {
+				& > .tr_row{
+					// top:87px;
+					// top:0px;/
+					padding-left:9%;
+					.th{
+						width: 14%;
+					}
+					.th:first-child{
+						border:none;
+					}
 				}
 			}
 		}
 	}
+}
+.div-table{
+	float: left;
+    width: 100%;
+
 	.arrows{
 		width: 100%;
 		float: left;
@@ -656,8 +680,8 @@ table{
 	    // color: white;
 	    font-size: 14px;
 	    // font-weight: bold;
-	    height: 30px;
-	    line-height: 30px;
+	    height: 25px;
+	    line-height: 25px;
 	    padding-left: 7px;
 	    vertical-align: middle;
 	}
@@ -667,10 +691,11 @@ table{
 	    background:#666;
 	    color: white;
 		.th {
- 			border: 1px solid #ddd;
+ 			border-bottom: 1px solid #ddd;
+ 			border-right: 1px solid #ddd;
 		    float: left;
-		    height: 30px;
-		    line-height: 30px;
+		    height: 25px;
+		    line-height: 25px;
 		    padding-left: 7px;
 		    width: 10%;
 		    button{
@@ -689,11 +714,15 @@ table{
 	overflow-y: auto;
 }
 .repeat0{
-    border: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
     float: left;
     width: 100%;
 	position:relative;
 	min-height:10px;
+	&>.arrows{
+		border-bottom:1px solid #ddd;
+	}
 	.close_patient{
 		position: absolute;
 		left: -1px;
@@ -713,25 +742,25 @@ table{
 		}
 	}
 	& > .thead{
-		height: 35px;
+		height: 25px;
 		& > .tr_row{
-			height: 35px;
+			height: 25px;
 			background:rgba(254, 254, 254, 0.56);
 			color: black;
 			&.hover{
-				background:$hoverBlue;
-				color:white;
+				// background:$hoverBlue;
+				// color:white;
 			}
 			// &:hover{
 			// 	background:rgba(176, 176, 176, 0.98);
 			// }
 			.th{
-				height: 35px;
+				height: 25px;
 				.table_btn{
-				    border: 1px solid #bab6b6;
+				    border-left: 1px solid #ddd;
 				    color: black;
 				    float: left;
-				    height: 32px;
+				    height: 25px;
 				    text-align: center;
 				    width: 25%;
 
@@ -756,15 +785,15 @@ table{
 	    float: left;
 	    margin-left: 3%;
 	    width: 97%;
-	    // height: 30px;
+	    // height: 25px;
 	    // margin-bottom: 4px;
     	.thead {
     		.tr_row {
     			.th{
     				border:none;
     				border-right:1px solid #ddd;
-    				height: 35px;
-    				line-height: 35px;
+    				height: 25px;
+    				line-height: 25px;
     			}
     		}
     	}
@@ -791,7 +820,7 @@ table{
 		.tr_row .td_row .td_cell {
 		    float: left;
 		    width: 10.3%;
-		    border-right:1px solid #ddd;
+		    // border-right:1px solid #ddd;
 			// background:#ddd;
 			&:last-child{
 				border-right:0;
@@ -804,14 +833,14 @@ table{
 			width: 3%;
 			float:left;
 			text-align: center;
-			height: 30px;
-			line-height: 30px;
+			height: 25px;
+			line-height: 25px;
 
 		}
 		.tr_row .td_row .td_cell.table_btn{
 		   	background: transparent none repeat scroll 0 0;
-		    height: 30px;
-		    line-height: 30px;
+		    height: 25px;
+		    line-height: 25px;
 		    padding-left: 0;
 		    width: 7%;
 		}
@@ -819,7 +848,8 @@ table{
 		    display: inline-block;
 		    float: left;
 		    width: 97%;
-		    border:1px solid #aaa;
+		    // border-left:1px solid #aaa;
+		    // border-bottom:1px solid #aaa;
 		    // &:hover > .td_row > .td_cell,&:hover > .td_row,&:hover{
 		    // 	background:#eee;
 		    // }
@@ -833,7 +863,7 @@ table{
 			    text-align: center;
 			    width: 25%;
 			    color: black;
-			    height: 30px;
+			    height: 25px;
 				&:hover{
 					background:#C2C2C2;
 					text-decoration: none;
@@ -885,8 +915,8 @@ table{
 		    	.th{
 				    border-right: 1px solid #ddd;
 				    float: left;
-				    height: 30px;
-				    line-height: 30px;
+				    height: 25px;
+				    line-height: 25px;
 				    padding-left: 7px;
 				    width: 11%;
 					&:last-child{
@@ -901,8 +931,8 @@ table{
 		    	.th{
 					float: left;
 					width:14%;
-					height: 30px;
-					line-height: 30px;
+					height: 25px;
+					line-height: 25px;
 					background:rgba(186, 186, 186, 0.52);
 					padding-left:7px;
 					border-top: 2px solid rgba(0, 0, 0, 0.55);
@@ -919,8 +949,8 @@ table{
 					// overflow: hidden;
 					&.colcell{
 						width: 3%;
-						height: 30px;
-						line-height: 30px;
+						height: 25px;
+						line-height: 25px;
 					}
 				}
 				& > .subblock{
@@ -931,9 +961,10 @@ table{
 						// background: #848484 none repeat scroll 0 0;
 					    // color: white;
 					    font-weight: bold;
-					    height: 30px;
-					    line-height: 30px;
+					    height: 25px;
+					    line-height: 25px;
 					    padding-left: 7px;
+					    border-bottom:1px solid #aaa;
 					    &.attribute_list{
 					    	height: auto;
 					    	color: black;
@@ -959,7 +990,7 @@ table{
 							&.colcell{
 								width: 3%;
 								// border-left: 2px solid rgba(0, 0, 0, 0.55);
-								height: 31px;
+								height: 25px;
 							}
 						}
 						.attribute_list{
@@ -1025,9 +1056,10 @@ table{
 							.tr_row{
 								.td_cell{
 									// background:white;
+									border-bottom: 1px solid #aaa;
 									color: black;
 									width:14.5%;
-									height: 30px;
+									height: 25px;
 									&.attribute_list{
 										width: 100%;
 										height: auto;
@@ -1267,7 +1299,7 @@ table{
     // color: #999;
     float: left;
     height: 100%;
-    line-height: 30px;
+    line-height: 25px;
     margin-left: 7px;
     text-align: center;
     width: 25px;
@@ -1390,6 +1422,9 @@ table{
 	}
 }
 .filter{
+	&.row{
+		margin-left: 0;
+	}
 	&.hidden_filters{
 		width: 81%;
 	}
@@ -1399,7 +1434,7 @@ table{
 			padding-right:0;
 		}
 		.row{
-			height:35px;
+			height: 35px;
 		}
 		.datetime{
 			height: 70px;
@@ -1569,8 +1604,8 @@ div[tooltip]{
 			}
 		}
 		.item1,.item1first {
-	    	min-height: 35px;
-		    line-height: 35px;
+	    	min-height: 25px;
+		    line-height: 25px;
 		    vertical-align: middle;
 		}
 		.item1,.item1input,{
@@ -1589,7 +1624,7 @@ div[tooltip]{
 		    width: 98%;
 		}
 		select{
-			height: 29px;
+			height: 25px;
     		margin: 2px 0;
 		}
 	}
@@ -1672,8 +1707,8 @@ div[tooltip]{
 	}
 }
 .hover, .hover .td_cell, .hover .td_cell a, .hover .tr_row, .hover .th .table_btn{
-	background:$hoverBlue !important;
-	color:white !important; 
+	// background:$hoverBlue !important;
+	// color:white !important; 
 	display:block;
 	// display: table;
  //    width: 100%;
@@ -1684,4 +1719,5 @@ div[tooltip]{
 
 .hover_cell:hover{
 	background: #3b6b8c !important;
+	color:white;
 }

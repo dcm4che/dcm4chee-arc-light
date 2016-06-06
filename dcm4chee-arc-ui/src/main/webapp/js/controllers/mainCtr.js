@@ -82,7 +82,7 @@ myApp.controller('MainController', function ($scope, $location, $http) {
 
   // console.log("$('.div-table .thead .tr_row')=",$('.div-table .thead .tr_row'));
   var headers = [
-    ".div-table > .hader_block > .thead"
+    ".div-table > .header_block > .thead"
     // ,
     // ".div-table > .hader_block > .header2 > .tr_row",
     // ".div-table > .hader_block > .header3 > .tr_row",
@@ -113,45 +113,88 @@ myApp.controller('MainController', function ($scope, $location, $http) {
       }
     });
   });
-  var hoverdic = {
-    ".repeat0 .thead .tr_row":".div-table > .hader_block > .header1",
-    ".repeat1_hover":".div-table > .hader_block > .header2",
-    ".repeat2_hover":".div-table > .hader_block > .header3",
-    ".repeat3_hover":".div-table > .hader_block > .header4"
-  }
+  // var hoverdic = {
+  //   ".repeat0 .thead .tr_row":".div-table > .hader_block > .header1",
+  //   ".repeat1_hover":".div-table > .hader_block > .header2",
+  //   ".repeat2_hover":".div-table > .hader_block > .header3",
+  //   ".repeat3_hover":".div-table > .hader_block > .header4"
+  // }  
+  var hoverdic = [
+    ".repeat0 .thead .tr_row",
+    ".repeat1_hover",
+    ".repeat2_hover",
+    ".repeat3_hover"
+  ]
   angular.forEach(hoverdic, function(m, i){
     // console.log("m",m);
     // console.log("i",i);
-    $(document.body).on("mouseover mouseleave",i,function(e){
+    $(document.body).on("mouseover mouseleave",m,function(e){
       // console.log("e",e);
       // console.log("hover2");
       // console.log("e.relatedTarget",e.relatedTarget);
       // console.log("$e.relatedTarget",$(e.relatedTarget));
       // console.log("this index",$(this).children(".th").index(e.relatedTarget));
-      $(".header1").removeClass('hover');
-      if(e.type === "mouseover"){
+          console.log("i=",i);
+          console.log("m=",m);
+      // $(".header1").removeClass('hover');
+      if(e.type === "mouseover" && $scope.visibleHeaderIndex != i){
         $(this).addClass('hover');
         $(m).addClass('hover');
-        $(".header1").removeClass('gray');
-      }else{
-        $(m).removeClass('hover');
-        $(this).removeClass('hover');
+        // console.log("this",this);
+        // console.log("i",i); 
+        // console.log("m",m);
+        console.log("theads", $(".headerblock.hader_block .thead"));
+        $(".headerblock .header_block .thead").addClass('animated fadeOut');
+        setTimeout(function(){
+          $scope.$apply(function() {
+            $scope.visibleHeaderIndex = i;
+          });
+          $(".div-table .header_block .thead").removeClass('fadeOut').addClass('fadeIn');
+        }, 200);
+        setTimeout(function(){
+          $(".headerblock .header_block .thead").removeClass('animated');
+        },200);
+        console.log("$scope.visibleHeaderIndex",$scope.visibleHeaderIndex);
+        // $(".header1").removeClass('gray');
+        // $(".header1.gray .cellhover").removeClass('cellhover');
       }
-      if(!$(".hader_block .hover").length){
-        // setTimeout(function(){
-          // if(!$(".hader_block .hover").length){
-            $(".header1").addClass('hover gray');
-        //   }
-        // }, 2000);
-      }
+      // else{
+      //   $(m).removeClass('hover');
+      //   $(this).removeClass('hover');
+      //   $scope.$apply(function() {
+      //     $scope.visibleHeaderIndex = 0;
+      //   });
+      // }
+      // if(!$(".hader_block .hover").length){
+      //   // setTimeout(function(){
+      //     // if(!$(".hader_block .hover").length){
+      //       $(".header1").addClass('hover gray');
+      //       $(".header1.gray .cellhover").removeClass('cellhover');
+
+      //   //   }
+      //   // }, 2000);
+      // }
     });
   });
   $(document.body).on("mouseover mouseleave",".hover_cell",function(e){
-    console.log("hovercell e",e);
-    console.log("index",$(this).index());
-    $(".div-table > .hader_block > .thead.hover > .tr_row > .th").removeClass("cellhover");
-    console.log("selectedelemten",$(".div-table > .hader_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")"));
-    $(".div-table > .hader_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")").addClass('cellhover');
+    // console.log("hovercell e",e);
+    // console.log("index",$(this).index());
+    var $this = this;
+    if(e.type === "mouseover"){
+      angular.forEach($(".headerblock > .header_block > .thead"),function(m, i){
+        $(m).find(".cellhover").removeClass("cellhover");
+        $(m).find(".th:eq("+$($this).index()+")").addClass('cellhover');
+        // console.log("m=",$(m));
+        // console.log("thisindex=",$($this).index());
+        // console.log("index=",$(m).find(".th:eq("+$($this).index()+")"));
+      });
+      // $(".div-table > .header_block > .thead > .tr_row > .th").removeClass("cellhover");
+      // console.log("selectedelemten",$(".div-table > .header_block > .thead.hover > .tr_row > .th:eq("+$(this).index()+")"));
+      // $(".div-table > .header_block > .thead > .tr_row > .th:eq("+$(this).index()+")").addClass('cellhover');
+    }else{
+      // console.log("cellhover0s",$(".div-table > .header_block > .thead > .tr_row > .cellhover"));
+      $(".headerblock > .header_block > .thead > .tr_row > .cellhover").removeClass("cellhover");
+    }
   });
 
 

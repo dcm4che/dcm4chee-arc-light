@@ -2,7 +2,7 @@
     patients:{{patients | json}}
     <div ng-repeat="(key, value) in patients">{{value.attrs}}</div>
 </pre> -->
-
+<div class="headerblock">
 <div class="row filter">
     <div class="main_filter_block">
     <div class="col-md-3 block-1-1">
@@ -157,6 +157,7 @@
 </div>
 <a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
 <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
+
 <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
     <div class="col-md-3 block-2-1">
 
@@ -240,10 +241,8 @@
         </div> -->
     </div>
 </div>
-<!-- Table -->
-<div class="div-table animated">
-    <div class="hader_block" ng-show="patients.length != 0">
-        <div class="thead header1 hover gray">
+    <div class="header_block" ng-show="patients.length != 0">
+        <div class="thead header1" ng-class="{'hover':visibleHeaderIndex === 0}">
             <div class="tr_row">
                 <div class="th">  
                     <span ng-show="!allhidden" class="glyphicon glyphicon-triangle-bottom close_allpatients" title="Hide all patients" ng-click="togglePatients('hide')"></span>        
@@ -296,7 +295,7 @@
                 </div>
             </div>
         </div>
-        <div class="thead header2">
+        <div class="thead header2" ng-class="{'hover':visibleHeaderIndex === 1}">
             <div class="tr_row">
                 <div class="th">                
 
@@ -325,7 +324,7 @@
             </div>
         </div>
 
-        <div class="thead header3">
+        <div class="thead header3" ng-class="{'hover':visibleHeaderIndex === 2}">
             
             <div class="tr_row">
                  <div class="th">
@@ -352,7 +351,7 @@
                 <div style="width:2%" class="th">#I</div>
             </div>
         </div>
-        <div class="thead header4">
+        <div class="thead header4" ng-class="{'hover':visibleHeaderIndex === 3}">
             <div class="tr_row ">
                 <div class="th">
     <!--                 <button class="btn btn-link btn-xs"
@@ -377,6 +376,11 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Table -->
+<div class="div-table animated">
+
     <div class="repeat0" ng-repeat="(patientkey, patient) in patients" ng-init="patient.hide=false">
         <span ng-show="!patient.hide" class="glyphicon glyphicon-triangle-bottom close_patient" title="Hide this patient" ng-click="patient.hide=true"></span>        
         <span ng-show="patient.hide" class="glyphicon glyphicon-triangle-right open_patient" title="Show {{patient.attrs['00100010'].Value[0].Alphabetic}}" ng-click="patient.hide=false"></span>

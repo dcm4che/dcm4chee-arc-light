@@ -90,9 +90,9 @@ ul.nav {
 .glyphicon.glyphicon-align-justify.toggle-button.out {
   background: white none repeat scroll 0 0;
   box-shadow: 5px 2px 7px 3px #7e7e7e;
-  height: 30px;
+  height: 25px;
   left: 0;
-  line-height: 30px;
+  line-height: 25px;
   position: fixed;
   text-align: center;
   top: 30px;
@@ -233,7 +233,7 @@ device and create an other one with the new name*/
 .more_menu {
   display: block;
   width: 8%;
-  height: 35px;
+  height: 25px;
   background: url("../img/dots.png");
   background-repeat: no-repeat;
   background-position: 70% center;
@@ -242,7 +242,7 @@ device and create an other one with the new name*/
   padding-left: 8%; }
   .more_menu .delete_create_buttons {
     display: block;
-    height: 35px;
+    height: 25px;
     width: 130px; }
     .more_menu .delete_create_buttons > div {
       display: block;
@@ -385,6 +385,11 @@ device and create an other one with the new name*/
   animation-duration: 300ms;
   -moz-animation-duration: 300ms; }
 
+.header_block .thead.animtaed {
+  -webkit-animation-duration: 200ms;
+  animation-duration: 200ms;
+  -moz-animation-duration: 200ms; }
+
 .animated.hover {
   -webkit-animation-duration: 200ms;
   animation-duration: 200ms;
@@ -446,7 +451,7 @@ table.subtable_1, table.subtable_2 {
   table.subtable_1, table.subtable_1 th, table.subtable_1 tr, table.subtable_1 td, table.subtable_2, table.subtable_2 th, table.subtable_2 tr, table.subtable_2 td {
     border: 1px solid #ddd; }
   table.subtable_1 tr, table.subtable_2 tr {
-    height: 30px; }
+    height: 25px; }
 
 #selects_part .header {
   width: 100%; }
@@ -458,11 +463,12 @@ table.subtable_1, table.subtable_2 {
 #selects_part .child {
   margin-left: 10%; }
 
-.div-table {
+.headerblock > .header_block {
+  background: #666;
   float: left;
   width: 100%; }
-  .div-table > .hader_block > .thead {
-    height: 29px;
+  .headerblock > .header_block > .thead {
+    height: 30px;
     display: none;
     left: 74px;
     position: static;
@@ -472,30 +478,40 @@ table.subtable_1, table.subtable_2 {
     /*auto%*/
     z-index: 99999999;
     top: 0px; }
-    .div-table > .hader_block > .thead .cellhover {
+    .headerblock > .header_block > .thead .cellhover {
       background: #3b6b8c; }
-    .div-table > .hader_block > .thead .close_allpatients:hover, .div-table > .hader_block > .thead .open_allpatients:hover {
+    .headerblock > .header_block > .thead .close_allpatients:hover, .headerblock > .header_block > .thead .open_allpatients:hover {
       cursor: pointer; }
-    .div-table > .hader_block > .thead.hover {
+    .headerblock > .header_block > .thead.hover {
       display: block; }
-    .div-table > .hader_block > .thead.header1 > .tr_row.hover {
-      background: #5293C1; }
-    .div-table > .hader_block > .thead.header2 > .tr_row {
+    .headerblock > .header_block > .thead > .tr_row .th {
+      height: 30px;
+      line-height: 30px;
+      float: left;
+      padding-left: 7px;
+      width: 10%;
+      border-bottom: 1px solid #dddddd;
+      border-right: 1px solid #dddddd; }
+    .headerblock > .header_block > .thead.header2 > .tr_row {
       padding-left: 3%; }
-      .div-table > .hader_block > .thead.header2 > .tr_row .th:first-child {
+      .headerblock > .header_block > .thead.header2 > .tr_row .th:first-child {
         border: none; }
-    .div-table > .hader_block > .thead.header3 > .tr_row {
+    .headerblock > .header_block > .thead.header3 > .tr_row {
       padding-left: 6%; }
-      .div-table > .hader_block > .thead.header3 > .tr_row .th {
+      .headerblock > .header_block > .thead.header3 > .tr_row .th {
         width: 11%; }
-      .div-table > .hader_block > .thead.header3 > .tr_row .th:first-child {
+      .headerblock > .header_block > .thead.header3 > .tr_row .th:first-child {
         border: none; }
-    .div-table > .hader_block > .thead.header4 > .tr_row {
+    .headerblock > .header_block > .thead.header4 > .tr_row {
       padding-left: 9%; }
-      .div-table > .hader_block > .thead.header4 > .tr_row .th {
+      .headerblock > .header_block > .thead.header4 > .tr_row .th {
         width: 14%; }
-      .div-table > .hader_block > .thead.header4 > .tr_row .th:first-child {
+      .headerblock > .header_block > .thead.header4 > .tr_row .th:first-child {
         border: none; }
+
+.div-table {
+  float: left;
+  width: 100%; }
   .div-table .arrows {
     width: 100%;
     float: left;
@@ -513,8 +529,8 @@ table.subtable_1, table.subtable_2 {
 
 .div-table .thead .td_cell {
   font-size: 14px;
-  height: 30px;
-  line-height: 30px;
+  height: 25px;
+  line-height: 25px;
   padding-left: 7px;
   vertical-align: middle; }
 .div-table .thead .tr_row {
@@ -523,10 +539,11 @@ table.subtable_1, table.subtable_2 {
   background: #666;
   color: white; }
   .div-table .thead .tr_row .th {
-    border: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
     float: left;
-    height: 30px;
-    line-height: 30px;
+    height: 25px;
+    line-height: 25px;
     padding-left: 7px;
     width: 10%; }
     .div-table .thead .tr_row .th button {
@@ -541,11 +558,14 @@ table.subtable_1, table.subtable_2 {
   overflow-y: auto; }
 
 .repeat0 {
-  border: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
   float: left;
   width: 100%;
   position: relative;
   min-height: 10px; }
+  .repeat0 > .arrows {
+    border-bottom: 1px solid #ddd; }
   .repeat0 .close_patient {
     position: absolute;
     left: -1px;
@@ -561,21 +581,18 @@ table.subtable_1, table.subtable_2 {
     .repeat0 .open_patient:hover {
       cursor: pointer; }
   .repeat0 > .thead {
-    height: 35px; }
+    height: 25px; }
     .repeat0 > .thead > .tr_row {
-      height: 35px;
+      height: 25px;
       background: rgba(254, 254, 254, 0.56);
       color: black; }
-      .repeat0 > .thead > .tr_row.hover {
-        background: #5293C1;
-        color: white; }
       .repeat0 > .thead > .tr_row .th {
-        height: 35px; }
+        height: 25px; }
         .repeat0 > .thead > .tr_row .th .table_btn {
-          border: 1px solid #bab6b6;
+          border-left: 1px solid #ddd;
           color: black;
           float: left;
-          height: 32px;
+          height: 25px;
           text-align: center;
           width: 25%; }
           .repeat0 > .thead > .tr_row .th .table_btn:hover {
@@ -594,8 +611,8 @@ table.subtable_1, table.subtable_2 {
     .repeat0 .repeat1 .thead .tr_row .th {
       border: none;
       border-right: 1px solid #ddd;
-      height: 35px;
-      line-height: 35px; }
+      height: 25px;
+      line-height: 25px; }
     .repeat0 .repeat1 > .thead > .tr_row {
       background: transparent;
       color: black; }
@@ -607,8 +624,7 @@ table.subtable_1, table.subtable_2 {
       border: none; }
     .repeat0 .repeat1 .tr_row .td_row .td_cell {
       float: left;
-      width: 10.3%;
-      border-right: 1px solid #ddd; }
+      width: 10.3%; }
       .repeat0 .repeat1 .tr_row .td_row .td_cell:last-child {
         border-right: 0; }
       .repeat0 .repeat1 .tr_row .td_row .td_cell .th {
@@ -617,25 +633,24 @@ table.subtable_1, table.subtable_2 {
       width: 3%;
       float: left;
       text-align: center;
-      height: 30px;
-      line-height: 30px; }
+      height: 25px;
+      line-height: 25px; }
     .repeat0 .repeat1 .tr_row .td_row .td_cell.table_btn {
       background: transparent none repeat scroll 0 0;
-      height: 30px;
-      line-height: 30px;
+      height: 25px;
+      line-height: 25px;
       padding-left: 0;
       width: 7%; }
     .repeat0 .repeat1 .subblock {
       display: inline-block;
       float: left;
-      width: 97%;
-      border: 1px solid #aaa; }
+      width: 97%; }
       .repeat0 .repeat1 .subblock .td_cell.table_btn > a {
         float: left;
         text-align: center;
         width: 25%;
         color: black;
-        height: 30px; }
+        height: 25px; }
         .repeat0 .repeat1 .subblock .td_cell.table_btn > a:hover {
           background: #C2C2C2;
           text-decoration: none; }
@@ -665,8 +680,8 @@ table.subtable_1, table.subtable_2 {
         .repeat0 .repeat1 .subblock .thead2 .th {
           border-right: 1px solid #ddd;
           float: left;
-          height: 30px;
-          line-height: 30px;
+          height: 25px;
+          line-height: 25px;
           padding-left: 7px;
           width: 11%; }
           .repeat0 .repeat1 .subblock .thead2 .th:last-child {
@@ -676,8 +691,8 @@ table.subtable_1, table.subtable_2 {
       .repeat0 .repeat1 .subblock .thead3 .th {
         float: left;
         width: 14%;
-        height: 30px;
-        line-height: 30px;
+        height: 25px;
+        line-height: 25px;
         background: rgba(186, 186, 186, 0.52);
         padding-left: 7px;
         border-top: 2px solid rgba(0, 0, 0, 0.55); }
@@ -687,15 +702,16 @@ table.subtable_1, table.subtable_2 {
           border-left: 2px solid rgba(0, 0, 0, 0.55); }
       .repeat0 .repeat1 .subblock .repeat2 .td_cell.colcell {
         width: 3%;
-        height: 30px;
-        line-height: 30px; }
+        height: 25px;
+        line-height: 25px; }
       .repeat0 .repeat1 .subblock .repeat2 > .subblock {
         background: rgba(167, 167, 167, 0.5) none repeat scroll 0 0; }
       .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row > .td_cell {
         font-weight: bold;
-        height: 30px;
-        line-height: 30px;
-        padding-left: 7px; }
+        height: 25px;
+        line-height: 25px;
+        padding-left: 7px;
+        border-bottom: 1px solid #aaa; }
         .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row > .td_cell.attribute_list {
           height: auto;
           color: black;
@@ -709,7 +725,7 @@ table.subtable_1, table.subtable_2 {
         width: 100%; }
       .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .td_cell.colcell {
         width: 3%;
-        height: 31px; }
+        height: 25px; }
       .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .attribute_list {
         overflow-x: scroll; }
       .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock {
@@ -747,9 +763,10 @@ table.subtable_1, table.subtable_2 {
         .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active:hover {
           background: #888; }
         .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell {
+          border-bottom: 1px solid #aaa;
           color: black;
           width: 14.5%;
-          height: 30px; }
+          height: 25px; }
           .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell.attribute_list {
             width: 100%;
             height: auto; }
@@ -930,7 +947,7 @@ table.subtable_1, table.subtable_2 {
 .deleteRejctedI {
   float: left;
   height: 100%;
-  line-height: 30px;
+  line-height: 25px;
   margin-left: 7px;
   text-align: center;
   width: 25px; }
@@ -1020,6 +1037,8 @@ table.subtable_1, table.subtable_2 {
       font-size: 23px;
       margin-bottom: 35px; }
 
+.filter.row {
+  margin-left: 0; }
 .filter.hidden_filters {
   width: 81%; }
 .filter .col-md-3 input {
@@ -1142,8 +1161,8 @@ div[tooltip] {
       cursor: pointer;
       text-decoration: none; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form .item1, .vex.vex-theme-os.edit-patient .vex-dialog-form .item1first {
-  min-height: 35px;
-  line-height: 35px;
+  min-height: 25px;
+  line-height: 25px;
   vertical-align: middle; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form .item1, .vex.vex-theme-os.edit-patient .vex-dialog-form .item1input {
   margin-left: 20px; }
@@ -1157,7 +1176,7 @@ div[tooltip] {
   padding-top: 35px;
   width: 98%; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form select {
-  height: 29px;
+  height: 25px;
   margin: 2px 0; }
 
 .vex.vex-theme-os.info-dialog .vex-content {
@@ -1224,14 +1243,13 @@ div[tooltip] {
           font-size: 17px; }
 
 .hover, .hover .td_cell, .hover .td_cell a, .hover .tr_row, .hover .th .table_btn {
-  background: #5293C1 !important;
-  color: white !important;
   display: block; }
 
 .hover.gray .thead, .hover.gray .tr_row {
   background: #666 !important; }
 
 .hover_cell:hover {
-  background: #3b6b8c !important; }
+  background: #3b6b8c !important;
+  color: white; }
 
 /*# sourceMappingURL=style.css.map */
