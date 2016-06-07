@@ -50,7 +50,6 @@ import org.dcm4chee.arc.store.StoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
 import java.util.IdentityHashMap;
 
 /**
@@ -63,12 +62,10 @@ class CStoreForward {
 
     private final RetrieveContext retrieveCtx;
     private final IdentityHashMap<Association,CStoreForwardTask> forwardTasks = new IdentityHashMap<>();
-    private final Event<RetrieveContext> retrieveEnd;
     private int count;
 
-    public CStoreForward(RetrieveContext retrieveCtx, Event<RetrieveContext> retrieveEnd) {
+    public CStoreForward(RetrieveContext retrieveCtx) {
         this.retrieveCtx = retrieveCtx;
-        this.retrieveEnd = retrieveEnd;
     }
 
     public void onStore(StoreContext storeCtx) {
@@ -82,7 +79,7 @@ class CStoreForward {
     private CStoreForwardTask createTask(final Association as) {
         ApplicationEntity localAE = retrieveCtx.getLocalApplicationEntity();
         Association storeas = openAssociation(as, localAE);
-        final CStoreForwardTask task = new CStoreForwardTask(retrieveCtx, storeas, retrieveEnd);
+        final CStoreForwardTask task = new CStoreForwardTask(retrieveCtx, storeas);
         forwardTasks.put(as, task);
         as.addAssociationListener(new AssociationListener() {
             @Override

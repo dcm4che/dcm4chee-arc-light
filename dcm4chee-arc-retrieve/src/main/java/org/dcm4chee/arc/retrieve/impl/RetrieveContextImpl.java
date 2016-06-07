@@ -485,6 +485,13 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public void addMatch(InstanceLocations inst) {
+        synchronized (matches) {
+            matches.add(inst);
+        }
+    }
+
+    @Override
     public void close() throws IOException {
         for (Storage storage : storageMap.values())
             storage.close();

@@ -43,14 +43,11 @@ package org.dcm4chee.arc.store.scu.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,10 +58,6 @@ import java.util.Map;
 @ApplicationScoped
 public class CStoreForwardSCUImpl implements CStoreForwardSCU {
 
-    @Inject
-    @RetrieveEnd
-    private Event<RetrieveContext> retrieveEnd;
-
     private final Map<String,Map<Integer,CStoreForward>> registry = new HashMap<>();
 
     @Override
@@ -73,7 +66,7 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
         Map<Integer,CStoreForward> map = forMoveOriginatorAET(ctx.getMoveOriginatorAETitle());
         CStoreForward forward = map.get(messageID);
         if (forward == null) {
-            forward = new CStoreForward(ctx, retrieveEnd);
+            forward = new CStoreForward(ctx);
             map.put(messageID, forward);
         }
         return forward.activate();

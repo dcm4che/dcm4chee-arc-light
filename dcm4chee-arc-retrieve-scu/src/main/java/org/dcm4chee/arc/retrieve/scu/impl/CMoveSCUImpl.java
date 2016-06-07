@@ -51,10 +51,12 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.EnumSet;
 
@@ -71,6 +73,9 @@ public class CMoveSCUImpl implements CMoveSCU {
     @Inject
     private CStoreForwardSCU storeForwardSCU;
 
+    @Inject @RetrieveEnd
+    private Event<RetrieveContext> retrieveEnd;
+
     @Override
     public RetrieveTask newForwardRetrieveTask(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String fallbackCMoveSCP)
@@ -80,7 +85,7 @@ public class CMoveSCUImpl implements CMoveSCU {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
             Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
                     createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
-            return new ForwardRetrieveTask(ctx, pc, rq, keys, fwdas);
+            return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
@@ -103,7 +108,7 @@ public class CMoveSCUImpl implements CMoveSCU {
                     storeForwardSCU.deactivate(ctx);
                 }
             });
-            return new ForwardRetrieveTask2(ctx, pc, rq, keys, fwdas);
+            return new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd);
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
