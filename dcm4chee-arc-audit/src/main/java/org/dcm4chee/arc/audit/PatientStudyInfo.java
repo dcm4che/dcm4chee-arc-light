@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -76,7 +77,7 @@ class PatientStudyInfo {
                 ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
-                ctx.getAttributes().getString(Tag.PatientID, AuditServiceUtils.noValue),
+                AuditServiceUtils.getPatID(ctx.getAttributes()),
                 ctx.getAttributes().getString(Tag.PatientName),
                 null != ctx.getRejectionNote() ? null != ctx.getException()
                     ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()

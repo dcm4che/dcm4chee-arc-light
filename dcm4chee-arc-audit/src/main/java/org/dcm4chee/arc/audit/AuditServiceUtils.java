@@ -40,6 +40,9 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -269,6 +272,10 @@ class AuditServiceUtils {
         RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
                 req.getAttribute(KeycloakSecurityContext.class.getName());
         return securityContext.getToken().getPreferredUsername();
+    }
+
+    static String getPatID(Attributes attrs) {
+        return attrs.getString(Tag.PatientID) != null ? IDWithIssuer.pidOf(attrs).toString() : noValue;
     }
 
 }

@@ -64,7 +64,7 @@ class RetrieveStudyInfo {
                 attrs.getString(Tag.AccessionNumber),
                 attrs.getString(Tag.SOPClassUID),
                 attrs.getString(Tag.SOPInstanceUID),
-                attrs.getString(Tag.PatientID, AuditServiceUtils.noValue),
+                AuditServiceUtils.getPatID(attrs),
                 attrs.getString(Tag.PatientName),
                 attrs.getString(Tag.StudyDate)
         };
