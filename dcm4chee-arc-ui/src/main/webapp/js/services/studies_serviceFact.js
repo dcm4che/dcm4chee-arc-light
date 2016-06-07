@@ -195,16 +195,11 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                   angular.forEach($('.txt'), function(m, i){
                     if ($(m)[0].scrollWidth >  $(m).innerWidth() || $(m)[0].scrollHeight >  $(m).innerHeight()+1) {
                             var tooltip = $(m).find(".tooltip_container");
-                            // $(m).text(function (_,txt) {
-                            //     return txt.trim();
-                            // });
                             var check1 = (Math.round($(m)[0].scrollWidth) >  Math.round($(m).innerWidth()) && Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) > 1 );
                             var check2 = (Math.round($(m)[0].scrollHeight) >  Math.round($(m).innerHeight())&& Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) > 1);
                             if ((check1 || check2) && $(m).text().length > 0) {
                                 var fulltext = $(m).text();
-                                // $(m).attr("tooltip",fulltext);
                                 if(check1){
-                                    console.log("check1",$(m).text());
                                     while($(m)[0].scrollWidth >  $(m).innerWidth() && Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) > 1 ){
                                         var slice = Math.round(Math.abs($(m)[0].scrollWidth - $(m).innerWidth()) / 6);
                                         if(slice > 0){
@@ -218,7 +213,6 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                                         }
                                     }
                                 }else{
-                                    // console.log("check1 else",$(m).text());
                                         while($(m)[0].scrollHeight >  $(m).innerHeight() && Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) > 1){
                                             var slice =  Math.round(Math.abs($(m)[0].scrollHeight - $(m).innerHeight()) / 2);
                                             if(slice > 0){
@@ -252,23 +246,16 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                   "properties": {}
                 };
             var patientedit = {};
-            // console.log("2res=",res.data);
-
             getSchemaModelFromIodHelper(res.data, patient, schema, patientedit);
-            // console.log("afterhelper patientedit",angular.copy(patientedit));
             angular.forEach(patient.attrs,function(m, i){
-                // console.log("m=",m);
                 if(m.Value && m.Value[0]){
                     if(res.data[i].multi === true){
                         patientedit[i] = m.Value;
                     }else{
                         patientedit[i] = m.Value[0];
                     }
-                    // console.log("in if value=",value);
                 }
             });
-            // console.log("schema in service =",schema);
-            // console.log("schema in patientedit =",patientedit);
             return {
                     "schema":schema,
                     "patientedit":patientedit

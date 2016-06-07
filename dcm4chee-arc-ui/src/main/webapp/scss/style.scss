@@ -24,6 +24,8 @@ body{
 		//margin: 40px 20px;
 		 margin: 27px -30px 40px 4px;
     	padding: 45px 30px 80px 30px;
+    	-moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+    	-webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     	box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     	width: 100%;
     	&.studies{
@@ -69,6 +71,8 @@ body{
 }
 ul.nav {
     background: rgba(0, 0, 0, 0.74) none repeat scroll 0 0;
+    -moz-box-shadow: 10px 10px 10px #959292;
+    -webkit-box-shadow: 10px 10px 10px #959292;
     box-shadow: 10px 10px 10px #959292;
     color: white;
     // display: none;
@@ -122,6 +126,8 @@ ul.nav {
 }
 .glyphicon.glyphicon-align-justify.toggle-button.out {
 	background: white none repeat scroll 0 0;
+	-moz-box-shadow: 5px 2px 7px 3px #7e7e7e;
+	-webkit-box-shadow: 5px 2px 7px 3px #7e7e7e;
 	box-shadow: 5px 2px 7px 3px #7e7e7e;
 	height: 25px;
 	left: 0;
@@ -157,6 +163,8 @@ ul.nav {
  	outline: 0;
     background: rgba(79, 136, 255, 0.92) none repeat scroll 0 0;
     border: 1px solid #00526d;
+    -moz-box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
+    -webkit-box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
     box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
     color: white;
 }
@@ -214,6 +222,8 @@ device and create an other one with the new name*/
 		    border: 1px solid #dddddd;
 		    margin: 4px;
 		    padding-bottom: 20px;
+		    -moz-box-shadow: 4px 3px 8px 1px #cccccc;
+		    -webkit-box-shadow: 4px 3px 8px 1px #cccccc;
 		    box-shadow: 4px 3px 8px 1px #cccccc;
 		     background: rgba(255, 255, 255, 0.63);
 		}
@@ -688,7 +698,7 @@ table{
 .div-table{
 	float: left;
     width: 100%;
-	margin-top: 226px;
+	margin-top: 228px;
 	.arrows{
 		width: 100%;
 		float: left;
@@ -818,6 +828,8 @@ table{
 	}
 	.repeat1 {
 		// box-shadow: 0px 0px 10px 5px rgba(55, 54, 54, 0.47) inset;
+		  -moz-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.20) inset;
+		  -webkit-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.20) inset;
 		  box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.20) inset;
 	    float: left;
 	    margin-left: 3%;
@@ -930,25 +942,19 @@ table{
 		    	box-shadow:none;
 		    }
 		    &>.td_row{
-		    	// box-shadow: inset 3px 7px 10px 1px black;
+		    	 -moz-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.18) inset;
+		    	 -webkit-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.18) inset;
 		    	 box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.18) inset;
-		    	// background: rgba(204, 204, 204, 0.38) none repeat scroll 0 0;
 			    display: block;
 			    float: left;
 			    width: 100%;
 		    }
 		    .thead2{
-		    	// background:#848484;
 		    	background: rgba(132, 132, 132, 0.68) none repeat scroll 0 0;
-		    	// background:white;
 		    	color: white;
 		    	display: block;
 		    	float: left;
 		    	width:100%;
-	    // color: white;
-	    // display: block;
-	    // float: left;
-	    // width: 100%;
 		    	.th{
 				    border-right: 1px solid #ddd;
 				    float: left;
@@ -983,20 +989,17 @@ table{
 		    }
 			.repeat2{
 				.td_cell{
-					// overflow: hidden;
 					&.colcell{
 						width: 3%;
 						height: 25px;
 						line-height: 25px;
 					}
 				}
-				& > .subblock{
-					// background: rgba(167, 167, 167, 0.5) none repeat scroll 0 0;
+				& > .arrows{
+					margin-left: 50px;
 				}
 				.subblock{
 					.tr_row > .td_cell{
-						// background: #848484 none repeat scroll 0 0;
-					    // color: white;
 					    font-weight: bold;
 					    height: 25px;
 					    line-height: 25px;
@@ -1022,6 +1025,8 @@ table{
 
 					}
 					.repeat3{
+						-moz-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
+						-webkit-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
 						box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
 					    display: block;
 					    float: left;
@@ -1030,7 +1035,6 @@ table{
 						
 							&.colcell{
 								width: 3%;
-								// border-left: 2px solid rgba(0, 0, 0, 0.55);
 								height: 25px;
 							}
 						}
@@ -1042,20 +1046,8 @@ table{
 							.td_cell.table_btn{
 								&> a {
 									width:12%;
-									// &:last-child{
-									// 	width: 28%;
-									// 	span{
-									// 		width:40%;
-									// 		float: left;
-									// 	}
-									// 	select{
-									// 		float: left;
-									// 		width:60%;
-									// 	}
-									// }
 								}
 								.selecta{
-								   	// background: #ddd none repeat scroll 0 0;
 								    float: left;
 								    width: 14%;
 								    & > span{
@@ -1177,6 +1169,8 @@ table{
 		background: white none repeat scroll 0 0;
 	    border: 0 none;
 	    border-radius: 5px;
+	    -moz-box-shadow: 0 0 7px 0 #ccc inset;
+	    -webkit-box-shadow: 0 0 7px 0 #ccc inset;
 	    box-shadow: 0 0 7px 0 #ccc inset;
 	    height: 27px;
 	    margin-left: 3px;
@@ -1185,6 +1179,8 @@ table{
 	    }
 }
 .modality_selector {
+	-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     background: white none repeat scroll 0 0;
     display: block;
@@ -1193,7 +1189,6 @@ table{
     width: 380px;
     border: 1px solid #ccc;
     z-index: 9999;
-    // margin-left: 69px;
     margin-top: 35px;
     box-sizing: border-box;
     padding: 30px 20px;
@@ -1220,6 +1215,8 @@ table{
 	}
     a{
 	    border: 1px solid #ccc;
+	    -moz-box-shadow: 0 0 11px 0 #bebebe;
+	    -webkit-box-shadow: 0 0 11px 0 #bebebe;
 	    box-shadow: 0 0 11px 0 #bebebe;
 	    color: #585858;
 	    display: inline-block;
@@ -1230,18 +1227,9 @@ table{
     }
 
     .clear{
-	    // background: white none repeat scroll 0 0;
-	    // border: 0 none;
-	    // border-radius: 5px;
-	    // box-shadow: 0 0 7px 0 #ccc inset;
-	    // height: 27px;
 	    margin-bottom: 15px;
-	    // margin-left: 3px;
 	    margin-right: 70%;
 	    width: 106px;
-	    // &:hover{
-	    // 	background:#EAEAEA;
-	    // }
     }
     a.close{
 	   	background: transparent none repeat scroll 0 0;
@@ -1336,8 +1324,6 @@ table{
 	}
 }
 .deleteRejctedI{
-    // border-radius: 3px;
-    // color: #999;
     float: left;
     height: 100%;
     line-height: 25px;
@@ -1360,12 +1346,6 @@ table{
     position: absolute;
     right: 26px;
     top: -23px;
-    // float: left;
-    // height: 23px;
-    // line-height: 24px;
-    // margin-left: 2px;
-    // text-align: center;
-    // width: 44px;
 	&:active,&:visited{
 		color: #999;
 	}
@@ -1377,6 +1357,8 @@ table{
     background: #ffffff none repeat scroll 0 0;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+    -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+    -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     color: #7d7d7d;
     display: block;
@@ -1534,6 +1516,8 @@ table{
 	    // position: absolute;
 	    // top: -77px;
 	    top: 0;
+	    -moz-box-shadow: 3px 3px 8px 2px rgba(0, 0, 0, 0.41);
+	    -webkit-box-shadow: 3px 3px 8px 2px rgba(0, 0, 0, 0.41);
 	    box-shadow: 3px 3px 8px 2px rgba(0, 0, 0, 0.41);
 	}
 }
@@ -1624,6 +1608,8 @@ div[tooltip]{
 			max-height: 300px;
 			overflow-y:scroll;
 			width: 34%;
+			-moz-box-shadow: 4px 6px 16px 5px #ccc;
+			-webkit-box-shadow: 4px 6px 16px 5px #ccc;
 			box-shadow: 4px 6px 16px 5px #ccc;
 			z-index: 99999;
 			position:absolute;

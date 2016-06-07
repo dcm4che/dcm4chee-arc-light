@@ -933,25 +933,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.instanceRowspan = function(instance) {
         return instance.showAttributes ? 2 : 1;
     };
-    // $scope.togglePatients = function(state){
-    //     togglePatientsHelper(state);
-    // }
-    // var togglePatientsHelper = function(state){
-
-    //     cfpLoadingBar.start();
-    //     if(state === "hide"){
-    //       angular.forEach($scope.patients, function(m, i){
-    //         $scope.patients[i].hide = true;
-    //       });
-    //       $scope.allhidden  = true;
-    //     }else{
-    //       angular.forEach($scope.patients, function(m, i){
-    //         $scope.patients[i].hide = false;
-    //       });
-    //       $scope.allhidden  = false;
-    //     }
-    //     cfpLoadingBar.complete();
-    // };
     function rsURL() {
         return "../aets/" + $scope.aet + "/rs";
     }
