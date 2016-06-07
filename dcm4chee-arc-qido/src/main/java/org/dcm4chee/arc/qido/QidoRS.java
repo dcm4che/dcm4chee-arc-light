@@ -298,7 +298,8 @@ public class QidoRS {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(queryAttrs, studyInstanceUID, seriesInstanceUID, includetags);
-        Query query = service.createQuery(qrlevel, ctx);
+        ctx.setQueryRetrieveLevel(qrlevel);
+        Query query = service.createQuery(ctx);
         try {
             query.initQuery();
             Response.Status status = Response.Status.OK;

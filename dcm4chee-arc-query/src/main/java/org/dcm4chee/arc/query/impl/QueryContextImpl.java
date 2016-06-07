@@ -45,6 +45,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
@@ -69,6 +70,7 @@ class QueryContextImpl implements QueryContext {
     private Attributes queryKeys;
     private Attributes returnKeys;
     private boolean orderByPatientName;
+    private QueryRetrieveLevel2 qrLevel;
     private String sopClassUID;
 
     public QueryContextImpl(HttpServletRequest httpRequest, ApplicationEntity ae, QueryParam queryParam,
@@ -93,6 +95,16 @@ class QueryContextImpl implements QueryContext {
     @Override
     public Association getAssociation() {
         return as;
+    }
+
+    @Override
+    public QueryRetrieveLevel2 getQueryRetrieveLevel() {
+        return qrLevel;
+    }
+
+    @Override
+    public void setQueryRetrieveLevel(QueryRetrieveLevel2 qrLevel) {
+        this.qrLevel = qrLevel;
     }
 
     @Override
