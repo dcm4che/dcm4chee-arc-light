@@ -254,8 +254,7 @@ public class AuditService {
         }
     }
 
-    private void auditQuery(Path file, AuditServiceUtils.EventType eventType)
-            throws IOException {
+    private void auditQuery(Path file, AuditServiceUtils.EventType eventType) throws IOException {
         QueryInfo qrInfo;
         List<ActiveParticipant> apList;
         List<ParticipantObjectIdentification> poiList;
@@ -268,38 +267,27 @@ public class AuditService {
                     getLocalHostName(log())).altUserID(AuditLogger.processID())
                     .requester(eventType.isDest).roleIDCode(eventType.destination).build();
             apList = getApList(ap1, ap2);
-            BuildParticipantObjectIdentification poi1, poi2, poi3;
-            poi1 = poi2 = poi3 = null;
-            if (!qrInfo.getField(QueryInfo.PATIENT_ID).equals(AuditServiceUtils.noValue)) {
-                poi1 = new BuildParticipantObjectIdentification.Builder(
-                        qrInfo.getField(QueryInfo.PATIENT_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
-                        AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                        .build();
-
-            }
+            BuildParticipantObjectIdentification poi;
             if (eventType == AuditServiceUtils.EventType.QUERY_QIDO) {
-                poi2 = new BuildParticipantObjectIdentification.Builder(
+                poi = new BuildParticipantObjectIdentification.Builder(
                         null, AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                         AuditMessages.ParticipantObjectTypeCodeRole.Query)
                         .query(qrInfo.getField(QueryInfo.QUERY_STRING).getBytes())
                         .detail(getPod("QueryEncoding", String.valueOf(StandardCharsets.UTF_8))).build();
-                poiList = (!qrInfo.getField(QueryInfo.PATIENT_ID).equals(AuditServiceUtils.noValue))
-                            ? getPoiList(poi1, poi2) : getPoiList(poi2);
             }
             else {
                 byte[] buffer = new byte[(int) Files.size(file)];
                 int len = in.read(buffer);
                 byte[] data = new byte[len];
                 System.arraycopy(buffer, 0, data, 0, len);
-                poi3 = new BuildParticipantObjectIdentification.Builder(
+                poi = new BuildParticipantObjectIdentification.Builder(
                         qrInfo.getField(QueryInfo.SOPCLASSUID), AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                         AuditMessages.ParticipantObjectTypeCodeRole.Query).query(data)
                         .detail(getPod("TransferSyntax", UID.ImplicitVRLittleEndian)).build();
-                poiList = (!qrInfo.getField(QueryInfo.PATIENT_ID).equals(AuditServiceUtils.noValue))
-                        ? getPoiList(poi1, poi3) : getPoiList(poi3);
             }
+            poiList = getPoiList(poi);
         }
         emitAuditMessage(eventType, null, apList, poiList, log(), log().timeStamp());
     }
