@@ -501,7 +501,10 @@ class ArchiveDeviceFactory {
             UID.MPEG2,
             UID.MPEG2MainProfileHighLevel,
             UID.MPEG4AVCH264BDCompatibleHighProfileLevel41,
-            UID.MPEG4AVCH264HighProfileLevel41
+            UID.MPEG4AVCH264HighProfileLevel41,
+            UID.MPEG4AVCH264HighProfileLevel42For2DVideo,
+            UID.MPEG4AVCH264HighProfileLevel42For3DVideo,
+            UID.MPEG4AVCH264StereoHighProfileLevel42
     };
 
     private static final String[] SR_CUIDS = {

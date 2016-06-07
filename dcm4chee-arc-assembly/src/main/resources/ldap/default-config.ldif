@@ -2039,6 +2039,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Endoscopic Image Storage SCP
@@ -2051,6 +2054,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Microscopic Image Storage SCP
@@ -2063,6 +2069,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Photographic Image Storage SCP
@@ -4491,6 +4500,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Endoscopic Image Storage SCU
@@ -4503,6 +4515,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Microscopic Image Storage SCU
@@ -4515,6 +4530,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Photographic Image Storage SCU
@@ -7052,6 +7070,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Endoscopic Image Storage SCU
@@ -7064,6 +7085,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Microscopic Image Storage SCU
@@ -7076,6 +7100,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.100
 dicomTransferSyntax: 1.2.840.10008.1.2.4.101
 dicomTransferSyntax: 1.2.840.10008.1.2.4.103
 dicomTransferSyntax: 1.2.840.10008.1.2.4.102
+dicomTransferSyntax: 1.2.840.10008.1.2.4.104
+dicomTransferSyntax: 1.2.840.10008.1.2.4.105
+dicomTransferSyntax: 1.2.840.10008.1.2.4.106
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Video Photographic Image Storage SCU
