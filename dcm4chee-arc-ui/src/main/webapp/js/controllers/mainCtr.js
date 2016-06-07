@@ -82,7 +82,9 @@ myApp.controller('MainController', function ($scope, $location, $http) {
 
   // console.log("$('.div-table .thead .tr_row')=",$('.div-table .thead .tr_row'));
   var headers = [
-    ".div-table > .header_block > .thead"
+    // ".headerblock> .header_block"
+    // ".headerblock"
+    ".main_content"
     // ,
     // ".div-table > .hader_block > .header2 > .tr_row",
     // ".div-table > .hader_block > .header3 > .tr_row",
@@ -97,18 +99,32 @@ myApp.controller('MainController', function ($scope, $location, $http) {
         items[i].scrollTop = $(window).scrollTop();
         if(items[i].scrollTop >= items[i].itemOffset){
             items[i].itemOffsetOld = items[i].itemOffsetOld || $(m).offset().top;
-            $(m).css({
-                "position":"fixed",
-                "width":"auto",
-                "box-shadow":"0px 7px 12px rgba(58, 58, 58, 0.61)"
-            });
+            // $(m).css({
+            //     "position":"fixed",
+            //     "width":"auto",
+            //     "background":"white"
+            //     // "box-shadow":"0px 7px 12px rgba(58, 58, 58, 0.61)"
+            // });
+            // $(".headerblock").css({
+            //   "top":"-25px",
+            //   "padding-top":"100px",
+            //   "background":"rgb(225, 231, 236)"
+            // });
+            $(".headerblock").addClass('fixed');
         }
         if(items[i].itemOffsetOld  && (items[i].scrollTop < items[i].itemOffsetOld)){
-            $(m).css({
-                "position":"static",
-                "width":"100%",
-                "box-shadow":"none"
-            });
+            // $(m).css({
+            //     "position":"static",
+            //     "width":"100%",
+            //     "background":"transparent"
+            //     // "box-shadow":"none"
+            // });
+            // $(".headerblock").css({
+            //   "top":"75px",
+            //   "padding-top":"0px",
+            //   "background":"transparent"
+            // });
+            $(".headerblock").removeClass('fixed');
         }
       }
     });
