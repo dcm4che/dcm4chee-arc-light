@@ -96,7 +96,7 @@ class PatientStudyInfo {
                 ctx.getLocalAETitle(),
                 ctx.getStudyInstanceUIDs()[0],
                 attrs.getString(Tag.AccessionNumber),
-                attrs.getString(Tag.PatientID, AuditServiceUtils.noValue),
+                AuditServiceUtils.getPatID(attrs),
                 attrs.getString(Tag.PatientName),
                 null != ctx.getException() ? ctx.getException().getMessage(): null,
                 attrs.getString(Tag.StudyDate)
