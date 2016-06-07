@@ -16,12 +16,9 @@ alter table mwl_item add constraint FK_ot32lpvialton54xqh636c4it foreign key (ac
 alter table mwl_item add constraint FK_vkxtls2wr17wgxnxj7b2fe32 foreign key (patient_fk) references patient;
 alter table mwl_item add constraint FK_44qwwvs50lgpog2cqmicxgt1f foreign key (perf_phys_name_fk) references person_name;
 alter table sps_station_aet add constraint FK_js5xqyw5qa9rpttwmck14duow foreign key (mwl_item_fk) references mwl_item;
-
---to be checked--
 create sequence mwl_item_pk_seq;
 create sequence sps_station_aet_pk_seq;
-create index FK_ot32lpvialton54xqh636c4it on mwl_item (accno_issuer_fk) ;
-create index FK_vkxtls2wr17wgxnxj7b2fe32 on mwl_item (patient_fk) ;
-create index FK_44qwwvs50lgpog2cqmicxgt1f on mwl_item (perf_phys_name_fk) ;
-create index FK_js5xqyw5qa9rpttwmck14duow on sps_station_aet (mwl_item_fk) ;
---to be checked--
+create index FK_ot32lpvialton54xqh636c4it on mwl_item (accno_issuer_fk);
+create index FK_vkxtls2wr17wgxnxj7b2fe32 on mwl_item (patient_fk);
+create index FK_44qwwvs50lgpog2cqmicxgt1f on mwl_item (perf_phys_name_fk);
+create index FK_js5xqyw5qa9rpttwmck14duow on sps_station_aet (mwl_item_fk);
