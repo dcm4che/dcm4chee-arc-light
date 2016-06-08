@@ -21,7 +21,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.rjnote = null;
     $scope.advancedConfig = false;
     $scope.showModalitySelector = false;
-    $scope.filter = { orderby: "-StudyDate,-StudyTime" };
+    $scope.filter = { orderby: "" };
     $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
     $scope.studyTime = { from: '', to: ''};
     $scope.format = "yyyyMMdd";

@@ -1118,12 +1118,22 @@ table.subtable_1, table.subtable_2 {
   display: block;
   float: left;
   padding: 11px 17px 16px;
-  width: 197px; }
+  width: 221px; }
   .filter .buttons_block .btn {
-    margin-top: 3px;
-    width: 161px; }
+    margin-top: 5px;
+    width: 184px;
+    font-size: 14px;
+    height: 30px;
+    padding: 0;
+    line-height: 30px; }
+  .filter .buttons_block select {
+    height: 30px;
+    margin-top: 11px;
+    width: 184px; }
   .filter .buttons_block button {
     background-color: #5293C1; }
+    .filter .buttons_block button.btn {
+      width: 90px; }
 .filter .main_filter_block {
   float: left;
   position: relative;

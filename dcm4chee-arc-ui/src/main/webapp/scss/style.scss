@@ -1475,18 +1475,30 @@ table{
 			}
 		}
 	}
-	.buttons_block {
+		.buttons_block {
 	   	border: 1px solid #ccc;
 	    display: block;
 	    float: left;
 	    padding: 11px 17px 16px;
-	    width: 197px;
+	    width: 221px;
 	    .btn {
-		    margin-top: 3px;
-		    width: 161px;
+		    margin-top: 5px;
+		    width: 184px;
+		    font-size: 14px;
+		    height: 30px;
+		    padding:0;
+		    line-height: 30px;
+		}
+		select{
+		    height: 30px;
+		    margin-top: 11px;
+		    width: 184px;
 		}
 		button{
 		    background-color:$hoverBlue;
+		    &.btn {
+			    width: 90px;
+			}
 		}
 	}
 	.main_filter_block{

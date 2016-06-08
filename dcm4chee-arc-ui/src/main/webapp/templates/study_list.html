@@ -1,6 +1,5 @@
 <!-- <pre>
-    patients:{{patients | json}}
-    <div ng-repeat="(key, value) in patients">{{value.attrs}}</div>
+        {{filter.orderby}}
 </pre> -->
 <div class="headerblock">
 <div class="row filter">
@@ -144,10 +143,29 @@
     </a>
     </div>
     <div class="buttons_block col-md-2">
-        <button  id="querypatients" class="btn btn-info" ng-click="queryPatients(0);patientmode=true" title="Query Patients">Query Patients 
+        <select ng-model="filter.orderby">
+            <option value="">Order by ...</option>
+            <option value="PatientName">Order by patient name &darr;</option>
+            <option value="-PatientName">Order by patient name &uarr;</option>
+            <option value="StudyDate,StudyTime">Order by study date &darr;</option>
+            <option value="-StudyDate,-StudyTime">Order by study date &uarr;</option>
+            <option value="PatientName,StudyDate,StudyTime">Order by patient name &darr; and study date &darr;</option>
+            <option value="PatientName,-StudyDate,-StudyTime">Order by patient name &darr; and study date &uarr;</option>
+            <option value="-PatientName,StudyDate,StudyTime">Order by patient name &uarr; and study date &darr;</option>
+            <option value="-PatientName,-StudyDate,-StudyTime">Order by patient name &uarr; and study date &uarr;</option>
+        </select>
+        <button ng-disabled="
+                    filter.orderby === 'StudyDate,StudyTime' || 
+                    filter.orderby === '-StudyDate,-StudyTime' ||
+                    filter.orderby === 'PatientName,StudyDate,StudyTime'||
+                    filter.orderby === 'PatientName,-StudyDate,-StudyTime'||
+                    filter.orderby === '-PatientName,StudyDate,StudyTime'||
+                    filter.orderby === '-PatientName,-StudyDate,-StudyTime'
+                " 
+                id="querypatients" class="btn btn-info" ng-click="queryPatients(0);patientmode=true" title="Query Patients">Patients 
             <span class="glyphicon glyphicon-refresh"></span>
         </button>
-        <button id="querystudies" class="btn btn-info" ng-click="queryStudies(0);patientmode=false" title="Query Studies">Query Studies
+        <button ng-disabled="filter.orderby === 'PatientName' || filter.orderby === '-PatientName'" id="querystudies" class="btn btn-info" ng-click="queryStudies(0);patientmode=false" title="Query Studies">Studies
             <span class="glyphicon glyphicon-refresh"></span>
         </button>
         <a ng-show="isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="btn-danger btn">Delete Instances 
