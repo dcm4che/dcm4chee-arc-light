@@ -699,6 +699,9 @@ table{
 	float: left;
     width: 100%;
 	margin-top: 228px;
+	&.extended {
+	    margin-top: 319px;
+	}
 	.arrows{
 		width: 100%;
 		float: left;
