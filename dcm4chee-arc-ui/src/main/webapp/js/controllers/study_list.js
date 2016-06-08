@@ -309,20 +309,25 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     }else{
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
                         if($scope.editpatient.attrs["00100020"].Value[0]){
-
+                            angular.forEach($scope.editpatient.attrs, function(m, i){
+                                if(res.data[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
+                                    delete $scope.editpatient.attrs[i];
+                                }
+                            });
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients?PatientID="+$scope.editpatient.attrs["00100020"].Value[0],
                                 $scope.editpatient.attrs
                             ).then(function successCallback(response) {
                                 if(mode === "edit"){
+                                    //Update changes on the patient list
                                     angular.forEach(patient.attrs, function(m, i){
                                         if($scope.editpatient.attrs[i]){
                                             patient.attrs[i] = $scope.editpatient.attrs[i];
                                         }
                                     });
-                                    // patient.attrs = $scope.editpatient.attrs;
+                                    //Force rerendering the directive attribute-list
                                     var id = "#"+$scope.editpatient.attrs["00100020"].Value;
-                                    var attribute = $compile('<attribute-list test="selam" attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
+                                    var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
                                     $(id).html(attribute);
                                 }else{
                                     if($scope.patientmode){
