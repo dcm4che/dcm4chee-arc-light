@@ -314,6 +314,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 "../aets/"+$scope.aet+"/rs/patients?PatientID="+$scope.editpatient.attrs["00100020"].Value[0],
                                 $scope.editpatient.attrs
                             ).then(function successCallback(response) {
+                                patient.attrs = $scope.editpatient.attrs;
                                 DeviceService.msg($scope, {
                                     "title": "Info",
                                     "text": "Patient saved successfully!",
