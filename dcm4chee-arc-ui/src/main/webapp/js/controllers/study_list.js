@@ -104,7 +104,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             className:"vex-theme-os info-dialog"
         });
     });
-    var modifyPatient = function(patient, mode){
+    var modifyPatient = function(patient, mode, patientkey){
         cfpLoadingBar.start();
         var editpatient     = {};
         angular.copy(patient, editpatient);
@@ -314,7 +314,29 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 "../aets/"+$scope.aet+"/rs/patients?PatientID="+$scope.editpatient.attrs["00100020"].Value[0],
                                 $scope.editpatient.attrs
                             ).then(function successCallback(response) {
-                                patient.attrs = $scope.editpatient.attrs;
+                                if(mode === "edit"){
+                                    angular.forEach(patient.attrs, function(m, i){
+                                        if($scope.editpatient.attrs[i]){
+                                            patient.attrs[i] = $scope.editpatient.attrs[i];
+                                        }
+                                    });
+                                    // patient.attrs = $scope.editpatient.attrs;
+                                    var id = "#"+$scope.editpatient.attrs["00100020"].Value;
+                                    var attribute = $compile('<attribute-list test="selam" attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
+                                    $(id).html(attribute);
+                                }else{
+                                    if($scope.patientmode){
+                                        $timeout(function() {
+                                            angular.element("#querypatients").trigger('click');
+                                        }, 0);
+                                        // $scope.queryPatients(0);
+                                    }else{
+                                        // $scope.queryStudies(0);
+                                        $timeout(function() {
+                                            angular.element("#querystudies").trigger('click');
+                                        }, 0);
+                                    }
+                                }
                                 DeviceService.msg($scope, {
                                     "title": "Info",
                                     "text": "Patient saved successfully!",
@@ -341,9 +363,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         });
         });
     };
-    $scope.editPatient = function(patient){
-        console.log("patient",patient);
-        modifyPatient(patient, "edit");
+    $scope.editPatient = function(patient, patientkey){
+        modifyPatient(patient, "edit", patientkey);
     };
     $scope.createPatient = function(patient){
         var patient = {

@@ -144,10 +144,10 @@
     </a>
     </div>
     <div class="buttons_block col-md-2">
-        <button class="btn btn-info" ng-click="queryPatients(0);patientmode=true" title="Query Patients">Query Patients 
+        <button  id="querypatients" class="btn btn-info" ng-click="queryPatients(0);patientmode=true" title="Query Patients">Query Patients 
             <span class="glyphicon glyphicon-refresh"></span>
         </button>
-        <button class="btn btn-info" ng-click="queryStudies(0);patientmode=false" title="Query Studies">Query Studies
+        <button id="querystudies" class="btn btn-info" ng-click="queryStudies(0);patientmode=false" title="Query Studies">Query Studies
             <span class="glyphicon glyphicon-refresh"></span>
         </button>
         <a ng-show="isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="btn-danger btn">Delete Instances 
@@ -391,7 +391,7 @@
                     <a class="table_btn" ng-click="patient.showAttributes = !patient.showAttributes" href="" title="Show Attributes">
                         <span class="glyphicon glyphicon-th-list"></span>
                     </a>               
-                    <a class="table_btn" ng-click="editPatient(patients[patientkey])" href="" title="Edit Patient">
+                    <a class="table_btn" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a>
                     <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
@@ -406,8 +406,8 @@
             </div>
         </div>
         <div class="tr_row"  ng-show="patient.showAttributes">
-            <div class="td_cell attribute_list">
-                <attribute-list attrs="patient.attrs"></attribute-list>
+            <div class="td_cell attribute_list" id="{{patient.attrs['00100020'].Value[0]}}">
+                <attribute-list ng-if="patient.attrs" attrs="patient.attrs"></attribute-list>
             </div>
         </div>
         <div class="repeat1" ng-repeat="(studykey, study) in patient.studies">
