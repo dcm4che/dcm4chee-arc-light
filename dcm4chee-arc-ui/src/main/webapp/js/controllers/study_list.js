@@ -1079,7 +1079,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         return attr && attr.Value;
     }
     function valueOf(attr) {
-        return attr && attr.Value[0];
+        return attr && attr.Value && attr.Value[0];
     }
     function createArray(n) {
         var a = [];
