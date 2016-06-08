@@ -63,7 +63,7 @@ public interface QueryService {
 
     QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, ApplicationEntity ae, boolean fuzzyMatching);
 
-    Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx);
+    Query createQuery(QueryContext ctx);
 
     Query createPatientQuery(QueryContext ctx);
 

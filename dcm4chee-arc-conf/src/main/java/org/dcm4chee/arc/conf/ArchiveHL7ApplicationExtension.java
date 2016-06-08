@@ -51,6 +51,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String aeTitle;
     private String patientUpdateTemplateURI;
     private String importReportTemplateURI;
+    private String scheduleProcedureTemplateURI;
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -62,6 +63,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         aeTitle = arcapp.aeTitle;
         patientUpdateTemplateURI = arcapp.patientUpdateTemplateURI;
         importReportTemplateURI = arcapp.importReportTemplateURI;
+        scheduleProcedureTemplateURI = arcapp.scheduleProcedureTemplateURI;
     }
 
     public String getAETitle() {
@@ -97,4 +99,18 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return importReportTemplateURI != null ? importReportTemplateURI
                 : getArchiveDeviceExtension().getImportReportTemplateURI();
     }
+
+    public String getScheduleProcedureTemplateURI() {
+        return scheduleProcedureTemplateURI;
+    }
+
+    public void setScheduleProcedureTemplateURI(String scheduleProcedureTemplateURI) {
+        this.scheduleProcedureTemplateURI = scheduleProcedureTemplateURI;
+    }
+
+    public String scheduleProcedureTemplateURI() {
+        return scheduleProcedureTemplateURI != null ? scheduleProcedureTemplateURI
+                : getArchiveDeviceExtension().getScheduleProcedureTemplateURI();
+    }
+
 }

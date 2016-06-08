@@ -48,5 +48,6 @@ public enum Entity {
     Study,
     Series,
     Instance,
-    MPPS
+    MPPS,
+    MWL
 }

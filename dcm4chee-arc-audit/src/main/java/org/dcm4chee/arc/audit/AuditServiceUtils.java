@@ -40,9 +40,9 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.data.UID;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.audit.AuditLogger;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -53,8 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -62,11 +60,11 @@ import java.util.*;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2016
  */
-public class AuditServiceUtils {
+
+class AuditServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     static final String noValue = "<none>";
     static final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
-    static final String studyDate = "StudyDate";
 
     enum EventClass {
         QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7
@@ -143,28 +141,22 @@ public class AuditServiceUtils {
 
         HL7_CREA_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
                 AuditMessages.EventOutcomeIndicator.Success, AuditMessages.RoleIDCode.Source,
-                AuditMessages.RoleIDCode.Destination, true, false, false,
-                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+                AuditMessages.RoleIDCode.Destination, true, false, false, null),
         HL7_CREA_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
                 AuditMessages.EventOutcomeIndicator.MinorFailure, AuditMessages.RoleIDCode.Source,
-                AuditMessages.RoleIDCode.Destination, true, false, false,
-                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+                AuditMessages.RoleIDCode.Destination, true, false, false, null),
         HL7_UPDA_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
                 AuditMessages.EventOutcomeIndicator.Success, AuditMessages.RoleIDCode.Source,
-                AuditMessages.RoleIDCode.Destination, true, false, false,
-                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+                AuditMessages.RoleIDCode.Destination, true, false, false, null),
         HL7_UPDA_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
                 AuditMessages.EventOutcomeIndicator.MinorFailure, AuditMessages.RoleIDCode.Source,
-                AuditMessages.RoleIDCode.Destination, true, false, false,
-                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+                AuditMessages.RoleIDCode.Destination, true, false, false, null),
         HL7_DELT_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.EventOutcomeIndicator.Success,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false,
-                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed),
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
         HL7_DELT_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false,
-                AuditMessages.EventTypeCode.ITI_8_PatientIdentityFeed);
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null);
 
 
         final EventClass eventClass;
@@ -276,75 +268,14 @@ public class AuditServiceUtils {
         }
     }
 
-    static void emitAuditMessage(EventType eventType, String outcomeDesc, List<ActiveParticipant> apList,
-                                 List<ParticipantObjectIdentification> poiList, AuditLogger log, Calendar eventTime) {
-        AuditMessage msg = new AuditMessage();
-        msg.setEventIdentification(AuditMessages.createEventIdentification(
-                eventType.eventID, eventType.eventActionCode, eventTime, eventType.outcomeIndicator,
-                outcomeDesc, eventType.eventTypeCode));
-        for (ActiveParticipant ap : apList)
-            msg.getActiveParticipant().add(ap);
-        msg.getAuditSourceIdentification().add(log.createAuditSourceIdentification());
-        for (ParticipantObjectIdentification poi : poiList)
-            msg.getParticipantObjectIdentification().add(poi);
-        try {
-            log.write(log.timeStamp(), msg);
-        } catch (Exception e) {
-            LOG.warn("Failed to emit audit message", e);
-        }
-    }
-
-    static Calendar getEventTime(Path path, AuditLogger log){
-        Calendar eventTime = log.timeStamp();
-        try {
-            eventTime.setTimeInMillis(Files.getLastModifiedTime(path).toMillis());
-        } catch (Exception e) {
-            LOG.warn("Failed to get Last Modified Time of Audit Spool File - {} ", path, e);
-        }
-        return eventTime;
-    }
-
-    static String buildAET(Device device) {
-        String[] aets = device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()]);
-        StringBuilder b = new StringBuilder();
-        b.append(aets[0]);
-        for (int i = 1; i < aets.length; i++)
-            b.append(';').append(aets[i]);
-        return b.toString();
-    }
-
-    static String getLocalHostName(AuditLogger log) {
-        return log.getConnections().get(0).getHostname();
-    }
-
     static String getPreferredUsername(HttpServletRequest req) {
         RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
                 req.getAttribute(KeycloakSecurityContext.class.getName());
         return securityContext.getToken().getPreferredUsername();
     }
 
-    static HashSet<Accession> getAccessions(String accNum) {
-        HashSet<Accession> accList = new HashSet<>();
-        if (accNum != null)
-            accList.add(AuditMessages.createAccession(accNum));
-        return accList;
+    static String getPatID(Attributes attrs) {
+        return attrs.getString(Tag.PatientID) != null ? IDWithIssuer.pidOf(attrs).toString() : noValue;
     }
 
-    static HashSet<ParticipantObjectDetail> getParticipantObjectDetail(PatientStudyInfo psi, HL7Info hl7i,
-                                                                       AuditServiceUtils.EventType et) {
-        HashSet<ParticipantObjectDetail> details = new HashSet<>();
-        if (psi != null && psi.getField(PatientStudyInfo.STUDY_DATE) != null)
-            details.add(pod(AuditServiceUtils.studyDate, psi.getField(PatientStudyInfo.STUDY_DATE).getBytes()));
-        if (hl7i != null && hl7i.getField(HL7Info.POD_VALUE) != null)
-            details.add(pod(hl7i.getField(HL7Info.POD_TYPE), hl7i.getField(HL7Info.POD_VALUE).getBytes()));
-        if (et == AuditServiceUtils.EventType.QUERY_QIDO)
-            details.add(pod("QueryEncoding", String.valueOf(StandardCharsets.UTF_8).getBytes()));
-        if (et == AuditServiceUtils.EventType.QUERY_FIND)
-            details.add(pod("TransferSyntax", UID.ImplicitVRLittleEndian.getBytes()));
-        return details;
-    }
-
-    private static ParticipantObjectDetail pod(String s, byte[] b) {
-        return AuditMessages.createParticipantObjectDetail(s, b);
-    }
 }

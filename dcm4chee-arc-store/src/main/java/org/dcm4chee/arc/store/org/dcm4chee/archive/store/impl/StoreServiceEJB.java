@@ -107,6 +107,7 @@ public class StoreServiceEJB {
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         Instance prevInstance = findPreviousInstance(ctx);
         if (prevInstance != null) {
+            Collection<Location> locations = prevInstance.getLocations();
             result.setPreviousInstance(prevInstance);
             LOG.info("{}: Found previous received {}", session, prevInstance);
             if (prevInstance.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
@@ -140,7 +141,6 @@ public class StoreServiceEJB {
                         }
                 }
             }
-            List<Location> locations = findLocations(prevInstance);
             if (containsWithEqualDigest(locations, ctx.getWriteContext().getDigest())) {
                 logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
                 if (rjNote != null) {
@@ -151,7 +151,6 @@ public class StoreServiceEJB {
                 return result;
             }
             LOG.info("{}: Replace previous received {}", session, prevInstance);
-            deleteLocations(locations);
             deleteInstance(prevInstance, ctx);
         }
 
@@ -275,6 +274,12 @@ public class StoreServiceEJB {
     }
 
     private void deleteInstance(Instance instance, StoreContext ctx) {
+        Collection<Location> locations = instance.getLocations();
+        for (Location location : locations) {
+            location.setInstance(null);
+            location.setStatus(Location.Status.TO_DELETE);
+        }
+        locations.clear();
         Series series = instance.getSeries();
         Study study = series.getStudy();
         em.remove(instance);
@@ -310,20 +315,7 @@ public class StoreServiceEJB {
         return true;
     }
 
-    private void deleteLocations(List<Location> locations) {
-        for (Location location : locations) {
-            location.setInstance(null);
-            location.setStatus(Location.Status.TO_DELETE);
-        }
-    }
-
-    private List<Location> findLocations(Instance inst) {
-        return em.createNamedQuery(Location.FIND_BY_INSTANCE, Location.class)
-                .setParameter(1, inst)
-                .getResultList();
-    }
-
-    private boolean containsWithEqualDigest(List<Location> locations, byte[] digest) {
+    private boolean containsWithEqualDigest(Collection<Location> locations, byte[] digest) {
         if (digest == null)
             return false;
 

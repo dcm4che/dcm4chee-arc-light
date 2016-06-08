@@ -47,14 +47,10 @@ import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.retrieve.impl.InstanceLocationsImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -67,8 +63,6 @@ public interface RetrieveService {
     RetrieveContext newRetrieveContextMOVE(
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
             throws ConfigurationException;
-
-    RetrieveContext cloneRetrieveContext(RetrieveContext other);
 
     RetrieveContext newRetrieveContextWADO(
             HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID);
@@ -87,8 +81,6 @@ public interface RetrieveService {
     DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException;
 
     Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx);
-
-    List<Location> findLocations(Instance inst);
 
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst);
 

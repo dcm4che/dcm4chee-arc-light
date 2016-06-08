@@ -244,6 +244,11 @@
       "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR.",
       "type": "string"
     },
+    "hl7ScheduleProcedureTemplateURI": {
+      "title": "HL7 Schedule Procedure Template URI",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items.",
+      "type": "string"
+    },
     "dcmUnzipVendorDataToURI": {
       "title": "Unzip Vendor Data To URI",
       "description": "Specifies URI of directory into which ZIP stream in Device Vendor Data attribute will be extracted",

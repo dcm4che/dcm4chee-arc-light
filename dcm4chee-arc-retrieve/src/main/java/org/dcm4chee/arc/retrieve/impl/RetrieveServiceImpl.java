@@ -175,11 +175,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public RetrieveContext cloneRetrieveContext(RetrieveContext other) {
-       return new RetrieveContextImpl(other);
-    }
-
-    @Override
     public RetrieveContext newRetrieveContextWADO(
             HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID) {
         RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
@@ -425,13 +420,6 @@ public class RetrieveServiceImpl implements RetrieveService {
             }
         }
         return notAccessable;
-    }
-
-    @Override
-    public List<Location> findLocations(Instance inst) {
-        return em.createNamedQuery(Location.FIND_BY_INSTANCE, Location.class)
-                .setParameter(1, inst)
-                .getResultList();
     }
 
     @Override

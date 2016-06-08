@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 
@@ -53,11 +52,10 @@ public class RetrieveInfo {
     static final int LOCALAET = 0;
     static final int DESTAET = 1;
     static final int DESTNAPID = 2;
-    static final int DESTNAPCODE = 3;
-    static final int REQUESTORHOST = 4;
-    static final int MOVEAET = 5;
-    static final int OUTCOME = 6;
-    static final int PARTIAL_ERROR = 7;
+    static final int REQUESTORHOST = 3;
+    static final int MOVEAET = 4;
+    static final int OUTCOME = 5;
+    static final int PARTIAL_ERROR = 6;
     private final String[] fields;
 
     RetrieveInfo(RetrieveContext ctx, String etFile) {
@@ -68,11 +66,7 @@ public class RetrieveInfo {
                     ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
                     : ctx.getHttpRequest().getRemoteAddr()
                     : ctx.getDestinationAETitle(),
-                null == ctx.getHttpRequest()
-                    ? (null != ctx.getDestinationHostName()) ? ctx.getDestinationHostName() : null
-                    : ctx.getHttpRequest().getRemoteAddr(),
-                null != ctx.getDestinationHostName() || null != ctx.getHttpRequest()
-                    ? AuditMessages.NetworkAccessPointTypeCode.IPAddress : null,
+                null != ctx.getHttpRequest() ? ctx.getHttpRequest().getRemoteAddr() : ctx.getDestinationHostName(),
                 ctx.getRequestorHostName(),
                 ctx.getMoveOriginatorAETitle(),
                 null != ctx.getException()

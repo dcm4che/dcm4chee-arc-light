@@ -191,4 +191,6 @@ public interface RetrieveContext extends Closeable {
     void decrementPendingCStoreForward();
 
     void waitForPendingCStoreForward() throws InterruptedException;
+
+    void addMatch(InstanceLocations inst);
 }

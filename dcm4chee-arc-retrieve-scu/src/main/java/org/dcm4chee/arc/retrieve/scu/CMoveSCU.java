@@ -56,6 +56,10 @@ public interface CMoveSCU {
 
     RetrieveTask newForwardRetrieveTask(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
+            String fallbackCMoveSCP) throws DicomServiceException;
+
+    RetrieveTask newForwardRetrieveTask(
+            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
             String fallbackCMoveSCP, String fallbackCMoveSCPDestination)
             throws DicomServiceException;
 }

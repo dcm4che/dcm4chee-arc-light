@@ -138,6 +138,16 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.MWLItem">
+    <sequence-generator name="mwl_item_pk_seq" sequence-name="mwl_item_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="mwl_item_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.Patient">
     <sequence-generator name="patient_pk_seq" sequence-name="patient_pk_seq" allocation-size="1"/>
     <attributes>
@@ -223,6 +233,16 @@
       <basic name="messageBody" optional="false">
         <column name="msg_body" updatable="false" column-definition="${blob}"/>
       </basic>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.ScheduledStationAETitle">
+    <sequence-generator name="sps_station_aet_pk_seq" sequence-name="sps_station_aet_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="sps_station_aet_pk_seq"/>
+      </id>
     </attributes>
   </entity>
 

@@ -113,9 +113,9 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Query createQuery(QueryRetrieveLevel2 qrLevel, QueryContext ctx) {
+    public Query createQuery(QueryContext ctx) {
         queryEvent.fire(ctx);
-        switch (qrLevel) {
+        switch (ctx.getQueryRetrieveLevel()) {
             case PATIENT:
                 return createPatientQuery(ctx);
             case STUDY:

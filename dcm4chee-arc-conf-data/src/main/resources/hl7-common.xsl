@@ -246,6 +246,17 @@
       </Item>
     </DicomAttribute>
   </xsl:template>
+  <xsl:template name="ei2attr">
+    <xsl:param name="tag"/>
+    <xsl:param name="ei"/>
+    <DicomAttribute tag="{$tag}" vr="LO">
+      <Value number="1">
+      <xsl:value-of select="string($ei/text())"/>
+      <xsl:text>^</xsl:text>
+      <xsl:value-of select="string($ei/component[1]/text())"/>
+      </Value>
+    </DicomAttribute>
+  </xsl:template>
   <xsl:template name="attrDATM">
     <xsl:param name="datag"/>
     <xsl:param name="tmtag"/>
@@ -253,11 +264,14 @@
     <xsl:variable name="str" select="normalize-space($val)" />
     <xsl:if test="$str">
       <DicomAttribute tag="{$datag}" vr="DA">
+        <Value number="1">
         <xsl:if test="$str != '&quot;&quot;'">
           <xsl:value-of select="substring($str,1,8)" />
         </xsl:if>
+        </Value>
       </DicomAttribute>
       <DicomAttribute tag="{$tmtag}" vr="TM">
+        <Value number="1">
         <xsl:if test="$str != '&quot;&quot;'">
           <xsl:variable name="tm" select="substring($str,9)"/>
           <!-- Skip Time Zone-->
@@ -275,6 +289,7 @@
             </xsl:otherwise>
           </xsl:choose>
         </xsl:if>
+        </Value>
       </DicomAttribute>
     </xsl:if>
   </xsl:template>
