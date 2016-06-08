@@ -40,28 +40,43 @@
 
 package org.dcm4chee.arc.audit;
 
-import java.io.BufferedWriter;
-import java.io.Closeable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Mar 2016
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since May 2016
  */
-class LineWriter implements Closeable {
-    private final BufferedWriter writer;
+public class SpoolFileReader {
+    private static final Logger LOG = LoggerFactory.getLogger(SpoolFileReader.class);
+    private String mainInfo;
+    private HashSet<String> instanceLines = new HashSet<>();
 
-    public LineWriter(BufferedWriter writer) {
-        this.writer = writer;
+
+    public SpoolFileReader(Path p) throws IOException {
+        try (BufferedReader reader = Files.newBufferedReader(p, StandardCharsets.UTF_8)) {
+            this.mainInfo = reader.readLine();
+            String line;
+            while ((line = reader.readLine()) != null)
+                this.instanceLines.add(line);
+            reader.close();
+        } catch (Exception e) {
+            LOG.warn("Failed to read audit spool file", e);
+        }
     }
 
-    public void writeLine(Object o) throws IOException {
-        writer.write(o.toString().replace('\r', '.').replace('\n', '.'));
-        writer.newLine();
+    public String getMainInfo() {
+        return mainInfo;
     }
 
-    @Override
-    public void close() throws IOException {
-        writer.close();
+    public HashSet<String> getInstanceLines() {
+        return instanceLines;
     }
 }

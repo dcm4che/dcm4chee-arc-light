@@ -40,68 +40,28 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.audit.*;
-
-import java.util.HashSet;
-
+import java.io.BufferedWriter;
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since June 2016
+ * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @since Mar 2016
  */
+public class SpoolFileWriter implements Closeable {
+    private final BufferedWriter writer;
 
-class BuildParticipantObjectDescription {
-    final HashSet<Accession> acc;
-    final HashSet<MPPS> mpps;
-    final HashSet<SOPClass> sopC;
-    final Boolean encrypted;
-    final Boolean anonymized;
-    final ParticipantObjectContainsStudy pocs;
-
-    static class Builder {
-        private HashSet<Accession> acc;
-        private HashSet<MPPS> mpps;
-        private final HashSet<SOPClass> sopC;
-        private Boolean encrypted;
-        private Boolean anonymized;
-        private final ParticipantObjectContainsStudy pocs;
-
-        Builder(HashSet<SOPClass> sopC, ParticipantObjectContainsStudy pocs) {
-            this.sopC = sopC;
-            this.pocs = pocs;
-        }
-
-        Builder acc(HashSet<Accession> val) {
-            acc = val;
-            return this;
-        }
-
-        Builder mpps(HashSet<MPPS> val) {
-            mpps = val;
-            return this;
-        }
-
-        Builder encrypted(Boolean val) {
-            encrypted = val;
-            return this;
-        }
-
-        Builder anonymized(Boolean val) {
-            anonymized = val;
-            return this;
-        }
-
-        BuildParticipantObjectDescription build() {
-            return new BuildParticipantObjectDescription(this);
-        }
+    public SpoolFileWriter(BufferedWriter writer) {
+        this.writer = writer;
     }
 
-    private BuildParticipantObjectDescription(Builder builder) {
-        acc = builder.acc;
-        mpps = builder.mpps;
-        sopC = builder.sopC;
-        encrypted = builder.encrypted;
-        anonymized = builder.anonymized;
-        pocs = builder.pocs;
+    public void writeLine(Object o) throws IOException {
+        writer.write(o.toString().replace('\r', '.').replace('\n', '.'));
+        writer.newLine();
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
     }
 }
