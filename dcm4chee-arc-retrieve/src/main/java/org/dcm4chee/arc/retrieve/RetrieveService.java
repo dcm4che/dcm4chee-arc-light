@@ -64,8 +64,6 @@ public interface RetrieveService {
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
             throws ConfigurationException;
 
-    RetrieveContext cloneRetrieveContext(RetrieveContext other);
-
     RetrieveContext newRetrieveContextWADO(
             HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID);
 

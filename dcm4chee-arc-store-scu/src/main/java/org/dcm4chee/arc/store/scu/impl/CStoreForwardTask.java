@@ -49,18 +49,21 @@ import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.StoreContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import static org.dcm4che3.net.Dimse.LOG;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2016
  */
 class CStoreForwardTask implements Runnable {
+
+    static final Logger LOG = LoggerFactory.getLogger(CStoreForwardTask.class);
+
     private final RetrieveContext ctx;
     private final Association rqas;
     private final Association storeas;

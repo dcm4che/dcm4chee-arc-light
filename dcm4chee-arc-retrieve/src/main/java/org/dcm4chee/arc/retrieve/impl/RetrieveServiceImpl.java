@@ -175,11 +175,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public RetrieveContext cloneRetrieveContext(RetrieveContext other) {
-       return new RetrieveContextImpl(other);
-    }
-
-    @Override
     public RetrieveContext newRetrieveContextWADO(
             HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID) {
         RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);

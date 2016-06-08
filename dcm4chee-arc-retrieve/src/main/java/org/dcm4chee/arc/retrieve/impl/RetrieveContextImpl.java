@@ -105,23 +105,6 @@ class RetrieveContextImpl implements RetrieveContext {
         this.qrView = arcAE.getQueryRetrieveView();
     }
 
-    RetrieveContextImpl(RetrieveContext other) {
-        this(other.getRetrieveService(), other.getArchiveAEExtension(), other.getLocalAETitle());
-        requestAssociation = other.getRequestAssociation();
-        storeAssociation = other.getStoreAssociation();
-        httpRequest = other.getHttpRequest();
-        qrLevel = other.getQueryRetrieveLevel();
-        priority = other.getPriority();
-        moveOriginatorMessageID = other.getMoveOriginatorMessageID();
-        moveOriginatorAETitle = other.getMoveOriginatorAETitle();
-        destinationAETitle = other.getDestinationAETitle();
-        destinationAE = other.getDestinationAE();
-        patientIDs = other.getPatientIDs();
-        studyInstanceUIDs = other.getStudyInstanceUIDs();
-        seriesInstanceUIDs = other.getSeriesInstanceUIDs();
-        sopInstanceUIDs = other.getSopInstanceUIDs();
-    }
-
     @Override
     public Association getRequestAssociation() {
         return requestAssociation;

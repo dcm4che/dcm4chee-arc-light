@@ -49,6 +49,7 @@ import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -58,42 +59,26 @@ import java.util.Map;
 @ApplicationScoped
 public class CStoreForwardSCUImpl implements CStoreForwardSCU {
 
-    private final Map<String,Map<Integer,CStoreForward>> registry = new HashMap<>();
+    private final Map<String,Map<RetrieveContext,CStoreForward>> registry = new HashMap<>();
 
     @Override
-    public synchronized int activate(RetrieveContext ctx) {
-        int messageID = ctx.getMoveOriginatorMessageID();
-        Map<Integer,CStoreForward> map = forMoveOriginatorAET(ctx.getMoveOriginatorAETitle());
-        CStoreForward forward = map.get(messageID);
-        if (forward == null) {
-            forward = new CStoreForward(ctx);
-            map.put(messageID, forward);
-        }
-        return forward.activate();
+    public synchronized void addRetrieveContext(RetrieveContext ctx) {
+        forMoveOriginatorAET(ctx.getMoveOriginatorAETitle()).put(ctx, new CStoreForward(ctx));
     }
 
-    private Map<Integer,CStoreForward> forMoveOriginatorAET(String aet) {
-        Map<Integer,CStoreForward> map = registry.get(aet);
+    private Map<RetrieveContext,CStoreForward> forMoveOriginatorAET(String aet) {
+        Map<RetrieveContext,CStoreForward> map = registry.get(aet);
         if (map == null) {
-            map = new HashMap<>();
+            map = new IdentityHashMap<>();
             registry.put(aet, map);
         }
         return map;
     }
 
     @Override
-    public synchronized int deactivate(RetrieveContext ctx) {
-        int messageID = ctx.getMoveOriginatorMessageID();
-        Map<Integer,CStoreForward> map = forMoveOriginatorAET(ctx.getMoveOriginatorAETitle());
-        CStoreForward forward = map.get(messageID);
-        if (forward == null)
-            return -1;
-
-        int active = forward.deactivate();
-        if (active == 0)
-            map.remove(messageID);
-
-        return active;
+    public synchronized boolean removeRetrieveContext(RetrieveContext ctx) {
+        Map<RetrieveContext,CStoreForward> map = forMoveOriginatorAET(ctx.getMoveOriginatorAETitle());
+        return map != null && map.remove(ctx) != null;
     }
 
     public void onStore(@Observes StoreContext storeContext) {
@@ -107,21 +92,19 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
         if (aeTitle == null)
             return null;
 
-        Map<Integer,CStoreForward> map = registry.get(aeTitle);
-        if (map == null)
-            return null;
+        synchronized (this) {
+            Map<RetrieveContext, CStoreForward> map = registry.get(aeTitle);
+            if (map == null)
+                return null;
 
-        CStoreForward forward = map.get(storeContext.getMoveOriginatorMessageID());
-        if (forward != null)
-            return forward;
-
-        Attributes attrs = storeContext.getAttributes();
-        String studyIUID = attrs.getString(Tag.StudyInstanceUID);
-        String seriesIUID = attrs.getString(Tag.SeriesInstanceUID);
-        String sopIUID = storeContext.getSopInstanceUID();
-        for (CStoreForward forward1 : map.values()) {
-            if (forward1.match(studyIUID, seriesIUID, sopIUID))
-                return forward1;
+            Attributes attrs = storeContext.getAttributes();
+            String studyIUID = attrs.getString(Tag.StudyInstanceUID);
+            String seriesIUID = attrs.getString(Tag.SeriesInstanceUID);
+            String sopIUID = storeContext.getSopInstanceUID();
+            for (CStoreForward forward1 : map.values()) {
+                if (forward1.match(studyIUID, seriesIUID, sopIUID))
+                    return forward1;
+            }
         }
         return null;
     }

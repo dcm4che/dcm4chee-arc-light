@@ -62,7 +62,6 @@ class CStoreForward {
 
     private final RetrieveContext retrieveCtx;
     private final IdentityHashMap<Association,CStoreForwardTask> forwardTasks = new IdentityHashMap<>();
-    private int count;
 
     public CStoreForward(RetrieveContext retrieveCtx) {
         this.retrieveCtx = retrieveCtx;
@@ -95,12 +94,16 @@ class CStoreForward {
 
     private Association openAssociation(Association as, ApplicationEntity localAE) {
         try {
-            return localAE.connect(retrieveCtx.getDestinationAE(), createAARQ(as));
-        } catch (Exception e) {
-            LOG.warn("{}: failed to open association to {}:\n",
+            LOG.info("{}: open association to {} for forwarding C-STORE-RQ received in association {}",
                     retrieveCtx.getRequestAssociation(),
                     retrieveCtx.getDestinationAETitle(),
-                    e);
+                    as);
+            return localAE.connect(retrieveCtx.getDestinationAE(), createAARQ(as));
+        } catch (Exception e) {
+            LOG.warn("{}: failed to open association to {} for forwarding C-STORE-RQ received in association {}:\n",
+                    retrieveCtx.getRequestAssociation(),
+                    retrieveCtx.getDestinationAETitle(),
+                    as, e);
             return null;
         }
     }
@@ -111,14 +114,6 @@ class CStoreForward {
         for (PresentationContext pc : as.getAAssociateRQ().getPresentationContexts())
             aarq.addPresentationContext(pc);
         return aarq;
-    }
-
-    public int activate() {
-        return ++count;
-    }
-
-    public int deactivate() {
-        return --count;
     }
 
     boolean match(String studyIUID, String seriesIUID, String sopIUID) {

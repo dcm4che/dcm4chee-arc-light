@@ -155,14 +155,16 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
     protected void waitForPendingCStoreForward(RetrieveContext ctx) {
         try {
-            LOG.info("{}: Wait for pending forward of C-STORE-RQs from {} to {}",
-                    rqas, fallbackCMoveSCP, ctx.getDestinationAETitle());
+            LOG.info("{}: wait for pending forward of objects of study{} from {} to {}",
+                    rqas, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP, ctx.getDestinationAETitle());
             ctx.waitForPendingCStoreForward();
-            LOG.info("{}: Complete forward of C-STORE-RQs from {} to {}",
-                    rqas, fallbackCMoveSCP, ctx.getDestinationAETitle());
+            LOG.info("{}: complete forward of objects of study{} from {} to {} - remaining={}, completed={}, failed={}, warning={}",
+                    rqas, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP, ctx.getDestinationAETitle(),
+                    ctx.remaining(), ctx.completed(), ctx.failed(), ctx.warning());
         } catch (InterruptedException e) {
-            LOG.warn("{}: failed to wait for pending forward of C-STORE-RQs from {} to {}",
-                    rqas, fallbackCMoveSCP, ctx.getDestinationAETitle(), e);
+            LOG.warn("{}: failed to wait for pending forward of  objects of study{} from {} to {}:\n",
+                    rqas, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP, ctx.getDestinationAETitle(),
+                    e);
         }
     }
 
@@ -232,6 +234,11 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         }
 
         @Override
+        public void onCancelRQ(Association rqas) {
+            //TODO
+        }
+
+        @Override
         protected void onFailure(DicomServiceException e) {
             bwdMoveRSP = mkMoveRSP(e);
             bwdMoveRSPFailed = -1;
@@ -284,9 +291,15 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         }
 
         private void writeFinalRSP() {
-            int remaining = ctx.remaining();
-            writeMoveRSP(remaining > 0 ? Status.Cancel : status(),
-                    remaining, ctx.completed(), ctx.failed() + bwdMoveRSPFailed, ctx.warning(),
+            Association as = ctx.getRequestAssociation();
+            int fwdStoreRQFailed = ctx.failed() + ctx.remaining();
+            if (fwdStoreRQFailed > 0) {
+                LOG.warn("{}: Failed to forward {} from {} objects of study{} from {} to {}",
+                        as, fwdStoreRQFailed, ctx.getNumberOfMatches(),
+                        Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP, ctx.getDestinationAETitle());
+            }
+            writeMoveRSP(status(),
+                    0, ctx.completed(), bwdMoveRSPFailed + fwdStoreRQFailed, ctx.warning(),
                     finalRSPDataset());
         }
 
@@ -327,7 +340,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         private String failedIUIDList(RetrieveContext ctx, int retrieved) {
             Association as = ctx.getRequestAssociation();
             LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {}",
-                    as, bwdMoveRSPFailed, bwdMoveRSPFailed + retrieved,
+                    as, bwdMoveRSPFailed, ctx.getNumberOfMatches(),
                     Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
             if (bwdMoveRSPFailedIUIDs.length == 0) {
                 LOG.warn("{}: Missing Failed SOP Instance UID List in C-MOVE-RSP from {}", as, fallbackCMoveSCP);

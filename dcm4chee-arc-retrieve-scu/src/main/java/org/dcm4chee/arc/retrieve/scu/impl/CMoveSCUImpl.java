@@ -101,11 +101,11 @@ public class CMoveSCUImpl implements CMoveSCU {
             Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
                     createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
             rq.setString(Tag.MoveDestination, VR.AE, fallbackCMoveSCPDestination);
-            storeForwardSCU.activate(ctx);
+            storeForwardSCU.addRetrieveContext(ctx);
             fwdas.addAssociationListener(new AssociationListener() {
                 @Override
                 public void onClose(Association association) {
-                    storeForwardSCU.deactivate(ctx);
+                    storeForwardSCU.removeRetrieveContext(ctx);
                 }
             });
             return new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd);
