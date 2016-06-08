@@ -52,7 +52,7 @@ public class QueryInfo {
     static final int CALLING_AET = 0;
     static final int REMOTE_HOST = 1;
     static final int CALLED_AET = 2;
-    static final int SOPCLASSUID = 3;
+    static final int PARTICIPANT_ID = 3;
     static final int QUERY_STRING = 4;
 
     private final String[] fields;
@@ -66,7 +66,7 @@ public class QueryInfo {
                 : ctx.getRemoteHostName(),
                 ctx.getRemoteHostName(),
                 ctx.getCalledAET(),
-                ctx.getSOPClassUID(),
+                ctx.getSOPClassUID() != null ? ctx.getSOPClassUID() : ctx.getQueryRetrieveLevel().toString(),
                 ctx.getHttpRequest() != null
                     ? ctx.getHttpRequest().getRequestURI() + ctx.getHttpRequest().getQueryString() : null
         };

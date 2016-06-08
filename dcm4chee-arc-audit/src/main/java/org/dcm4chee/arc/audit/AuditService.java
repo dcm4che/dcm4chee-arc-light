@@ -270,7 +270,7 @@ public class AuditService {
             BuildParticipantObjectIdentification poi;
             if (eventType == AuditServiceUtils.EventType.QUERY_QIDO) {
                 poi = new BuildParticipantObjectIdentification.Builder(
-                        null, AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
+                        qrInfo.getField(QueryInfo.PARTICIPANT_ID), AuditMessages.ParticipantObjectIDTypeCode.QIDO_QUERY,
                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                         AuditMessages.ParticipantObjectTypeCodeRole.Query)
                         .query(qrInfo.getField(QueryInfo.QUERY_STRING).getBytes())
@@ -282,7 +282,7 @@ public class AuditService {
                 byte[] data = new byte[len];
                 System.arraycopy(buffer, 0, data, 0, len);
                 poi = new BuildParticipantObjectIdentification.Builder(
-                        qrInfo.getField(QueryInfo.SOPCLASSUID), AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
+                        qrInfo.getField(QueryInfo.PARTICIPANT_ID), AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                         AuditMessages.ParticipantObjectTypeCodeRole.Query).query(data)
                         .detail(getPod("TransferSyntax", UID.ImplicitVRLittleEndian)).build();
