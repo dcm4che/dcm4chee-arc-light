@@ -110,7 +110,7 @@ class PatientStudyInfo {
                 null,
                 ctx.getStudy().getStudyInstanceUID(),
                 ctx.getStudy().getAccessionNumber() != null ? ctx.getStudy().getAccessionNumber() : null,
-                ctx.getPatient().getPatientID().getID(),
+                AuditServiceUtils.getPatID(ctx.getPatient().getAttributes()),
                 null != ctx.getPatient().getPatientName().toString()
                         ? ctx.getPatient().getPatientName().toString() : null,
                 ctx.getException() != null ? ctx.getException().getMessage() : null,
