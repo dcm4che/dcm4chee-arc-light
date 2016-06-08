@@ -144,6 +144,15 @@ myApp.controller('MainController', function ($scope, $location, $http) {
     }
   });
 
+  //Hide mainmenu and user-config menu when the user clicks outside of them
+  angular.element("html").bind("click",function(e){
+        if(!(e.target.id === "mainmenu" || $(e.target).hasClass('toggle-button'))){
+          $scope.showMenu = false;
+        }
+        if(!(e.target.id === "usermenu"  || $(e.target).hasClass('username') || $(e.target).hasClass('config'))){
+          $scope.showUserMenu = false;
+        }
+  });
 
 
 });

@@ -1040,17 +1040,20 @@ table.subtable_1, table.subtable_2 {
   z-index: 9999; }
   .user span {
     display: inline-block;
-    padding: 6px 32px;
+    padding: 5px 8px 1px 32px;
     width: 200px; }
     .user span:hover {
       cursor: pointer;
       color: #4D4D4D; }
   .user .username {
-    border-right: 1px solid #ccc; }
+    float: left;
+    width: 85%; }
   .user i.config {
-    position: absolute;
-    right: 10px;
-    top: 9px; }
+    border-left: 1px solid #ccc;
+    float: right;
+    min-height: 20px;
+    padding-left: 7px;
+    padding-top: 3px; }
   .user ul {
     list-style: outside none none;
     padding: 0;
