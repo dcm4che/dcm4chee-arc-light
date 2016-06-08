@@ -526,12 +526,8 @@ public class AuditService {
     }
 
     private String getAET(Device device) {
-        String[] aets = device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()]);
-        StringBuilder b = new StringBuilder();
-        b.append(aets[0]);
-        for (int i = 1; i < aets.length; i++)
-            b.append(';').append(aets[i]);
-        return b.toString();
+        return AuditMessages.getAET(
+                device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()]));
     }
 
     private String getLocalHostName(AuditLogger log) {
