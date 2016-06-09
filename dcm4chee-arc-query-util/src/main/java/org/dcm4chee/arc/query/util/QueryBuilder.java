@@ -171,7 +171,7 @@ public class QueryBuilder {
             boolean orderByPatientName) {
         query = applyPatientIDJoins(query, pids);
         if (orderByPatientName || !isUniversalMatching(keys.getString(Tag.PatientName)))
-            query = query.join(QPatient.patient.patientName, QueryBuilder.patientName);
+            query = query.leftJoin(QPatient.patient.patientName, QueryBuilder.patientName);
 
         query = query.join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob);
         return query;
