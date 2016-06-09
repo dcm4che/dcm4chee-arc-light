@@ -349,6 +349,7 @@
     <module>dcm4chee-arc-ian-scu</module>
     <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-issuer</module>
+    <module>dcm4chee-arc-monitor-rs</module>
     <module>dcm4chee-arc-mpps</module>
     <module>dcm4chee-arc-mpps-scp</module>
     <module>dcm4chee-arc-mpps-scu</module>

@@ -35,6 +35,10 @@
       "description": "Imaging Object Change Management"
     },
     {
+      "name": "MONITOR-RS",
+      "description": "Archive Monitoring"
+    },
+    {
       "name": "QUEUE-RS",
       "description": "Queue Management"
     }
@@ -262,6 +266,29 @@
           },
           "404": {
             "description": "entity not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/associations": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "list open Associations",
+        "operationId": "listOpenAssociations",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Open Associations",
+            "schema": {
+              "$ref": "associations.schema.json"
+            }
           },
           "default": {
             "description": "unexpected error"

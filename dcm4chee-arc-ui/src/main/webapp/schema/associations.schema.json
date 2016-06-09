@@ -1,0 +1,40 @@
+{
+  "title": "Open Associations",
+  "type": "array",
+  "items": {
+    "required": [
+      "serialNo",
+      "connectTime",
+      "requestor",
+      "localAETitle",
+      "remoteAETitle"
+    ],
+    "properties": {
+      "serialNo": {
+        "title": "Serial No",
+        "description": "serial number of Association",
+        "type": "integer"
+      },
+      "connectTime": {
+        "title": "Connect Time",
+        "description": "Time when this Association was established",
+        "type": "string"
+      },
+      "initiated": {
+        "title": "Initiated",
+        "description": "Indicates if this Association was initiated or accepted by the Archive",
+        "type": "boolean"
+      },
+      "localAETitle": {
+        "title": "Local AE Title",
+        "description": "AE Title of the Archive used as Calling AE Title of requested or as Called AE Title in accepted Associations",
+        "type": "string"
+      },
+      "remoteAETitle": {
+        "title": "Remote AE Title",
+        "description": "AE Title of remote AE used as Called AE Title of requested or as Calling AE Title in accepted Associations",
+        "type": "boolean"
+      }
+    }
+  }
+}
