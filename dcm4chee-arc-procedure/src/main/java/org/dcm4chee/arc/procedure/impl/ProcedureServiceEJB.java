@@ -42,10 +42,14 @@ package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4chee.arc.entity.IssuerEntity;
 import org.dcm4chee.arc.entity.MWLItem;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.issuer.IssuerService;
+import org.dcm4chee.arc.procedure.PatientMismatchException;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
 import javax.ejb.Stateless;
@@ -71,21 +75,31 @@ public class ProcedureServiceEJB {
     private IssuerService issuerService;
 
     public void updateProcedure(ProcedureContext ctx) {
-        Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(ctx);
+        Patient patient = ctx.getPatient();
+        Attributes attrs = ctx.getAttributes();
+        Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(attrs);
         List<MWLItem> prevMWLItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID())
                 .getResultList();
+        IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(
+                attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
         for (MWLItem mwlItem : prevMWLItems) {
             Attributes mwlAttrs = mwlAttrsMap.remove(mwlItem.getScheduledProcedureStepID());
             if (mwlAttrs == null)
                 em.remove(mwlItem);
-            else
+            else {
+                if (mwlItem.getPatient().getPk() != patient.getPk())
+                    throw new PatientMismatchException("" + patient + " does not match " +
+                            mwlItem.getPatient() + " in previous " + mwlItem);
                 mwlItem.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+                mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+            }
         }
         for (Attributes mwlAttrs : mwlAttrsMap.values()) {
             MWLItem mwlItem = new MWLItem();
-            mwlItem.setPatient(ctx.getPatient());
+            mwlItem.setPatient(patient);
             mwlItem.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+            mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
             em.persist(mwlItem);
         }
         ctx.setEventActionCode(prevMWLItems.isEmpty()
@@ -93,8 +107,12 @@ public class ProcedureServiceEJB {
                 : AuditMessages.EventActionCode.Update);
     }
 
-    private Map<String, Attributes> createMWLAttrsMap(ProcedureContext ctx) {
-        Attributes root = new Attributes(ctx.getAttributes());
+    private IssuerEntity findOrCreateIssuer(Attributes item) {
+        return item != null ? issuerService.findOrCreate(new Issuer(item)) : null;
+    }
+
+    private Map<String, Attributes> createMWLAttrsMap(Attributes attrs) {
+        Attributes root = new Attributes(attrs);
         Iterator<Attributes> spsItems = root.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
         root.setNull(Tag.ScheduledProcedureStepSequence, VR.SQ);
         Map<String, Attributes> map = new HashMap<>(4);
