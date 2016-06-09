@@ -121,7 +121,7 @@ public class ProcedureServiceEJB {
             spsItems.remove();
             Attributes mwlAttrs = new Attributes(root);
             mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
-            map.put(sps.getString(Tag.ScheduledProcedureStepID), sps);
+            map.put(sps.getString(Tag.ScheduledProcedureStepID), mwlAttrs);
         }
         return map;
     }

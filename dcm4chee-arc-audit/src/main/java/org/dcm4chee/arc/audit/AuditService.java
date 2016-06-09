@@ -118,6 +118,9 @@ public class AuditService {
             case HL7:
                 auditPatientRecord(readerObj, eventType);
                 break;
+            case MWL_PROC:
+                auditProcedureRecord(readerObj, eventType);
+                break;
         }
     }
 
@@ -486,6 +489,32 @@ public class AuditService {
         emitAuditMessage(getEI(ei), getApList(ap1, ap2), getPoiList(poi), log());
     }
 
+    void spoolProcedureRecord(ProcedureContext ctx) {
+        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx);
+        for (AuditServiceUtils.EventType eventType : et) {
+            LinkedHashSet<Object> obj = new LinkedHashSet<>();
+            obj.add(new PatientStudyInfo(ctx));
+            writeSpoolFile(String.valueOf(eventType), obj);
+        }
+    }
+
+    private void auditProcedureRecord(SpoolFileReader readerObj, AuditServiceUtils.EventType et) {
+        PatientStudyInfo pri = new PatientStudyInfo(readerObj.getMainInfo());
+        BuildEventIdentification ei = new BuildEventIdentification.Builder(et.eventID, et.eventActionCode,
+                log().timeStamp(), et.outcomeIndicator).outcomeDesc(pri.getField(PatientStudyInfo.OUTCOME)).build();
+        BuildActiveParticipant ap = new BuildActiveParticipant.Builder(pri.getField(PatientStudyInfo.CALLING_AET),
+                pri.getField(PatientStudyInfo.CALLING_HOSTNAME)).requester(et.isSource).build();
+        BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
+                pri.getField(PatientStudyInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
+                .detail(getPod(studyDate, pri.getField(PatientStudyInfo.STUDY_DATE))).build();
+        BuildParticipantObjectIdentification poi2 = new BuildParticipantObjectIdentification.Builder(
+                pri.getField(PatientStudyInfo.PATIENT_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
+                .name(pri.getField(PatientStudyInfo.PATIENT_NAME)).build();
+        emitAuditMessage(getEI(ei), getApList(ap), getPoiList(poi1, poi2), log());
+    }
+
     private ParticipantObjectDetail getPod(String type, String value) {
         return value != null ? AuditMessages.createParticipantObjectDetail(type, value.getBytes()) : null;
     }
@@ -611,7 +640,5 @@ public class AuditService {
         }
     }
 
-    public void spoolProcedureRecord(ProcedureContext ctx) {
-        //TODO
-    }
+
 }

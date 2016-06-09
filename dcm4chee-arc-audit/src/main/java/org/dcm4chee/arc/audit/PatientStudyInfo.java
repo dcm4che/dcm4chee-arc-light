@@ -41,10 +41,10 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
 
@@ -115,6 +115,28 @@ class PatientStudyInfo {
                         ? ctx.getPatient().getPatientName().toString() : null,
                 ctx.getException() != null ? ctx.getException().getMessage() : null,
                 ctx.getStudy().getStudyDate() != null ? ctx.getStudy().getStudyDate() : null
+        };
+    }
+
+    PatientStudyInfo(ProcedureContext ctx) {
+        String outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
+        String patID = ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue;
+        String patName = ctx.getPatient().getPatientName().toString();
+        String callingHost = ctx.getRemoteHostName();
+        String studyUID = ctx.getStudyInstanceUID();
+        String callingAET = ctx.getHL7MessageHeader().getSendingApplicationWithFacility();
+        String acc = ctx.getAttributes().getString(Tag.AccessionNumber);
+        String studyDt = ctx.getAttributes().getString(Tag.StudyDate);
+        fields = new String[] {
+                callingHost,
+                callingAET,
+                null,
+                studyUID,
+                acc,
+                patID,
+                patName,
+                outcome,
+                studyDt
         };
     }
 

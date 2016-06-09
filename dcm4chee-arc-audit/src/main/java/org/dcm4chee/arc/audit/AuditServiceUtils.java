@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -67,7 +68,7 @@ class AuditServiceUtils {
     static final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
 
     enum EventClass {
-        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7
+        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, MWL_PROC
     }
     enum EventType {
         ITRF_WAD_P(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read, AuditMessages.EventOutcomeIndicator.Success,
@@ -156,8 +157,24 @@ class AuditServiceUtils {
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
         HL7_DELT_E(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.EventOutcomeIndicator.MinorFailure,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null);
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
+        MWL_C____P(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
+                AuditMessages.EventOutcomeIndicator.Success, null, null, true, false, false, null),
+        MWL_C____E(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
+                   AuditMessages.EventOutcomeIndicator.MinorFailure, null, null, true, false, false, null),
+        MWL_R____P(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
+                AuditMessages.EventOutcomeIndicator.Success, null, null, true, false, false, null),
+        MWL_R____E(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
+                AuditMessages.EventOutcomeIndicator.MinorFailure, null, null, true, false, false, null),
+        MWL_U____P(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
+                AuditMessages.EventOutcomeIndicator.Success, null, null, true, false, false, null),
+        MWL_U____E(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
+                AuditMessages.EventOutcomeIndicator.MinorFailure, null, null, true, false, false, null),
+        MWL_D____P(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
+                AuditMessages.EventOutcomeIndicator.Success, null, null, true, false, false, null),
+        MWL_D____E(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
+                AuditMessages.EventOutcomeIndicator.MinorFailure, null, null, true, false, false, null);
 
         final EventClass eventClass;
         final AuditMessages.EventID eventID;
@@ -265,6 +282,21 @@ class AuditServiceUtils {
             if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null)
                 eventType.add(ctx.getException() != null ? HL7_DELT_E : HL7_DELT_P);
             return eventType;
+        }
+
+        static HashSet<EventType> forProcedure(ProcedureContext ctx) {
+            HashSet<EventType> et = new HashSet<>();
+            if (ctx.getException() != null)
+                et.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? EventType.MWL_C____E : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
+                        ? EventType.MWL_U____E : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read)
+                        ? EventType.MWL_R____E : MWL_D____E);
+            else
+                et.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                        ? EventType.MWL_C____P : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
+                        ? EventType.MWL_U____P : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read)
+                        ? EventType.MWL_R____P : MWL_D____P);
+            return et;
         }
     }
 

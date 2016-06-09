@@ -79,7 +79,7 @@ public class MWLItem {
     public static final String FIND_BY_STUDY_IUID = "MWLItem.findByStudyIUID";
 
     public enum Status {
-        SCHEDULED, ARRIVED, READY, STARTED, DEPARTED
+        SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELLED, DISCONTINUED, COMPLETED
     }
 
     @Id

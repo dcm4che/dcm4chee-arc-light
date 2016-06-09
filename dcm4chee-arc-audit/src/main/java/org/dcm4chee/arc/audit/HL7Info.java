@@ -92,8 +92,6 @@ class HL7Info {
         };
     }
 
-
-
     HL7Info(String s) {
         fields = StringUtils.split(s, '\\');
     }

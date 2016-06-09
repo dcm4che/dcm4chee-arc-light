@@ -137,12 +137,27 @@
         </xsl:call-template>
     </xsl:template>
     <xsl:template match="ORC" mode="sps">
+        <xsl:variable name="scheduledProcedureStepStatus">
+        <xsl:choose>
+            <xsl:when test="field[1]='NW' and field[5]='SC'">SCHEDULED</xsl:when>
+            <xsl:when test="field[1]='CA' and field[5]='CA'">CANCELLED</xsl:when>
+            <xsl:when test="field[1]='DC' and field[5]='CA'">DISCONTINUED</xsl:when>
+            <xsl:when test="field[1]='XO' and field[5]='SC'">SCHEDULED</xsl:when>
+            <xsl:when test="field[1]='XO' and field[5]='CM'">COMPLETED</xsl:when>
+        </xsl:choose>
+        </xsl:variable>
         <Item number="1">
             <!-- Scheduled Procedure Step Start Date/Time -->
             <xsl:call-template name="attrDATM">
                 <xsl:with-param name="datag" select="'00400002'"/>
                 <xsl:with-param name="tmtag" select="'00400003'"/>
                 <xsl:with-param name="val" select="string(field[7]/component[3]/text())"/>
+            </xsl:call-template>
+            <!-- Scheduled Procedure Step Status -->
+            <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'00400020'"/>
+                <xsl:with-param name="vr" select="'CS'"/>
+                <xsl:with-param name="val" select="$scheduledProcedureStepStatus"/>
             </xsl:call-template>
             <xsl:apply-templates select="following-sibling::OBR[1]" mode="sps"/>
         </Item>
