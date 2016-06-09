@@ -569,11 +569,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.morePatients = undefined;
             $scope.moreStudies = undefined;
             if(res.data != ""){
-                var pat, study, patAttrs, studyAttrs, tags = $scope.attributeFilters.Patient.dcmTag;
-                res.data.forEach(function (attrs, index) {
+                var pat, study, patAttrs, tags = $scope.attributeFilters.Patient.dcmTag;
+                res.data.forEach(function (studyAttrs, index) {
                     patAttrs = {};
-                    studyAttrs = {};
-                    extractAttrs(attrs, tags, patAttrs, studyAttrs);
+                    extractAttrs(studyAttrs, tags, patAttrs);
                     if (!(pat && angular.equals(pat.attrs, patAttrs))) {
                         pat = {
                             attrs: patAttrs,
@@ -1024,13 +1023,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         };
         return url;
     }
-    function extractAttrs(attrs, tags, extracted, remaining) {
+    function extractAttrs(attrs, tags, extracted) {
         angular.forEach(attrs, function (value, tag) {
             if (binarySearch(tags, parseInt(tag, 16)) >= 0) {
-                remaining[tag] = value;
                 extracted[tag] = value;
-            } else
-                remaining[tag] = value;
+            }
         });
     }
     function binarySearch(ar, el) {
