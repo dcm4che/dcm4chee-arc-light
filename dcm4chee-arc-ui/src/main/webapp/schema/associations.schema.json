@@ -33,7 +33,7 @@
       "remoteAETitle": {
         "title": "Remote AE Title",
         "description": "AE Title of remote AE used as Called AE Title of requested or as Calling AE Title in accepted Associations",
-        "type": "boolean"
+        "type": "string"
       }
     }
   }
