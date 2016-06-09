@@ -1026,12 +1026,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     }
     function extractAttrs(attrs, tags, extracted, remaining) {
         angular.forEach(attrs, function (value, tag) {
-            if (tag === '00080005') {
+            if (binarySearch(tags, parseInt(tag, 16)) >= 0) {
                 remaining[tag] = value;
                 extracted[tag] = value;
-            } else if (binarySearch(tags, parseInt(tag, 16)) >= 0)
-                extracted[tag] = value;
-            else
+            } else
                 remaining[tag] = value;
         });
     }
