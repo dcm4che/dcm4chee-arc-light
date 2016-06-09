@@ -41,12 +41,15 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientService;
@@ -110,6 +113,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
     }
 
     private void adjust(Attributes attrs) {
-        //TODO
+        if (attrs.getString(Tag.StudyInstanceUID) == null)
+            attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
     }
 }
