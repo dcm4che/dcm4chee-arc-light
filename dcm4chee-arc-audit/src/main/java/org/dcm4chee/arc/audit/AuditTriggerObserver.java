@@ -45,6 +45,7 @@ import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveWADO;
@@ -159,6 +160,10 @@ public class AuditTriggerObserver {
 
     public void onPatientUpdate(@Observes PatientMgtContext ctx) {
         auditService.spoolPatientRecord(ctx);
+    }
+
+    public void onProcedureUpdate(@Observes ProcedureContext ctx) {
+        auditService.spoolProcedureRecord(ctx);
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {

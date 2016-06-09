@@ -41,7 +41,14 @@
 package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
@@ -52,14 +59,38 @@ import java.net.Socket;
  * @since Jun 2016
  */
 public class ProcedureContextImpl implements ProcedureContext {
+    private final AttributeFilter attributeFilter;
+    private final FuzzyStr fuzzyStr;
     private final Socket socket;
     private final HL7Segment msh;
     private Patient patient;
+    private IDWithIssuer patientID;
+    private String studyInstanceUID;
     private Attributes attributes;
+    private String eventActionCode;
+    private Exception exception;
 
-    ProcedureContextImpl(Socket socket, HL7Segment msh) {
+    ProcedureContextImpl(Device device, Socket socket, HL7Segment msh) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        this.attributeFilter = arcDev.getAttributeFilter(Entity.Patient);
+        this.fuzzyStr = arcDev.getFuzzyStr();
         this.socket = socket;
         this.msh = msh;
+    }
+
+    @Override
+    public String toString() {
+        return msh.toString();
+    }
+
+    @Override
+    public AttributeFilter getAttributeFilter() {
+        return attributeFilter;
+    }
+
+    @Override
+    public FuzzyStr getFuzzyStr() {
+        return fuzzyStr;
     }
 
     @Override
@@ -73,12 +104,54 @@ public class ProcedureContextImpl implements ProcedureContext {
     }
 
     @Override
+    public HL7Segment getHL7MessageHeader() {
+        return msh;
+    }
+
+    @Override
+    public String getRemoteHostName() {
+        return socket.getInetAddress().getHostName();
+    }
+
+    @Override
+    public IDWithIssuer getPatientID() {
+        return patientID;
+    }
+
+    @Override
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
+    }
+
+    @Override
     public Attributes getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(Attributes attributes) {
-        this.attributes = attributes;
+    public void setAttributes(Attributes attrs) {
+        this.attributes = attrs;
+        this.patientID = IDWithIssuer.pidOf(attrs);
+        this.studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
+    }
+
+    @Override
+    public String getEventActionCode() {
+        return eventActionCode;
+    }
+
+    @Override
+    public void setEventActionCode(String eventActionCode) {
+        this.eventActionCode = eventActionCode;
+    }
+
+    @Override
+    public Exception getException() {
+        return exception;
+    }
+
+    @Override
+    public void setException(Exception exception) {
+        this.exception = exception;
     }
 }

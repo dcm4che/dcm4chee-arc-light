@@ -41,10 +41,13 @@
 package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import java.net.Socket;
 
 /**
@@ -53,13 +56,30 @@ import java.net.Socket;
  */
 @ApplicationScoped
 public class ProcedureServiceImpl implements ProcedureService {
+    @Inject
+    private Device device;
+
+    @Inject
+    private ProcedureServiceEJB ejb;
+
+    @Inject
+    private Event<ProcedureContext> updateProcedureEvent;
+
     @Override
     public ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh) {
-        return new ProcedureContextImpl(s, msh);
+        return new ProcedureContextImpl(device, s, msh);
     }
 
     @Override
     public void updateProcedure(ProcedureContext ctx) {
-        //TODO
+        try {
+            ejb.updateProcedure(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                updateProcedureEvent.fire(ctx);
+        }
     }
 }

@@ -40,9 +40,71 @@
 
 package org.dcm4chee.arc.procedure.impl;
 
+import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4chee.arc.entity.MWLItem;
+import org.dcm4chee.arc.issuer.IssuerService;
+import org.dcm4chee.arc.procedure.ProcedureContext;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2016
  */
+@Stateless
 public class ProcedureServiceEJB {
+
+    @PersistenceContext(unitName="dcm4chee-arc")
+    private EntityManager em;
+
+    @Inject
+    private IssuerService issuerService;
+
+    public void updateProcedure(ProcedureContext ctx) {
+        Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(ctx);
+        List<MWLItem> prevMWLItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID, MWLItem.class)
+                .setParameter(1, ctx.getStudyInstanceUID())
+                .getResultList();
+        for (MWLItem mwlItem : prevMWLItems) {
+            Attributes mwlAttrs = mwlAttrsMap.remove(mwlItem.getScheduledProcedureStepID());
+            if (mwlAttrs == null)
+                em.remove(mwlItem);
+            else
+                mwlItem.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        }
+        for (Attributes mwlAttrs : mwlAttrsMap.values()) {
+            MWLItem mwlItem = new MWLItem();
+            mwlItem.setPatient(ctx.getPatient());
+            mwlItem.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+            em.persist(mwlItem);
+        }
+        ctx.setEventActionCode(prevMWLItems.isEmpty()
+                ? AuditMessages.EventActionCode.Create
+                : AuditMessages.EventActionCode.Update);
+    }
+
+    private Map<String, Attributes> createMWLAttrsMap(ProcedureContext ctx) {
+        Attributes root = new Attributes(ctx.getAttributes());
+        Iterator<Attributes> spsItems = root.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
+        root.setNull(Tag.ScheduledProcedureStepSequence, VR.SQ);
+        Map<String, Attributes> map = new HashMap<>(4);
+        while (spsItems.hasNext()) {
+            Attributes sps = spsItems.next();
+            spsItems.remove();
+            Attributes mwlAttrs = new Attributes(root);
+            mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
+            map.put(sps.getString(Tag.ScheduledProcedureStepID), sps);
+        }
+        return map;
+    }
 }

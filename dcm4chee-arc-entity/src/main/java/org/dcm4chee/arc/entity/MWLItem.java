@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
+import org.dcm4chee.arc.conf.AttributeFilter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -54,9 +55,15 @@ import java.util.Date;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2016
  */
+@NamedQueries({
+@NamedQuery(
+        name = MWLItem.FIND_BY_STUDY_IUID,
+        query = "select mwl from MWLItem mwl " +
+                "where mwl.studyInstanceUID = ?1")
+})
 @Entity
 @Table(name = "mwl_item",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "req_proc_id", "sps_id" }),
+        uniqueConstraints = @UniqueConstraint(columnNames = { "study_iuid", "sps_id" }),
         indexes = {
                 @Index(columnList = "sps_id"),
                 @Index(columnList = "req_proc_id"),
@@ -68,6 +75,8 @@ import java.util.Date;
                 @Index(columnList = "sps_status")
         })
 public class MWLItem {
+
+    public static final String FIND_BY_STUDY_IUID = "MWLItem.findByStudyIUID";
 
     public enum Status {
         SCHEDULED, ARRIVED, READY, STARTED, DEPARTED
@@ -95,7 +104,7 @@ public class MWLItem {
     private String scheduledProcedureStepID;
 
     @Basic(optional = false)
-    @Column(name = "req_proc_id", updatable = false)
+    @Column(name = "req_proc_id")
     private String requestedProcedureID;
 
     @Basic(optional = false)
@@ -103,7 +112,7 @@ public class MWLItem {
     private String studyInstanceUID;
 
     @Basic(optional = false)
-    @Column(name = "accession_no", updatable = false)
+    @Column(name = "accession_no")
     private String accessionNumber;
 
     @Basic(optional = false)
@@ -249,7 +258,7 @@ public class MWLItem {
         return attributesBlob.getAttributes();
     }
 
-    public void setAttributes(Attributes attrs, FuzzyStr fuzzyStr) {
+    public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         Attributes spsItem = attrs
                 .getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (spsItem == null) {
@@ -277,8 +286,8 @@ public class MWLItem {
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");
 
         if (attributesBlob == null)
-            attributesBlob = new AttributesBlob(attrs);
+            attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else
-            attributesBlob.setAttributes(attrs);
+            attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
     }
 }

@@ -41,6 +41,10 @@
 package org.dcm4chee.arc.procedure;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 
 /**
@@ -48,12 +52,31 @@ import org.dcm4chee.arc.entity.Patient;
  * @since Jun 2016
  */
 public interface ProcedureContext {
+    HL7Segment getHL7MessageHeader();
+
+    String getRemoteHostName();
+
+    IDWithIssuer getPatientID();
+
+    String getStudyInstanceUID();
+
     Attributes getAttributes();
 
     void setAttributes(Attributes attrs);
+
+    AttributeFilter getAttributeFilter();
+
+    FuzzyStr getFuzzyStr();
 
     Patient getPatient();
 
     void setPatient(Patient pat);
 
+    String getEventActionCode();
+
+    void setEventActionCode(String eventActionCode);
+
+    Exception getException();
+
+    void setException(Exception exception);
 }
