@@ -143,7 +143,7 @@
     </a>
     </div>
     <div class="buttons_block col-md-2">
-        <select ng-model="filter.orderby">
+<!--         <select ng-model="filter.orderby">
             <option value="">Order by ...</option>
             <option value="PatientName">Order by patient name &darr;</option>
             <option value="-PatientName">Order by patient name &uarr;</option>
@@ -153,21 +153,46 @@
             <option value="PatientName,-StudyDate,-StudyTime">Order by patient name &darr; and study date &uarr;</option>
             <option value="-PatientName,StudyDate,StudyTime">Order by patient name &uarr; and study date &darr;</option>
             <option value="-PatientName,-StudyDate,-StudyTime">Order by patient name &uarr; and study date &uarr;</option>
-        </select>
-        <button ng-disabled="
-                    filter.orderby === 'StudyDate,StudyTime' || 
-                    filter.orderby === '-StudyDate,-StudyTime' ||
-                    filter.orderby === 'PatientName,StudyDate,StudyTime'||
-                    filter.orderby === 'PatientName,-StudyDate,-StudyTime'||
-                    filter.orderby === '-PatientName,StudyDate,StudyTime'||
-                    filter.orderby === '-PatientName,-StudyDate,-StudyTime'
-                " 
-                id="querypatients" class="btn btn-info" ng-click="queryPatients(0);patientmode=true" title="Query Patients">Patients 
-            <span class="glyphicon glyphicon-refresh"></span>
-        </button>
-        <button ng-disabled="filter.orderby === 'PatientName' || filter.orderby === '-PatientName'" id="querystudies" class="btn btn-info" ng-click="queryStudies(0);patientmode=false" title="Query Studies">Studies
-            <span class="glyphicon glyphicon-refresh"></span>
-        </button>
+        </select> -->
+        <div class="orderbyblock">
+            <div class="btn-group" role="group" >
+                <button type="button" class="btn btn-default selectedorderbutton" ng-click="showoptionlist = !showoptionlist" ng-init="showoptionlist = false">
+                    <span class="selectedorder" ng-init="orderbytext = 'Order by ...'">{{orderbytext}}</span> 
+                    <span class="caret"></span>
+                </button>
+                <div class="optionlist" ng-show="showoptionlist">
+                    <ul>
+                        <li ng-class="{active:filter.orderby === ''}" ng-click="filter.orderby = '';showoptionlist=false;orderbytext = 'Order by ...'">Order by ...</li>
+                        <li ng-class="{active:filter.orderby === 'PatientName'}" ng-click="filter.orderby = 'PatientName';showoptionlist=false;orderbytext = 'Patient patient name &darr;'">Patient patient name &darr; <span class="glyphicon glyphicon-sort-by-alphabet"></span> <span class="orderbydateasc"></span></li>
+                        <li ng-class="{active:filter.orderby === '-PatientName'}" ng-click="filter.orderby = '-PatientName';showoptionlist=false;orderbytext = 'Patient patient name &uarr;'">Patient patient name &uarr;<span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></li>
+                        <li ng-class="{active:filter.orderby === 'StudyDate,StudyTime'}" ng-click="filter.orderby = 'StudyDate,StudyTime';showoptionlist=false;orderbytext = 'Study study date &darr;'">Study study date &darr; <span class="orderbydatedesc"></span></li>
+                        <li ng-class="{active:filter.orderby === '-StudyDate,-StudyTime'}" ng-click="filter.orderby = '-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'Study study date &uarr;'">Study study date &uarr;</li>
+                        <li ng-class="{active:filter.orderby === 'PatientName,StudyDate,StudyTime'}" ng-click="filter.orderby = 'PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'Study patient name &darr; and study date &darr;'">Study patient name &darr; and study date &darr;</li>
+                        <li ng-class="{active:filter.orderby === 'PatientName,-StudyDate,-StudyTime'}" ng-click="filter.orderby = 'PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'Study patient name &darr; and study date &uarr;'">Study patient name &darr; and study date &uarr;</li>
+                        <li ng-class="{active:filter.orderby === '-PatientName,StudyDate,StudyTime'}" ng-click="filter.orderby = '-PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'Study patient name &uarr; and study date &darr;'">Study patient name &uarr; and study date &darr;</li>
+                        <li ng-class="{active:filter.orderby === '-PatientName,-StudyDate,-StudyTime'}" ng-click="filter.orderby = '-PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'Study patient name &uarr; and study date &uarr;'">Study patient name &uarr; and study date &uarr;</li>
+<!--                         <li ng-repeat="order in orderby" ng-class="{active:filter.orderby === order.name}" ng-click="filter.orderby = order.name;showoptionlist=false;orderbytext = order.label" ng-bind-html="order.label"></li> -->
+                    </ul>
+                </div>
+<!--                 <button class="btn btn-default" type="button">Go!</button>
+-->             <button type="button" class="btn btn-default executebutton" ng-hide="
+                        filter.orderby === '' ||
+                        filter.orderby === 'StudyDate,StudyTime' || 
+                        filter.orderby === '-StudyDate,-StudyTime' ||
+                        filter.orderby === 'PatientName,StudyDate,StudyTime'||
+                        filter.orderby === 'PatientName,-StudyDate,-StudyTime'||
+                        filter.orderby === '-PatientName,StudyDate,StudyTime'||
+                        filter.orderby === '-PatientName,-StudyDate,-StudyTime'
+                    " 
+                    id="querypatients" class="btn btn-info" ng-click="queryPatients(0);patientmode=true" title="Query Patients">
+                <span class="glyphicon glyphicon-refresh"></span>
+                </button>
+                <button type="button" class="btn btn-default executebutton" ng-disabled="filter.orderby === ''" class="btn" ng-hide="filter.orderby === 'PatientName' || filter.orderby === '-PatientName'" id="querystudies" class="btn btn-info" ng-click="queryStudies(0);patientmode=false" title="Query Studies">
+                <span class="glyphicon glyphicon-refresh"></span>
+                </button>
+            </div>
+        </div>
+
         <a ng-show="isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="btn-danger btn">Delete Instances 
             <span class="glyphicon glyphicon-trash"></span> 
         </a>

@@ -46,6 +46,41 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 "title":"Other"
             }
     ];
+    $scope.orderby = [
+        {
+            value:"PatientName",
+            label:"Patient <span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>"
+        },
+        {
+            value:"-PatientName",
+            label:"Patient <span class=\"glyphicon glyphicon-sort-by-alphabet-alt\"></span>"
+        },
+        {
+
+            value:"StudyDate,StudyTime",
+            label:"Study <span class=\"orderbydateasc\"></span>"
+        },
+        {
+            value:"-StudyDate,-StudyTime",
+            label:"Study <span class=\"orderbydatedesc\"></span>"
+        },
+        {
+            value:"PatientName,StudyDate,StudyTime",
+            label:"Study <span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>"
+        },
+        {
+            value:"-PatientName,StudyDate,StudyTime",
+            label:"Study <span class=\"glyphicon glyphicon-sort-by-alphabet-alt\"></span><span class=\"orderbydateasc\"></span>"
+        },
+        {
+            value:"PatientName,-StudyDate,-StudyTime",
+            label:"Study <span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatdesc\"></span>"
+        },
+        {
+            value:"-PatientName,-StudyDate,-StudyTime",
+            label:"Study <span class=\"glyphicon glyphicon-sort-by-alphabet.alt\"></span><span class=\"orderbydatdesc\"></span>"
+        }
+    ];
     $scope.setTrash = function(ae){
         if(ae.dcmHideNotRejectedInstances === true){
             if($scope.rjcode === null){

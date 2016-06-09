@@ -1119,21 +1119,51 @@ table.subtable_1, table.subtable_2 {
   float: left;
   padding: 11px 17px 16px;
   width: 221px; }
-  .filter .buttons_block .btn {
-    margin-top: 5px;
-    width: 184px;
-    font-size: 14px;
+  .filter .buttons_block .orderbyblock {
+    margin-top: 45px; }
+    .filter .buttons_block .orderbyblock > .btn-group {
+      width: 186px; }
+      .filter .buttons_block .orderbyblock > .btn-group .selectedorder {
+        display: inline-block;
+        float: left;
+        margin-right: 6px;
+        overflow: hidden;
+        width: 116px; }
+      .filter .buttons_block .orderbyblock > .btn-group .optionlist ul {
+        list-style: outside none none;
+        padding-left: 0;
+        text-indent: 15px; }
+        .filter .buttons_block .orderbyblock > .btn-group .optionlist ul li.active {
+          background: #ccc; }
+        .filter .buttons_block .orderbyblock > .btn-group .optionlist ul li:hover {
+          cursor: pointer;
+          background: #ddd; }
+  .filter .buttons_block .selectedorderbutton {
+    border: 1px solid #bbb;
+    border-right: none;
+    width: 80%;
     height: 30px;
-    padding: 0;
-    line-height: 30px; }
-  .filter .buttons_block select {
+    line-height: 30px;
+    padding: 0 10px; }
+  .filter .buttons_block .executebutton {
+    border-radius: 0 4px 4px 0 !important;
     height: 30px;
-    margin-top: 11px;
-    width: 184px; }
-  .filter .buttons_block button {
-    background-color: #5293C1; }
-    .filter .buttons_block button.btn {
-      width: 90px; }
+    width: 20%;
+    border: 1px solid #aaa; }
+  .filter .buttons_block .optionlist {
+    background: white none repeat scroll 0 0;
+    box-shadow: 3px 6px 7px #aaa;
+    padding-left: 0;
+    position: absolute;
+    top: 30px;
+    width: 270px;
+    z-index: 999; }
+  .filter .buttons_block .btn-danger {
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    margin-top: 6px;
+    padding: 0 10px; }
 .filter .main_filter_block {
   float: left;
   position: relative;
@@ -1338,5 +1368,21 @@ div[tooltip] {
     width: 36px !important;
     height: 36px !important;
     border-width: 3px !important; }
+
+.orderbydateasc {
+  background: url("../img/orderbydateasc.png");
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 13px;
+  width: 20px;
+  background-position: center; }
+
+.orderbydatedesc {
+  background: url("../img/orderbydatedesc.png");
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 13px;
+  width: 20px;
+  background-position: center; }
 
 /*# sourceMappingURL=style.css.map */

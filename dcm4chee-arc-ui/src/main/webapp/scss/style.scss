@@ -1475,30 +1475,92 @@ table{
 			}
 		}
 	}
-		.buttons_block {
+	.buttons_block {
 	   	border: 1px solid #ccc;
 	    display: block;
 	    float: left;
 	    padding: 11px 17px 16px;
 	    width: 221px;
-	    .btn {
-		    margin-top: 5px;
-		    width: 184px;
-		    font-size: 14px;
-		    height: 30px;
-		    padding:0;
-		    line-height: 30px;
-		}
-		select{
-		    height: 30px;
-		    margin-top: 11px;
-		    width: 184px;
-		}
-		button{
-		    background-color:$hoverBlue;
-		    &.btn {
-			    width: 90px;
+	 //    .btn {
+		//     margin-top: 5px;
+		//     width: 184px;
+		//     font-size: 14px;
+		//     height: 30px;
+		//     padding:0;
+		//     line-height: 30px;
+		// }
+		// select{
+		//     height: 30px;
+		//     margin-top: 11px;
+		//     width: 184px;
+		// }
+		// button{
+		//     background-color:$hoverBlue;
+		//     &.btn {
+		// 	    width: 90px;
+		// 	}
+		// }
+		.orderbyblock {
+			margin-top: 45px;
+			& > .btn-group {
+		    	width: 186px;
+		    	.selectedorder{
+				    display: inline-block;
+				    float: left;
+				    margin-right: 6px;
+				    overflow: hidden;
+				    width: 116px;
+		    	}
+		    	.optionlist{
+		    		ul{
+		    			list-style: outside none none;
+    					padding-left: 0;
+    					text-indent: 15px;
+		    			li{
+		    				&.active{
+		    					background:#ccc;
+		    				}
+							&:hover{
+								cursor: pointer;
+								background:#ddd;
+							}
+		    			}
+		    		}
+		    	}
 			}
+		}
+		.selectedorderbutton{
+			border: 1px solid #bbb;
+			border-right: none;
+			width: 80%;
+			height:30px;
+			line-height: 30px;
+    		padding: 0 10px;
+    		.caret{
+
+    		}
+		}
+		.executebutton{
+		    border-radius: 0 4px 4px 0 !important;
+		    height: 30px;
+		    width: 20%;
+		    border: 1px solid #aaa;
+		}
+		.optionlist {
+   			background: white none repeat scroll 0 0;
+		    box-shadow: 3px 6px 7px #aaa;
+		    padding-left: 0;
+		    position: absolute;
+		    top: 30px;
+		    width: 270px;
+		    z-index: 999;
+		}
+		.btn-danger{
+			display: block;
+		    height: 30px;
+		    line-height: 30px;
+		    margin-top: 6px;
+		    padding: 0 10px;
 		}
 	}
 	.main_filter_block{
@@ -1777,4 +1839,20 @@ div[tooltip]{
 		height:36px !important;
 		border-width:3px !important;
 	}
+}
+.orderbydateasc{
+	background:url("../img/orderbydateasc.png");
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:13px;
+	width:20px;
+	background-position:center;
+}
+.orderbydatedesc{
+	background:url("../img/orderbydatedesc.png");
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:13px;
+	width:20px;
+	background-position:center;
 }
