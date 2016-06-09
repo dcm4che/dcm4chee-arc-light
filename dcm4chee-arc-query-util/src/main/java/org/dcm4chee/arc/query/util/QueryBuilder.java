@@ -170,7 +170,9 @@ public class QueryBuilder {
             HibernateQuery<Tuple> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
             boolean orderByPatientName) {
         query = applyPatientIDJoins(query, pids);
-        if (orderByPatientName || !isUniversalMatching(keys.getString(Tag.PatientName)))
+        if (!isUniversalMatching(keys.getString(Tag.PatientName)))
+            query = query.join(QPatient.patient.patientName, QueryBuilder.patientName);
+        else if (orderByPatientName)
             query = query.leftJoin(QPatient.patient.patientName, QueryBuilder.patientName);
 
         query = query.join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob);
