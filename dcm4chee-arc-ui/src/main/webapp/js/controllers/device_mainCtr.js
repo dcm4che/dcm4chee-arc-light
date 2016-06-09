@@ -20,6 +20,11 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.activeMenu         = "";
       });
     }, 2000);
+
+    $http.get("../queue").then(function (res) {
+        $scope.queues = res.data;
+        console.log("queus=",$scope.queues);
+    })
     /*
     *Watch when the user trys to leave the page
     */

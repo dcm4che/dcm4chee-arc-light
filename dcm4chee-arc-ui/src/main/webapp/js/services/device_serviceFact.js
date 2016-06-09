@@ -881,34 +881,51 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                 };
                                 endArray.push(temp);
                             } else {
-
-                                if (m.type === "array") {
-                                    endArray.push({
-                                        "key": i,
-                                        "add": "Add",
-                                        "itmes": [
-                                            i + "[]"
-                                        ]
+                                if(i === "dcmQueueName"){
+                                    var queueObject = [];
+                                    angular.forEach(scope.queues,function(m, i){
+                                        queueObject.push({
+                                            "value":m.name,
+                                            "name":m.description
+                                        });
                                     });
-                                } else {
-                                    // if (i === "dicomInstalled") {
-                                    if (m.type === "boolean") {
+                                      var temp = {
+                                                    "key": "dcmQueueName",
+                                                    "type": "select",
+                                                    "titleMap": queueObject          
+                                                };
+                                        endArray.push(temp);
+
+                                }else{
+
+                                    if (m.type === "array") {
                                         endArray.push({
-                                            // "key": "dicomInstalled",
                                             "key": i,
-                                            "type": "radios",
-                                            "titleMap": [{
-                                                "value": true,
-                                                "name": "True"
-                                            }, {
-                                                "value": false,
-                                                "name": "False"
-                                            }]
+                                            "add": "Add",
+                                            "itmes": [
+                                                i + "[]"
+                                            ]
                                         });
                                     } else {
-                                        endArray.push(i);
-                                    }
+                                        // if (i === "dicomInstalled") {
+                                        if (m.type === "boolean") {
+                                            endArray.push({
+                                                // "key": "dicomInstalled",
+                                                "key": i,
+                                                "type": "radios",
+                                                "titleMap": [{
+                                                    "value": true,
+                                                    "name": "True"
+                                                }, {
+                                                    "value": false,
+                                                    "name": "False"
+                                                }]
+                                            });
+                                        } else {
+                                            endArray.push(i);
+                                        }
 
+                                    }
                                 }
                             }
                         });
