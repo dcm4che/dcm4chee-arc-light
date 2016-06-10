@@ -76,7 +76,7 @@ public class ArchiveMonitor {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 int count = 0;
                 w.write('[');
