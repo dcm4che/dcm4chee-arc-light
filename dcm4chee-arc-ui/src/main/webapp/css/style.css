@@ -1406,4 +1406,34 @@ div[tooltip] {
   width: 11px;
   background-position: center; }
 
+.ctrl h3 {
+  border-bottom: 1px solid #ddd;
+  color: #444;
+  padding-bottom: 7px; }
+.ctrl .monitor code {
+  color: #303030; }
+  .ctrl .monitor code th {
+    padding: 2px 40px 2px 0;
+    border-bottom: 1px solid black; }
+.ctrl .monitor .loader {
+  background: transparent url("../img/loader.gif") no-repeat scroll center center;
+  display: inline-block;
+  height: 11px;
+  margin-left: 20px;
+  margin-top: 10px;
+  width: 16px;
+  z-index: 9999; }
+.ctrl .monitor #loading-bar-spinner {
+  display: inline-block !important;
+  margin-bottom: -2px;
+  padding-left: 30px;
+  position: static !important;
+  width: 30px; }
+  .ctrl .monitor #loading-bar-spinner.ng-hide {
+    display: none !important; }
+  .ctrl .monitor #loading-bar-spinner .spinner-icon {
+    border-width: 1px !important;
+    height: 15px !important;
+    width: 15px !important; }
+
 /*# sourceMappingURL=style.css.map */

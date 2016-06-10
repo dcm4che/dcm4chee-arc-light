@@ -1,3 +1,4 @@
+<h3>Archive</h3>
 <p ng-bind="status == 'STARTED' ? 'Archive is running' : 'Archive is not running'"></p>
 <div class="btn-group">
     <button type="button" class="btn btn-default" ng-click="start()" ng-disabled="status == 'STARTED'" title="Start Archive">Start</button>
@@ -6,3 +7,37 @@
     <button type="button" class="btn btn-default" ng-click="fetchStatus()" title="Fetch Archive Status">Status</button>
 </div>
 <p ng-bind="message"></p>
+<div class="monitor">
+	<!-- <code> -->
+	<h3>Monitoring</h3>
+		Timer : <input type="number" ng-model="updaterate"/>
+    	<button ng-show="stopLoop" type="button" class="btn btn-default" ng-click="monitor()" title="Start getting associacions in ">Start getting associacions</button>
+    	<button ng-show="!stopLoop" type="button" class="btn btn-default" ng-click="stopLoop=true" title="Stop auto refresh">Stop</button>
+    	<!-- <span ng-show="!stopLoop" class="loader"></span> -->
+    	<div ng-show="!stopLoop" id="loading-bar-spinner">
+    		<div class="spinner-icon"></div>
+    	</div>
+		<table >
+			<tr>
+				<th>Local AE Title <span class="glyphicon glyphicon-transfer"></span> Remote AE Title</th>
+				<th>Connection time</th>
+			</tr>
+			<tr ng-show="associationStatus" ng-repeat="(key, value) in associationStatus">
+				<td ng-show="value.initiated">
+					{{value.localAETitle}} 
+						<span class="glyphicon glyphicon-arrow-right"></span>
+						{{value.remoteAETitle}}
+				</td>
+				<td ng-hide="value.initiated">
+					{{value.localAETitle}}
+						<span class="glyphicon glyphicon-arrow-left"></span>
+					{{value.remoteAETitle}}
+				</td>
+				<td ng-bind="value.connectTime"></td>
+			</tr>
+			<tr ng-hide="associationStatus">
+				<td>No associations found!</td>
+			</tr>
+		</table>
+	<!-- </code> -->
+</div>

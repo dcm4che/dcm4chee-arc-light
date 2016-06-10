@@ -1881,3 +1881,43 @@ div[tooltip]{
 	width:11px;
 	background-position:center;
 }
+.ctrl {
+	h3 {
+	    border-bottom: 1px solid #ddd;
+	    color: #444;
+	    padding-bottom: 7px;
+	}
+	.monitor{
+		code{
+			color:#303030;	
+			th {
+		    	padding: 2px 40px 2px 0;
+		    	border-bottom: 1px solid black;
+			}
+		}
+		.loader {
+		    background: rgba(0, 0, 0, 0) url("../img/loader.gif") no-repeat scroll center center;
+		    display: inline-block;
+		    height: 11px;
+		    margin-left: 20px;
+		    margin-top:10px;
+		    width: 16px;
+		    z-index: 9999;
+		}
+		#loading-bar-spinner {
+		    display: inline-block !important;
+		    margin-bottom: -2px;
+		    padding-left: 30px;
+		    position: static !important;
+		    width: 30px;
+		    &.ng-hide{
+		    	display: none !important;
+		    }
+			.spinner-icon{
+			    border-width: 1px !important;
+			    height: 15px !important;
+			    width: 15px !important;
+			}
+		}
+	}
+}
