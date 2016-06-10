@@ -14,6 +14,7 @@
                 <xsl:apply-templates select="ORC" mode="sps"/>
             </DicomAttribute>
             <xsl:apply-templates select="ZDS"/>
+            <xsl:apply-templates select="IPC"/>
         </dataset>
     </xsl:template>
     <xsl:template match="PV1">
@@ -201,6 +202,14 @@
             <xsl:with-param name="tag" select="'0020000D'"/>
             <xsl:with-param name="vr" select="'UI'"/>
             <xsl:with-param name="val" select="string(field[1]/text())"/>
+        </xsl:call-template>
+    </xsl:template>
+    <xsl:template match="IPC">
+        <!-- Study Instance UID -->
+        <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'0020000D'"/>
+            <xsl:with-param name="vr" select="'UI'"/>
+            <xsl:with-param name="val" select="string(field[3]/text())"/>
         </xsl:call-template>
     </xsl:template>
 </xsl:stylesheet>

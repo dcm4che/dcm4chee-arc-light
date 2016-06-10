@@ -119,24 +119,16 @@ class PatientStudyInfo {
     }
 
     PatientStudyInfo(ProcedureContext ctx) {
-        String outcome = ctx.getException() != null ? ctx.getException().getMessage() : null;
-        String patID = ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue;
-        String patName = ctx.getPatient().getPatientName().toString();
-        String callingHost = ctx.getRemoteHostName();
-        String studyUID = ctx.getStudyInstanceUID();
-        String callingAET = ctx.getHL7MessageHeader().getSendingApplicationWithFacility();
-        String acc = ctx.getAttributes().getString(Tag.AccessionNumber);
-        String studyDt = ctx.getAttributes().getString(Tag.StudyDate);
         fields = new String[] {
-                callingHost,
-                callingAET,
+                ctx.getRemoteHostName(),
+                ctx.getHL7MessageHeader().getSendingApplicationWithFacility(),
                 null,
-                studyUID,
-                acc,
-                patID,
-                patName,
-                outcome,
-                studyDt
+                ctx.getStudyInstanceUID(),
+                ctx.getAttributes().getString(Tag.AccessionNumber),
+                ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue,
+                ctx.getPatient().getPatientName().toString(),
+                ctx.getException() != null ? ctx.getException().getMessage() : null,
+                ctx.getAttributes().getString(Tag.StudyDate)
         };
     }
 

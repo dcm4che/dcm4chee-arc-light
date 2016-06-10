@@ -504,10 +504,13 @@ public class AuditService {
                 log().timeStamp(), et.outcomeIndicator).outcomeDesc(pri.getField(PatientStudyInfo.OUTCOME)).build();
         BuildActiveParticipant ap = new BuildActiveParticipant.Builder(pri.getField(PatientStudyInfo.CALLING_AET),
                 pri.getField(PatientStudyInfo.CALLING_HOSTNAME)).requester(et.isSource).build();
+        ParticipantObjectContainsStudy pocs = getPocs(pri.getField(PatientStudyInfo.STUDY_UID));
+        BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(null, pocs)
+                .acc(getAccessions(pri.getField(PatientStudyInfo.ACCESSION_NO))).build();
         BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
                 pri.getField(PatientStudyInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .detail(getPod(studyDate, pri.getField(PatientStudyInfo.STUDY_DATE))).build();
+                .desc(getPODesc(desc)).detail(getPod(studyDate, pri.getField(PatientStudyInfo.STUDY_DATE))).build();
         BuildParticipantObjectIdentification poi2 = new BuildParticipantObjectIdentification.Builder(
                 pri.getField(PatientStudyInfo.PATIENT_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
