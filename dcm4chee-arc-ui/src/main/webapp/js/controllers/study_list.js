@@ -21,7 +21,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.rjnote = null;
     $scope.advancedConfig = false;
     $scope.showModalitySelector = false;
-    $scope.filter = { orderby: "" };
+    $scope.filter = { orderby: "PatientName" };
     $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
     $scope.studyTime = { from: '', to: ''};
     $scope.format = "yyyyMMdd";
@@ -49,36 +49,36 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.orderby = [
         {
             value:"PatientName",
-            label:"Patient <span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>"
+            label:"<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>"
         },
         {
             value:"-PatientName",
-            label:"Patient <span class=\"glyphicon glyphicon-sort-by-alphabet-alt\"></span>"
+            label:"<label>Patient</label><span class=\"orderbynamedesc\"></span>"
         },
         {
 
             value:"StudyDate,StudyTime",
-            label:"Study <span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"orderbydateasc\"></span>"
         },
         {
             value:"-StudyDate,-StudyTime",
-            label:"Study <span class=\"orderbydatedesc\"></span>"
+            label:"<label>Study</label><span class=\"orderbydatedesc\"></span>"
         },
         {
             value:"PatientName,StudyDate,StudyTime",
-            label:"Study <span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>"
         },
         {
             value:"-PatientName,StudyDate,StudyTime",
-            label:"Study <span class=\"glyphicon glyphicon-sort-by-alphabet-alt\"></span><span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>"
         },
         {
             value:"PatientName,-StudyDate,-StudyTime",
-            label:"Study <span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatdesc\"></span>"
+            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>"
         },
         {
             value:"-PatientName,-StudyDate,-StudyTime",
-            label:"Study <span class=\"glyphicon glyphicon-sort-by-alphabet.alt\"></span><span class=\"orderbydatdesc\"></span>"
+            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>"
         }
     ];
     $scope.setTrash = function(ae){
@@ -421,7 +421,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
 
     $scope.clearForm = function(){
         angular.forEach($scope.filter,function(m,i){
-            $scope.filter[i] = "";
+            console.log("i",i);
+            if(i !="orderby"){
+                $scope.filter[i] = "";
+            }
         });
         angular.element(".single_clear").hide();
         $scope.studyDate.fromObject = null;
