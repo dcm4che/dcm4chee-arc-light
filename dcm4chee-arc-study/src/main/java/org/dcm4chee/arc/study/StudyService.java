@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,45 +38,18 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.patient;
+package org.dcm4chee.arc.study;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4chee.arc.entity.Patient;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.Socket;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Jun 2016
  */
-public interface PatientService {
+public interface StudyService {
+    StudyMgtContext createIOCMContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
 
-    PatientMgtContext createPatientMgtContextWEB(Association as);
-
-    PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
-
-    PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh);
-
-    List<Patient> findPatients(IDWithIssuer pid);
-
-    Patient findPatient(IDWithIssuer pid);
-
-    Patient createPatient(PatientMgtContext ctx);
-
-    Patient updatePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
-
-    Patient mergePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
-
-    Patient changePatientID(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
-
-    Patient findPatient(PatientMgtContext ctx);
+    void updateStudy(StudyMgtContext ctx);
 }

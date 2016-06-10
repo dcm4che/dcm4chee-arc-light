@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,45 +38,50 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.patient;
+package org.dcm4chee.arc.study;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4chee.arc.entity.Patient;
+import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.entity.Study;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.Socket;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Jun 2016
  */
-public interface PatientService {
+public interface StudyMgtContext {
+    AttributeFilter getStudyAttributeFilter();
 
-    PatientMgtContext createPatientMgtContextWEB(Association as);
+    FuzzyStr getFuzzyStr();
 
-    PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
+    HttpServletRequest getHttpRequest();
 
-    PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh);
+    ApplicationEntity getApplicationEntity();
 
-    List<Patient> findPatients(IDWithIssuer pid);
+    ArchiveAEExtension getArchiveAEExtension();
 
-    Patient findPatient(IDWithIssuer pid);
+    Attributes getAttributes();
 
-    Patient createPatient(PatientMgtContext ctx);
+    void setAttributes(Attributes attrs);
 
-    Patient updatePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
+    IDWithIssuer getPatientID();
 
-    Patient mergePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
+    String getStudyInstanceUID();
 
-    Patient changePatientID(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
+    Study getStudy();
 
-    Patient findPatient(PatientMgtContext ctx);
+    void setStudy(Study study);
+
+    String getEventActionCode();
+
+    void setEventActionCode(String eventActionCode);
+
+    Exception getException();
+
+    void setException(Exception exception);
 }

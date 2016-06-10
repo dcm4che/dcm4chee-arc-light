@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.procedure;
+package org.dcm4chee.arc.patient;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

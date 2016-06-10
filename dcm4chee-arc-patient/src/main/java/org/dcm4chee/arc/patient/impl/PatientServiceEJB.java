@@ -131,7 +131,7 @@ public class PatientServiceEJB {
         return pat;
     }
 
-    private Patient findPatient(IDWithIssuer pid)
+    public Patient findPatient(IDWithIssuer pid)
             throws NonUniquePatientException, PatientMergedException {
         List<Patient> list = findPatients(pid);
         if (list.isEmpty())

@@ -79,12 +79,12 @@ public class PatientServiceImpl implements PatientService {
     private Event<PatientMgtContext> patientMgtEvent;
 
     @Override
-    public PatientMgtContext createPatientMgtContextDICOM(Association as) {
+    public PatientMgtContext createPatientMgtContextWEB(Association as) {
         return new PatientMgtContextImpl(device, null, as, as.getApplicationEntity(), as.getSocket(), null);
     }
 
     @Override
-    public PatientMgtContext createPatientMgtContextDICOM(HttpServletRequest httpRequest, ApplicationEntity ae) {
+    public PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
         return new PatientMgtContextImpl(device, httpRequest, null, ae, null, null);
     }
 
@@ -96,6 +96,11 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public List<Patient> findPatients(IDWithIssuer pid) {
         return ejb.findPatients(pid);
+    }
+
+    @Override
+    public Patient findPatient(IDWithIssuer pid) {
+        return ejb.findPatient(pid);
     }
 
     @Override
@@ -156,18 +161,5 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public Patient findPatient(PatientMgtContext ctx) {
         return ejb.findPatient(ctx);
-    }
-
-
-    private ArchiveDeviceExtension getArchiveDeviceExtension() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class);
-    }
-
-    private AttributeFilter getAttributeFilter() {
-        return getArchiveDeviceExtension().getAttributeFilter(Entity.Patient);
-    }
-
-    private FuzzyStr getFuzzyStr() {
-        return getArchiveDeviceExtension().getFuzzyStr();
     }
 }

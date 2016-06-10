@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,45 +38,49 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.patient;
+package org.dcm4chee.arc.study.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4chee.arc.entity.Patient;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyService;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import java.net.Socket;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Jun 2016
  */
-public interface PatientService {
+@ApplicationScoped
+public class StudyServiceImpl implements StudyService {
+    @Inject
+    private Device device;
 
-    PatientMgtContext createPatientMgtContextWEB(Association as);
+    @Inject
+    private StudyServiceEJB ejb;
 
-    PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
+    @Inject
+    private Event<StudyMgtContext> updateStudyEvent;
 
-    PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh);
+    @Override
+    public StudyMgtContext createIOCMContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
+        return new StudyMgtContextImpl(device, httpRequest, ae);
+    }
 
-    List<Patient> findPatients(IDWithIssuer pid);
+    @Override
+    public void updateStudy(StudyMgtContext ctx) {
+        try {
+            ejb.updateStudy(ctx);
+        } catch (RuntimeException e) {
+            ctx.setException(e);
+            throw e;
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                updateStudyEvent.fire(ctx);
+        }
+    }
 
-    Patient findPatient(IDWithIssuer pid);
-
-    Patient createPatient(PatientMgtContext ctx);
-
-    Patient updatePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
-
-    Patient mergePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
-
-    Patient changePatientID(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
-
-    Patient findPatient(PatientMgtContext ctx);
 }

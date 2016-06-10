@@ -57,6 +57,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.study.StudyMgtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -496,6 +497,10 @@ public class AuditService {
             obj.add(new PatientStudyInfo(ctx));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
+    }
+
+    void spoolProcedureRecord(StudyMgtContext ctx) {
+        //TODO
     }
 
     private void auditProcedureRecord(SpoolFileReader readerObj, AuditServiceUtils.EventType et) {

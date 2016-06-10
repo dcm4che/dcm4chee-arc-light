@@ -1,5 +1,5 @@
 /*
- * ** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,68 +35,52 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * ** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.patient.impl;
+package org.dcm4chee.arc.study.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.study.StudyMgtContext;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Mar 2016
+ * @since Jun 2016
  */
-public class PatientMgtContextImpl implements PatientMgtContext {
-
-    private final AttributeFilter attributeFilter;
+public class StudyMgtContextImpl implements StudyMgtContext {
+    private final AttributeFilter studyAttributeFilter;
     private final FuzzyStr fuzzyStr;
     private final HttpServletRequest httpRequest;
-    private final ApplicationEntity ae;
-    private final Association as;
-    private final Socket socket;
-    private final HL7Segment msh;
-    private IDWithIssuer patientID;
+    private final ArchiveAEExtension arcAE;
+    private Study study;
     private Attributes attributes;
-    private IDWithIssuer previousPatientID;
-    private Attributes previousAttributes;
+    private IDWithIssuer patientID;
+    private String studyInstanceUID;
     private String eventActionCode;
     private Exception exception;
 
-    PatientMgtContextImpl(Device device, HttpServletRequest httpRequest, Association as, ApplicationEntity ae,
-                          Socket socket, HL7Segment msh) {
+    StudyMgtContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        this.attributeFilter = arcDev.getAttributeFilter(Entity.Patient);
+        this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        this.studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
         this.fuzzyStr = arcDev.getFuzzyStr();
         this.httpRequest = httpRequest;
-        this.ae = ae;
-        this.as = as;
-        this.socket = socket;
-        this.msh = msh;
     }
 
-    @Override
-    public String toString() {
-        return as != null ? as.toString()
-                : httpRequest != null ? httpRequest.getRemoteAddr()
-                : msh.toString();
-    }
-
-    @Override
-    public AttributeFilter getAttributeFilter() {
-        return attributeFilter;
+    public AttributeFilter getStudyAttributeFilter() {
+        return studyAttributeFilter;
     }
 
     @Override
@@ -105,38 +89,18 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public Association getAssociation() {
-        return as;
-    }
-
-    @Override
     public HttpServletRequest getHttpRequest() {
         return httpRequest;
     }
 
     @Override
-    public HL7Segment getHL7MessageHeader() {
-        return msh;
+    public ApplicationEntity getApplicationEntity() {
+        return arcAE.getApplicationEntity();
     }
 
     @Override
-    public String getCalledAET() {
-        return as != null ? as.getCalledAET() : ae != null ? ae.getAETitle() : null;
-    }
-
-    @Override
-    public String getCallingAET() {
-        return as != null ? as.getCallingAET() : null;
-    }
-
-    @Override
-    public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost() : socket.getInetAddress().getHostName();
-    }
-
-    @Override
-    public IDWithIssuer getPatientID() {
-        return patientID;
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return arcAE;
     }
 
     @Override
@@ -148,22 +112,27 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     public void setAttributes(Attributes attrs) {
         this.attributes = attrs;
         this.patientID = IDWithIssuer.pidOf(attrs);
+        this.studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
     }
 
     @Override
-    public IDWithIssuer getPreviousPatientID() {
-        return previousPatientID;
+    public IDWithIssuer getPatientID() {
+        return patientID;
     }
 
     @Override
-    public Attributes getPreviousAttributes() {
-        return previousAttributes;
+    public String getStudyInstanceUID() {
+        return studyInstanceUID;
     }
 
     @Override
-    public void setPreviousAttributes(Attributes attrs) {
-        this.previousAttributes = attrs;
-        this.previousPatientID = attrs != null ? IDWithIssuer.pidOf(attrs) : null;
+    public Study getStudy() {
+        return study;
+    }
+
+    @Override
+    public void setStudy(Study study) {
+        this.study = study;
     }
 
     @Override

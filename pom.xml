@@ -376,6 +376,7 @@
     <module>dcm4chee-arc-store-scu</module>
     <module>dcm4chee-arc-store-scp</module>
     <module>dcm4chee-arc-stow</module>
+    <module>dcm4chee-arc-study</module>
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
