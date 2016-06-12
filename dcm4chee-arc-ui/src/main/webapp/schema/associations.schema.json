@@ -42,7 +42,42 @@
         "description": "Performed Operations in this Association",
         "type": "array",
         "items": {
-          "$ref":"#/definitions/Operation"
+          "type": "object",
+          "properties": {
+            "C-STORE": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "C-GET": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "C-FIND-RQ": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "C-MOVE": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "C-ECHO": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-EVENT-REPORT": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-GET": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-SET": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-ACTION": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-CREATE": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-DELETE": {
+              "$ref":"#/definitions/RQ_RSP"
+            }
+          }
         }
       },
       "invokedOps": {
@@ -50,7 +85,42 @@
         "description": "Invoked Operations in this Association",
         "type": "array",
         "items": {
-          "$ref":"#/definitions/Operation"
+          "type": "object",
+          "properties": {
+            "C-STORE": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "C-GET": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "C-FIND-RQ": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "C-MOVE": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "C-ECHO": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-EVENT-REPORT": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-GET": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-SET": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-ACTION": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-CREATE": {
+              "$ref":"#/definitions/RQ_RSP"
+            },
+            "N-DELETE": {
+              "$ref":"#/definitions/RQ_RSP"
+            }
+          }
         }
       }
     }
