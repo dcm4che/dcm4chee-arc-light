@@ -47,6 +47,7 @@ package org.dcm4chee.arc.monitor.rs;
 
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.Dimse;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -93,11 +94,103 @@ public class ArchiveMonitor {
                     w.write(as.getLocalAET());
                     w.write("\",\"remoteAETitle\":\"");
                     w.write(as.getRemoteAET());
-                    w.write("\"}");
+                    w.write("\",\"performedOps\":{");
+                    writePerformed(w, as);
+                    w.write("},\"invokedOps\":{");
+                    writeInvoked(w, as);
+                    w.write("}}");
                 }
                 w.write(']');
                 w.flush();
             }
         };
+    }
+
+    private void writePerformed(Writer w, Association as) throws IOException {
+        boolean previous = ArchiveMonitor.write(w, false, "C-STORE",
+                as.getNumberOfReceived(Dimse.C_STORE_RQ),
+                as.getNumberOfSent(Dimse.C_STORE_RSP));
+        previous = ArchiveMonitor.write(w, previous , "C-GET",
+                as.getNumberOfReceived(Dimse.C_GET_RQ),
+                as.getNumberOfSent(Dimse.C_GET_RSP));
+        previous = ArchiveMonitor.write(w, previous , "C-FIND",
+                as.getNumberOfReceived(Dimse.C_FIND_RQ),
+                as.getNumberOfSent(Dimse.C_FIND_RSP));
+        previous = ArchiveMonitor.write(w, previous , "C-MOVE",
+                as.getNumberOfReceived(Dimse.C_MOVE_RQ),
+                as.getNumberOfSent(Dimse.C_MOVE_RSP));
+        previous = ArchiveMonitor.write(w, previous , "C-ECHO",
+                as.getNumberOfReceived(Dimse.C_ECHO_RQ),
+                as.getNumberOfSent(Dimse.C_ECHO_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-EVENT-REPORT",
+                as.getNumberOfReceived(Dimse.N_EVENT_REPORT_RQ),
+                as.getNumberOfSent(Dimse.N_EVENT_REPORT_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-GET",
+                as.getNumberOfReceived(Dimse.N_GET_RQ),
+                as.getNumberOfSent(Dimse.N_GET_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-SET",
+                as.getNumberOfReceived(Dimse.N_SET_RQ),
+                as.getNumberOfSent(Dimse.N_SET_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-ACTION",
+                as.getNumberOfReceived(Dimse.N_ACTION_RQ),
+                as.getNumberOfSent(Dimse.N_ACTION_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-CREATE",
+                as.getNumberOfReceived(Dimse.N_CREATE_RQ),
+                as.getNumberOfSent(Dimse.N_CREATE_RSP));
+        ArchiveMonitor.write(w, previous , "N-DELETE",
+                as.getNumberOfReceived(Dimse.N_DELETE_RQ),
+                as.getNumberOfSent(Dimse.N_DELETE_RSP));
+    }
+
+    private void writeInvoked(Writer w, Association as) throws IOException {
+        boolean previous = ArchiveMonitor.write(w, false, "C-STORE",
+                as.getNumberOfSent(Dimse.C_STORE_RQ),
+                as.getNumberOfReceived(Dimse.C_STORE_RSP));
+        previous = ArchiveMonitor.write(w, previous , "C-GET",
+                as.getNumberOfSent(Dimse.C_GET_RQ),
+                as.getNumberOfReceived(Dimse.C_GET_RSP));
+        previous = ArchiveMonitor.write(w, previous , "C-FIND",
+                as.getNumberOfSent(Dimse.C_FIND_RQ),
+                as.getNumberOfReceived(Dimse.C_FIND_RSP));
+        previous = ArchiveMonitor.write(w, previous , "C-MOVE",
+                as.getNumberOfSent(Dimse.C_MOVE_RQ),
+                as.getNumberOfReceived(Dimse.C_MOVE_RSP));
+        previous = ArchiveMonitor.write(w, previous , "C-ECHO",
+                as.getNumberOfSent(Dimse.C_ECHO_RQ),
+                as.getNumberOfReceived(Dimse.C_ECHO_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-EVENT-REPORT",
+                as.getNumberOfSent(Dimse.N_EVENT_REPORT_RQ),
+                as.getNumberOfReceived(Dimse.N_EVENT_REPORT_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-GET",
+                as.getNumberOfSent(Dimse.N_GET_RQ),
+                as.getNumberOfReceived(Dimse.N_GET_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-SET",
+                as.getNumberOfSent(Dimse.N_SET_RQ),
+                as.getNumberOfReceived(Dimse.N_SET_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-ACTION",
+                as.getNumberOfSent(Dimse.N_ACTION_RQ),
+                as.getNumberOfReceived(Dimse.N_ACTION_RSP));
+        previous = ArchiveMonitor.write(w, previous , "N-CREATE",
+                as.getNumberOfSent(Dimse.N_CREATE_RQ),
+                as.getNumberOfReceived(Dimse.N_CREATE_RSP));
+        ArchiveMonitor.write(w, previous , "N-DELETE",
+                as.getNumberOfSent(Dimse.N_DELETE_RQ),
+                as.getNumberOfReceived(Dimse.N_DELETE_RSP));
+    }
+
+    private static boolean write(Writer w, boolean previous, String command, int rq, int rsp) throws IOException {
+        if (rq == 0)
+            return previous;
+
+        if (previous)
+            w.write(',');
+        w.write('\"');
+        w.write(command);
+        w.write("\":{\"RQ\":");
+        w.write(String.valueOf(rq));
+        w.write(",\"RSP\":");
+        w.write(String.valueOf(rsp));
+        w.write('}');
+        return true;
     }
 }
