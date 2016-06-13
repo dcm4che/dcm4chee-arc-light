@@ -427,6 +427,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.85 NAME 'hl7ScheduleProcedureTemplat
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.86 NAME 'dcmHideSPSWithStatusFromMWL'
+  DESC 'Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL SCP. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELLED, DISCONTINUED, COMPLETED'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -438,6 +442,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmOverwritePolicy $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
+    dcmHideSPSWithStatusFromMWL $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $
@@ -491,6 +496,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
+    dcmHideSPSWithStatusFromMWL $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $

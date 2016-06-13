@@ -1,7 +1,8 @@
 create table mwl_item (pk bigint identity not null, accession_no varchar(255) not null, created_time datetime2 not null, modality varchar(255) not null, req_proc_id varchar(255) not null, sps_id varchar(255) not null, sps_start_date varchar(255) not null, sps_start_time varchar(255) not null, sps_status int not null, study_iuid varchar(255) not null, updated_time datetime2 not null, version bigint, dicomattrs_fk bigint not null, accno_issuer_fk bigint, patient_fk bigint not null, perf_phys_name_fk bigint, primary key (pk));
 create table sps_station_aet (pk bigint identity not null, station_aet varchar(255) not null, mwl_item_fk bigint not null, primary key (pk));
 alter table mwl_item add constraint UK_6qj8tkh6ib9w2pjqwvqe23ko  unique (dicomattrs_fk);
-alter table mwl_item add constraint UK_i6bbum2mvssf9l4aukvtbkjui  unique (req_proc_id, sps_id);
+alter table mwl_item add constraint UK_lerlqlaghhcs0oaj5irux4qig  unique (study_iuid, sps_id);
+create index UK_d0v5hjn1crha2nqbws4wj0yoj on mwl_item (updated_time);
 create index UK_2odo3oah39o400thy9bf0rgv0 on mwl_item (sps_id);
 create index UK_kedi0qimmvs83af3jxk471uxn on mwl_item (req_proc_id);
 create index UK_fpfq8q514gsime2dl8oo773d4 on mwl_item (study_iuid);
@@ -18,8 +19,6 @@ alter table mwl_item add constraint FK_44qwwvs50lgpog2cqmicxgt1f foreign key (pe
 alter table sps_station_aet add constraint FK_js5xqyw5qa9rpttwmck14duow foreign key (mwl_item_fk) references mwl_item;
 
 --to be checked--
-create sequence mwl_item_pk_seq;
-create sequence sps_station_aet_pk_seq;
 create index FK_ot32lpvialton54xqh636c4it on mwl_item (accno_issuer_fk);
 create index FK_vkxtls2wr17wgxnxj7b2fe32 on mwl_item (patient_fk);
 create index FK_44qwwvs50lgpog2cqmicxgt1f on mwl_item (perf_phys_name_fk);

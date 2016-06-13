@@ -356,9 +356,9 @@ public class StoreServiceEJB {
                 StoreSession session = ctx.getStoreSession();
                 HttpServletRequest httpRequest = session.getHttpRequest();
                 Association as = session.getAssociation();
-                PatientMgtContext patMgtCtx = as != null ? patientService.createPatientMgtContextDICOM(as)
+                PatientMgtContext patMgtCtx = as != null ? patientService.createPatientMgtContextWEB(as)
                         : httpRequest != null
-                        ? patientService.createPatientMgtContextDICOM(httpRequest, session.getLocalApplicationEntity())
+                        ? patientService.createPatientMgtContextWEB(httpRequest, session.getLocalApplicationEntity())
                         : patientService.createPatientMgtContextHL7(session.getSocket(), session.getHL7MessageHeader());
                 patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);

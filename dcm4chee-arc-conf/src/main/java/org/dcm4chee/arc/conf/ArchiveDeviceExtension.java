@@ -100,6 +100,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String wadoSpoolDirectory;
     private Duration purgeQueueMessagePollingInterval;
     private int purgeQueueMessageFetchSize = 100;
+    private MWLStatus[] hideSPSWithStatusFrom = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -523,6 +524,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.purgeQueueMessageFetchSize = purgeQueueMessageFetchSize;
     }
 
+    public MWLStatus[] getHideSPSWithStatusFrom() {
+        return hideSPSWithStatusFrom;
+    }
+
+    public void setHideSPSWithStatusFrom(MWLStatus[] hideSPSWithStatusFrom) {
+        this.hideSPSWithStatusFrom = hideSPSWithStatusFrom;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -755,6 +764,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSpoolDirectory = arcdev.wadoSpoolDirectory;
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
         purgeQueueMessageFetchSize = arcdev.purgeQueueMessageFetchSize;
+        hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();

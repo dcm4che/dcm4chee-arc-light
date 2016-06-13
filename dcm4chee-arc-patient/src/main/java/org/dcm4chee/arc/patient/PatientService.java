@@ -57,13 +57,15 @@ import java.util.List;
  */
 public interface PatientService {
 
-    PatientMgtContext createPatientMgtContextDICOM(Association as);
+    PatientMgtContext createPatientMgtContextWEB(Association as);
 
-    PatientMgtContext createPatientMgtContextDICOM(HttpServletRequest httpRequest, ApplicationEntity ae);
+    PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
 
     PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh);
 
     List<Patient> findPatients(IDWithIssuer pid);
+
+    Patient findPatient(IDWithIssuer pid);
 
     Patient createPatient(PatientMgtContext ctx);
 

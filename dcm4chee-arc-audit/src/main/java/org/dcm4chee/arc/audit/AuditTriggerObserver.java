@@ -52,6 +52,7 @@ import org.dcm4chee.arc.retrieve.RetrieveWADO;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
+import org.dcm4chee.arc.study.StudyMgtContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -163,6 +164,10 @@ public class AuditTriggerObserver {
     }
 
     public void onProcedureUpdate(@Observes ProcedureContext ctx) {
+        auditService.spoolProcedureRecord(ctx);
+    }
+
+    public void onStudyUpdate(@Observes StudyMgtContext ctx) {
         auditService.spoolProcedureRecord(ctx);
     }
 

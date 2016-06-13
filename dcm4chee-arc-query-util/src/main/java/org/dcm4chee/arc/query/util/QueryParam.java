@@ -77,6 +77,10 @@ public class QueryParam {
         return arcAE.getAccessControlIDs();
     }
 
+    public MWLStatus[] getHideSPSWithStatusFromMWL() {
+        return arcAE.hideSPSWithStatusFromMWL();
+    }
+
     public boolean isFuzzySemanticMatching() {
         return fuzzySemanticMatching;
     }

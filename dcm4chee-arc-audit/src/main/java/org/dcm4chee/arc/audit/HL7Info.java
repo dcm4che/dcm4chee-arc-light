@@ -75,11 +75,10 @@ class HL7Info {
             source = ctx.getAssociation().getCallingAET();
             dest = ctx.getAssociation().getCalledAET();
         }
-        String patID = (et == AuditServiceUtils.EventType.HL7_DELT_E || et == AuditServiceUtils.EventType.HL7_DELT_P)
-                        && ctx.getPreviousPatientID() != null
+        String patID = et == AuditServiceUtils.EventType.HL7_DELT_P && ctx.getPreviousPatientID() != null
                         ? ctx.getPreviousPatientID().toString()
                         : ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue;
-        String patName = (et == AuditServiceUtils.EventType.HL7_DELT_E || et == AuditServiceUtils.EventType.HL7_DELT_P)
+        String patName = et == AuditServiceUtils.EventType.HL7_DELT_P
                 ? StringUtils.maskEmpty(ctx.getPreviousAttributes().getString(Tag.PatientName), null)
                 : StringUtils.maskEmpty(ctx.getAttributes().getString(Tag.PatientName), null);
         fields = new String[] {

@@ -49,7 +49,7 @@ import org.dcm4chee.arc.entity.IssuerEntity;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.issuer.IssuerService;
-import org.dcm4chee.arc.procedure.PatientMismatchException;
+import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
 import javax.ejb.Stateless;

@@ -38,14 +38,63 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.procedure;
+package org.dcm4chee.arc.procedure.scp;
+
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Status;
+import org.dcm4che3.net.pdu.PresentationContext;
+import org.dcm4che3.net.service.BasicQueryTask;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryTask;
+import org.dcm4chee.arc.query.Query;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2016
  */
-public class PatientMismatchException extends RuntimeException {
-    public PatientMismatchException(String message) {
-        super(message);
+public class MWLQueryTask extends BasicQueryTask {
+    private final Query query;
+
+    public MWLQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query)
+            throws DicomServiceException {
+        super(as, pc, rq, keys);
+        this.query = query;
+        try {
+            query.initQuery();
+            query.executeQuery();
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
+        }
+        setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
+    }
+
+    @Override
+    protected void close() {
+        query.close();
+    }
+
+    @Override
+    protected boolean hasMoreMatches() throws DicomServiceException {
+        try {
+            return query.hasMoreMatches();
+        }  catch (Exception e) {
+            throw new DicomServiceException(Status.UnableToProcess, e);
+        }
+    }
+
+    @Override
+    protected Attributes nextMatch() throws DicomServiceException {
+        try {
+            return query.nextMatch();
+        }  catch (Exception e) {
+            throw new DicomServiceException(Status.UnableToProcess, e);
+        }
+    }
+
+    @Override
+    protected Attributes adjust(Attributes match) {
+        return query.adjust(match);
     }
 }

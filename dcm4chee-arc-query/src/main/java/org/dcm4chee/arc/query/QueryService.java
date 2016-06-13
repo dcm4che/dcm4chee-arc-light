@@ -73,6 +73,8 @@ public interface QueryService {
 
     Query createInstanceQuery(QueryContext ctx);
 
+    Query createMWLQuery(QueryContext ctx);
+
     Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam);
 
     StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam);

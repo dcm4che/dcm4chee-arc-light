@@ -122,6 +122,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
+        LdapUtils.storeNotEmpty(attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
     }
 
     @Override
@@ -185,6 +186,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
+        ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(MWLStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
     }
 
     @Override
@@ -276,6 +278,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(), bb.getWadoSpoolDirectory());
+        LdapUtils.storeDiff(mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
     }
 
     @Override
@@ -365,6 +368,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmIanDelay", ext.getIanDelay());
         LdapUtils.storeNotNull(attrs, "dcmIanTimeout", ext.getIanTimeout());
         LdapUtils.storeNotNull(attrs, "dcmIanOnTimeout", ext.getIanOnTimeout());
+        LdapUtils.storeNotEmpty(attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFromMWL());
     }
 
     @Override
@@ -397,6 +401,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmIanDelay"), null)));
         ext.setIanTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmIanTimeout"), null)));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
+        ext.setHideSPSWithStatusFromMWL(LdapUtils.enumArray(MWLStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
     }
 
     @Override
@@ -437,6 +442,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay());
         LdapUtils.storeDiff(mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout());
         LdapUtils.storeDiff(mods, "dcmIanOnTimeout", aa.getIanOnTimeout(), bb.getIanOnTimeout());
+        LdapUtils.storeDiff(mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFromMWL(), bb.getHideSPSWithStatusFromMWL());
     }
 
     @Override

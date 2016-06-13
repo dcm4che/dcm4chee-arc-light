@@ -89,7 +89,9 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     @Override
     public String toString() {
-        return as != null ? as.toString() : msh.toString();
+        return as != null ? as.toString()
+                : httpRequest != null ? httpRequest.getRemoteAddr()
+                : msh.toString();
     }
 
     @Override

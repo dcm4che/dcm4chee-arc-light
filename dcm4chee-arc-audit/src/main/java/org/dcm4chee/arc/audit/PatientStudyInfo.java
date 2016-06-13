@@ -69,12 +69,13 @@ class PatientStudyInfo {
         fields = new String[] {
                 ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCallingAET() != null
-                        ? ctx.getStoreSession().getCallingAET()
-                        : ctx.getStoreSession().getHttpRequest() != null
-                        && ctx.getStoreSession().getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                        ? AuditServiceUtils.getPreferredUsername(ctx.getStoreSession().getHttpRequest())
-                        : ctx.getStoreSession().getRemoteHostName(),
-                ctx.getStoreSession().getCalledAET(),
+                    ? ctx.getStoreSession().getCallingAET()
+                    : ctx.getStoreSession().getHttpRequest() != null
+                    && ctx.getStoreSession().getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                    ? AuditServiceUtils.getPreferredUsername(ctx.getStoreSession().getHttpRequest())
+                    : ctx.getStoreSession().getRemoteHostName(),
+                ctx.getStoreSession().getHttpRequest() != null
+                    ? ctx.getStoreSession().getHttpRequest().getRequestURI() : ctx.getStoreSession().getCalledAET(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
                 AuditServiceUtils.getPatID(ctx.getAttributes()),
@@ -93,7 +94,7 @@ class PatientStudyInfo {
                 ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
                     ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
                     : ctx.getHttpRequest().getRemoteAddr(),
-                ctx.getLocalAETitle(),
+                ctx.getHttpRequest().getRequestURI(),
                 ctx.getStudyInstanceUIDs()[0],
                 attrs.getString(Tag.AccessionNumber),
                 AuditServiceUtils.getPatID(attrs),

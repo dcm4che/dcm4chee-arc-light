@@ -38,14 +38,15 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.iocm.rs;
+package org.dcm4chee.arc.study.rs;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.util.AttributesBuilder;
@@ -82,6 +83,9 @@ public class UpdateAttributes {
     @Inject
     private PatientService patientService;
 
+    @Inject
+    private StudyService iocmService;
+
     @PathParam("AETitle")
     private String aet;
 
@@ -103,7 +107,7 @@ public class UpdateAttributes {
     @Consumes("application/json")
     public void updatePatient(InputStream in) throws Exception {
         logRequest();
-        PatientMgtContext ctx = patientService.createPatientMgtContextDICOM(request, getApplicationEntity());
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
         ctx.setPreviousAttributes(queryAttributes(uriInfo));
         IDWithIssuer previousPatientID = ctx.getPreviousPatientID();
         if (previousPatientID == null)
@@ -119,6 +123,27 @@ public class UpdateAttributes {
         } else {
             patientService.changePatientID(ctx);
         }
+    }
+
+    @PUT
+    @Path("/studies/{StudyUID}")
+    @Consumes("application/json")
+    public void updateStudy(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
+        logRequest();
+        StudyMgtContext ctx = iocmService.createIOCMContextWEB(request, getApplicationEntity());
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        ctx.setAttributes(reader.readDataset(null));
+        String studyUIDBody = ctx.getStudyInstanceUID();
+        if (ctx.getPatientID() == null)
+            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+        if (studyUIDBody == null)
+            throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
+        if (!studyUIDBody.equals(studyUID))
+            throw new WebApplicationException("Study Instance UID[" + studyUIDBody +
+                    "] in message body does not match Study Instance UID[" + studyUID + "] in path",
+                    Response.Status.BAD_REQUEST);
+
+        iocmService.updateStudy(ctx);
     }
 
     private void logRequest() {

@@ -287,7 +287,7 @@
           "200": {
             "description": "Open Associations",
             "schema": {
-              "$ref": "associations.schema.json"
+              "$ref": "#/definitions/Associations"
             }
           },
           "default": {
@@ -1171,6 +1171,122 @@
         "deleted": {
           "title": "deleted",
           "description": "number of deleted messages",
+          "type": "integer"
+        }
+      }
+    },
+    "Associations": {
+      "title": "Open Associations",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "serialNo",
+          "connectTime",
+          "requestor",
+          "localAETitle",
+          "remoteAETitle",
+          "performedOps",
+          "invokedOps"
+        ],
+        "properties": {
+          "serialNo": {
+            "title": "Serial No",
+            "description": "serial number of Association",
+            "type": "integer"
+          },
+          "connectTime": {
+            "title": "Connect Time",
+            "description": "Time when this Association was established",
+            "type": "string"
+          },
+          "initiated": {
+            "title": "Initiated",
+            "description": "Indicates if this Association was initiated or accepted by the Archive",
+            "type": "boolean"
+          },
+          "localAETitle": {
+            "title": "Local AE Title",
+            "description": "AE Title of the Archive used as Calling AE Title of requested or as Called AE Title in accepted Associations",
+            "type": "string"
+          },
+          "remoteAETitle": {
+            "title": "Remote AE Title",
+            "description": "AE Title of remote AE used as Called AE Title of requested or as Calling AE Title in accepted Associations",
+            "type": "string"
+          },
+          "performedOps": {
+            "title": "Performed Operations",
+            "description": "Performed Operations in this Association",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Operation"
+            }
+          },
+          "invokedOps": {
+            "title": "Invoked Operations",
+            "description": "Invoked Operations in this Association",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Operation"
+            }
+          }
+        }
+      }
+    },
+    "Operation": {
+      "type": "object",
+      "properties": {
+        "C-STORE": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "C-GET": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "C-FIND": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "C-MOVE": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "C-ECHO": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "N-EVENT-REPORT": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "N-GET": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "N-SET": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "N-ACTION": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "N-CREATE": {
+          "$ref": "#/definitions/RQ_RSP"
+        },
+        "N-DELETE": {
+          "$ref": "#/definitions/RQ_RSP"
+        }
+      }
+    },
+    "RQ_RSP": {
+      "type": "object",
+      "required": [
+        "RQ",
+        "RSP"
+      ],
+      "properties": {
+        "RQ": {
+          "title": "RQ",
+          "description": "Number of received/sent DIMSE-RQ",
+          "type": "integer"
+        },
+        "RSP": {
+          "title": "RSP",
+          "description": "Number of sent/received DIMSE-RSP",
           "type": "integer"
         }
       }
