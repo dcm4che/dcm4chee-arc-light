@@ -77,6 +77,7 @@ public class ArchiveAEExtension extends AEExtension {
     private int fallbackCMoveSCPRetries;
     private String alternativeCMoveSCP;
     private int qidoMaxNumberOfResults;
+    private MWLStatus[] hideSPSWithStatusFromMWL = {};
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -368,6 +369,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
     }
 
+    public MWLStatus[] getHideSPSWithStatusFromMWL() {
+        return hideSPSWithStatusFromMWL;
+    }
+
+    public void setHideSPSWithStatusFromMWL(MWLStatus[] hideSPSWithStatusFromMWL) {
+        this.hideSPSWithStatusFromMWL = hideSPSWithStatusFromMWL;
+    }
+
+    public MWLStatus[] hideSPSWithStatusFromMWL() {
+        return hideSPSWithStatusFromMWL.length > 0
+                ? hideSPSWithStatusFromMWL
+                : getArchiveDeviceExtension().getHideSPSWithStatusFrom();
+    }
+
     public QueryRetrieveView getQueryRetrieveView() {
         return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
     }
@@ -445,6 +460,7 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
+        hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

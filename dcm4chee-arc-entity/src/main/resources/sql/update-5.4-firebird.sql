@@ -1,7 +1,8 @@
 create table mwl_item (pk numeric(18,0) not null, accession_no varchar(255) not null, created_time timestamp not null, modality varchar(255) not null, req_proc_id varchar(255) not null, sps_id varchar(255) not null, sps_start_date varchar(255) not null, sps_start_time varchar(255) not null, sps_status integer not null, study_iuid varchar(255) not null, updated_time timestamp not null, version numeric(18,0), dicomattrs_fk numeric(18,0) not null, accno_issuer_fk numeric(18,0), patient_fk numeric(18,0) not null, perf_phys_name_fk numeric(18,0), primary key (pk));
 create table sps_station_aet (pk numeric(18,0) not null, station_aet varchar(255) not null, mwl_item_fk numeric(18,0) not null, primary key (pk));
 alter table mwl_item add constraint UK_6qj8tkh6ib9w2pjqwvqe23ko  unique (dicomattrs_fk);
-alter table mwl_item add constraint UK_i6bbum2mvssf9l4aukvtbkjui  unique (req_proc_id, sps_id);
+alter table mwl_item add constraint UK_lerlqlaghhcs0oaj5irux4qig  unique (study_iuid, sps_id);
+create index UK_d0v5hjn1crha2nqbws4wj0yoj on mwl_item (updated_time);
 create index UK_2odo3oah39o400thy9bf0rgv0 on mwl_item (sps_id);
 create index UK_kedi0qimmvs83af3jxk471uxn on mwl_item (req_proc_id);
 create index UK_fpfq8q514gsime2dl8oo773d4 on mwl_item (study_iuid);

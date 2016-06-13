@@ -53,6 +53,7 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.util.Property;
 
 import javax.json.stream.JsonParser;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,6 +79,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID());
         writer.writeNotNull("dcmOverwritePolicy", arcDev.getOverwritePolicy());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
+        writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcDev.getHideSPSWithStatusFrom());
         writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching", arcDev.isPersonNameComponentOrderInsensitiveMatching(), false);
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
         writer.writeNotNull("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval());
@@ -308,6 +310,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy());
         writer.writeNotNull("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory());
+        writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcAE.getHideSPSWithStatusFromMWL());
         writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching", arcAE.getPersonNameComponentOrderInsensitiveMatching());
         writer.writeNotNull("dcmSendPendingCGet", arcAE.getSendPendingCGet());
         writer.writeNotNull("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval());
@@ -358,6 +361,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmBulkDataSpoolDirectory":
                     arcDev.setBulkDataSpoolDirectory(reader.stringValue());
+                    break;
+                case "dcmHideSPSWithStatusFromMWL":
+                    arcDev.setHideSPSWithStatusFrom(enumArray(MWLStatus.class, reader.stringArray()));
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcDev.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
@@ -914,6 +920,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmBulkDataSpoolDirectory":
                     arcAE.setBulkDataSpoolDirectory(reader.stringValue());
                     break;
+                case "dcmHideSPSWithStatusFromMWL":
+                    arcAE.setHideSPSWithStatusFromMWL(enumArray(MWLStatus.class, reader.stringArray()));
+                    break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcAE.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
                     break;
@@ -963,5 +972,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     reader.skipUnknownProperty();
             }
         }
+    }
+
+    private static <T extends Enum<T>> T[] enumArray(Class<T> enumType, String[] ss) {
+        T[] a = (T[]) Array.newInstance(enumType, ss.length);
+        for (int i = 0; i < a.length; i++)
+            a[i] = Enum.valueOf(enumType, ss[i]);
+
+        return a;
     }
 }

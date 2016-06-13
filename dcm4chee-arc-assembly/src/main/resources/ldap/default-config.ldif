@@ -27,6 +27,11 @@ dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
 dcmOverwritePolicy: SAME_SOURCE
 dcmQueryRetrieveViewID: hideRejected
 dicomSoftwareVersion: 5.4.0
+dcmHideSPSWithStatusFromMWL: STARTED
+dcmHideSPSWithStatusFromMWL: DEPARTED
+dcmHideSPSWithStatusFromMWL: CANCELLED
+dcmHideSPSWithStatusFromMWL: DISCONTINUED
+dcmHideSPSWithStatusFromMWL: COMPLETED
 dcmAuditAggregateDuration: PT1M
 dcmStorageID: fs1
 objectClass: dicomDevice
@@ -697,6 +702,18 @@ objectClass: dcmTransferCapability
 dcmCombinedDateTimeMatching: TRUE
 dcmRelationalQueries: TRUE
 cn: Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Modality Worklist Information Model - FIND SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.31
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Modality Worklist Information Model - FIND SCP
 dicomTransferSyntax: 1.2.840.10008.1.2
 
 dn: cn=Patient Root Query Retrieve Information Model - GET SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

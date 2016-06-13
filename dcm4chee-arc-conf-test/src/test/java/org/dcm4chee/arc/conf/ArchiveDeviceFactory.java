@@ -658,6 +658,9 @@ class ArchiveDeviceFactory {
             UID.StudyRootQueryRetrieveInformationModelFIND,
             UID.PatientStudyOnlyQueryRetrieveInformationModelFINDRetired
     };
+    static final String[] MWL_CUID = {
+            UID.ModalityWorklistInformationModelFIND
+    };
     static final String[] RETRIEVE_CUIDS = {
             UID.PatientRootQueryRetrieveInformationModelGET,
             UID.PatientRootQueryRetrieveInformationModelMOVE,
@@ -666,6 +669,10 @@ class ArchiveDeviceFactory {
             UID.PatientStudyOnlyQueryRetrieveInformationModelGETRetired,
             UID.PatientStudyOnlyQueryRetrieveInformationModelMOVERetired
     };
+    static final MWLStatus[] HIDE_SPS_WITH_STATUS_FROM_MWL = {
+            MWLStatus.STARTED, MWLStatus.DEPARTED, MWLStatus.CANCELLED, MWLStatus.DISCONTINUED, MWLStatus.COMPLETED
+    };
+
     static final Code INCORRECT_WORKLIST_ENTRY_SELECTED =
             new Code("110514", "DCM", null, "Incorrect worklist entry selected");
     static final Code REJECTED_FOR_QUALITY_REASONS =
@@ -926,11 +933,11 @@ class ArchiveDeviceFactory {
         device.setKeyStorePin("secret");
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
-                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, configType));
+                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType));
         device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", "Show instances rejected for Quality Reasons",
-                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, configType));
+                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType));
         device.addApplicationEntity(createAE("DCM4CHEE_TRASH", "Show rejected instances only",
-                dicom, dicomTLS, TRASH_VIEW, false, false, configType));
+                dicom, dicomTLS, TRASH_VIEW, false, false, false, configType));
 
         return device;
     }
@@ -1113,6 +1120,7 @@ class ArchiveDeviceFactory {
         ext.addRejectionNote(retentionExpired);
         ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
                 configType, REJECTION_CODES));
+        ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
 
         if (configType == configType.SAMPLE || configType == configType.TEST) {
             ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
@@ -1178,7 +1186,8 @@ class ArchiveDeviceFactory {
 
     private static ApplicationEntity createAE(String aet, String description,
                                               Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
-                                              boolean storeSCP, boolean storeSCU, ConfigType configType) {
+                                              boolean storeSCP, boolean storeSCU, boolean mwlSCP,
+                                              ConfigType configType) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -1192,6 +1201,9 @@ class ArchiveDeviceFactory {
         addTC(ae, null, SCP, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
         addTC(ae, null, SCU, UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
         addTCs(ae, EnumSet.allOf(QueryOption.class), SCP, QUERY_CUIDS, UID.ImplicitVRLittleEndian);
+        if (mwlSCP) {
+            addTCs(ae, EnumSet.allOf(QueryOption.class), SCP, MWL_CUID, UID.ImplicitVRLittleEndian);
+        }
         if (storeSCU) {
             addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
             for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)

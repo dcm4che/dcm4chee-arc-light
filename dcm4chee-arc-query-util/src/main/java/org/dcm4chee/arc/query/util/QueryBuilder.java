@@ -42,10 +42,7 @@ package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -55,6 +52,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.MWLStatus;
 import org.dcm4chee.arc.entity.*;
 
 import java.util.List;
@@ -75,6 +73,7 @@ public class QueryBuilder {
     public static final QAttributesBlob studyAttributesBlob = new QAttributesBlob("studyAttributesBlob");
     public static final QAttributesBlob seriesAttributesBlob =  new QAttributesBlob("seriesAttributesBlob");
     public static final QAttributesBlob instanceAttributesBlob = new QAttributesBlob("instanceAttributesBlob");
+    public static final QAttributesBlob mwlAttributesBlob = new QAttributesBlob("mwlAttributesBlob");
     public static final QIssuerEntity patientIDIssuer = new QIssuerEntity("patientIDIssuer");
 
     private QueryBuilder() {}
@@ -386,6 +385,70 @@ public class QueryBuilder {
                 true));
         builder.and(hideRejectedInstance(queryParam));
         builder.and(hideRejectionNote(queryParam));
+    }
+
+    public static HibernateQuery<Tuple> applyMWLJoins(
+            HibernateQuery<Tuple> query, Attributes keys, QueryParam queryParam) {
+        query = query.innerJoin(QMWLItem.mWLItem.patient, QPatient.patient);
+
+        if (!isUniversalMatching(keys.getString(Tag.AccessionNumber))
+                && !isUniversalMatching(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence))) {
+            query = query.leftJoin(QMWLItem.mWLItem.issuerOfAccessionNumber);
+        }
+
+        Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if (sps != null && !isUniversalMatching(sps.getString(Tag.ScheduledPerformingPhysicianName))) {
+            query = query.join(QMWLItem.mWLItem.scheduledPerformingPhysicianName, QueryBuilder.performingPhysicianName);
+        }
+        query = query.join(QMWLItem.mWLItem.attributesBlob, QueryBuilder.mwlAttributesBlob);
+        return query;
+    }
+
+    public static void addMWLPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam) {
+        builder.and(uidsPredicate(QMWLItem.mWLItem.studyInstanceUID, keys.getStrings(Tag.StudyInstanceUID)));
+        builder.and(wildCard(QMWLItem.mWLItem.requestedProcedureID, keys.getString(Tag.RequestedProcedureID, "*"),
+                false));
+        String accNo = keys.getString(Tag.AccessionNumber, "*");
+        if (!accNo.equals("*")) {
+            Issuer issuer = Issuer.valueOf(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+            if (issuer == null) {
+                issuer = queryParam.getDefaultIssuerOfAccessionNumber();
+            }
+            builder.and(idWithIssuer(
+                    QMWLItem.mWLItem.accessionNumber, QMWLItem.mWLItem.issuerOfAccessionNumber, accNo, issuer));
+        }
+        Attributes sps = keys.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if (sps != null) {
+            builder.and(wildCard(QMWLItem.mWLItem.scheduledProcedureStepID,
+                    sps.getString(Tag.ScheduledProcedureStepID, "*"), false));
+            builder.and(MatchDateTimeRange.rangeMatch(
+                    QMWLItem.mWLItem.scheduledStartDate, QMWLItem.mWLItem.scheduledStartTime,
+                    Tag.ScheduledProcedureStepStartDate, Tag.ScheduledProcedureStepStartDate,
+                    Tag.ScheduledProcedureStepStartDateAndTime,
+                    sps, true));
+            builder.and(MatchPersonName.match(QueryBuilder.performingPhysicianName,
+                    sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam));
+            builder.and(wildCard(QMWLItem.mWLItem.modality, sps.getString(Tag.Modality, "*").toUpperCase(),
+                    false));
+            builder.and(scheduledStationAETitle(sps.getString(Tag.ScheduledStationAETitle, "*")));
+        }
+        builder.and(hideSPSWithStatus(queryParam));
+    }
+
+    private static Predicate scheduledStationAETitle(String aet) {
+        if (aet.equals("*"))
+            return null;
+
+        return JPAExpressions.selectFrom(QScheduledStationAETitle.scheduledStationAETitle)
+                .where(QScheduledStationAETitle.scheduledStationAETitle.mwlItem.eq(QMWLItem.mWLItem),
+                        wildCard(QScheduledStationAETitle.scheduledStationAETitle.aeTitle, aet, false)).exists();
+    }
+
+    private static Predicate hideSPSWithStatus(QueryParam queryParam) {
+        MWLStatus[] hideSPSWithStatusFromMWL = queryParam.getHideSPSWithStatusFromMWL();
+        return (hideSPSWithStatusFromMWL.length > 0)
+                ? QMWLItem.mWLItem.status.notIn(hideSPSWithStatusFromMWL)
+                : null;
     }
 
     public static Predicate hideRejectedInstance(QueryParam queryParam) {

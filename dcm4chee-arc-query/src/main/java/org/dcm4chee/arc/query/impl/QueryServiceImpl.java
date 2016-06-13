@@ -148,6 +148,11 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Query createMWLQuery(QueryContext ctx) {
+        return new MWLQuery(ctx, openStatelessSession());
+    }
+
+    @Override
     public Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam) {
         return ejb.getSeriesAttributes(seriesPk, queryParam);
     }

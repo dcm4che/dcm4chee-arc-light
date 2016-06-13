@@ -48,6 +48,21 @@
       "description": "Path to Bulk Data Spool Directory",
       "type": "string"
     },
+    "dcmHideSPSWithStatusFromMWL": {
+      "title": "Hide SPS with Status",
+      "description": "Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL SCP",
+      "type": "string",
+      "enum": [
+        "SCHEDULED",
+        "ARRIVED",
+        "READY",
+        "STARTED",
+        "DEPARTED",
+        "CANCELLED",
+        "DISCONTINUED",
+        "COMPLETED"
+      ]
+    },
     "dcmPersonNameComponentOrderInsensitiveMatching": {
       "title": "Person Name Component Order Insensitive Matching",
       "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names; disabled if absent",

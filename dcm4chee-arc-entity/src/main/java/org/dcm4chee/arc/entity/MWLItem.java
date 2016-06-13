@@ -45,6 +45,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.conf.MWLStatus;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ import java.util.Date;
 @Table(name = "mwl_item",
         uniqueConstraints = @UniqueConstraint(columnNames = { "study_iuid", "sps_id" }),
         indexes = {
+                @Index(columnList = "updated_time"),
                 @Index(columnList = "sps_id"),
                 @Index(columnList = "req_proc_id"),
                 @Index(columnList = "study_iuid"),
@@ -77,10 +79,6 @@ import java.util.Date;
 public class MWLItem {
 
     public static final String FIND_BY_STUDY_IUID = "MWLItem.findByStudyIUID";
-
-    public enum Status {
-        SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELLED, DISCONTINUED, COMPLETED
-    }
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -129,7 +127,7 @@ public class MWLItem {
 
     @Basic(optional = false)
     @Column(name = "sps_status")
-    private Status status;
+    private MWLStatus status;
 
     @OneToOne(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -205,7 +203,7 @@ public class MWLItem {
         return scheduledPerformingPhysicianName;
     }
 
-    public Status getStatus() {
+    public MWLStatus getStatus() {
         return status;
     }
 
@@ -280,7 +278,7 @@ public class MWLItem {
         scheduledPerformingPhysicianName = PersonName.valueOf(
                 attrs.getString(Tag.ScheduledPerformingPhysicianName), fuzzyStr, scheduledPerformingPhysicianName);
         String cs = spsItem.getString(Tag.ScheduledProcedureStepStatus);
-        status = Status.valueOf(cs);
+        status = MWLStatus.valueOf(cs);
         requestedProcedureID = attrs.getString(Tag.RequestedProcedureID);
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");
