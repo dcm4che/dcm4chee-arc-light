@@ -222,7 +222,7 @@
           "STOW-RS"
         ],
         "summary": "Store Instances",
-        "operationId": "Store Instances",
+        "operationId": "StoreInstances",
         "consumes": [
           "multipart/related;type=application/dicom;boundary={messageBoundary}",
           "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
@@ -796,8 +796,8 @@
         "tags": [
           "STOW-RS"
         ],
-        "summary": "Store Instances of a single Study",
-        "operationId": "Store Instances of a single Study",
+        "summary": "Store Instances of Study",
+        "operationId": "StoreInstancesOfStudy",
         "consumes": [
           "multipart/related;type=application/dicom;boundary={messageBoundary}",
           "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
