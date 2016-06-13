@@ -216,6 +216,45 @@
             "description": "unexpected error"
           }
         }
+      },
+      "post": {
+        "tags": [
+          "STOW-RS"
+        ],
+        "summary": "Store Instances",
+        "operationId": "Store Instances",
+        "consumes": [
+          "multipart/related;type=application/dicom;boundary={messageBoundary}",
+          "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
+          "multipart/related;type=application/json;boundary={messageBoundary}"
+        ],
+        "produces": [
+          "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "object",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "object not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
       }
     },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/series": {
@@ -747,6 +786,52 @@
           },
           "404": {
             "description": "no study with specified UID found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "STOW-RS"
+        ],
+        "summary": "Store Instances of a single Study",
+        "operationId": "Store Instances of a single Study",
+        "consumes": [
+          "multipart/related;type=application/dicom;boundary={messageBoundary}",
+          "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
+          "multipart/related;type=application/json;boundary={messageBoundary}"
+        ],
+        "produces": [
+          "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "object",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "object not found"
           },
           "default": {
             "description": "unexpected error"
@@ -1785,47 +1870,6 @@
             "name": "transferSyntax",
             "in": "query",
             "description": "Transfer Syntax UID",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "object",
-            "schema": {
-              "type": "file"
-            }
-          },
-          "404": {
-            "description": "object not found"
-          },
-          "default": {
-            "description": "unexpected error"
-          }
-        }
-      }
-    },
-    "/aets/{aet}/rs/studies/": {
-      "put": {
-        "tags": [
-          "STOW-RS"
-        ],
-        "summary": "Store Instances",
-        "operationId": "Store Instances",
-        "consumes": [
-          "multipart/related;type=application/dicom;boundary={messageBoundary}",
-          "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
-          "multipart/related;type=application/json;boundary={messageBoundary}"
-        ],
-        "produces": [
-          "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
-        ],
-        "parameters": [
-          {
-            "name": "aet",
-            "in": "path",
-            "description": "Archive AE Title",
-            "required": true,
             "type": "string"
           }
         ],
