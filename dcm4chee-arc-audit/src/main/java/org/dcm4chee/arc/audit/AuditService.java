@@ -279,8 +279,14 @@ public class AuditService {
             else {
                 byte[] buffer = new byte[(int) Files.size(file)];
                 int len = in.read(buffer);
-                byte[] data = new byte[len];
-                System.arraycopy(buffer, 0, data, 0, len);
+                byte[] data;
+                if (len != -1) {
+                    data = new byte[len];
+                    System.arraycopy(buffer, 0, data, 0, len);
+                }
+                else {
+                    data = new byte[0];
+                }
                 poi = new BuildParticipantObjectIdentification.Builder(
                         qrInfo.getField(QueryInfo.PARTICIPANT_ID), AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
