@@ -1243,7 +1243,7 @@
         "C-GET": {
           "$ref": "#/definitions/RQ_RSP"
         },
-        "C-FIND-RQ": {
+        "C-FIND": {
           "$ref": "#/definitions/RQ_RSP"
         },
         "C-MOVE": {
