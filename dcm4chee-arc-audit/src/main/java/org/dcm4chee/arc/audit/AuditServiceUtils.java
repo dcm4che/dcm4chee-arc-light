@@ -122,11 +122,11 @@ class AuditServiceUtils {
         CONN__RJCT(EventClass.CONN_REJECT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, false, false, false, AuditMessages.EventTypeCode.NodeAuthentication),
 
-        HL7_CREA_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
+        HL7_CREATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        HL7_UPDA_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
+        HL7_UPDATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        HL7_DELT_P(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+        HL7_DELETE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
         MWL_CREATE(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
@@ -217,12 +217,12 @@ class AuditServiceUtils {
         static HashSet<EventType> forHL7(PatientMgtContext ctx) {
             HashSet<EventType> eventType = new HashSet<>();
             eventType.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
-                    ? HL7_CREA_P
+                    ? HL7_CREATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
-                    ? HL7_UPDA_P
+                    ? HL7_UPDATE
                     : null);
             if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null)
-                eventType.add(HL7_DELT_P);
+                eventType.add(HL7_DELETE);
             return eventType;
         }
 

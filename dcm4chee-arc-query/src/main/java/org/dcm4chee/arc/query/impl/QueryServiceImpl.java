@@ -149,6 +149,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Query createMWLQuery(QueryContext ctx) {
+        queryEvent.fire(ctx);
         return new MWLQuery(ctx, openStatelessSession());
     }
 
