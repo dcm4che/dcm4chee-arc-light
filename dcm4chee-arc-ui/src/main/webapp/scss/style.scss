@@ -1895,6 +1895,31 @@ div[tooltip]{
 		    	border-bottom: 1px solid black;
 			}
 		}
+		table{
+			-moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+	    	-webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+	    	box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+		}
+		.table-inverse {
+			th{
+			    background-color: #666;
+			    color: #eceeef;
+			}
+		    td, th, thead th {
+			    border-color: #9d9d9d;
+			}
+			&.table{
+				width: auto;
+				margin-top: 30px;
+			}
+		}
+		// td, th{
+		// 	// padding: 0px 10px;
+		// 	// border-bottom:1px solid #888;
+		// 	border-color: #55595c;
+		// 	background:#55595c;
+		// 	color: #eceeef;
+		// }
 		.loader {
 		    background: rgba(0, 0, 0, 0) url("../img/loader.gif") no-repeat scroll center center;
 		    display: inline-block;

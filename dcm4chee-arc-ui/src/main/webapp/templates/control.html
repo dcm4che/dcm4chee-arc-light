@@ -10,17 +10,25 @@
 <div class="monitor">
 	<!-- <code> -->
 	<h3>Monitoring</h3>
-		Timer : <input type="number" ng-model="updaterate"/>
-    	<button ng-show="stopLoop" type="button" class="btn btn-default" ng-click="monitor()" title="Start getting associacions in ">Start getting associacions</button>
+	<p>Press Start to get associacions</p>
+		Timer : <input type="number" ng-model="updaterate" ng-disabled="!stopLoop"/>
+    	<button ng-show="stopLoop" type="button" class="btn btn-default" ng-click="monitor()" title="Start getting associacions in ">Start</button>
     	<button ng-show="!stopLoop" type="button" class="btn btn-default" ng-click="stopLoop=true" title="Stop auto refresh">Stop</button>
     	<!-- <span ng-show="!stopLoop" class="loader"></span> -->
+    	<button type="button" class="btn btn-default" ng-click="downloadAssocImmage()" title="Download copy of the table as csv-file">Download copy</button>
     	<div ng-show="!stopLoop" id="loading-bar-spinner">
     		<div class="spinner-icon"></div>
     	</div>
-		<table >
+
+
+		<table  class="table table-inverse">
 			<tr>
-				<th>Local AE Title <span class="glyphicon glyphicon-transfer"></span> Remote AE Title</th>
-				<th>Connection time</th>
+				<th>Local AE Title ⇆ Remote AE Title</th>
+				<th>Invoked Ops.</th>
+				<th>Performed Ops.</th>
+				<th>Connection time (Server)</th>
+				<th>Connection time (Local)</th>
+				<th>Connection open for (hh:mm:ss)</th>
 			</tr>
 			<tr ng-show="associationStatus" ng-repeat="(key, value) in associationStatus">
 				<td ng-show="value.initiated">
@@ -33,10 +41,23 @@
 						<span class="glyphicon glyphicon-arrow-left"></span>
 					{{value.remoteAETitle}}
 				</td>
-				<td ng-bind="value.connectTime"></td>
+				<td>
+					<div ng-repeat="(k, m) in value.invokedOps">
+						{{k}} - RQ/RSP : {{m.RQ}}/{{m.RSP}}
+					</div>
+				</td>
+				<td>
+					<div ng-repeat="(k, m) in value.performedOps">
+						{{k}} - RQ/RSP : {{m.RQ}}/{{m.RSP}}
+					</div>
+				</td>
+				<td class="text-right" ng-bind="value.connectTime"></td>
+				<td class="text-right" ng-bind="value.browserTime"></td>
+				<td class="text-right" ng-bind="value.openSince"></td>
+
 			</tr>
 			<tr ng-hide="associationStatus">
-				<td>No associations found!</td>
+				<td colspan="4">No associations found!</td>
 			</tr>
 		</table>
 	<!-- </code> -->

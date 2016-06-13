@@ -1415,6 +1415,18 @@ div[tooltip] {
   .ctrl .monitor code th {
     padding: 2px 40px 2px 0;
     border-bottom: 1px solid black; }
+.ctrl .monitor table {
+  -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37); }
+.ctrl .monitor .table-inverse th {
+  background-color: #666;
+  color: #eceeef; }
+.ctrl .monitor .table-inverse td, .ctrl .monitor .table-inverse th, .ctrl .monitor .table-inverse thead th {
+  border-color: #9d9d9d; }
+.ctrl .monitor .table-inverse.table {
+  width: auto;
+  margin-top: 30px; }
 .ctrl .monitor .loader {
   background: transparent url("../img/loader.gif") no-repeat scroll center center;
   display: inline-block;
