@@ -61,7 +61,7 @@ public class RetrieveInfo {
 
     RetrieveInfo(RetrieveContext ctx, String etFile) {
         fields = new String[] {
-                ctx.getLocalAETitle(),
+                ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRequestURI() : ctx.getLocalAETitle(),
                 ctx.getHttpRequest() != null
                     ? ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
                     ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())

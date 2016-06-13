@@ -65,7 +65,7 @@ public class QueryInfo {
                 ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
                 : ctx.getRemoteHostName(),
                 ctx.getRemoteHostName(),
-                ctx.getCalledAET(),
+                ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRequestURI() : ctx.getCalledAET(),
                 ctx.getSOPClassUID() != null ? ctx.getSOPClassUID() : ctx.getQueryRetrieveLevel().toString(),
                 ctx.getHttpRequest() != null
                     ? ctx.getHttpRequest().getRequestURI() + ctx.getHttpRequest().getQueryString() : null
