@@ -28,7 +28,7 @@ import java.net.Socket;
  */
 @ApplicationScoped
 @Typed(HL7Service.class)
-class PatientUpdateService extends DefaultHL7Service {
+class PatientUpdateService extends AbstractHL7Service {
 
     @Inject
     private PatientService patientService;
@@ -38,16 +38,8 @@ class PatientUpdateService extends DefaultHL7Service {
     }
 
     @Override
-    public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
-            throws HL7Exception {
-        try {
-            updatePatient(hl7App, s, msg, patientService);
-        } catch (HL7Exception e) {
-            throw e;
-        } catch (Exception e) {
-            new HL7Exception(HL7Exception.AE, e);
-        }
-        return super.onMessage(hl7App, conn, s, msg);
+    protected void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
+        updatePatient(hl7App, s, msg, patientService);
     }
 
     static Patient updatePatient(HL7Application hl7App, Socket s, UnparsedHL7Message msg, PatientService patientService)

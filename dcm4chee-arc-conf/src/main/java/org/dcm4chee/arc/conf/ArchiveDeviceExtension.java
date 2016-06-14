@@ -101,6 +101,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration purgeQueueMessagePollingInterval;
     private int purgeQueueMessageFetchSize = 100;
     private MWLStatus[] hideSPSWithStatusFrom = {};
+    private String hl7LogDirectory;
+    private String hl7ErrorLogDirectory;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -508,6 +510,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.wadoSpoolDirectory = wadoSpoolDirectory;
     }
 
+    public String getHl7LogDirectory() {
+        return hl7LogDirectory;
+    }
+
+    public void setHl7LogDirectory(String hl7LogDirectory) {
+        this.hl7LogDirectory = hl7LogDirectory;
+    }
+
+    public String getHl7ErrorLogDirectory() {
+        return hl7ErrorLogDirectory;
+    }
+
+    public void setHl7ErrorLogDirectory(String hl7ErrorLogDirectory) {
+        this.hl7ErrorLogDirectory = hl7ErrorLogDirectory;
+    }
+
     public Duration getPurgeQueueMessagePollingInterval() {
         return purgeQueueMessagePollingInterval;
     }
@@ -762,6 +780,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditAggregateDuration = arcdev.auditAggregateDuration;
         stowSpoolDirectory = arcdev.stowSpoolDirectory;
         wadoSpoolDirectory = arcdev.wadoSpoolDirectory;
+        hl7LogDirectory = arcdev.hl7LogDirectory;
+        hl7ErrorLogDirectory = arcdev.hl7ErrorLogDirectory;
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
         purgeQueueMessageFetchSize = arcdev.purgeQueueMessageFetchSize;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;

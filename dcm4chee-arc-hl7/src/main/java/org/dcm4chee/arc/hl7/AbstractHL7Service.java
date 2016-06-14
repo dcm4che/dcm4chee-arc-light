@@ -40,73 +40,52 @@
 
 package org.dcm4chee.arc.hl7;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Exception;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
-import org.dcm4che3.net.hl7.service.HL7Service;
-import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.procedure.ProcedureContext;
-import org.dcm4chee.arc.procedure.ProcedureService;
-import org.xml.sax.SAXException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Typed;
-import javax.inject.Inject;
-import javax.xml.transform.TransformerConfigurationException;
-import java.io.IOException;
 import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
-@ApplicationScoped
-@Typed(HL7Service.class)
-public class ProcedureUpdateService extends AbstractHL7Service {
-
-    @Inject
-    private PatientService patientService;
-
-    @Inject
-    private ProcedureService procedureService;
-
-    public ProcedureUpdateService() {
-        super("ORM^O01", "OMG^O19", "OMI^O23");
+abstract class AbstractHL7Service extends DefaultHL7Service {
+    public AbstractHL7Service(String... messageTypes) {
+        super(messageTypes);
     }
 
     @Override
-    protected void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
-        Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService);
-        updateProcedure(hl7App, s, msg, pat);
-    }
-
-    private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat)
-            throws IOException, SAXException, TransformerConfigurationException {
-        ArchiveHL7ApplicationExtension arcHL7App =
+    public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
+            throws HL7Exception {
+        ArchiveHL7ApplicationExtension arcHl7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        HL7Segment msh = msg.msh();
-        String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
-        Attributes attrs = SAXTransformer.transform(
-                msg.data(), hl7cs, arcHL7App.scheduleProcedureTemplateURI(), null);
-        adjust(attrs);
-        ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msh);
-        ctx.setPatient(pat);
-        ctx.setAttributes(attrs);
-        procedureService.updateProcedure(ctx);
+        log(hl7App, msg, arcHl7App.hl7LogDirectory());
+        try {
+            try {
+                process(hl7App, s, msg);
+            } catch (HL7Exception e) {
+                throw e;
+            } catch (Exception e) {
+                new HL7Exception(HL7Exception.AE, e);
+            }
+        } catch (HL7Exception e) {
+            log(hl7App, msg, arcHl7App.hl7ErrorLogDirectory());
+            throw e;
+        }
+        return super.onMessage(hl7App, conn, s, msg);
     }
 
-    private void adjust(Attributes attrs) {
-        if (attrs.getString(Tag.StudyInstanceUID) == null)
-            attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+    private void log(HL7Application hl7App, UnparsedHL7Message msg, String dirpath) {
+        if (dirpath == null)
+            return;
+
+        //TODO
     }
+
+
+    protected abstract void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception;
 }
