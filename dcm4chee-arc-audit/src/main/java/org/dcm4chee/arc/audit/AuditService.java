@@ -306,8 +306,9 @@ public class AuditService {
             eventType = AuditServiceUtils.EventType.forInstanceStored(storeCtx);
             if (eventType == null)
                 return; // no audit message for duplicate received instance
-            fileName = String.valueOf(eventType) + '-' + storeCtx.getStoreSession().getCallingAET().replace('|', '-')
-                    + '-' + storeCtx.getStoreSession().getCalledAET() + '-' + storeCtx.getStudyInstanceUID();
+            String callingAET = storeCtx.getStoreSession().getHttpRequest() != null
+                    ? storeCtx.getStoreSession().getHttpRequest().getRemoteAddr() : storeCtx.getStoreSession().getCallingAET().replace('|', '-');
+            fileName = getFileName(eventType, callingAET, storeCtx.getStoreSession().getCalledAET(), storeCtx.getStudyInstanceUID());
             writeSpoolFileStoreOrWadoRetrieve(fileName, new PatientStudyInfo(storeCtx), new InstanceInfo(storeCtx));
         }
         if (retrieveCtx != null) {
@@ -316,11 +317,15 @@ public class AuditService {
             for (InstanceLocations i : il) {
                 attrs = i.getAttributes();
             }
-            fileName = String.valueOf(AuditServiceUtils.EventType.WADO___URI) + '-' + req.getRemoteAddr() + '-' + retrieveCtx.getLocalAETitle() + '-'
-                    + retrieveCtx.getStudyInstanceUIDs()[0];
+            fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.getRemoteAddr(),
+                    retrieveCtx.getLocalAETitle(), retrieveCtx.getStudyInstanceUIDs()[0]);
             writeSpoolFileStoreOrWadoRetrieve(fileName, new PatientStudyInfo(retrieveCtx, attrs),
                     new InstanceInfo(retrieveCtx, attrs));
         }
+    }
+
+    private String getFileName(AuditServiceUtils.EventType et, String callingAET, String calledAET, String studyIUID) {
+        return String.valueOf(et) + '-' + callingAET + '-' + calledAET + '-' + studyIUID;
     }
 
     private void auditStoreOrWADORetrieve(SpoolFileReader readerObj, Calendar eventTime,
