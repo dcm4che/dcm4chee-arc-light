@@ -62,16 +62,15 @@ public class Conditions {
     }
 
     public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
-        if (receivingAET != null && receivingAETPattern != null && !receivingAETPattern.matcher(receivingAET).matches())
+        if (receivingAETPattern != null
+                && (receivingAET == null || !receivingAETPattern.matcher(receivingAET).matches()))
             return false;
 
-        if (sendingAET != null && sendingAETPattern != null && !sendingAETPattern.matcher(sendingAET).matches())
+        if (sendingAETPattern != null && (sendingAET == null || !sendingAETPattern.matcher(sendingAET).matches()))
             return false;
 
-        if (sendingAET != null && sendingAETPattern != null && !sendingAETPattern.matcher(sendingAET).matches())
-            return false;
-
-        if (hostName != null && sendingHostnamePattern != null && !sendingHostnamePattern.matcher(hostName).matches())
+        if (sendingHostnamePattern != null
+                && (hostName == null || !sendingHostnamePattern.matcher(hostName).matches()))
             return false;
 
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
