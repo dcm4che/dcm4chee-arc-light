@@ -104,12 +104,6 @@ myApp.controller('ArchiveCtrl', function ($scope, $http, DeviceService) {
     };
     $scope.monitor = function(){
         $scope.stopLoop = false;
-        // $http.get("../monitor/associations").then(function (res) {
-        //     if(res.data && res.data[0] && res.data[0] != ""){
-        //         res.data = timeCalculator(res.data);
-        //         $scope.associationStatus = res.data;
-        //     }
-        // });
         $http({
           method: 'GET',
           url: "../monitor/associations"
@@ -128,33 +122,31 @@ myApp.controller('ArchiveCtrl', function ($scope, $http, DeviceService) {
         if($scope.updaterate && typeof $scope.updaterate === 'string' && $scope.updaterate.indexOf(",") > -1){
             $scope.updaterate = $scope.updaterate.replace(",", ".");
         }
-        // if(!isNaN($scope.updaterate) && $scope.updaterate.toString().indexOf('.') != -1){
-            var associationLoop = setInterval(function () {
-                if ($scope.stopLoop){
-                    clearInterval(associationLoop);
-                }else{
-                    $scope.$apply(function(){
-                        $http({
-                          method: 'GET',
-                          url: "../monitor/associations"
-                        }).then(function successCallback(res) {
-                            if(res.data && res.data[0] && res.data[0] != ""){
-                                res.data = timeCalculator(res.data);
-                                $scope.associationStatus = res.data;
-                            }else{
-                                $scope.associationStatus = null;
-                            }
-                        }, function errorCallback(response) {
-                                DeviceService.msg($scope, {
-                                        "title": "Error",
-                                        "text": "Connection error!",
-                                        "status": "error"
-                                });
-                        });
+        var associationLoop = setInterval(function () {
+            if ($scope.stopLoop){
+                clearInterval(associationLoop);
+            }else{
+                $scope.$apply(function(){
+                    $http({
+                      method: 'GET',
+                      url: "../monitor/associations"
+                    }).then(function successCallback(res) {
+                        if(res.data && res.data[0] && res.data[0] != ""){
+                            res.data = timeCalculator(res.data);
+                            $scope.associationStatus = res.data;
+                        }else{
+                            $scope.associationStatus = null;
+                        }
+                    }, function errorCallback(response) {
+                            DeviceService.msg($scope, {
+                                    "title": "Error",
+                                    "text": "Connection error!",
+                                    "status": "error"
+                            });
                     });
-                }
-            }, $scope.updaterate * 1000);
-        // }
+                });
+            }
+        }, $scope.updaterate * 1000);
     };
     $scope.downloadAssocImmage = function(){
         var csv = "Local AE Title ⇆ Remote AE Title";
