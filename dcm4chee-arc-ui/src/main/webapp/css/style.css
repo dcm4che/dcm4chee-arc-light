@@ -691,7 +691,7 @@ table.subtable_1, table.subtable_2 {
       .repeat0 .repeat1 .subblock .td_cell.table_btn > a {
         float: left;
         text-align: center;
-        width: 25%;
+        width: 20%;
         color: black;
         height: 25px; }
         .repeat0 .repeat1 .subblock .td_cell.table_btn > a:hover {
@@ -1280,8 +1280,8 @@ div[tooltip] {
       cursor: pointer;
       text-decoration: none; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form .item1, .vex.vex-theme-os.edit-patient .vex-dialog-form .item1first {
-  min-height: 25px;
-  line-height: 25px;
+  min-height: 35px;
+  line-height: 35px;
   vertical-align: middle; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form .item1, .vex.vex-theme-os.edit-patient .vex-dialog-form .item1input {
   margin-left: 20px; }

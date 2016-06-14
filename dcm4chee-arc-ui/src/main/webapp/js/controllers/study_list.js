@@ -112,7 +112,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
     };
     $(".logo").unbind("click").bind("click",function(){
-        console.log("logo click");
         var html =  '<div class="info-block">'
             html +=         '<div class="head">'
             html +=             '<h1>J4Care</h1>'
@@ -139,6 +138,301 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             className:"vex-theme-os info-dialog"
         });
     });
+    var modifyStudy = function(patient, mode, patientkey, studykey, study){
+        cfpLoadingBar.start();
+        var editstudy     = {};
+        // console.log("patient",patient);
+        // console.log("studykey",studykey);
+        // console.log("study",study);
+        angular.copy(study, editstudy);
+        if(mode === "edit"){
+            angular.forEach(editstudy.attrs,function(value, index) {
+                var checkValue = "";    
+                if(value.Value && value.Value.length){
+                    checkValue = value.Value.join("");
+                }
+                if(!(value.Value && checkValue != "")){
+                    delete editstudy.attrs[index];
+                }
+            });
+        }
+        $scope.editstudy  = editstudy;
+        editstudy         = {};
+        $scope.lastPressedCode = 0;
+        console.log("$scope.editstudy",$scope.editstudy);
+        $scope.removeAttr = function(attrcode){
+            switch(arguments.length) {
+                case 2:
+                    if($scope.editstudy.attrs[arguments[0]].Value.length === 1){
+                        delete  $scope.editstudy.attrs[arguments[0]];
+                    }else{
+                        $scope.editstudy.attrs[arguments[0]].Value.splice(arguments[1], 1);
+                    }
+                break;
+                default:
+                    delete  $scope.editstudy.attrs[arguments[0]];
+                break;
+            }
+        };
+        // console.log("$scope.editstudy",$scope.editstudy);
+        $http.get('iod/study.iod.json',{ cache: true}).then(function (res) {
+            // angular.forEach($scope.editstudy.attrs,function(m, i){
+            //     if(!res.data[i] || res.data[i] === undefined){
+            //         delete $scope.editstudy.attrs[i];
+            //     }
+            // });
+            var dropdown                = StudiesService.getArrayFromIod(res);
+            res.data = StudiesService.replaceKeyInJson(res.data, "items", "Value");
+            $templateRequest('templates/edit_study.html').then(function(tpl) {
+            $scope.dropdown             = dropdown;
+            $scope.DCM4CHE              = DCM4CHE;
+            $scope.addPatientAttribut   = "";
+            $scope.opendropdown         = false;
+            var html                    = $compile(tpl)($scope);
+            var $vex = vex.dialog.open({
+              message: 'Edit study of patient '+patient.attrs["00100010"].Value[0]["Alphabetic"]+' with ID '+patient.attrs["00100020"].Value[0],
+              input: html,
+              className:"vex-theme-os edit-patient",
+              overlayClosesOnClick: false,
+              escapeButtonCloses: false,
+              afterOpen: function($vexContent) {
+                cfpLoadingBar.complete();
+                setTimeout(function(){
+                    $(".editform .schema-form-fieldset > legend").append('<span class="glyphicon glyphicon-triangle-right"></span>');
+                    $(".editform .schema-form-fieldset > legend").bind("click",function(){
+                        $(this).siblings("sf-decorator").toggle();
+                        var icon = $(this).find(".glyphicon");
+                        if(icon.hasClass('glyphicon-triangle-right')){
+                            icon.removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
+                        }else{
+                            icon.removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+                        }
+                    });
+                    //Click event handling
+                    $scope.addAttribute = function(attrcode){
+                        if($scope.editstudy.attrs[attrcode] != undefined){
+                            if(res.data[attrcode].multi){
+                                $timeout(function() {
+                                    $scope.$apply(function(){
+                                        // $scope.editstudy.attrs[attrcode]  = res.data[attrcode];
+                                        $scope.editstudy.attrs[attrcode]["Value"].push("");
+                                        $scope.addPatientAttribut           = "";
+                                        $scope.opendropdown                 = false;
+                                    });
+                                });
+                            }else{
+                                DeviceService.msg($scope, {
+                                        "title": "Warning",
+                                        "text": "Attribute already exists!",
+                                        "status": "warning"
+                                });
+                            }
+                        }else{
+                            $timeout(function() {
+                                $scope.$apply(function(){
+                                    $scope.editstudy.attrs[attrcode]  = res.data[attrcode];
+                                });
+                            });
+                        }
+                    };
+                    $(".addPatientAttribut").bind("keydown",function(e){
+                        $scope.opendropdown = true;
+                        var code = (e.keyCode ? e.keyCode : e.which);
+                        $scope.lastPressedCode = code;
+                        if(code === 13){
+                            var filter = $filter("filter");
+                            var filtered = filter($scope.dropdown, $scope.addPatientAttribut);
+                            if(filtered){
+                                $scope.opendropdown = true;
+                            }
+                            if($(".dropdown_element.selected").length){
+                                var attrcode = $(".dropdown_element.selected").attr("name"); 
+                            }else{
+                                var attrcode = filtered[0].code;
+                            }
+                            if($scope.editstudy.attrs[attrcode] != undefined){
+                                if(res.data[attrcode].multi){
+                                    $timeout(function() {
+                                        $scope.$apply(function(){
+                                            $scope.editstudy.attrs[attrcode]["Value"].push("");
+                                            $scope.addPatientAttribut           = "";
+                                            $scope.opendropdown                 = false;
+                                        });
+                                    });
+                                }else{
+                                    DeviceService.msg($scope, {
+                                        "title": "Warning",
+                                        "text": "Attribute already exists!",
+                                        "status": "warning"
+                                    });
+                                }
+                            }else{
+                                $timeout(function() {
+                                    $scope.$apply(function(){
+                                        $scope.editstudy.attrs[attrcode]  = res.data[attrcode];
+                                    });
+                                });
+                            }
+                            setTimeout(function(){
+                                $scope.lastPressedCode = 0;
+                            },1000);
+                        }
+                        //Arrow down pressed
+                        if(code === 40){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = true;
+                            });
+                            if(!$(".dropdown_element.selected").length){
+                                $(".dropdown_element").first().addClass('selected');
+                            }else{
+                                if($(".dropdown_element.selected").next().length){
+                                    $(".dropdown_element.selected").removeClass('selected').next().addClass('selected');
+                                }else{
+                                    $(".dropdown_element.selected").removeClass('selected');
+                                    $(".dropdown_element").first().addClass('selected');
+                                }
+                            }
+
+                                if($(".dropdown_element.selected").position()){
+                                    $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+                                }
+                        }
+                        //Arrow up pressed
+                        if(code === 38){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = true;
+                            });
+                            if(!$(".dropdown_element.selected").length){
+                                $(".dropdown_element").prev().addClass('selected');
+                            }else{
+                                if($(".dropdown_element.selected").index() === 0){
+                                    $(".dropdown_element.selected").removeClass('selected');
+                                    $(".dropdown_element").last().addClass('selected');
+                                }else{
+                                    $(".dropdown_element.selected").removeClass('selected').prev().addClass('selected');
+                                }
+                            }
+                            $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+                        }
+                        if(code === 27){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = false;
+                            });
+                        }
+                    });
+                    $(".editform .schema-form-fieldset > sf-decorator").hide();
+                },1000);//TODO make it dynamic
+              },
+                onSubmit: function(e) {
+                    //Prevent submit/close if ENTER was clicked
+                    if($scope.lastPressedCode === 13){
+                        e.preventDefault();
+                    }else{
+                        $vex.data().vex.callback();
+                    }
+                  },
+                buttons: [
+                    $.extend({}, vex.dialog.buttons.YES, {
+                      text: 'Save'
+                    }), $.extend({}, vex.dialog.buttons.NO, {
+                      text: 'Cancel'
+                    })
+                ],
+                callback: function(data) {
+                    cfpLoadingBar.start();
+                    if (data === false) {
+                        cfpLoadingBar.complete();
+
+                        StudiesService.clearPatientObject($scope.editstudy.attrs);
+                        return console.log('Cancelled');
+                    }else{
+                        StudiesService.clearPatientObject($scope.editstudy.attrs);
+                        if($scope.editstudy.attrs["0020000D"].Value[0]){
+                            angular.forEach($scope.editstudy.attrs, function(m, i){
+                                // console.log("res.data",res.data);
+                                // console.log("i",i);
+                                if((res.data && res.data[i] &&res.data[i].vr != "SQ") && m.Value && m.Value.length === 1 && m.Value[0] === ""){
+                                    delete $scope.editstudy.attrs[i];
+                                }
+                            });
+                            //Add patient attributs again
+                            angular.extend($scope.editstudy.attrs, patient.attrs);
+                            // $scope.editstudy.attrs.concat(patient.attrs); 
+                            console.log("after concat $scope.editstudy",$scope.editstudy);
+                            $http.put(
+                                "../aets/"+$scope.aet+"/rs/studies/"+$scope.editstudy.attrs["0020000D"].Value[0],
+                                $scope.editstudy.attrs
+                            ).then(function successCallback(response) {
+                                if(mode === "edit"){
+                                    //Update changes on the patient list
+                                    // angular.forEach(study.attrs, function(m, i){
+                                    //     if($scope.editstudy.attrs[i]){
+                                    //         study.attrs[i] = $scope.editstudy.attrs[i];
+                                    //     }
+                                    // });
+                                    // study.attrs = $scope.editstudy.attrs;
+                                    $scope.patients[patientkey].studies[studykey].attrs = $scope.editstudy.attrs;
+                                    //Force rerendering the directive attribute-list
+                                    var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editstudy.attrs['0020000D'].Value[0];
+                                    id = id.replace(/\./g, '');
+                                    // var id = "#"+$scope.editstudy.attrs["0020000D"].Value;
+                                    console.log("id=",id);
+                                    console.log("$(id)",$(id));
+                                    console.log("patients",patient);
+                                    var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studykey+'].attrs"></attribute-list>')($scope);
+                                    $(id).html(attribute);
+                                }else{
+                                    if($scope.patientmode){
+                                        $timeout(function() {
+                                            angular.element("#querypatients").trigger('click');
+                                        }, 0);
+                                        // $scope.queryPatients(0);
+                                    }else{
+                                        // $scope.queryStudies(0);
+                                        $timeout(function() {
+                                            angular.element("#querystudies").trigger('click');
+                                        }, 0);
+                                    }
+                                }
+                                DeviceService.msg($scope, {
+                                    "title": "Info",
+                                    "text": "Study saved successfully!",
+                                    "status": "info"
+                                });
+                            }, function errorCallback(response) {
+                                DeviceService.msg($scope, {
+                                    "title": "Error",
+                                    "text": "Error saving study!",
+                                    "status": "error"
+                                });
+                            });
+                        }else{
+                            DeviceService.msg($scope, {
+                                "title": "Error",
+                                "text": "Study Instance UID is required!",
+                                "status": "error"
+                            });
+                        }
+                    }
+                    vex.close($vex.data().vex.id);
+                }
+            });
+        });
+        });
+    };
+    $scope.editStudy = function(patient, patientkey, studykey, study){
+        modifyStudy(patient, "edit", patientkey, studykey, study);
+    };
+    $scope.createStudy= function(patient){
+        var patient = {
+            "attrs":{
+                "00080050": { "vr": "SH", "Value":[""]},
+                "0020000D": { "vr": "UI", "Value":[""]},
+            }
+        };
+        modifyStudy(patient, "create");
+    };
+    //Edit / Create Patient
     var modifyPatient = function(patient, mode, patientkey){
         cfpLoadingBar.start();
         var editpatient     = {};
@@ -355,11 +649,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             ).then(function successCallback(response) {
                                 if(mode === "edit"){
                                     //Update changes on the patient list
-                                    angular.forEach(patient.attrs, function(m, i){
-                                        if($scope.editpatient.attrs[i]){
-                                            patient.attrs[i] = $scope.editpatient.attrs[i];
-                                        }
-                                    });
+                                    patient.attrs = $scope.editpatient.attrs;
                                     //Force rerendering the directive attribute-list
                                     var id = "#"+$scope.editpatient.attrs["00100020"].Value;
                                     var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
