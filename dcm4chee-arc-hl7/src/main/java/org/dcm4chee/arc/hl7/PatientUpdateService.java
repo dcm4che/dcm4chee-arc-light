@@ -6,6 +6,7 @@ import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
@@ -37,26 +38,25 @@ class PatientUpdateService extends DefaultHL7Service {
     }
 
     @Override
-    public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, HL7Segment msh,
-                            byte[] msg, int off, int len, int mshlen) throws HL7Exception {
+    public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
+            throws HL7Exception {
         try {
-            updatePatient(hl7App, s, msh, msg, off, len, patientService);
+            updatePatient(hl7App, s, msg, patientService);
         } catch (HL7Exception e) {
             throw e;
         } catch (Exception e) {
             new HL7Exception(HL7Exception.AE, e);
         }
-        return super.onMessage(hl7App, conn, s, msh, msg, off, len, mshlen);
+        return super.onMessage(hl7App, conn, s, msg);
     }
 
-    static Patient updatePatient(HL7Application hl7App, Socket s, HL7Segment msh, byte[] msg, int off, int len,
-                                 PatientService patientService)
+    static Patient updatePatient(HL7Application hl7App, Socket s, UnparsedHL7Message msg, PatientService patientService)
             throws HL7Exception, IOException, SAXException, TransformerConfigurationException {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        HL7Segment msh = msg.msh();
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
-        Attributes attrs = SAXTransformer.transform(
-                msg, off, len, hl7cs, arcHL7App.patientUpdateTemplateURI(), null);
+        Attributes attrs = SAXTransformer.transform(msg.data(), hl7cs, arcHL7App.patientUpdateTemplateURI(), null);
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(s, msh);
         ctx.setAttributes(attrs);
         if (ctx.getPatientID() == null)

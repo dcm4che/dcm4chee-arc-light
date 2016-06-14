@@ -50,6 +50,7 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
@@ -87,20 +88,20 @@ class ImportReportService extends DefaultHL7Service {
     }
 
     @Override
-    public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, HL7Segment msh,
-                            byte[] msg, int off, int len, int mshlen) throws HL7Exception {
+    public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
+            throws HL7Exception {
         try {
-            PatientUpdateService.updatePatient(hl7App, s, msh, msg, off, len, patientService);
-            importReport(hl7App, s, msh, msg, off, len);
+            PatientUpdateService.updatePatient(hl7App, s, msg, patientService);
+            importReport(hl7App, s, msg);
         } catch (HL7Exception e) {
             throw e;
         } catch (Exception e) {
             new HL7Exception(HL7Exception.AE, e);
         }
-        return super.onMessage(hl7App, conn, s, msh, msg, off, len, mshlen);
+        return super.onMessage(hl7App, conn, s, msg);
     }
 
-    private void importReport(HL7Application hl7App, Socket s, HL7Segment msh, byte[] msg, int off, int len)
+    private void importReport(HL7Application hl7App, Socket s, UnparsedHL7Message msg)
             throws ConfigurationException, IOException, SAXException, TransformerConfigurationException {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
@@ -114,9 +115,10 @@ class ImportReportService extends DefaultHL7Service {
             throw new ConfigurationException("No local AE with AE Title " + aet
                     + " associated with HL7 Application: " + hl7App.getApplicationName());
         }
+        HL7Segment msh = msg.msh();
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
-                msg, off, len, hl7cs, arcHL7App.importReportTemplateURI(), null);
+                msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), null);
         adjust(attrs);
         try (StoreSession session = storeService.newStoreSession(s, msh, ae)) {
             StoreContext ctx = storeService.newStoreContext(session);

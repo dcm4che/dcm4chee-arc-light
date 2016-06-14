@@ -33,8 +33,7 @@ class SAXTransformer {
 
     private static SAXTransformerFactory factory = (SAXTransformerFactory) TransformerFactory.newInstance();
 
-    public static Attributes transform(
-            byte[] msg, int off, int len, String hl7charset, String uri, SetupTransformer setup)
+    public static Attributes transform(byte[] data, String hl7charset, String uri, SetupTransformer setup)
             throws TransformerConfigurationException, IOException, SAXException {
         Templates tpl = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri));
         Attributes attrs = new Attributes();
@@ -46,7 +45,7 @@ class SAXTransformer {
         if (setup != null)
             setup.setup(th.getTransformer());
         new HL7Parser(th).parse(new InputStreamReader(
-                new ByteArrayInputStream(msg, off, len),
+                new ByteArrayInputStream(data),
                 HL7Charset.toCharsetName(hl7charset)));
         return attrs;
     }
