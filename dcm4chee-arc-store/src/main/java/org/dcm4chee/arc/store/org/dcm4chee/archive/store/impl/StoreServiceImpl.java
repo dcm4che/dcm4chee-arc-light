@@ -85,6 +85,7 @@ class StoreServiceImpl implements StoreService {
             try (Transcoder transcoder = receiveTranferSyntax != null
                     ? new Transcoder(data, receiveTranferSyntax)
                     : new Transcoder(data)) {
+                ctx.setReceiveTransferSyntax(transcoder.getSourceTransferSyntax());
                 transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
                 transcoder.setConcatenateBulkDataFiles(true);
                 transcoder.setBulkDataDirectory(
