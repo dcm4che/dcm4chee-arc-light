@@ -20,6 +20,16 @@
       "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items.",
       "type": "string"
     },
+    "hl7LogDirectory": {
+      "title": "Unparsed HL7 messages log Directory",
+      "description": "Path to Unparsed HL7 messages log directory. If absent, there is no logging.",
+      "type": "string"
+    },
+    "hl7ErrorLogDirectory": {
+      "title": "Unparsed HL7 error messages log Directory",
+      "description": "Path to Unparsed HL7 error messages log directory. If absent, there is no logging.",
+      "type": "string"
+    },
     "dicomAETitle": {
       "title": "AE Title",
       "description": "Associated AE Title.",

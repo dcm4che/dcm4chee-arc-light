@@ -25,6 +25,8 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNull("hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         writer.writeNotNull("hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
         writer.writeNotNull("hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
+        writer.writeNotNull("hl7LogDirectory", ext.getHl7LogDirectory());
+        writer.writeNotNull("hl7ErrorLogDirectory", ext.getHl7ErrorLogDirectory());
         writer.writeNotNull("dicomAETitle", ext.getAETitle());
         writer.writeEnd();
     }
@@ -54,6 +56,12 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "hl7ScheduleProcedureTemplateURI":
                     ext.setScheduleProcedureTemplateURI(reader.stringValue());
+                    break;
+                case "hl7LogDirectory":
+                    ext.setHl7LogDirectory(reader.stringValue());
+                    break;
+                case "hl7ErrorLogDirectory":
+                    ext.setHl7ErrorLogDirectory(reader.stringValue());
                     break;
                 case "dicomAETitle":
                     ext.setAETitle(reader.stringValue());

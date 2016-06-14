@@ -515,6 +515,18 @@ attributetype ( 1.2.40.0.13.1.15.110.3.86 NAME 'dcmHideSPSWithStatusFromMWL'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.87 NAME 'hl7LogDirectory'
+  DESC 'Path to Unparsed HL7 messages log directory. If absent, there is no logging.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.88 NAME 'hl7ErrorLogDirectory'
+  DESC 'Path to Unparsed HL7 error messages log directory. If absent, there is no logging.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -566,6 +578,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PatientUpdateTemplateURI $
     hl7ImportReportTemplateURI $
     hl7ScheduleProcedureTemplateURI $
+    hl7LogDirectory $
+    hl7ErrorLogDirectory $
     dcmUnzipVendorDataToURI $
     dcmPurgeQueueMessagePollingInterval $
     dcmPurgeQueueMessageFetchSize ))
@@ -618,6 +632,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
      hl7PatientUpdateTemplateURI $
      hl7ImportReportTemplateURI $
      hl7ScheduleProcedureTemplateURI $
+     hl7LogDirectory $
+     hl7ErrorLogDirectory $
      dicomAETitle ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
