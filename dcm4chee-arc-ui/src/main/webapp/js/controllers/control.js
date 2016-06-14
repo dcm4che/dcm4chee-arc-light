@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller('ArchiveCtrl', function ($scope, $http) {
+myApp.controller('ArchiveCtrl', function ($scope, $http, DeviceService) {
 
     $scope.updaterate = 10;
     $scope.logoutUrl = myApp.logoutUrl();
@@ -31,11 +31,8 @@ myApp.controller('ArchiveCtrl', function ($scope, $http) {
         })
     };
     $scope.fetchStatus();
-    var getAssociations = function(){
-        $http.get("../monitor/associations").then(function (res) {
-            return res.data;
-        })
-    }
+
+
     var timeCalculator = function(data){
         angular.forEach(data, function(m, i){
             var date    = new Date(m.connectTime);
@@ -44,6 +41,8 @@ myApp.controller('ArchiveCtrl', function ($scope, $http) {
             var sec     = "00";
             var min     = "00";
             var h       = "00";
+            var milsec       = Math.round((((today-date) / 1000)-Math.floor((today-date) / 1000))*1000);
+
             if(diff < 60){
                 sec = diff;
             }else{
@@ -59,23 +58,15 @@ myApp.controller('ArchiveCtrl', function ($scope, $http) {
                     h   = Math.round(Math.floor(Math.floor(diff / 60) / 60));
                 }
             }
-            if(sec<10){
+            if(sec<10 != "00"){
                 sec = "0"+sec;
             }
-            if(min < 10){
+            if(min < 10 && min != "00"){
                 min = "0"+min;
             }
-            if(h < 10){
+            if(h < 10 && h != "00"){
                 h = "0"+h;
             }
-            console.log("date.getFullYear()",date.getFullYear());
-            console.log("date.month",date.getMonth() + 1);
-            console.log("date.getDate",date.getDate());
-            console.log("date.getMinutes",date.getMinutes());
-            console.log("date.getSeconds",date.getSeconds());
-            console.log("date.getHours",date.getHours());
-            console.log("date.toLocaleDateString()date.toLocaleTimeString()",date.toLocaleDateString()+" "+date.toLocaleTimeString());
-            console.log("date.toLocaleTimeString",date.toLocaleTimeString());
             var dYear  = date.getFullYear();
             var dMonth = date.getMonth()+1;
             if(dMonth < 10){
@@ -86,51 +77,84 @@ myApp.controller('ArchiveCtrl', function ($scope, $http) {
                 dDate = "0"+dDate;
             }
             var dHours = date.getHours();
-            if(dHours < 10){
+            if(dHours < 10 && dHours != "00"){
                 dHours = "0"+dHours;
             }
             var dMinutes = date.getMinutes();
-            if(dMinutes < 10){
+            if(dMinutes < 10 && dMinutes != "00"){
                 dMinutes = "0"+dMinutes;
             }
             var dSeconds = date.getSeconds();
-            if(dSeconds < 10){
+            if(dSeconds < 10 && dSeconds != "00"){
                 dSeconds = "0"+dSeconds;
             }
             data[i]["browserTime"] = dYear +"-"+ dMonth +"-"+ dDate +"  "+ dHours +":"+ dMinutes +":"+ dSeconds;
-            // data[i]["browserTime"] = date.toLocaleDateString()+" "+date.toLocaleTimeString();
-            data[i]["openSince"]   = h+":"+min+":"+sec;
+            data[i]["openSince"]   = h+":"+min+":"+sec+"."+milsec;
+            data[i]["openSinceOrder"]   = (today-date);
         });
         return data;
     }
+
+    $scope.propertyName = 'openSinceOrder';
+    $scope.reverse = true;
+
+    $scope.sortBy = function(propertyName) {
+        $scope.reverse = ($scope.propertyName === propertyName) ? !$scope.reverse : false;
+        $scope.propertyName = propertyName;
+    };
     $scope.monitor = function(){
         $scope.stopLoop = false;
-        $http.get("../monitor/associations").then(function (res) {
+        // $http.get("../monitor/associations").then(function (res) {
+        //     if(res.data && res.data[0] && res.data[0] != ""){
+        //         res.data = timeCalculator(res.data);
+        //         $scope.associationStatus = res.data;
+        //     }
+        // });
+        $http({
+          method: 'GET',
+          url: "../monitor/associations"
+        }).then(function successCallback(res) {
             if(res.data && res.data[0] && res.data[0] != ""){
                 res.data = timeCalculator(res.data);
-                // var date = new Date(res.data[0].connectTime);
                 $scope.associationStatus = res.data;
-                }
-            });
+            }
+        }, function errorCallback(response) {
+                DeviceService.msg($scope, {
+                        "title": "Error",
+                        "text": "Error: "+response,
+                        "status": "error"
+                });
+        });
+        if($scope.updaterate && typeof $scope.updaterate === 'string' && $scope.updaterate.indexOf(",") > -1){
+            $scope.updaterate = $scope.updaterate.replace(",", ".");
+        }
+        // if(!isNaN($scope.updaterate) && $scope.updaterate.toString().indexOf('.') != -1){
             var associationLoop = setInterval(function () {
                 if ($scope.stopLoop){
                     clearInterval(associationLoop);
                 }else{
                     $scope.$apply(function(){
-                        // $scope.associationStatus[0].connectTime = $scope.associationStatus[0].connectTime+".";
-                        $http.get("../monitor/associations").then(function (res) {
+                        $http({
+                          method: 'GET',
+                          url: "../monitor/associations"
+                        }).then(function successCallback(res) {
                             if(res.data && res.data[0] && res.data[0] != ""){
                                 res.data = timeCalculator(res.data);
                                 $scope.associationStatus = res.data;
                             }else{
                                 $scope.associationStatus = null;
                             }
+                        }, function errorCallback(response) {
+                                DeviceService.msg($scope, {
+                                        "title": "Error",
+                                        "text": "Connection error!",
+                                        "status": "error"
+                                });
                         });
                     });
                 }
             }, $scope.updaterate * 1000);
-
-
+        // }
     };
     $scope.downloadAssocImmage = function(){
         var csv = "Local AE Title ⇆ Remote AE Title";

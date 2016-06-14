@@ -11,7 +11,7 @@
 	<!-- <code> -->
 	<h3>Monitoring</h3>
 	<p>Press Start to get associacions</p>
-		Timer : <input type="number" ng-model="updaterate" ng-disabled="!stopLoop"/>
+		Timer (sec) : <input title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" ng-model="updaterate" ng-disabled="!stopLoop" class="no-close-button"/>
     	<button ng-show="stopLoop" type="button" class="btn btn-default" ng-click="monitor()" title="Start getting associacions in ">Start</button>
     	<button ng-show="!stopLoop" type="button" class="btn btn-default" ng-click="stopLoop=true" title="Stop auto refresh">Stop</button>
     	<!-- <span ng-show="!stopLoop" class="loader"></span> -->
@@ -23,14 +23,28 @@
 
 		<table  class="table table-inverse">
 			<tr>
-				<th>Local AE Title ⇆ Remote AE Title</th>
-				<th>Invoked Ops.</th>
-				<th>Performed Ops.</th>
-				<th>Connection time (Server)</th>
-				<th>Connection time (Local)</th>
-				<th>Connection open for (hh:mm:ss)</th>
+				<th>
+					<span title="Sort by Local AE Title" ng-click="sortBy('localAETitle')">
+						Local AE Title 
+					</span>
+					<span title="Sort by initiated" ng-click="sortBy('initiated')">
+						⇆ 
+					</span>
+					<span title="Sort by Remote AE Title" ng-click="sortBy('remoteAETitle')">
+						Remote AE Title
+					</span>
+				</th>
+				<th>
+					<span  title="Sort by Invoked Ops." ng-click="sortBy('invokedOps')">
+						Invoked Ops.
+					</span>
+				</th>
+				<th><span  title="Sort by Performed Ops." ng-click="sortBy('performedOps')" >Performed Ops.</span></th>
+				<th><span title="Sort by Connection time (Server)" ng-click="sortBy('connectTime')" >Connection time (Server)</span></th>
+				<th><span title="Sort by Connection time (Local)" ng-click="sortBy('browserTime')" >Connection time (Local)</span></th>
+				<th><span title="Sort by open connection" ng-click="sortBy('openSinceOrder')" >Duration (hh:mm:ss.SSS)</span></th>
 			</tr>
-			<tr ng-show="associationStatus" ng-repeat="(key, value) in associationStatus">
+			<tr ng-show="associationStatus" ng-repeat="(key, value) in associationStatus | orderBy:propertyName:reverse">
 				<td ng-show="value.initiated">
 					{{value.localAETitle}} 
 						<span class="glyphicon glyphicon-arrow-right"></span>
@@ -43,12 +57,12 @@
 				</td>
 				<td>
 					<div ng-repeat="(k, m) in value.invokedOps">
-						{{k}} - RQ/RSP : {{m.RQ}}/{{m.RSP}}
+						{{k}}-RQ/RSP : {{m.RQ}}/{{m.RSP}}
 					</div>
 				</td>
 				<td>
 					<div ng-repeat="(k, m) in value.performedOps">
-						{{k}} - RQ/RSP : {{m.RQ}}/{{m.RSP}}
+						{{k}}-RQ/RSP : {{m.RQ}}/{{m.RSP}}
 					</div>
 				</td>
 				<td class="text-right" ng-bind="value.connectTime"></td>
