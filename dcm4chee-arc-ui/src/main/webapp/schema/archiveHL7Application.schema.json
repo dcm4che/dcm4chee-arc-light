@@ -21,12 +21,12 @@
       "type": "string"
     },
     "hl7LogFilePattern": {
-      "title": "Unparsed HL7 messages log Directory",
+      "title": "HL7 Log File Pattern",
       "description": "Path to Unparsed HL7 messages log directory. If absent, there is no logging.",
       "type": "string"
     },
     "hl7ErrorLogFilePattern": {
-      "title": "Unparsed HL7 error messages log Directory",
+      "title": "HL7 Error Log File Pattern",
       "description": "Path to Unparsed HL7 error messages log directory. If absent, there is no logging.",
       "type": "string"
     },

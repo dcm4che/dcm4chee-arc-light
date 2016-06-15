@@ -515,14 +515,14 @@ attributetype ( 1.2.40.0.13.1.15.110.3.86 NAME 'dcmHideSPSWithStatusFromMWL'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.87 NAME 'hl7LogDirectory'
-  DESC 'Path to Unparsed HL7 messages log directory. If absent, there is no logging.'
+attributetype ( 1.2.40.0.13.1.15.110.3.87 NAME 'hl7LogFilePattern'
+  DESC 'Path to Unparsed HL7 messages logs. If absent, there is no logging.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.88 NAME 'hl7ErrorLogDirectory'
-  DESC 'Path to Unparsed HL7 error messages log directory. If absent, there is no logging.'
+attributetype ( 1.2.40.0.13.1.15.110.3.88 NAME 'hl7ErrorLogFilePattern'
+  DESC 'Path to Unparsed HL7 error messages logs. If absent, there is no logging.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
