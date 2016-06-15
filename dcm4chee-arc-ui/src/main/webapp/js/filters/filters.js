@@ -127,3 +127,16 @@ myApp.filter("testFilter", function($filter, $select){
         return localObject;
     };
 });
+
+myApp.filter("study", function(){
+    return function(object, iod){
+        var localObject = {};
+        angular.forEach(object, function(m, i){
+            if(iod.study[i]){
+                localObject[i] = m;
+            }
+
+        });
+        return localObject;
+    };
+});

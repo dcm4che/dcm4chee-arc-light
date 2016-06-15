@@ -438,6 +438,9 @@
                     </a>               
                     <a class="table_btn" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
                         <span class="glyphicon glyphicon-pencil"></span>
+                    </a>               
+                    <a class="table_btn" ng-click="createStudy(patient)" href="" title="Create study">
+                        <span class="glyphicon glyphicon-plus"></span>
                     </a>
                     <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
                     <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>

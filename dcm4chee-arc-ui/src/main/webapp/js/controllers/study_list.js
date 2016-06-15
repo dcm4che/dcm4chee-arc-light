@@ -46,6 +46,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 "title":"Other"
             }
     ];
+    $http.get('iod/study.iod.json',{ cache: true}).then(function (res) {
+        $scope.iod = {};
+        $scope.iod["study"] = res.data;
+    });
     $scope.orderby = [
         {
             value:"PatientName",
@@ -159,7 +163,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.editstudy  = editstudy;
         editstudy         = {};
         $scope.lastPressedCode = 0;
-        console.log("$scope.editstudy",$scope.editstudy);
         $scope.removeAttr = function(attrcode){
             switch(arguments.length) {
                 case 2:
@@ -190,7 +193,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.opendropdown         = false;
             var html                    = $compile(tpl)($scope);
             var $vex = vex.dialog.open({
-              message: 'Edit study of patient '+patient.attrs["00100010"].Value[0]["Alphabetic"]+' with ID '+patient.attrs["00100020"].Value[0],
+              message: 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>',
               input: html,
               className:"vex-theme-os edit-patient",
               overlayClosesOnClick: false,
@@ -355,13 +358,33 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     delete $scope.editstudy.attrs[i];
                                 }
                             });
+
                             //Add patient attributs again
-                            angular.extend($scope.editstudy.attrs, patient.attrs);
+                            // angular.extend($scope.editstudy.attrs, patient.attrs);
                             // $scope.editstudy.attrs.concat(patient.attrs); 
                             console.log("after concat $scope.editstudy",$scope.editstudy);
+                            console.log("res.data",res.data);
+                            console.log("patient",patient);
+                            var local = {};
+                            if($scope.editstudy.attrs["00100020"]){
+                                local["00100020"] = $scope.editstudy.attrs["00100020"];
+                            }else{
+                                local["00100020"] = patient.attrs["00100020"];
+                            }
+                            angular.forEach($scope.editstudy.attrs,function(m, i){
+                                console.log("m",m);
+                                console.log("i",i);
+                                console.log("$scope.editstudy.attrs[i]",$scope.editstudy.attrs[i]);
+                                console.log("res.data["+i+"]",res.data[i]);
+                                if(res.data[i]){
+                                    local[i] = m;
+                                }
+                            });
+                            console.log("local",local);
+                            // local["00081030"] = { "vr": "SH", "Value":[""]};
                             $http.put(
-                                "../aets/"+$scope.aet+"/rs/studies/"+$scope.editstudy.attrs["0020000D"].Value[0],
-                                $scope.editstudy.attrs
+                                "../aets/"+$scope.aet+"/rs/studies/"+local["0020000D"].Value[0],
+                                local
                             ).then(function successCallback(response) {
                                 if(mode === "edit"){
                                     //Update changes on the patient list
@@ -376,9 +399,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editstudy.attrs['0020000D'].Value[0];
                                     id = id.replace(/\./g, '');
                                     // var id = "#"+$scope.editstudy.attrs["0020000D"].Value;
-                                    console.log("id=",id);
-                                    console.log("$(id)",$(id));
-                                    console.log("patients",patient);
                                     var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studykey+'].attrs"></attribute-list>')($scope);
                                     $(id).html(attribute);
                                 }else{
@@ -424,13 +444,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         modifyStudy(patient, "edit", patientkey, studykey, study);
     };
     $scope.createStudy= function(patient){
-        var patient = {
+        console.log("patient",patient);
+        // local["00100020"] = $scope.editstudy.attrs["00100020"];
+        // 00200010
+        var study = {
             "attrs":{
-                "00080050": { "vr": "SH", "Value":[""]},
+                "00200010": { "vr": "SH", "Value":[""]},
                 "0020000D": { "vr": "UI", "Value":[""]},
+                "00080050": { "vr": "SH", "Value":[""]}
             }
         };
-        modifyStudy(patient, "create");
+        // modifyStudy(patient, "create");
+        modifyStudy(patient, "create", "", "", study);
     };
     //Edit / Create Patient
     var modifyPatient = function(patient, mode, patientkey){
@@ -643,6 +668,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     delete $scope.editpatient.attrs[i];
                                 }
                             });
+                            // $scope.editpatient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients?PatientID="+$scope.editpatient.attrs["00100020"].Value[0],
                                 $scope.editpatient.attrs

@@ -3,7 +3,7 @@
 	<a class="dropdown_element" name="{{m.code}}" ng-repeat="(i,m) in dropdown | filter:addPatientAttribut" ng-click="addAttribute(m.code)">({{m.codeComma}}) {{m.name}}</a>
 </div>
 <table class="table">
-   <tr ng-repeat="(i, p) in editstudy.attrs track by $index">
+   <tr ng-repeat="(i, p) in editstudy.attrs | study:iod track by $index ">
       <td ng-if="p.vr != 'SQ'" class="col-md-2 control-label first_td">{{i}}</td>
       <td ng-if="p.vr === 'SQ'"  class="col-md-2 control-label first_td">
          <div class="item1first">{{i}}</div>

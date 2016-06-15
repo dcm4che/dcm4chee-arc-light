@@ -63,7 +63,7 @@ body{
 	    right: 32px;
 	    top: 44px;
 	    width: 140px;
-	    z-index: 9999;
+	    z-index: 999;
 	    &:hover{
 	    	cursor: pointer;
 	    }
@@ -812,7 +812,7 @@ table{
 				    float: left;
 				    height: 25px;
 				    text-align: center;
-				    width: 25%;
+				    width: 20%;
 
 				    &:hover{
 						background:#C2C2C2;
@@ -1501,7 +1501,10 @@ table{
 		// 	}
 		// }
 		.orderbyblock {
-			margin-top: 45px;
+			border-bottom: 1px solid #ddd;
+		    margin-bottom: 20px;
+		    margin-top: 10px;
+		    padding-bottom: 20px;
 			label{
 				font-weight: normal;
 				width: 70px;
@@ -1562,6 +1565,8 @@ table{
 		    height: 30px;
 		    width: 20%;
 		    border: 1px solid #aaa;
+		    background:#3b6b8c;
+		    color: white;
 		}
 		.optionlist {
    			background: white none repeat scroll 0 0;
@@ -1695,11 +1700,16 @@ div[tooltip]{
 	.vex-dialog-form{
 		.vex-dialog-message{
 			font-size: 20px;
-		    font-weight: bold;
+		    // font-weight: bold;
 		    margin-bottom: 30px;
+		    span{
+		    	color: #5e5e5e;
+    			font-weight: bold;
+		    }
 		}
 		.addPatientAttribut{
 			margin-bottom: 20px;
+			padding-left:7px;
 		}
 		.dropdown{
 			max-height: 300px;
@@ -1961,6 +1971,25 @@ div[tooltip]{
 			    border-width: 1px !important;
 			    height: 15px !important;
 			    width: 15px !important;
+			}
+		}
+	}
+}
+.queues{
+	table{
+		margin-top: 40px;
+		thead{
+			background:#666;
+			color: white;
+			th{
+				button{
+					color: white;
+				}
+			}
+		}
+		tbody{
+			a{
+				color: black;
 			}
 		}
 	}
