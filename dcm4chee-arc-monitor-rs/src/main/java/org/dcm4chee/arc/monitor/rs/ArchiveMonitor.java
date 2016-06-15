@@ -98,12 +98,27 @@ public class ArchiveMonitor {
                     writePerformed(w, as);
                     w.write("},\"invokedOps\":{");
                     writeInvoked(w, as);
-                    w.write("}}");
+                    w.write('}');
+                    writeOtherProperties(w, as);
+                    w.write('}');
                 }
                 w.write(']');
                 w.flush();
             }
         };
+    }
+
+    private void writeOtherProperties(Writer w, Association as) throws IOException {
+        for (String key : as.getPropertyNames()) {
+            Object value = as.getProperty(key);
+            if (value instanceof String) {
+                w.write(",\"");
+                w.write(key);
+                w.write("\":\"");
+                w.write((String) value);
+                w.write('\"');
+            }
+        }
     }
 
     private void writePerformed(Writer w, Association as) throws IOException {

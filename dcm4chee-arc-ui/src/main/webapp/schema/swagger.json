@@ -1230,6 +1230,11 @@
             "items": {
               "$ref": "#/definitions/Operation"
             }
+          },
+          "<other-property>": {
+            "title": "Other property",
+            "description": "Other property associated with this Associations",
+            "type": "string"
           }
         }
       }
