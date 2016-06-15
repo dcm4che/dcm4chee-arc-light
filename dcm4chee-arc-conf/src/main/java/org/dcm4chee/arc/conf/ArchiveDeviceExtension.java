@@ -101,8 +101,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration purgeQueueMessagePollingInterval;
     private int purgeQueueMessageFetchSize = 100;
     private MWLStatus[] hideSPSWithStatusFrom = {};
-    private String hl7LogDirectory;
-    private String hl7ErrorLogDirectory;
+    private String hl7LogFilePattern;
+    private String hl7ErrorLogFilePattern;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -510,20 +510,20 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.wadoSpoolDirectory = wadoSpoolDirectory;
     }
 
-    public String getHl7LogDirectory() {
-        return hl7LogDirectory;
+    public String getHl7LogFilePattern() {
+        return hl7LogFilePattern;
     }
 
-    public void setHl7LogDirectory(String hl7LogDirectory) {
-        this.hl7LogDirectory = hl7LogDirectory;
+    public void setHl7LogFilePattern(String hl7LogFilePattern) {
+        this.hl7LogFilePattern = hl7LogFilePattern;
     }
 
-    public String getHl7ErrorLogDirectory() {
-        return hl7ErrorLogDirectory;
+    public String getHl7ErrorLogFilePattern() {
+        return hl7ErrorLogFilePattern;
     }
 
-    public void setHl7ErrorLogDirectory(String hl7ErrorLogDirectory) {
-        this.hl7ErrorLogDirectory = hl7ErrorLogDirectory;
+    public void setHl7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
+        this.hl7ErrorLogFilePattern = hl7ErrorLogFilePattern;
     }
 
     public Duration getPurgeQueueMessagePollingInterval() {
@@ -780,8 +780,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditAggregateDuration = arcdev.auditAggregateDuration;
         stowSpoolDirectory = arcdev.stowSpoolDirectory;
         wadoSpoolDirectory = arcdev.wadoSpoolDirectory;
-        hl7LogDirectory = arcdev.hl7LogDirectory;
-        hl7ErrorLogDirectory = arcdev.hl7ErrorLogDirectory;
+        hl7LogFilePattern = arcdev.hl7LogFilePattern;
+        hl7ErrorLogFilePattern = arcdev.hl7ErrorLogFilePattern;
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
         purgeQueueMessageFetchSize = arcdev.purgeQueueMessageFetchSize;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;

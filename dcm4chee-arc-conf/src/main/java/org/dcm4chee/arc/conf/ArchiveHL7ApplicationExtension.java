@@ -44,6 +44,7 @@ import org.dcm4che3.net.hl7.HL7ApplicationExtension;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
@@ -52,8 +53,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String patientUpdateTemplateURI;
     private String importReportTemplateURI;
     private String scheduleProcedureTemplateURI;
-    private String hl7LogDirectory;
-    private String hl7ErrorLogDirectory;
+    private String hl7LogFilePattern;
+    private String hl7ErrorLogFilePattern;
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -66,8 +67,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         patientUpdateTemplateURI = arcapp.patientUpdateTemplateURI;
         importReportTemplateURI = arcapp.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcapp.scheduleProcedureTemplateURI;
-        hl7LogDirectory = arcapp.hl7LogDirectory;
-        hl7ErrorLogDirectory = arcapp.hl7ErrorLogDirectory;
+        hl7LogFilePattern = arcapp.hl7LogFilePattern;
+        hl7ErrorLogFilePattern = arcapp.hl7ErrorLogFilePattern;
     }
 
     public String getAETitle() {
@@ -117,29 +118,29 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 : getArchiveDeviceExtension().getScheduleProcedureTemplateURI();
     }
 
-    public String getHl7LogDirectory() {
-        return hl7LogDirectory;
+    public String getHl7LogFilePattern() {
+        return hl7LogFilePattern;
     }
 
-    public void setHl7LogDirectory(String hl7LogDirectory) {
-        this.hl7LogDirectory = hl7LogDirectory;
+    public void setHl7LogFilePattern(String hl7LogFilePattern) {
+        this.hl7LogFilePattern = hl7LogFilePattern;
     }
 
-    public String hl7LogDirectory() {
-        return hl7LogDirectory != null ? hl7LogDirectory
-                : getArchiveDeviceExtension().getHl7LogDirectory();
+    public String hl7LogFilePattern() {
+        return hl7LogFilePattern != null ? hl7LogFilePattern
+                : getArchiveDeviceExtension().getHl7LogFilePattern();
     }
 
-    public String getHl7ErrorLogDirectory() {
-        return hl7ErrorLogDirectory;
+    public String getHl7ErrorLogFilePattern() {
+        return hl7ErrorLogFilePattern;
     }
 
-    public void setHl7ErrorLogDirectory(String hl7ErrorLogDirectory) {
-        this.hl7ErrorLogDirectory = hl7ErrorLogDirectory;
+    public void setHl7ErrorLogFilePattern(String hl7ErrorLogFilePattern) {
+        this.hl7ErrorLogFilePattern = hl7ErrorLogFilePattern;
     }
 
-    public String hl7ErrorLogDirectory() {
-        return hl7ErrorLogDirectory != null ? hl7ErrorLogDirectory
-                : getArchiveDeviceExtension().getHl7ErrorLogDirectory();
+    public String hl7ErrorLogFilePattern() {
+        return hl7ErrorLogFilePattern != null ? hl7ErrorLogFilePattern
+                : getArchiveDeviceExtension().getHl7ErrorLogFilePattern();
     }
 }

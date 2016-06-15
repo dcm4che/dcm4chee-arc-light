@@ -51,6 +51,7 @@ import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 abstract class AbstractHL7Service extends DefaultHL7Service {
@@ -63,7 +64,7 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
             throws HL7Exception {
         ArchiveHL7ApplicationExtension arcHl7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        log(hl7App, msg, arcHl7App.hl7LogDirectory());
+        log(hl7App, msg, arcHl7App.hl7LogFilePattern());
         try {
             try {
                 process(hl7App, s, msg);
@@ -73,7 +74,7 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
                 new HL7Exception(HL7Exception.AE, e);
             }
         } catch (HL7Exception e) {
-            log(hl7App, msg, arcHl7App.hl7ErrorLogDirectory());
+            log(hl7App, msg, arcHl7App.hl7ErrorLogFilePattern());
             throw e;
         }
         return super.onMessage(hl7App, conn, s, msg);
@@ -83,7 +84,6 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         if (dirpath == null)
             return;
 
-        //TODO
     }
 
 

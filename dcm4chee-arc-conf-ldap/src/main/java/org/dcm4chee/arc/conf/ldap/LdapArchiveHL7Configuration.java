@@ -67,8 +67,8 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
-        LdapUtils.storeNotNull(attrs, "hl7LogFilePattern", ext.getHl7LogDirectory());
-        LdapUtils.storeNotNull(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogDirectory());
+        LdapUtils.storeNotNull(attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern());
+        LdapUtils.storeNotNull(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern());
         LdapUtils.storeNotNull(attrs, "dicomAETitle", ext.getAETitle());
     }
 
@@ -83,8 +83,8 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
         ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
-        ext.setHl7LogDirectory(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
-        ext.setHl7LogDirectory(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
+        ext.setHl7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
+        ext.setHl7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
     }
 
@@ -105,8 +105,8 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI",
                 aa.getScheduleProcedureTemplateURI(),
                 bb.getScheduleProcedureTemplateURI());
-        LdapUtils.storeDiff(mods, "hl7LogFilePattern", aa.getHl7LogDirectory(), bb.getHl7LogDirectory());
-        LdapUtils.storeDiff(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogDirectory(), bb.getHl7ErrorLogDirectory());
+        LdapUtils.storeDiff(mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern());
+        LdapUtils.storeDiff(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern());
         LdapUtils.storeDiff(mods, "dcmOtherAETitle", aa.getAETitle(), bb.getAETitle());
     }
 }
