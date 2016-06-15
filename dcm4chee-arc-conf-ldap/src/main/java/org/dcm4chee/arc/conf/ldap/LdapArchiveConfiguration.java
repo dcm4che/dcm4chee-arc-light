@@ -92,8 +92,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
         LdapUtils.storeNotNull(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
-        LdapUtils.storeNotNull(attrs, "hl7LogDirectory", ext.getHl7LogDirectory());
-        LdapUtils.storeNotNull(attrs, "hl7ErrorLogDirectory", ext.getHl7ErrorLogDirectory());
+        LdapUtils.storeNotNull(attrs, "hl7LogFilePattern", ext.getHl7LogDirectory());
+        LdapUtils.storeNotNull(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogDirectory());
         LdapUtils.storeNotNull(attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI());
         LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
@@ -153,8 +153,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
         ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
-        ext.setHl7LogDirectory(LdapUtils.stringValue(attrs.get("hl7LogDirectory"), null));
-        ext.setHl7LogDirectory(LdapUtils.stringValue(attrs.get("hl7ErrorLogDirectory"), null));
+        ext.setHl7LogDirectory(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
+        ext.setHl7LogDirectory(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setUnzipVendorDataToURI(LdapUtils.stringValue(attrs.get("dcmUnzipVendorDataToURI"), null));
         ext.setWadoSupportedSRClasses(LdapUtils.stringArray(attrs.get("dcmWadoSupportedSRClasses")));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 0));
@@ -229,8 +229,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI());
         LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
                 bb.getScheduleProcedureTemplateURI());
-        LdapUtils.storeDiff(mods, "hl7LogDirectory", aa.getHl7LogDirectory(), bb.getHl7LogDirectory());
-        LdapUtils.storeDiff(mods, "hl7ErrorLogDirectory", aa.getHl7ErrorLogDirectory(), bb.getHl7ErrorLogDirectory());
+        LdapUtils.storeDiff(mods, "hl7LogFilePattern", aa.getHl7LogDirectory(), bb.getHl7LogDirectory());
+        LdapUtils.storeDiff(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogDirectory(), bb.getHl7ErrorLogDirectory());
         LdapUtils.storeDiff(mods, "dcmUnzipVendorDataToURI",
                 aa.getUnzipVendorDataToURI(), bb.getUnzipVendorDataToURI());
         LdapUtils.storeDiff(mods, "dcmWadoSupportedSRClasses",
