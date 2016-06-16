@@ -115,33 +115,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             );
         }
     };
-    $(".logo").unbind("click").bind("click",function(){
-        var html =  '<div class="info-block">'
-            html +=         '<div class="head">'
-            html +=             '<h1>J4Care</h1>'
-            html +=             '<h3>SMooTH Archive</h3>'
-            html +=             '<h4>Version 5.3.1</h4>'
-            html +=         '</div>'
-            html +=         '<div class="content">'
-            html +=             '<p><b>J4Care GmbH</b><br/>Enzersdorfer Strasse 7<br/>A-2340 Mödling</p>'
-            html +=         '</div>'
-            html +=         '<div class="pre_footer">'
-            html +=             '<span>2009</span>'
-            html +=         '</div>'
-            html +=         '<div class="footer">'
-            html +=             '<div class="footer_left col-sm-6">'
-            html +=             '</div>'
-            html +=             '<div class="footer_right col-sm-6">'
-            html +=             '<span>0408</span>'
-            html +=             '</div>'
-            html +=         '</div>'
-            html +=     '</div>'
-        vex.dialog.alert({
-            // input:'<img src="img/kenn.jpg">',
-            input:html,
-            className:"vex-theme-os info-dialog"
-        });
-    });
+
     var modifyStudy = function(patient, mode, patientkey, studykey, study){
         cfpLoadingBar.start();
         var editstudy     = {};
@@ -192,8 +166,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.addPatientAttribut   = "";
             $scope.opendropdown         = false;
             var html                    = $compile(tpl)($scope);
+            var header = "Create new Study";
+            if(mode === "edit"){
+                header = 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
+            }
             var $vex = vex.dialog.open({
-              message: 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>',
+              message: header,
               input: html,
               className:"vex-theme-os edit-patient",
               overlayClosesOnClick: false,
@@ -362,9 +340,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             //Add patient attributs again
                             // angular.extend($scope.editstudy.attrs, patient.attrs);
                             // $scope.editstudy.attrs.concat(patient.attrs); 
-                            console.log("after concat $scope.editstudy",$scope.editstudy);
-                            console.log("res.data",res.data);
-                            console.log("patient",patient);
                             var local = {};
                             if($scope.editstudy.attrs["00100020"]){
                                 local["00100020"] = $scope.editstudy.attrs["00100020"];
@@ -372,15 +347,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 local["00100020"] = patient.attrs["00100020"];
                             }
                             angular.forEach($scope.editstudy.attrs,function(m, i){
-                                console.log("m",m);
-                                console.log("i",i);
-                                console.log("$scope.editstudy.attrs[i]",$scope.editstudy.attrs[i]);
-                                console.log("res.data["+i+"]",res.data[i]);
                                 if(res.data[i]){
                                     local[i] = m;
                                 }
                             });
-                            console.log("local",local);
                             // local["00081030"] = { "vr": "SH", "Value":[""]};
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies/"+local["0020000D"].Value[0],
@@ -504,8 +474,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.addPatientAttribut   = "";
             $scope.opendropdown         = false;
             var html                    = $compile(tpl)($scope);
+            var header = "Create new patient";
+            if(mode === "edit"){
+                header = 'Edit patient';
+            }
             var $vex = vex.dialog.open({
-              message: 'Edit patient',
+              message: header,
               input: html,
               className:"vex-theme-os edit-patient",
               overlayClosesOnClick: false,
