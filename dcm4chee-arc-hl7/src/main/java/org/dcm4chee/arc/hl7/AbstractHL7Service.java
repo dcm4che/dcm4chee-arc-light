@@ -134,16 +134,18 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
             }
             String s1 = s.substring(i+2, j);
             String dateFormat = null;
-            try {
-                Date date = new SimpleDateFormat("yyyyMMdd").parse(msh.getField(6, null).substring(0,8));
-                dateFormat = new SimpleDateFormat(s1.substring(s1.indexOf(",")+1)).format(date);
-            } catch (Exception e) {
+            if (s1.substring(0,4).equalsIgnoreCase("date")) {
+                try {
+                    Date date = new SimpleDateFormat("yyyyMMdd").parse(msh.getField(6, null).substring(0,8));
+                    dateFormat = new SimpleDateFormat(s1.substring(s1.indexOf(",")+1)).format(date);
+                } catch (Exception e) {
 
+                }
             }
             String prop = s1.equalsIgnoreCase("SerialNo")
                             ? String.valueOf(serialNo)
-                            : s1.equalsIgnoreCase("MSH-9")
-                            ? msh.getMessageType()
+                            : s1.substring(0,4).equalsIgnoreCase("MSH-")
+                            ? msh.getField(Integer.parseInt(s1.substring(4))-1, null)
                             : s1.substring(0,4).equalsIgnoreCase("date")
                             ? dateFormat : null;
             String s2 = s.substring(i, j+1);
