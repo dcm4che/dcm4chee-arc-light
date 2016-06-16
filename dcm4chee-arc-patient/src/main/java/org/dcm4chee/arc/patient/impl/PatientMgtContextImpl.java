@@ -72,6 +72,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private Attributes attributes;
     private IDWithIssuer previousPatientID;
     private Attributes previousAttributes;
+    private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
     private String eventActionCode;
     private Exception exception;
 
@@ -164,6 +165,16 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     public void setPreviousAttributes(Attributes attrs) {
         this.previousAttributes = attrs;
         this.previousPatientID = attrs != null ? IDWithIssuer.pidOf(attrs) : null;
+    }
+
+    @Override
+    public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
+        return attributeUpdatePolicy;
+    }
+
+    @Override
+    public void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy) {
+        this.attributeUpdatePolicy = updatePolicy;
     }
 
     @Override

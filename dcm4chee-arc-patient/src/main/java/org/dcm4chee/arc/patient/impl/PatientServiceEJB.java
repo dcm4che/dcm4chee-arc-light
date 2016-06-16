@@ -44,6 +44,7 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
+import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
@@ -149,11 +150,19 @@ public class PatientServiceEJB {
     }
 
     private boolean updatePatient(Patient pat, PatientMgtContext ctx) {
+        Attributes.UpdatePolicy updatePolicy = ctx.getAttributeUpdatePolicy();
+        AttributeFilter filter = ctx.getAttributeFilter();
         Attributes attrs = pat.getAttributes();
-        if (!attrs.update(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), null))
+        Attributes newAttrs = new Attributes(ctx.getAttributes(), filter.getSelection());
+        if (updatePolicy == Attributes.UpdatePolicy.REPLACE) {
+            if (attrs.equals(newAttrs)) {
+                return false;
+            }
+            attrs = newAttrs;
+        } else if (!attrs.update(updatePolicy, newAttrs, null)) {
             return false;
-
-        pat.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        }
+        pat.setAttributes(attrs, filter, ctx.getFuzzyStr());
         return true;
     }
 
