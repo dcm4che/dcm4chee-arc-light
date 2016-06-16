@@ -639,7 +639,9 @@
         "responses": {
           "200": {
             "description": "Patient ID of created Patient"
-            "type": string
+            "schema": {
+              "type": string
+            }
           },
           "default": {
             "description": "unexpected error"
@@ -715,7 +717,9 @@
         "responses": {
           "200": {
             "description": "Study Instance UID of created Study"
-            "type": string
+            "schema": {
+              "type": string
+            }
           },
           "default": {
             "description": "unexpected error"
