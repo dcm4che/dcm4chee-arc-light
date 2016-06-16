@@ -119,7 +119,7 @@ public class AuditService {
             case HL7:
                 auditPatientRecord(readerObj, eventType);
                 break;
-            case MWL_PROC:
+            case PROC_STUDY:
                 auditProcedureRecord(readerObj, eventType);
                 break;
         }
@@ -490,7 +490,7 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(ProcedureContext ctx) {
-        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx);
+        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
             obj.add(new PatientStudyInfo(ctx));
@@ -499,14 +499,21 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(StudyMgtContext ctx) {
-
+        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
+        for (AuditServiceUtils.EventType eventType : et) {
+            LinkedHashSet<Object> obj = new LinkedHashSet<>();
+            obj.add(new PatientStudyInfo(ctx));
+            writeSpoolFile(String.valueOf(eventType), obj);
+        }
     }
 
     private void auditProcedureRecord(SpoolFileReader readerObj, AuditServiceUtils.EventType et) {
         PatientStudyInfo pri = new PatientStudyInfo(readerObj.getMainInfo());
         EventIdentification ei = getEI(et, pri.getField(PatientStudyInfo.OUTCOME), log().timeStamp());
-        BuildActiveParticipant ap = new BuildActiveParticipant.Builder(pri.getField(PatientStudyInfo.CALLING_AET),
+        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(pri.getField(PatientStudyInfo.CALLING_AET),
                 pri.getField(PatientStudyInfo.CALLING_HOSTNAME)).requester(et.isSource).build();
+        BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(pri.getField(PatientStudyInfo.CALLED_AET),
+                getLocalHostName(log())).altUserID(AuditLogger.processID()).requester(et.isDest).build();
         ParticipantObjectContainsStudy pocs = getPocs(pri.getField(PatientStudyInfo.STUDY_UID));
         BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(null, pocs)
                 .acc(getAccessions(pri.getField(PatientStudyInfo.ACCESSION_NO))).build();
@@ -518,8 +525,9 @@ public class AuditService {
                 pri.getField(PatientStudyInfo.PATIENT_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                 .name(pri.getField(PatientStudyInfo.PATIENT_NAME)).build();
-        emitAuditMessage(ei, getApList(ap), getPoiList(poi1, poi2), log());
+        emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), log());
     }
+
 
     private ParticipantObjectDetail getPod(String type, String value) {
         return value != null ? AuditMessages.createParticipantObjectDetail(type, value.getBytes()) : null;

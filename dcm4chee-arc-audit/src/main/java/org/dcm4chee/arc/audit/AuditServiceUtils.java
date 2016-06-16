@@ -67,7 +67,7 @@ class AuditServiceUtils {
     static final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
 
     enum EventClass {
-        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, MWL_PROC
+        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -129,13 +129,13 @@ class AuditServiceUtils {
         HL7_DELETE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
-        MWL_CREATE(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
+        PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
                 null, null, true, false, false, null),
-        MWL_READ__(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
+        PROC_STD_R(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
                 null, null, true, false, false, null),
-        MWL_UPDATE(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
+        PROC_STD_U(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
                  null, null, true, false, false, null),
-        MWL_DELETE(EventClass.MWL_PROC, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
+        PROC_STD_D(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
                  null, null, true, false, false, null);
 
 
@@ -226,12 +226,12 @@ class AuditServiceUtils {
             return eventType;
         }
 
-        static HashSet<EventType> forProcedure(ProcedureContext ctx) {
+        static HashSet<EventType> forProcedure(String eac) {
             HashSet<EventType> et = new HashSet<>();
-            et.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
-                    ? EventType.MWL_CREATE : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
-                    ? EventType.MWL_UPDATE : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read)
-                    ? EventType.MWL_READ__ : MWL_DELETE);
+            et.add(eac.equals(AuditMessages.EventActionCode.Create)
+                    ? EventType.PROC_STD_C : eac.equals(AuditMessages.EventActionCode.Update)
+                    ? EventType.PROC_STD_U : eac.equals(AuditMessages.EventActionCode.Read)
+                    ? EventType.PROC_STD_R : PROC_STD_D);
             return et;
         }
     }

@@ -41,12 +41,15 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.study.StudyMgtContext;
 
 
 /**
@@ -83,7 +86,7 @@ class PatientStudyInfo {
                 null != ctx.getRejectionNote() ? null != ctx.getException()
                     ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
                     : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
-                    : null != ctx.getException() ? ctx.getException().getMessage() : null,
+                    : getOutcome(ctx.getException()),
                 ctx.getAttributes().getString(Tag.StudyDate)
         };
     }
@@ -114,7 +117,7 @@ class PatientStudyInfo {
                 AuditServiceUtils.getPatID(ctx.getPatient().getAttributes()),
                 null != ctx.getPatient().getPatientName().toString()
                         ? ctx.getPatient().getPatientName().toString() : null,
-                ctx.getException() != null ? ctx.getException().getMessage() : null,
+                getOutcome(ctx.getException()),
                 ctx.getStudy().getStudyDate() != null ? ctx.getStudy().getStudyDate() : null
         };
     }
@@ -123,15 +126,35 @@ class PatientStudyInfo {
         fields = new String[] {
                 ctx.getRemoteHostName(),
                 ctx.getHL7MessageHeader().getSendingApplicationWithFacility(),
-                null,
+                ctx.getHL7MessageHeader().getReceivingApplicationWithFacility(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
                 ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue,
                 ctx.getPatient().getPatientName().toString(),
-                ctx.getException() != null ? ctx.getException().getMessage() : null,
+                getOutcome(ctx.getException()),
                 ctx.getAttributes().getString(Tag.StudyDate)
         };
     }
+
+    PatientStudyInfo(StudyMgtContext ctx) {
+        fields = new String[] {
+                ctx.getHttpRequest().getRemoteHost(),
+                ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest()) : ctx.getHttpRequest().getRemoteAddr(),
+                ctx.getApplicationEntity().getAETitle(),
+                ctx.getStudyInstanceUID(),
+                ctx.getAttributes().getString(Tag.AccessionNumber),
+                ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue,
+                ctx.getStudy().getPatient().getAttributes().getString(Tag.PatientName),
+                getOutcome(ctx.getException()),
+                ctx.getAttributes().getString(Tag.StudyDate)
+        };
+    }
+
+    private String getOutcome(Exception e) {
+        return e != null ? e.getMessage() : null;
+    }
+
 
     PatientStudyInfo(String s) {
         fields = StringUtils.split(s, '\\');
