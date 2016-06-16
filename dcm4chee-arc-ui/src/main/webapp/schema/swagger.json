@@ -624,6 +624,9 @@
         "consumes": [
           "application/json"
         ],
+        "produces": [
+          "text/plan"
+        ],
         "parameters": [
           {
             "name": "aet",
@@ -634,8 +637,9 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Patient ID of created Patient"
+            "type": string
           },
           "default": {
             "description": "unexpected error"
@@ -689,6 +693,9 @@
         "consumes": [
           "application/json"
         ],
+        "produces": [
+          "text/plan"
+        ],
         "parameters": [
           {
             "name": "aet",
@@ -706,8 +713,9 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "Study Instance UID of created Study"
+            "type": string
           },
           "default": {
             "description": "unexpected error"
