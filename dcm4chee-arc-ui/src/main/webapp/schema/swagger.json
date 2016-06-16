@@ -614,7 +614,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/patients": {
+    "/aets/{aet}/rs/patients/{patientID}": {
       "put": {
         "tags": [
           "IOCM-RS"
@@ -633,7 +633,7 @@
             "type": "string"
           },
           {
-            "name": "PatientID",
+            "name": "patientID",
             "in": "path",
             "description": "Patient ID and Issuer encoded as HL7 CX",
             "required": true,
@@ -650,7 +650,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}": {
+    "/aets/{aet}/rs/patients/{patientID}/studies/{studyUID}": {
       "put": {
         "tags": [
           "IOCM-RS"
@@ -665,6 +665,13 @@
             "name": "aet",
             "in": "path",
             "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
             "required": true,
             "type": "string"
           },

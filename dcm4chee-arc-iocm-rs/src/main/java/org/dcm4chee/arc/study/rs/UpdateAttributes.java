@@ -95,37 +95,34 @@ public class UpdateAttributes {
     @PUT
     @Path("/patients/{PatientID}")
     @Consumes("application/json")
-    public void updatePatient(@PathParam("PatientID") String patientID, InputStream in) throws Exception {
+    public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
-        IDWithIssuer idWithIssuer = new IDWithIssuer(patientID);
-        if (idWithIssuer == null)
-            throw new WebApplicationException("missing query parameter: PatientID", Response.Status.BAD_REQUEST);
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         ctx.setAttributes(reader.readDataset(null));
-        IDWithIssuer newPatientID = ctx.getPatientID();
         if (patientID == null)
             throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
         ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-        if (idWithIssuer.equals(patientID)) {
+        if (patientID.equals(ctx.getPatientID())) {
             patientService.updatePatient(ctx);
         } else {
-            ctx.setPreviousAttributes(idWithIssuer.exportPatientIDWithIssuer(null));
+            ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
         }
     }
 
     @PUT
-    @Path("/studies/{StudyUID}")
+    @Path("/patients/{PatientID}/studies/{StudyUID}")
     @Consumes("application/json")
-    public void updateStudy(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
+    public void updateStudy(@PathParam("PatientID") IDWithIssuer patientID,
+                            @PathParam("StudyUID") String studyUID,
+                            InputStream in) throws Exception {
         logRequest();
         StudyMgtContext ctx = iocmService.createIOCMContextWEB(request, getApplicationEntity());
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        ctx.setPatientID(patientID);
         ctx.setAttributes(reader.readDataset(null));
         String studyUIDBody = ctx.getStudyInstanceUID();
-        if (ctx.getPatientID() == null)
-            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
         if (studyUIDBody == null)
             throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
         if (!studyUIDBody.equals(studyUID))

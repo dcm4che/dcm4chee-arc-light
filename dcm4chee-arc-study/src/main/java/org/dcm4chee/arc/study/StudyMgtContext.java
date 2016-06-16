@@ -71,6 +71,8 @@ public interface StudyMgtContext {
 
     IDWithIssuer getPatientID();
 
+    void setPatientID(IDWithIssuer patientID);
+
     String getStudyInstanceUID();
 
     Study getStudy();
