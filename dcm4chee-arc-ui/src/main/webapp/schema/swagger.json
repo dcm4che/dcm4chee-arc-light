@@ -640,7 +640,7 @@
           "200": {
             "description": "Patient ID of created Patient"
             "schema": {
-              "type": string
+              "type": "string"
             }
           },
           "default": {
@@ -718,7 +718,7 @@
           "200": {
             "description": "Study Instance UID of created Study"
             "schema": {
-              "type": string
+              "type": "string"
             }
           },
           "default": {
