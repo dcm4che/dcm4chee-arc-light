@@ -47,7 +47,7 @@ body {
     right: 32px;
     top: 44px;
     width: 140px;
-    z-index: 9999; }
+    z-index: 999; }
     body .logo:hover {
       cursor: pointer; }
 
@@ -635,7 +635,7 @@ table.subtable_1, table.subtable_2 {
           float: left;
           height: 25px;
           text-align: center;
-          width: 25%; }
+          width: 20%; }
           .repeat0 > .thead > .tr_row .th .table_btn:hover {
             background: #C2C2C2;
             text-decoration: none;
@@ -691,7 +691,7 @@ table.subtable_1, table.subtable_2 {
       .repeat0 .repeat1 .subblock .td_cell.table_btn > a {
         float: left;
         text-align: center;
-        width: 25%;
+        width: 20%;
         color: black;
         height: 25px; }
         .repeat0 .repeat1 .subblock .td_cell.table_btn > a:hover {
@@ -1120,7 +1120,10 @@ table.subtable_1, table.subtable_2 {
   padding: 11px 17px 16px;
   width: 221px; }
   .filter .buttons_block .orderbyblock {
-    margin-top: 45px; }
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    padding-bottom: 20px; }
     .filter .buttons_block .orderbyblock label {
       font-weight: normal;
       width: 70px; }
@@ -1162,7 +1165,9 @@ table.subtable_1, table.subtable_2 {
     border-radius: 0 4px 4px 0 !important;
     height: 30px;
     width: 20%;
-    border: 1px solid #aaa; }
+    border: 1px solid #aaa;
+    background: #3b6b8c;
+    color: white; }
   .filter .buttons_block .optionlist {
     background: white none repeat scroll 0 0;
     box-shadow: 3px 6px 7px #aaa;
@@ -1253,10 +1258,13 @@ div[tooltip] {
 
 .vex.vex-theme-os.edit-patient .vex-dialog-form .vex-dialog-message {
   font-size: 20px;
-  font-weight: bold;
   margin-bottom: 30px; }
+  .vex.vex-theme-os.edit-patient .vex-dialog-form .vex-dialog-message span {
+    color: #5e5e5e;
+    font-weight: bold; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form .addPatientAttribut {
-  margin-bottom: 20px; }
+  margin-bottom: 20px;
+  padding-left: 7px; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form .dropdown {
   max-height: 300px;
   overflow-y: scroll;
@@ -1280,8 +1288,8 @@ div[tooltip] {
       cursor: pointer;
       text-decoration: none; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form .item1, .vex.vex-theme-os.edit-patient .vex-dialog-form .item1first {
-  min-height: 25px;
-  line-height: 25px;
+  min-height: 35px;
+  line-height: 35px;
   vertical-align: middle; }
 .vex.vex-theme-os.edit-patient .vex-dialog-form .item1, .vex.vex-theme-os.edit-patient .vex-dialog-form .item1input {
   margin-left: 20px; }
@@ -1456,5 +1464,15 @@ div[tooltip] {
     border-width: 1px !important;
     height: 15px !important;
     width: 15px !important; }
+
+.queues table {
+  margin-top: 40px; }
+  .queues table thead {
+    background: #666;
+    color: white; }
+    .queues table thead th button {
+      color: white; }
+  .queues table tbody a {
+    color: black; }
 
 /*# sourceMappingURL=style.css.map */

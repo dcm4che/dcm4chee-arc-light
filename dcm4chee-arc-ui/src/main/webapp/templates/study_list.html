@@ -438,6 +438,9 @@
                     </a>               
                     <a class="table_btn" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
                         <span class="glyphicon glyphicon-pencil"></span>
+                    </a>               
+                    <a class="table_btn" ng-click="createStudy(patient)" href="" title="Create study">
+                        <span class="glyphicon glyphicon-plus"></span>
                     </a>
                     <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
                     <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
@@ -476,7 +479,7 @@
                         </a>
                     </div>
                     <div style="width:5%" class="th">Study Time</div>
-                    <div class="th" title="Referring Physician's Name">R. Physician's Name</div>
+                    <div class="th" title="Referring Physician's Name">R. Physician's Name</div>  
                     <div class="th">Accession Number</div>
                     <div style="width:5%" class="th">Modalities</div>
                     <div style="width:17.3%" class="th">Study Description</div>
@@ -492,6 +495,9 @@
                             <div class="td_cell table_btn">
                                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                                     <span class="glyphicon glyphicon-th-list"></span>
+                                </a>
+                                <a ng-click="editStudy(patients[patientkey], patientkey, studykey, study)" href="" title="Edit Study">
+                                    <span class="glyphicon glyphicon-pencil"></span>
                                 </a>
                                 <a ng-click="exportStudy(study)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
                                     <span class="glyphicon glyphicon-export"></span>
@@ -531,7 +537,7 @@
                         </div>
                         <div class="td_row">
                             <div class="tr_row"  ng-show="study.showAttributes">
-                                <div class="td_cell attribute_list"> 
+                                <div class="td_cell attribute_list" id="{{patient.attrs['00100020'].Value[0] | removedots}}{{study.attrs['0020000D'].Value[0] | removedots}}"> 
                                     <attribute-list attrs="study.attrs"></attribute-list>
                                 </div>
                             </div>
