@@ -82,6 +82,10 @@ public interface PatientMgtContext {
 
     void setPreviousAttributes(Attributes attrs);
 
+    Attributes.UpdatePolicy getAttributeUpdatePolicy();
+
+    void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy);
+
     String getEventActionCode();
 
     void setEventActionCode(String eventActionCode);
