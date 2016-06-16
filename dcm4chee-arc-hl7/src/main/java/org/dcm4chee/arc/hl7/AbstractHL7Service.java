@@ -81,7 +81,7 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
             throws HL7Exception {
         ArchiveHL7ApplicationExtension arcHl7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        log(hl7App, msg, arcHl7App.hl7LogFilePattern());
+        log(msg, arcHl7App.hl7LogFilePattern());
         try {
             try {
                 process(hl7App, s, msg);
@@ -91,13 +91,13 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
                 new HL7Exception(HL7Exception.AE, e);
             }
         } catch (HL7Exception e) {
-            log(hl7App, msg, arcHl7App.hl7ErrorLogFilePattern());
+            log(msg, arcHl7App.hl7ErrorLogFilePattern());
             throw e;
         }
         return super.onMessage(hl7App, conn, s, msg);
     }
 
-    private void log(HL7Application hl7App, UnparsedHL7Message msg, String dirpath) {
+    private void log(UnparsedHL7Message msg, String dirpath) {
         if (dirpath == null)
             return;
         String filePath = getPath(StringUtils.replaceSystemProperties(dirpath), msg.getSerialNo(), msg.msh());
