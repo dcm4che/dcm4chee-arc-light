@@ -1906,16 +1906,44 @@ div[tooltip]{
 
 		// 	}
 		// }
-		.input{
-			display: inline-block;
-			span{
-				top: 8px;
-			}
+		.refresh{
+			margin-right: 25px;
+		}
+		// .input{
+		// 	display: inline-block;
+		// 	span{
+		// 		top: 8px;
+		// 	}
+		// }
+		input{
+			padding-left:7px;
 		}
 		table{
 			-moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
 	    	-webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
 	    	box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+	    	td.others{
+	    		padding:0 !important;
+				table{
+					box-shadow:none;
+					tr{
+						td{
+							border-width:0px 1px 1px 1px;
+							border-style:solid;
+							border-color:#ccc;
+							padding:1px 7px;
+						}
+						td:first-child{
+							text-align: right;
+						}
+					}
+					tr:last-child{
+						td{
+							border-bottom:0px;
+						}
+					}
+				}
+	    	}
 		}
 		input:disabled{
 			background: #ccc none repeat scroll 0 0;
