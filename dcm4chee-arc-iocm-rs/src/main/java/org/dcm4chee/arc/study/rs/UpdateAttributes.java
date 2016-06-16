@@ -45,11 +45,10 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.study.StudyMgtContext;
-import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.query.util.AttributesBuilder;
+import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,13 +58,9 @@ import javax.json.Json;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -92,36 +87,30 @@ public class UpdateAttributes {
     @Context
     private HttpServletRequest request;
 
-    @Context
-    private UriInfo uriInfo;
-
     @Override
     public String toString() {
-        String requestURI = request.getRequestURI();
-        String queryString = request.getQueryString();
-        return queryString == null ? requestURI : requestURI + '?' + queryString;
+        return request.getRequestURI();
     }
 
     @PUT
-    @Path("/patients")
+    @Path("/patients/{PatientID}")
     @Consumes("application/json")
-    public void updatePatient(InputStream in) throws Exception {
+    public void updatePatient(@PathParam("PatientID") String patientID, InputStream in) throws Exception {
         logRequest();
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
-        ctx.setPreviousAttributes(queryAttributes(uriInfo));
-        IDWithIssuer previousPatientID = ctx.getPreviousPatientID();
-        if (previousPatientID == null)
+        IDWithIssuer idWithIssuer = new IDWithIssuer(patientID);
+        if (idWithIssuer == null)
             throw new WebApplicationException("missing query parameter: PatientID", Response.Status.BAD_REQUEST);
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         ctx.setAttributes(reader.readDataset(null));
-        IDWithIssuer patientID = ctx.getPatientID();
+        IDWithIssuer newPatientID = ctx.getPatientID();
         if (patientID == null)
             throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
         ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-        if (previousPatientID.equals(patientID)) {
-            ctx.setPreviousAttributes(null);
+        if (idWithIssuer.equals(patientID)) {
             patientService.updatePatient(ctx);
         } else {
+            ctx.setPreviousAttributes(idWithIssuer.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
         }
     }
@@ -160,19 +149,4 @@ public class UpdateAttributes {
         return ae;
     }
 
-    private static Attributes queryAttributes(UriInfo info) {
-        Attributes attrs = new Attributes();
-        AttributesBuilder builder = new AttributesBuilder(attrs);
-        MultivaluedMap<String, String> map = info.getQueryParameters();
-        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-            String attrPath = entry.getKey();
-            List<String> values = entry.getValue();
-            try {
-                builder.setString(attrPath, values.toArray(new String[values.size()]));
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(attrPath + "=" + values.get(0));
-            }
-        }
-        return attrs;
-    }
 }

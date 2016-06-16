@@ -634,15 +634,9 @@
           },
           {
             "name": "PatientID",
-            "in": "query",
-            "description": "Patient ID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "IssuerOfPatientID",
-            "in": "query",
-            "description": "Issuer of Patient ID",
             "type": "string"
           }
         ],

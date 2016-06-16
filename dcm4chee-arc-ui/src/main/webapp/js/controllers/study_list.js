@@ -670,7 +670,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             });
                             // $scope.editpatient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
                             $http.put(
-                                "../aets/"+$scope.aet+"/rs/patients?PatientID="+$scope.editpatient.attrs["00100020"].Value[0],
+                                "../aets/"+$scope.aet+"/rs/patients/"+$scope.editpatient.attrs["00100020"].Value[0],
                                 $scope.editpatient.attrs
                             ).then(function successCallback(response) {
                                 if(mode === "edit"){
