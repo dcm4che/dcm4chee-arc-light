@@ -153,6 +153,32 @@ myApp.controller('MainController', function ($scope, $location, $http) {
           $scope.showUserMenu = false;
         }
   });
-
+  $(".logo").unbind("click").bind("click",function(){
+      var html =  '<div class="info-block">'
+          html +=         '<div class="head">'
+          html +=             '<h1>J4Care</h1>'
+          html +=             '<h3>SMooTH Archive</h3>'
+          html +=             '<h4>Version 5.4.1</h4>'
+          html +=         '</div>'
+          html +=         '<div class="content">'
+          html +=             '<p><b>J4Care GmbH</b><br/>Enzersdorfer Strasse 7<br/>A-2340 Mödling</p>'
+          html +=         '</div>'
+          html +=         '<div class="pre_footer">'
+          html +=             '<span>2009</span>'
+          html +=         '</div>'
+          html +=         '<div class="footer">'
+          html +=             '<div class="footer_left col-sm-6">'
+          html +=             '</div>'
+          html +=             '<div class="footer_right col-sm-6">'
+          html +=             '<span>0408</span>'
+          html +=             '</div>'
+          html +=         '</div>'
+          html +=     '</div>'
+      vex.dialog.alert({
+          // input:'<img src="img/kenn.jpg">',
+          input:html,
+          className:"vex-theme-os info-dialog"
+      });
+  });
 
 });
