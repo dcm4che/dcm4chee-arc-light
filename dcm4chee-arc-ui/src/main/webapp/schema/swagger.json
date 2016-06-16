@@ -614,6 +614,35 @@
         }
       }
     },
+    "/aets/{aet}/rs/patients": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "create patient",
+        "operationId": "createPatient",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/patients/{patientID}": {
       "put": {
         "tags": [
@@ -621,6 +650,42 @@
         ],
         "summary": "update or create patient",
         "operationId": "updatePatient",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{patientID}/studies": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "create study",
+        "operationId": "createStudy",
         "consumes": [
           "application/json"
         ],
