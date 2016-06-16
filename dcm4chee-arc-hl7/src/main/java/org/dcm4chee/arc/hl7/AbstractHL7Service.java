@@ -40,14 +40,30 @@
 
 package org.dcm4chee.arc.hl7;
 
+import org.apache.commons.io.FileUtils;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Exception;
+import org.dcm4che3.hl7.HL7Segment;
+
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.net.Socket;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,6 +71,7 @@ import java.net.Socket;
  * @since Jun 2016
  */
 abstract class AbstractHL7Service extends DefaultHL7Service {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractHL7Service.class);
     public AbstractHL7Service(String... messageTypes) {
         super(messageTypes);
     }
@@ -83,9 +100,62 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
     private void log(HL7Application hl7App, UnparsedHL7Message msg, String dirpath) {
         if (dirpath == null)
             return;
-
+        String filePath = getPath(StringUtils.replaceSystemProperties(dirpath), msg.getSerialNo(), msg.msh());
+        Path dir = Paths.get(filePath.substring(0,filePath.lastIndexOf("/")));
+        Path file = dir.resolve(filePath.substring(filePath.lastIndexOf("/")+1));
+        try {
+            if (!Files.exists(dir))
+                Files.createDirectories(dir);
+            if (!Files.exists(file))
+                Files.createFile(file);
+            try (BufferedOutputStream out = new BufferedOutputStream(
+                    Files.newOutputStream(file, StandardOpenOption.APPEND))) {
+                new DataOutputStream(out);
+                out.write(msg.data());
+                out.close();
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to write log file : ", dir, file, e);
+        }
     }
 
+    private String getPath(String s, int serialNo, HL7Segment msh) {
+        int i = s.indexOf("${");
+        if (i == -1)
+            return s;
+
+        StringBuilder sb = new StringBuilder(s.length());
+        int j = -1;
+        do {
+            sb.append(s.substring(j+1, i));
+            if ((j = s.indexOf('}', i+2)) == -1) {
+                j = i-1;
+                break;
+            }
+            String s1 = s.substring(i+2, j);
+            String dateFormat = null;
+            try {
+                Date date = new SimpleDateFormat("yyyyMMdd").parse(msh.getField(6, null).substring(0,8));
+                dateFormat = new SimpleDateFormat(s1.substring(s1.indexOf(",")+1)).format(date);
+            } catch (Exception e) {
+
+            }
+            String prop = s1.equalsIgnoreCase("SerialNo")
+                            ? String.valueOf(serialNo)
+                            : s1.equalsIgnoreCase("MSH-9")
+                            ? msh.getMessageType()
+                            : s1.substring(0,4).equalsIgnoreCase("date")
+                            ? dateFormat : null;
+            String s2 = s.substring(i, j+1);
+            String val = s.startsWith("env.", i+2)
+                    ? System.getenv(s.substring(i+6, j))
+                    : prop;
+            sb.append(val != null ? val : s2);
+            i = s.indexOf("${", j+1);
+        } while (i != -1);
+        sb.append(s.substring(j+1));
+        return sb.toString();
+    }
 
     protected abstract void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception;
 }

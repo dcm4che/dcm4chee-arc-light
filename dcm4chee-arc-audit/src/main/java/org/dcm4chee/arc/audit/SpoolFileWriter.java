@@ -46,16 +46,17 @@ import java.io.IOException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2016
  */
-public class SpoolFileWriter implements Closeable {
+class SpoolFileWriter implements Closeable {
     private final BufferedWriter writer;
 
-    public SpoolFileWriter(BufferedWriter writer) {
+    SpoolFileWriter(BufferedWriter writer) {
         this.writer = writer;
     }
 
-    public void writeLine(Object o) throws IOException {
+    void writeLine(Object o) throws IOException {
         writer.write(o.toString().replace('\r', '.').replace('\n', '.'));
         writer.newLine();
     }
