@@ -139,7 +139,7 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
                     Date date = new SimpleDateFormat("yyyyMMdd").parse(msh.getField(6, null).substring(0,8));
                     dateFormat = new SimpleDateFormat(s1.substring(s1.indexOf(",")+1)).format(date);
                 } catch (Exception e) {
-
+                    LOG.warn("Failed to format date : ", e);
                 }
             }
             String prop = s1.equalsIgnoreCase("SerialNo")
