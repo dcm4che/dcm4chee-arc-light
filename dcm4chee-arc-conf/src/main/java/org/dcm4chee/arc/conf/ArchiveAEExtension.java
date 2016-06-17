@@ -82,6 +82,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
+    private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
 
     public String getStorageID() {
         return storageID;
@@ -420,6 +421,22 @@ public class ArchiveAEExtension extends AEExtension {
         return compressionRules;
     }
 
+    public void removeStudyRetentionPolicies(StudyRetentionPolicy policy) {
+        studyRetentionPolicies.remove(policy);
+    }
+
+    public void clearStudyRetentionPolicy() {
+        studyRetentionPolicies.clear();
+    }
+
+    public void addStudyRetentionPolicy(StudyRetentionPolicy policy) {
+        studyRetentionPolicies.add(policy);
+    }
+
+    public Collection<StudyRetentionPolicy> getStudyRetentionPolicies() {
+        return studyRetentionPolicies;
+    }
+
     public void removeAttributeCoercion(ArchiveAttributeCoercion coercion) {
         attributeCoercions.remove(coercion);
     }
@@ -466,6 +483,8 @@ public class ArchiveAEExtension extends AEExtension {
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();
         compressionRules.addAll(aeExt.compressionRules);
+        studyRetentionPolicies.clear();
+        studyRetentionPolicies.addAll(aeExt.studyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(aeExt.attributeCoercions);
     }
@@ -515,6 +534,18 @@ public class ArchiveAEExtension extends AEExtension {
                     if (coercion1 == null || coercion1.getPriority() < coercion.getPriority())
                         coercion1 = coercion;
         return coercion1;
+    }
+
+    public StudyRetentionPolicy findStudyRetentionPolicy(
+            String hostName, String sendingAET, String receivingAET, Attributes attrs) {
+        StudyRetentionPolicy policy1 = null;
+        for (Collection<StudyRetentionPolicy> policies
+                : new Collection[]{ studyRetentionPolicies, getArchiveDeviceExtension().getStudyRetentionPolicies() })
+            for (StudyRetentionPolicy policy : policies)
+                if (policy.match(hostName, sendingAET, receivingAET, attrs))
+                    if (policy1 == null || policy1.getPriority() < policy.getPriority())
+                        policy1 = policy;
+        return policy1;
     }
 
 }

@@ -114,6 +114,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
+    private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
 
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private transient FuzzyStr fuzzyStr;
@@ -691,6 +692,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return compressionRules;
     }
 
+    public void removeStudyRetentionPolicy(StudyRetentionPolicy policy) {
+        studyRetentionPolicies.remove(policy);
+    }
+
+    public void clearStudyRetentionPolicies() {
+        studyRetentionPolicies.clear();
+    }
+
+    public void addStudyRetentionPolicy(StudyRetentionPolicy policy) {
+        studyRetentionPolicies.add(policy);
+    }
+
+    public Collection<StudyRetentionPolicy> getStudyRetentionPolicies() {
+        return studyRetentionPolicies;
+    }
+
     public void removeAttributeCoercion(ArchiveAttributeCoercion coercion) {
         attributeCoercions.remove(coercion);
     }
@@ -798,6 +815,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exportRules.addAll(arcdev.exportRules);
         compressionRules.clear();
         compressionRules.addAll(arcdev.compressionRules);
+        studyRetentionPolicies.clear();
+        studyRetentionPolicies.addAll(arcdev.studyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(arcdev.attributeCoercions);
         rejectionNoteMap.clear();
