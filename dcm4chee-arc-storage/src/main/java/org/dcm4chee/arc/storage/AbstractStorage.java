@@ -95,13 +95,21 @@ public abstract class AbstractStorage implements Storage {
         return new FilterOutputStream(stream) {
             @Override
             public void write(int b) throws IOException {
-                out.write(b);
+                try {
+                    out.write(b);
+                } catch (IOException e) {
+                    throw new StorageException(e);
+                }
                 ctx.incrementSize(1);
             }
 
             @Override
             public void write(byte[] b, int off, int len) throws IOException {
-                out.write(b, off, len);
+                try {
+                    out.write(b, off, len);
+                } catch (IOException e) {
+                    throw new StorageException(e);
+                }
                 ctx.incrementSize(len);
             }
 
@@ -112,6 +120,8 @@ public abstract class AbstractStorage implements Storage {
                 } finally {
                     try {
                         super.close();
+                    } catch (IOException e) {
+                        throw new StorageException(e);
                     } finally {
                         afterOutputStreamClosed(ctx);
                     }
@@ -155,7 +165,12 @@ public abstract class AbstractStorage implements Storage {
         return new FilterInputStream(stream) {
             @Override
             public int read() throws IOException {
-                int read = in.read();
+                int read = 0;
+                try {
+                    read = in.read();
+                } catch (IOException e) {
+                    throw new StorageException(e);
+                }
                 if (read >= 0)
                     ctx.incrementSize(1);
                 return read;
@@ -163,7 +178,12 @@ public abstract class AbstractStorage implements Storage {
 
             @Override
             public int read(byte[] b, int off, int len) throws IOException {
-                int read = in.read(b, off, len);
+                int read = 0;
+                try {
+                    read = in.read(b, off, len);
+                } catch (IOException e) {
+                    throw new StorageException(e);
+                }
                 if (read > 0)
                     ctx.incrementSize(read);
                 return read;
@@ -171,7 +191,12 @@ public abstract class AbstractStorage implements Storage {
 
             @Override
             public long skip(long n) throws IOException {
-                long skip = in.skip(n);
+                long skip = 0;
+                try {
+                    skip = in.skip(n);
+                } catch (IOException e) {
+                    throw new StorageException(e);
+                }
                 ctx.incrementSize(skip);
                 return skip;
             }
@@ -188,6 +213,8 @@ public abstract class AbstractStorage implements Storage {
                 } finally {
                     try {
                         super.close();
+                    } catch (IOException e) {
+                        throw new StorageException(e);
                     } finally {
                         afterInputStreamClosed(ctx);
                     }

@@ -20,6 +20,7 @@ import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.storage.StorageException;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -92,8 +93,11 @@ class StoreServiceImpl implements StoreService {
                         ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
                 transcoder.setIncludeFileMetaInformation(true);
                 transcoder.transcode(new TranscoderHandler(ctx));
+            } catch (StorageException e) {
+                LOG.warn("{}: Failed to store received object:", ctx.getStoreSession(), e);
+                throw new DicomServiceException(Status.OutOfResources, e);
             } catch (Exception e) {
-                LOG.warn("{}: Failed to encode received object:", ctx.getStoreSession(), e);
+                LOG.warn("{}: Failed to parse received object:", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
             if (ctx.getAcceptedStudyInstanceUID() != null
