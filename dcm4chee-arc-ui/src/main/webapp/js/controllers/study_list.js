@@ -431,6 +431,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     var modifyPatient = function(patient, mode, patientkey){
         cfpLoadingBar.start();
         var editpatient     = {};
+        var oldPatientID;
         angular.copy(patient, editpatient);
         if(mode === "edit"){
             angular.forEach(editpatient.attrs,function(value, index) {
@@ -450,6 +451,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.editpatient  = editpatient;
         editpatient         = {};
         $scope.lastPressedCode = 0;
+        if(mode === "edit"){
+            oldPatientID = $scope.editpatient.attrs["00100020"].Value[0];
+        }
 
         $scope.removeAttr = function(attrcode){
             switch(arguments.length) {
@@ -636,15 +640,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
-                        if($scope.editpatient.attrs["00100020"].Value[0]){
+                        if($scope.editpatient.attrs["00100020"] && $scope.editpatient.attrs["00100020"].Value[0]){
                             angular.forEach($scope.editpatient.attrs, function(m, i){
                                 if(res.data[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
                                     delete $scope.editpatient.attrs[i];
                                 }
                             });
                             // $scope.editpatient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
+                            oldPatientID = oldPatientID || $scope.editpatient.attrs["00100020"].Value[0];
                             $http.put(
-                                "../aets/"+$scope.aet+"/rs/patients/"+$scope.editpatient.attrs["00100020"].Value[0],
+                                "../aets/"+$scope.aet+"/rs/patients/"+oldPatientID,
                                 $scope.editpatient.attrs
                             ).then(function successCallback(response) {
                                 if(mode === "edit"){
@@ -679,12 +684,37 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     "status": "error"
                                 });
                             });
+
+                            ////
                         }else{
-                            DeviceService.msg($scope, {
-                                "title": "Error",
-                                "text": "Patient ID is required!",
-                                "status": "error"
-                            });
+                            if(mode === "create"){
+                                $http({
+                                    method: 'POST',
+                                    url: "../aets/"+$scope.aet+"/rs/patients/",
+                                    data:$scope.editpatient.attrs,
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'text/plain'
+                                    }
+                                }).then(
+                                    function successCallback(response) {
+                                        console.log("response",response);
+                                    },
+                                    function errorCallback(response) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Error",
+                                            "text": "Error saving patient!",
+                                            "status": "error"
+                                        });
+                                    }
+                                );
+                            }else{
+                                DeviceService.msg($scope, {
+                                    "title": "Error",
+                                    "text": "Patient ID is required!",
+                                    "status": "error"
+                                });
+                            }
                         }
                     }
                     vex.close($vex.data().vex.id);
@@ -697,6 +727,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         modifyPatient(patient, "edit", patientkey);
     };
     $scope.createPatient = function(patient){
+                            // $http.post(
+                            //     "../aets/"+$scope.aet+"/rs/patients/"
+                            // )
+
+
         var patient = {
             "attrs":{
                 "00100010": { "vr": "PN", "Value":[""]},
@@ -706,13 +741,20 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 "00100040": { "vr": "CS", "Value":[""]}
             }
         };
+        // var patient = {
+        //     "attrs":{
+        //         "00100030": { "vr": "DA", "Value":["19320112"]},
+        //         "00100040": { "vr": "CS", "Value":["M"]}
+        //     }
+        // };
+
         modifyPatient(patient, "create");
     };
 
     $scope.clearForm = function(){
         angular.forEach($scope.filter,function(m,i){
             console.log("i",i);
-            if(i !="orderby"){
+            if(i != "orderby"){
                 $scope.filter[i] = "";
             }
         });
