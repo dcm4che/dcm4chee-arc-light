@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.io.DicomOutputStream;
@@ -120,7 +121,7 @@ public class AuditService {
                 auditPatientRecord(new AuditInfo(readerObj.getMainInfo()), eventType);
                 break;
             case PROC_STUDY:
-                auditProcedureRecord(readerObj, eventType);
+                auditProcedureRecord(new AuditInfo(readerObj.getMainInfo()), eventType);
                 break;
         }
     }
@@ -530,7 +531,12 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            obj.add(new PatientStudyInfo(ctx));
+            Attributes attr = ctx.getAttributes();
+            BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName()).callingAET(ctx.getHL7MessageHeader().getSendingApplicationWithFacility())
+                                .calledAET(ctx.getHL7MessageHeader().getReceivingApplicationWithFacility()).studyUID(ctx.getStudyInstanceUID())
+                                .accNum(attr.getString(Tag.AccessionNumber)).pID(getPID(attr)).pName(ctx.getPatient().getAttributes().getString(Tag.PatientName))
+                                .outcome(getOD(ctx.getException())).studyDate(attr.getString(Tag.StudyDate)).build();
+            obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
     }
@@ -539,30 +545,40 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            obj.add(new PatientStudyInfo(ctx));
+            String callingAET = ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest()) : ctx.getHttpRequest().getRemoteAddr();
+            Attributes sAttr = ctx.getAttributes();
+            Attributes pAttr = ctx.getStudy().getPatient().getAttributes();
+            BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
+                        .calledAET(ctx.getApplicationEntity().getAETitle()).studyUID(ctx.getStudyInstanceUID()).accNum(sAttr.getString(Tag.AccessionNumber))
+                        .pID(getPID(pAttr)).pName(pAttr.getString(Tag.PatientName)).outcome(getOD(ctx.getException())).studyDate(sAttr.getString(Tag.StudyDate)).build();
+            obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
     }
 
-    private void auditProcedureRecord(SpoolFileReader readerObj, AuditServiceUtils.EventType et) {
-        PatientStudyInfo pri = new PatientStudyInfo(readerObj.getMainInfo());
-        EventIdentification ei = getEI(et, pri.getField(PatientStudyInfo.OUTCOME), log().timeStamp());
-        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(pri.getField(PatientStudyInfo.CALLING_AET),
-                pri.getField(PatientStudyInfo.CALLING_HOSTNAME)).requester(et.isSource).build();
-        BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(pri.getField(PatientStudyInfo.CALLED_AET),
+    private void auditProcedureRecord(AuditInfo prI, AuditServiceUtils.EventType et) {
+        EventIdentification ei = getEI(et, prI.getField(AuditInfo.OUTCOME), log().timeStamp());
+        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(prI.getField(AuditInfo.CALLING_AET),
+                prI.getField(AuditInfo.CALLING_HOST)).requester(et.isSource).build();
+        BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(prI.getField(AuditInfo.CALLED_AET),
                 getLocalHostName(log())).altUserID(AuditLogger.processID()).requester(et.isDest).build();
-        ParticipantObjectContainsStudy pocs = getPocs(pri.getField(PatientStudyInfo.STUDY_UID));
+        ParticipantObjectContainsStudy pocs = getPocs(prI.getField(AuditInfo.STUDY_UID));
         BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(null, pocs)
-                .acc(getAccessions(pri.getField(PatientStudyInfo.ACCESSION_NO))).build();
+                .acc(getAccessions(prI.getField(AuditInfo.ACC_NUM))).build();
         BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
-                pri.getField(PatientStudyInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                prI.getField(AuditInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(getPODesc(desc)).detail(getPod(studyDate, pri.getField(PatientStudyInfo.STUDY_DATE))).build();
+                .desc(getPODesc(desc)).detail(getPod(studyDate, prI.getField(AuditInfo.STUDY_DATE))).build();
         BuildParticipantObjectIdentification poi2 = new BuildParticipantObjectIdentification.Builder(
-                pri.getField(PatientStudyInfo.PATIENT_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                prI.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                .name(pri.getField(PatientStudyInfo.PATIENT_NAME)).build();
+                .name(prI.getField(AuditInfo.P_NAME)).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), log());
+    }
+
+    private String getPID(Attributes attrs) {
+        return attrs.getString(Tag.PatientID) != null ? IDWithIssuer.pidOf(attrs).toString() : AuditServiceUtils.noValue;
     }
 
     private String getOD(Exception e) {
