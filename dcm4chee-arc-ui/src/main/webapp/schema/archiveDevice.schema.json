@@ -322,6 +322,9 @@
     },
     "dcmRejectionNote": {
       "$ref": "rejectionNote.schema.json"
+    },
+    "dcmStudyRetentionPolicy": {
+      "$ref": "studyRetentionPolicy.schema.json"
     }
   }
 }

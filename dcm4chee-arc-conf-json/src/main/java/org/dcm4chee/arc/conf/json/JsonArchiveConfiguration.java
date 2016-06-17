@@ -55,6 +55,7 @@ import org.dcm4che3.util.Property;
 import javax.json.stream.JsonParser;
 import java.lang.reflect.Array;
 import java.net.URI;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -132,6 +133,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
+        writeStudyRetentionPolicy(writer, arcDev.getStudyRetentionPolicies());
         writer.writeEnd();
     }
 
@@ -294,6 +296,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmOverwritePreviousRejection", rn.getOverwritePreviousRejection());
             writer.writeNotNull("dcmDeleteRejectedInstanceDelay", rn.getDeleteRejectedInstanceDelay());
             writer.writeNotNull("dcmDeleteRejectionNoteDelay", rn.getDeleteRejectionNoteDelay());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeStudyRetentionPolicy(JsonWriter writer, Collection<StudyRetentionPolicy> studyRetentionPolicies) {
+        writer.writeStartArray("dcmStudyRetentionPolicy");
+        for (StudyRetentionPolicy srp : studyRetentionPolicies) {
+            writer.writeStartObject();
+            writer.writeNotNull("cn", srp.getCommonName());
+            writer.writeNotNull("dcmRetentionPeriod", srp.getRetentionPeriod());
+            writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
+            writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -522,6 +537,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRejectionNote":
                     loadRejectionNoteFrom(arcDev, reader);
+                    break;
+                case "dcmStudyRetentionPolicy":
+                    loadStudyRetentionPolicy(arcDev, reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -891,6 +909,36 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             overwritePreviousRejectionCodes[i] = new Code(overwritePreviousRejectionAsStringArray[i]);
         }
         return overwritePreviousRejectionCodes;
+    }
+
+    private void loadStudyRetentionPolicy(ArchiveDeviceExtension arcDev, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            StudyRetentionPolicy srp = new StudyRetentionPolicy();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        srp.setCommonName(reader.stringValue());
+                        break;
+                    case "dcmRetentionPeriod":
+                        srp.setRetentionPeriod(Period.parse(reader.stringValue()));
+                        break;
+                    case "dcmRulePriority":
+                        srp.setPriority(reader.intValue());
+                        break;
+                    case "dcmProperty":
+                        srp.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            arcDev.addStudyRetentionPolicy(srp);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
     }
 
     @Override

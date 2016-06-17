@@ -58,6 +58,7 @@ import javax.naming.directory.*;
 import javax.naming.directory.Attributes;
 import java.net.URI;
 import java.security.cert.CertificateException;
+import java.time.Period;
 import java.util.*;
 
 /**
@@ -304,6 +305,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeAttributeCoercions(arcDev.getAttributeCoercions(), deviceDN);
         storeQueryRetrieveViews(deviceDN, arcDev);
         storeRejectNotes(deviceDN, arcDev);
+        storeStudyRetentionPolicies(arcDev.getStudyRetentionPolicies(), deviceDN);
     }
 
     @Override
@@ -322,6 +324,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadAttributeCoercions(arcdev.getAttributeCoercions(), deviceDN);
         loadQueryRetrieveViews(arcdev, deviceDN);
         loadRejectNotes(arcdev, deviceDN);
+        loadStudyRetentionPolicies(arcdev.getStudyRetentionPolicies(), deviceDN);
     }
 
     @Override
@@ -343,6 +346,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
         mergeQueryRetrieveViews(aa, bb, deviceDN);
         mergeRejectNotes(aa, bb, deviceDN);
+        mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
     }
 
     @Override
@@ -460,6 +464,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeExportRules(aeExt.getExportRules(), aeDN);
         storeCompressionRules(aeExt.getCompressionRules(), aeDN);
         storeAttributeCoercions(aeExt.getAttributeCoercions(), aeDN);
+        storeStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
     }
 
     @Override
@@ -471,6 +476,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadExportRules(aeExt.getExportRules(), aeDN);
         loadCompressionRules(aeExt.getCompressionRules(), aeDN);
         loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN);
+        loadStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
     }
 
     @Override
@@ -483,6 +489,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeExportRules(aa.getExportRules(), bb.getExportRules(), aeDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
         mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
+        mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), aeDN);
     }
 
     private void storeAttributeFilter(String deviceDN, ArchiveDeviceExtension arcDev)
@@ -914,6 +921,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeStudyRetentionPolicies(Collection<StudyRetentionPolicy> policies, String parentDN)
+            throws NamingException {
+        for (StudyRetentionPolicy policy : policies) {
+            String cn = policy.getCommonName();
+            config.createSubcontext(
+                    LdapUtils.dnOf("cn", cn, parentDN),
+                    storeTo(policy, new BasicAttributes(true)));
+        }
+    }
+
     private Attributes storeTo(ArchiveCompressionRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmArchiveCompressionRule");
         attrs.put("cn", rule.getCommonName());
@@ -921,6 +938,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dicomTransferSyntax", rule.getTransferSyntax());
         LdapUtils.storeNotEmpty(attrs, "dcmImageWriteParam", rule.getImageWriteParams());
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", rule.getPriority(), 0);
+        return attrs;
+    }
+
+    private Attributes storeTo(StudyRetentionPolicy policy, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmStudyRetentionPolicy");
+        attrs.put("cn", policy.getCommonName());
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(policy.getConditions().getMap()));
+        LdapUtils.storeNotNull(attrs, "dcmRetentionPeriod", policy.getRetentionPeriod());
+        LdapUtils.storeNotDef(attrs, "dcmRulePriority", policy.getPriority(), 0);
         return attrs;
     }
 
@@ -937,6 +963,24 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setImageWriteParams(Property.valueOf(LdapUtils.stringArray(attrs.get("dcmImageWriteParam"))));
                 rule.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 rules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadStudyRetentionPolicies(Collection<StudyRetentionPolicy> policies, String parentDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmStudyRetentionPolicy)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                StudyRetentionPolicy policy = new StudyRetentionPolicy(LdapUtils.stringValue(attrs.get("cn"), null));
+                policy.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                policy.setRetentionPeriod(Period.parse(LdapUtils.stringValue(attrs.get("dcmRetentionPeriod"), null)));
+                policy.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                policies.add(policy);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -962,6 +1006,24 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeStudyRetentionPolicies(
+            Collection<StudyRetentionPolicy> prevPolicies, Collection<StudyRetentionPolicy> policies, String parentDN)
+            throws NamingException {
+        for (StudyRetentionPolicy prevRule : prevPolicies) {
+            String cn = prevRule.getCommonName();
+            if (findStudyRetentionPolicyByCN(policies, cn) == null)
+                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+        }
+        for (StudyRetentionPolicy policy : policies) {
+            String cn = policy.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            StudyRetentionPolicy prevPolicy = findStudyRetentionPolicyByCN(prevPolicies, cn);
+            if (prevPolicy == null)
+                config.createSubcontext(dn, storeTo(policy, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prevPolicy, policy, new ArrayList<ModificationItem>()));
+        }
+    }
 
     private void mergeAttributeCoercions(
             Collection<ArchiveAttributeCoercion> prevCoercions,
@@ -992,10 +1054,25 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private List<ModificationItem> storeDiffs(
+            StudyRetentionPolicy prev, StudyRetentionPolicy policy, ArrayList<ModificationItem> mods) {
+        storeDiffProperties(mods, prev.getConditions().getMap(), policy.getConditions().getMap());
+        LdapUtils.storeDiff(mods, "dcmRetentionPeriod", prev.getRetentionPeriod(), policy.getRetentionPeriod());
+        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), policy.getPriority(), 0);
+        return mods;
+    }
+
     private ArchiveCompressionRule findCompressionRuleByCN(Collection<ArchiveCompressionRule> rules, String cn) {
         for (ArchiveCompressionRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
+        return null;
+    }
+
+    private StudyRetentionPolicy findStudyRetentionPolicyByCN(Collection<StudyRetentionPolicy> policies, String cn) {
+        for (StudyRetentionPolicy policy : policies)
+            if (policy.getCommonName().equals(cn))
+                return policy;
         return null;
     }
 

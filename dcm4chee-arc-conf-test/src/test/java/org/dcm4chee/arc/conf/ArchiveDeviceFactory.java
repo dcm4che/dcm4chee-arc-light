@@ -53,6 +53,7 @@ import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.dcm4che3.util.Property;
 
 import java.net.URI;
+import java.time.Period;
 import java.util.EnumSet;
 
 import static org.dcm4che3.net.TransferCapability.Role.SCP;
@@ -773,6 +774,16 @@ class ArchiveDeviceFactory {
             "maxPixelValueError=0"
     );
 
+    static final StudyRetentionPolicy LONG_TERM = createStudyRetentionPolicy(
+            "LONG_TERM",
+            "P5Y3M20D"
+    );
+
+    static final StudyRetentionPolicy SHORT_TERM = createStudyRetentionPolicy(
+            "SHORT_TERM",
+            "P3W"
+    );
+
     static final String[] HL7_MESSAGE_TYPES = {
             "ADT^A02",
             "ADT^A03",
@@ -961,6 +972,12 @@ class ArchiveDeviceFactory {
         rule.setTransferSyntax(tsuid);
         rule.setImageWriteParams(Property.valueOf(writeParams));
         return rule;
+    }
+
+    private static StudyRetentionPolicy createStudyRetentionPolicy(String cn, String retentionPeriod) {
+        StudyRetentionPolicy policy = new StudyRetentionPolicy(cn);
+        policy.setRetentionPeriod(Period.parse(retentionPeriod));
+        return policy;
     }
 
     private static ArchiveAttributeCoercion createAttributeCoercion(
@@ -1152,6 +1169,9 @@ class ArchiveDeviceFactory {
             ext.addCompressionRule(JPEG_LOSSLESS);
             ext.addCompressionRule(JPEG_LS);
             ext.addCompressionRule(JPEG_2000);
+
+            ext.addStudyRetentionPolicy(LONG_TERM);
+            ext.addStudyRetentionPolicy(SHORT_TERM);
 
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, null, configType));
