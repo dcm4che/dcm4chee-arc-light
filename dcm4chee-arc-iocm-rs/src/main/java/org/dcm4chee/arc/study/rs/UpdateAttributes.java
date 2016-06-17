@@ -105,8 +105,7 @@ public class UpdateAttributes {
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID != null)
             throw new WebApplicationException("Patient ID in message body", Response.Status.BAD_REQUEST);
-        patientID = new IDWithIssuer(UIDUtils.createUID(),
-                getApplicationEntity().getAEExtension(ArchiveAEExtension.class).issuerOfCreatedPatientID());
+        patientID = new IDWithIssuer(UIDUtils.createUID(), getApplicationEntity().getDevice().getIssuerOfPatientID());
         patientID.exportPatientIDWithIssuer(attrs);
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
         ctx.setAttributes(attrs);
