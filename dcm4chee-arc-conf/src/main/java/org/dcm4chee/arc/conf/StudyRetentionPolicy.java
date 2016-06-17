@@ -2,6 +2,8 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 
+import java.time.Period;
+
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -15,7 +17,7 @@ public class StudyRetentionPolicy {
 
     private Conditions conditions = new Conditions();
 
-    private Duration retentionPeriod;
+    private Period retentionPeriod;
 
     public StudyRetentionPolicy() {
     }
@@ -48,11 +50,11 @@ public class StudyRetentionPolicy {
         this.conditions = conditions;
     }
 
-    public Duration getRetentionPeriod() {
+    public Period getRetentionPeriod() {
         return retentionPeriod;
     }
 
-    public void setRetentionPeriod(Duration retentionPeriod) {
+    public void setRetentionPeriod(Period retentionPeriod) {
         this.retentionPeriod = retentionPeriod;
     }
 
