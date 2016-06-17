@@ -104,7 +104,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private MWLStatus[] hideSPSWithStatusFrom = {};
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
-    private Issuer issuerOfCreatedPatientID;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -528,14 +527,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ErrorLogFilePattern = hl7ErrorLogFilePattern;
     }
 
-    public Issuer getIssuerOfCreatedPatientID() {
-        return issuerOfCreatedPatientID;
-    }
-
-    public void setIssuerOfCreatedPatientID(Issuer issuerOfCreatedPatientID) {
-        this.issuerOfCreatedPatientID = issuerOfCreatedPatientID;
-    }
-
     public Duration getPurgeQueueMessagePollingInterval() {
         return purgeQueueMessagePollingInterval;
     }
@@ -792,7 +783,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSpoolDirectory = arcdev.wadoSpoolDirectory;
         hl7LogFilePattern = arcdev.hl7LogFilePattern;
         hl7ErrorLogFilePattern = arcdev.hl7ErrorLogFilePattern;
-        issuerOfCreatedPatientID = arcdev.issuerOfCreatedPatientID;
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
         purgeQueueMessageFetchSize = arcdev.purgeQueueMessageFetchSize;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;

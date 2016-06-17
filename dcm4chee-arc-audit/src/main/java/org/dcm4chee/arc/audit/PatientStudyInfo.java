@@ -122,34 +122,6 @@ class PatientStudyInfo {
         };
     }
 
-    PatientStudyInfo(ProcedureContext ctx) {
-        fields = new String[] {
-                ctx.getRemoteHostName(),
-                ctx.getHL7MessageHeader().getSendingApplicationWithFacility(),
-                ctx.getHL7MessageHeader().getReceivingApplicationWithFacility(),
-                ctx.getStudyInstanceUID(),
-                ctx.getAttributes().getString(Tag.AccessionNumber),
-                AuditServiceUtils.getPatID(ctx.getPatient().getAttributes()),
-                ctx.getPatient().getAttributes().getString(Tag.PatientName),
-                getOutcome(ctx.getException()),
-                ctx.getAttributes().getString(Tag.StudyDate)
-        };
-    }
-
-    PatientStudyInfo(StudyMgtContext ctx) {
-        fields = new String[] {
-                ctx.getHttpRequest().getRemoteHost(),
-                ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest()) : ctx.getHttpRequest().getRemoteAddr(),
-                ctx.getApplicationEntity().getAETitle(),
-                ctx.getStudyInstanceUID(),
-                ctx.getAttributes().getString(Tag.AccessionNumber),
-                AuditServiceUtils.getPatID(ctx.getStudy().getPatient().getAttributes()),
-                ctx.getStudy().getPatient().getAttributes().getString(Tag.PatientName),
-                getOutcome(ctx.getException()),
-                ctx.getAttributes().getString(Tag.StudyDate)
-        };
-    }
 
     private String getOutcome(Exception e) {
         return e != null ? e.getMessage() : null;

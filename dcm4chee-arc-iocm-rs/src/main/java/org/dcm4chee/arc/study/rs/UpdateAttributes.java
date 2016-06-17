@@ -105,8 +105,7 @@ public class UpdateAttributes {
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID != null)
             throw new WebApplicationException("Patient ID in message body", Response.Status.BAD_REQUEST);
-        patientID = new IDWithIssuer(UIDUtils.createUID(),
-                getApplicationEntity().getAEExtension(ArchiveAEExtension.class).issuerOfCreatedPatientID());
+        patientID = new IDWithIssuer(UIDUtils.createUID(), getApplicationEntity().getDevice().getIssuerOfPatientID());
         patientID.exportPatientIDWithIssuer(attrs);
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
         ctx.setAttributes(attrs);
@@ -127,7 +126,7 @@ public class UpdateAttributes {
         IDWithIssuer bodyPatientID = ctx.getPatientID();
         if (bodyPatientID == null)
             throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
-        if (patientID.equals(bodyPatientID)) {
+        if (patientID.matches(bodyPatientID)) {
             patientService.updatePatient(ctx);
         } else {
             ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
@@ -183,7 +182,7 @@ public class UpdateAttributes {
 
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = this.ae;
-        if (ae != null) {
+        if (ae == null) {
             ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())
                 throw new WebApplicationException(
