@@ -353,7 +353,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             });
                             // local["00081030"] = { "vr": "SH", "Value":[""]};
                             $http.put(
-                                "../aets/"+$scope.aet+"/rs/studies/"+local["0020000D"].Value[0],
+                                "../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies/"+local["0020000D"].Value[0],
                                 local
                             ).then(function successCallback(response) {
                                 if(mode === "edit"){

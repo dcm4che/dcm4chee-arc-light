@@ -40,11 +40,12 @@
 
 package org.dcm4chee.arc.study.rs;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -84,6 +85,8 @@ public class UpdateAttributes {
     @PathParam("AETitle")
     private String aet;
 
+    private ApplicationEntity ae;
+
     @Context
     private HttpServletRequest request;
 
@@ -92,44 +95,82 @@ public class UpdateAttributes {
         return request.getRequestURI();
     }
 
+    @POST
+    @Path("/patients")
+    @Consumes("application/json")
+    public String createPatient(InputStream in) throws Exception {
+        logRequest();
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        Attributes attrs = reader.readDataset(null);
+        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
+        if (patientID != null)
+            throw new WebApplicationException("Patient ID in message body", Response.Status.BAD_REQUEST);
+        patientID = new IDWithIssuer(UIDUtils.createUID(),
+                getApplicationEntity().getAEExtension(ArchiveAEExtension.class).issuerOfCreatedPatientID());
+        patientID.exportPatientIDWithIssuer(attrs);
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+        ctx.setAttributes(attrs);
+        ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+        patientService.updatePatient(ctx);
+        return patientID.toString();
+    }
+
     @PUT
     @Path("/patients/{PatientID}")
     @Consumes("application/json")
-    public void updatePatient(@PathParam("PatientID") String patientID, InputStream in) throws Exception {
+    public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
-        IDWithIssuer idWithIssuer = new IDWithIssuer(patientID);
-        if (idWithIssuer == null)
-            throw new WebApplicationException("missing query parameter: PatientID", Response.Status.BAD_REQUEST);
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         ctx.setAttributes(reader.readDataset(null));
-        IDWithIssuer newPatientID = ctx.getPatientID();
-        if (patientID == null)
-            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
         ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-        if (idWithIssuer.equals(patientID)) {
+        IDWithIssuer bodyPatientID = ctx.getPatientID();
+        if (bodyPatientID == null)
+            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+        if (patientID.equals(bodyPatientID)) {
             patientService.updatePatient(ctx);
         } else {
-            ctx.setPreviousAttributes(idWithIssuer.exportPatientIDWithIssuer(null));
+            ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
         }
     }
 
-    @PUT
-    @Path("/studies/{StudyUID}")
+    @POST
+    @Path("/patients/{PatientID}/studies")
     @Consumes("application/json")
-    public void updateStudy(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
+    public String updateStudy(@PathParam("PatientID") IDWithIssuer patientID,
+                            InputStream in) throws Exception {
+        logRequest();
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        Attributes attrs = reader.readDataset(null);
+        String studyIUID = attrs.getString(Tag.StudyInstanceUID);
+        if (studyIUID != null)
+            throw new WebApplicationException("Study Instance UID in message body", Response.Status.BAD_REQUEST);
+        studyIUID = UIDUtils.createUID();
+        attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        StudyMgtContext ctx = iocmService.createIOCMContextWEB(request, getApplicationEntity());
+        ctx.setPatientID(patientID);
+        ctx.setAttributes(attrs);
+        iocmService.updateStudy(ctx);
+        return studyIUID;
+    }
+
+    @PUT
+    @Path("/patients/{PatientID}/studies/{StudyUID}")
+    @Consumes("application/json")
+    public void updateStudy(@PathParam("PatientID") IDWithIssuer patientID,
+                            @PathParam("StudyUID") String studyUID,
+                            InputStream in) throws Exception {
         logRequest();
         StudyMgtContext ctx = iocmService.createIOCMContextWEB(request, getApplicationEntity());
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        ctx.setPatientID(patientID);
         ctx.setAttributes(reader.readDataset(null));
-        String studyUIDBody = ctx.getStudyInstanceUID();
-        if (ctx.getPatientID() == null)
-            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
-        if (studyUIDBody == null)
+        String studyIUIDBody = ctx.getStudyInstanceUID();
+        if (studyIUIDBody == null)
             throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
-        if (!studyUIDBody.equals(studyUID))
-            throw new WebApplicationException("Study Instance UID[" + studyUIDBody +
+        if (!studyIUIDBody.equals(studyUID))
+            throw new WebApplicationException("Study Instance UID[" + studyIUIDBody +
                     "] in message body does not match Study Instance UID[" + studyUID + "] in path",
                     Response.Status.BAD_REQUEST);
 
@@ -141,11 +182,15 @@ public class UpdateAttributes {
     }
 
     private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
+        ApplicationEntity ae = this.ae;
+        if (ae != null) {
+            ae = device.getApplicationEntity(aet, true);
+            if (ae == null || !ae.isInstalled())
+                throw new WebApplicationException(
+                        "No such Application Entity: " + aet,
+                        Response.Status.SERVICE_UNAVAILABLE);
+            this.ae = ae;
+        }
         return ae;
     }
 

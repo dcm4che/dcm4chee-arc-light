@@ -111,13 +111,17 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     @Override
     public void setAttributes(Attributes attrs) {
         this.attributes = attrs;
-        this.patientID = IDWithIssuer.pidOf(attrs);
         this.studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
     }
 
     @Override
     public IDWithIssuer getPatientID() {
         return patientID;
+    }
+
+    @Override
+    public void setPatientID(IDWithIssuer patientID) {
+        this.patientID = patientID;
     }
 
     @Override

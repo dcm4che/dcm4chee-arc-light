@@ -129,8 +129,8 @@ class PatientStudyInfo {
                 ctx.getHL7MessageHeader().getReceivingApplicationWithFacility(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
-                ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue,
-                ctx.getPatient().getPatientName().toString(),
+                AuditServiceUtils.getPatID(ctx.getPatient().getAttributes()),
+                ctx.getPatient().getAttributes().getString(Tag.PatientName),
                 getOutcome(ctx.getException()),
                 ctx.getAttributes().getString(Tag.StudyDate)
         };
@@ -144,7 +144,7 @@ class PatientStudyInfo {
                 ctx.getApplicationEntity().getAETitle(),
                 ctx.getStudyInstanceUID(),
                 ctx.getAttributes().getString(Tag.AccessionNumber),
-                ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue,
+                AuditServiceUtils.getPatID(ctx.getStudy().getPatient().getAttributes()),
                 ctx.getStudy().getPatient().getAttributes().getString(Tag.PatientName),
                 getOutcome(ctx.getException()),
                 ctx.getAttributes().getString(Tag.StudyDate)

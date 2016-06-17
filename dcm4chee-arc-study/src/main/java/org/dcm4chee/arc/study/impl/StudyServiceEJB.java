@@ -44,6 +44,7 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.NoSuchPatientException;
@@ -82,18 +83,22 @@ public class StudyServiceEJB {
             throw new NoSuchPatientException("Patient[id=" + ctx.getPatientID() + "] does not exists");
 
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        Attributes attrs = ctx.getAttributes();
+        AttributeFilter filter = ctx.getStudyAttributeFilter();
+        Attributes attrs = new Attributes(ctx.getAttributes(), filter.getSelection());
         try {
             Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .getSingleResult();
+            if (attrs.equals(study.getAttributes()))
+                return;
+
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             ctx.setStudy(study);
             if (study.getPatient().getPk() != patient.getPk())
                 throw new PatientMismatchException("" + patient + " does not match " +
                         study.getPatient() + " in existing " + study);
 
-            study.setAttributes(attrs, ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
+            study.setAttributes(attrs, filter, ctx.getFuzzyStr());
             study.setIssuerOfAccessionNumber(
                     findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
             setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
@@ -103,7 +108,7 @@ public class StudyServiceEJB {
             study.setStorageIDs(arcAE.storageID());
             study.setRejectionState(RejectionState.NONE);
             study.setAccessControlID(arcAE.getStoreAccessControlID());
-            study.setAttributes(attrs, ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
+            study.setAttributes(attrs, filter, ctx.getFuzzyStr());
             study.setIssuerOfAccessionNumber(
                     findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
             setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));

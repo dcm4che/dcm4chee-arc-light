@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.AEExtension;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
@@ -78,6 +79,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String alternativeCMoveSCP;
     private int qidoMaxNumberOfResults;
     private MWLStatus[] hideSPSWithStatusFromMWL = {};
+    private Issuer issuerOfCreatedPatientID;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -369,6 +371,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
     }
 
+    public Issuer getIssuerOfCreatedPatientID() {
+        return issuerOfCreatedPatientID;
+    }
+
+    public void setIssuerOfCreatedPatientID(Issuer issuerOfCreatedPatientID) {
+        this.issuerOfCreatedPatientID = issuerOfCreatedPatientID;
+    }
+
+    public Issuer issuerOfCreatedPatientID() {
+        return issuerOfCreatedPatientID != null
+                ? issuerOfCreatedPatientID
+                : getArchiveDeviceExtension().getIssuerOfCreatedPatientID();
+    }
+
     public MWLStatus[] getHideSPSWithStatusFromMWL() {
         return hideSPSWithStatusFromMWL;
     }
@@ -461,6 +477,7 @@ public class ArchiveAEExtension extends AEExtension {
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
+        issuerOfCreatedPatientID = aeExt.issuerOfCreatedPatientID;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

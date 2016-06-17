@@ -266,12 +266,12 @@
     },
     "hl7LogFilePattern": {
       "title": "HL7 Log File Pattern",
-      "description": "Path to Unparsed HL7 messages logs. If absent, there is no logging.",
+      "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging.",
       "type": "string"
     },
     "hl7ErrorLogFilePattern": {
       "title": "HL7 Error Log File Pattern",
-      "description": "Path to Unparsed HL7 error messages logs. If absent, there is no logging.",
+      "description": "Path to HL7 messages which will be captured exactly as received, when processing of HL7 messages fails. If absent, there is no logging.",
       "type": "string"
     },
     "dcmUnzipVendorDataToURI": {
