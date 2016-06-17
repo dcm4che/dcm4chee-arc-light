@@ -182,7 +182,7 @@ public class UpdateAttributes {
 
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = this.ae;
-        if (ae != null) {
+        if (ae == null) {
             ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())
                 throw new WebApplicationException(
