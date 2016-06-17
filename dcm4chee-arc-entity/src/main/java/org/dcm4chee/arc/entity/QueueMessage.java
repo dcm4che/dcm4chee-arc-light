@@ -40,11 +40,10 @@
 
 package org.dcm4chee.arc.entity;
 
-import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
 
 import javax.jms.JMSException;
+import javax.jms.JMSRuntimeException;
 import javax.jms.ObjectMessage;
 import javax.json.Json;
 import javax.json.stream.JsonParser;
@@ -162,12 +161,16 @@ public class QueueMessage {
     public QueueMessage() {
     }
 
-    public QueueMessage(String queueName, ObjectMessage msg) throws JMSException {
-        this.queueName = queueName;
-        this.messageID = msg.getJMSMessageID();
-        this.messageProperties = propertiesOf(msg);
-        this.messageBody = serialize(msg.getObject());
-        this.status = Status.SCHEDULED;
+    public QueueMessage(String queueName, ObjectMessage msg) {
+        try {
+            this.queueName = queueName;
+            this.messageID = msg.getJMSMessageID();
+            this.messageProperties = propertiesOf(msg);
+            this.messageBody = serialize(msg.getObject());
+            this.status = Status.SCHEDULED;
+        } catch (JMSException e) {
+            throw toJMSRuntimeException(e);
+        }
     }
 
     public long getPk() {
@@ -234,16 +237,22 @@ public class QueueMessage {
         return scheduledTime;
     }
 
-    public void setScheduledTime(Date scheduledTime) {
-        this.scheduledTime = scheduledTime;
-    }
-
     public String getOutcomeMessage() {
         return outcomeMessage;
     }
 
     public void setOutcomeMessage(String outcomeMessage) {
         this.outcomeMessage = outcomeMessage != null ? StringUtils.truncate(outcomeMessage, 255) : null;
+    }
+
+    public void reschedule(ObjectMessage msg, Date date) {
+        try {
+            this.messageID = msg.getJMSMessageID();
+            this.scheduledTime = date;
+            this.status = Status.SCHEDULED;
+        } catch (JMSException e) {
+            throw toJMSRuntimeException(e);
+        }
     }
 
     public void writeAsJSON(Writer out) throws IOException {
@@ -302,35 +311,39 @@ public class QueueMessage {
         return sb.toString();
     }
 
-    public ObjectMessage initProperties(ObjectMessage msg) throws JMSException {
-        int len = messageProperties.length();
-        char[] buf = new char[len + 2];
-        buf[0] = '{';
-        messageProperties.getChars(0, len, buf, 1);
-        buf[len+1] = '}';
-        try (JsonParser parser = Json.createParser(new CharArrayReader(buf))) {
-            parser.next();
-            while (parser.next() == JsonParser.Event.KEY_NAME) {
-                String key = parser.getString();
-                switch (parser.next()) {
-                    case VALUE_STRING:
-                        msg.setStringProperty(key, parser.getString());
-                        break;
-                    case VALUE_NUMBER:
-                        msg.setIntProperty(key, parser.getInt());
-                        break;
-                    case VALUE_FALSE:
-                        msg.setBooleanProperty(key, false);
-                        break;
-                    case VALUE_TRUE:
-                        msg.setBooleanProperty(key, true);
-                        break;
-                    default:
-                        throw new IllegalStateException(messageProperties);
+    public ObjectMessage initProperties(ObjectMessage msg) {
+        try {
+            int len = messageProperties.length();
+            char[] buf = new char[len + 2];
+            buf[0] = '{';
+            messageProperties.getChars(0, len, buf, 1);
+            buf[len+1] = '}';
+            try (JsonParser parser = Json.createParser(new CharArrayReader(buf))) {
+                parser.next();
+                while (parser.next() == JsonParser.Event.KEY_NAME) {
+                    String key = parser.getString();
+                    switch (parser.next()) {
+                        case VALUE_STRING:
+                            msg.setStringProperty(key, parser.getString());
+                            break;
+                        case VALUE_NUMBER:
+                            msg.setIntProperty(key, parser.getInt());
+                            break;
+                        case VALUE_FALSE:
+                            msg.setBooleanProperty(key, false);
+                            break;
+                        case VALUE_TRUE:
+                            msg.setBooleanProperty(key, true);
+                            break;
+                        default:
+                            throw new IllegalStateException(messageProperties);
+                    }
                 }
             }
+            return msg;
+        } catch (JMSException e) {
+            throw toJMSRuntimeException(e);
         }
-        return msg;
     }
 
     public Serializable getMessageBody() {
@@ -370,6 +383,7 @@ public class QueueMessage {
     @Override
     public String toString() {
         StringWriter w = new StringWriter(256);
+        w.write("QueueMessage");
         try {
             writeAsJSON(w);
         } catch (IOException e) {
@@ -377,4 +391,9 @@ public class QueueMessage {
         }
         return w.toString();
     }
+
+    private JMSRuntimeException toJMSRuntimeException(JMSException e) {
+        return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+    }
+
 }
