@@ -215,15 +215,15 @@ public class AuditService {
     }
 
     private void auditConnectionRejected(SpoolFileReader readerObj, AuditServiceUtils.EventType eventType) {
-        AuditInfo crInfo = new AuditInfo(readerObj.getMainInfo());
-        EventIdentification ei = getEI(eventType, crInfo.getField(AuditInfo.OUTCOME), log().timeStamp());
+        AuditInfo crI = new AuditInfo(readerObj.getMainInfo());
+        EventIdentification ei = getEI(eventType, crI.getField(AuditInfo.OUTCOME), log().timeStamp());
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(getAET(device),
-                crInfo.getField(AuditInfo.CALLED_HOST)).altUserID(AuditLogger.processID()).requester(false).build();
+                crI.getField(AuditInfo.CALLED_HOST)).altUserID(AuditLogger.processID()).requester(false).build();
         String userID, napID;
-        userID = napID = crInfo.getField(AuditInfo.CALLING_HOST);
+        userID = napID = crI.getField(AuditInfo.CALLING_HOST);
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(userID, napID).requester(true).build();
         BuildParticipantObjectIdentification poi = new BuildParticipantObjectIdentification.Builder(
-                crInfo.getField(AuditInfo.CALLING_HOST), AuditMessages.ParticipantObjectIDTypeCode.NodeID,
+                crI.getField(AuditInfo.CALLING_HOST), AuditMessages.ParticipantObjectIDTypeCode.NodeID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, null).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi), log());
     }
@@ -239,7 +239,18 @@ public class AuditService {
             Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
             try (BufferedOutputStream out = new BufferedOutputStream(
                     Files.newOutputStream(file, StandardOpenOption.APPEND))) {
-                new DataOutputStream(out).writeUTF(new QueryInfo(ctx).toString());
+                String callingAET = ctx.getCallingAET() != null ? ctx.getCallingAET()
+                                : ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                                ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
+                                : ctx.getRemoteHostName();
+                BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
+                                    .callingAET(callingAET).calledAET(ctx.getHttpRequest() != null
+                                    ? ctx.getHttpRequest().getRequestURI() : ctx.getCalledAET())
+                                    .queryPOID(ctx.getSOPClassUID() != null ? ctx.getSOPClassUID()
+                                            : ctx.getQueryRetrieveLevel().toString())
+                                    .queryString(ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRequestURI()
+                                            + ctx.getHttpRequest().getQueryString() : null).build();
+                new DataOutputStream(out).writeUTF(new AuditInfo(i).toString());
                 if (ctx.getAssociation() != null) {
                     try (DicomOutputStream dos = new DicomOutputStream(out, UID.ImplicitVRLittleEndian)) {
                         dos.writeDataset(null, ctx.getQueryKeys());
@@ -256,26 +267,26 @@ public class AuditService {
     }
 
     private void auditQuery(Path file, AuditServiceUtils.EventType eventType) throws IOException {
-        QueryInfo qrInfo;
+        AuditInfo qrI;
         List<ActiveParticipant> apList;
         List<ParticipantObjectIdentification> poiList;
         EventIdentification ei = getEI(eventType, null, log().timeStamp());
         try (InputStream in = new BufferedInputStream(Files.newInputStream(file))) {
-            qrInfo = new QueryInfo(new DataInputStream(in).readUTF());
-            BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(qrInfo.getField(QueryInfo.CALLING_AET),
-                    qrInfo.getField(QueryInfo.REMOTE_HOST)).requester(eventType.isSource).roleIDCode(eventType.source)
+            qrI = new AuditInfo(new DataInputStream(in).readUTF());
+            BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(qrI.getField(AuditInfo.CALLING_AET),
+                    qrI.getField(AuditInfo.CALLING_HOST)).requester(eventType.isSource).roleIDCode(eventType.source)
                     .build();
-            BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(qrInfo.getField(QueryInfo.CALLED_AET),
+            BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(qrI.getField(AuditInfo.CALLED_AET),
                     getLocalHostName(log())).altUserID(AuditLogger.processID())
                     .requester(eventType.isDest).roleIDCode(eventType.destination).build();
             apList = getApList(ap1, ap2);
             BuildParticipantObjectIdentification poi;
             if (eventType == AuditServiceUtils.EventType.QUERY_QIDO) {
                 poi = new BuildParticipantObjectIdentification.Builder(
-                        qrInfo.getField(QueryInfo.PARTICIPANT_ID), AuditMessages.ParticipantObjectIDTypeCode.QIDO_QUERY,
+                        qrI.getField(AuditInfo.Q_POID), AuditMessages.ParticipantObjectIDTypeCode.QIDO_QUERY,
                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                         AuditMessages.ParticipantObjectTypeCodeRole.Query)
-                        .query(qrInfo.getField(QueryInfo.QUERY_STRING).getBytes())
+                        .query(qrI.getField(AuditInfo.Q_STRING).getBytes())
                         .detail(getPod("QueryEncoding", String.valueOf(StandardCharsets.UTF_8))).build();
             }
             else {
@@ -290,7 +301,7 @@ public class AuditService {
                     data = new byte[0];
                 }
                 poi = new BuildParticipantObjectIdentification.Builder(
-                        qrInfo.getField(QueryInfo.PARTICIPANT_ID), AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
+                        qrI.getField(AuditInfo.Q_POID), AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                         AuditMessages.ParticipantObjectTypeCodeRole.Query).query(data)
                         .detail(getPod("TransferSyntax", UID.ImplicitVRLittleEndian)).build();
