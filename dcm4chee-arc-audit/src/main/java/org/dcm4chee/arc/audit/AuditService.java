@@ -208,20 +208,22 @@ public class AuditService {
 
     void spoolConnectionRejected(Connection conn, Socket s, Throwable e) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
-        obj.add(new ConnectionRejectedInfo(conn, s, e));
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(s.getRemoteSocketAddress().toString())
+                                .calledHost(conn.getHostname()).outcome(e.getMessage()).build();
+        obj.add(new AuditInfo(i));
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.CONN__RJCT), obj);
     }
 
     private void auditConnectionRejected(SpoolFileReader readerObj, AuditServiceUtils.EventType eventType) {
-        ConnectionRejectedInfo crInfo = new ConnectionRejectedInfo(readerObj.getMainInfo());
-        EventIdentification ei = getEI(eventType, crInfo.getField(ConnectionRejectedInfo.OUTCOME_DESC), log().timeStamp());
+        AuditInfo crInfo = new AuditInfo(readerObj.getMainInfo());
+        EventIdentification ei = getEI(eventType, crInfo.getField(AuditInfo.OUTCOME), log().timeStamp());
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(getAET(device),
-                crInfo.getField(ConnectionRejectedInfo.LOCAL_ADDR)).altUserID(AuditLogger.processID()).requester(false).build();
+                crInfo.getField(AuditInfo.CALLED_HOST)).altUserID(AuditLogger.processID()).requester(false).build();
         String userID, napID;
-        userID = napID = crInfo.getField(ConnectionRejectedInfo.REMOTE_ADDR);
+        userID = napID = crInfo.getField(AuditInfo.CALLING_HOST);
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(userID, napID).requester(true).build();
         BuildParticipantObjectIdentification poi = new BuildParticipantObjectIdentification.Builder(
-                crInfo.getField(ConnectionRejectedInfo.REMOTE_ADDR), AuditMessages.ParticipantObjectIDTypeCode.NodeID,
+                crInfo.getField(AuditInfo.CALLING_HOST), AuditMessages.ParticipantObjectIDTypeCode.NodeID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, null).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi), log());
     }
