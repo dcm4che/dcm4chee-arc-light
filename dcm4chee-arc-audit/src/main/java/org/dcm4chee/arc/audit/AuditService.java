@@ -101,7 +101,7 @@ public class AuditService {
         Calendar eventTime = getEventTime(path, log());
         switch (eventType.eventClass) {
             case CONN_REJECT:
-                auditConnectionRejected(readerObj, eventType);
+                auditConnectionRejected(new AuditInfo(readerObj.getMainInfo()), eventType);
                 break;
             case STORE_WADOR:
                 auditStoreOrWADORetrieve(readerObj, eventTime, eventType);
@@ -117,7 +117,7 @@ public class AuditService {
                 auditQuery(path, eventType);
                 break;
             case HL7:
-                auditPatientRecord(readerObj, eventType);
+                auditPatientRecord(new AuditInfo(readerObj.getMainInfo()), eventType);
                 break;
             case PROC_STUDY:
                 auditProcedureRecord(readerObj, eventType);
@@ -214,8 +214,7 @@ public class AuditService {
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.CONN__RJCT), obj);
     }
 
-    private void auditConnectionRejected(SpoolFileReader readerObj, AuditServiceUtils.EventType eventType) {
-        AuditInfo crI = new AuditInfo(readerObj.getMainInfo());
+    private void auditConnectionRejected(AuditInfo crI, AuditServiceUtils.EventType eventType) {
         EventIdentification ei = getEI(eventType, crI.getField(AuditInfo.OUTCOME), log().timeStamp());
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(getAET(device),
                 crI.getField(AuditInfo.CALLED_HOST)).altUserID(AuditLogger.processID()).requester(false).build();
@@ -482,23 +481,48 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forHL7(ctx);
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            obj.add(new HL7Info(ctx, eventType));
+            String source = null;
+            String dest = null;
+            if (ctx.getHttpRequest() != null) {
+                source = ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
+                        ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
+                        : ctx.getHttpRequest().getRemoteAddr();
+                dest = ctx.getCalledAET();
+            }
+            if (ctx.getHL7MessageHeader() != null) {
+                source = ctx.getHL7MessageHeader().getSendingApplicationWithFacility();
+                dest = ctx.getHL7MessageHeader().getReceivingApplicationWithFacility();
+            }
+            if (ctx.getAssociation() != null) {
+                source = ctx.getAssociation().getCallingAET();
+                dest = ctx.getAssociation().getCalledAET();
+            }
+            String pID = eventType == AuditServiceUtils.EventType.HL7_DELETE && ctx.getPreviousPatientID() != null
+                    ? ctx.getPreviousPatientID().toString()
+                    : ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue;
+            String pName = eventType == AuditServiceUtils.EventType.HL7_DELETE
+                    ? StringUtils.maskEmpty(ctx.getPreviousAttributes().getString(Tag.PatientName), null)
+                    : StringUtils.maskEmpty(ctx.getAttributes().getString(Tag.PatientName), null);
+            BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest() != null
+                                ? ctx.getHttpRequest().getRemoteAddr() : ctx.getRemoteHostName())
+                                .callingAET(source).calledAET(dest).pID(pID).pName(pName)
+                                .outcome(getOD(ctx.getException())).build();
+            obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
     }
 
-    private void auditPatientRecord(SpoolFileReader readerObj, AuditServiceUtils.EventType et) {
-        HL7Info hl7i = new HL7Info(readerObj.getMainInfo());
-        EventIdentification ei = getEI(et, hl7i.getField(HL7Info.OUTCOME), log().timeStamp());
-        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(hl7i.getField(HL7Info.CALLING_AET),
-                hl7i.getField(HL7Info.CALLING_HOSTNAME)).requester(et.isSource).roleIDCode(et.source).build();
-        BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(hl7i.getField(HL7Info.CALLED_AET),
+    private void auditPatientRecord(AuditInfo hl7I, AuditServiceUtils.EventType et) {
+        EventIdentification ei = getEI(et, hl7I.getField(AuditInfo.OUTCOME), log().timeStamp());
+        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(hl7I.getField(AuditInfo.CALLING_AET),
+                hl7I.getField(AuditInfo.CALLING_HOST)).requester(et.isSource).roleIDCode(et.source).build();
+        BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(hl7I.getField(AuditInfo.CALLED_AET),
                 getLocalHostName(log())).altUserID(AuditLogger.processID()).requester(et.isDest)
                 .roleIDCode(et.destination).build();
         BuildParticipantObjectIdentification poi = new BuildParticipantObjectIdentification.Builder(
-                hl7i.getField(HL7Info.PATIENT_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                hl7I.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                .name(hl7i.getField(HL7Info.PATIENT_NAME)).build();
+                .name(hl7I.getField(AuditInfo.P_NAME)).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi), log());
     }
 
@@ -541,6 +565,9 @@ public class AuditService {
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), log());
     }
 
+    private String getOD(Exception e) {
+        return e != null ? e.getMessage() : null;
+    }
 
     private ParticipantObjectDetail getPod(String type, String value) {
         return value != null ? AuditMessages.createParticipantObjectDetail(type, value.getBytes()) : null;
