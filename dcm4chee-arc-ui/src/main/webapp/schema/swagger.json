@@ -638,9 +638,9 @@
         ],
         "responses": {
           "200": {
-            "description": "Patient ID of created Patient"
+            "description": "Patient ID of created Patient",
             "schema": {
-              "type": "file"
+              "type": "string"
             }
           },
           "default": {
@@ -716,9 +716,9 @@
         ],
         "responses": {
           "200": {
-            "description": "Study Instance UID of created Study"
+            "description": "Study Instance UID of created Study",
             "schema": {
-              "type": "file"
+              "type": "string"
             }
           },
           "default": {
