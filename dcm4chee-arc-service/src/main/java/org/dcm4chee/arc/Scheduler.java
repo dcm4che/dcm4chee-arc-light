@@ -72,7 +72,8 @@ public abstract class Scheduler implements Runnable {
         Duration pollingInterval = getPollingInterval();
         if (pollingInterval != null) {
             pollingIntervalInSeconds = pollingInterval.getSeconds();
-            running = scheduledExecutor.scheduleWithFixedDelay(this, 0, pollingIntervalInSeconds, TimeUnit.SECONDS);
+            running = scheduledExecutor.scheduleWithFixedDelay(
+                    this, getInitalDelayInSeconds(), pollingIntervalInSeconds, TimeUnit.SECONDS);
         }
     }
 
@@ -97,4 +98,8 @@ public abstract class Scheduler implements Runnable {
     protected abstract org.slf4j.Logger log();
 
     protected abstract void execute();
+
+    protected long getInitalDelayInSeconds() {
+        return pollingIntervalInSeconds;
+    }
 }
