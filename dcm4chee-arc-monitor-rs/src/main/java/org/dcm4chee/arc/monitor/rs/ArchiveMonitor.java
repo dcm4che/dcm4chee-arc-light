@@ -51,9 +51,8 @@ import org.dcm4che3.net.Dimse;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -73,7 +72,7 @@ public class ArchiveMonitor {
     @GET
     @Path("associations")
     @Produces("application/json")
-    public StreamingOutput listDevices() throws Exception {
+    public StreamingOutput listOpenAssociations() throws Exception {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
@@ -106,6 +105,18 @@ public class ArchiveMonitor {
                 w.flush();
             }
         };
+    }
+
+    @DELETE
+    @Path("associations/{serialNo}")
+    public void abortAssociation(@PathParam("serialNo") int serialNo) {
+        for (Association as : device.listOpenAssociations()) {
+            if (as.getSerialNo() == serialNo) {
+                as.abort();
+                return;
+            }
+        }
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
     private void writeOtherProperties(Writer w, Association as) throws IOException {

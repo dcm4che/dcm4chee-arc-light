@@ -296,6 +296,35 @@
         }
       }
     },
+    "/monitor/associations/{serialNo}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "abort Association",
+        "operationId": "abortAssociation",
+        "parameters": [
+          {
+            "name": "serialNo",
+            "in": "path",
+            "description": "serial No of Association to abort",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no open Association with given serialNo found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/queue": {
       "get": {
         "tags": [
