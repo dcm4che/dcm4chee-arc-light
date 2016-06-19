@@ -49,7 +49,7 @@ import java.util.List;
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
         @ActivationConfigProperty(propertyName = "destination", propertyValue = StgCmtSCP.JNDI_NAME),
-        @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
+        @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "5")
 })
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class StgCmtMDB implements MessageListener {
