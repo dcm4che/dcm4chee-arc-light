@@ -47,10 +47,12 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.StatelessSession;
 
 /**
@@ -117,18 +119,19 @@ class SeriesQuery extends AbstractQuery {
         int numberOfSeriesRelatedInstances;
         String retrieveAETs;
         Availability availability;
+        QueryParam queryParam = context.getQueryParam();
         if (numberOfInstancesI != null) {
             numberOfSeriesRelatedInstances = numberOfInstancesI;
-            if (numberOfSeriesRelatedInstances == 0) {
+            if (numberOfSeriesRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
                 return null;
             }
             retrieveAETs = results.get(QSeriesQueryAttributes.seriesQueryAttributes.retrieveAETs);
             availability = results.get(QSeriesQueryAttributes.seriesQueryAttributes.availability);
         } else {
             SeriesQueryAttributes seriesView = context.getQueryService()
-                    .calculateSeriesQueryAttributes(seriesPk, context.getQueryParam());
+                    .calculateSeriesQueryAttributes(seriesPk, queryParam);
             numberOfSeriesRelatedInstances = seriesView.getNumberOfInstances();
-            if (numberOfSeriesRelatedInstances == 0) {
+            if (numberOfSeriesRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
                 return null;
             }
             retrieveAETs = seriesView.getRawRetrieveAETs();
@@ -146,7 +149,8 @@ class SeriesQuery extends AbstractQuery {
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
-        attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
+        attrs.setString(Tag.InstanceAvailability, VR.CS,
+            StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
         return attrs;
     }

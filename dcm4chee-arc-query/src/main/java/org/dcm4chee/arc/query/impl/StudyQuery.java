@@ -47,6 +47,7 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.QStudy;
@@ -54,6 +55,7 @@ import org.dcm4chee.arc.entity.QStudyQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.StatelessSession;
 
 /**
@@ -110,9 +112,10 @@ class StudyQuery extends AbstractQuery {
         String sopClassesInStudy;
         String retrieveAETs;
         Availability availability;
+        QueryParam queryParam = context.getQueryParam();
         if (numberOfInstancesI != null) {
             numberOfStudyRelatedInstances = numberOfInstancesI;
-            if (numberOfStudyRelatedInstances == 0) {
+            if (numberOfStudyRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
                 return null;
             }
             numberOfStudyRelatedSeries = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfSeries);
@@ -122,9 +125,9 @@ class StudyQuery extends AbstractQuery {
             availability = results.get(QStudyQueryAttributes.studyQueryAttributes.availability);
         } else {
             StudyQueryAttributes studyView = context.getQueryService()
-                    .calculateStudyQueryAttributes(studyPk, context.getQueryParam());
+                    .calculateStudyQueryAttributes(studyPk, queryParam);
             numberOfStudyRelatedInstances = studyView.getNumberOfInstances();
-            if (numberOfStudyRelatedInstances == 0) {
+            if (numberOfStudyRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
                 return null;
             }
             numberOfStudyRelatedSeries = studyView.getNumberOfSeries();
@@ -142,7 +145,8 @@ class StudyQuery extends AbstractQuery {
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
-        attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
+        attrs.setString(Tag.InstanceAvailability, VR.CS,
+                StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
         attrs.setString(Tag.SOPClassesInStudy, VR.UI, sopClassesInStudy);
         attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);

@@ -56,17 +56,20 @@ public class QueryParam {
     private final ArchiveAEExtension arcAE;
     private final boolean combinedDatetimeMatching;
     private final boolean fuzzySemanticMatching;
+    private final boolean returnEmpty;
     private final QueryRetrieveView qrView;
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
-    public QueryParam(ApplicationEntity ae, boolean combinedDatetimeMatching, boolean fuzzySemanticMatching) {
+    public QueryParam(ApplicationEntity ae, boolean combinedDatetimeMatching, boolean fuzzySemanticMatching,
+                      boolean returnEmpty) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
         this.combinedDatetimeMatching = combinedDatetimeMatching;
         this.fuzzySemanticMatching = fuzzySemanticMatching;
+        this.returnEmpty = returnEmpty;
     }
 
     public String getAETitle() {
@@ -85,6 +88,10 @@ public class QueryParam {
         return fuzzySemanticMatching;
     }
 
+    public boolean isReturnEmpty() {
+        return returnEmpty;
+    }
+
     public FuzzyStr getFuzzyStr() {
         return arcDev.getFuzzyStr();
     }
@@ -93,7 +100,6 @@ public class QueryParam {
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
         return arcAE.personNameComponentOrderInsensitiveMatching();
     }
-
 
     public CodeEntity[] getShowInstancesRejectedByCode() {
         return showInstancesRejectedByCode;

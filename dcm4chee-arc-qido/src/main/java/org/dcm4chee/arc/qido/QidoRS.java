@@ -155,6 +155,10 @@ public class QidoRS {
     @PathParam("AETitle")
     private String aet;
 
+    @QueryParam("returnempty")
+    @Pattern(regexp = "true|false")
+    private String returnempty;
+
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
@@ -336,8 +340,8 @@ public class QidoRS {
 
     private QueryContext newQueryContext(QueryAttributes queryAttrs, String studyInstanceUID,
                                          String seriesInstanceUID, int[] includetags) {
-        QueryContext ctx = service.newQueryContextQIDO(
-                request, getApplicationEntity(), Boolean.parseBoolean(fuzzymatching));
+        QueryContext ctx = service.newQueryContextQIDO(request, getApplicationEntity(),
+                Boolean.parseBoolean(fuzzymatching), Boolean.parseBoolean(returnempty));
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)
@@ -390,7 +394,8 @@ public class QidoRS {
                     addIncludeTag(entry.getValue());
                 else if (key.equals("orderby"))
                     addOrderByTag(entry.getValue());
-                else if (!key.equals("offset") && !key.equals("limit") && !key.equals("fuzzymatching"))
+                else if (!key.equals("offset") && !key.equals("limit")
+                        && !key.equals("fuzzymatching") && !key.equals("returnempty"))
                     addQueryKey(key, entry.getValue());
             }
         }

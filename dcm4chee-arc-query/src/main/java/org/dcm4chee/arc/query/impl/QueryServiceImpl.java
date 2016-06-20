@@ -44,7 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -93,17 +92,19 @@ class QueryServiceImpl implements QueryService {
         ApplicationEntity ae = as.getApplicationEntity();
         return new QueryContextImpl(as, sopClassUID, ae, newQueryParam(ae,
                 queryOpts.contains(QueryOption.DATETIME),
-                queryOpts.contains(QueryOption.FUZZY)),
+                queryOpts.contains(QueryOption.FUZZY), false),
                 this);
     }
 
     @Override
-    public QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, ApplicationEntity ae, boolean fuzzyMatching) {
-        return new QueryContextImpl(httpRequest, ae, newQueryParam(ae, true, fuzzyMatching), this);
+    public QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, ApplicationEntity ae,
+                                            boolean fuzzyMatching, boolean returnEmpty) {
+        return new QueryContextImpl(httpRequest, ae, newQueryParam(ae, true, fuzzyMatching, returnEmpty), this);
     }
 
-    private QueryParam newQueryParam(ApplicationEntity ae, boolean datetimeMatching, boolean fuzzyMatching) {
-        QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching);
+    private QueryParam newQueryParam(ApplicationEntity ae, boolean datetimeMatching,
+                                     boolean fuzzyMatching, boolean returnEmpty) {
+        QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching, returnEmpty);
         QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
         queryParam.setHideRejectionNotesWithCode(
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
@@ -172,13 +173,13 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyUID, null, null, newQueryParam(ae, false, false), seriesAttrs, false);
+                studyUID, null, null, newQueryParam(ae, false, false, false), seriesAttrs, false);
     }
 
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false), null, availability);
+                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false), null, availability);
     }
 }
