@@ -52,13 +52,18 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,9 +86,11 @@ import java.util.*;
  */
 @ApplicationScoped
 public class AuditService {
-    private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
-    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp}";
-    private static final String studyDate = "StudyDate";
+    private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
+    private final String JBOSS_SERVER_TEMP = "${jboss.server.temp}";
+    private final String studyDate = "StudyDate";
+    private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
+    private final String noValue = "<none>";
     @Inject
     private Device device;
 
@@ -134,8 +141,8 @@ public class AuditService {
         BuildActiveParticipant ap2 = null;
         if (req != null) {
             ap2 = new BuildActiveParticipant.Builder(
-                    req.getAttribute(AuditServiceUtils.keycloakClassName) != null
-                            ? AuditServiceUtils.getPreferredUsername(req) : req.getRemoteAddr(), req.getRemoteAddr()).
+                    req.getAttribute(keycloakClassName) != null
+                            ? getPreferredUsername(req) : req.getRemoteAddr(), req.getRemoteAddr()).
                     requester(true).roleIDCode(AuditMessages.RoleIDCode.ApplicationLauncher).build();
         }
         emitAuditMessage(ei, req != null ? getApList(ap1, ap2) : getApList(ap1), null, log());
@@ -158,7 +165,7 @@ public class AuditService {
             }
         }
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.RJN_DELETE),
-                getDeletionObjsForSpooling(sopClassMap, new PatientStudyInfo(ctx)));
+                getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx))));
     }
 
     void spoolStudyDeleted(StudyDeleteContext ctx) {
@@ -172,37 +179,42 @@ public class AuditService {
             }
             iuids.add(i.getSopInstanceUID());
         }
+        Study s = ctx.getStudy();
+        Patient p = ctx.getPatient();
+        BuildAuditInfo i = new BuildAuditInfo.Builder().studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
+                            .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
+                            .pName(null != ctx.getPatient().getPatientName().toString() ? ctx.getPatient().getPatientName().toString() : null).build();
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.PERM_DELET),
-                getDeletionObjsForSpooling(sopClassMap, new PatientStudyInfo(ctx)));
+                getDeletionObjsForSpooling(sopClassMap, new AuditInfo(i)));
     }
 
     private void auditDeletion(SpoolFileReader readerObj, AuditServiceUtils.EventType eventType) {
-        PatientStudyInfo deleteInfo = new PatientStudyInfo(readerObj.getMainInfo());
-        EventIdentification ei = getEI(eventType, deleteInfo.getField(PatientStudyInfo.OUTCOME), log().timeStamp());
+        AuditInfo dI = new AuditInfo(readerObj.getMainInfo());
+        EventIdentification ei = getEI(eventType, dI.getField(AuditInfo.OUTCOME), log().timeStamp());
         BuildActiveParticipant ap1 = null;
         if (eventType.eventClass == AuditServiceUtils.EventClass.DELETE) {
             ap1 = new BuildActiveParticipant.Builder(
-                    deleteInfo.getField(PatientStudyInfo.CALLING_AET), deleteInfo.getField(PatientStudyInfo.CALLING_HOSTNAME))
+                    dI.getField(AuditInfo.CALLING_AET), dI.getField(AuditInfo.CALLING_HOST))
                     .requester(eventType.isSource).build();
         }
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(
                 eventType.eventClass == AuditServiceUtils.EventClass.DELETE
-                        ? deleteInfo.getField(PatientStudyInfo.CALLED_AET) : getAET(device),
+                        ? dI.getField(AuditInfo.CALLED_AET) : getAET(device),
                 getLocalHostName(log())).altUserID(AuditLogger.processID())
                 .requester(eventType.eventClass != AuditServiceUtils.EventClass.DELETE || eventType.isDest).build();
-        ParticipantObjectContainsStudy pocs = getPocs(deleteInfo.getField(PatientStudyInfo.STUDY_UID));
+        ParticipantObjectContainsStudy pocs = getPocs(dI.getField(AuditInfo.STUDY_UID));
         BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(
                 getSopClasses(readerObj.getInstanceLines()), pocs)
                 .acc(eventType.eventClass == AuditServiceUtils.EventClass.PERM_DELETE
-                        ? getAccessions(deleteInfo.getField(PatientStudyInfo.ACCESSION_NO)) : null).build();
+                        ? getAccessions(dI.getField(AuditInfo.ACC_NUM)) : null).build();
         BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
-                deleteInfo.getField(PatientStudyInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                dI.getField(AuditInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(getPODesc(desc)).detail(getPod(studyDate, deleteInfo.getField(PatientStudyInfo.STUDY_DATE))).build();
+                .desc(getPODesc(desc)).detail(getPod(studyDate, dI.getField(AuditInfo.STUDY_DATE))).build();
         BuildParticipantObjectIdentification poi2 = new BuildParticipantObjectIdentification.Builder(
-                deleteInfo.getField(PatientStudyInfo.PATIENT_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                dI.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                .name(deleteInfo.getField(PatientStudyInfo.PATIENT_NAME)).build();
+                .name(dI.getField(AuditInfo.P_NAME)).build();
         emitAuditMessage(ei, eventType.eventClass == AuditServiceUtils.EventClass.DELETE ? getApList(ap1, ap2) : getApList(ap2),
                 getPoiList(poi1, poi2), log());
     }
@@ -240,8 +252,8 @@ public class AuditService {
             try (BufferedOutputStream out = new BufferedOutputStream(
                     Files.newOutputStream(file, StandardOpenOption.APPEND))) {
                 String callingAET = ctx.getCallingAET() != null ? ctx.getCallingAET()
-                                : ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                                ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
+                                : ctx.getHttpRequest().getAttribute(keycloakClassName) != null
+                                ? getPreferredUsername(ctx.getHttpRequest())
                                 : ctx.getRemoteHostName();
                 BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
                                     .callingAET(callingAET).calledAET(ctx.getHttpRequest() != null
@@ -322,7 +334,8 @@ public class AuditService {
             String callingAET = storeCtx.getStoreSession().getHttpRequest() != null
                     ? storeCtx.getStoreSession().getHttpRequest().getRemoteAddr() : storeCtx.getStoreSession().getCallingAET().replace('|', '-');
             fileName = getFileName(eventType, callingAET, storeCtx.getStoreSession().getCalledAET(), storeCtx.getStudyInstanceUID());
-            writeSpoolFileStoreOrWadoRetrieve(fileName, new PatientStudyInfo(storeCtx), new InstanceInfo(storeCtx));
+            BuildAuditInfo i = getAIStoreCtx(storeCtx);
+            writeSpoolFileStoreOrWadoRetrieve(fileName, new AuditInfo(i), new AuditInstanceInfo(i));
         }
         if (retrieveCtx != null) {
             HttpServletRequest req = retrieveCtx.getHttpRequest();
@@ -345,45 +358,45 @@ public class AuditService {
                                           AuditServiceUtils.EventType eventType) {
         HashSet<String> mppsUIDs = new HashSet<>();
         HashMap<String, List<String>> sopClassMap = new HashMap<>();
-        PatientStudyInfo patientStudyInfo = new PatientStudyInfo(readerObj.getMainInfo());
+        AuditInfo i = new AuditInfo(readerObj.getMainInfo());
         for (String line : readerObj.getInstanceLines()) {
-            InstanceInfo instanceInfo = new InstanceInfo(line);
-            List<String> iuids = sopClassMap.get(instanceInfo.getField(InstanceInfo.CLASS_UID));
+            AuditInstanceInfo iI = new AuditInstanceInfo(line);
+            List<String> iuids = sopClassMap.get(iI.getField(AuditInstanceInfo.SOP_CUID));
             if (iuids == null) {
                 iuids = new ArrayList<>();
-                sopClassMap.put(instanceInfo.getField(InstanceInfo.CLASS_UID), iuids);
+                sopClassMap.put(iI.getField(AuditInstanceInfo.SOP_CUID), iuids);
             }
-            iuids.add(instanceInfo.getField(InstanceInfo.INSTANCE_UID));
-            mppsUIDs.add(instanceInfo.getField(InstanceInfo.MPPS_UID));
-//                for (int i = InstanceInfo.ACCESSION_NO; instanceInfo.getField(i) != null; i++)
-//                    accNos.add(instanceInfo.getField(i));
+            iuids.add(iI.getField(AuditInstanceInfo.SOP_IUID));
+            mppsUIDs.add(iI.getField(AuditInstanceInfo.MPPS_UID));
+//                for (int i = AuditInstanceInfo.ACCESSION_NO; iI.getField(i) != null; i++)
+//                    accNos.add(iI.getField(i));
         }
         mppsUIDs.remove("");
-        EventIdentification ei = getEI(eventType, patientStudyInfo.getField(PatientStudyInfo.OUTCOME), eventTime);
+        EventIdentification ei = getEI(eventType, i.getField(AuditInfo.OUTCOME), eventTime);
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(
-                patientStudyInfo.getField(PatientStudyInfo.CALLING_AET),
-                patientStudyInfo.getField(PatientStudyInfo.CALLING_HOSTNAME)).requester(eventType.isSource)
+                i.getField(AuditInfo.CALLING_AET),
+                i.getField(AuditInfo.CALLING_HOST)).requester(eventType.isSource)
                 .roleIDCode(eventType.source).build();
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(
-                patientStudyInfo.getField(PatientStudyInfo.CALLED_AET), getLocalHostName(log()))
+                i.getField(AuditInfo.CALLED_AET), getLocalHostName(log()))
                 .altUserID(AuditLogger.processID()).requester(eventType.isDest).roleIDCode(eventType.destination).build();
         HashSet<SOPClass> sopC = new HashSet<>();
         for (Map.Entry<String, List<String>> entry : sopClassMap.entrySet())
             sopC.add(getSOPC(null, entry.getKey(), entry.getValue().size()));
-        ParticipantObjectContainsStudy pocs = getPocs(patientStudyInfo.getField(PatientStudyInfo.STUDY_UID));
+        ParticipantObjectContainsStudy pocs = getPocs(i.getField(AuditInfo.STUDY_UID));
         BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(sopC, pocs)
-                .acc(getAccessions(patientStudyInfo.getField(PatientStudyInfo.ACCESSION_NO)))
+                .acc(getAccessions(i.getField(AuditInfo.ACC_NUM)))
                 .mpps(AuditMessages.getMPPS(mppsUIDs.toArray(new String[mppsUIDs.size()]))).build();
         BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
-                patientStudyInfo.getField(PatientStudyInfo.STUDY_UID),
+                i.getField(AuditInfo.STUDY_UID),
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(getPODesc(desc)).detail(getPod(studyDate, patientStudyInfo.getField(PatientStudyInfo.STUDY_DATE))).build();
+                .desc(getPODesc(desc)).detail(getPod(studyDate, i.getField(AuditInfo.STUDY_DATE))).build();
         BuildParticipantObjectIdentification poi2 = new BuildParticipantObjectIdentification.Builder(
-                patientStudyInfo.getField(PatientStudyInfo.PATIENT_ID),
+                i.getField(AuditInfo.P_ID),
                 AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                .name(patientStudyInfo.getField(PatientStudyInfo.PATIENT_NAME)).build();
+                .name(i.getField(AuditInfo.P_NAME)).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), log());
     }
 
@@ -434,7 +447,7 @@ public class AuditService {
                     ri.getField(RetrieveInfo.REQUESTORHOST)).requester(eventType.isOther).build();
         }
         HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
-        String pID = AuditServiceUtils.noValue;
+        String pID = noValue;
         String pName = null;
         String studyDt = null;
         for (String line : readerObj.getInstanceLines()) {
@@ -485,8 +498,8 @@ public class AuditService {
             String source = null;
             String dest = null;
             if (ctx.getHttpRequest() != null) {
-                source = ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                        ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
+                source = ctx.getHttpRequest().getAttribute(keycloakClassName) != null
+                        ? getPreferredUsername(ctx.getHttpRequest())
                         : ctx.getHttpRequest().getRemoteAddr();
                 dest = ctx.getCalledAET();
             }
@@ -500,7 +513,7 @@ public class AuditService {
             }
             String pID = eventType == AuditServiceUtils.EventType.HL7_DELETE && ctx.getPreviousPatientID() != null
                     ? ctx.getPreviousPatientID().toString()
-                    : ctx.getPatientID() != null ? ctx.getPatientID().toString() : AuditServiceUtils.noValue;
+                    : ctx.getPatientID() != null ? ctx.getPatientID().toString() : noValue;
             String pName = eventType == AuditServiceUtils.EventType.HL7_DELETE
                     ? StringUtils.maskEmpty(ctx.getPreviousAttributes().getString(Tag.PatientName), null)
                     : StringUtils.maskEmpty(ctx.getAttributes().getString(Tag.PatientName), null);
@@ -535,7 +548,7 @@ public class AuditService {
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName()).callingAET(ctx.getHL7MessageHeader().getSendingApplicationWithFacility())
                                 .calledAET(ctx.getHL7MessageHeader().getReceivingApplicationWithFacility()).studyUID(ctx.getStudyInstanceUID())
                                 .accNum(attr.getString(Tag.AccessionNumber)).pID(getPID(attr)).pName(ctx.getPatient().getAttributes().getString(Tag.PatientName))
-                                .outcome(getOD(ctx.getException())).studyDate(attr.getString(Tag.StudyDate)).build();
+                                .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
             obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
@@ -545,13 +558,13 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            String callingAET = ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest()) : ctx.getHttpRequest().getRemoteAddr();
+            String callingAET = ctx.getHttpRequest().getAttribute(keycloakClassName) != null
+                    ? getPreferredUsername(ctx.getHttpRequest()) : ctx.getHttpRequest().getRemoteAddr();
             Attributes sAttr = ctx.getAttributes();
             Attributes pAttr = ctx.getStudy().getPatient().getAttributes();
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
                         .calledAET(ctx.getApplicationEntity().getAETitle()).studyUID(ctx.getStudyInstanceUID()).accNum(sAttr.getString(Tag.AccessionNumber))
-                        .pID(getPID(pAttr)).pName(pAttr.getString(Tag.PatientName)).outcome(getOD(ctx.getException())).studyDate(sAttr.getString(Tag.StudyDate)).build();
+                        .pID(getPID(pAttr)).pName(pAttr.getString(Tag.PatientName)).outcome(getOD(ctx.getException())).studyDate(getSD(sAttr)).build();
             obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
@@ -577,8 +590,39 @@ public class AuditService {
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), log());
     }
 
+    private BuildAuditInfo getAIStoreCtx(StoreContext ctx) {
+        StoreSession ss = ctx.getStoreSession();
+        HttpServletRequest req = ss.getHttpRequest();
+        Attributes attr = ctx.getAttributes();
+        String callingAET = ss.getCallingAET() != null ? ss.getCallingAET()
+                : req != null && req.getAttribute(keycloakClassName) != null
+                ? getPreferredUsername(req) : ss.getRemoteHostName();
+        String outcome = null != ctx.getRejectionNote() ? null != ctx.getException()
+                ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
+                : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
+                : getOD(ctx.getException());
+        boolean rjFlag = ctx.getRejectionNote() != null;
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ss.getRemoteHostName()).callingAET(callingAET)
+                .calledAET(req != null ? req.getRequestURI() : ss.getCalledAET()).studyUID(ctx.getStudyInstanceUID())
+                .accNum(attr.getString(Tag.AccessionNumber)).pID(getPID(attr)).pName(attr.getString(Tag.PatientName))
+                .outcome(outcome).studyDate(getSD(attr)).sopCUID(rjFlag ? null : ctx.getSopClassUID())
+                .sopIUID(rjFlag ? null : ctx.getSopInstanceUID())
+                .mppsUID(rjFlag ? null : StringUtils.maskNull(ctx.getMppsInstanceUID(), "")).build();
+        return i;
+    }
+
+    private String getSD(Attributes attr) {
+        return attr.getString(Tag.StudyDate);
+    }
+
+    private String getPreferredUsername(HttpServletRequest req) {
+        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
+                req.getAttribute(KeycloakSecurityContext.class.getName());
+        return securityContext.getToken().getPreferredUsername();
+    }
+
     private String getPID(Attributes attrs) {
-        return attrs.getString(Tag.PatientID) != null ? IDWithIssuer.pidOf(attrs).toString() : AuditServiceUtils.noValue;
+        return attrs.getString(Tag.PatientID) != null ? IDWithIssuer.pidOf(attrs).toString() : noValue;
     }
 
     private String getOD(Exception e) {
@@ -604,9 +648,9 @@ public class AuditService {
     private HashSet<SOPClass> getSopClasses(HashSet<String> instanceLines) {
         HashSet<SOPClass> sopC = new HashSet<>();
         for (String line : instanceLines) {
-            InstanceInfo ii = new InstanceInfo(line);
-            sopC.add(getSOPC(null, ii.getField(InstanceInfo.CLASS_UID),
-                    Integer.parseInt(ii.getField(InstanceInfo.INSTANCE_UID))));
+            AuditInstanceInfo ii = new AuditInstanceInfo(line);
+            sopC.add(getSOPC(null, ii.getField(AuditInstanceInfo.SOP_CUID),
+                    Integer.parseInt(ii.getField(AuditInstanceInfo.SOP_IUID))));
         }
         return sopC;
     }
@@ -679,11 +723,12 @@ public class AuditService {
     }
 
     private LinkedHashSet<Object> getDeletionObjsForSpooling(HashMap<String, HashSet<String>> sopClassMap,
-                                                             PatientStudyInfo psi) {
+                                                             AuditInfo i) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
-        obj.add(psi);
+        obj.add(i);
         for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-            obj.add(new InstanceInfo(entry.getKey(), String.valueOf(entry.getValue().size())));
+            obj.add(new AuditInstanceInfo(new BuildAuditInfo.Builder().sopCUID(entry.getKey())
+                    .sopIUID(String.valueOf(entry.getValue().size())).build()));
         }
         return obj;
     }
