@@ -1069,21 +1069,30 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             study.attrs['0020000D'].Value[0],
             createQueryParams(offset, $scope.limit+1, { orderby: 'SeriesNumber'})
         ).then(function (res) {
-            study.series = res.data.map(function (attrs, index) {
-                return {
-                        study: study,
-                        offset: offset + index,
-                        moreInstances: false,
-                        attrs: attrs,
-                        instances: null,
-                        showAttributes: false
-                };
-            });
-            if (study.moreSeries = (study.series.length > $scope.limit)) {
-                study.series.pop();
+            if(res.data){
+
+                study.series = res.data.map(function (attrs, index) {
+                    return {
+                            study: study,
+                            offset: offset + index,
+                            moreInstances: false,
+                            attrs: attrs,
+                            instances: null,
+                            showAttributes: false
+                    };
+                });
+                if (study.moreSeries = (study.series.length > $scope.limit)) {
+                    study.series.pop();
+                }
+                cfpLoadingBar.complete();
+                StudiesService.trim($scope);
+            }else{
+                DeviceService.msg($scope, {
+                        "title": "Info",
+                        "text": "No matching series found!",
+                        "status": "info"
+                });
             }
-            cfpLoadingBar.complete();
-            StudiesService.trim($scope);
         });
     };
     $scope.queryInstances = function (series, offset) {
