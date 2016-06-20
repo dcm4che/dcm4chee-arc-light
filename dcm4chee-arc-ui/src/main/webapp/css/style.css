@@ -1439,6 +1439,13 @@ div[tooltip] {
         text-align: right; }
       .ctrl .monitor table td.others table tr:last-child td {
         border-bottom: 0px; }
+  .ctrl .monitor table td.abort {
+    width: 10px !important;
+    text-align: center;
+    color: #888; }
+    .ctrl .monitor table td.abort:hover {
+      cursor: pointer;
+      color: #333; }
 .ctrl .monitor input:disabled {
   background: #ccc none repeat scroll 0 0;
   border: 1px solid #d6d2d2;

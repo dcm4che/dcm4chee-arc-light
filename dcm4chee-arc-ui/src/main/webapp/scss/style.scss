@@ -1936,6 +1936,7 @@ div[tooltip]{
 						td:first-child{
 							text-align: right;
 						}
+
 					}
 					tr:last-child{
 						td{
@@ -1944,6 +1945,15 @@ div[tooltip]{
 					}
 				}
 	    	}
+			td.abort{
+				width:10px !important;
+				text-align: center;
+				color: #888;
+				&:hover{
+					cursor: pointer;
+					color:#333;
+				}
+			}
 		}
 		input:disabled{
 			background: #ccc none repeat scroll 0 0;

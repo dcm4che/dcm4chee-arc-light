@@ -197,6 +197,25 @@ myApp.controller('ArchiveCtrl', function (cfpLoadingBar, $scope, $http, DeviceSe
         });
         return data;
     }
+    $scope.abort = function(serialnr){
+        cfpLoadingBar.start();
+        console.log("serialnr",serialnr);
+        $http({
+          method: 'DELETE',
+          url: "../monitor/associations/"+serialnr
+        }).then(function successCallback(res) {
+            refresh();
+            cfpLoadingBar.complete();
+        }, function errorCallback(response) {
+                console.error("response=",response);
+                DeviceService.msg($scope, {
+                        "title": "Error",
+                        "text": "Error: "+response,
+                        "status": "error"
+                });
+                cfpLoadingBar.complete();
+        });
+    }
 
     $scope.propertyName = 'openSinceOrder';
     $scope.reverse = true;
@@ -205,7 +224,7 @@ myApp.controller('ArchiveCtrl', function (cfpLoadingBar, $scope, $http, DeviceSe
         $scope.reverse = ($scope.propertyName === propertyName) ? !$scope.reverse : false;
         $scope.propertyName = propertyName;
     };
-    $scope.refresh = function(){
+    var refresh = function(){
         cfpLoadingBar.start();
         $http({
           method: 'GET',
@@ -228,6 +247,9 @@ myApp.controller('ArchiveCtrl', function (cfpLoadingBar, $scope, $http, DeviceSe
                 });
                 cfpLoadingBar.complete();
         });
+    }
+    $scope.refresh = function(){
+        refresh();
     }
     $scope.monitor = function(){
         cfpLoadingBar.start();

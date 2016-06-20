@@ -48,6 +48,9 @@
 					<span title="Sort by Other attributes" ng-click="sortBy('others')" >Other attributes
 					</span>
 				</th>
+				<th>
+					Abort
+				</th>
 			</tr>
 			<tr ng-show="associationStatus" ng-repeat="(key, value) in associationStatus | orderBy:propertyName:reverse">
 				<td ng-show="value.initiated">
@@ -74,6 +77,9 @@
 				<td class="text-right" ng-bind="value.browserTime"></td>
 				<td class="text-right" ng-bind="value.openSince"></td>
 				<td ng-show="others" class="others" ng-bind-html="value.others"></td>
+				<td class="abort" ng-click="abort(value.serialNo)">
+					<span class="glyphicon glyphicon-remove"></span>
+				</td>
 
 			</tr>
 			<tr ng-hide="associationStatus">
