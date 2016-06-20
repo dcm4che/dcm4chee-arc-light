@@ -136,6 +136,7 @@ public class Series {
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Series.ClearFailedSOPInstanceUIDList";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.ClearFailedSOPInstanceUIDListOfStudy";
+    public static final String EXPIRATION_DATE = "Series.ExpirationDate";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -233,6 +234,10 @@ public class Series {
     @Basic(optional = false)
     @Column(name = "rejection_state")
     private RejectionState rejectionState;
+
+    @Basic
+    @Column(name = "expiration_date")
+    private String expirationDate;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
