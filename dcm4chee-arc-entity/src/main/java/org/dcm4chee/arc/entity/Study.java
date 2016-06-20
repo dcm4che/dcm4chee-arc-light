@@ -114,7 +114,8 @@ import java.util.Date;
         @Index(columnList = "study_desc"),
         @Index(columnList = "study_custom1"),
         @Index(columnList = "study_custom2"),
-        @Index(columnList = "study_custom3")
+        @Index(columnList = "study_custom3"),
+        @Index(columnList = "expiration_date")
 })
 public class Study {
 
@@ -127,7 +128,6 @@ public class Study {
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Study.ClearFailedSOPInstanceUIDList";
     public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
-    public static final String EXPIRATION_DATE = "Study.ExpirationDate";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -359,6 +359,15 @@ public class Study {
     public void setRejectionState(RejectionState rejectionState) {
         this.rejectionState = rejectionState;
     }
+
+    public String getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
 
     public Collection<CodeEntity> getProcedureCodes() {
         if (procedureCodes == null)

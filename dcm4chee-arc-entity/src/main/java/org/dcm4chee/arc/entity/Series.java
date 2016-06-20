@@ -124,7 +124,8 @@ import java.util.Date;
         @Index(columnList = "department"),
         @Index(columnList = "series_custom1"),
         @Index(columnList = "series_custom2"),
-        @Index(columnList = "series_custom3")
+        @Index(columnList = "series_custom3"),
+        @Index(columnList = "expiration_date")
 })
 public class Series {
 
@@ -136,7 +137,6 @@ public class Series {
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Series.ClearFailedSOPInstanceUIDList";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.ClearFailedSOPInstanceUIDListOfStudy";
-    public static final String EXPIRATION_DATE = "Series.ExpirationDate";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -377,6 +377,14 @@ public class Series {
 
     public void setRejectionState(RejectionState rejectionState) {
         this.rejectionState = rejectionState;
+    }
+
+    public String getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public CodeEntity getInstitutionCode() {
