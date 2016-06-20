@@ -448,7 +448,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.89 NAME 'dcmRetentionPeriod'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.90 NAME 'dcmExpireSeriesIndividually'
-  DESC 'Indicates if series should be expired individually or not.'
+  DESC 'Indicates if series should be expired individually or not. If absent, it is false.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
