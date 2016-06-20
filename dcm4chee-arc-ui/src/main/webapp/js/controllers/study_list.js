@@ -657,9 +657,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             // $scope.editpatient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
                             oldPatientID = oldPatientID || $scope.editpatient.attrs["00100020"].Value[0];
                             //<id 00100021>^^^<issuer>&<universal-entity-id>&<universal-entity-type>
-                            var issuer =                $scope.editpatient.attrs["00100020"] && 
-                                                        $scope.editpatient.attrs["00100020"].Value[0] && 
-                                                        $scope.editpatient.attrs["00100020"].Value[0] != "";
+                            var issuer =                $scope.editpatient.attrs["00100021"] && 
+                                                        $scope.editpatient.attrs["00100021"].Value[0] && 
+                                                        $scope.editpatient.attrs["00100021"].Value[0] != "";
                             var universalEntityId =     $scope.editpatient.attrs["00100024"] && 
                                                         $scope.editpatient.attrs["00100024"].Value[0] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
@@ -672,7 +672,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] != "";
 
                             if(issuer){
-                                oldPatientID += "^^^"+$scope.editpatient.attrs["00100020"].Value[0];
+                                oldPatientID += "^^^"+$scope.editpatient.attrs["00100021"].Value[0];
                             }
                             if(universalEntityId){
                                 oldPatientID += "&"+$scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
