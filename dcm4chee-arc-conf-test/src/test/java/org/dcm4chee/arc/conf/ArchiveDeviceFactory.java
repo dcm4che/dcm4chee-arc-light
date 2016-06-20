@@ -776,12 +776,14 @@ class ArchiveDeviceFactory {
 
     static final StudyRetentionPolicy LONG_TERM = createStudyRetentionPolicy(
             "LONG_TERM",
-            "P5Y3M20D"
+            "P5Y3M20D",
+            false
     );
 
     static final StudyRetentionPolicy SHORT_TERM = createStudyRetentionPolicy(
             "SHORT_TERM",
-            "P3W"
+            "P3W",
+            true
     );
 
     static final String[] HL7_MESSAGE_TYPES = {
@@ -974,9 +976,10 @@ class ArchiveDeviceFactory {
         return rule;
     }
 
-    private static StudyRetentionPolicy createStudyRetentionPolicy(String cn, String retentionPeriod) {
+    private static StudyRetentionPolicy createStudyRetentionPolicy(String cn, String retentionPeriod, boolean seriesRetention) {
         StudyRetentionPolicy policy = new StudyRetentionPolicy(cn);
         policy.setRetentionPeriod(Period.parse(retentionPeriod));
+        policy.setSeriesRetention(seriesRetention);
         return policy;
     }
 

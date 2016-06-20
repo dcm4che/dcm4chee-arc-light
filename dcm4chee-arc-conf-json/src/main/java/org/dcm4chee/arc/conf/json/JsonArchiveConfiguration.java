@@ -309,6 +309,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmRetentionPeriod", srp.getRetentionPeriod());
             writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
+            writer.writeNotNull("dcmSeriesRetention", srp.isSeriesRetention());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -930,6 +931,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmProperty":
                         srp.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    case "dcmSeriesRetention":
+                        srp.setSeriesRetention(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();
