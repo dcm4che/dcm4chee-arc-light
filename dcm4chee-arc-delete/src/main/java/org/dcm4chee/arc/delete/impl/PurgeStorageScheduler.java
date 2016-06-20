@@ -82,6 +82,10 @@ public class PurgeStorageScheduler extends Scheduler {
     @Inject
     private Event<StudyDeleteContext> studyDeletedEvent;
 
+    protected PurgeStorageScheduler() {
+        super(Mode.scheduleWithFixedDelay);
+    }
+
     @Override
     protected Logger log() {
         return LOG;

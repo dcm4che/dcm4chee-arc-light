@@ -73,6 +73,10 @@ public class AuditScheduler extends Scheduler {
     @Inject
     private AuditService service;
 
+    protected AuditScheduler() {
+        super(Mode.scheduleWithFixedDelay);
+    }
+
     @Override
     protected Logger log() {
         return LOG;

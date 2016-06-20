@@ -44,6 +44,11 @@ import org.dcm4chee.arc.conf.Duration;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -53,11 +58,19 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class Scheduler implements Runnable {
 
+    private static final int SECONDS_PER_DAY = 3600 * 24;
+
+    private final Mode mode;
     volatile private long pollingIntervalInSeconds;
+    volatile private LocalTime startTime;
     volatile private ScheduledFuture<?> running;
 
     @Resource
     private ManagedScheduledExecutorService scheduledExecutor;
+
+    protected Scheduler(Mode mode) {
+        this.mode = mode;
+    }
 
     @Override
     public void run() {
@@ -72,8 +85,9 @@ public abstract class Scheduler implements Runnable {
         Duration pollingInterval = getPollingInterval();
         if (pollingInterval != null) {
             pollingIntervalInSeconds = pollingInterval.getSeconds();
-            running = scheduledExecutor.scheduleWithFixedDelay(
-                    this, getInitalDelayInSeconds(), pollingIntervalInSeconds, TimeUnit.SECONDS);
+            startTime = getStartTime();
+            running = mode.schedule(
+                    this, startTime != null ? until(startTime) : pollingIntervalInSeconds, pollingIntervalInSeconds);
         }
     }
 
@@ -87,7 +101,8 @@ public abstract class Scheduler implements Runnable {
 
     public void reload() {
         Duration pollingInterval = getPollingInterval();
-        if (pollingInterval == null || pollingIntervalInSeconds != pollingInterval.getSeconds()) {
+        if (pollingInterval == null || pollingIntervalInSeconds != pollingInterval.getSeconds()
+                || !Objects.equals(startTime, getStartTime())) {
             stop();
             start();
         }
@@ -99,7 +114,30 @@ public abstract class Scheduler implements Runnable {
 
     protected abstract void execute();
 
-    protected long getInitalDelayInSeconds() {
-        return pollingIntervalInSeconds;
+    protected LocalTime getStartTime() {
+        return null;
+    }
+
+    private long until(LocalTime time) {
+        long until = LocalTime.now().until(startTime, ChronoUnit.SECONDS);
+        return until > 0 ? until : until + SECONDS_PER_DAY;
+    }
+
+    public enum Mode {
+        scheduleWithFixedDelay {
+            @Override
+            public ScheduledFuture schedule(Scheduler scheduler, long initialDelay, long periodOrDelay) {
+                return scheduler.scheduledExecutor.scheduleWithFixedDelay(
+                        scheduler, initialDelay, periodOrDelay, TimeUnit.SECONDS);
+            }
+        },
+        scheduleAtFixedRate {
+            @Override
+            public ScheduledFuture schedule(Scheduler scheduler, long initialDelay, long periodOrDelay) {
+                return scheduler.scheduledExecutor.scheduleAtFixedRate(
+                        scheduler, initialDelay, periodOrDelay, TimeUnit.SECONDS);
+            }
+        };
+        public abstract ScheduledFuture schedule(Scheduler scheduler, long initialDelay, long periodOrDelay);
     }
 }

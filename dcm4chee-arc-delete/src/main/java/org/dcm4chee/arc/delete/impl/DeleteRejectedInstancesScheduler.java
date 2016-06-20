@@ -70,6 +70,10 @@ public class DeleteRejectedInstancesScheduler extends Scheduler {
     @Inject
     private DeletionServiceEJB ejb;
 
+    protected DeleteRejectedInstancesScheduler() {
+        super(Mode.scheduleWithFixedDelay);
+    }
+
     @Override
     protected Logger log() {
         return LOG;

@@ -78,6 +78,10 @@ public class IANScheduler extends Scheduler {
     @Inject
     private QueryService queryService;
 
+    protected IANScheduler() {
+        super(Mode.scheduleWithFixedDelay);
+    }
+
     @Override
     protected Logger log() {
         return LOG;

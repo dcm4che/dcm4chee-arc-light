@@ -69,6 +69,10 @@ public class PurgeQueueMessageScheduler extends Scheduler {
     @Inject
     private QueueManager ejb;
 
+    protected PurgeQueueMessageScheduler() {
+        super(Mode.scheduleWithFixedDelay);
+    }
+
     @Override
     protected Logger log() {
         return LOG;

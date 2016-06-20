@@ -26,6 +26,10 @@ public class ExportScheduler extends Scheduler {
     @Inject
     private ExportManager ejb;
 
+    protected ExportScheduler() {
+        super(Mode.scheduleWithFixedDelay);
+    }
+
     @Override
     protected Logger log() {
         return LOG;
