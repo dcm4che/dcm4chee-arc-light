@@ -181,6 +181,13 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "returnempty",
+            "in": "query",
+            "description": "return empty Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -314,6 +321,13 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "returnempty",
+            "in": "query",
+            "description": "return empty Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -399,6 +413,13 @@
               "type": "string"
             },
             "collectionFormat": "multi"
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "return empty Series",
+            "type": "boolean",
+            "default": false
           },
           {
             "name": "fuzzymatching",
