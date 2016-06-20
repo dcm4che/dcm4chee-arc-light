@@ -25,12 +25,12 @@
         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" ng-repeat-start="(vi, value) in editstudy.attrs[i].Value  track by $index" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Alphabetic" ng-model="editstudy.attrs[i].Value[vi]['Alphabetic']"><span ng-click="removeAttr(i,vi)" ng-if="i != '00104000' && p.vr==='PN'" class="glyphicon glyphicon-remove"></span>
         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Ideographic" ng-model="editstudy.attrs[i].Value[vi]['Ideographic']">
         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" ng-repeat-end="" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Phonetic" ng-model="editstudy.attrs[i].Value[vi]['Phonetic']">
-        <input ng-if="i != '00100040' && i != '00104000' && p.vr!='PN' && p.vr!='SQ'" ng-repeat-start="(vi, value) in editstudy.attrs[i].Value  track by $index" class="form-control" ng-model="editstudy.attrs[i].Value[vi]">
+        <input ng-if="i != '00100040' && i != '00104000' && p.vr!='PN' && p.vr!='SQ'" ng-repeat-start="(vi, value) in editstudy.attrs[i].Value  track by $index" class="form-control {{i}}" ng-model="editstudy.attrs[i].Value[vi]">
         <select ng-if="i === '00100040'"name="00100040"
   				ng-options="o as o.title for o in options.genders track by o.Value[0]"
   				ng-model="editstudy.attrs[i]">
   		</select>
-         <span ng-repeat-end="" ng-click="removeAttr(i,vi)" ng-if="i != '00104000' && p.vr!='PN'" class="glyphicon glyphicon-remove"></span>
+         <span ng-repeat-end="" ng-click="removeAttr(i,vi)" ng-if="i != '00104000' && p.vr!='PN'" class="glyphicon glyphicon-remove {{i}}"></span>
          <div class="item1input" ng-if="p.vr === 'SQ'" ng-repeat="(j,item) in editstudy.attrs[i].Value[0] track by $index">
             <span ng-click="removeAttr(i)" ng-if="j != '00104000' && item.vr==='PN'" class="glyphicon glyphicon-remove"></span>
             <input ng-if="j != '00104000' && item.vr != 'PN' && item.vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(j)}}" ng-model="editstudy.attrs[i].Value[0][j].Value[0]"/>
