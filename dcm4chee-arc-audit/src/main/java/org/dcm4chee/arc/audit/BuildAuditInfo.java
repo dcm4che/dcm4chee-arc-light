@@ -61,6 +61,11 @@ class BuildAuditInfo {
     final String mppsUID;
     final String queryPOID;
     final String queryString;
+    final String destAET;
+    final String destNapID;
+    final String moveAET;
+    final String warning;
+    final boolean failedIUIDShow;
 
     static class Builder {
         private String callingHost;
@@ -78,6 +83,11 @@ class BuildAuditInfo {
         private String mppsUID;
         private String queryPOID;
         private String queryString;
+        private String destAET;
+        private String destNapID;
+        private String moveAET;
+        private String warning;
+        private boolean failedIUIDShow;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -139,6 +149,26 @@ class BuildAuditInfo {
             queryString = val;
             return this;
         }
+        Builder destAET(String val) {
+            destAET = val;
+            return this;
+        }
+        Builder destNapID(String val) {
+            destNapID = val;
+            return this;
+        }
+        Builder moveAET(String val) {
+            moveAET = val;
+            return this;
+        }
+        Builder warning(String val) {
+            warning = val;
+            return this;
+        }
+        Builder failedIUIDShow(boolean val) {
+            failedIUIDShow = val;
+            return this;
+        }
         BuildAuditInfo build() {
             return new BuildAuditInfo(this);
         }
@@ -160,5 +190,10 @@ class BuildAuditInfo {
         mppsUID = builder.mppsUID;
         queryPOID = builder.queryPOID;
         queryString = builder.queryString;
+        destAET = builder.destAET;
+        destNapID = builder.destNapID;
+        moveAET = builder.moveAET;
+        warning = builder.warning;
+        failedIUIDShow = builder.failedIUIDShow;
     }
 }

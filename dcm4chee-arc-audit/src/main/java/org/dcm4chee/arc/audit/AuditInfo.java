@@ -60,6 +60,13 @@ class AuditInfo {
     static final int STUDY_DATE = 9;
     static final int Q_POID = 10;
     static final int Q_STRING = 11;
+    static final int DEST_AET = 12;
+    static final int DEST_NAP_ID = 13;
+    static final int MOVEAET = 14;
+    static final int WARNING = 15;
+    static final int FAILED_IUID_SHOW = 16;
+    static final int SOP_CUID = 17;
+    static final int SOP_IUID = 18;
 
     private final String[] fields;
 
@@ -76,7 +83,14 @@ class AuditInfo {
                 i.outcome,
                 i.studyDate,
                 i.queryPOID,
-                i.queryString
+                i.queryString,
+                i.destAET,
+                i.destNapID,
+                i.moveAET,
+                i.warning,
+                Boolean.toString(i.failedIUIDShow),
+                i.sopCUID,
+                i.sopIUID
         };
     }
 
