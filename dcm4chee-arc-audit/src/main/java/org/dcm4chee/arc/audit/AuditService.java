@@ -323,30 +323,37 @@ public class AuditService {
         emitAuditMessage(ei, apList, poiList, log());
     }
 
-    void spoolInstanceStoredOrWadoRetrieve(StoreContext storeCtx, RetrieveContext retrieveCtx) {
+    void spoolInstanceStoredOrWadoRetrieve(StoreContext sCtx, RetrieveContext rCtx) {
         String fileName;
         Attributes attrs = new Attributes();
         AuditServiceUtils.EventType eventType;
-        if (storeCtx != null) {
-            eventType = AuditServiceUtils.EventType.forInstanceStored(storeCtx);
+        if (sCtx != null) {
+            eventType = AuditServiceUtils.EventType.forInstanceStored(sCtx);
             if (eventType == null)
                 return; // no audit message for duplicate received instance
-            String callingAET = storeCtx.getStoreSession().getHttpRequest() != null
-                    ? storeCtx.getStoreSession().getHttpRequest().getRemoteAddr() : storeCtx.getStoreSession().getCallingAET().replace('|', '-');
-            fileName = getFileName(eventType, callingAET, storeCtx.getStoreSession().getCalledAET(), storeCtx.getStudyInstanceUID());
-            BuildAuditInfo i = getAIStoreCtx(storeCtx);
+            String callingAET = sCtx.getStoreSession().getHttpRequest() != null
+                    ? sCtx.getStoreSession().getHttpRequest().getRemoteAddr() : sCtx.getStoreSession().getCallingAET().replace('|', '-');
+            fileName = getFileName(eventType, callingAET, sCtx.getStoreSession().getCalledAET(), sCtx.getStudyInstanceUID());
+            BuildAuditInfo i = getAIStoreCtx(sCtx);
             writeSpoolFileStoreOrWadoRetrieve(fileName, new AuditInfo(i), new AuditInstanceInfo(i));
         }
-        if (retrieveCtx != null) {
-            HttpServletRequest req = retrieveCtx.getHttpRequest();
-            Collection<InstanceLocations> il = retrieveCtx.getMatches();
+        if (rCtx != null) {
+            HttpServletRequest req = rCtx.getHttpRequest();
+            Collection<InstanceLocations> il = rCtx.getMatches();
             for (InstanceLocations i : il) {
                 attrs = i.getAttributes();
             }
             fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.getRemoteAddr(),
-                    retrieveCtx.getLocalAETitle(), retrieveCtx.getStudyInstanceUIDs()[0]);
-            writeSpoolFileStoreOrWadoRetrieve(fileName, new PatientStudyInfo(retrieveCtx, attrs),
-                    new InstanceInfo(retrieveCtx, attrs));
+                    rCtx.getLocalAETitle(), rCtx.getStudyInstanceUIDs()[0]);
+            String callingAET = req.getAttribute(AuditServiceUtils.keycloakClassName) != null
+                                ? AuditServiceUtils.getPreferredUsername(req)
+                                : req.getRemoteAddr();
+            BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(req.getRemoteAddr()).callingAET(callingAET)
+                                .calledAET(req.getRequestURI()).studyUID(rCtx.getStudyInstanceUIDs()[0])
+                                .accNum(attrs.getString(Tag.AccessionNumber)).pID(getPID(attrs)).pName(attrs.getString(Tag.PatientName))
+                                .outcome(null != rCtx.getException() ? rCtx.getException().getMessage(): null).studyDate(getSD(attrs))
+                                .sopCUID(attrs.getString(Tag.SOPClassUID)).sopIUID(rCtx.getSopInstanceUIDs()[0]).mppsUID(" ").build();
+            writeSpoolFileStoreOrWadoRetrieve(fileName, new AuditInfo(i), new AuditInstanceInfo(i));
         }
     }
 
@@ -371,7 +378,7 @@ public class AuditService {
 //                for (int i = AuditInstanceInfo.ACCESSION_NO; iI.getField(i) != null; i++)
 //                    accNos.add(iI.getField(i));
         }
-        mppsUIDs.remove("");
+        mppsUIDs.remove(" ");
         EventIdentification ei = getEI(eventType, i.getField(AuditInfo.OUTCOME), eventTime);
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(
                 i.getField(AuditInfo.CALLING_AET),

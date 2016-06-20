@@ -19,7 +19,7 @@ public class StudyRetentionPolicy {
 
     private Period retentionPeriod;
 
-    private boolean seriesRetention;
+    private boolean expireSeriesIndividually;
 
     public StudyRetentionPolicy() {
     }
@@ -60,12 +60,12 @@ public class StudyRetentionPolicy {
         this.retentionPeriod = retentionPeriod;
     }
 
-    public boolean isSeriesRetention() {
-        return seriesRetention;
+    public boolean isExpireSeriesIndividually() {
+        return expireSeriesIndividually;
     }
 
-    public void setSeriesRetention(boolean seriesRetention) {
-        this.seriesRetention = seriesRetention;
+    public void setExpireSeriesIndividually(boolean expireSeriesIndividually) {
+        this.expireSeriesIndividually = expireSeriesIndividually;
     }
 
     public boolean match(String hostname, String sendingAET, String receivingAET, Attributes attrs) {
@@ -77,7 +77,7 @@ public class StudyRetentionPolicy {
         return "StudyRetentionPolicy{" +
                 "cn=" + commonName +
                 ", retentionPeriod=" + retentionPeriod +
-                ", seriesRetention=" + seriesRetention +
+                ", expireSeriesIndividually=" + expireSeriesIndividually +
                 '}';
     }
 }

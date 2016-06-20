@@ -976,10 +976,11 @@ class ArchiveDeviceFactory {
         return rule;
     }
 
-    private static StudyRetentionPolicy createStudyRetentionPolicy(String cn, String retentionPeriod, boolean seriesRetention) {
+    private static StudyRetentionPolicy createStudyRetentionPolicy(String cn, String retentionPeriod,
+                                                                   boolean expireSeriesIndividually) {
         StudyRetentionPolicy policy = new StudyRetentionPolicy(cn);
         policy.setRetentionPeriod(Period.parse(retentionPeriod));
-        policy.setSeriesRetention(seriesRetention);
+        policy.setExpireSeriesIndividually(expireSeriesIndividually);
         return policy;
     }
 
