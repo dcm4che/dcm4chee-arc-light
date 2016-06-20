@@ -533,8 +533,8 @@ attributetype ( 1.2.40.0.13.1.15.110.3.89 NAME 'dcmRetentionPeriod'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.90 NAME 'dcmSeriesRetention'
-  DESC 'Indicates if retention policy should be applied at series level or not.'
+attributetype ( 1.2.40.0.13.1.15.110.3.90 NAME 'dcmExpireSeriesIndividually'
+  DESC 'Indicates if series should be expired individually or not.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -761,4 +761,4 @@ objectclass ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
   MAY (
     dcmRulePriority $
     dcmProperty $
-    dcmSeriesRetention) )
+    dcmExpireSeriesIndividually) )

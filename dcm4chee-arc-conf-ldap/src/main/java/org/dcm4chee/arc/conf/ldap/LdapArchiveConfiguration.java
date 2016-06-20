@@ -947,7 +947,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(policy.getConditions().getMap()));
         LdapUtils.storeNotNull(attrs, "dcmRetentionPeriod", policy.getRetentionPeriod());
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", policy.getPriority(), 0);
-        LdapUtils.storeNotDef(attrs, "dcmSeriesRetention", policy.isSeriesRetention(), false);
+        LdapUtils.storeNotDef(attrs, "dcmExpireSeriesIndividually", policy.isExpireSeriesIndividually(), false);
         return attrs;
     }
 
@@ -981,7 +981,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 policy.setRetentionPeriod(Period.parse(LdapUtils.stringValue(attrs.get("dcmRetentionPeriod"), null)));
                 policy.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
-                policy.setSeriesRetention(LdapUtils.booleanValue(attrs.get("dcmSeriesRetention"), false));
+                policy.setExpireSeriesIndividually(LdapUtils.booleanValue(attrs.get("dcmExpireSeriesIndividually"), false));
                 policies.add(policy);
             }
         } finally {
@@ -1061,7 +1061,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeDiffProperties(mods, prev.getConditions().getMap(), policy.getConditions().getMap());
         LdapUtils.storeDiff(mods, "dcmRetentionPeriod", prev.getRetentionPeriod(), policy.getRetentionPeriod());
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), policy.getPriority(), 0);
-        LdapUtils.storeDiff(mods, "dcmSeriesRetention", prev.isSeriesRetention(), policy.isSeriesRetention(), false);
+        LdapUtils.storeDiff(mods, "dcmExpireSeriesIndividually", prev.isExpireSeriesIndividually(),
+                policy.isExpireSeriesIndividually(), false);
         return mods;
     }
 

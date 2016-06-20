@@ -31,9 +31,9 @@
         "type": "string"
       }
     },
-    "dcmSeriesRetention": {
-      "title": "Series Retention Flag",
-      "description": "Indicates if retention policy should be applied at series level or not.",
+    "dcmExpireSeriesIndividually": {
+      "title": "Expire Series Individually",
+      "description": "Indicates if series should be expired individually or not.",
       "type": "boolean"
     }
   }
