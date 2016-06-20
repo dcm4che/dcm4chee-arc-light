@@ -40,61 +40,36 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.procedure.ProcedureContext;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.study.StudyMgtContext;
 
+import java.util.ArrayList;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since March 2016
+ * @since June 2016
  */
-class PatientStudyInfo {
-    static final int CALLING_HOSTNAME = 0;
-    static final int CALLING_AET = 1;
-    static final int CALLED_AET = 2;
-    static final int STUDY_UID = 3;
-    static final int ACCESSION_NO = 4;
-    static final int PATIENT_ID = 5;
-    static final int PATIENT_NAME = 6;
-    static final int OUTCOME = 7;
-    static final int STUDY_DATE = 8;
+
+class AuditInstanceInfo {
+    static final int SOP_CUID = 0;
+    static final int SOP_IUID = 1;
+    static final int MPPS_UID = 2;
+
     private final String[] fields;
 
-
-    PatientStudyInfo(RetrieveContext ctx, Attributes attrs) {
-        fields = new String[] {
-                ctx.getHttpRequest().getRemoteAddr(),
-                ctx.getHttpRequest().getAttribute(AuditServiceUtils.keycloakClassName) != null
-                    ? AuditServiceUtils.getPreferredUsername(ctx.getHttpRequest())
-                    : ctx.getHttpRequest().getRemoteAddr(),
-                ctx.getHttpRequest().getRequestURI(),
-                ctx.getStudyInstanceUIDs()[0],
-                attrs.getString(Tag.AccessionNumber),
-                AuditServiceUtils.getPatID(attrs),
-                attrs.getString(Tag.PatientName),
-                null != ctx.getException() ? ctx.getException().getMessage(): null,
-                attrs.getString(Tag.StudyDate)
-        };
+    AuditInstanceInfo(BuildAuditInfo i) {
+        ArrayList<String> list = new ArrayList<>();
+        list.add(i.sopCUID);
+        list.add(i.sopIUID);
+        list.add(i.mppsUID);
+        this.fields = list.toArray(new String[list.size()]);
     }
 
-
-
-    PatientStudyInfo(String s) {
+    AuditInstanceInfo(String s) {
         fields = StringUtils.split(s, '\\');
     }
-
     String getField(int field) {
         return StringUtils.maskEmpty(fields[field], null);
     }
-
     @Override
     public String toString() {
         return StringUtils.concat(fields, '\\');

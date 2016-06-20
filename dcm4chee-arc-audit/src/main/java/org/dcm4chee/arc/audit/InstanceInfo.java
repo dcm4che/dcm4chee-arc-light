@@ -56,24 +56,9 @@ class InstanceInfo {
     static final int CLASS_UID = 0;
     static final int INSTANCE_UID = 1;
     static final int MPPS_UID = 2;
-//         static final int ACCESSION_NO = 3;
 
     private final String[] fields;
 
-    InstanceInfo(StoreContext ctx) {
-        ArrayList<String> list = new ArrayList<>();
-        list.add(ctx.getSopClassUID());
-        list.add(ctx.getSopInstanceUID());
-        list.add(StringUtils.maskNull(ctx.getMppsInstanceUID(), ""));
-//            Sequence reqAttrs = attrs.getSequence(Tag.RequestAttributesSequence);
-//            if (reqAttrs != null)
-//                for (Attributes reqAttr : reqAttrs) {
-//                    String accno = reqAttr.getString(Tag.AccessionNumber);
-//                    if (accno != null)
-//                        list.add(accno);
-//                }
-        this.fields = list.toArray(new String[list.size()]);
-    }
 
     InstanceInfo(RetrieveContext ctx, Attributes attrs) {
         ArrayList<String> list = new ArrayList<>();
@@ -90,12 +75,6 @@ class InstanceInfo {
         this.fields = list.toArray(new String[list.size()]);
     }
 
-    InstanceInfo(String cuid, String numInst) {
-        ArrayList<String> list = new ArrayList<>();
-        list.add(cuid);
-        list.add(numInst);
-        this.fields = list.toArray(new String[list.size()]);
-    }
 
     InstanceInfo(String s) {
         fields = StringUtils.split(s, '\\');
