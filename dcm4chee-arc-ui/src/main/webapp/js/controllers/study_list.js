@@ -179,6 +179,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               afterOpen: function($vexContent) {
                 cfpLoadingBar.complete();
                 setTimeout(function(){
+                    if(mode === "create"){
+                        $(".edit-patient .0020000D").attr("title","To generate it automatically leave it blank");
+                        $(".edit-patient .0020000D").attr("placeholder","To generate it automatically leave it blank");
+                    }
                     if(mode === "edit"){
                         $(".edit-patient .0020000D").attr("disabled","disabled");
                         $(".edit-patient span.0020000D").remove();
@@ -332,6 +336,20 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editstudy.attrs);
+                        //Add patient attributs again
+                        // angular.extend($scope.editstudy.attrs, patient.attrs);
+                        // $scope.editstudy.attrs.concat(patient.attrs); 
+                        var local = {};
+                        if($scope.editstudy.attrs["00100020"]){
+                            local["00100020"] = $scope.editstudy.attrs["00100020"];
+                        }else{
+                            local["00100020"] = patient.attrs["00100020"];
+                        }
+                        angular.forEach($scope.editstudy.attrs,function(m, i){
+                            if(res.data[i]){
+                                local[i] = m;
+                            }
+                        });
                         if($scope.editstudy.attrs["0020000D"].Value[0]){
                             angular.forEach($scope.editstudy.attrs, function(m, i){
                                 // console.log("res.data",res.data);
@@ -341,20 +359,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 }
                             });
 
-                            //Add patient attributs again
-                            // angular.extend($scope.editstudy.attrs, patient.attrs);
-                            // $scope.editstudy.attrs.concat(patient.attrs); 
-                            var local = {};
-                            if($scope.editstudy.attrs["00100020"]){
-                                local["00100020"] = $scope.editstudy.attrs["00100020"];
-                            }else{
-                                local["00100020"] = patient.attrs["00100020"];
-                            }
-                            angular.forEach($scope.editstudy.attrs,function(m, i){
-                                if(res.data[i]){
-                                    local[i] = m;
-                                }
-                            });
+
                             // local["00081030"] = { "vr": "SH", "Value":[""]};
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies/"+local["0020000D"].Value[0],
@@ -401,11 +406,33 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 });
                             });
                         }else{
-                            DeviceService.msg($scope, {
-                                "title": "Error",
-                                "text": "Study Instance UID is required!",
-                                "status": "error"
-                            });
+                            $http({
+                                    method: 'POST',
+
+                                    url:"../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies",
+                                    // url: "../aets/"+$scope.aet+"/rs/patients/",
+                                    data:local,
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'text/plain'
+                                    }
+                                }).then(
+                                    function successCallback(response) {
+                                        console.log("response",response);
+                                    },
+                                    function errorCallback(response) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Error",
+                                            "text": "Error saving study!",
+                                            "status": "error"
+                                        });
+                                    }
+                                );
+                            // DeviceService.msg($scope, {
+                            //     "title": "Error",
+                            //     "text": "Study Instance UID is required!",
+                            //     "status": "error"
+                            // });
                         }
                     }
                     vex.close($vex.data().vex.id);
