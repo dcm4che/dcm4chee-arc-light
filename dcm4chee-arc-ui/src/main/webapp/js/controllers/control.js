@@ -44,69 +44,69 @@ myApp.controller('ArchiveCtrl', function (cfpLoadingBar, $scope, $http, DeviceSe
                         "performedOps",
                         "invokedOps"
                     ];
-        obj = [{
-                    "serialNo":5,
-                    "connectTime":"2016-06-16T10:25:19.844+02:00",
-                    "initiated":false,
-                    "localAETitle":"DCM4CHEE",
-                    "remoteAETitle":"MOVESCU",
-                    "performedOps":{
-                        "C-MOVE":{
-                            "RQ":1,
-                            "RSP":0
-                        }
-                    },
-                    "invokedOps":{}
-                },
-                {
-                    "serialNo":6,
-                    "connectTime":"2016-06-16T10:25:19.912+02:00",
-                    "initiated":true,
-                    "localAETitle":"MOVESCU",
-                    "remoteAETitle":"ARCACT1TLN",
-                    "performedOps":{},
-                    "invokedOps":{
-                        "C-MOVE":{
-                            "RQ":1,
-                            "RSP":0
-                        }
-                    }
-                    ,
-                    "forward-C-MOVE-RQ-for-Study":"1.2.840.113619.2.55.1.1762927524.2188.1148396481.727",
-                    "testwert":"hallo value"
-                },
-                {
-                    "serialNo":7,
-                    "connectTime":"2016-06-16T10:25:20.145+02:00",
-                    "initiated":false,
-                    "localAETitle":"DCM4CHEE",
-                    "remoteAETitle":"ARCACT1TLN",
-                    "performedOps":{
-                        "C-STORE":{
-                            "RQ":2,
-                            "RSP":1
-                        }
-                    },
-                    "invokedOps":{
+        // obj = [{
+        //             "serialNo":5,
+        //             "connectTime":"2016-06-16T10:25:19.844+02:00",
+        //             "initiated":false,
+        //             "localAETitle":"DCM4CHEE",
+        //             "remoteAETitle":"MOVESCU",
+        //             "performedOps":{
+        //                 "C-MOVE":{
+        //                     "RQ":1,
+        //                     "RSP":0
+        //                 }
+        //             },
+        //             "invokedOps":{}
+        //         },
+        //         {
+        //             "serialNo":6,
+        //             "connectTime":"2016-06-16T10:25:19.912+02:00",
+        //             "initiated":true,
+        //             "localAETitle":"MOVESCU",
+        //             "remoteAETitle":"ARCACT1TLN",
+        //             "performedOps":{},
+        //             "invokedOps":{
+        //                 "C-MOVE":{
+        //                     "RQ":1,
+        //                     "RSP":0
+        //                 }
+        //             }
+        //             ,
+        //             "forward-C-MOVE-RQ-for-Study":"1.2.840.113619.2.55.1.1762927524.2188.1148396481.727",
+        //             "testwert":"hallo value"
+        //         },
+        //         {
+        //             "serialNo":7,
+        //             "connectTime":"2016-06-16T10:25:20.145+02:00",
+        //             "initiated":false,
+        //             "localAETitle":"DCM4CHEE",
+        //             "remoteAETitle":"ARCACT1TLN",
+        //             "performedOps":{
+        //                 "C-STORE":{
+        //                     "RQ":2,
+        //                     "RSP":1
+        //                 }
+        //             },
+        //             "invokedOps":{
 
-                    }
-                },
-                {
-                    "serialNo":8,
-                    "connectTime":"2016-06-16T10:25:20.302+02:00",
-                    "initiated":true,
-                    "localAETitle":"DCM4CHEE",
-                    "remoteAETitle":"STORESCP",
-                    "performedOps":{
+        //             }
+        //         },
+        //         {
+        //             "serialNo":8,
+        //             "connectTime":"2016-06-16T10:25:20.302+02:00",
+        //             "initiated":true,
+        //             "localAETitle":"DCM4CHEE",
+        //             "remoteAETitle":"STORESCP",
+        //             "performedOps":{
 
-                    },
-                    "invokedOps":{
-                        "C-STORE":{
-                            "RQ":1,
-                            "RSP":1
-                        }
-                    }
-                }];
+        //             },
+        //             "invokedOps":{
+        //                 "C-STORE":{
+        //                     "RQ":1,
+        //                     "RSP":1
+        //                 }
+        //             }
+        //         }];
                 angular.forEach(obj,function(j, l){
                     angular.forEach(j,function(m, i){
                         // console.log("m",m);
@@ -229,8 +229,8 @@ myApp.controller('ArchiveCtrl', function (cfpLoadingBar, $scope, $http, DeviceSe
           method: 'GET',
           url: "../monitor/associations"
         }).then(function successCallback(res) {
-                res.data = modifyObject(res.data);
             if(res.data && res.data[0] && res.data[0] != ""){
+                res.data = modifyObject(res.data);
                 res.data = timeCalculator(res.data);
                 $scope.associationStatus = res.data;
             }else{
