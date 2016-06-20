@@ -33,7 +33,7 @@
     },
     "dcmExpireSeriesIndividually": {
       "title": "Expire Series Individually",
-      "description": "Indicates if series should be expired individually or not.",
+      "description": "Indicates if series should be expired individually or not. If absent, it is false.",
       "type": "boolean"
     }
   }

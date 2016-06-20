@@ -296,6 +296,30 @@
       "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.",
       "type": "string"
     },
+    "dcmRejectExpiredStudiesPollingInterval": {
+      "title": "Reject Expired Studies Polling Interval",
+      "description": "Polling Interval for rejecting expired Studies and Series in ISO-8601 duration format PnDTnHnMn.nS. If absent, neither expired Studies nor Series will be rejected automatically",
+      "type": "string"
+    },
+    "dcmRejectExpiredStudiesPollingStartTime": {
+      "title": "Reject Expired Studies Polling Start Time",
+      "description": "Time when the polling interval for rejecting expired Studies and Series starts in ISO-8601 time format [hh][mm][ss]. Archive start time if absent.",
+      "type": "string"
+    },
+    "dcmRejectExpiredStudiesFetchSize": {
+      "title": "Reject Expired Studies Fetch Size",
+      "description": "Maximal number of expired Studies fetched in one query; If absent, expired Studies will not be rejected automatically",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmRejectExpiredSeriesFetchSize": {
+      "title": "Reject Expired Series Fetch Size",
+      "description": "Maximal number of expired Series fetched in one query; If absent, expired Series will not be rejected automatically",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "dcmAttributeFilter": {
       "$ref": "attributeFilter.schema.json"
     },

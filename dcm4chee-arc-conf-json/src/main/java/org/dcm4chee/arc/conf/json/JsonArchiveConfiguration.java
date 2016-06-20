@@ -55,6 +55,7 @@ import org.dcm4che3.util.Property;
 import javax.json.stream.JsonParser;
 import java.lang.reflect.Array;
 import java.net.URI;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -124,6 +125,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmPurgeQueueMessagePollingInterval", arcDev.getPurgeQueueMessagePollingInterval());
         writer.writeNotDef("dcmPurgeQueueMessageFetchSize", arcDev.getPurgeQueueMessageFetchSize(), 100);
         writer.writeNotNull("dcmWadoSpoolDirectory", arcDev.getWadoSpoolDirectory());
+        writer.writeNotNull("dcmRejectExpiredStudiesPollingInterval", arcDev.getRejectExpiredStudiesPollingInterval());
+        writer.writeNotNull("dcmRejectExpiredStudiesPollingStartTime", arcDev.getRejectExpiredStudiesPollingStartTime());
+        writer.writeNotDef("dcmRejectExpiredStudiesFetchSize", arcDev.getRejectExpiredStudiesFetchSize(), 0);
+        writer.writeNotDef("dcmRejectExpiredSeriesFetchSize", arcDev.getRejectExpiredSeriesFetchSize(), 0);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -511,6 +516,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSpoolDirectory":
                     arcDev.setWadoSpoolDirectory(reader.stringValue());
+                    break;
+                case "dcmRejectExpiredStudiesPollingInterval":
+                    arcDev.setRejectExpiredStudiesPollingInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmRejectExpiredStudiesPollingStartTime":
+                    arcDev.setRejectExpiredStudiesPollingStartTime(LocalTime.parse(reader.stringValue()));
+                    break;
+                case "dcmRejectExpiredStudiesFetchSize":
+                    arcDev.setRejectExpiredStudiesFetchSize(reader.intValue());
+                    break;
+                case "dcmRejectExpiredSeriesFetchSize":
+                    arcDev.setRejectExpiredSeriesFetchSize(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

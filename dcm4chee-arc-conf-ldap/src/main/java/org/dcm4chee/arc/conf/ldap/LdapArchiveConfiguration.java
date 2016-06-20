@@ -58,6 +58,7 @@ import javax.naming.directory.*;
 import javax.naming.directory.Attributes;
 import java.net.URI;
 import java.security.cert.CertificateException;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.*;
 
@@ -126,6 +127,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
         LdapUtils.storeNotEmpty(attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
+        LdapUtils.storeNotNull(attrs, "dcmRejectExpiredStudiesPollingInterval", ext.getRejectExpiredStudiesPollingInterval());
+        LdapUtils.storeNotNull(attrs, "dcmRejectExpiredStudiesPollingStartTime", ext.getRejectExpiredStudiesPollingStartTime());
+        LdapUtils.storeNotDef(attrs, "dcmRejectExpiredStudiesFetchSize", ext.getRejectExpiredStudiesFetchSize(), 0);
+        LdapUtils.storeNotDef(attrs, "dcmRejectExpiredSeriesFetchSize", ext.getRejectExpiredSeriesFetchSize(), 0);
     }
 
     @Override
@@ -192,6 +197,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
         ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(MWLStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
+        ext.setRejectExpiredStudiesPollingInterval(toDuration(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesPollingInterval"), null)));
+        ext.setRejectExpiredStudiesPollingStartTime(toLocalTime(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesPollingStartTime"), null)));
+        ext.setRejectExpiredStudiesFetchSize(LdapUtils.intValue(attrs.get("dcmRejectExpiredStudiesFetchSize"), 0));
+        ext.setRejectExpiredSeriesFetchSize(LdapUtils.intValue(attrs.get("dcmRejectExpiredSeriesFetchSize"), 0));
     }
 
     @Override
@@ -286,6 +295,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(), bb.getWadoSpoolDirectory());
         LdapUtils.storeDiff(mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
+        LdapUtils.storeDiff(mods, "dcmRejectExpiredStudiesPollingInterval",
+                aa.getRejectExpiredStudiesPollingInterval(), bb.getRejectExpiredStudiesPollingInterval());
+        LdapUtils.storeDiff(mods, "dcmRejectExpiredStudiesPollingStartTime",
+                aa.getRejectExpiredStudiesPollingStartTime(), bb.getRejectExpiredStudiesPollingStartTime());
+        LdapUtils.storeDiff(mods, "dcmRejectExpiredStudiesFetchSize",
+                aa.getRejectExpiredStudiesFetchSize(), bb.getRejectExpiredStudiesFetchSize(), 0);
+        LdapUtils.storeDiff(mods, "dcmRejectExpiredSeriesFetchSize",
+                aa.getRejectExpiredSeriesFetchSize(), bb.getRejectExpiredSeriesFetchSize(), 0);
     }
 
     @Override
@@ -875,6 +892,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private Duration toDuration(String s) {
         return s != null ? Duration.parse(s) : null;
+    }
+
+    private LocalTime toLocalTime(String s) {
+        return s != null ? LocalTime.parse(s) : null;
     }
 
     private void mergeExportRules(Collection<ExportRule> prevRules, Collection<ExportRule> rules, String parentDN)

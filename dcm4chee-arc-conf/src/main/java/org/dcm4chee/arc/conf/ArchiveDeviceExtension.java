@@ -41,7 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
-import org.dcm4che3.data.Issuer;
+import java.time.LocalTime;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
@@ -104,6 +104,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private MWLStatus[] hideSPSWithStatusFrom = {};
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
+    private Duration rejectExpiredStudiesPollingInterval;
+    private LocalTime rejectExpiredStudiesPollingStartTime;
+    private int rejectExpiredStudiesFetchSize = 0;
+    private int rejectExpiredSeriesFetchSize = 0;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -528,6 +532,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ErrorLogFilePattern = hl7ErrorLogFilePattern;
     }
 
+    public int getRejectExpiredStudiesFetchSize() {
+        return rejectExpiredStudiesFetchSize;
+    }
+
+    public void setRejectExpiredStudiesFetchSize(int rejectExpiredStudiesFetchSize) {
+        this.rejectExpiredStudiesFetchSize = rejectExpiredStudiesFetchSize;
+    }
+
+    public int getRejectExpiredSeriesFetchSize() {
+        return rejectExpiredSeriesFetchSize;
+    }
+
+    public void setRejectExpiredSeriesFetchSize(int rejectExpiredSeriesFetchSize) {
+        this.rejectExpiredSeriesFetchSize = rejectExpiredSeriesFetchSize;
+    }
+
+    public Duration getRejectExpiredStudiesPollingInterval() {
+        return rejectExpiredStudiesPollingInterval;
+    }
+
+    public void setRejectExpiredStudiesPollingInterval(Duration rejectExpiredStudiesPollingInterval) {
+        this.rejectExpiredStudiesPollingInterval = rejectExpiredStudiesPollingInterval;
+    }
+
+    public LocalTime getRejectExpiredStudiesPollingStartTime() {
+        return rejectExpiredStudiesPollingStartTime;
+    }
+
+    public void setRejectExpiredStudiesPollingStartTime(LocalTime rejectExpiredStudiesPollingStartTime) {
+        this.rejectExpiredStudiesPollingStartTime = rejectExpiredStudiesPollingStartTime;
+    }
+
     public Duration getPurgeQueueMessagePollingInterval() {
         return purgeQueueMessagePollingInterval;
     }
@@ -803,6 +839,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
         purgeQueueMessageFetchSize = arcdev.purgeQueueMessageFetchSize;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
+        rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
+        rejectExpiredStudiesPollingStartTime = arcdev.rejectExpiredStudiesPollingStartTime;
+        rejectExpiredStudiesFetchSize = arcdev.rejectExpiredStudiesFetchSize;
+        rejectExpiredSeriesFetchSize = arcdev.rejectExpiredSeriesFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();
