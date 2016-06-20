@@ -1225,14 +1225,14 @@ div[tooltip] {
   .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td input, .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td textarea {
     float: left;
     width: 97%; }
-  .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td span {
+  .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td span.glyphicon-remove {
     float: right;
     height: 33px;
     line-height: 33px;
     text-align: center;
     width: 3%;
     display: none; }
-    .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td span:hover {
+    .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td span.glyphicon-remove:hover {
       cursor: pointer; }
   .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td.first_td {
     padding-left: 5%; }

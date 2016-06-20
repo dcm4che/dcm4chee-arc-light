@@ -522,6 +522,25 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               afterOpen: function($vexContent) {
                 cfpLoadingBar.complete();
                 setTimeout(function(){
+
+                    //
+        //             is-open="dateOpen[i]" 
+        // uib-datepicker-popup="{{format}}"
+        // datepicker-options="dateOptions"
+        // ng-click="dateOpen(i,p.vr)" 
+        // close-text="Close"
+                    // console.log("$(.edit-patient .00100030)=",$(".edit-patient .00100030").attr("ng-model"));
+                    // $(".edit-patient .00100030").after($compile(
+                    //     '<pre>{{datepicker}}</pre>'+
+                    //     '<input class="form-control" '+
+                    //     'ng-model="editpatient.attrs[\'00100030\'].Value[0]" '+
+                    //     'is-open="dateOpen[\'00100030\']" '+
+                    //     'uib-datepicker-popup="yyyyMMdd"'+
+                    //     'datepicker-options="dateOptions"'+
+                    //     'ng-click="dateOpen(\'00100030\',\'DA\')"'+ 
+                    //     'close-text="Close"/>'
+                    // )($scope));
+                    //
                     if(mode === "create"){
                         $(".edit-patient .00100020").attr("title","To generate it automatically leave it blank");
                         $(".edit-patient .00100020").attr("placeholder","To generate it automatically leave it blank");
@@ -899,6 +918,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }
             },301);
     };
+    $scope.dateOpen = {};
     $scope.studyDateFromOpen = function() {
         cfpLoadingBar.start();
         $scope.studyDateFrom.opened = true;
@@ -911,6 +931,27 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         }, 10);
     };
+
+    $scope.dateOpen = function(t, vr) {
+        console.log("t",t);
+        console.log("vr",vr);
+        console.log("$scope.dateOpen",$scope.dateOpen);
+        if(vr === "DA"){
+            $scope.dateOpen[t] = true;
+        }
+        console.log("$scope.dateOpen",$scope.dateOpen);
+        // cfpLoadingBar.start();
+        // $scope.studyDateFrom.opened = true;
+        // var watchPicker = setInterval(function(){ 
+        //                         //uib-datepicker-popup uib-close
+        //     if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
+        //         clearInterval(watchPicker);
+        //         cfpLoadingBar.complete();
+
+        //     }
+        // }, 10);
+    };
+
     $scope.studyDateToOpen = function() {
         cfpLoadingBar.start();
         $scope.studyDateTo.opened = true;
