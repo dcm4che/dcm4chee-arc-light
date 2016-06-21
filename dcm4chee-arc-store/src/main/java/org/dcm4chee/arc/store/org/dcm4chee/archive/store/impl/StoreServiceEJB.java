@@ -65,6 +65,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -593,17 +594,27 @@ public class StoreServiceEJB {
         series.setRejectionState(ctx.getRejectionNote() == null ? RejectionState.NONE : RejectionState.COMPLETE);
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
-        series.setExpirationDate(updateExpirationDate(ctx));
+        updateExpirationDate(ctx, series, study);
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
     }
 
-    private String updateExpirationDate(StoreContext ctx) {
+    private void updateExpirationDate(StoreContext ctx, Series series, Study study) {
         ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
         StudyRetentionPolicy srp = arcAE.findStudyRetentionPolicy(ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCallingAET(), ctx.getStoreSession().getCalledAET(), ctx.getAttributes());
-        return srp.isExpireSeriesIndividually() ? srp.getRetentionPeriod().toString() : null;
+        series.setExpirationDate(srp.isExpireSeriesIndividually() ? srp.getRetentionPeriod().toString() : null);
+        processStudyExpiration(study, srp.getRetentionPeriod().normalized());
+    }
+
+    private void processStudyExpiration(Study study, Period policyExpirationDate) {
+        if (study.getExpirationDate() == null)
+            study.setExpirationDate(policyExpirationDate.toString());
+        Period studyExpireDate = Period.parse(study.getExpirationDate()).normalized();
+        if (studyExpireDate.getYears() + studyExpireDate.getMonths() + studyExpireDate.getDays()
+                < policyExpirationDate.getYears() + policyExpirationDate.getMonths() + policyExpirationDate.getDays())
+            study.setExpirationDate(policyExpirationDate.minus(studyExpireDate).toString());
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
