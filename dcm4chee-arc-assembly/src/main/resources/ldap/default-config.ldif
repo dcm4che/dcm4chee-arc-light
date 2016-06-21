@@ -26,7 +26,7 @@ dicomAETitle: DCM4CHEE
 dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmOverwritePolicy: SAME_SOURCE
 dcmQueryRetrieveViewID: hideRejected
-dicomSoftwareVersion: 5.4.0
+dicomSoftwareVersion: 5.5.0
 dcmHideSPSWithStatusFromMWL: STARTED
 dcmHideSPSWithStatusFromMWL: DEPARTED
 dcmHideSPSWithStatusFromMWL: CANCELLED
