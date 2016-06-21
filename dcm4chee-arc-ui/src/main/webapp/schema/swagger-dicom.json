@@ -270,7 +270,7 @@
           "QIDO-RS"
         ],
         "summary": "Search for Series of Study",
-        "operationId": "SearchForSeriesOfStudy",
+        "operationId": "SearchForStudySeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "multipart/related;type=application/json"
@@ -465,7 +465,7 @@
           "QIDO-RS"
         ],
         "summary": "Search for Instances of Series of Study",
-        "operationId": "SearchForInstancesOfSeriesOfStudy",
+        "operationId": "SearchForStudySeriesInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "multipart/related;type=application/json"
@@ -566,7 +566,7 @@
           "QIDO-RS"
         ],
         "summary": "Search for Instances of Study",
-        "operationId": "SearchForInstancesOfStudy",
+        "operationId": "SearchForStudyInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "multipart/related;type=application/json"

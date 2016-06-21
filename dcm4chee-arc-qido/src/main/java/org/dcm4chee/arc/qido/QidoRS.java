@@ -300,7 +300,7 @@ public class QidoRS {
     public Response searchForInstancesOfSeriesXML(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
-        return search("SearchForSeriesInstances", Model.INSTANCE,
+        return search("SearchForStudySeriesInstances", Model.INSTANCE,
                 studyInstanceUID, seriesInstanceUID, INSTANCE_FIELDS, Output.DICOM_XML);
     }
 
@@ -310,7 +310,7 @@ public class QidoRS {
     public Response searchForInstancesOfSeriesJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
-        return search("SearchForSeriesInstances", Model.INSTANCE,
+        return search("SearchForStudySeriesInstances", Model.INSTANCE,
                 studyInstanceUID, seriesInstanceUID, INSTANCE_FIELDS, Output.JSON);
     }
 

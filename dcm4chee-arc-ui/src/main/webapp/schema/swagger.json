@@ -810,11 +810,9 @@
         ],
         "summary": "Search for Scheduled Procedure Steps",
         "operationId": "SearchForSPS",
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
-          "text/plan"
+          "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/json"
         ],
         "parameters": [
           {
