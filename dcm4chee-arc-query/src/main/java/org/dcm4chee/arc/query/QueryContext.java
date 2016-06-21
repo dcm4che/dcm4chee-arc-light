@@ -69,11 +69,9 @@ public interface QueryContext {
 
     String getSOPClassUID();
 
+    String getSearchMethod();
+
     ArchiveAEExtension getArchiveAEExtension();
-
-    QueryRetrieveLevel2 getQueryRetrieveLevel();
-
-    void setQueryRetrieveLevel(QueryRetrieveLevel2 qrLevel);
 
     Attributes getQueryKeys();
 

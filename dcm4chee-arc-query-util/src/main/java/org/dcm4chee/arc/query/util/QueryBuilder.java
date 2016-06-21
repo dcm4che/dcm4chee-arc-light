@@ -161,6 +161,33 @@ public class QueryBuilder {
         return false;
     }
 
+    public static boolean addMWLOrderSpecifier(int tag, Order order, List<OrderSpecifier<?>> result) {
+        if (addOrderSpecifier(QueryRetrieveLevel2.PATIENT, tag, order, result))
+            return true;
+
+        switch (tag) {
+            case Tag.AccessionNumber:
+                return result.add(orderSpecifierOf(QMWLItem.mWLItem.accessionNumber, order));
+            case Tag.Modality:
+                return result.add(orderSpecifierOf(QMWLItem.mWLItem.modality, order));
+            case Tag.StudyInstanceUID:
+                return result.add(orderSpecifierOf(QMWLItem.mWLItem.studyInstanceUID, order));
+             case Tag.ScheduledProcedureStepStartDate:
+                return result.add(orderSpecifierOf(QMWLItem.mWLItem.scheduledStartDate, order));
+            case Tag.ScheduledProcedureStepStartTime:
+                return result.add(orderSpecifierOf(QMWLItem.mWLItem.scheduledStartTime, order));
+            case Tag.ScheduledPerformingPhysicianName:
+                result.add(orderSpecifierOf(performingPhysicianName.familyName, order));
+                result.add(orderSpecifierOf(performingPhysicianName.givenName, order));
+                return result.add(orderSpecifierOf(performingPhysicianName.middleName, order));
+            case Tag.ScheduledProcedureStepID:
+                return result.add(orderSpecifierOf(QMWLItem.mWLItem.scheduledProcedureStepID, order));
+            case Tag.RequestedProcedureID:
+                return result.add(orderSpecifierOf(QMWLItem.mWLItem.requestedProcedureID, order));
+        }
+        return false;
+    }
+
     private static OrderSpecifier orderSpecifierOf(StringPath path, Order order) {
         return order == Order.ASC ? path.asc() : path.desc();
     }

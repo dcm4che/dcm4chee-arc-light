@@ -61,13 +61,13 @@ class AccessionNumSopClassInfo {
     HashMap<String, HashSet<String>> getSopClassMap() {
         return sopClassMap;
     }
-    void addSOPInstance(RetrieveStudyInfo rInfo) {
-        String cuid = rInfo.getField(RetrieveStudyInfo.SOPCLASSUID);
+    void addSOPInstance(AuditInfo rInfo) {
+        String cuid = rInfo.getField(AuditInfo.SOP_CUID);
         HashSet<String> iuids = sopClassMap.get(cuid);
         if (iuids == null) {
             iuids = new HashSet<>();
             sopClassMap.put(cuid, iuids);
         }
-        iuids.add(rInfo.getField(RetrieveStudyInfo.SOPINSTANCEUID));
+        iuids.add(rInfo.getField(AuditInfo.SOP_IUID));
     }
 }

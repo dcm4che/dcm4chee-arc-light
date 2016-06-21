@@ -63,9 +63,6 @@ import java.util.*;
  */
 
 class AuditServiceUtils {
-    static final String noValue = "<none>";
-    static final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
-
     enum EventClass {
         QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY
     }
@@ -236,13 +233,4 @@ class AuditServiceUtils {
         }
     }
 
-    static String getPreferredUsername(HttpServletRequest req) {
-        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
-                req.getAttribute(KeycloakSecurityContext.class.getName());
-        return securityContext.getToken().getPreferredUsername();
-    }
-
-    static String getPatID(Attributes attrs) {
-        return attrs.getString(Tag.PatientID) != null ? IDWithIssuer.pidOf(attrs).toString() : noValue;
-    }
 }

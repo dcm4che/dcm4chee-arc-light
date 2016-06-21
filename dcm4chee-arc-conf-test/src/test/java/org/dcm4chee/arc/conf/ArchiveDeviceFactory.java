@@ -801,7 +801,7 @@ class ArchiveDeviceFactory {
             "OMG^O19",
             "ORU^R01"
     };
-    static final String DCM4CHEE_ARC_VERSION = "5.4.0";
+    static final String DCM4CHEE_ARC_VERSION = "5.5.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";

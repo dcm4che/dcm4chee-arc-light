@@ -47,6 +47,7 @@ import org.dcm4che3.util.DateUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -124,7 +125,8 @@ import java.util.Date;
         @Index(columnList = "department"),
         @Index(columnList = "series_custom1"),
         @Index(columnList = "series_custom2"),
-        @Index(columnList = "series_custom3")
+        @Index(columnList = "series_custom3"),
+        @Index(columnList = "expiration_date")
 })
 public class Series {
 
@@ -233,6 +235,10 @@ public class Series {
     @Basic(optional = false)
     @Column(name = "rejection_state")
     private RejectionState rejectionState;
+
+    @Basic
+    @Column(name = "expiration_date")
+    private String expirationDate;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -372,6 +378,14 @@ public class Series {
 
     public void setRejectionState(RejectionState rejectionState) {
         this.rejectionState = rejectionState;
+    }
+
+    public LocalDate getExpirationDate() {
+        return expirationDate != null ? LocalDate.parse(expirationDate) : null;
+    }
+
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate != null ? expirationDate.toString() : null;
     }
 
     public CodeEntity getInstitutionCode() {
