@@ -47,6 +47,7 @@ import org.dcm4che3.util.DateUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -379,12 +380,12 @@ public class Series {
         this.rejectionState = rejectionState;
     }
 
-    public String getExpirationDate() {
-        return expirationDate;
+    public LocalDate getExpirationDate() {
+        return expirationDate != null ? LocalDate.parse(expirationDate) : null;
     }
 
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate != null ? expirationDate.toString() : null;
     }
 
     public CodeEntity getInstitutionCode() {

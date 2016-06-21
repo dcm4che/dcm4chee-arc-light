@@ -72,6 +72,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static org.dcm4chee.arc.entity.QStudy.study;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -596,24 +598,28 @@ public class StoreServiceEJB {
         series.setRejectionState(ctx.getRejectionNote() == null ? RejectionState.NONE : RejectionState.COMPLETE);
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
-        processExpirationDate(ctx, series, study);
+        processExpirationDate(ctx, series);
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
     }
 
-    private void processExpirationDate(StoreContext ctx, Series series, Study study) {
-        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
-        StudyRetentionPolicy srp = arcAE.findStudyRetentionPolicy(ctx.getStoreSession().getRemoteHostName(),
-                ctx.getStoreSession().getCallingAET(), ctx.getStoreSession().getCalledAET(), ctx.getAttributes());
-        Period policyRetentionPeriod = srp.getRetentionPeriod().normalized();
-        LocalDate policyExpirationDate = LocalDate.now().plusYears(policyRetentionPeriod.getYears()).plusMonths(policyRetentionPeriod.getMonths()).plusDays(policyRetentionPeriod.getDays());
-        series.setExpirationDate(srp.isExpireSeriesIndividually() ? policyExpirationDate.toString() : null);
-        if (study.getExpirationDate() == null)
-            study.setExpirationDate(policyExpirationDate.toString());
-        LocalDate studyExpireDate1 = LocalDate.parse(study.getExpirationDate());
-        if (studyExpireDate1.compareTo(policyExpirationDate) < 0)
-            study.setExpirationDate(policyExpirationDate.toString());
+    private void processExpirationDate(StoreContext ctx, Series series) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        StudyRetentionPolicy retentionPolicy = arcAE.findStudyRetentionPolicy(session.getRemoteHostName(),
+                session.getCallingAET(), session.getCalledAET(), ctx.getAttributes());
+        if (retentionPolicy == null)
+            return;
+
+        LocalDate expirationDate = LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
+        Study study = series.getStudy();
+        LocalDate studyExpirationDate = study.getExpirationDate();
+        if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
+            study.setExpirationDate(expirationDate);
+
+        if (retentionPolicy.isExpireSeriesIndividually())
+            series.setExpirationDate(expirationDate);
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
