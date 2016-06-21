@@ -605,7 +605,7 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
         StudyRetentionPolicy srp = arcAE.findStudyRetentionPolicy(ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCallingAET(), ctx.getStoreSession().getCalledAET(), ctx.getAttributes());
-        Period policyRetentionPeriod = srp.getRetentionPeriod();
+        Period policyRetentionPeriod = srp.getRetentionPeriod().normalized();
         series.setExpirationDate(srp.isExpireSeriesIndividually() ? getExpirationDate(policyRetentionPeriod) : null);
         if (study.getExpirationDate() == null)
             study.setExpirationDate(getExpirationDate(policyRetentionPeriod));
