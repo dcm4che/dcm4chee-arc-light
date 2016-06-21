@@ -160,15 +160,18 @@ public class AuditTriggerObserver {
     }
 
     public void onPatientUpdate(@Observes PatientMgtContext ctx) {
-        auditService.spoolPatientRecord(ctx);
+        if (auditService.isAuditInstalled())
+            auditService.spoolPatientRecord(ctx);
     }
 
     public void onProcedureUpdate(@Observes ProcedureContext ctx) {
-        auditService.spoolProcedureRecord(ctx);
+        if (auditService.isAuditInstalled())
+            auditService.spoolProcedureRecord(ctx);
     }
 
     public void onStudyUpdate(@Observes StudyMgtContext ctx) {
-        auditService.spoolProcedureRecord(ctx);
+        if (auditService.isAuditInstalled())
+            auditService.spoolProcedureRecord(ctx);
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {
