@@ -59,6 +59,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -606,17 +607,13 @@ public class StoreServiceEJB {
         StudyRetentionPolicy srp = arcAE.findStudyRetentionPolicy(ctx.getStoreSession().getRemoteHostName(),
                 ctx.getStoreSession().getCallingAET(), ctx.getStoreSession().getCalledAET(), ctx.getAttributes());
         Period policyRetentionPeriod = srp.getRetentionPeriod().normalized();
-        series.setExpirationDate(srp.isExpireSeriesIndividually() ? getExpirationDate(policyRetentionPeriod) : null);
+        LocalDate policyExpirationDate = LocalDate.now().plusYears(policyRetentionPeriod.getYears()).plusMonths(policyRetentionPeriod.getMonths()).plusDays(policyRetentionPeriod.getDays());
+        series.setExpirationDate(srp.isExpireSeriesIndividually() ? policyExpirationDate.toString() : null);
         if (study.getExpirationDate() == null)
-            study.setExpirationDate(getExpirationDate(policyRetentionPeriod));
-        Period studyExpireDate = Period.parse(study.getExpirationDate()).normalized();
-        if (studyExpireDate.getYears() + studyExpireDate.getMonths() + studyExpireDate.getDays()
-                < policyRetentionPeriod.getYears() + policyRetentionPeriod.getMonths() + policyRetentionPeriod.getDays())
-            study.setExpirationDate(getExpirationDate(policyRetentionPeriod.minus(studyExpireDate)));
-    }
-
-    private String getExpirationDate(Period p) {
-        return LocalDate.now().plusYears(p.getYears()).plusMonths(p.getMonths()).plusDays(p.getDays()).toString();
+            study.setExpirationDate(policyExpirationDate.toString());
+        LocalDate studyExpireDate1 = LocalDate.parse(study.getExpirationDate());
+        if (studyExpireDate1.compareTo(policyExpirationDate) < 0)
+            study.setExpirationDate(policyExpirationDate.toString());
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
