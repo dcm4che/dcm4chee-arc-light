@@ -72,7 +72,7 @@ public class ProcedureContextImpl implements ProcedureContext {
 
     ProcedureContextImpl(Device device, Socket socket, HL7Segment msh) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        this.attributeFilter = arcDev.getAttributeFilter(Entity.Patient);
+        this.attributeFilter = arcDev.getAttributeFilter(Entity.MWL);
         this.fuzzyStr = arcDev.getFuzzyStr();
         this.socket = socket;
         this.msh = msh;
