@@ -71,6 +71,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 @Stateless
@@ -592,9 +593,17 @@ public class StoreServiceEJB {
         series.setRejectionState(ctx.getRejectionNote() == null ? RejectionState.NONE : RejectionState.COMPLETE);
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
+        series.setExpirationDate(updateExpirationDate(ctx));
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
+    }
+
+    private String updateExpirationDate(StoreContext ctx) {
+        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
+        StudyRetentionPolicy srp = arcAE.findStudyRetentionPolicy(ctx.getStoreSession().getRemoteHostName(),
+                ctx.getStoreSession().getCallingAET(), ctx.getStoreSession().getCalledAET(), ctx.getAttributes());
+        return srp.isExpireSeriesIndividually() ? srp.getRetentionPeriod().toString() : null;
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
