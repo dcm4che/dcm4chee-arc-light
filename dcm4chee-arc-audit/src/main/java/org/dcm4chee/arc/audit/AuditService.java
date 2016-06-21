@@ -246,23 +246,13 @@ public class AuditService {
         Path dir = Paths.get(StringUtils.replaceSystemProperties(
                 auditAggregate? arcDev.getAuditSpoolDirectory() : JBOSS_SERVER_TEMP));
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forQuery(ctx);
+        AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
         try {
             Files.createDirectories(dir);
             Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
             try (BufferedOutputStream out = new BufferedOutputStream(
                     Files.newOutputStream(file, StandardOpenOption.APPEND))) {
-                String callingAET = ctx.getCallingAET() != null ? ctx.getCallingAET()
-                                : ctx.getHttpRequest().getAttribute(keycloakClassName) != null
-                                ? getPreferredUsername(ctx.getHttpRequest())
-                                : ctx.getRemoteHostName();
-                BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
-                                    .callingAET(callingAET).calledAET(ctx.getHttpRequest() != null
-                                    ? ctx.getHttpRequest().getRequestURI() : ctx.getCalledAET())
-                                    .queryPOID(ctx.getSOPClassUID() != null ? ctx.getSOPClassUID()
-                                            : ctx.getQueryRetrieveLevel().toString())
-                                    .queryString(ctx.getHttpRequest() != null ? ctx.getHttpRequest().getRequestURI()
-                                            + ctx.getHttpRequest().getQueryString() : null).build();
-                new DataOutputStream(out).writeUTF(new AuditInfo(i).toString());
+                new DataOutputStream(out).writeUTF(auditInfo.toString());
                 if (ctx.getAssociation() != null) {
                     try (DicomOutputStream dos = new DicomOutputStream(out, UID.ImplicitVRLittleEndian)) {
                         dos.writeDataset(null, ctx.getQueryKeys());
@@ -276,6 +266,30 @@ public class AuditService {
         } catch (Exception e) {
             LOG.warn("Failed to write to Audit Spool File - {} ", e);
         }
+    }
+
+    private AuditInfo createAuditInfoForFIND(QueryContext ctx) {
+        return new AuditInfo(
+                new BuildAuditInfo.Builder()
+                        .callingHost(ctx.getRemoteHostName())
+                        .callingAET(ctx.getCallingAET())
+                        .calledAET(ctx.getCalledAET())
+                        .queryPOID(ctx.getSOPClassUID())
+                        .build());
+    }
+
+    private AuditInfo createAuditInfoForQIDO(QueryContext ctx) {
+        HttpServletRequest httpRequest = ctx.getHttpRequest();
+        return new AuditInfo(
+                new BuildAuditInfo.Builder()
+                        .callingHost(ctx.getRemoteHostName())
+                        .callingAET(httpRequest.getAttribute(keycloakClassName) != null
+                                ? getPreferredUsername(httpRequest)
+                                : ctx.getRemoteHostName())
+                        .calledAET(httpRequest.getRequestURI())
+                        .queryPOID(ctx.getSearchMethod())
+                        .queryString(httpRequest.getRequestURI() + httpRequest.getQueryString())
+                        .build());
     }
 
     private void auditQuery(Path file, AuditServiceUtils.EventType eventType) throws IOException {

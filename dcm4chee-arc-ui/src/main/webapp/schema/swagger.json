@@ -39,6 +39,10 @@
       "description": "Archive Monitoring"
     },
     {
+      "name": "MWL-RS",
+      "description": "Modality Worklist Management"
+    },
+    {
       "name": "QUEUE-RS",
       "description": "Queue Management"
     }
@@ -792,6 +796,41 @@
         "responses": {
           "204": {
             "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/mwlitems": {
+      "post": {
+        "tags": [
+          "MWL-RS"
+        ],
+        "summary": "Search for Scheduled Procedure Steps",
+        "operationId": "SearchForSPS",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plan"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient ID of created Patient",
+            "schema": {
+              "type": "string"
+            }
           },
           "default": {
             "description": "unexpected error"

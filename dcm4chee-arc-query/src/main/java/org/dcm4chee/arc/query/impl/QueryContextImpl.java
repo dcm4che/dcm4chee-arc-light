@@ -70,13 +70,14 @@ class QueryContextImpl implements QueryContext {
     private Attributes queryKeys;
     private Attributes returnKeys;
     private boolean orderByPatientName;
-    private QueryRetrieveLevel2 qrLevel;
     private String sopClassUID;
+    private String searchMethod;
 
-    public QueryContextImpl(HttpServletRequest httpRequest, ApplicationEntity ae, QueryParam queryParam,
-                            QueryService queryService) {
+    public QueryContextImpl(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
+                            QueryParam queryParam, QueryService queryService) {
         this(ae, queryParam, queryService);
         this.httpRequest = httpRequest;
+        this.searchMethod = searchMethod;
     }
 
     private QueryContextImpl(ApplicationEntity ae, QueryParam queryParam, QueryService queryService) {
@@ -98,18 +99,13 @@ class QueryContextImpl implements QueryContext {
     }
 
     @Override
-    public QueryRetrieveLevel2 getQueryRetrieveLevel() {
-        return qrLevel;
-    }
-
-    @Override
-    public void setQueryRetrieveLevel(QueryRetrieveLevel2 qrLevel) {
-        this.qrLevel = qrLevel;
-    }
-
-    @Override
     public String getSOPClassUID() {
         return sopClassUID;
+    }
+
+    @Override
+    public String getSearchMethod() {
+        return searchMethod;
     }
 
     @Override

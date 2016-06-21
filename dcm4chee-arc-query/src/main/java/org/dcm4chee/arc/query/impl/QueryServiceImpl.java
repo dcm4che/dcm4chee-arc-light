@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -90,16 +91,20 @@ class QueryServiceImpl implements QueryService {
     @Override
     public QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts) {
         ApplicationEntity ae = as.getApplicationEntity();
-        return new QueryContextImpl(as, sopClassUID, ae, newQueryParam(ae,
-                queryOpts.contains(QueryOption.DATETIME),
-                queryOpts.contains(QueryOption.FUZZY), false),
+        return new QueryContextImpl(as, sopClassUID, ae,
+                newQueryParam(ae,
+                        queryOpts.contains(QueryOption.DATETIME),
+                        queryOpts.contains(QueryOption.FUZZY),
+                        false),
                 this);
     }
 
     @Override
-    public QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, ApplicationEntity ae,
+    public QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
                                             boolean fuzzyMatching, boolean returnEmpty) {
-        return new QueryContextImpl(httpRequest, ae, newQueryParam(ae, true, fuzzyMatching, returnEmpty), this);
+        return new QueryContextImpl(httpRequest, searchMethod, ae,
+                newQueryParam(ae, true, fuzzyMatching, returnEmpty),
+                this);
     }
 
     private QueryParam newQueryParam(ApplicationEntity ae, boolean datetimeMatching,
@@ -114,9 +119,9 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Query createQuery(QueryContext ctx) {
+    public Query createQuery(QueryContext ctx, QueryRetrieveLevel2 qrLevel) {
         queryEvent.fire(ctx);
-        switch (ctx.getQueryRetrieveLevel()) {
+        switch (qrLevel) {
             case PATIENT:
                 return createPatientQuery(ctx);
             case STUDY:
