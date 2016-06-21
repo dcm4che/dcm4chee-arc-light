@@ -119,6 +119,7 @@
             bower_components/ui.bootstrap/src/position/position.css,
             bower_components/angular-bootstrap/ui-bootstrap.min.js,
             bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js,
+            bower_components/angular-bootstrap/ui-bootstrap-tpls.js,
             bower_components/angular-bootstrap/ui-bootstrap-csp.css
           </warSourceIncludes>
           <classifier>${classifier}</classifier>

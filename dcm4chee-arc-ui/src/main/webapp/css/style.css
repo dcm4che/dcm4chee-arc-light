@@ -1234,6 +1234,8 @@ div[tooltip] {
     display: none; }
     .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td span.glyphicon-remove:hover {
       cursor: pointer; }
+  .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td.datepicker .original {
+    display: none; }
   .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td.first_td {
     padding-left: 5%; }
   .vex.vex-theme-os.edit-patient .vex-content .vex-dialog-input table tr td:hover span {

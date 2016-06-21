@@ -1,3 +1,16 @@
+<!-- <pre>
+          <input ng-init="dateOpen[i]=false" ng-if="p.vr === 'DA'" class="form-control no-close-button"
+          name="dateplaceholder"
+          is-open="dateOpen[i]"
+          type="text" 
+          uib-datepicker-popup="{{format}}"
+          datepicker-options="dateOptions"
+          ng-click="opendateplaceholder(i,p.vr)" 
+          ng-model="datemodeltest"
+          close-text="Close"
+        />
+</pre>
+ -->
 <input autocomplete="off" id="addPatientAttribut" class="addPatientAttribut" ng-model="addPatientAttribut" placeholder="Add new attribute"  ng-click="opendropdown = !opendropdown" />
 <div class="dropdown" ng-show="opendropdown">
 	<a class="dropdown_element" name="{{m.code}}" ng-repeat="(i,m) in dropdown | filter:addPatientAttribut" ng-click="addAttribute(m.code)">({{m.codeComma}}) {{m.name}}</a>
@@ -25,17 +38,27 @@
         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" ng-repeat-start="(vi, value) in editpatient.attrs[i].Value  track by $index" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Alphabetic" ng-model="editpatient.attrs[i].Value[vi]['Alphabetic']"><span ng-click="removeAttr(i,vi)" ng-if="i != '00104000' && p.vr==='PN'" class="glyphicon glyphicon-remove"></span>
         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Ideographic" ng-model="editpatient.attrs[i].Value[vi]['Ideographic']">
         <input ng-if="i != '00100040' && i != '00104000' && p.vr === 'PN' && p.vr!='SQ'" ng-repeat-end="" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(i)}} Phonetic" ng-model="editpatient.attrs[i].Value[vi]['Phonetic']">
-        <input ng-init="dateOpen[i]=false" ng-if="i != '00100040' && i != '00104000' && p.vr!='PN' && p.vr!='SQ'" class="{{i}}" ng-repeat-start="(vi, value) in editpatient.attrs[i].Value  track by $index" class="form-control" ng-model="editpatient.attrs[i].Value[vi]"
+        <input ng-init="dateOpen[i]=false" ng-if="i != '00100040' && i != '00104000' && p.vr!='PN' && p.vr!='SQ'" class="{{i}} form-control original" ng-repeat-start="(vi, value) in editpatient.attrs[i].Value  track by $index" ng-model="editpatient.attrs[i].Value[vi]"
         >
-        <span ng-init="dateOpen[i]=false" ng-if="p.vr === 'DA'" class="glyphicon glyphicon-calendar"
+        <input ng-init="dateOpen[i]=false" ng-if="p.vr === 'DA'" class="form-control no-close-button"
           is-open="dateOpen[i]"
           type="text" 
           uib-datepicker-popup="{{format}}"
           datepicker-options="dateOptions"
-          ng-click="dateOpen(i,p.vr)" 
-          ng-model="editpatient.attrs[i].Value[vi]"
+          ng-click="opendateplaceholder(i,p.vr)" 
+          ng-model="dateplaceholder[i]"
           close-text="Close"
-        ></span>
+        />
+        <!-- 
+          ng-click="studyDateFromOpen()" 
+          id="StudyDateFrom" 
+          type="text" 
+          uib-datepicker-popup="{{format}}" 
+          ng-model="studyDate.fromObject" 
+          is-open="studyDateFrom.opened" 
+          datepicker-options="dateOptions"
+          close-text="Close"
+         -->
         <!--         is-open="dateOpen[i]" 
         uib-datepicker-popup="{{format}}"
         datepicker-options="dateOptions"
@@ -43,7 +66,7 @@
         close-text="Close" -->
 <!--         <input ng-if="i != '00100040' && i != '00104000' && p.vr!='PN' && p.vr!='SQ' && p.vr ==='DA'" class="{{i}}" ng-repeat-start="(vi, value) in editpatient.attrs[i].Value  track by $index" class="form-control" ng-model="editpatient.attrs[i].Value[vi]"
         > -->
-        <select ng-if="i === '00100040'"name="00100040"
+        <select ng-if="i === '00100040'"
   				ng-options="o as o.title for o in options.genders track by o.Value[0]"
   				ng-model="editpatient.attrs[i]">
   		  </select>

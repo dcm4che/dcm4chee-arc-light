@@ -459,7 +459,7 @@
                 <div  style="width:14%" class="th txt hover_cell" tooltip="{{patient.attrs['00100010'].Value[0].Alphabetic}}">{{(patient.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'}}</div>
                 <div style="width:12%" class="th txt hover_cell" tooltip="{{patient.attrs['00100020'].Value[0]}}">{{(patient.attrs['00100020'].Value[0]) || '&nbsp;'}}</div>                
                 <div style="width:12%" class="th txt hover_cell" tooltip="{{patient.attrs['00100021'].Value[0]}}">{{(patient.attrs['00100021'].Value[0]) || '&nbsp;'}}</div>
-                <div style="width:8%" class="th hover_cell" ng-bind="(patient.attrs['00100030'].Value[0] | date:'yyyy-MM-dd') || '&nbsp;'"></div>                
+                <div style="width:8%" class="th hover_cell" ng-bind="(patient.attrs['00100030'].Value[0] ) || '&nbsp;'"></div>                
                 <div style="width:4%" class="th hover_cell" ng-bind="(patient.attrs['00100040'].Value[0]) || '&nbsp;'">&nbsp;</div>              
                 <div style="width:40%" class="th txt hover_cell" tooltip="{{patient.attrs['00104000'].Value[0]}}">{{(patient.attrs['00104000'].Value[0]) || '&nbsp;'}}</div>           
             </div>

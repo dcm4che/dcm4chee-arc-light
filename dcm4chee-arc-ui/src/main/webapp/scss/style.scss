@@ -1660,6 +1660,11 @@ div[tooltip]{
 						    	cursor: pointer;
 						    }
 						}
+						&.datepicker{
+							.original{
+								display: none;
+							}
+						}
 					}
 					td.first_td{
 						padding-left:5%;

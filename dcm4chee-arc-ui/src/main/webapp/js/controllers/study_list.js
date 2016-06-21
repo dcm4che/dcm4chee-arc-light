@@ -5,6 +5,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.patients = [];
 //   $scope.studies = [];
     // $scope.allhidden = false; 
+    $scope.dateplaceholder = {};
     $scope.opendropdown = false;
     $scope.patientmode = true;
     $scope.morePatients;
@@ -445,7 +446,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         modifyStudy(patient, "edit", patientkey, studykey, study);
     };
     $scope.createStudy= function(patient){
-        console.log("patient",patient);
+        // console.log("patient",patient);
         // local["00100020"] = $scope.editstudy.attrs["00100020"];
         // 00200010
         var study = {
@@ -464,6 +465,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         var editpatient     = {};
         var oldPatientID;
         angular.copy(patient, editpatient);
+
         if(mode === "edit"){
             angular.forEach(editpatient.attrs,function(value, index) {
                 var checkValue = "";    
@@ -475,6 +477,24 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }
                 if(index === "00100040" && editpatient.attrs[index] && editpatient.attrs[index].Value && editpatient.attrs[index].Value[0]){
                     editpatient.attrs[index].Value[0] = editpatient.attrs[index].Value[0].toUpperCase();
+                }
+                // console.log("value.vr",value.vr);
+                if(value.vr === "DA"){
+                    console.log("value",value);
+                    console.log("index=",index);
+                    var string = value.Value[0];
+                    var yyyy = string.substring(0,4);
+                    var MM = string.substring(4,6);
+                    var dd = string.substring(6,8);
+                    // console.log("yyyy",yyyy);
+                    // console.log("MM",MM);
+                    // console.log("dd",dd);
+                    // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
+                    // console.log("testDate",testDate);
+                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                    var date          = new Date(timestampDate);
+                    // console.log("date",date);
+                    $scope.dateplaceholder[index] = date;
                 }
             });
         }
@@ -508,6 +528,22 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.DCM4CHE              = DCM4CHE;
             $scope.addPatientAttribut   = "";
             $scope.opendropdown         = false;
+            //angular-datepicker
+              $scope.myDate = new Date();
+              $scope.minDate = new Date(
+                  $scope.myDate.getFullYear(),
+                  $scope.myDate.getMonth() - 2,
+                  $scope.myDate.getDate());
+              $scope.maxDate = new Date(
+                  $scope.myDate.getFullYear(),
+                  $scope.myDate.getMonth() + 2,
+                  $scope.myDate.getDate());
+              $scope.onlyWeekendsPredicate = function(date) {
+                var day = date.getDay();
+                return day === 0 || day === 6;
+              }
+            // tpl = '<h4>Standard date-picker</h4><div date-picker></div>'+tpl;
+            //
             var html                    = $compile(tpl)($scope);
             var header = "Create new patient";
             if(mode === "edit"){
@@ -672,9 +708,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               },
                 onSubmit: function(e) {
                     //Prevent submit/close if ENTER was clicked
+                    // $(".datepicker .no-close-button").$setValidity('date', true);
+
                     if($scope.lastPressedCode === 13){
                         e.preventDefault();
                     }else{
+                        console.log("datepicker",$(".datepicker .no-close-button"));
+                        // $(".datepicker .no-close-button").$setValidity('date', true);
                         $vex.data().vex.callback();
                     }
                   },
@@ -686,14 +726,37 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     })
                 ],
                 callback: function(data) {
+                    // console.log("callback datepicker",$(".datepicker .no-close-button"));
                     cfpLoadingBar.start();
                     if (data === false) {
                         cfpLoadingBar.complete();
-
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
+                        StudiesService.convertDateToString($scope);
+                        // angular.forEach($scope.editpatient.attrs,function(m, i){
+                        //     console.log("m",m);
+                        //     console.log("i",i);
+                        //     console.log("$scope.editpatient[i]",$scope.editpatient.attrs[i]);
+                        //     if(value.vr === "DA"){
+                        //         console.log("value",value);
+                        //         console.log("index=",index);
+                        //         // var string = value.Value[0];
+                        //         // var yyyy = string.substring(0,4);
+                        //         // var MM = string.substring(4,6);
+                        //         // var dd = string.substring(6,8);
+                        //         // console.log("yyyy",yyyy);
+                        //         // console.log("MM",MM);
+                        //         // console.log("dd",dd);
+                        //         // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
+                        //         // console.log("testDate",testDate);
+                        //         var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                        //         var date          = new Date(timestampDate);
+                        //         // console.log("date",date);
+                        //         editpatient.attrs[index].Value[0] = date;
+                        //     }
+                        // });
                         if($scope.editpatient.attrs["00100020"] && $scope.editpatient.attrs["00100020"].Value[0]){
                             angular.forEach($scope.editpatient.attrs, function(m, i){
                                 if(res.data[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
@@ -732,6 +795,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     oldPatientID += "&"+$scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
                                 }
                             }
+                            // console.log("$scope.editpatient.attrs",$scope.editpatient.attrs);
+                            // return true;
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients/"+oldPatientID,
                                 $scope.editpatient.attrs
@@ -756,6 +821,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         }, 0);
                                     }
                                 }
+                                // $scope.dateplaceholder = {};
+                                // console.log("data",data);
+                                // console.log("datepicker",$(".datepicker .no-close-button"));
                                 DeviceService.msg($scope, {
                                     "title": "Info",
                                     "text": "Patient saved successfully!",
@@ -768,7 +836,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     "status": "error"
                                 });
                             });
-
                             ////
                         }else{
                             if(mode === "create"){
@@ -799,6 +866,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     "status": "error"
                                 });
                             }
+                             // $scope.dateplaceholder = {};
                         }
                     }
                     vex.close($vex.data().vex.id);
@@ -932,14 +1000,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }, 10);
     };
 
-    $scope.dateOpen = function(t, vr) {
-        console.log("t",t);
-        console.log("vr",vr);
-        console.log("$scope.dateOpen",$scope.dateOpen);
-        if(vr === "DA"){
+    $scope.opendateplaceholder = function(t, vr) {
+        // console.log("t",t);
+        // console.log("vr",vr);
+        // console.log("$scope.dateOpen",$scope.dateOpen);
+        console.log("dateplaceholder[t]",$scope.dateplaceholder[t]);
+        if(!$scope.dateOpen[t]){
             $scope.dateOpen[t] = true;
         }
-        console.log("$scope.dateOpen",$scope.dateOpen);
+        // if(vr === "DA"){
+        // }
+        // console.log("$scope.dateOpen",$scope.dateOpen);
         // cfpLoadingBar.start();
         // $scope.studyDateFrom.opened = true;
         // var watchPicker = setInterval(function(){ 
