@@ -108,6 +108,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private LocalTime rejectExpiredStudiesPollingStartTime;
     private int rejectExpiredStudiesFetchSize = 0;
     private int rejectExpiredSeriesFetchSize = 0;
+    private String rejectExpiredStudiesAETitle;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -564,6 +565,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.rejectExpiredStudiesPollingStartTime = rejectExpiredStudiesPollingStartTime;
     }
 
+    public String getRejectExpiredStudiesAETitle() {
+        return rejectExpiredStudiesAETitle;
+    }
+
+    public void setRejectExpiredStudiesAETitle(String rejectExpiredStudiesAETitle) {
+        this.rejectExpiredStudiesAETitle = rejectExpiredStudiesAETitle;
+    }
+
     public Duration getPurgeQueueMessagePollingInterval() {
         return purgeQueueMessagePollingInterval;
     }
@@ -843,6 +852,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rejectExpiredStudiesPollingStartTime = arcdev.rejectExpiredStudiesPollingStartTime;
         rejectExpiredStudiesFetchSize = arcdev.rejectExpiredStudiesFetchSize;
         rejectExpiredSeriesFetchSize = arcdev.rejectExpiredSeriesFetchSize;
+        rejectExpiredStudiesAETitle = arcdev.rejectExpiredStudiesAETitle;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();

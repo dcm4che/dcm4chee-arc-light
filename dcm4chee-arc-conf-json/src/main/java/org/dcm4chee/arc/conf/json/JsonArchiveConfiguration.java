@@ -129,6 +129,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmRejectExpiredStudiesPollingStartTime", arcDev.getRejectExpiredStudiesPollingStartTime());
         writer.writeNotDef("dcmRejectExpiredStudiesFetchSize", arcDev.getRejectExpiredStudiesFetchSize(), 0);
         writer.writeNotDef("dcmRejectExpiredSeriesFetchSize", arcDev.getRejectExpiredSeriesFetchSize(), 0);
+        writer.writeNotNull("dcmRejectExpiredStudiesAETitle", arcDev.getRejectExpiredStudiesAETitle());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -528,6 +529,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRejectExpiredSeriesFetchSize":
                     arcDev.setRejectExpiredSeriesFetchSize(reader.intValue());
+                    break;
+                case "dcmRejectExpiredStudiesAETitle":
+                    arcDev.setRejectExpiredStudiesAETitle(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

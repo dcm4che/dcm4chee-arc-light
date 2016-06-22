@@ -131,6 +131,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmRejectExpiredStudiesPollingStartTime", ext.getRejectExpiredStudiesPollingStartTime());
         LdapUtils.storeNotDef(attrs, "dcmRejectExpiredStudiesFetchSize", ext.getRejectExpiredStudiesFetchSize(), 0);
         LdapUtils.storeNotDef(attrs, "dcmRejectExpiredSeriesFetchSize", ext.getRejectExpiredSeriesFetchSize(), 0);
+        LdapUtils.storeNotNull(attrs, "dcmRejectExpiredStudiesAETitle", ext.getRejectExpiredStudiesAETitle());
     }
 
     @Override
@@ -201,6 +202,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRejectExpiredStudiesPollingStartTime(toLocalTime(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesPollingStartTime"), null)));
         ext.setRejectExpiredStudiesFetchSize(LdapUtils.intValue(attrs.get("dcmRejectExpiredStudiesFetchSize"), 0));
         ext.setRejectExpiredSeriesFetchSize(LdapUtils.intValue(attrs.get("dcmRejectExpiredSeriesFetchSize"), 0));
+        ext.setRejectExpiredStudiesAETitle(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesAETitle"), null));
     }
 
     @Override
@@ -303,6 +305,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRejectExpiredStudiesFetchSize(), bb.getRejectExpiredStudiesFetchSize(), 0);
         LdapUtils.storeDiff(mods, "dcmRejectExpiredSeriesFetchSize",
                 aa.getRejectExpiredSeriesFetchSize(), bb.getRejectExpiredSeriesFetchSize(), 0);
+        LdapUtils.storeDiff(mods, "dcmRejectExpiredStudiesAETitle",
+                aa.getRejectExpiredStudiesAETitle(), bb.getRejectExpiredStudiesAETitle());
     }
 
     @Override

@@ -320,6 +320,11 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmRejectExpiredStudiesAETitle": {
+      "title": "Reject Expired Studies AE Title",
+      "description": "AE Title of Local Application Entity performing the automatic rejection of expired Studies and Series. If absent, neither expired Studies nor Series will be rejected automatically.",
+      "type": "string"
+    },
     "dcmAttributeFilter": {
       "$ref": "attributeFilter.schema.json"
     },
