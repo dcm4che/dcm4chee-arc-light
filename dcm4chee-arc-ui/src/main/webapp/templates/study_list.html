@@ -527,7 +527,7 @@
                                 <a ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
                                 <a ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
                             </div>
-                            <div style="width:10.4%" class="td_cell txt hover_cell" tooltip="{{patient.attrs['00200010'].Value[0]}}">{{(patient.attrs['00200010'].Value[0]) || '&nbsp;'}}</div>
+                            <div style="width:10.4%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00200010'].Value[0]}}">{{(study.attrs['00200010'].Value[0]) || '&nbsp;'}}</div>
                             <div  style="width:17.3%" tooltip="{{study.attrs['0020000D'].Value[0]}}" test="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt hover_cell" tooltip="{{study.attrs['0020000D'].Value[0]}}">{{(study.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div>
                             <div class="td_cell txt hover_cell" tooltip="{{study.attrs['00080020'].Value[0]}}" >
                                 {{(study.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'}}
