@@ -188,6 +188,13 @@
             "default": false
           },
           {
+            "name": "expired",
+            "in": "query",
+            "description": "return expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
