@@ -282,11 +282,12 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             replaceKeyInJsonHelper(object, key, key2);
             return object;
         },
-        convertDateToString : function($scope){
-            angular.forEach($scope.editpatient.attrs,function(m, i){
+        convertDateToString : function($scope, mode){
+            console.log("mode",mode);
+            angular.forEach($scope[mode].attrs,function(m, i){
                 console.log("m",m);
                 console.log("i",i);
-                console.log("$scope.editpatient[i]",$scope.editpatient.attrs[i]);
+                console.log("$scope[mode][i]",$scope[mode].attrs[i]);
                 if(m.vr === "DA"){
                     // var string = value.Value[0];
                     // var yyyy = string.substring(0,4);
@@ -304,7 +305,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     // var timestampDate   = Date.parse(m.Value[0]);
                     // var date          = new Date(timestampDate);
                     // console.log("date",date);
-                    $scope.editpatient.attrs[i].Value[0] = d.yyyymmdd();
+                    $scope[mode].attrs[i].Value[0] = d.yyyymmdd();
                 }
             });
         }

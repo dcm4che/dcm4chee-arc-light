@@ -142,6 +142,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if(!(value.Value && checkValue != "")){
                     delete editstudy.attrs[index];
                 }
+                if(value.vr === "DA" && value.Value && value.Value[0]){
+                    var string = value.Value[0];
+                    var yyyy = string.substring(0,4);
+                    var MM = string.substring(4,6);
+                    var dd = string.substring(6,8);
+                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                    var date          = new Date(timestampDate);
+                    $scope.dateplaceholder[index] = date;
+                }
             });
         }
         $scope.editstudy  = editstudy;
@@ -179,6 +188,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             var header = "Create new Study";
             if(mode === "edit"){
                 header = 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
+
             }
             var $vex = vex.dialog.open({
               message: header,
@@ -346,6 +356,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editstudy.attrs);
+                        StudiesService.convertDateToString($scope, "editstudy");
+
                         //Add patient attributs again
                         // angular.extend($scope.editstudy.attrs, patient.attrs);
                         // $scope.editstudy.attrs.concat(patient.attrs); 
@@ -488,21 +500,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     editpatient.attrs[index].Value[0] = editpatient.attrs[index].Value[0].toUpperCase();
                 }
                 // console.log("value.vr",value.vr);
-                    console.log("value",value);
+                    // console.log("value",value);
                 if(value.vr === "DA" && value.Value && value.Value[0]){
-                    console.log("index=",index);
                     var string = value.Value[0];
                     var yyyy = string.substring(0,4);
                     var MM = string.substring(4,6);
                     var dd = string.substring(6,8);
-                    // console.log("yyyy",yyyy);
-                    // console.log("MM",MM);
-                    // console.log("dd",dd);
-                    // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
-                    // console.log("testDate",testDate);
                     var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
                     var date          = new Date(timestampDate);
-                    // console.log("date",date);
                     $scope.dateplaceholder[index] = date;
                 }
             });
@@ -538,20 +543,20 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.addPatientAttribut   = "";
             $scope.opendropdown         = false;
             //angular-datepicker
-              $scope.myDate = new Date();
-              $scope.minDate = new Date(
-                  $scope.myDate.getFullYear(),
-                  $scope.myDate.getMonth() - 2,
-                  $scope.myDate.getDate());
-              $scope.maxDate = new Date(
-                  $scope.myDate.getFullYear(),
-                  $scope.myDate.getMonth() + 2,
-                  $scope.myDate.getDate());
-              $scope.onlyWeekendsPredicate = function(date) {
-                var day = date.getDay();
-                return day === 0 || day === 6;
-              }
-            tpl = '<h4>Standard date-picker</h4><md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker>'+tpl;
+              // $scope.myDate = new Date();
+              // $scope.minDate = new Date(
+              //     $scope.myDate.getFullYear(),
+              //     $scope.myDate.getMonth() - 2,
+              //     $scope.myDate.getDate());
+              // $scope.maxDate = new Date(
+              //     $scope.myDate.getFullYear(),
+              //     $scope.myDate.getMonth() + 2,
+              //     $scope.myDate.getDate());
+              // $scope.onlyWeekendsPredicate = function(date) {
+              //   var day = date.getDay();
+              //   return day === 0 || day === 6;
+              // }
+            // tpl = '<h4>Standard date-picker</h4><md-datepicker ng-model="myDate" md-placeholder="Enter date" ></md-datepicker>'+tpl;
             //
             var html                    = $compile(tpl)($scope);
             var header = "Create new patient";
@@ -722,7 +727,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     if($scope.lastPressedCode === 13){
                         e.preventDefault();
                     }else{
-                        console.log("datepicker",$(".datepicker .no-close-button"));
+                        // console.log("datepicker",$(".datepicker .no-close-button"));
                         // $(".datepicker .no-close-button").$setValidity('date', true);
                         $vex.data().vex.callback();
                     }
@@ -743,7 +748,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
-                        StudiesService.convertDateToString($scope);
+                        StudiesService.convertDateToString($scope, "editpatient");
                         // angular.forEach($scope.editpatient.attrs,function(m, i){
                         //     console.log("m",m);
                         //     console.log("i",i);

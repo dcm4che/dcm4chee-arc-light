@@ -114,6 +114,11 @@
             bower_components/ui.bootstrap/template/datepicker/year.html.js,
             bower_components/ui.bootstrap/template/datepicker/popup.html.js,
             bower_components/ui.bootstrap/src/datepicker/datepicker.js,
+            bower_components/angular-aria/angular-aria.min.js,
+            bower_components/angular-animate/angular-animate.min.js,
+<!--             bower_components/angular-material/modules/js/datepicker/datepicker.min.js,
+            bower_components/angular-material/modules/js/datepicker/datepicker.min.css,
+            bower_components/angular-material/modules/js/datepicker/datepicker-default-theme.min.css, -->
             <!-- bower_components/ui.bootstrap/src/datepicker/index.js, -->
             bower_components/ui.bootstrap/src/datepicker/datepicker.css,
             bower_components/ui.bootstrap/src/position/position.css,

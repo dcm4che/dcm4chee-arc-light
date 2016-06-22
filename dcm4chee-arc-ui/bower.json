@@ -9,7 +9,6 @@
   "description": "Web Frontend for dcm4chee-arc DICOM Archive",
   "main": "",
   "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
-  "homepage": "https://github.com/dcm4che/dcm4chee-arc-light",
   "ignore": [
     "**/.*",
     "node_modules",

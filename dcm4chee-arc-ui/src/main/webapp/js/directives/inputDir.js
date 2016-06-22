@@ -1,18 +1,22 @@
 myApp.directive("input", function ($window, $log, $compile) {
     var getScopeModelFromString = function(scope, ngModel){
-        var ngmodel = ngModel.split(".");
-        var object = scope;
-        ngmodel.forEach(function(m, i){
-            m = m.replace(/'/g, '');
-            m = m.replace(/\[/g, '');
-            m = m.replace(/\]/g, '');
-            if(object[m]){
-                object = object[m];
-            }else{
-                object = "";
-            }
-        });
-        return object;
+        if(ngModel){
+            var ngmodel = ngModel.split(".");
+            var object = scope;
+            ngmodel.forEach(function(m, i){
+                m = m.replace(/'/g, '');
+                m = m.replace(/\[/g, '');
+                m = m.replace(/\]/g, '');
+                if(object[m]){
+                    object = object[m];
+                }else{
+                    object = "";
+                }
+            });
+            return object;
+        }else{
+            return "";
+        }
     }
     return{
         restrict: 'E',
