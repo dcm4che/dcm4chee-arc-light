@@ -543,25 +543,31 @@ attributetype ( 1.2.40.0.13.1.15.110.3.91 NAME 'dcmRejectExpiredStudiesPollingIn
   DESC 'Polling Interval for rejecting expired Studies and Series in ISO-8601 duration format PnDTnHnMn.nS. If absent, neither expired Studies nor Series will be rejected automatically'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.92 NAME 'dcmRejectExpiredStudiesPollingStartTime'
   DESC 'Time when the polling interval for rejecting expired Studies and Series starts in ISO-8601 time format [hh][mm][ss]. Archive start time if absent.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.93 NAME 'dcmRejectExpiredStudiesFetchSize'
   DESC 'Maximal number of expired Studies fetched in one query; If absent, expired Studies will not be rejected automatically'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.94 NAME 'dcmRejectExpiredSeriesFetchSize'
   DESC 'Maximal number of expired Series fetched in one query; If absent, expired Series will not be rejected automatically'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
-  SINGLE-VALUE)
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.95 NAME 'dcmRejectExpiredStudiesAETitle'
+  DESC 'AE Title of Local Application Entity performing the automatic rejection of expired Studies and Series. If absent, neither expired Studies nor Series will be rejected automatically'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -622,7 +628,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRejectExpiredStudiesPollingInterval $
     dcmRejectExpiredStudiesPollingStartTime $
     dcmRejectExpiredStudiesFetchSize $
-    dcmRejectExpiredSeriesFetchSize ))
+    dcmRejectExpiredSeriesFetchSize $
+    dcmRejectExpiredStudiesAETitle ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
