@@ -479,8 +479,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     editpatient.attrs[index].Value[0] = editpatient.attrs[index].Value[0].toUpperCase();
                 }
                 // console.log("value.vr",value.vr);
-                if(value.vr === "DA"){
                     console.log("value",value);
+                if(value.vr === "DA" && value.Value && value.Value[0]){
                     console.log("index=",index);
                     var string = value.Value[0];
                     var yyyy = string.substring(0,4);
