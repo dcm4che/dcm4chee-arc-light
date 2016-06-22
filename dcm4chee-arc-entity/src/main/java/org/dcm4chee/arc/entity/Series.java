@@ -109,8 +109,8 @@ import java.util.Date;
             "where se.study = ?1"),
 @NamedQuery(
         name=Series.GET_EXPIRED_SERIES,
-        query="select ?1 from Series se " +
-             "where se.expirationDate <= ?2"
+        query="select se from Series se " +
+             "where se.expirationDate <= ?1"
 )
 })
 @Entity

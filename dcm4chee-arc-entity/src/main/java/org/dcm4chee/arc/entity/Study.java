@@ -102,8 +102,8 @@ import java.util.Date;
             "where st.patient = ?1"),
 @NamedQuery(
     name=Study.GET_EXPIRED_STUDIES,
-    query="select ?1 from Study st " +
-            "where st.expirationDate <= ?2")
+    query="select st from Study st " +
+            "where st.expirationDate <= ?1")
 })
 @Entity
 @Table(name = "study",

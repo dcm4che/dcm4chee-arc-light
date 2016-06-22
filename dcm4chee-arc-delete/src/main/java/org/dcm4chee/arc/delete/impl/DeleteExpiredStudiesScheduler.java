@@ -104,8 +104,7 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
         List<Study> studies;
         do {
             studies = em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
-                    .setParameter(1, studyFetchSize)
-                    .setParameter(2, LocalDate.now().toString()).getResultList();
+                    .setParameter(1, LocalDate.now().toString()).setMaxResults(studyFetchSize).getResultList();
             for (Study study : studies) {
                 //Call reject studies - pass getStartTime() as parameter
             }
@@ -116,8 +115,7 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
         List<Series> seriesList;
         do {
             seriesList = em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
-                    .setParameter(1, seriesFetchSize)
-                    .setParameter(2, LocalDate.now().toString()).getResultList();
+                    .setParameter(1, LocalDate.now().toString()).setMaxResults(seriesFetchSize).getResultList();
             for (Series series : seriesList) {
                 //Call reject series - pass getStartTime() as parameter
             }
