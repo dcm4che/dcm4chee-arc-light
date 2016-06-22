@@ -106,7 +106,12 @@ import java.util.Date;
 @NamedQuery(
     name=Series.COUNT_SERIES_OF_STUDY,
     query="select count(se) from Series se " +
-            "where se.study = ?1")
+            "where se.study = ?1"),
+@NamedQuery(
+        name=Series.GET_EXPIRED_SERIES,
+        query="select ?1 from Series se " +
+             "where se.expirationDate <= ?2"
+)
 })
 @Entity
 @Table(name = "series",
@@ -138,6 +143,7 @@ public class Series {
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Series.ClearFailedSOPInstanceUIDList";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.ClearFailedSOPInstanceUIDListOfStudy";
+    public static final String GET_EXPIRED_SERIES = "Study.GetExpiredSeries";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

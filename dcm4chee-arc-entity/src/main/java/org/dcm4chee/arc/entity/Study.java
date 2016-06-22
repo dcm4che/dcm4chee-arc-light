@@ -99,7 +99,11 @@ import java.util.Date;
 @NamedQuery(
     name=Study.COUNT_STUDIES_OF_PATIENT,
     query="select count(st) from Study st " +
-            "where st.patient = ?1")
+            "where st.patient = ?1"),
+@NamedQuery(
+    name=Study.GET_EXPIRED_STUDIES,
+    query="select ?1 from Study st " +
+            "where st.expirationDate <= ?2")
 })
 @Entity
 @Table(name = "study",
@@ -129,6 +133,7 @@ public class Study {
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Study.ClearFailedSOPInstanceUIDList";
     public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
+    public static final String GET_EXPIRED_STUDIES = "Study.GetExpiredStudies";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
