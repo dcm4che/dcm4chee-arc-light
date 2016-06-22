@@ -485,6 +485,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         cfpLoadingBar.start();
         var editpatient     = {};
         var oldPatientID;
+        var oldIssuer;
+        var oldUniversalEntityId;
+        var oldUniversalEntityType;
         angular.copy(patient, editpatient);
 
         if(mode === "edit"){
@@ -517,7 +520,34 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         editpatient         = {};
         $scope.lastPressedCode = 0;
         if(mode === "edit"){
-            oldPatientID = $scope.editpatient.attrs["00100020"].Value[0];
+            if($scope.editpatient.attrs["00100020"] && $scope.editpatient.attrs["00100020"].Value && $scope.editpatient.attrs["00100020"].Value[0]){
+                oldPatientID            = $scope.editpatient.attrs["00100020"].Value[0];
+            }
+            if($scope.editpatient.attrs["00100021"] && $scope.editpatient.attrs["00100021"].Value && $scope.editpatient.attrs["00100021"].Value[0]){
+                oldIssuer               = $scope.editpatient.attrs["00100021"].Value[0];
+            }
+            if( 
+                $scope.editpatient.attrs["00100024"] && 
+                $scope.editpatient.attrs["00100024"].Value && 
+                $scope.editpatient.attrs["00100024"].Value[0] && 
+                $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
+                $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value &&
+                $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0]
+            ){
+                oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                console.log("set oldUniversalEntityId",oldUniversalEntityId);
+            }
+            if( 
+                $scope.editpatient.attrs["00100024"] && 
+                $scope.editpatient.attrs["00100024"].Value && 
+                $scope.editpatient.attrs["00100024"].Value[0] && 
+                $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
+                $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value &&
+                $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0]
+            ){
+                oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                console.log("set oldUniversalEntityType",oldUniversalEntityType);
+            }
         }
 
         $scope.removeAttr = function(attrcode){
@@ -779,34 +809,70 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             });
                             // $scope.editpatient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
                             oldPatientID = oldPatientID || $scope.editpatient.attrs["00100020"].Value[0];
-                            //<id 00100021>^^^<issuer>&<universal-entity-id>&<universal-entity-type>
-                            var issuer =                $scope.editpatient.attrs["00100021"] && 
+                            if($scope.editpatient.attrs["00100021"] && $scope.editpatient.attrs["00100021"].Value && $scope.editpatient.attrs["00100021"].Value[0]){
+                            if(!oldIssuer || oldIssuer === undefined){
+                                    oldIssuer = $scope.editpatient.attrs["00100021"].Value[0];
+                                }
+                            }
+                            var issuer =                ($scope.editpatient.attrs["00100021"] && 
                                                         $scope.editpatient.attrs["00100021"].Value[0] && 
-                                                        $scope.editpatient.attrs["00100021"].Value[0] != "";
-                            var universalEntityId =     $scope.editpatient.attrs["00100024"] && 
+                                                        $scope.editpatient.attrs["00100021"].Value[0] != "") || oldIssuer != undefined;
+                            var universalEntityId =     ($scope.editpatient.attrs["00100024"] && 
                                                         $scope.editpatient.attrs["00100024"].Value[0] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0] != "";
-                            var universalEntityType =   $scope.editpatient.attrs["00100024"] && 
+                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0] != "") || universalEntityId != undefined;
+                            var universalEntityType =   ($scope.editpatient.attrs["00100024"] && 
                                                         $scope.editpatient.attrs["00100024"].Value[0] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] != "";
+                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] != "") || universalEntityType != undefined;
+                            // if( 
+                            //     $scope.editpatient.attrs["00100024"] && 
+                            //     $scope.editpatient.attrs["00100024"].Value && 
+                            //     $scope.editpatient.attrs["00100024"].Value[0] && 
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value &&
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0]
+                            // ){
+                            //     if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
+                            //         oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                            //     }
+                            // }
+                            // if( 
+                            //     $scope.editpatient.attrs["00100024"] && 
+                            //     $scope.editpatient.attrs["00100024"].Value && 
+                            //     $scope.editpatient.attrs["00100024"].Value[0] && 
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value &&
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0]
+                            // ){
+                            //     if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
+                            //         oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                            //     }
+                            // }
+
+                            //<id 00100021>^^^<issuer>&<universal-entity-id>&<universal-entity-type>
 
                             if(issuer){
-                                oldPatientID += "^^^"+$scope.editpatient.attrs["00100021"].Value[0];
+                                oldPatientID += "^^^"+oldIssuer;
                             }
                             if(universalEntityId || universalEntityType){
+                                if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
+                                    oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                                }
+                                if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
+                                    oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                                }
                                 if(!issuer){
                                     oldPatientID += "^^^";
                                 }
 
-                                if(universalEntityId){
-                                    oldPatientID += "&"+$scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                                if(universalEntityId && oldUniversalEntityId){
+                                    oldPatientID += "&"+ oldUniversalEntityId;
                                 }
-                                if(universalEntityType){
-                                    oldPatientID += "&"+$scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                                if(universalEntityType && oldUniversalEntityType){
+                                    oldPatientID += "&"+ oldUniversalEntityType;
                                 }
                             }
                             // console.log("$scope.editpatient.attrs",$scope.editpatient.attrs);
