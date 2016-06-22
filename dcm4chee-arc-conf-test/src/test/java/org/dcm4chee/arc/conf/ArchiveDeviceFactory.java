@@ -774,15 +774,17 @@ class ArchiveDeviceFactory {
             "maxPixelValueError=0"
     );
 
-    static final StudyRetentionPolicy LONG_TERM = createStudyRetentionPolicy(
-            "LONG_TERM",
-            "P5Y3M20D",
+    static final StudyRetentionPolicy THICK_SLICE = createStudyRetentionPolicy(
+            "THICK_SLICE",
+            "P4D",
+            2,
             false
     );
 
-    static final StudyRetentionPolicy SHORT_TERM = createStudyRetentionPolicy(
-            "SHORT_TERM",
-            "P3W",
+    static final StudyRetentionPolicy THIN_SLICE = createStudyRetentionPolicy(
+            "THIN_SLICE",
+            "P1D",
+            1,
             true
     );
 
@@ -977,10 +979,11 @@ class ArchiveDeviceFactory {
     }
 
     private static StudyRetentionPolicy createStudyRetentionPolicy(String cn, String retentionPeriod,
-                                                                   boolean expireSeriesIndividually) {
+                                                          int priority, boolean expireSeriesIndividually) {
         StudyRetentionPolicy policy = new StudyRetentionPolicy(cn);
         policy.setRetentionPeriod(Period.parse(retentionPeriod));
         policy.setExpireSeriesIndividually(expireSeriesIndividually);
+        policy.setPriority(priority);
         return policy;
     }
 
@@ -1174,8 +1177,8 @@ class ArchiveDeviceFactory {
             ext.addCompressionRule(JPEG_LS);
             ext.addCompressionRule(JPEG_2000);
 
-            ext.addStudyRetentionPolicy(LONG_TERM);
-            ext.addStudyRetentionPolicy(SHORT_TERM);
+            ext.addStudyRetentionPolicy(THICK_SLICE);
+            ext.addStudyRetentionPolicy(THIN_SLICE);
 
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, null, configType));
