@@ -51,39 +51,48 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.iod = {};
         $scope.iod["study"] = res.data;
     });
+    $scope.filterMode = "study";
     $scope.orderby = [
         {
             value:"PatientName",
-            label:"<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>"
+            label:"<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>",
+            mode:"patient"
         },
         {
             value:"-PatientName",
-            label:"<label>Patient</label><span class=\"orderbynamedesc\"></span>"
+            label:"<label>Patient</label><span class=\"orderbynamedesc\"></span>",
+            mode:"patient"
         },
         {
 
             value:"StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"orderbydateasc\"></span>",
+            mode:"study"
         },
         {
             value:"-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"orderbydatedesc\"></span>"
+            label:"<label>Study</label><span class=\"orderbydatedesc\"></span>",
+            mode:"study"
         },
         {
             value:"PatientName,StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>",
+            mode:"study"
         },
         {
             value:"-PatientName,StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>",
+            mode:"study"
         },
         {
             value:"PatientName,-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>"
+            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>",
+            mode:"study"
         },
         {
             value:"-PatientName,-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>"
+            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
+            mode:"study"
         }
     ];
     $scope.setTrash = function(ae){
@@ -542,7 +551,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 var day = date.getDay();
                 return day === 0 || day === 6;
               }
-            // tpl = '<h4>Standard date-picker</h4><div date-picker></div>'+tpl;
+            tpl = '<h4>Standard date-picker</h4><md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker>'+tpl;
             //
             var html                    = $compile(tpl)($scope);
             var header = "Create new patient";

@@ -1,8 +1,8 @@
 <!-- <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-        filter.orderby:{{filter.orderby}}
-        orderbytext:{{orderbytext}}
-        showoptionlist :{{showoptionlist}}
+        filterMode:{{filterMode}}
+        orderby:{{orderby}}
 </pre> -->
+<md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker>
 <div class="headerblock">
 <div class="row filter">
     <div class="main_filter_block">
@@ -79,7 +79,7 @@
         </div>
         
     </div>
-    <div class="col-md-3 block-1-2">
+    <div class="col-md-3 block-1-2" ng-show="filterMode === 'study'">
         <div class="row">
             <label for="StudyDateFrom" class="col-md-12">Study Date:</label>
         </div>
@@ -173,7 +173,7 @@
                         <li ng-class="{active:filter.orderby === 'PatientName,-StudyDate,-StudyTime'}" ng-click="filter.orderby = 'PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'Study patient name &darr; and study date &uarr;'">Study patient name &darr; and study date &uarr;</li>
                         <li ng-class="{active:filter.orderby === '-PatientName,StudyDate,StudyTime'}" ng-click="filter.orderby = '-PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'Study patient name &uarr; and study date &darr;'">Study patient name &uarr; and study date &darr;</li>
                         <li ng-class="{active:filter.orderby === '-PatientName,-StudyDate,-StudyTime'}" ng-click="filter.orderby = '-PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'Study patient name &uarr; and study date &uarr;'">Study patient name &uarr; and study date &uarr;</li> -->
-                        <li ng-repeat="order in orderby" ng-class="{active:filter.orderby === order.value}" ng-click="$parent.showoptionlist = false; filter.orderby = order.value; $parent.orderbytext = order.label" ng-bind-html="order.label"></li>
+                        <li ng-repeat="order in orderby" ng-class="{active:filter.orderby === order.value}" ng-click="$parent.showoptionlist = false; filter.orderby = order.value; $parent.orderbytext = order.label; $parent.filterMode = order.mode;" title="{{filterMode}}" ng-bind-html="order.label"></li>
                     </ul>
                 </div>
 <!--                 <button class="btn btn-default" type="button">Go!</button>
@@ -204,7 +204,7 @@
 <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
 
 <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
-    <div class="col-md-3 block-2-1">
+    <div class="col-md-3 block-2-1"  ng-show="filterMode === 'study'">
 
 <!--         <div class="row">
             <label for="exporter" class="col-md-6 text-right">Export:</label>
@@ -252,7 +252,7 @@
         </div> -->
 
     </div>
-    <div class="col-md-3 block-2-1">
+    <div class="col-md-3 block-2-1" ng-show="filterMode === 'study'">
         <!-- <div class="row" ng-show="isRole('admin')"> -->
 <!--             <label for="reject" class="block_seid text-right">Reject:</label>
             <div class="block_seid"> -->
@@ -285,7 +285,7 @@
             </div>
         </div> -->
     </div>
-    <div class="col-md-3 block-2-1">
+    <div class="col-md-3 block-2-1" ng-show="filterMode === 'study'">
             <div class="row">
             <div class="col-md-6">
                 <label>
