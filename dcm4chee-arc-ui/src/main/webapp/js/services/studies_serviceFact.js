@@ -45,7 +45,16 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             return schema;
 
     };
+    Date.prototype.yyyymmdd = function() {
+       var yyyy = this.getFullYear().toString();
+       var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
+       var dd  = this.getDate().toString();
+       console.log("yyyy",yyyy);
+       console.log("mm",mm);
+       console.log("dd",dd);
 
+       return yyyy + (mm[1]?mm:"0"+mm[0]) + (dd[1]?dd:"0"+dd[0]); // padding
+    };
 
     var getArrayFromIodHelper = function(data, dropdown){
         angular.forEach(data, function(m, i){
@@ -272,6 +281,33 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         replaceKeyInJson : function(object, key, key2){
             replaceKeyInJsonHelper(object, key, key2);
             return object;
+        },
+        convertDateToString : function($scope, mode){
+            console.log("mode",mode);
+            angular.forEach($scope[mode].attrs,function(m, i){
+                console.log("m",m);
+                console.log("i",i);
+                console.log("$scope[mode][i]",$scope[mode].attrs[i]);
+                if(m.vr === "DA"){
+                    // var string = value.Value[0];
+                    // var yyyy = string.substring(0,4);
+                    // var MM = string.substring(4,6);
+                    // var dd = string.substring(6,8);
+                    // console.log("yyyy",yyyy);
+                    // console.log("MM",MM);
+                    // console.log("dd",dd);
+                    // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
+                    // console.log("testDate",testDate);
+                    var d = new Date($scope.dateplaceholder[i]);
+                    console.log("d",d);
+                    d.yyyymmdd();
+                    // console.log("d",d.yyyymmdd());
+                    // var timestampDate   = Date.parse(m.Value[0]);
+                    // var date          = new Date(timestampDate);
+                    // console.log("date",date);
+                    $scope[mode].attrs[i].Value[0] = d.yyyymmdd();
+                }
+            });
         }
 
     };

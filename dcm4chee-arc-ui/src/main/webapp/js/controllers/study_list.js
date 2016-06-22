@@ -5,6 +5,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.patients = [];
 //   $scope.studies = [];
     // $scope.allhidden = false; 
+    $scope.dateplaceholder = {};
     $scope.opendropdown = false;
     $scope.patientmode = true;
     $scope.morePatients;
@@ -50,39 +51,48 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.iod = {};
         $scope.iod["study"] = res.data;
     });
+    $scope.filterMode = "study";
     $scope.orderby = [
         {
             value:"PatientName",
-            label:"<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>"
+            label:"<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>",
+            mode:"patient"
         },
         {
             value:"-PatientName",
-            label:"<label>Patient</label><span class=\"orderbynamedesc\"></span>"
+            label:"<label>Patient</label><span class=\"orderbynamedesc\"></span>",
+            mode:"patient"
         },
         {
 
             value:"StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"orderbydateasc\"></span>",
+            mode:"study"
         },
         {
             value:"-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"orderbydatedesc\"></span>"
+            label:"<label>Study</label><span class=\"orderbydatedesc\"></span>",
+            mode:"study"
         },
         {
             value:"PatientName,StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>",
+            mode:"study"
         },
         {
             value:"-PatientName,StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>"
+            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>",
+            mode:"study"
         },
         {
             value:"PatientName,-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>"
+            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>",
+            mode:"study"
         },
         {
             value:"-PatientName,-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>"
+            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
+            mode:"study"
         }
     ];
     $scope.setTrash = function(ae){
@@ -132,6 +142,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if(!(value.Value && checkValue != "")){
                     delete editstudy.attrs[index];
                 }
+                if(value.vr === "DA" && value.Value && value.Value[0]){
+                    var string = value.Value[0];
+                    var yyyy = string.substring(0,4);
+                    var MM = string.substring(4,6);
+                    var dd = string.substring(6,8);
+                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                    var date          = new Date(timestampDate);
+                    $scope.dateplaceholder[index] = date;
+                }
             });
         }
         $scope.editstudy  = editstudy;
@@ -169,6 +188,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             var header = "Create new Study";
             if(mode === "edit"){
                 header = 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
+
             }
             var $vex = vex.dialog.open({
               message: header,
@@ -336,6 +356,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editstudy.attrs);
+                        StudiesService.convertDateToString($scope, "editstudy");
+
                         //Add patient attributs again
                         // angular.extend($scope.editstudy.attrs, patient.attrs);
                         // $scope.editstudy.attrs.concat(patient.attrs); 
@@ -445,7 +467,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         modifyStudy(patient, "edit", patientkey, studykey, study);
     };
     $scope.createStudy= function(patient){
-        console.log("patient",patient);
+        // console.log("patient",patient);
         // local["00100020"] = $scope.editstudy.attrs["00100020"];
         // 00200010
         var study = {
@@ -463,7 +485,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         cfpLoadingBar.start();
         var editpatient     = {};
         var oldPatientID;
+        var oldIssuer;
+        var oldUniversalEntityId;
+        var oldUniversalEntityType;
         angular.copy(patient, editpatient);
+
         if(mode === "edit"){
             angular.forEach(editpatient.attrs,function(value, index) {
                 var checkValue = "";    
@@ -476,6 +502,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if(index === "00100040" && editpatient.attrs[index] && editpatient.attrs[index].Value && editpatient.attrs[index].Value[0]){
                     editpatient.attrs[index].Value[0] = editpatient.attrs[index].Value[0].toUpperCase();
                 }
+                // console.log("value.vr",value.vr);
+                    // console.log("value",value);
+                if(value.vr === "DA" && value.Value && value.Value[0]){
+                    var string = value.Value[0];
+                    var yyyy = string.substring(0,4);
+                    var MM = string.substring(4,6);
+                    var dd = string.substring(6,8);
+                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                    var date          = new Date(timestampDate);
+                    $scope.dateplaceholder[index] = date;
+                }
             });
         }
 
@@ -483,7 +520,34 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         editpatient         = {};
         $scope.lastPressedCode = 0;
         if(mode === "edit"){
-            oldPatientID = $scope.editpatient.attrs["00100020"].Value[0];
+            if($scope.editpatient.attrs["00100020"] && $scope.editpatient.attrs["00100020"].Value && $scope.editpatient.attrs["00100020"].Value[0]){
+                oldPatientID            = $scope.editpatient.attrs["00100020"].Value[0];
+            }
+            if($scope.editpatient.attrs["00100021"] && $scope.editpatient.attrs["00100021"].Value && $scope.editpatient.attrs["00100021"].Value[0]){
+                oldIssuer               = $scope.editpatient.attrs["00100021"].Value[0];
+            }
+            if( 
+                $scope.editpatient.attrs["00100024"] && 
+                $scope.editpatient.attrs["00100024"].Value && 
+                $scope.editpatient.attrs["00100024"].Value[0] && 
+                $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
+                $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value &&
+                $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0]
+            ){
+                oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                console.log("set oldUniversalEntityId",oldUniversalEntityId);
+            }
+            if( 
+                $scope.editpatient.attrs["00100024"] && 
+                $scope.editpatient.attrs["00100024"].Value && 
+                $scope.editpatient.attrs["00100024"].Value[0] && 
+                $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
+                $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value &&
+                $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0]
+            ){
+                oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                console.log("set oldUniversalEntityType",oldUniversalEntityType);
+            }
         }
 
         $scope.removeAttr = function(attrcode){
@@ -508,6 +572,22 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.DCM4CHE              = DCM4CHE;
             $scope.addPatientAttribut   = "";
             $scope.opendropdown         = false;
+            //angular-datepicker
+              // $scope.myDate = new Date();
+              // $scope.minDate = new Date(
+              //     $scope.myDate.getFullYear(),
+              //     $scope.myDate.getMonth() - 2,
+              //     $scope.myDate.getDate());
+              // $scope.maxDate = new Date(
+              //     $scope.myDate.getFullYear(),
+              //     $scope.myDate.getMonth() + 2,
+              //     $scope.myDate.getDate());
+              // $scope.onlyWeekendsPredicate = function(date) {
+              //   var day = date.getDay();
+              //   return day === 0 || day === 6;
+              // }
+            // tpl = '<h4>Standard date-picker</h4><md-datepicker ng-model="myDate" md-placeholder="Enter date" ></md-datepicker>'+tpl;
+            //
             var html                    = $compile(tpl)($scope);
             var header = "Create new patient";
             if(mode === "edit"){
@@ -522,6 +602,25 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               afterOpen: function($vexContent) {
                 cfpLoadingBar.complete();
                 setTimeout(function(){
+
+                    //
+        //             is-open="dateOpen[i]" 
+        // uib-datepicker-popup="{{format}}"
+        // datepicker-options="dateOptions"
+        // ng-click="dateOpen(i,p.vr)" 
+        // close-text="Close"
+                    // console.log("$(.edit-patient .00100030)=",$(".edit-patient .00100030").attr("ng-model"));
+                    // $(".edit-patient .00100030").after($compile(
+                    //     '<pre>{{datepicker}}</pre>'+
+                    //     '<input class="form-control" '+
+                    //     'ng-model="editpatient.attrs[\'00100030\'].Value[0]" '+
+                    //     'is-open="dateOpen[\'00100030\']" '+
+                    //     'uib-datepicker-popup="yyyyMMdd"'+
+                    //     'datepicker-options="dateOptions"'+
+                    //     'ng-click="dateOpen(\'00100030\',\'DA\')"'+ 
+                    //     'close-text="Close"/>'
+                    // )($scope));
+                    //
                     if(mode === "create"){
                         $(".edit-patient .00100020").attr("title","To generate it automatically leave it blank");
                         $(".edit-patient .00100020").attr("placeholder","To generate it automatically leave it blank");
@@ -653,9 +752,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               },
                 onSubmit: function(e) {
                     //Prevent submit/close if ENTER was clicked
+                    // $(".datepicker .no-close-button").$setValidity('date', true);
+
                     if($scope.lastPressedCode === 13){
                         e.preventDefault();
                     }else{
+                        // console.log("datepicker",$(".datepicker .no-close-button"));
+                        // $(".datepicker .no-close-button").$setValidity('date', true);
                         $vex.data().vex.callback();
                     }
                   },
@@ -667,14 +770,37 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     })
                 ],
                 callback: function(data) {
+                    // console.log("callback datepicker",$(".datepicker .no-close-button"));
                     cfpLoadingBar.start();
                     if (data === false) {
                         cfpLoadingBar.complete();
-
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
+                        StudiesService.convertDateToString($scope, "editpatient");
+                        // angular.forEach($scope.editpatient.attrs,function(m, i){
+                        //     console.log("m",m);
+                        //     console.log("i",i);
+                        //     console.log("$scope.editpatient[i]",$scope.editpatient.attrs[i]);
+                        //     if(value.vr === "DA"){
+                        //         console.log("value",value);
+                        //         console.log("index=",index);
+                        //         // var string = value.Value[0];
+                        //         // var yyyy = string.substring(0,4);
+                        //         // var MM = string.substring(4,6);
+                        //         // var dd = string.substring(6,8);
+                        //         // console.log("yyyy",yyyy);
+                        //         // console.log("MM",MM);
+                        //         // console.log("dd",dd);
+                        //         // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
+                        //         // console.log("testDate",testDate);
+                        //         var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                        //         var date          = new Date(timestampDate);
+                        //         // console.log("date",date);
+                        //         editpatient.attrs[index].Value[0] = date;
+                        //     }
+                        // });
                         if($scope.editpatient.attrs["00100020"] && $scope.editpatient.attrs["00100020"].Value[0]){
                             angular.forEach($scope.editpatient.attrs, function(m, i){
                                 if(res.data[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
@@ -683,36 +809,74 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             });
                             // $scope.editpatient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
                             oldPatientID = oldPatientID || $scope.editpatient.attrs["00100020"].Value[0];
-                            //<id 00100021>^^^<issuer>&<universal-entity-id>&<universal-entity-type>
-                            var issuer =                $scope.editpatient.attrs["00100021"] && 
+                            if($scope.editpatient.attrs["00100021"] && $scope.editpatient.attrs["00100021"].Value && $scope.editpatient.attrs["00100021"].Value[0]){
+                            if(!oldIssuer || oldIssuer === undefined){
+                                    oldIssuer = $scope.editpatient.attrs["00100021"].Value[0];
+                                }
+                            }
+                            var issuer =                ($scope.editpatient.attrs["00100021"] && 
                                                         $scope.editpatient.attrs["00100021"].Value[0] && 
-                                                        $scope.editpatient.attrs["00100021"].Value[0] != "";
-                            var universalEntityId =     $scope.editpatient.attrs["00100024"] && 
+                                                        $scope.editpatient.attrs["00100021"].Value[0] != "") || oldIssuer != undefined;
+                            var universalEntityId =     ($scope.editpatient.attrs["00100024"] && 
                                                         $scope.editpatient.attrs["00100024"].Value[0] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0] != "";
-                            var universalEntityType =   $scope.editpatient.attrs["00100024"] && 
+                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0] != "") || universalEntityId != undefined;
+                            var universalEntityType =   ($scope.editpatient.attrs["00100024"] && 
                                                         $scope.editpatient.attrs["00100024"].Value[0] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] != "";
+                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] != "") || universalEntityType != undefined;
+                            // if( 
+                            //     $scope.editpatient.attrs["00100024"] && 
+                            //     $scope.editpatient.attrs["00100024"].Value && 
+                            //     $scope.editpatient.attrs["00100024"].Value[0] && 
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value &&
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0]
+                            // ){
+                            //     if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
+                            //         oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                            //     }
+                            // }
+                            // if( 
+                            //     $scope.editpatient.attrs["00100024"] && 
+                            //     $scope.editpatient.attrs["00100024"].Value && 
+                            //     $scope.editpatient.attrs["00100024"].Value[0] && 
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value &&
+                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0]
+                            // ){
+                            //     if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
+                            //         oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                            //     }
+                            // }
+
+                            //<id 00100021>^^^<issuer>&<universal-entity-id>&<universal-entity-type>
 
                             if(issuer){
-                                oldPatientID += "^^^"+$scope.editpatient.attrs["00100021"].Value[0];
+                                oldPatientID += "^^^"+oldIssuer;
                             }
                             if(universalEntityId || universalEntityType){
+                                if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
+                                    oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                                }
+                                if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
+                                    oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                                }
                                 if(!issuer){
                                     oldPatientID += "^^^";
                                 }
 
-                                if(universalEntityId){
-                                    oldPatientID += "&"+$scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                                if(universalEntityId && oldUniversalEntityId){
+                                    oldPatientID += "&"+ oldUniversalEntityId;
                                 }
-                                if(universalEntityType){
-                                    oldPatientID += "&"+$scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                                if(universalEntityType && oldUniversalEntityType){
+                                    oldPatientID += "&"+ oldUniversalEntityType;
                                 }
                             }
+                            // console.log("$scope.editpatient.attrs",$scope.editpatient.attrs);
+                            // return true;
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients/"+oldPatientID,
                                 $scope.editpatient.attrs
@@ -737,6 +901,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         }, 0);
                                     }
                                 }
+                                // $scope.dateplaceholder = {};
+                                // console.log("data",data);
+                                // console.log("datepicker",$(".datepicker .no-close-button"));
                                 DeviceService.msg($scope, {
                                     "title": "Info",
                                     "text": "Patient saved successfully!",
@@ -749,7 +916,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     "status": "error"
                                 });
                             });
-
                             ////
                         }else{
                             if(mode === "create"){
@@ -780,6 +946,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     "status": "error"
                                 });
                             }
+                             // $scope.dateplaceholder = {};
                         }
                     }
                     vex.close($vex.data().vex.id);
@@ -899,6 +1066,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }
             },301);
     };
+    $scope.dateOpen = {};
     $scope.studyDateFromOpen = function() {
         cfpLoadingBar.start();
         $scope.studyDateFrom.opened = true;
@@ -911,6 +1079,30 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         }, 10);
     };
+
+    $scope.opendateplaceholder = function(t, vr) {
+        // console.log("t",t);
+        // console.log("vr",vr);
+        // console.log("$scope.dateOpen",$scope.dateOpen);
+        console.log("dateplaceholder[t]",$scope.dateplaceholder[t]);
+        if(!$scope.dateOpen[t]){
+            $scope.dateOpen[t] = true;
+        }
+        // if(vr === "DA"){
+        // }
+        // console.log("$scope.dateOpen",$scope.dateOpen);
+        // cfpLoadingBar.start();
+        // $scope.studyDateFrom.opened = true;
+        // var watchPicker = setInterval(function(){ 
+        //                         //uib-datepicker-popup uib-close
+        //     if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
+        //         clearInterval(watchPicker);
+        //         cfpLoadingBar.complete();
+
+        //     }
+        // }, 10);
+    };
+
     $scope.studyDateToOpen = function() {
         cfpLoadingBar.start();
         $scope.studyDateTo.opened = true;
