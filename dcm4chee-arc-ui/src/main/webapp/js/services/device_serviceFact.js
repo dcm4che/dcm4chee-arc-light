@@ -647,6 +647,13 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                             "text": "Changes saved successfully!",
                             "status": "info"
                         });
+                        $http.get("../ctrl/reload").then(function (res) {
+                            msg($scope, {
+                                "title": "Info",
+                                "text": "Archive reloaded successfully!",
+                                "status": "info"
+                            });
+                        });
                     })
                     .error(function(data, status, headers, config) {
                         $log.error("Error sending data on put!", status);
@@ -698,6 +705,13 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                     "title": "Info",
                                     "text": "Old device deleted successfully!",
                                     "status": "info"
+                                });
+                                $http.get("../ctrl/reload").then(function (res) {
+                                    msg($scope, {
+                                        "title": "Info",
+                                        "text": "Archive reloaded successfully!",
+                                        "status": "info"
+                                    });
                                 });
                             })
                             .error(function(data, status, headers, config) {

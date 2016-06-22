@@ -779,28 +779,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     }else{
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
                         StudiesService.convertDateToString($scope, "editpatient");
-                        // angular.forEach($scope.editpatient.attrs,function(m, i){
-                        //     console.log("m",m);
-                        //     console.log("i",i);
-                        //     console.log("$scope.editpatient[i]",$scope.editpatient.attrs[i]);
-                        //     if(value.vr === "DA"){
-                        //         console.log("value",value);
-                        //         console.log("index=",index);
-                        //         // var string = value.Value[0];
-                        //         // var yyyy = string.substring(0,4);
-                        //         // var MM = string.substring(4,6);
-                        //         // var dd = string.substring(6,8);
-                        //         // console.log("yyyy",yyyy);
-                        //         // console.log("MM",MM);
-                        //         // console.log("dd",dd);
-                        //         // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
-                        //         // console.log("testDate",testDate);
-                        //         var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
-                        //         var date          = new Date(timestampDate);
-                        //         // console.log("date",date);
-                        //         editpatient.attrs[index].Value[0] = date;
-                        //     }
-                        // });
                         if($scope.editpatient.attrs["00100020"] && $scope.editpatient.attrs["00100020"].Value[0]){
                             angular.forEach($scope.editpatient.attrs, function(m, i){
                                 if(res.data[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
@@ -827,32 +805,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] &&
                                                         $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] != "") || universalEntityType != undefined;
-                            // if( 
-                            //     $scope.editpatient.attrs["00100024"] && 
-                            //     $scope.editpatient.attrs["00100024"].Value && 
-                            //     $scope.editpatient.attrs["00100024"].Value[0] && 
-                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
-                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value &&
-                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0]
-                            // ){
-                            //     if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
-                            //         oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
-                            //     }
-                            // }
-                            // if( 
-                            //     $scope.editpatient.attrs["00100024"] && 
-                            //     $scope.editpatient.attrs["00100024"].Value && 
-                            //     $scope.editpatient.attrs["00100024"].Value[0] && 
-                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
-                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value &&
-                            //     $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0]
-                            // ){
-                            //     if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
-                            //         oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
-                            //     }
-                            // }
-
-                            //<id 00100021>^^^<issuer>&<universal-entity-id>&<universal-entity-type>
 
                             if(issuer){
                                 oldPatientID += "^^^"+oldIssuer;
@@ -876,7 +828,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 }
                             }
                             // console.log("$scope.editpatient.attrs",$scope.editpatient.attrs);
-                            // return true;
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients/"+oldPatientID,
                                 $scope.editpatient.attrs
