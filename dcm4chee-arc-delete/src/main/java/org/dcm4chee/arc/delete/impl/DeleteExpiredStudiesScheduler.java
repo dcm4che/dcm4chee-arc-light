@@ -58,6 +58,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -73,7 +74,7 @@ import java.util.List;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since June 2016
  */
-
+@ApplicationScoped
 public class DeleteExpiredStudiesScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeleteExpiredStudiesScheduler.class);
@@ -118,12 +119,20 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ApplicationEntity ae = getApplicationEntity(arcDev.getRejectExpiredStudiesAETitle());
+        if (ae == null || !ae.isInstalled()) {
+            LOG.warn("No such Application Entity: " + arcDev.getRejectExpiredStudiesAETitle(),
+                    Response.Status.SERVICE_UNAVAILABLE);
+        }
         RejectionNote rn = getRejectionNote(arcDev.getRejectionNotes());
-        if (rn == null)
+        if (rn == null) {
+            LOG.warn("Unknown Rejection Note Code: ", Response.Status.NOT_FOUND);
             return;
+        }
         int studyFetchSize = arcDev.getRejectExpiredStudiesFetchSize();
-        if (studyFetchSize == 0)
+        if (studyFetchSize == 0) {
+            LOG.warn("Study fetch size is 0");
             return;
+        }
         List<Study> studies;
         do {
             studies = em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
@@ -137,8 +146,10 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
             }
         } while (studyFetchSize == studies.size());
         int seriesFetchSize = arcDev.getRejectExpiredSeriesFetchSize();
-        if (seriesFetchSize == 0)
+        if (seriesFetchSize == 0) {
+            LOG.warn("Series fetch size is 0");
             return;
+        }
         List<Series> seriesList;
         do {
             seriesList = em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
@@ -155,10 +166,6 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
 
     private ApplicationEntity getApplicationEntity(String aet) {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
         return ae;
     }
 
@@ -171,9 +178,6 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
 
     private void reject(ApplicationEntity ae, String studyUID, String seriesUID,
                         RejectionNote rn) throws IOException {
-        if (rn == null)
-            throw new WebApplicationException("Unknown Rejection Note Code: ", Response.Status.NOT_FOUND);
-
         Attributes attrs = queryService.createRejectionNote(ae, studyUID, seriesUID, null, rn);
         if (attrs == null)
             throw new WebApplicationException("No Study with UID: " + studyUID, Response.Status.NOT_FOUND);
