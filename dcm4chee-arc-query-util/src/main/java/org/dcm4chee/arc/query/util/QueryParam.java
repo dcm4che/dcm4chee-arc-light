@@ -57,19 +57,21 @@ public class QueryParam {
     private final boolean combinedDatetimeMatching;
     private final boolean fuzzySemanticMatching;
     private final boolean returnEmpty;
+    private final boolean expired;
     private final QueryRetrieveView qrView;
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
     public QueryParam(ApplicationEntity ae, boolean combinedDatetimeMatching, boolean fuzzySemanticMatching,
-                      boolean returnEmpty) {
+                      boolean returnEmpty, boolean expired) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
         this.combinedDatetimeMatching = combinedDatetimeMatching;
         this.fuzzySemanticMatching = fuzzySemanticMatching;
         this.returnEmpty = returnEmpty;
+        this.expired = expired;
     }
 
     public String getAETitle() {

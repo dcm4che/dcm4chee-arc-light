@@ -79,6 +79,7 @@ import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 @RequestScoped
@@ -186,6 +187,10 @@ public class QidoRS {
     @QueryParam("returnempty")
     @Pattern(regexp = "true|false")
     private String returnempty;
+
+    @QueryParam("expired")
+    @Pattern(regexp = "true|false")
+    private String expired;
 
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
@@ -372,7 +377,7 @@ public class QidoRS {
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
                                          String seriesInstanceUID, int[] includetags) {
         QueryContext ctx = service.newQueryContextQIDO(request, method, getApplicationEntity(),
-                Boolean.parseBoolean(fuzzymatching), Boolean.parseBoolean(returnempty));
+                Boolean.parseBoolean(fuzzymatching), Boolean.parseBoolean(returnempty), Boolean.parseBoolean(expired));
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)

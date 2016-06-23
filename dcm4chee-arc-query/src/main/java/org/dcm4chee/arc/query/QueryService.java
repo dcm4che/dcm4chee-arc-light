@@ -55,6 +55,7 @@ import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 public interface QueryService {
@@ -62,7 +63,7 @@ public interface QueryService {
     QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts);
 
     QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-                                     boolean fuzzyMatching, boolean returnEmpty);
+                                     boolean fuzzyMatching, boolean returnEmpty, boolean expired);
 
     Query createQuery(QueryContext ctx, QueryRetrieveLevel2 qrLevel);
 

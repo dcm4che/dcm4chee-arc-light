@@ -67,6 +67,7 @@ import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 @ApplicationScoped
@@ -95,21 +96,21 @@ class QueryServiceImpl implements QueryService {
                 newQueryParam(ae,
                         queryOpts.contains(QueryOption.DATETIME),
                         queryOpts.contains(QueryOption.FUZZY),
-                        false),
+                        false, false),
                 this);
     }
 
     @Override
     public QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-                                            boolean fuzzyMatching, boolean returnEmpty) {
+                                            boolean fuzzyMatching, boolean returnEmpty, boolean expired) {
         return new QueryContextImpl(httpRequest, searchMethod, ae,
-                newQueryParam(ae, true, fuzzyMatching, returnEmpty),
+                newQueryParam(ae, true, fuzzyMatching, returnEmpty, expired),
                 this);
     }
 
     private QueryParam newQueryParam(ApplicationEntity ae, boolean datetimeMatching,
-                                     boolean fuzzyMatching, boolean returnEmpty) {
-        QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching, returnEmpty);
+                                     boolean fuzzyMatching, boolean returnEmpty, boolean expired) {
+        QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching, returnEmpty, expired);
         QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
         queryParam.setHideRejectionNotesWithCode(
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
@@ -178,13 +179,13 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyUID, null, null, newQueryParam(ae, false, false, false), seriesAttrs, false);
+                studyUID, null, null, newQueryParam(ae, false, false, false, false), seriesAttrs, false);
     }
 
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false), null, availability);
+                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false, false), null, availability);
     }
 }
