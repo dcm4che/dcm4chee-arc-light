@@ -821,20 +821,69 @@
             "description": "Archive AE Title",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "includefield",
+            "in": "query",
+            "description": "includefield={attributeID} | all",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "orderby=[-]{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset={skippedResults}",
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit={maximumResults}",
+            "type": "integer",
           }
         ],
         "responses": {
           "200": {
-            "description": "Patient ID of created Patient",
+            "description": "successful operation",
             "schema": {
-              "type": "string"
+              "type": "file"
             }
           },
           "default": {
             "description": "unexpected error"
           }
         }
-      }
     },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
       "get": {
