@@ -194,17 +194,23 @@ public class StoreServiceEJB {
                 }
                 if (inst != null) {
                     series = inst.getSeries();
-                    series.setRejectionState(rjNote.isRevokeRejection()
-                        ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
-                        : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE);
+                    RejectionState rejectionState = rjNote.isRevokeRejection()
+                            ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
+                            : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
+                    series.setRejectionState(rejectionState);
+                    if (rejectionState == RejectionState.COMPLETE)
+                        series.setExpirationDate(null);
                     deleteSeriesQueryAttributes(series);
                 }
             }
             if (series != null) {
                 Study study = series.getStudy();
-                study.setRejectionState(rjNote.isRevokeRejection()
+                RejectionState rejectionState = rjNote.isRevokeRejection()
                         ? hasRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.NONE
-                        : hasNotRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.COMPLETE);
+                        : hasNotRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
+                study.setRejectionState(rejectionState);
+                if (rejectionState == RejectionState.COMPLETE)
+                    study.setExpirationDate(null);
                 deleteStudyQueryAttributes(study);
             }
         }
