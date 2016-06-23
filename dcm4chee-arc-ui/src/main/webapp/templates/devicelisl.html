@@ -1,0 +1,40 @@
+<h2>Device list</h2>
+<input autocomplete="off" id="devicefilter" class="devicefilter" ng-model="devicefilter" placeholder="Serch device"/>
+
+<table class="j4care-table">
+	<thead>
+		<tr>
+			<th></th>
+			<th>Device Name</th>
+			<th>Department Name</th>
+			<th>Device Description</th>
+			<th>Manufacturer</th>
+			<th>Model Name</th>
+			<th>Software Version</th>
+			<th>Station Name</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="(key, value) in devices | filter:devicefilter">
+			<td class="buttons_td">
+				<span class="numbers">{{key+1}}.</span>
+				<a class="table_btn" title="Edit device" href="" ng-click="editPatient(patients[patientkey], patientkey)">
+					<span class="glyphicon glyphicon-pencil"></span>
+				</a>
+				<a class="table_btn" title="Delete device" href="" ng-click="devicename = value.dicomDeviceName;delete()">
+					<span class="glyphicon glyphicon-remove"></span>
+				</a>
+				<a class="table_btn" title="Clone device" href="" ng-click="editPatient(patients[patientkey], patientkey)">
+					<span class="glyphicon glyphicon-duplicate"></span>
+				</a>
+			</td>
+			<td>{{value.dicomDeviceName}}</td>
+			<td>{{value.dicomInstitutionDepartmentName[0]}}</td>
+			<td>{{value.dicomDescription}}</td>
+			<td>{{value.dicomManufacturer}}</td>
+			<td>{{value.dicomManufacturerModelName}}</td>
+			<td>{{value.dicomSoftwareVersion[0]}}</td>
+			<td>{{value.dicomStationName}}</td>
+		</tr>
+	</tbody>
+</table>

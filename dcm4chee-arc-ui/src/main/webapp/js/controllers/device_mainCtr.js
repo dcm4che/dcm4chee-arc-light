@@ -469,7 +469,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $timeout(function() {
       
         $scope.$apply(function() {
-            document.getElementById("init_select").focus(); //Focus the dropdown element
+            if(document.getElementById("init_select")){
+                document.getElementById("init_select").focus(); //Focus the dropdown element
+            }
             $http({
                 method: 'GET',
                 // url: 'json/devices.json'

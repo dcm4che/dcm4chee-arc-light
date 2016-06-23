@@ -1502,4 +1502,42 @@ div[tooltip] {
   width: 100%;
   height: 35px; }
 
+table.j4care-table {
+  margin-top: 30px;
+  max-width: 100%;
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  box-sizing: border-box; }
+  table.j4care-table tr:hover td {
+    background: #DADADA; }
+  table.j4care-table td, table.j4care-table th {
+    padding: 0px 7px;
+    border: 1px solid #ddd; }
+  table.j4care-table thead {
+    background: #666;
+    color: white; }
+    table.j4care-table thead tr {
+      height: 30px; }
+      table.j4care-table thead tr th {
+        border: 1px solid #dddddd; }
+  table.j4care-table tbody tr {
+    height: 25px; }
+    table.j4care-table tbody tr td .numbers {
+      display: inline-block;
+      float: left; }
+    table.j4care-table tbody tr td.buttons_td {
+      padding: 0px 0px 0px 7px; }
+    table.j4care-table tbody tr td .table_btn {
+      border-left: 1px solid #ddd;
+      color: #3A3A3A;
+      float: right;
+      height: 25px;
+      line-height: 25px;
+      text-align: center;
+      width: 25%; }
+      table.j4care-table tbody tr td .table_btn:hover {
+        background: #ddd;
+        color: black; }
+
 /*# sourceMappingURL=style.css.map */

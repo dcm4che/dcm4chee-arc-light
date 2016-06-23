@@ -31,6 +31,7 @@
     <li role="presentation" ng-class="getClass('/queues')" ng-click="toggleMenu()"><a href="#/queues">Queues</a></li>
     <li ng-show="isRole('admin')" role="presentation" ng-class="getClass('/ctrl')" ng-click="toggleMenu()"><a href="#/ctrl">Control</a></li>
     <li ng-show="isRole('admin')" role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li>
+    <li ng-show="isRole('admin')" role="presentation" ng-class="getClass('/devicelist')" ng-click="toggleMenu()"><a href="#/devicelist">Devicelist</a></li>
     <!-- <li><a><strike>devices</strike></a></li> -->
     <!-- <li><a>-</a></li> -->
     <!-- <li role="presentation"><a ng-href="{{logoutUrl}}">Logout</a></li> -->
@@ -126,6 +127,7 @@
 <script src="js/controllers/study_list.js"></script>
 <script src="js/controllers/mainCtr.js"></script>
 <script src="js/controllers/device_mainCtr.js"></script>
+<script src="js/controllers/devicelist_mainCtr.js"></script>
 <script src="js/controllers/queue_mgt.js"></script>
 <script src="js/controllers/control.js"></script>
 <!-- Filters -->
