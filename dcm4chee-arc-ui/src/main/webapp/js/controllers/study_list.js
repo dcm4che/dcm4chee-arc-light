@@ -1193,7 +1193,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             // }, 1000);
             cfpLoadingBar.complete();
         });
-        console.log("$scope.patients",$scope.patients);
     };
     $scope.queryAllStudiesOfPatient = function(patient, offset) {
         cfpLoadingBar.start();
@@ -1740,6 +1739,68 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     //         background:"blue"
     //     });
     // });
+    $scope.queryMWL = function(offset){
+        console.log("querymwl");
+        if (offset < 0 || offset === undefined) offset = 0;
+        cfpLoadingBar.start();
+        QidoService.queryMwl(
+            rsURL(),
+            createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
+        ).then(function successCallback(res) {
+                $scope.patients = [];
+     //           $scope.studies = [];
+                $scope.morePatients = undefined;
+                $scope.moreStudies = undefined;
+                if(res.data != ""){
+                    var pat, study, patAttrs, tags = $scope.attributeFilters.Patient.dcmTag;
+                    res.data.forEach(function (studyAttrs, index) {
+                        patAttrs = {};
+                        extractAttrs(studyAttrs, tags, patAttrs);
+                        if (!(pat && angular.equals(pat.attrs, patAttrs))) {
+                            pat = {
+                                attrs: patAttrs,
+                                studies: [],
+                                showAttributes: false
+                            };
+                            // $scope.$apply(function () {
+                                $scope.patients.push(pat);
+                            // });
+                        }
+                        study = {
+                            patient: pat,
+                            offset: offset + index,
+                            moreSeries: false,
+                            attrs: studyAttrs,
+                            series: null,
+                            showAttributes: false,
+                            fromAllStudies:false
+                        };
+                        pat.studies.push(study);
+                    });
+                    if ($scope.moreStudies = (res.data.length > $scope.limit)) {
+                        pat.studies.pop();
+                        if (pat.studies.length === 0)
+                            $scope.patients.pop();
+                        // $scope.studies.pop();
+                    }
+                } else {
+                    DeviceService.msg($scope, {
+                        "title": "Info",
+                        "text": "No matching Studies found!",
+                        "status": "info"
+                    });
+                }
+                cfpLoadingBar.complete();
+            },
+            function errorCallback(response) {
+                // DeviceService.msg($scope, {
+                //     "title": "Error",
+                //     "text": "Error saving study!",
+                //     "status": "error"
+                // });
+            }
+        );
+    };
 
     initAETs(1);
     initAttributeFilter("Patient", 1);
