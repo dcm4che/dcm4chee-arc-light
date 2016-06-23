@@ -200,8 +200,9 @@
         </a>
     </div>
 </div>
-<a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
+<div class="placeholder-35" ng-show="filterMode != 'study'"></div>
+<a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig && filterMode === 'study'" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig && filterMode === 'study'" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
 
 <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
     <div class="col-md-3 block-2-1"  ng-show="filterMode === 'study'">
@@ -438,7 +439,7 @@
 </div>
 
 <!-- Table -->
-<div class="div-table animated" ng-class="{extended:advancedConfig}">
+<div class="div-table animated" ng-class="{extended:(advancedConfig && filterMode === 'study')}">
 
     <div class="repeat0" ng-repeat="(patientkey, patient) in patients" ng-init="patient.hide=false">
 <!--         <span ng-show="!patient.hide" class="glyphicon glyphicon-triangle-bottom close_patient" title="Hide this patient" ng-click="patient.hide=true"></span>        

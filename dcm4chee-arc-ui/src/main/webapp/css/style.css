@@ -1497,4 +1497,9 @@ div[tooltip] {
   .queues table tbody a {
     color: black; }
 
+.placeholder-35 {
+  display: block;
+  width: 100%;
+  height: 35px; }
+
 /*# sourceMappingURL=style.css.map */
