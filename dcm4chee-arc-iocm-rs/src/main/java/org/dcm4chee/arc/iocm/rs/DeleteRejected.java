@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.study.rs;
+package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;

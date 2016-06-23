@@ -38,14 +38,13 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.study.rs;
+package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.study.StudyMgtContext;

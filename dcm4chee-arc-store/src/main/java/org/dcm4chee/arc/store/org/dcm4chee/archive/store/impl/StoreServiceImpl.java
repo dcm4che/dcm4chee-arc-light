@@ -69,6 +69,11 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
+    public StoreSession newStoreSession(ApplicationEntity ae) {
+        return new StoreSessionImpl(null, null, ae, null, null);
+    }
+
+    @Override
     public StoreSession newStoreSession(Socket socket, HL7Segment msh, ApplicationEntity ae) {
         return new StoreSessionImpl(null, null, ae, socket, msh);
     }

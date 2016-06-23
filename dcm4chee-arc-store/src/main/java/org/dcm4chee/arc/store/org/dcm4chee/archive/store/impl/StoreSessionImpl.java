@@ -92,7 +92,9 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost() : socket.getInetAddress().getHostName();
+        return httpRequest != null ? httpRequest.getRemoteHost()
+                : socket != null ? socket.getInetAddress().getHostName()
+                : null;
     }
 
     @Override
@@ -128,6 +130,8 @@ class StoreSessionImpl implements StoreSession {
     public String toString() {
         return httpRequest != null
                 ? httpRequest.getRemoteUser() + '@' + httpRequest.getRemoteHost() + "->" + ae.getAETitle()
-                : as != null ? as.toString() : msh.toString();
+                : as != null ? as.toString()
+                : msh != null ? msh.toString()
+                : ae.getAETitle();
     }
 }
