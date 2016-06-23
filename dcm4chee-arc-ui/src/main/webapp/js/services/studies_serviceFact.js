@@ -1,6 +1,8 @@
 "use strict";
 
 myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
+
+    var integerVr = ["DS","FL","FD","IS","SL","SS","UL", "US"];
     var getSchemaModelFromIodHelper = function(iod, patient, schema, patientedit){
 
             // $scope.patientedit = {};
@@ -49,10 +51,6 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
        var yyyy = this.getFullYear().toString();
        var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
        var dd  = this.getDate().toString();
-       console.log("yyyy",yyyy);
-       console.log("mm",mm);
-       console.log("dd",dd);
-
        return yyyy + (mm[1]?mm:"0"+mm[0]) + (dd[1]?dd:"0"+dd[0]); // padding
     };
 
@@ -89,6 +87,26 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                 var check = typeof(i) === "number" || i === "vr" || i === "Value" || i === "Alphabetic" || i === "Ideographic" || i === "Phonetic" || i === "items";
                 if(!check){
                     delete object[i];
+                }
+            }
+        });
+    };
+    var convertStringToNumberHelper = function(object, parent){
+        angular.forEach(object, function(m,i){
+            if(typeof(m) === "object" && i != "vr"){
+                convertStringToNumberHelper(m,object);
+            }else{
+                if(i === "vr"){
+                    if((integerVr.indexOf(object.vr) > -1 && object.Value && object.Value.length > 0)){
+                        if(object.Value.length > 1){
+                            angular.forEach(object.Value,function(k, j){
+                                object.Value[j] = Number(object.Value[j]);
+                            });
+                        }else{
+                            object.Value[0] = Number(object.Value[0]);
+                        }
+                    }
+
                 }
             }
         });
@@ -277,6 +295,10 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         },
         clearPatientObject : function(patient){
             clearPatientObjectHelper(patient);
+        },
+        convertStringToNumber : function(patient){
+            convertStringToNumberHelper(patient,integerVr);
+
         },
         replaceKeyInJson : function(object, key, key2){
             replaceKeyInJsonHelper(object, key, key2);

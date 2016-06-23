@@ -170,7 +170,8 @@
     "dicomInstalled": {
       "title": "installed",
       "description": "Boolean to indicate whether this device is presently installed on the network",
-      "type": "boolean"
+      "type": "boolean",
+      "default": true
     },
     "dicomNetworkConnection": {
       "title": "Network Connections",

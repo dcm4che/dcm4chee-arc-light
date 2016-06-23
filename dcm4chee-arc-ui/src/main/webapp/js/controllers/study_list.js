@@ -356,6 +356,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editstudy.attrs);
+                        StudiesService.convertStringToNumber($scope.editstudy.attrs);
                         StudiesService.convertDateToString($scope, "editstudy");
 
                         //Add patient attributs again
@@ -778,6 +779,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         return console.log('Cancelled');
                     }else{
                         StudiesService.clearPatientObject($scope.editpatient.attrs);
+                        StudiesService.convertStringToNumber($scope.editpatient.attrs);
                         StudiesService.convertDateToString($scope, "editpatient");
                         if($scope.editpatient.attrs["00100020"] && $scope.editpatient.attrs["00100020"].Value[0]){
                             angular.forEach($scope.editpatient.attrs, function(m, i){
