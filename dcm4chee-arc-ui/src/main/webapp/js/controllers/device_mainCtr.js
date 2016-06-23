@@ -216,7 +216,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.form             = {};
           $scope.wholeDevice      = {
           "dicomDeviceName":"CHANGE_ME",
-          "dicomInstalled":false
+          "dicomInstalled":true
         };
         $scope.devicename       = $scope.wholeDevice.dicomDeviceName;
         $scope.currentDevice    = $scope.wholeDevice.dicomDeviceName;
@@ -738,7 +738,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                   });
                                   $scope.devices.push({
                                     dicomDeviceName : $scope.clonename,
-                                    dicomInstalled: false
+                                    dicomInstalled: true
                                   });
                                   $scope.devicename = "";
                                   $scope.clonename = "";
