@@ -94,6 +94,10 @@ public class QueryParam {
         return returnEmpty;
     }
 
+    public boolean isExpired() {
+        return expired;
+    }
+
     public FuzzyStr getFuzzyStr() {
         return arcDev.getFuzzyStr();
     }

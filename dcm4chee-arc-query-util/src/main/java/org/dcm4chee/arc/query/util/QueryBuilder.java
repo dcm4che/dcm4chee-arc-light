@@ -55,6 +55,7 @@ import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.MWLStatus;
 import org.dcm4chee.arc.entity.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -305,6 +306,8 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
+        if (queryParam.isExpired())
+            builder.and(QStudy.study.expirationDate.loe(LocalDate.now().toString()));
     }
 
     public static Predicate accessControl(String[] accessControlIDs) {
