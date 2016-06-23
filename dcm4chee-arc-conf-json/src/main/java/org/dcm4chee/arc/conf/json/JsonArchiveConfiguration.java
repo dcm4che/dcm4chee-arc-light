@@ -296,8 +296,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (RejectionNote rn : rejectionNoteList) {
             writer.writeStartObject();
             writer.writeNotNull("dcmRejectionNoteLabel", rn.getRejectionNoteLabel());
+            writer.writeNotNull("dcmRejectionNoteType", rn.getRejectionNoteType());
             writer.writeNotNull("dcmRejectionNoteCode", rn.getRejectionNoteCode());
-            writer.writeNotNull("dcmRevokeRejection", rn.isRevokeRejection());
             writer.writeNotNull("dcmAcceptPreviousRejectedInstance", rn.getAcceptPreviousRejectedInstance());
             writer.writeNotEmpty("dcmOverwritePreviousRejection", rn.getOverwritePreviousRejection());
             writer.writeNotNull("dcmDeleteRejectedInstanceDelay", rn.getDeleteRejectedInstanceDelay());
@@ -897,11 +897,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmRejectionNoteLabel":
                         rn.setRejectionNoteLabel(reader.stringValue());
                         break;
+                    case "dcmRejectionNoteType":
+                        rn.setRejectionNoteType(RejectionNote.Type.valueOf(reader.stringValue()));
+                        break;
                     case "dcmRejectionNoteCode":
                         rn.setRejectionNoteCode(new Code(reader.stringValue()));
-                        break;
-                    case "dcmRevokeRejection":
-                        rn.setRevokeRejection(reader.booleanValue());
                         break;
                     case "dcmAcceptPreviousRejectedInstance":
                         rn.setAcceptPreviousRejectedInstance(RejectionNote.AcceptPreviousRejectedInstance.valueOf(reader.stringValue()));

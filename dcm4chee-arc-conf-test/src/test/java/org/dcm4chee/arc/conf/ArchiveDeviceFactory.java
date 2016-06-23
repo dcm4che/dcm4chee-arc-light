@@ -69,6 +69,7 @@ class ArchiveDeviceFactory {
     enum ConfigType {
         DEFAULT,
         SAMPLE,
+        DOCKER,
         TEST
     }
     static final String[] OTHER_DEVICES = {
@@ -842,11 +843,11 @@ class ArchiveDeviceFactory {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
     }
 
-    public static Device createARRDevice(String name, Connection.Protocol protocol, int port) {
+    public static Device createARRDevice(String name, Connection.Protocol protocol, int port, ConfigType configType) {
         Device arrDevice = new Device(name);
         AuditRecordRepository arr = new AuditRecordRepository();
         arrDevice.addDeviceExtension(arr);
-        String syslogHost = System.getProperty("syslogHost", "localhost");
+        String syslogHost = configType == ConfigType.DOCKER ? "syslog-host" : "localhost";
         Connection syslog = new Connection("syslog", syslogHost, port);
         syslog.setProtocol(protocol);
         arrDevice.addConnection(syslog);
@@ -854,7 +855,7 @@ class ArchiveDeviceFactory {
         return arrDevice ;
     }
 
-    public static Device createDevice(String name) throws Exception {
+    public static Device createDevice(String name, ConfigType configType) throws Exception {
         return init(new Device(name), null, null);
     }
 
@@ -913,7 +914,7 @@ class ArchiveDeviceFactory {
     }
     public static Device createArchiveDevice(String name, Device arrDevice, ConfigType configType) throws Exception {
         Device device = new Device(name);
-        String archiveHost = System.getProperty("archiveHost", "localhost");
+        String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
         Connection dicom = new Connection("dicom", archiveHost, 11112);
         dicom.setBindAddress("0.0.0.0");
         dicom.setClientBindAddress("0.0.0.0");
@@ -1079,6 +1080,7 @@ class ArchiveDeviceFactory {
         ext.setPurgeQueueMessagePollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
+        ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
         ext.setAuditSpoolDirectory(AUDIT_SPOOL_DIR);
         ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
@@ -1128,22 +1130,32 @@ class ArchiveDeviceFactory {
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
             ext.addQueueDescriptor(descriptor);
 
-        ext.addRejectionNote(createRejectionNote("Quality", REJECTED_FOR_QUALITY_REASONS,
-                RejectionNote.AcceptPreviousRejectedInstance.IGNORE, configType));
-        ext.addRejectionNote(createRejectionNote("Patient Safety", REJECT_FOR_PATIENT_SAFETY_REASONS,
-                RejectionNote.AcceptPreviousRejectedInstance.REJECT, configType,
+        ext.addRejectionNote(createRejectionNote("Quality",
+                RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
+                REJECTED_FOR_QUALITY_REASONS,
+                RejectionNote.AcceptPreviousRejectedInstance.IGNORE));
+        ext.addRejectionNote(createRejectionNote("Patient Safety",
+                RejectionNote.Type.REJECTED_FOR_PATIENT_SAFETY_REASONS,
+                REJECT_FOR_PATIENT_SAFETY_REASONS,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTED_FOR_QUALITY_REASONS));
-        ext.addRejectionNote(createRejectionNote("Incorrect MWL Entry", INCORRECT_MODALITY_WORKLIST_ENTRY,
-                RejectionNote.AcceptPreviousRejectedInstance.REJECT, configType,
+        ext.addRejectionNote(createRejectionNote("Incorrect MWL Entry",
+                RejectionNote.Type.INCORRECT_MODALITY_WORKLIST_ENTRY,
+                INCORRECT_MODALITY_WORKLIST_ENTRY,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS));
-        RejectionNote retentionExpired = createRejectionNote("Retention Expired", DATA_RETENTION_POLICY_EXPIRED,
-                RejectionNote.AcceptPreviousRejectedInstance.RESTORE, configType,
+        RejectionNote retentionExpired = createRejectionNote("Retention Expired",
+                RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED,
+                DATA_RETENTION_POLICY_EXPIRED,
+                RejectionNote.AcceptPreviousRejectedInstance.RESTORE,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
         retentionExpired.setDeleteRejectedInstanceDelay(DELETE_REJECTED_INSTANCE_DELAY);
         retentionExpired.setDeleteRejectionNoteDelay(DELETE_REJECTED_INSTANCE_DELAY);
         ext.addRejectionNote(retentionExpired);
-        ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
-                configType, REJECTION_CODES));
+        ext.addRejectionNote(createRejectionNote("Revoke Rejection",
+                RejectionNote.Type.REVOKE_REJECTION,
+                REVOKE_REJECTION, null,
+                REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
 
         if (configType == configType.SAMPLE || configType == configType.TEST) {
@@ -1195,19 +1207,16 @@ class ArchiveDeviceFactory {
         return filter;
     }
 
-    private static RejectionNote createRejectionNote(String rejectionNoteLabel, Code rejectionNoteCode,
-                                                     RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
-                                                     ConfigType configType, Code... overwritePreviousRejection) {
-        RejectionNote rjNote = new RejectionNote(rejectionNoteLabel);
-        rjNote.setRejectionNoteCode(rejectionNoteCode);
-        rjNote.setRevokeRejection(rejectionNoteCode == REVOKE_REJECTION);
+    private static RejectionNote createRejectionNote(
+            String label, RejectionNote.Type type, Code code,
+            RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
+            Code... overwritePreviousRejection) {
+        RejectionNote rjNote = new RejectionNote();
+        rjNote.setRejectionNoteLabel(label);
+        rjNote.setRejectionNoteType(type);
+        rjNote.setRejectionNoteCode(code);
         rjNote.setAcceptPreviousRejectedInstance(acceptPreviousRejectedInstance);
         rjNote.setOverwritePreviousRejection(overwritePreviousRejection);
-        if (configType == configType.TEST) {
-            rjNote.setDeleteRejectedInstanceDelay(Duration.parse("PT5M"));
-            rjNote.setDeleteRejectionNoteDelay(Duration.parse("PT9M"));
-            rjNote.setAcceptPreviousRejectedInstance(RejectionNote.AcceptPreviousRejectedInstance.IGNORE);
-        }
         return rjNote;
     }
 

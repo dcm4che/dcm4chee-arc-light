@@ -1268,8 +1268,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private Attributes storeTo(RejectionNote rjNote, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmRejectionNote");
         attrs.put("dcmRejectionNoteLabel", rjNote.getRejectionNoteLabel());
+        LdapUtils.storeNotNull(attrs, "dcmRejectionNoteType", rjNote.getRejectionNoteType());
         LdapUtils.storeNotNull(attrs, "dcmRejectionNoteCode", rjNote.getRejectionNoteCode());
-        LdapUtils.storeNotDef(attrs, "dcmRevokeRejection", rjNote.isRevokeRejection(), false);
         LdapUtils.storeNotNull(attrs, "dcmAcceptPreviousRejectedInstance", rjNote.getAcceptPreviousRejectedInstance());
         LdapUtils.storeNotEmpty(attrs, "dcmOverwritePreviousRejection", rjNote.getOverwritePreviousRejection());
         LdapUtils.storeNotNull(attrs, "dcmDeleteRejectedInstanceDelay", rjNote.getDeleteRejectedInstanceDelay());
@@ -1283,9 +1283,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                RejectionNote rjNote = new RejectionNote(LdapUtils.stringValue(attrs.get("dcmRejectionNoteLabel"), null));
+                RejectionNote rjNote = new RejectionNote();
+                rjNote.setRejectionNoteLabel(LdapUtils.stringValue(attrs.get("dcmRejectionNoteLabel"), null));
+                rjNote.setRejectionNoteType(LdapUtils.enumValue(
+                        RejectionNote.Type.class,
+                        attrs.get("dcmRejectionNoteType"),
+                        null));
                 rjNote.setRejectionNoteCode(LdapUtils.codeValue(attrs.get("dcmRejectionNoteCode")));
-                rjNote.setRevokeRejection(LdapUtils.booleanValue(attrs.get("dcmRevokeRejection"), false));
                 rjNote.setAcceptPreviousRejectedInstance(LdapUtils.enumValue(
                         RejectionNote.AcceptPreviousRejectedInstance.class,
                         attrs.get("dcmAcceptPreviousRejectedInstance"),
@@ -1323,8 +1327,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(RejectionNote prev, RejectionNote rjNote,
                                               ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmRejectionNoteType", prev.getRejectionNoteType(), rjNote.getRejectionNoteType());
         LdapUtils.storeDiff(mods, "dcmRejectionNoteCode", prev.getRejectionNoteCode(), rjNote.getRejectionNoteCode());
-        LdapUtils.storeDiff(mods, "dcmRevokeRejection", prev.isRevokeRejection(), rjNote.isRevokeRejection(), false);
         LdapUtils.storeDiff(mods, "dcmAcceptPreviousRejectedInstance",
                 prev.getAcceptPreviousRejectedInstance(),
                 rjNote.getAcceptPreviousRejectedInstance());

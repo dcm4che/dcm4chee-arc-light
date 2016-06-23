@@ -12,8 +12,20 @@
       "description": "Rejection Note Label",
       "type": "string"
     },
+    "dcmRejectionNoteType": {
+      "title": "Rejection Note Type",
+      "description": "Rejection Note Type",
+      "type": "string",
+      "enum": [
+        "REJECTED_FOR_QUALITY_REASONS",
+        "REJECTED_FOR_PATIENT_SAFETY_REASONS",
+        "INCORRECT_MODALITY_WORKLIST_ENTRY",
+        "DATA_RETENTION_POLICY_EXPIRED",
+        "REVOKE_REJECTION"
+      ]
+    },
     "dcmRejectionNoteCode": {
-      "title": "dcmRejectionNoteCode",
+      "title": "Rejection Note Code",
       "description": "Specifies Document Title of Rejection Note in format (CV, CSD, 'CM')",
       "type": "string"
     },

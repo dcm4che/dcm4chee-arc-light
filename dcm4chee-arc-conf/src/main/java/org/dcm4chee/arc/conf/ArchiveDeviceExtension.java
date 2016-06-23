@@ -782,6 +782,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return null;
     }
 
+    public RejectionNote getRejectionNote(RejectionNote.Type rejectionNoteType) {
+        for (RejectionNote rejectionNote : rejectionNoteMap.values()) {
+            if (rejectionNote.getRejectionNoteType() == rejectionNoteType)
+                return rejectionNote;
+        }
+        return null;
+    }
+
     public RejectionNote removeRejectionNote(String rjNoteID) {
         return rejectionNoteMap.remove(rjNoteID);
     }
