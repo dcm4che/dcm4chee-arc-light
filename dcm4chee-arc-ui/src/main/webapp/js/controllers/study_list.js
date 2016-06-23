@@ -1193,6 +1193,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             // }, 1000);
             cfpLoadingBar.complete();
         });
+        console.log("$scope.patients",$scope.patients);
     };
     $scope.queryAllStudiesOfPatient = function(patient, offset) {
         cfpLoadingBar.start();
@@ -1277,29 +1278,33 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             createQueryParams(offset, $scope.limit+1, { orderby: 'InstanceNumber'})
         )
         .then(function (res) {
-            series.instances = res.data.map(function(attrs, index) {
-                var numberOfFrames = valueOf(attrs['00280008']),
-                    gspsQueryParams = createGSPSQueryParams(attrs),
-                    video = isVideo(attrs);
-                    cfpLoadingBar.complete();
-                return {
-                    series: series,
-                    offset: offset + index,
-                    attrs: attrs,
-                    showAttributes: false,
-                    showFileAttributes:false,
-                    wadoQueryParams: {
-                        studyUID: attrs['0020000D'].Value[0],
-                        seriesUID: attrs['0020000E'].Value[0],
-                        objectUID: attrs['00080018'].Value[0]
-                    },
-                    video: video,
-                    numberOfFrames: numberOfFrames,
-                    gspsQueryParams: gspsQueryParams,
-                    views: createArray(video || numberOfFrames || gspsQueryParams.length || 1),
-                    view: 1
-                };
-            });
+            if(res.data){
+                series.instances = res.data.map(function(attrs, index) {
+                    var numberOfFrames = valueOf(attrs['00280008']),
+                        gspsQueryParams = createGSPSQueryParams(attrs),
+                        video = isVideo(attrs);
+                        cfpLoadingBar.complete();
+                    return {
+                        series: series,
+                        offset: offset + index,
+                        attrs: attrs,
+                        showAttributes: false,
+                        showFileAttributes:false,
+                        wadoQueryParams: {
+                            studyUID: attrs['0020000D'].Value[0],
+                            seriesUID: attrs['0020000E'].Value[0],
+                            objectUID: attrs['00080018'].Value[0]
+                        },
+                        video: video,
+                        numberOfFrames: numberOfFrames,
+                        gspsQueryParams: gspsQueryParams,
+                        views: createArray(video || numberOfFrames || gspsQueryParams.length || 1),
+                        view: 1
+                    };
+                });
+            }else{
+                series.instances = {};
+            }
             if (series.moreInstances = (series.instances.length > $scope.limit)) {
                 series.instances.pop();
             }

@@ -516,7 +516,7 @@
                                 <a ng-click="exportStudy(study)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
                                     <span class="glyphicon glyphicon-export"></span>
                                 </a>
-                                <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectStudy(study)" href="" title="Reject Study">
+                                <a ng-hide="trashaktive || !isRole('admin') || study.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(study)" href="" title="Reject Study">
                                     <span class="glyphicon glyphicon-trash"></span>
                                 </a>
                                 <a ng-show="trashaktive && isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
@@ -579,7 +579,7 @@
                                         <a ng-click="exportSeries(series)" ng-show="exporterID && isRole('admin')" href="" title="Export Series">
                                             <span class="glyphicon glyphicon-export"></span>
                                         </a>
-                                        <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectSeries(series)" href="" title="Reject Series">
+                                        <a ng-hide="trashaktive || !isRole('admin') ||  series.attrs['00201209'].Value[0] === 0" ng-click="rejectSeries(series)" href="" title="Reject Series">
                                             <span  class="glyphicon glyphicon-trash"></span>
                                         </a>
                                         <a ng-show="trashaktive && isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
