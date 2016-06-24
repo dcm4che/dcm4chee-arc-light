@@ -83,9 +83,7 @@ public class Conditions {
             boolean ne = tagPath.endsWith("!");
             if (ne)
                 tagPath = tagPath.substring(0, tagPath.lastIndexOf('!'));
-            if (!tagPath.equals(ReceivingApplicationEntityTitle) &&
-                    !tagPath.equals(SendingApplicationEntityTitle) &&
-                    !tagPath.equals(SendingHostname) && !matchAE(tagPath, ne)
+            if (!matchAE(tagPath, ne)
                     && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0, ne))
                 return false;
         }
