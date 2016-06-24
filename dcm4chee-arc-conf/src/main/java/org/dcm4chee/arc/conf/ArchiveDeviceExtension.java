@@ -112,6 +112,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
+    private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
     private QueryRetrieveView[] queryRetrieveViews = {};
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
@@ -607,6 +608,26 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setAttributeFilter(Entity entity, AttributeFilter filter) {
         attributeFilters.put(entity, filter);
+    }
+
+    public IDGenerator getIDGenerator(IDGenerator.Name name) {
+        IDGenerator filter = idGenerators.get(name);
+        if (filter == null)
+            throw new IllegalArgumentException("No ID Generator for " + name + " configured");
+
+        return filter;
+    }
+
+    public void addIDGenerator(IDGenerator generator) {
+        idGenerators.put(generator.getName(), generator);
+    }
+
+    public void removeIDGenerator(IDGenerator generator) {
+        idGenerators.remove(generator.getName());
+    }
+
+    public Collection<IDGenerator> getIDGenerators() {
+        return idGenerators.values();
     }
 
     public QueryRetrieveView[] getQueryRetrieveViews() {

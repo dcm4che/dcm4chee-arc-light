@@ -576,9 +576,27 @@ attributetype ( 1.2.40.0.13.1.15.110.3.96 NAME 'dcmRejectionNoteType'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.97 NAME 'dcmFallbackCMoveSCPStudyOlderThan'
-  DESC 'Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP.'
+  DESC 'Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.98 NAME 'dcmIDGeneratorName'
+  DESC 'ID Generator Name. Enumerated values: PatientID, AccessionNumber, RequestedProcedureID, ScheduledProcedureStepID'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.99 NAME 'dcmIDGeneratorFormat'
+  DESC 'Format string used by this ID Generator. %0<width>d will be replaced by a sequential number with leading zeros according the given width'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.100 NAME 'dcmIDGeneratorInitialValue'
+  DESC 'Initial value for sequence used by this ID Generator; 1 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -812,3 +830,12 @@ objectclass ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
     dcmRulePriority $
     dcmProperty $
     dcmExpireSeriesIndividually) )
+
+objectclass ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
+  DESC 'ID Generator'
+  SUP top STRUCTURAL
+  MUST (
+    dcmIDGeneratorName $
+    dcmIDGeneratorFormat )
+  MAY (
+    dcmIDGeneratorInitialValue ) )

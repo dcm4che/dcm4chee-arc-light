@@ -147,7 +147,7 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("Export3", "XDS-I Export Tasks")
     };
 
-    private static QueueDescriptor newQueueDescriptor(String name, String description) {
+    static QueueDescriptor newQueueDescriptor(String name, String description) {
         QueueDescriptor desc = new QueueDescriptor(name);
         desc.setDescription(description);
         desc.setJndiName("jms/queue/" + name);
@@ -157,6 +157,13 @@ class ArchiveDeviceFactory {
         desc.setMaxRetryDelay(Duration.parse("PT10M"));
         desc.setPurgeQueueMessageCompletedDelay(Duration.parse("P1D"));
         return desc;
+    }
+
+    static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {
+        IDGenerator gen = new IDGenerator();
+        gen.setName(name);
+        gen.setFormat(format);
+        return gen;
     }
 
     static final int[] PATIENT_ATTRS = {
@@ -1089,6 +1096,7 @@ class ArchiveDeviceFactory {
         ext.setAECacheStaleTimeout(AE_CACHE_STALE_TIMEOUT);
         ext.setLeadingCFindSCPQueryCacheStaleTimeout(LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT);
         ext.setScheduleProcedureTemplateURI(HL7_ORDER2DCM_XSL);
+        ext.setRejectExpiredStudiesAETitle("DCM4CHEE");
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));
@@ -1114,6 +1122,11 @@ class ArchiveDeviceFactory {
             ext.getAttributeFilter(Entity.MPPS).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
             ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
         }
+
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.PatientID, "P-08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.AccessionNumber, "A-08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.RequestedProcedureID, "RP-08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.ScheduledProcedureStepID, "SPS-08d"));
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURIStr(STORAGE_URI);
