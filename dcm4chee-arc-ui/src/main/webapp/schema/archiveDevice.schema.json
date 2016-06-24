@@ -326,34 +326,64 @@
       "type": "string"
     },
     "dcmAttributeFilter": {
-      "$ref": "attributeFilter.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "attributeFilter.schema.json"
+      }
     },
     "dcmStorage": {
-      "$ref": "storage.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "storage.schema.json"
+      }
     },
     "dcmQueryRetrieveView": {
-      "$ref": "queryRetrieveView.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "queryRetrieveView.schema.json"
+      }
     },
     "dcmQueue": {
-      "$ref": "queue.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "queue.schema.json"
+      }
     },
     "dcmExporter": {
-      "$ref": "exporter.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "exporter.schema.json"
+      }
     },
     "dcmExportRule": {
-      "$ref": "exportRule.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "exportRule.schema.json"
+      }
     },
     "dcmArchiveCompressionRule": {
-      "$ref": "archiveCompressionRule.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "archiveCompressionRule.schema.json"
+      }
     },
     "dcmArchiveAttributeCoercion": {
-      "$ref": "archiveAttributeCoercion.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "archiveAttributeCoercion.schema.json"
+      }
     },
     "dcmRejectionNote": {
-      "$ref": "rejectionNote.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "rejectionNote.schema.json"
+      }
     },
     "dcmStudyRetentionPolicy": {
-      "$ref": "studyRetentionPolicy.schema.json"
+      "type": "array",
+      "items" : {
+        "$ref": "studyRetentionPolicy.schema.json"
+      }
     }
   }
 }
