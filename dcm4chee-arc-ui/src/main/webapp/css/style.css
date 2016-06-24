@@ -1613,6 +1613,37 @@ table.j4care-table {
       width: 49%;
       margin-top: 0px;
       color: #777; }
+    .deviceedit_block bootstrap-decorator .schema-form-number {
+      float: left;
+      margin: 0;
+      width: 100%; }
+      .deviceedit_block bootstrap-decorator .schema-form-number .control-label {
+        color: black !important;
+        float: left;
+        padding-bottom: 0;
+        padding-right: 15px;
+        text-align: right;
+        height: 32px;
+        line-height: 32px;
+        width: 25%;
+        margin-bottom: 0;
+        padding-bottom: 0; }
+      .deviceedit_block bootstrap-decorator .schema-form-number input {
+        float: left;
+        width: 24%;
+        border-color: #ccc;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 0;
+        padding: 3px 12px;
+        height: 26px;
+        margin-top: 3px; }
+      .deviceedit_block bootstrap-decorator .schema-form-number .help-block {
+        float: right;
+        margin-right: 1%;
+        width: 49%;
+        margin-top: 0px;
+        color: #777; }
     .deviceedit_block bootstrap-decorator > .schema-form-array > ol {
       float: left;
       width: 50%;
