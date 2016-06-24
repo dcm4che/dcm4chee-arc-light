@@ -180,7 +180,7 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
                         RejectionNote rn) throws IOException {
         Attributes attrs = queryService.createRejectionNote(ae, studyUID, seriesUID, null, rn);
         if (attrs == null)
-            throw new WebApplicationException("No Study with UID: " + studyUID, Response.Status.NOT_FOUND);
+            LOG.warn("No Study with UID: " + studyUID, Response.Status.NOT_FOUND);
 
         StoreSession session = storeService.newStoreSession(ae);
         StoreContext ctx = storeService.newStoreContext(session);

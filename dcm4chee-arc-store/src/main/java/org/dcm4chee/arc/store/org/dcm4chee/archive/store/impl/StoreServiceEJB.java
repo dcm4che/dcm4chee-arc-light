@@ -386,7 +386,7 @@ public class StoreServiceEJB {
                 study = updateStudy(ctx, study);
                 updatePatient(ctx, study.getPatient());
             }
-            series = createSeries(ctx, study);
+            series = createSeries(ctx, study, result);
         } else {
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
@@ -599,12 +599,13 @@ public class StoreServiceEJB {
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
     }
 
-    private Series createSeries(StoreContext ctx, Study study) {
+    private Series createSeries(StoreContext ctx, Study study, UpdateDBResult result) {
         Series series = new Series();
         series.setRejectionState(ctx.getRejectionNote() == null ? RejectionState.NONE : RejectionState.COMPLETE);
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
-        processExpirationDate(ctx, series);
+        if (result.getRejectionNote() == null)
+            processExpirationDate(ctx, series);
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
