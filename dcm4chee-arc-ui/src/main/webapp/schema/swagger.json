@@ -151,7 +151,7 @@
           "CTRL-RS"
         ],
         "summary": "Get Archive Device Name",
-        "operationId": "status",
+        "operationId": "devicename",
         "produces": [
           "application/json"
         ],
