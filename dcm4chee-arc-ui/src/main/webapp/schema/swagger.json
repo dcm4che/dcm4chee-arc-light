@@ -145,6 +145,29 @@
         }
       }
     },
+    "/ctrl/devicename": {
+      "get": {
+        "tags": [
+          "CTRL-RS"
+        ],
+        "summary": "Get Archive Device Name",
+        "operationId": "status",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "archive device name",
+            "schema": {
+              "$ref": "#/definitions/DeviceName"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/devices": {
       "get": {
         "tags": [
@@ -870,7 +893,7 @@
             "name": "limit",
             "in": "query",
             "description": "limit={maximumResults}",
-            "type": "integer",
+            "type": "integer"
           }
         ],
         "responses": {
@@ -1353,6 +1376,17 @@
             "STARTED",
             "STOPPED"
           ]
+        }
+      }
+    },
+    "DeviceName": {
+      "type": "object",
+      "required": [
+        "dicomDeviceName"
+      ],
+      "properties": {
+        "dicomDeviceName": {
+          "type": "string"
         }
       }
     },
