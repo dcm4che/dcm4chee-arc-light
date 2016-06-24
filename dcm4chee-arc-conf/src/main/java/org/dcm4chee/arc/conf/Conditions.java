@@ -67,14 +67,18 @@ public class Conditions {
 
     public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
         if (receivingAETPattern != null
-                && (receivingAET == null || !receivingAETPattern.matcher(receivingAET).matches()))
+                && (receivingAET == null || !receivingAETPattern.matcher(receivingAET).matches()
+                || map.containsKey(ReceivingApplicationEntityTitleNE)))
             return false;
 
-        if (sendingAETPattern != null && (sendingAET == null || !sendingAETPattern.matcher(sendingAET).matches()))
+        if (sendingAETPattern != null
+                && (sendingAET == null || !sendingAETPattern.matcher(sendingAET).matches()
+                || map.containsKey(SendingApplicationEntityTitleNE)))
             return false;
 
         if (sendingHostnamePattern != null
-                && (hostName == null || !sendingHostnamePattern.matcher(hostName).matches()))
+                && (hostName == null || !sendingHostnamePattern.matcher(hostName).matches()
+                || map.containsKey(SendingHostnameNE)))
             return false;
 
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
@@ -83,15 +87,13 @@ public class Conditions {
             boolean ne = tagPath.endsWith("!");
             if (ne)
                 tagPath = tagPath.substring(0, tagPath.lastIndexOf('!'));
-            if (!matchAE(tagPath, ne)
+            if (!tagPath.equals(ReceivingApplicationEntityTitle) &&
+                    !tagPath.equals(SendingApplicationEntityTitle) &&
+                    !tagPath.equals(SendingHostname)
                     && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0, ne))
                 return false;
         }
         return true;
-    }
-
-    private boolean matchAE(String tagPath, boolean ne) {
-        return (ne && (tagPath.equals(ReceivingApplicationEntityTitle) || tagPath.equals(SendingApplicationEntityTitle) || tagPath.equals(SendingHostname)));
     }
 
     private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level, boolean ne) {
