@@ -884,6 +884,7 @@
             "description": "unexpected error"
           }
         }
+      }
     },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
       "get": {
