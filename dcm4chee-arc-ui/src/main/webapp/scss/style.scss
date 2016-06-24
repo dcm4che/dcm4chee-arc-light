@@ -161,7 +161,7 @@ ul.nav {
 #showDeviceForm.active_dropbox:focus,
  {
  	outline: 0;
-    background: rgba(79, 136, 255, 0.92) none repeat scroll 0 0;
+    background: #3b6b8c none repeat scroll 0 0;
     border: 1px solid #00526d;
     -moz-box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
     -webkit-box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
@@ -180,7 +180,7 @@ ul.nav {
 	.btn {
 	    //background: rgba(54, 54, 54, 0.55) none repeat scroll 0 0;
 	    //border: 1px solid #ccc;
-	    background: rgba(79, 136, 255, 0.92);
+	    background: #3b6b8c;
 		border:1px solid #2e6da4;
 	    color: #ffffff;
 	    display: block;
@@ -228,7 +228,7 @@ device and create an other one with the new name*/
 		     background: rgba(255, 255, 255, 0.63);
 		}
 		.btn-primary,.save{
-			background: rgba(79, 136, 255, 0.92);
+			background: #3b6b8c;
 			border:1px solid #2e6da4;
 		}
 		.btn-primary:hover,.save:hover{
@@ -2096,5 +2096,322 @@ table.j4care-table{
 				}
 			}
 		}
+	}
+}
+.deviceedit_block{
+	display:none;
+	 .active_border.col-md-8{
+	 	width: 74%;
+	 }
+	bootstrap-decorator {
+	    border-color: #ddd;
+	    border-image: none;
+	    border-style: solid;
+	    border-width: 1px 1px 0;
+	    color: black;
+	    float: left;
+	    width: 100%;
+		.form-control-feedback.glyphicon-ok,span.sr-only{
+			display: none;
+		}
+	    & > .schema-form-text{
+	    	float: left;
+		    margin: 0;
+		    // padding: 10px 0;
+		    width: 100%;
+	    	.control-label {
+			    color: black !important;
+			    float: left;
+			    padding-bottom: 0;
+			    padding-right: 15px;
+			    text-align: right;
+			    height: 32px;
+			    line-height: 32px;
+    			// line-height: 30px;
+    			// margin-top: 4px;
+    			width: 25%;
+    			margin-bottom: 0;
+    			padding-bottom:0;
+			}
+			.input {
+			    float: left;
+			    width: 24%;
+			    input{
+			    	border-color: #ccc;
+				    border-style: solid;
+				    border-width: 1px;
+				    border-radius:0;
+				    padding: 3px 12px;
+				    height: 26px;
+    				margin-top: 3px;
+			    }
+			}
+			.help-block {
+		   		float: right;
+			    margin-right: 1%;
+			    width: 49%;
+			    margin-top: 0px;
+			    color: #777;
+			}
+	    }
+	    & > .schema-form-select{
+	    	label{
+	    					    color: black !important;
+			    float: left;
+			    padding-bottom: 0;
+			    padding-right: 15px;
+			    text-align: right;
+			    height: 32px;
+			    line-height: 32px;
+    			// line-height: 30px;
+    			// margin-top: 4px;
+    			width: 29%;
+    			margin-bottom: 0;
+    			padding-bottom:0;
+	    	}
+	    	select{
+	    		float: left;
+			    width: 20%;
+		    	border-color: #ccc;
+			    border-style: solid;
+			    border-width: 1px;
+			    border-radius:0;
+			    padding: 3px 12px;
+			    height: 26px;
+				margin-top: 3px;
+	    	}
+			.help-block {
+		   		float: right;
+			    margin-right: 1%;
+			    width: 49%;
+			    margin-top: 0px;
+			    color: #777;
+			}
+	    }
+	    & > .schema-form-array{
+	    	& > ol{
+				float:left;
+				width: 50%;
+				margin-bottom: 0;
+				& > li.list-group-item{
+					float:left;
+				    margin: 0 1%;
+				    width: 98%;
+				    padding-top:0;
+				    padding-bottom:0;
+				    padding-right: 5px;
+				    border:none;
+				    .close{
+					    border: 1px solid;
+					    display: block;
+					    height: 26px;
+					    padding-bottom: 3px;
+					    top: 3px;
+					    width: 26px;
+				    }
+				    sf-decorator{
+				    	.schema-form-text{
+				    		margin: 0;
+				    		label {
+							    color: black !important;
+							    float: left;
+							    padding-bottom: 0;
+							    padding-right: 15px;
+							    text-align: right;
+							    width: 49.4%;
+							    height: 32px;
+    							line-height: 32px;
+    							margin-bottom: 0;
+							}
+							.input {
+							    float: left;
+							    width: 45.7%;
+							    input{
+							    	border-color: #ccc;
+								    border-style: solid;
+								    border-width: 1px;
+								    border-radius:0;
+								    padding: 3px 12px;
+								    height: 26px;
+				    				margin-top: 3px;
+							    }
+							}
+							.help-block {
+								display: none;
+								float: right;
+    							width: 32.5%;
+    							color: #777;
+
+							}
+				    	}
+				    }
+				    .help-block{
+				    	float: left;
+					    margin: 10px 11px 16px;
+					    width: 100%;
+				    }
+				}
+	    	}
+	    	&> label {
+			  	border-bottom: 1px solid #ddd;
+			    color: #5b5b5b;
+			    float: left;
+			    font-size: 17px;
+			    margin: 7px 10px;
+			    width: 98%;
+			}
+			& > .clearfix{
+				padding:0 !important;
+				float: left;
+				button{
+				    background: #3b6b8c none repeat scroll 0 0;
+				    border-radius: 0;
+				    color: white;
+				    height: 26px;
+				    margin: 3px 15px 0 0;
+				    padding: 2px 7px;
+				}
+			}
+			& > .help-block{
+				margin: 5px 10px 20px;
+			}
+	    }
+	    & > .schema-form-radios , & > .schema-form-checkboxes{
+		    padding: 10px 20px 0px 20px;
+		    label, label span{
+		    	color: black;
+		    }
+		    .help-block{
+		    	color: #777;
+		    }
+		}
+		& > fieldset{
+ 			margin-left: 30px;
+			sf-decorator{
+				.schema-form-number{
+					float: left;
+				    margin: 0;
+				    // padding: 10px 0;
+				    width: 100%;
+			    	.control-label {
+					    color: black !important;
+					    float: left;
+					    padding-bottom: 0;
+					    padding-right: 15px;
+					    text-align: right;
+					    height: 32px;
+					    line-height: 32px;
+		    			// line-height: 30px;
+		    			// margin-top: 4px;
+		    			width: 25%;
+		    			margin-bottom: 0;
+		    			padding-bottom:0;
+					}
+				    input{
+					    float: left;
+					    width: 24%;
+				    	border-color: #ccc;
+					    border-style: solid;
+					    border-width: 1px;
+					    border-radius:0;
+					    padding: 3px 12px;
+					    height: 26px;
+						margin-top: 3px;
+				    }
+					.help-block {
+				   		float: right;
+					    margin-right: 1%;
+					    width: 49%;
+					    margin-top: 0px;
+					    color: #777;
+					}
+				}
+				.schema-form-text{
+			    	float: left;
+				    margin: 0;
+				    // padding: 10px 0;
+				    width: 100%;
+			    	.control-label {
+					    color: black !important;
+					    float: left;
+					    padding-bottom: 0;
+					    padding-right: 15px;
+					    text-align: right;
+					    height: 32px;
+					    line-height: 32px;
+		    			// line-height: 30px;
+		    			// margin-top: 4px;
+		    			width: 25%;
+		    			margin-bottom: 0;
+		    			padding-bottom:0;
+					}
+					.input {
+					    float: left;
+					    width: 24%;
+					    input{
+					    	border-color: #ccc;
+						    border-style: solid;
+						    border-width: 1px;
+						    border-radius:0;
+						    padding: 3px 12px;
+						    height: 26px;
+		    				margin-top: 3px;
+					    }
+					}
+					.help-block {
+				   		float: right;
+					    margin-right: 1%;
+					    width: 49%;
+					    margin-top: 0px;
+					    color: #777;
+					}
+			    }
+			    .schema-form-select{
+			    	label{
+			    					    color: black !important;
+					    float: left;
+					    padding-bottom: 0;
+					    padding-right: 15px;
+					    text-align: right;
+					    height: 32px;
+					    line-height: 32px;
+		    			// line-height: 30px;
+		    			// margin-top: 4px;
+		    			width: 25%;
+		    			margin-bottom: 0;
+		    			padding-bottom:0;
+			    	}
+			    	select{
+			    		float: left;
+					    width: 24%;
+				    	border-color: #ccc;
+					    border-style: solid;
+					    border-width: 1px;
+					    border-radius:0;
+					    padding: 3px 12px;
+					    height: 26px;
+						margin-top: 3px;
+			    	}
+					.help-block {
+				   		float: right;
+					    margin-right: 1%;
+					    width: 49%;
+					    margin-top: 0px;
+					    color: #777;
+					}
+			    }
+			} 
+		}
+
+	}
+	.active_border.col-md-8 {
+	    background: rgba(255, 255, 255, 0.63) none repeat scroll 0 0;
+	    border: 1px solid #dddddd;
+	    box-shadow: 4px 3px 8px 1px #cccccc;
+	    margin: 4px;
+	    padding-bottom: 20px;
+	    .btn.save{
+	    	margin-bottom: 20px;
+	    }
 	}
 }

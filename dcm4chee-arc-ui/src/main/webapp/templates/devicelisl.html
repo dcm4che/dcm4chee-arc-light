@@ -1,40 +1,60 @@
-<h2>Device list</h2>
-<input autocomplete="off" id="devicefilter" class="devicefilter" ng-model="devicefilter" placeholder="Serch device"/>
-
-<table class="j4care-table">
-	<thead>
-		<tr>
-			<th></th>
-			<th>Device Name</th>
-			<th>Department Name</th>
-			<th>Device Description</th>
-			<th>Manufacturer</th>
-			<th>Model Name</th>
-			<th>Software Version</th>
-			<th>Station Name</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr ng-repeat="(key, value) in devices | filter:devicefilter">
-			<td class="buttons_td">
-				<span class="numbers">{{key+1}}.</span>
-				<a class="table_btn" title="Edit device" href="" ng-click="editPatient(patients[patientkey], patientkey)">
-					<span class="glyphicon glyphicon-pencil"></span>
-				</a>
-				<a class="table_btn" title="Delete device" href="" ng-click="devicename = value.dicomDeviceName;delete()">
-					<span class="glyphicon glyphicon-remove"></span>
-				</a>
-				<a class="table_btn" title="Clone device" href="" ng-click="editPatient(patients[patientkey], patientkey)">
-					<span class="glyphicon glyphicon-duplicate"></span>
-				</a>
-			</td>
-			<td>{{value.dicomDeviceName}}</td>
-			<td>{{value.dicomInstitutionDepartmentName[0]}}</td>
-			<td>{{value.dicomDescription}}</td>
-			<td>{{value.dicomManufacturer}}</td>
-			<td>{{value.dicomManufacturerModelName}}</td>
-			<td>{{value.dicomSoftwareVersion[0]}}</td>
-			<td>{{value.dicomStationName}}</td>
-		</tr>
-	</tbody>
-</table>
+<div class="devicelist_block">
+	<h2>Device list</h2>
+	<input autocomplete="off" id="devicefilter" class="devicefilter" ng-model="devicefilter" placeholder="Serch device"/>
+	<button ng-click="createDevice()"><span class="glyphicon glyphicon-plus"></span></button>
+	<table class="j4care-table">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Device Name</th>
+				<th>Department Name</th>
+				<th>Device Description</th>
+				<th>Manufacturer</th>
+				<th>Model Name</th>
+				<th>Software Version</th>
+				<th>Station Name</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="(key, value) in devices | filter:devicefilter">
+				<td class="buttons_td">
+					<span class="numbers">{{key+1}}.</span>
+					<a class="table_btn" title="Edit device" href="" ng-click="editDeviceList(value.dicomDeviceName)">
+						<span class="glyphicon glyphicon-pencil"></span>
+					</a>
+					<a class="table_btn" title="Delete device" href="" ng-click="deleteDeviceList(value.dicomDeviceName)">
+						<span class="glyphicon glyphicon-remove"></span>
+					</a>
+					<a class="table_btn" title="Clone device" href="" ng-click="cloneDeviceDeviceList(value.dicomDeviceName)">
+						<span class="glyphicon glyphicon-duplicate"></span>
+					</a>
+				</td>
+				<td>{{value.dicomDeviceName}}</td>
+				<td>{{value.dicomInstitutionDepartmentName[0]}}</td>
+				<td>{{value.dicomDescription}}</td>
+				<td>{{value.dicomManufacturer}}</td>
+				<td>{{value.dicomManufacturerModelName}}</td>
+				<td>{{value.dicomSoftwareVersion[0]}}</td>
+				<td>{{value.dicomStationName}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div class="deviceedit_block">
+    <button class="btn btn-link btn-xs" ng-click="goBackToDeviceList()">
+        <span class="glyphicon glyphicon glyphicon-chevron-left"></span> go back to the device list
+    </button>
+	<div class="row device" ng-click="savedCheck($event)">
+		<div class="block_layer" ng-show="showBlockLayer()"></div>
+		<div class="col-md-3 {{middleBorder}}">
+			<div class="loader" ng-show="showDropdownLoader"></div>
+			<div id="add_dropdowns"></div>
+		</div>
+		<div class="col-md-8 {{lastBorder}} form_content">
+			<div class="loader" ng-show="showFormLoader"></div>
+	  		<div class="btn save col-md-2" ng-show="showSave" ng-click="save()" ng-dispabled="editDevice.$invalid">Save</div>
+	  		<div class="btn col-md-2" ng-show="showCancel" ng-click="cancel()">Cancel</div>
+			<div id="add_edit_area"></div>
+		</div>
+	</div>
+</div>
