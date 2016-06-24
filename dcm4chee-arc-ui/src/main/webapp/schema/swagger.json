@@ -148,6 +148,7 @@
     "/ctrl/devicename": {
       "get": {
         "tags": [
+          "CONFIG-RS",
           "CTRL-RS"
         ],
         "summary": "Get Archive Device Name",
