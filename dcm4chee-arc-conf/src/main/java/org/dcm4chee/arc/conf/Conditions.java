@@ -85,11 +85,15 @@ public class Conditions {
                 tagPath = tagPath.substring(0, tagPath.lastIndexOf('!'));
             if (!tagPath.equals(ReceivingApplicationEntityTitle) &&
                     !tagPath.equals(SendingApplicationEntityTitle) &&
-                    !tagPath.equals(SendingHostname)
+                    !tagPath.equals(SendingHostname) && !matchAE(tagPath, ne)
                     && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0, ne))
                 return false;
         }
         return true;
+    }
+
+    private boolean matchAE(String tagPath, boolean ne) {
+        return (ne && (tagPath.equals(ReceivingApplicationEntityTitle) || tagPath.equals(SendingApplicationEntityTitle) || tagPath.equals(SendingHostname)));
     }
 
     private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level, boolean ne) {
