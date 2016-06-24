@@ -20,6 +20,10 @@ public class Conditions {
     private static final String SendingApplicationEntityTitle = "SendingApplicationEntityTitle";
     private static final String SendingHostname = "SendingHostname";
 
+    private static final String ReceivingApplicationEntityTitleNE = "ReceivingApplicationEntityTitle!";
+    private static final String SendingApplicationEntityTitleNE = "SendingApplicationEntityTitle!";
+    private static final String SendingHostnameNE = "SendingHostname!";
+
     private Pattern receivingAETPattern;
     private Pattern sendingAETPattern;
     private Pattern sendingHostnamePattern;
@@ -48,11 +52,11 @@ public class Conditions {
 
     public void setCondition(String tagPath, String value) {
         Pattern pattern = Pattern.compile(value);
-        if (tagPath.equals(SendingHostname))
+        if (tagPath.equals(SendingHostname) || tagPath.equals(SendingHostnameNE))
             sendingHostnamePattern = pattern;
-        else if (tagPath.equals(SendingApplicationEntityTitle))
+        else if (tagPath.equals(SendingApplicationEntityTitle) || tagPath.equals(SendingApplicationEntityTitleNE))
             sendingAETPattern = pattern;
-        else if (tagPath.equals(ReceivingApplicationEntityTitle))
+        else if (tagPath.equals(ReceivingApplicationEntityTitle) || tagPath.equals(ReceivingApplicationEntityTitleNE))
             receivingAETPattern = pattern;
         map.put(tagPath, pattern);
     }
@@ -76,27 +80,30 @@ public class Conditions {
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
             String tagPath = entry.getKey();
             Pattern pattern = entry.getValue();
+            boolean ne = tagPath.endsWith("!");
+            if (ne)
+                tagPath = tagPath.substring(0, tagPath.lastIndexOf('!'));
             if (!tagPath.equals(ReceivingApplicationEntityTitle) &&
                     !tagPath.equals(SendingApplicationEntityTitle) &&
                     !tagPath.equals(SendingHostname)
-                    && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0))
+                    && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0, ne))
                 return false;
         }
         return true;
     }
 
-    private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level) {
+    private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level, boolean ne) {
         if (level < tagPath.length-1) {
             Sequence seq = attrs.getSequence(tagPath[level]);
             if (seq != null)
                 for (Attributes item : seq)
-                    if (match(item, tagPath, pattern, level+1))
+                    if (match(item, tagPath, pattern, level+1, false))
                         return true;
         } else {
             String[] ss = attrs.getStrings(tagPath[level]);
             if (ss != null)
                 for (String s : ss)
-                    if (pattern.matcher(s).matches())
+                    if (pattern.matcher(s).matches() && !ne)
                         return true;
         }
         return false;
