@@ -66,19 +66,22 @@ public class Conditions {
     }
 
     public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
-        if (receivingAETPattern != null
-                && (receivingAET == null || !receivingAETPattern.matcher(receivingAET).matches()
-                || map.containsKey(ReceivingApplicationEntityTitleNE)))
+        if (receivingAETPattern != null &&
+                map.containsKey(ReceivingApplicationEntityTitle)
+                ? (receivingAET == null || !receivingAETPattern.matcher(sendingAET).matches())
+                : (receivingAET != null && receivingAETPattern.matcher(sendingAET).matches()))
             return false;
 
-        if (sendingAETPattern != null
-                && (sendingAET == null || !sendingAETPattern.matcher(sendingAET).matches()
-                || map.containsKey(SendingApplicationEntityTitleNE)))
+        if (sendingAETPattern != null &&
+                map.containsKey(SendingApplicationEntityTitle)
+                    ? (sendingAET == null || !sendingAETPattern.matcher(sendingAET).matches())
+                    : (sendingAET != null && sendingAETPattern.matcher(sendingAET).matches()))
             return false;
 
-        if (sendingHostnamePattern != null
-                && (hostName == null || !sendingHostnamePattern.matcher(hostName).matches()
-                || map.containsKey(SendingHostnameNE)))
+        if (sendingHostnamePattern != null &&
+                map.containsKey(SendingHostname)
+                ? (hostName == null || !sendingHostnamePattern.matcher(sendingAET).matches())
+                : (hostName != null && sendingHostnamePattern.matcher(sendingAET).matches()))
             return false;
 
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
