@@ -68,8 +68,8 @@ public class Conditions {
     public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
         if (receivingAETPattern != null &&
                 map.containsKey(ReceivingApplicationEntityTitle)
-                ? (receivingAET == null || !receivingAETPattern.matcher(sendingAET).matches())
-                : (receivingAET != null && receivingAETPattern.matcher(sendingAET).matches()))
+                ? (receivingAET == null || !receivingAETPattern.matcher(receivingAET).matches())
+                : (receivingAET != null && receivingAETPattern.matcher(receivingAET).matches()))
             return false;
 
         if (sendingAETPattern != null &&
@@ -80,8 +80,8 @@ public class Conditions {
 
         if (sendingHostnamePattern != null &&
                 map.containsKey(SendingHostname)
-                ? (hostName == null || !sendingHostnamePattern.matcher(sendingAET).matches())
-                : (hostName != null && sendingHostnamePattern.matcher(sendingAET).matches()))
+                ? (hostName == null || !sendingHostnamePattern.matcher(hostName).matches())
+                : (hostName != null && sendingHostnamePattern.matcher(hostName).matches()))
             return false;
 
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
