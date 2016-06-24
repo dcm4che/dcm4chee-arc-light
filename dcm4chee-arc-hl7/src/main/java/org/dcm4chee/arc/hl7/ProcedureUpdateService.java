@@ -64,6 +64,7 @@ import javax.inject.Inject;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -106,7 +107,11 @@ public class ProcedureUpdateService extends AbstractHL7Service {
     }
 
     private void adjust(Attributes attrs) {
-        if (attrs.getString(Tag.StudyInstanceUID) == null)
-            attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+        if (!attrs.containsValue(Tag.StudyInstanceUID))
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+        Attributes sps = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if ("SCHEDULED".equals(sps.getString(Tag.ScheduledProcedureStepStatus))
+                && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
+            sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
     }
 }
