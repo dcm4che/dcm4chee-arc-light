@@ -70,11 +70,12 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
     private static final int MAX_FAILED_IUIDS_LEN = 4000;
 
+    protected final RetrieveContext ctx;
     private final PresentationContext pc;
     private final Attributes rqCmd;
     private final int msgId;
     private final String cuid;
-    private final Attributes keys;
+    protected final Attributes keys;
     private final Association rqas;
     private final Association fwdas;
     protected final String fallbackCMoveSCP;
@@ -82,6 +83,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
     public ForwardRetrieveTask(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
                                Association fwdas) {
+        this.ctx = ctx;
         this.rqas = ctx.getRequestAssociation();
         this.fwdas = fwdas;
         this.fallbackCMoveSCP = fwdas.getRemoteAET();
@@ -106,6 +108,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
     public void run() {
         rqas.addCancelRQHandler(msgId, this);
         try {
+            ctx.incrementPendingCMoveForward();
             forwardMoveRQ();
             waitForFinalMoveRSP();
         } catch (DicomServiceException e) {
@@ -113,6 +116,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         } finally {
             releaseAssociation();
             rqas.removeCancelRQHandler(msgId);
+            ctx.decrementPendingCMoveForward();
         }
         onFinished();
     }
@@ -216,8 +220,39 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         }
     }
 
+    static class UpdateRetrieveCtx extends ForwardRetrieveTask {
+        private int warnings;
+        private int completed;
+
+        public UpdateRetrieveCtx(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
+                                 Association fwdas) {
+            super(ctx, pc, rqCmd, keys, fwdas);
+        }
+
+        @Override
+        protected void onFailure(DicomServiceException e) {
+            for (String iuid : keys.getStrings(Tag.SOPInstanceUID))
+                ctx.addFailedSOPInstanceUID(iuid);
+        }
+
+        @Override
+        protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
+            int warnigs0 = cmd.getInt(Tag.NumberOfWarningSuboperations, 0);
+            int completed0 = cmd.getInt(Tag.NumberOfCompletedSuboperations, 0);
+            ctx.addWarning(warnigs0 - warnings);
+            ctx.addCompleted(completed0 - completed);
+            warnings = warnigs0;
+            completed = completed0;
+            if (data != null) {
+                String[] iuids = data.getStrings(Tag.FailedSOPInstanceUIDList);
+                if (iuids != null)
+                    for (String iuid : iuids)
+                        ctx.addFailedSOPInstanceUID(iuid);
+            }
+        }
+    }
+
     static class ForwardCStoreRQ extends ForwardRetrieveTask {
-        private final RetrieveContext ctx;
         private final Duration pendingRSPInterval;
         private final Event<RetrieveContext> retrieveEnd;
         private volatile Attributes bwdMoveRSP;
@@ -228,7 +263,6 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         public ForwardCStoreRQ(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
                                Association fwdas, Event<RetrieveContext> retrieveEnd) {
             super(ctx, pc, rqCmd, keys, fwdas);
-            this.ctx = ctx;
             this.pendingRSPInterval = ctx.getArchiveAEExtension().sendPendingCMoveInterval();
             this.retrieveEnd = retrieveEnd;
         }

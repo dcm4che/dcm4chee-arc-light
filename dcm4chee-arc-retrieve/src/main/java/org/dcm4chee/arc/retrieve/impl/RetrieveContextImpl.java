@@ -91,6 +91,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
     private final AtomicInteger pendingCStoreForward = new AtomicInteger();
+    private final AtomicInteger pendingCMoveForward = new AtomicInteger();
     private final Collection<String> failedSOPInstanceUIDs =
             Collections.synchronizedCollection(new ArrayList<String>());
     private final HashMap<String, Storage> storageMap = new HashMap<>();
@@ -362,7 +363,12 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public void incrementCompleted() {
-        completed.incrementAndGet();
+        completed.getAndIncrement();
+    }
+
+    @Override
+    public void addCompleted(int delta) {
+        completed.getAndAdd(delta);
     }
 
     @Override
@@ -372,7 +378,12 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public void incrementWarning() {
-        warning.incrementAndGet();
+        warning.getAndIncrement();
+    }
+
+    @Override
+    public void addWarning(int delta) {
+        warning.getAndAdd(delta);
     }
 
     @Override
@@ -448,13 +459,13 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public void incrementPendingCStoreForward() {
-        pendingCStoreForward.incrementAndGet();
+        pendingCStoreForward.getAndIncrement();
     }
 
     @Override
     public void decrementPendingCStoreForward() {
         synchronized (pendingCStoreForward) {
-            pendingCStoreForward.decrementAndGet();
+            pendingCStoreForward.getAndDecrement();
             pendingCStoreForward.notifyAll();
         }
     }
@@ -464,6 +475,27 @@ class RetrieveContextImpl implements RetrieveContext {
         synchronized (pendingCStoreForward) {
             while (pendingCStoreForward.get() > 0)
                 pendingCStoreForward.wait();
+        }
+    }
+
+    @Override
+    public void incrementPendingCMoveForward() {
+        pendingCMoveForward.getAndIncrement();
+    }
+
+    @Override
+    public void decrementPendingCMoveForward() {
+        synchronized (pendingCMoveForward) {
+            pendingCMoveForward.getAndDecrement();
+            pendingCMoveForward.notifyAll();
+        }
+    }
+
+    @Override
+    public void waitForPendingCMoveForward() throws InterruptedException {
+        synchronized (pendingCMoveForward) {
+            while (pendingCMoveForward.get() > 0)
+                pendingCMoveForward.wait();
         }
     }
 

@@ -130,13 +130,14 @@ final class RetrieveTaskImpl implements RetrieveTask {
                 store(match);
             }
             waitForOutstandingCStoreRSP();
-            if (rqas != null)
-                writeFinalRSP();
         } finally {
             releaseStoreAssociation();
+            waitForPendingCMoveForward();
             stopWritePendingRSP();
-            if (rqas != null)
+            if (rqas != null) {
+                writeFinalRSP();
                 rqas.removeCancelRQHandler(msgId);
+            }
             SafeClose.close(ctx);
         }
         retrieveEnd.fire(ctx);
@@ -240,6 +241,14 @@ final class RetrieveTaskImpl implements RetrieveTask {
             }
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to wait for outstanding RSP on association to {}", rqas, storeas.getRemoteAET(), e);
+        }
+    }
+
+    private void waitForPendingCMoveForward() {
+        try {
+            ctx.waitForPendingCMoveForward();
+        } catch (InterruptedException e) {
+            LOG.warn("{}: failed to wait for pending C-MOVE RQ forward", rqas, e);
         }
     }
 

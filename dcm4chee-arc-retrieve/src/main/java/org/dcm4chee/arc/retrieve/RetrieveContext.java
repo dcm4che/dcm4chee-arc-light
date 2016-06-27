@@ -158,9 +158,13 @@ public interface RetrieveContext extends Closeable {
 
     void incrementCompleted();
 
+    void addCompleted(int delta);
+
     int warning();
 
     void incrementWarning();
+
+    void addWarning(int delta);
 
     int failed();
 
@@ -191,6 +195,12 @@ public interface RetrieveContext extends Closeable {
     void decrementPendingCStoreForward();
 
     void waitForPendingCStoreForward() throws InterruptedException;
+
+    void incrementPendingCMoveForward();
+
+    void decrementPendingCMoveForward();
+
+    void waitForPendingCMoveForward() throws InterruptedException;
 
     void addMatch(InstanceLocations inst);
 }
