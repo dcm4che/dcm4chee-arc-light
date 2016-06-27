@@ -88,4 +88,11 @@ public class ArchiveCtrl {
     public String status() {
         return "{\"status\":\"" + service.status(request) + "\"}";
     }
+
+    @GET
+    @Path("devicename")
+    @Produces("application/json")
+    public String devicename() {
+        return "{\"devicename\":\"" + service.status(request) + "\"}";
+    }
 }
