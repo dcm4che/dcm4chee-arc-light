@@ -179,6 +179,84 @@
         "produces": [
           "application/json"
         ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name",
+            "type": "string"
+          },
+          {
+            "name": "Device Description",
+            "in": "query",
+            "description": "Device Description",
+            "type": "string"
+          },
+          {
+            "name": "dicomManufacturer",
+            "in": "query",
+            "description": "Manufacturer",
+            "type": "string"
+          },
+          {
+            "name": "dicomManufacturerModelName",
+            "in": "query",
+            "description": "Manufacturer Model Name",
+            "type": "string"
+          },
+          {
+            "name": "dicomSoftwareVersion",
+            "in": "query",
+            "description": "Software Version",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "dicomStationName",
+            "in": "query",
+            "description": "Station Name",
+            "type": "string"
+          },
+          {
+            "name": "dicomPrimaryDeviceType",
+            "in": "query",
+            "description": "Primary Device Type",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "dicomInstitutionName",
+            "in": "query",
+            "description": "Institution Name",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "dicomInstitutionDepartmentName",
+            "in": "query",
+            "description": "Institution Department Name",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "dicomInstalled",
+            "in": "query",
+            "description": "Boolean to indicate whether this device is presently installed on the network",
+            "type": "boolean"
+          }
+        ],
         "responses": {
           "200": {
             "description": "device list",
