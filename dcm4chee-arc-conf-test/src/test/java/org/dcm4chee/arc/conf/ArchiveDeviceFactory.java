@@ -53,6 +53,7 @@ import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.dcm4che3.util.Property;
 
 import java.net.URI;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.EnumSet;
 
@@ -786,14 +787,22 @@ class ArchiveDeviceFactory {
             "THICK_SLICE",
             "P4D",
             2,
-            false
+            false,
+            new Conditions(
+                    "SendingApplicationEntityTitle=STORESCU",
+                    "SliceThickness=1.5"
+            )
     );
 
     static final StudyRetentionPolicy THIN_SLICE = createStudyRetentionPolicy(
             "THIN_SLICE",
             "P1D",
             1,
-            true
+            true,
+            new Conditions(
+                    "SendingApplicationEntityTitle=STORESCU",
+                    "SliceThickness=0.75"
+            )
     );
 
     static final String[] HL7_MESSAGE_TYPES = {
@@ -845,6 +854,10 @@ class ArchiveDeviceFactory {
     static final Duration MAX_ACCESS_TIME_STALENESS = Duration.parse("PT5M");
     static final Duration AE_CACHE_STALE_TIMEOUT = Duration.parse("PT5M");
     static final Duration LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT = Duration.parse("PT5M");
+    static final Duration REJECT_EXPIRED_STUDIES_POLLING_INTERVAL = Duration.parse("P1D");
+    static final LocalTime REJECT_EXPIRED_STUDIES_START_TIME = LocalTime.parse("00:00:00");
+    static final int REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE = 10;
+    static final String REJECT_EXPIRED_STUDIES_AE_TITLE = "DCM4CHEE";
 
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
@@ -987,11 +1000,12 @@ class ArchiveDeviceFactory {
     }
 
     private static StudyRetentionPolicy createStudyRetentionPolicy(String cn, String retentionPeriod,
-                                                          int priority, boolean expireSeriesIndividually) {
+                                          int priority, boolean expireSeriesIndividually, Conditions conditions) {
         StudyRetentionPolicy policy = new StudyRetentionPolicy(cn);
         policy.setRetentionPeriod(Period.parse(retentionPeriod));
         policy.setExpireSeriesIndividually(expireSeriesIndividually);
         policy.setPriority(priority);
+        policy.setConditions(conditions);
         return policy;
     }
 
@@ -1096,7 +1110,12 @@ class ArchiveDeviceFactory {
         ext.setAECacheStaleTimeout(AE_CACHE_STALE_TIMEOUT);
         ext.setLeadingCFindSCPQueryCacheStaleTimeout(LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT);
         ext.setScheduleProcedureTemplateURI(HL7_ORDER2DCM_XSL);
-        ext.setRejectExpiredStudiesAETitle("DCM4CHEE");
+
+        ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
+        ext.setRejectExpiredStudiesPollingStartTime(REJECT_EXPIRED_STUDIES_START_TIME);
+        ext.setRejectExpiredStudiesAETitle(REJECT_EXPIRED_STUDIES_AE_TITLE);
+        ext.setRejectExpiredStudiesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
+        ext.setRejectExpiredSeriesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));
