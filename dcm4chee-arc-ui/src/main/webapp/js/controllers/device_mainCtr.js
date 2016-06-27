@@ -240,6 +240,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     "<div edit-area></div>"
             );
 
+            addEffect("right",".devicelist_block", "hide");
+            setTimeout(function(){
+                addEffect("left",".deviceedit_block", "show");
+            },301);
         }, 100);
         
     };
@@ -559,13 +563,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
       }
     });
 
-
-    /*
-    *Implementation of the cancle button
-    */
-    $scope.cancel = function(){
-      $scope.deletPartProcess = true;
-      if($scope.selectedElement === "device"){
+    var cancel = function(){
+        $scope.deletPartProcess = true;
+        if($scope.selectedElement === "device"){
                 $scope.devicename       = "";
                 $scope.currentDevice    = "";
                 $scope.newDevice        = true;
@@ -576,11 +576,11 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 $scope.showSave         = false;
                 angular.element(document.getElementById("add_dropdowns")).html("");
                 angular.element(document.getElementById("add_edit_area")).html("");
-      }else{
+        }else{
                 DeviceService.cancle($scope);
                 $scope.form[$scope.selectedElement].model  = {};
                 DeviceService.removeEmptyPart($scope.wholeDevice[$scope.selectedElement], [$select[$scope.selectedElement].optionValue]);
-      }
+        }
 
         $scope.selectedElement  = "device";
         $scope.validForm        = true;
@@ -589,7 +589,12 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         // $scope.showSave         = false;
         // $scope.lastBorder       = "";
         $scope.editMode         = false;
-
+    };
+    /*
+    *Implementation of the cancle button
+    */
+    $scope.cancel = function(){
+        cancel();
     };
 
     /*
@@ -1015,6 +1020,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         addEffect("left",".deviceedit_block", "hide");
         setTimeout(function(){
             addEffect("right",".devicelist_block", "show");
+            cancel();
         },301);
     };
 });

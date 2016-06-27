@@ -1,7 +1,8 @@
 <div class="devicelist_block">
 	<h2>Device list</h2>
 	<input autocomplete="off" id="devicefilter" class="devicefilter" ng-model="devicefilter" placeholder="Serch device"/>
-	<button ng-click="createDevice()"><span class="glyphicon glyphicon-plus"></span></button>
+	<button class="adddevice" ng-click="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>
+	<button class="adddevice" ng-click="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button>
 	<table class="j4care-table">
 		<thead>
 			<tr>
@@ -41,7 +42,7 @@
 	</table>
 </div>
 <div class="deviceedit_block">
-    <button class="btn btn-link btn-xs" ng-click="goBackToDeviceList()">
+    <button class="btn btn-link btn-xs back" ng-click="goBackToDeviceList()">
         <span class="glyphicon glyphicon glyphicon-chevron-left"></span> go back to the device list
     </button>
 	<div class="row device" ng-click="savedCheck($event)">
@@ -52,8 +53,8 @@
 		</div>
 		<div class="col-md-8 {{lastBorder}} form_content">
 			<div class="loader" ng-show="showFormLoader"></div>
-	  		<div class="btn save col-md-2" ng-show="showSave" ng-click="save()" ng-dispabled="editDevice.$invalid">Save</div>
-	  		<div class="btn col-md-2" ng-show="showCancel" ng-click="cancel()">Cancel</div>
+	  		<div class="btn save" ng-show="showSave" ng-click="save()" ng-dispabled="editDevice.$invalid">Save</div>
+	  		<div class="btn" ng-show="showCancel" ng-click="cancel()">Cancel</div>
 			<div id="add_edit_area"></div>
 		</div>
 	</div>

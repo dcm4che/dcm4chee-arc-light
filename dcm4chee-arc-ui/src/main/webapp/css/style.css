@@ -128,9 +128,9 @@ ul.nav {
   outline: 0;
   background: #3b6b8c none repeat scroll 0 0;
   border: 1px solid #00526d;
-  -moz-box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
-  -webkit-box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
-  box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
+  -moz-box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
+  -webkit-box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
+  box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
   color: white; }
 
 .block_layer {
@@ -190,11 +190,15 @@ device and create an other one with the new name*/
     -webkit-box-shadow: 4px 3px 8px 1px #cccccc;
     box-shadow: 4px 3px 8px 1px #cccccc;
     background: rgba(255, 255, 255, 0.63); }
-  .device .active_border .btn-primary, .device .active_border .save {
+  .device .active_border .btn-primary, .device .active_border .save, .device .active_border .btn {
     background: #3b6b8c;
-    border: 1px solid #2e6da4; }
-  .device .active_border .btn-primary:hover, .device .active_border .save:hover {
-    background: rgba(71, 114, 204, 0.93); }
+    border: 1px solid #2e6da4;
+    border-radius: 0; }
+  .device .active_border .btn-primary:hover, .device .active_border .save:hover, .device .active_border .btn:hover {
+    background: #365C77;
+    color: white; }
+  .device .active_border #showDeviceForm.btn:hover {
+    color: block; }
 
 .main_select {
   padding-right: 11px;
@@ -1540,10 +1544,32 @@ table.j4care-table {
         background: #ddd;
         color: black; }
 
+.devicelist_block .adddevice {
+  background: #3b6b8c none repeat scroll 0 0;
+  border: 1px solid #ccc;
+  color: white;
+  height: 27px; }
+.devicelist_block #devicefilter {
+  border: 1px solid #ccc;
+  border-radius: 0;
+  height: 27px;
+  padding-left: 7px; }
+
 .deviceedit_block {
   display: none; }
   .deviceedit_block .active_border.col-md-8 {
     width: 74%; }
+  .deviceedit_block .device .active_border .btn:hover {
+    color: black; }
+  .deviceedit_block .back {
+    color: #777;
+    left: -16px;
+    position: relative;
+    top: -7px;
+    font-size: 15px;
+    font-weight: bold; }
+    .deviceedit_block .back:hover {
+      color: #3b6b8c; }
   .deviceedit_block bootstrap-decorator {
     border-color: #ddd;
     border-image: none;
@@ -1571,7 +1597,7 @@ table.j4care-table {
         padding-bottom: 0; }
       .deviceedit_block bootstrap-decorator > .schema-form-text .input {
         float: left;
-        width: 24%; }
+        width: 24.2%; }
         .deviceedit_block bootstrap-decorator > .schema-form-text .input input {
           border-color: #ccc;
           border-style: solid;
@@ -1586,6 +1612,38 @@ table.j4care-table {
         width: 49%;
         margin-top: 0px;
         color: #777; }
+    .deviceedit_block bootstrap-decorator > .schema-form-radios {
+      position: relative; }
+      .deviceedit_block bootstrap-decorator > .schema-form-radios > label {
+        float: left;
+        text-align: right;
+        width: 23.1%; }
+      .deviceedit_block bootstrap-decorator > .schema-form-radios > .help-block {
+        margin-left: 0;
+        position: absolute;
+        right: 0%;
+        top: 2px;
+        width: 50%; }
+      .deviceedit_block bootstrap-decorator > .schema-form-radios .radio {
+        margin-left: 24.3%;
+        margin-top: 0;
+        width: 25%; }
+    .deviceedit_block bootstrap-decorator > .schema-form-checkboxes {
+      position: relative; }
+      .deviceedit_block bootstrap-decorator > .schema-form-checkboxes > label {
+        float: left;
+        text-align: right;
+        width: 23.1%; }
+      .deviceedit_block bootstrap-decorator > .schema-form-checkboxes > .help-block {
+        margin-left: 0;
+        position: absolute;
+        right: 0%;
+        top: 2px;
+        width: 50%; }
+      .deviceedit_block bootstrap-decorator > .schema-form-checkboxes .checkbox {
+        margin-left: 24.3%;
+        margin-top: 0;
+        width: 25%; }
     .deviceedit_block bootstrap-decorator > .schema-form-select label {
       color: black !important;
       float: left;
@@ -1594,12 +1652,12 @@ table.j4care-table {
       text-align: right;
       height: 32px;
       line-height: 32px;
-      width: 29%;
+      width: 25%;
       margin-bottom: 0;
       padding-bottom: 0; }
     .deviceedit_block bootstrap-decorator > .schema-form-select select {
       float: left;
-      width: 20%;
+      width: 24.2%;
       border-color: #ccc;
       border-style: solid;
       border-width: 1px;
@@ -1630,12 +1688,12 @@ table.j4care-table {
         padding-bottom: 0; }
       .deviceedit_block bootstrap-decorator .schema-form-number input {
         float: left;
-        width: 24%;
+        width: 24.2%;
         border-color: #ccc;
         border-style: solid;
         border-width: 1px;
         border-radius: 0;
-        padding: 3px 12px;
+        padding: 3px 0 3px 12px;
         height: 26px;
         margin-top: 3px; }
       .deviceedit_block bootstrap-decorator .schema-form-number .help-block {
@@ -1646,15 +1704,13 @@ table.j4care-table {
         color: #777; }
     .deviceedit_block bootstrap-decorator > .schema-form-array > ol {
       float: left;
-      width: 50%;
+      width: 25.2%;
       margin-bottom: 0; }
       .deviceedit_block bootstrap-decorator > .schema-form-array > ol > li.list-group-item {
         float: left;
         margin: 0 1%;
         width: 98%;
-        padding-top: 0;
-        padding-bottom: 0;
-        padding-right: 5px;
+        padding: 0 5px 0 0;
         border: none; }
         .deviceedit_block bootstrap-decorator > .schema-form-array > ol > li.list-group-item .close {
           border: 1px solid;
@@ -1666,18 +1722,10 @@ table.j4care-table {
         .deviceedit_block bootstrap-decorator > .schema-form-array > ol > li.list-group-item sf-decorator .schema-form-text {
           margin: 0; }
           .deviceedit_block bootstrap-decorator > .schema-form-array > ol > li.list-group-item sf-decorator .schema-form-text label {
-            color: black !important;
-            float: left;
-            padding-bottom: 0;
-            padding-right: 15px;
-            text-align: right;
-            width: 49.4%;
-            height: 32px;
-            line-height: 32px;
-            margin-bottom: 0; }
+            display: none; }
           .deviceedit_block bootstrap-decorator > .schema-form-array > ol > li.list-group-item sf-decorator .schema-form-text .input {
             float: left;
-            width: 45.7%; }
+            width: 90.7%; }
             .deviceedit_block bootstrap-decorator > .schema-form-array > ol > li.list-group-item sf-decorator .schema-form-text .input input {
               border-color: #ccc;
               border-style: solid;
@@ -1696,12 +1744,11 @@ table.j4care-table {
           margin: 10px 11px 16px;
           width: 100%; }
     .deviceedit_block bootstrap-decorator > .schema-form-array > label {
-      border-bottom: 1px solid #ddd;
-      color: #5b5b5b;
+      color: black;
       float: left;
-      font-size: 17px;
-      margin: 7px 10px;
-      width: 98%; }
+      margin: 6px 10px;
+      width: 23%;
+      text-align: right; }
     .deviceedit_block bootstrap-decorator > .schema-form-array > .clearfix {
       padding: 0 !important;
       float: left; }
@@ -1710,10 +1757,12 @@ table.j4care-table {
         border-radius: 0;
         color: white;
         height: 26px;
-        margin: 3px 15px 0 0;
-        padding: 2px 7px; }
+        margin: 3px 15px 0 0 !important;
+        padding: 2px 7px;
+        width: 70px; }
     .deviceedit_block bootstrap-decorator > .schema-form-array > .help-block {
-      margin: 5px 10px 20px; }
+      margin-bottom: 0px;
+      margin-top: 0px; }
     .deviceedit_block bootstrap-decorator > .schema-form-radios, .deviceedit_block bootstrap-decorator > .schema-form-checkboxes {
       padding: 10px 20px 0px 20px; }
       .deviceedit_block bootstrap-decorator > .schema-form-radios label, .deviceedit_block bootstrap-decorator > .schema-form-radios label span, .deviceedit_block bootstrap-decorator > .schema-form-checkboxes label, .deviceedit_block bootstrap-decorator > .schema-form-checkboxes label span {
@@ -1722,6 +1771,12 @@ table.j4care-table {
         color: #777; }
     .deviceedit_block bootstrap-decorator > fieldset {
       margin-left: 30px; }
+      .deviceedit_block bootstrap-decorator > fieldset > .help-block {
+        color: black;
+        float: left;
+        font-weight: bold;
+        text-align: right;
+        width: 24%; }
       .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-number {
         float: left;
         margin: 0;
@@ -1739,12 +1794,12 @@ table.j4care-table {
           padding-bottom: 0; }
         .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-number input {
           float: left;
-          width: 24%;
+          width: 24.2%;
           border-color: #ccc;
           border-style: solid;
           border-width: 1px;
           border-radius: 0;
-          padding: 3px 12px;
+          padding: 3px 0 3px 12px;
           height: 26px;
           margin-top: 3px; }
         .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-number .help-block {
@@ -1770,7 +1825,7 @@ table.j4care-table {
           padding-bottom: 0; }
         .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-text .input {
           float: left;
-          width: 24%; }
+          width: 24.2%; }
           .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-text .input input {
             border-color: #ccc;
             border-style: solid;
@@ -1812,13 +1867,45 @@ table.j4care-table {
         width: 49%;
         margin-top: 0px;
         color: #777; }
+      .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-checkbox {
+        margin-left: 25%; }
+        .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-checkbox > label {
+          float: left;
+          width: 33.3%; }
+          .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-checkbox > label span {
+            color: #777; }
+        .deviceedit_block bootstrap-decorator > fieldset sf-decorator .schema-form-checkbox > .help-block {
+          float: left;
+          width: 66%;
+          color: #777; }
   .deviceedit_block .active_border.col-md-8 {
     background: rgba(255, 255, 255, 0.63) none repeat scroll 0 0;
     border: 1px solid #dddddd;
     box-shadow: 4px 3px 8px 1px #cccccc;
     margin: 4px;
     padding-bottom: 20px; }
-    .deviceedit_block .active_border.col-md-8 .btn.save {
-      margin-bottom: 20px; }
+    .deviceedit_block .active_border.col-md-8 .btn.save, .deviceedit_block .active_border.col-md-8 .btn {
+      margin-bottom: 20px;
+      border-radius: 0;
+      padding: 3px 12px;
+      width: 110px; }
+      .deviceedit_block .active_border.col-md-8 .btn.save:hover, .deviceedit_block .active_border.col-md-8 .btn:hover {
+        color: white; }
+    .deviceedit_block .active_border.col-md-8 .form_content .btn {
+      width: 110px;
+      border-radius: 0px;
+      padding: 3px 12px; }
+      .deviceedit_block .active_border.col-md-8 .form_content .btn:hover {
+        color: white; }
+  .deviceedit_block #showDeviceForm.btn {
+    min-height: 26px;
+    padding: 3px 12px;
+    border-radius: 0; }
+  .deviceedit_block .form-control {
+    border-radius: 0;
+    height: 26px; }
+  .deviceedit_block #add_dropdowns .form-control {
+    padding: 3px 12px;
+    border-radius: 0; }
 
 /*# sourceMappingURL=style.css.map */
