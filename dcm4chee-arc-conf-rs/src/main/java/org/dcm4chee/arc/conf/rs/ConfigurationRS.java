@@ -53,11 +53,12 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -72,6 +73,9 @@ public class ConfigurationRS {
 
     @Inject
     private JsonConfiguration jsonConf;
+
+    @Context
+    private UriInfo uriInfo;
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
@@ -104,7 +108,7 @@ public class ConfigurationRS {
     @Path("/")
     @Produces("application/json")
     public StreamingOutput listDevices() throws Exception {
-        final DeviceInfo[] deviceInfos = conf.listDeviceInfos(null);
+        final DeviceInfo[] deviceInfos = conf.listDeviceInfos(new DeviceInfoBuilder(uriInfo).deviceInfo);
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
@@ -144,4 +148,54 @@ public class ConfigurationRS {
         }
     }
 
- }
+    private static class DeviceInfoBuilder {
+        final DeviceInfo deviceInfo = new DeviceInfo();
+
+        DeviceInfoBuilder(UriInfo info) {
+            MultivaluedMap<String, String> map = info.getQueryParameters();
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                switch(entry.getKey()) {
+                    case "dicomDeviceName":
+                        deviceInfo.setDeviceName(toString(entry));
+                        break;
+                    case "dicomDescription":
+                        deviceInfo.setDescription(toString(entry));
+                        break;
+                    case "dicomManufacturer":
+                        deviceInfo.setManufacturer(toString(entry));
+                        break;
+                    case "dicomManufacturerModelName":
+                        deviceInfo.setManufacturerModelName(toString(entry));
+                        break;
+                    case "dicomSoftwareVersion":
+                        deviceInfo.setSoftwareVersions(toStrings(entry));
+                        break;
+                    case "dicomStationName":
+                        deviceInfo.setStationName(toString(entry));
+                        break;
+                    case "dicomInstitutionName":
+                        deviceInfo.setInstitutionNames(toStrings(entry));
+                        break;
+                    case "dicomInstitutionDepartmentName":
+                        deviceInfo.setInstitutionalDepartmentNames(toStrings(entry));
+                        break;
+                    case "dicomPrimaryDeviceType":
+                        deviceInfo.setPrimaryDeviceTypes(toStrings(entry));
+                        break;
+                    case "dicomInstalled":
+                        deviceInfo.setInstalled(Boolean.parseBoolean(toString(entry)));
+                        break;
+                }
+            }
+        }
+
+        static String[] toStrings(Map.Entry<String, List<String>> entry) {
+            return entry.getValue().toArray(new String[entry.getValue().size()]);
+        }
+
+        static String toString(Map.Entry<String, List<String>> entry) {
+            return entry.getValue().get(0);
+        }
+    }
+
+}
