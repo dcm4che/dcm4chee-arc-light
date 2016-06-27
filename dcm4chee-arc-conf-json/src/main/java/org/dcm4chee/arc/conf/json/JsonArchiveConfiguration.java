@@ -131,6 +131,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmRejectExpiredStudiesFetchSize", arcDev.getRejectExpiredStudiesFetchSize(), 0);
         writer.writeNotDef("dcmRejectExpiredSeriesFetchSize", arcDev.getRejectExpiredSeriesFetchSize(), 0);
         writer.writeNotNull("dcmRejectExpiredStudiesAETitle", arcDev.getRejectExpiredStudiesAETitle());
+        writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcDev.getFallbackCMoveSCPStudyOlderThan());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -351,6 +352,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
+        writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcAE.getFallbackCMoveSCPStudyOlderThan());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -537,6 +539,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRejectExpiredStudiesAETitle":
                     arcDev.setRejectExpiredStudiesAETitle(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPStudyOlderThan":
+                    arcDev.setFallbackCMoveSCPStudyOlderThan(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -770,42 +775,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         }
         return se;
     }
-
-//    private void loadExportRuleFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-//        reader.next();
-//        reader.expect(JsonParser.Event.START_ARRAY);
-//        while (reader.next() == JsonParser.Event.START_OBJECT) {
-//            reader.expect(JsonParser.Event.START_OBJECT);
-//            ExportRule er = new ExportRule();
-//            while (reader.next() == JsonParser.Event.KEY_NAME) {
-//                switch (reader.getString()) {
-//                    case "cn":
-//                        er.setCommonName(reader.stringValue());
-//                        break;
-//                    case "dcmEntity":
-//                        er.setEntity(Entity.valueOf(reader.stringValue()));
-//                        break;
-//                    case "dcmExporterID":
-//                        er.setExporterIDs(reader.stringArray());
-//                        break;
-//                    case "dcmProperty":
-//                        er.setConditions(new Conditions(reader.stringArray()));
-//                        break;
-//                    case "dcmSchedule":
-//                        er.setSchedules(scheduleExpressions(reader.stringArray()));
-//                        break;
-//                    case "dcmDuration":
-//                        er.setExportDelay(Duration.parse(reader.stringValue()));
-//                        break;
-//                    default:
-//                        reader.skipUnknownProperty();
-//                }
-//            }
-//            reader.expect(JsonParser.Event.END_OBJECT);
-//            arcDev.addExportRule(er);
-//        }
-//        reader.expect(JsonParser.Event.END_ARRAY);
-//    }
 
     private void loadExportRule(Collection<ExportRule> rules, JsonReader reader) {
         reader.next();
@@ -1089,6 +1058,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAltCMoveSCP":
                     arcAE.setAlternativeCMoveSCP(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPStudyOlderThan":
+                    arcAE.setFallbackCMoveSCPStudyOlderThan(reader.stringValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

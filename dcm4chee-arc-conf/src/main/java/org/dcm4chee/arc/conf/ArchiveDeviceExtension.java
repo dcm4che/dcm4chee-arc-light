@@ -109,6 +109,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int rejectExpiredStudiesFetchSize = 0;
     private int rejectExpiredSeriesFetchSize = 0;
     private String rejectExpiredStudiesAETitle;
+    private String fallbackCMoveSCPStudyOlderThan;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -574,6 +575,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.rejectExpiredStudiesAETitle = rejectExpiredStudiesAETitle;
     }
 
+    public String getFallbackCMoveSCPStudyOlderThan() {
+        return fallbackCMoveSCPStudyOlderThan;
+    }
+
+    public void setFallbackCMoveSCPStudyOlderThan(String fallbackCMoveSCPStudyOlderThan) {
+        this.fallbackCMoveSCPStudyOlderThan = fallbackCMoveSCPStudyOlderThan;
+    }
+
     public Duration getPurgeQueueMessagePollingInterval() {
         return purgeQueueMessagePollingInterval;
     }
@@ -882,6 +891,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rejectExpiredStudiesFetchSize = arcdev.rejectExpiredStudiesFetchSize;
         rejectExpiredSeriesFetchSize = arcdev.rejectExpiredSeriesFetchSize;
         rejectExpiredStudiesAETitle = arcdev.rejectExpiredStudiesAETitle;
+        fallbackCMoveSCPStudyOlderThan = arcdev.fallbackCMoveSCPStudyOlderThan;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         storageDescriptorMap.clear();

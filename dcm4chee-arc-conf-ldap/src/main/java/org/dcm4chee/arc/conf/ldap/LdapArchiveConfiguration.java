@@ -132,6 +132,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmRejectExpiredStudiesFetchSize", ext.getRejectExpiredStudiesFetchSize(), 0);
         LdapUtils.storeNotDef(attrs, "dcmRejectExpiredSeriesFetchSize", ext.getRejectExpiredSeriesFetchSize(), 0);
         LdapUtils.storeNotNull(attrs, "dcmRejectExpiredStudiesAETitle", ext.getRejectExpiredStudiesAETitle());
+        LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan());
     }
 
     @Override
@@ -203,6 +204,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRejectExpiredStudiesFetchSize(LdapUtils.intValue(attrs.get("dcmRejectExpiredStudiesFetchSize"), 0));
         ext.setRejectExpiredSeriesFetchSize(LdapUtils.intValue(attrs.get("dcmRejectExpiredSeriesFetchSize"), 0));
         ext.setRejectExpiredStudiesAETitle(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesAETitle"), null));
+        ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
     }
 
     @Override
@@ -307,6 +309,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRejectExpiredSeriesFetchSize(), bb.getRejectExpiredSeriesFetchSize(), 0);
         LdapUtils.storeDiff(mods, "dcmRejectExpiredStudiesAETitle",
                 aa.getRejectExpiredStudiesAETitle(), bb.getRejectExpiredStudiesAETitle());
+        LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPStudyOlderThan",
+                aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan());
     }
 
     @Override
@@ -400,6 +404,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmIanTimeout", ext.getIanTimeout());
         LdapUtils.storeNotNull(attrs, "dcmIanOnTimeout", ext.getIanOnTimeout());
         LdapUtils.storeNotEmpty(attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFromMWL());
+        LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan());
     }
 
     @Override
@@ -433,6 +438,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmIanTimeout"), null)));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
         ext.setHideSPSWithStatusFromMWL(LdapUtils.enumArray(MWLStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
+        ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
     }
 
     @Override
@@ -474,6 +480,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout());
         LdapUtils.storeDiff(mods, "dcmIanOnTimeout", aa.getIanOnTimeout(), bb.getIanOnTimeout());
         LdapUtils.storeDiff(mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFromMWL(), bb.getHideSPSWithStatusFromMWL());
+        LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPStudyOlderThan",
+                aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan());
     }
 
     @Override
