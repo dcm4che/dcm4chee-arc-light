@@ -2,10 +2,8 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
@@ -15,10 +13,6 @@ import java.util.regex.Pattern;
  * @since Oct 2015
  */
 public class Conditions {
-
-    private static final String ReceivingApplicationEntityTitle = "ReceivingApplicationEntityTitle";
-    private static final String SendingApplicationEntityTitle = "SendingApplicationEntityTitle";
-    private static final String SendingHostname = "SendingHostname";
 
     private static final String ReceivingApplicationEntityTitleNE = "ReceivingApplicationEntityTitle!";
     private static final String SendingApplicationEntityTitleNE = "SendingApplicationEntityTitle!";
@@ -39,24 +33,24 @@ public class Conditions {
     }
 
     public void setReceivingAETitle(String value) {
-        setCondition(ReceivingApplicationEntityTitle, value);
+        setCondition("ReceivingApplicationEntityTitle", value);
     }
 
     public void setSendingAETitle(String value) {
-        setCondition(SendingApplicationEntityTitle, value);
+        setCondition("SendingApplicationEntityTitle", value);
     }
 
     public void setSendingHostname(String value) {
-        setCondition(SendingHostname, value);
+        setCondition("SendingHostname", value);
     }
 
     public void setCondition(String tagPath, String value) {
         Pattern pattern = Pattern.compile(value);
-        if (tagPath.equals(SendingHostname) || tagPath.equals(SendingHostnameNE))
+        if (tagPath.equals("SendingHostname") || tagPath.equals(SendingHostnameNE))
             sendingHostnamePattern = pattern;
-        else if (tagPath.equals(SendingApplicationEntityTitle) || tagPath.equals(SendingApplicationEntityTitleNE))
+        else if (tagPath.equals("SendingApplicationEntityTitle") || tagPath.equals(SendingApplicationEntityTitleNE))
             sendingAETPattern = pattern;
-        else if (tagPath.equals(ReceivingApplicationEntityTitle) || tagPath.equals(ReceivingApplicationEntityTitleNE))
+        else if (tagPath.equals("ReceivingApplicationEntityTitle") || tagPath.equals(ReceivingApplicationEntityTitleNE))
             receivingAETPattern = pattern;
         map.put(tagPath, pattern);
     }
@@ -67,19 +61,19 @@ public class Conditions {
 
     public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
         if (receivingAETPattern != null &&
-                (map.containsKey(ReceivingApplicationEntityTitle)
+                (map.containsKey("ReceivingApplicationEntityTitle")
                 ? (receivingAET == null || !receivingAETPattern.matcher(receivingAET).matches())
                 : (receivingAET != null && receivingAETPattern.matcher(receivingAET).matches())))
             return false;
 
         if (sendingAETPattern != null &&
-                (map.containsKey(SendingApplicationEntityTitle)
+                (map.containsKey("SendingApplicationEntityTitle")
                     ? (sendingAET == null || !sendingAETPattern.matcher(sendingAET).matches())
                     : (sendingAET != null && sendingAETPattern.matcher(sendingAET).matches())))
             return false;
 
         if (sendingHostnamePattern != null &&
-                (map.containsKey(SendingHostname)
+                (map.containsKey("SendingHostname")
                 ? (hostName == null || !sendingHostnamePattern.matcher(hostName).matches())
                 : (hostName != null && sendingHostnamePattern.matcher(hostName).matches())))
             return false;
@@ -90,9 +84,9 @@ public class Conditions {
             boolean ne = tagPath.endsWith("!");
             if (ne)
                 tagPath = tagPath.substring(0, tagPath.lastIndexOf('!'));
-            if (!tagPath.equals(ReceivingApplicationEntityTitle) &&
-                    !tagPath.equals(SendingApplicationEntityTitle) &&
-                    !tagPath.equals(SendingHostname)
+            if (!tagPath.equals("ReceivingApplicationEntityTitle") &&
+                    !tagPath.equals("SendingApplicationEntityTitle") &&
+                    !tagPath.equals("SendingHostname")
                     && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0, ne))
                 return false;
         }
