@@ -331,6 +331,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeQueryRetrieveViews(deviceDN, arcDev);
         storeRejectNotes(deviceDN, arcDev);
         storeStudyRetentionPolicies(arcDev.getStudyRetentionPolicies(), deviceDN);
+        storeIDGenerators(deviceDN, arcDev);
     }
 
     @Override
@@ -350,6 +351,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadQueryRetrieveViews(arcdev, deviceDN);
         loadRejectNotes(arcdev, deviceDN);
         loadStudyRetentionPolicies(arcdev.getStudyRetentionPolicies(), deviceDN);
+        loadIDGenerators(arcdev, deviceDN);
     }
 
     @Override
@@ -372,6 +374,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeQueryRetrieveViews(aa, bb, deviceDN);
         mergeRejectNotes(aa, bb, deviceDN);
         mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
+        mergeIDGenerators(aa, bb, deviceDN);
     }
 
     @Override
@@ -1273,6 +1276,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeIDGenerators(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+        for (IDGenerator generator : arcDev.getIDGenerators()) {
+            String name = generator.getName().toString();
+            config.createSubcontext(
+                    LdapUtils.dnOf("dcmIDGeneratorName", name, deviceDN),
+                    storeTo(generator, new BasicAttributes(true)));
+        }
+    }
+
     private Attributes storeTo(RejectionNote rjNote, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmRejectionNote");
         attrs.put("dcmRejectionNoteLabel", rjNote.getRejectionNoteLabel());
@@ -1282,6 +1294,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmOverwritePreviousRejection", rjNote.getOverwritePreviousRejection());
         LdapUtils.storeNotNull(attrs, "dcmDeleteRejectedInstanceDelay", rjNote.getDeleteRejectedInstanceDelay());
         LdapUtils.storeNotNull(attrs, "dcmDeleteRejectionNoteDelay", rjNote.getDeleteRejectionNoteDelay());
+        return attrs;
+    }
+
+    private Attributes storeTo(IDGenerator generator, BasicAttributes attrs) {
+        attrs.put("objectClass", "dcmIDGenerator");
+        attrs.put("dcmIDGeneratorName", generator.getName());
+        LdapUtils.storeNotNull(attrs, "dcmIDGeneratorFormat", generator.getFormat());
+        LdapUtils.storeNotDef(attrs, "dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         return attrs;
     }
 
@@ -1314,6 +1334,23 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void loadIDGenerators(ArchiveDeviceExtension arcdev, String deviceDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmIDGenerator)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                IDGenerator generator = new IDGenerator();
+                generator.setName(LdapUtils.enumValue(IDGenerator.Name.class, attrs.get("dcmIDGeneratorName"), null));
+                generator.setFormat(LdapUtils.stringValue(attrs.get("dcmIDGeneratorFormat"), null));
+                generator.setInitialValue(LdapUtils.intValue(attrs.get("dcmIDGeneratorInitialValue"),1));
+                arcdev.addIDGenerator(generator);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
     private void mergeRejectNotes(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
         for (RejectionNote entry : prev.getRejectionNotes()) {
@@ -1325,6 +1362,25 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             String rjNoteID = entryNew.getRejectionNoteLabel();
             String dn = LdapUtils.dnOf("dcmRejectionNoteLabel", rjNoteID, deviceDN);
             RejectionNote entryOld = prev.getRejectionNote(rjNoteID);
+            if (entryOld == null) {
+                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
+            } else{
+                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
+            }
+        }
+    }
+
+    private void mergeIDGenerators(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+            throws NamingException {
+        for (IDGenerator generator : prev.getIDGenerators()) {
+            String name = generator.getName().toString();
+            if (arcDev.getIDGenerator(IDGenerator.Name.valueOf(name)) == null)
+                config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name, deviceDN));
+        }
+        for (IDGenerator entryNew : arcDev.getIDGenerators()) {
+            String name = entryNew.getName().toString();
+            String dn = LdapUtils.dnOf("dcmIDGenerator", name, deviceDN);
+            IDGenerator entryOld = prev.getIDGenerator(IDGenerator.Name.valueOf(name));
             if (entryOld == null) {
                 config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
             } else{
@@ -1349,6 +1405,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmDeleteRejectionNoteDelay",
                 prev.getDeleteRejectionNoteDelay(),
                 rjNote.getDeleteRejectionNoteDelay());
+        return mods;
+    }
+
+    private List<ModificationItem> storeDiffs(IDGenerator prev, IDGenerator generator,
+                                              ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmIDGeneratorName", prev.getName(), generator.getName());
+        LdapUtils.storeDiff(mods, "dcmIDGeneratorFormat", prev.getFormat(), generator.getFormat());
+        LdapUtils.storeDiff(mods, "dcmIDGeneratorInitialValue", prev.getInitialValue(), generator.getInitialValue(), 1);
         return mods;
     }
 
