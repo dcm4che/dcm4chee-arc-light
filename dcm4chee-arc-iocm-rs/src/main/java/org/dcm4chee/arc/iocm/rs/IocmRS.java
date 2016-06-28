@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.study.rs;
+package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
@@ -142,15 +142,10 @@ public class IocmRS {
         if (rjNote == null)
             throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
 
-        Attributes attrs = queryService.getStudyAttributesWithSOPInstanceRefs(studyUID, seriesUID, objectUID, ae, false);
+        Attributes attrs = queryService.createRejectionNote(ae, studyUID, seriesUID, objectUID, rjNote);
         if (attrs == null)
             throw new WebApplicationException("No Study with UID: " + studyUID, Response.Status.NOT_FOUND);
 
-        Attributes studyRef =  attrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
-        if (studyRef == null)
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-
-        mkKOS(attrs, studyRef, rjNote);
         StoreSession session = storeService.newStoreSession(request, ae);
         StoreContext ctx = storeService.newStoreContext(session);
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
@@ -159,52 +154,4 @@ public class IocmRS {
         storeService.store(ctx, attrs);
     }
 
-    private void mkKOS(Attributes attrs, Attributes studyRef, RejectionNote rjNote) {
-        attrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
-        attrs.setString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
-        attrs.setDate(Tag.ContentDateAndTime, new Date());
-        attrs.setString(Tag.Modality, VR.CS, "KO");
-        attrs.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
-        attrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
-        attrs.setInt(Tag.SeriesNumber, VR.IS, rjNote.getSeriesNumber());
-        attrs.setInt(Tag.InstanceNumber, VR.IS, rjNote.getInstanceNumber());
-        attrs.setString(Tag.ValueType, VR.CS, "CONTAINER");
-        attrs.setString(Tag.ContinuityOfContent, VR.CS, "SEPARATE");
-        attrs.newSequence(Tag.ConceptNameCodeSequence, 1).add(rjNote.getRejectionNoteCode().toItem());
-        attrs.newSequence(Tag.ContentTemplateSequence, 1).add(templateIdentifier());
-        Sequence contentSeq = attrs.newSequence(Tag.ContentSequence, 1);
-        for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
-            for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
-                String cuid = sopRef.getString(Tag.ReferencedSOPClassUID);
-                String iuid = sopRef.getString(Tag.ReferencedSOPInstanceUID);
-                contentSeq.add(contentItem(typeOf(cuid), refSOP(cuid, iuid)));
-            }
-        }
-    }
-
-    private String typeOf(String cuid) {
-        return "COMPOSITE";
-    }
-
-    private Attributes templateIdentifier() {
-        Attributes attrs = new Attributes(2);
-        attrs.setString(Tag.MappingResource, VR.CS, "DCMR");
-        attrs.setString(Tag.TemplateIdentifier, VR.CS, "2010");
-        return attrs;
-    }
-
-    private Attributes contentItem(String valueType, Attributes refSOP) {
-        Attributes item = new Attributes(3);
-        item.setString(Tag.RelationshipType, VR.CS, "CONTAINS");
-        item.setString(Tag.ValueType, VR.CS, valueType);
-        item.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP);
-        return item;
-    }
-
-    private Attributes refSOP(String cuid, String iuid) {
-        Attributes item = new Attributes(2);
-        item.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
-        item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
-        return item;
-    }
 }

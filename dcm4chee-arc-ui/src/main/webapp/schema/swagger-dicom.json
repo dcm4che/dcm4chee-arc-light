@@ -342,6 +342,13 @@
             "default": false
           },
           {
+            "name": "expired",
+            "in": "query",
+            "description": "return expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "offset={skippedResults}",
@@ -432,6 +439,13 @@
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "return expired Series",
             "type": "boolean",
             "default": false
           },

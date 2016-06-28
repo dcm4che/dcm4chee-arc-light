@@ -53,6 +53,7 @@ import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.dcm4che3.util.Property;
 
 import java.net.URI;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.EnumSet;
 
@@ -69,6 +70,7 @@ class ArchiveDeviceFactory {
     enum ConfigType {
         DEFAULT,
         SAMPLE,
+        DOCKER,
         TEST
     }
     static final String[] OTHER_DEVICES = {
@@ -146,7 +148,7 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("Export3", "XDS-I Export Tasks")
     };
 
-    private static QueueDescriptor newQueueDescriptor(String name, String description) {
+    static QueueDescriptor newQueueDescriptor(String name, String description) {
         QueueDescriptor desc = new QueueDescriptor(name);
         desc.setDescription(description);
         desc.setJndiName("jms/queue/" + name);
@@ -156,6 +158,13 @@ class ArchiveDeviceFactory {
         desc.setMaxRetryDelay(Duration.parse("PT10M"));
         desc.setPurgeQueueMessageCompletedDelay(Duration.parse("P1D"));
         return desc;
+    }
+
+    static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {
+        IDGenerator gen = new IDGenerator();
+        gen.setName(name);
+        gen.setFormat(format);
+        return gen;
     }
 
     static final int[] PATIENT_ATTRS = {
@@ -778,14 +787,22 @@ class ArchiveDeviceFactory {
             "THICK_SLICE",
             "P4D",
             2,
-            false
+            false,
+            new Conditions(
+                    "SendingApplicationEntityTitle=STORESCU",
+                    "SliceThickness=1.5"
+            )
     );
 
     static final StudyRetentionPolicy THIN_SLICE = createStudyRetentionPolicy(
             "THIN_SLICE",
             "P1D",
             1,
-            true
+            true,
+            new Conditions(
+                    "SendingApplicationEntityTitle=STORESCU",
+                    "SliceThickness=0.75"
+            )
     );
 
     static final String[] HL7_MESSAGE_TYPES = {
@@ -837,16 +854,20 @@ class ArchiveDeviceFactory {
     static final Duration MAX_ACCESS_TIME_STALENESS = Duration.parse("PT5M");
     static final Duration AE_CACHE_STALE_TIMEOUT = Duration.parse("PT5M");
     static final Duration LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT = Duration.parse("PT5M");
+    static final Duration REJECT_EXPIRED_STUDIES_POLLING_INTERVAL = Duration.parse("P1D");
+    static final LocalTime REJECT_EXPIRED_STUDIES_START_TIME = LocalTime.parse("00:00:00");
+    static final int REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE = 10;
+    static final String REJECT_EXPIRED_STUDIES_AE_TITLE = "DCM4CHEE";
 
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
     }
 
-    public static Device createARRDevice(String name, Connection.Protocol protocol, int port) {
+    public static Device createARRDevice(String name, Connection.Protocol protocol, int port, ConfigType configType) {
         Device arrDevice = new Device(name);
         AuditRecordRepository arr = new AuditRecordRepository();
         arrDevice.addDeviceExtension(arr);
-        String syslogHost = System.getProperty("syslogHost", "localhost");
+        String syslogHost = configType == ConfigType.DOCKER ? "syslog-host" : "localhost";
         Connection syslog = new Connection("syslog", syslogHost, port);
         syslog.setProtocol(protocol);
         arrDevice.addConnection(syslog);
@@ -854,7 +875,7 @@ class ArchiveDeviceFactory {
         return arrDevice ;
     }
 
-    public static Device createDevice(String name) throws Exception {
+    public static Device createDevice(String name, ConfigType configType) throws Exception {
         return init(new Device(name), null, null);
     }
 
@@ -913,7 +934,7 @@ class ArchiveDeviceFactory {
     }
     public static Device createArchiveDevice(String name, Device arrDevice, ConfigType configType) throws Exception {
         Device device = new Device(name);
-        String archiveHost = System.getProperty("archiveHost", "localhost");
+        String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
         Connection dicom = new Connection("dicom", archiveHost, 11112);
         dicom.setBindAddress("0.0.0.0");
         dicom.setClientBindAddress("0.0.0.0");
@@ -979,11 +1000,12 @@ class ArchiveDeviceFactory {
     }
 
     private static StudyRetentionPolicy createStudyRetentionPolicy(String cn, String retentionPeriod,
-                                                          int priority, boolean expireSeriesIndividually) {
+                                          int priority, boolean expireSeriesIndividually, Conditions conditions) {
         StudyRetentionPolicy policy = new StudyRetentionPolicy(cn);
         policy.setRetentionPeriod(Period.parse(retentionPeriod));
         policy.setExpireSeriesIndividually(expireSeriesIndividually);
         policy.setPriority(priority);
+        policy.setConditions(conditions);
         return policy;
     }
 
@@ -1079,6 +1101,7 @@ class ArchiveDeviceFactory {
         ext.setPurgeQueueMessagePollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
+        ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
         ext.setAuditSpoolDirectory(AUDIT_SPOOL_DIR);
         ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
@@ -1087,6 +1110,12 @@ class ArchiveDeviceFactory {
         ext.setAECacheStaleTimeout(AE_CACHE_STALE_TIMEOUT);
         ext.setLeadingCFindSCPQueryCacheStaleTimeout(LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT);
         ext.setScheduleProcedureTemplateURI(HL7_ORDER2DCM_XSL);
+
+        ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
+        ext.setRejectExpiredStudiesPollingStartTime(REJECT_EXPIRED_STUDIES_START_TIME);
+        ext.setRejectExpiredStudiesAETitle(REJECT_EXPIRED_STUDIES_AE_TITLE);
+        ext.setRejectExpiredStudiesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
+        ext.setRejectExpiredSeriesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));
@@ -1113,6 +1142,11 @@ class ArchiveDeviceFactory {
             ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
         }
 
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.PatientID, "P-08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.AccessionNumber, "A-08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.RequestedProcedureID, "RP-08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.ScheduledProcedureStepID, "SPS-08d"));
+
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURIStr(STORAGE_URI);
         storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
@@ -1128,22 +1162,32 @@ class ArchiveDeviceFactory {
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
             ext.addQueueDescriptor(descriptor);
 
-        ext.addRejectionNote(createRejectionNote("Quality", REJECTED_FOR_QUALITY_REASONS,
-                RejectionNote.AcceptPreviousRejectedInstance.IGNORE, configType));
-        ext.addRejectionNote(createRejectionNote("Patient Safety", REJECT_FOR_PATIENT_SAFETY_REASONS,
-                RejectionNote.AcceptPreviousRejectedInstance.REJECT, configType,
+        ext.addRejectionNote(createRejectionNote("Quality",
+                RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
+                REJECTED_FOR_QUALITY_REASONS,
+                RejectionNote.AcceptPreviousRejectedInstance.IGNORE));
+        ext.addRejectionNote(createRejectionNote("Patient Safety",
+                RejectionNote.Type.REJECTED_FOR_PATIENT_SAFETY_REASONS,
+                REJECT_FOR_PATIENT_SAFETY_REASONS,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTED_FOR_QUALITY_REASONS));
-        ext.addRejectionNote(createRejectionNote("Incorrect MWL Entry", INCORRECT_MODALITY_WORKLIST_ENTRY,
-                RejectionNote.AcceptPreviousRejectedInstance.REJECT, configType,
+        ext.addRejectionNote(createRejectionNote("Incorrect MWL Entry",
+                RejectionNote.Type.INCORRECT_MODALITY_WORKLIST_ENTRY,
+                INCORRECT_MODALITY_WORKLIST_ENTRY,
+                RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS));
-        RejectionNote retentionExpired = createRejectionNote("Retention Expired", DATA_RETENTION_POLICY_EXPIRED,
-                RejectionNote.AcceptPreviousRejectedInstance.RESTORE, configType,
+        RejectionNote retentionExpired = createRejectionNote("Retention Expired",
+                RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED,
+                DATA_RETENTION_POLICY_EXPIRED,
+                RejectionNote.AcceptPreviousRejectedInstance.RESTORE,
                 REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
         retentionExpired.setDeleteRejectedInstanceDelay(DELETE_REJECTED_INSTANCE_DELAY);
         retentionExpired.setDeleteRejectionNoteDelay(DELETE_REJECTED_INSTANCE_DELAY);
         ext.addRejectionNote(retentionExpired);
-        ext.addRejectionNote(createRejectionNote("Revoke Rejection", REVOKE_REJECTION, null,
-                configType, REJECTION_CODES));
+        ext.addRejectionNote(createRejectionNote("Revoke Rejection",
+                RejectionNote.Type.REVOKE_REJECTION,
+                REVOKE_REJECTION, null,
+                REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
 
         if (configType == configType.SAMPLE || configType == configType.TEST) {
@@ -1195,19 +1239,16 @@ class ArchiveDeviceFactory {
         return filter;
     }
 
-    private static RejectionNote createRejectionNote(String rejectionNoteLabel, Code rejectionNoteCode,
-                                                     RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
-                                                     ConfigType configType, Code... overwritePreviousRejection) {
-        RejectionNote rjNote = new RejectionNote(rejectionNoteLabel);
-        rjNote.setRejectionNoteCode(rejectionNoteCode);
-        rjNote.setRevokeRejection(rejectionNoteCode == REVOKE_REJECTION);
+    private static RejectionNote createRejectionNote(
+            String label, RejectionNote.Type type, Code code,
+            RejectionNote.AcceptPreviousRejectedInstance acceptPreviousRejectedInstance,
+            Code... overwritePreviousRejection) {
+        RejectionNote rjNote = new RejectionNote();
+        rjNote.setRejectionNoteLabel(label);
+        rjNote.setRejectionNoteType(type);
+        rjNote.setRejectionNoteCode(code);
         rjNote.setAcceptPreviousRejectedInstance(acceptPreviousRejectedInstance);
         rjNote.setOverwritePreviousRejection(overwritePreviousRejection);
-        if (configType == configType.TEST) {
-            rjNote.setDeleteRejectedInstanceDelay(Duration.parse("PT5M"));
-            rjNote.setDeleteRejectionNoteDelay(Duration.parse("PT9M"));
-            rjNote.setAcceptPreviousRejectedInstance(RejectionNote.AcceptPreviousRejectedInstance.IGNORE);
-        }
         return rjNote;
     }
 

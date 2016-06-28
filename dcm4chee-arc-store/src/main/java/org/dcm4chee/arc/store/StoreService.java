@@ -19,6 +19,8 @@ public interface StoreService {
 
     StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae);
 
+    StoreSession newStoreSession(ApplicationEntity ae);
+
     StoreSession newStoreSession(Socket socket, HL7Segment msh, ApplicationEntity ae);
 
     StoreContext newStoreContext(StoreSession session);

@@ -1150,12 +1150,14 @@ dcmShowInstancesRejectedByCode: (113039, DCM, "Data Retention Policy Expired")
 
 dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Quality
+dcmRejectionNoteType: REJECTED_FOR_QUALITY_REASONS
 dcmRejectionNoteCode: (113001, DCM, "Rejected for Quality Reasons")
 dcmAcceptPreviousRejectedInstance: IGNORE
 objectClass: dcmRejectionNote
 
 dn: dcmRejectionNoteLabel=Patient Safety,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Patient Safety
+dcmRejectionNoteType: REJECTED_FOR_PATIENT_SAFETY_REASONS
 dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 dcmAcceptPreviousRejectedInstance: REJECT
 objectClass: dcmRejectionNote
@@ -1163,8 +1165,8 @@ dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 
 dn: dcmRejectionNoteLabel=Revoke Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Revoke Rejection
+dcmRejectionNoteType: REVOKE_REJECTION
 dcmRejectionNoteCode: (REVOKE_REJECTION, 99DCM4CHEE, "Restore rejected Instances")
-dcmRevokeRejection: TRUE
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
@@ -1173,6 +1175,7 @@ dcmOverwritePreviousRejection: (113039, DCM, "Data Retention Policy Expired")
 
 dn: dcmRejectionNoteLabel=Incorrect MWL Entry,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Incorrect MWL Entry
+dcmRejectionNoteType: INCORRECT_MODALITY_WORKLIST_ENTRY
 dcmRejectionNoteCode: (113038, DCM, "Incorrect Modality Worklist Entry")
 dcmAcceptPreviousRejectedInstance: REJECT
 objectClass: dcmRejectionNote
@@ -1181,6 +1184,7 @@ dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reason
 
 dn: dcmRejectionNoteLabel=Retention Expired,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Retention Expired
+dcmRejectionNoteType: DATA_RETENTION_POLICY_EXPIRED
 dcmRejectionNoteCode: (113039, DCM, "Data Retention Policy Expired")
 dcmAcceptPreviousRejectedInstance: RESTORE
 objectClass: dcmRejectionNote
@@ -1189,6 +1193,19 @@ dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reason
 dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
 dcmDeleteRejectedInstanceDelay: P1D
 dcmDeleteRejectionNoteDelay: P1D
+
+dn: cn=THICK_SLICE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmRetentionPeriod: P4D
+objectClass: dcmStudyRetentionPolicy
+dcmRulePriority: 2
+cn: THICK_SLICE
+
+dn: cn=THIN_SLICE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExpireSeriesIndividually: TRUE
+dcmRetentionPeriod: P1D
+objectClass: dcmStudyRetentionPolicy
+dcmRulePriority: 1
+cn: THIN_SLICE
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7DefaultCharacterSet: 8859/1

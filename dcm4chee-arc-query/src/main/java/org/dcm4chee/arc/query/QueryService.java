@@ -45,6 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.SeriesQueryAttributes;
 import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -63,7 +64,7 @@ public interface QueryService {
     QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts);
 
     QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-                                     boolean fuzzyMatching, boolean returnEmpty, boolean expired);
+                                     boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries);
 
     Query createQuery(QueryContext ctx, QueryRetrieveLevel2 qrLevel);
 
@@ -88,4 +89,7 @@ public interface QueryService {
 
     Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability);
+
+    Attributes createRejectionNote(
+            ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);
 }

@@ -40,11 +40,13 @@
 
 package org.dcm4chee.arc.query.impl;
 
-import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -63,6 +65,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.Date;
 import java.util.EnumSet;
 
 /**
@@ -96,21 +99,21 @@ class QueryServiceImpl implements QueryService {
                 newQueryParam(ae,
                         queryOpts.contains(QueryOption.DATETIME),
                         queryOpts.contains(QueryOption.FUZZY),
-                        false, false),
+                        false, false, false),
                 this);
     }
 
     @Override
     public QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-                                            boolean fuzzyMatching, boolean returnEmpty, boolean expired) {
+                                            boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries) {
         return new QueryContextImpl(httpRequest, searchMethod, ae,
-                newQueryParam(ae, true, fuzzyMatching, returnEmpty, expired),
+                newQueryParam(ae, true, fuzzyMatching, returnEmpty, expired, expiredSeries),
                 this);
     }
 
     private QueryParam newQueryParam(ApplicationEntity ae, boolean datetimeMatching,
-                                     boolean fuzzyMatching, boolean returnEmpty, boolean expired) {
-        QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching, returnEmpty, expired);
+                                     boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries) {
+        QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching, returnEmpty, expired, expiredSeries);
         QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
         queryParam.setHideRejectionNotesWithCode(
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
@@ -179,13 +182,77 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyUID, null, null, newQueryParam(ae, false, false, false, false), seriesAttrs, false);
+                studyUID, null, null, newQueryParam(ae, false, false, false, false, false), seriesAttrs, false);
     }
 
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false, false), null, availability);
+                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false, false, false), null, availability);
+    }
+
+    @Override
+    public Attributes createRejectionNote(
+            ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote) {
+        Attributes attrs = getStudyAttributesWithSOPInstanceRefs(studyUID, seriesUID, objectUID, ae, false);
+        if (attrs == null)
+            return null;
+
+        Attributes studyRef =  attrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
+        if (studyRef == null)
+            return null;
+
+        mkKOS(attrs, studyRef, rjNote);
+        return attrs;
+    }
+
+    private void mkKOS(Attributes attrs, Attributes studyRef, RejectionNote rjNote) {
+        attrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
+        attrs.setString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
+        attrs.setDate(Tag.ContentDateAndTime, new Date());
+        attrs.setString(Tag.Modality, VR.CS, "KO");
+        attrs.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
+        attrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
+        attrs.setInt(Tag.SeriesNumber, VR.IS, rjNote.getSeriesNumber());
+        attrs.setInt(Tag.InstanceNumber, VR.IS, rjNote.getInstanceNumber());
+        attrs.setString(Tag.ValueType, VR.CS, "CONTAINER");
+        attrs.setString(Tag.ContinuityOfContent, VR.CS, "SEPARATE");
+        attrs.newSequence(Tag.ConceptNameCodeSequence, 1).add(rjNote.getRejectionNoteCode().toItem());
+        attrs.newSequence(Tag.ContentTemplateSequence, 1).add(templateIdentifier());
+        Sequence contentSeq = attrs.newSequence(Tag.ContentSequence, 1);
+        for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
+            for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
+                String cuid = sopRef.getString(Tag.ReferencedSOPClassUID);
+                String iuid = sopRef.getString(Tag.ReferencedSOPInstanceUID);
+                contentSeq.add(contentItem(typeOf(cuid), refSOP(cuid, iuid)));
+            }
+        }
+    }
+
+    private String typeOf(String cuid) {
+        return "COMPOSITE";
+    }
+
+    private Attributes templateIdentifier() {
+        Attributes attrs = new Attributes(2);
+        attrs.setString(Tag.MappingResource, VR.CS, "DCMR");
+        attrs.setString(Tag.TemplateIdentifier, VR.CS, "2010");
+        return attrs;
+    }
+
+    private Attributes contentItem(String valueType, Attributes refSOP) {
+        Attributes item = new Attributes(3);
+        item.setString(Tag.RelationshipType, VR.CS, "CONTAINS");
+        item.setString(Tag.ValueType, VR.CS, valueType);
+        item.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP);
+        return item;
+    }
+
+    private Attributes refSOP(String cuid, String iuid) {
+        Attributes item = new Attributes(2);
+        item.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
+        item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
+        return item;
     }
 }

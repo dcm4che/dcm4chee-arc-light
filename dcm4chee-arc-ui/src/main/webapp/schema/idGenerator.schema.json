@@ -1,0 +1,33 @@
+{
+  "title": "ID Generator",
+  "description": "ID Generator",
+  "type": "object",
+  "required": [
+    "dcmIDGeneratorName",
+    "dcmIDGeneratorFormat"
+  ],
+  "properties": {
+    "dcmIDGeneratorName": {
+      "title": "ID Generator Name",
+      "description": "ID Generator Name. Enumerated values: PatientID, AccessionNumber, RequestedProcedureID, ScheduledProcedureStepID",
+      "type": "string",
+      "enum": [
+        "PatientID",
+        "AccessionNumber",
+        "RequestedProcedureID",
+        "ScheduledProcedureStepID"
+      ]
+    },
+    "dcmIDGeneratorFormat": {
+      "title": "ID Generator Format",
+      "description": "Format string used by this ID Generator. %0<width>d will be replaced by a sequential number with leading zeros according the given width",
+      "type": "string"
+    },
+    "dcmIDGeneratorInitialValue": {
+      "title": "ID Generator Initial Value",
+      "description": "Initial value for sequence used by this ID Generator; 1 if absent",
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

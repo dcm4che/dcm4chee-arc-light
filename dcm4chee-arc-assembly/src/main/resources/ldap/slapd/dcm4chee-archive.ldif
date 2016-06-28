@@ -239,7 +239,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.47 NAME 'dcmOverwritePreviousRejecti
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.48 NAME 'dcmRevokeRejection'
-  DESC 'Specifies if a particular Rejection Note is actually used to revoke the rejection of the referenced instances; disabled if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLATE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -476,6 +476,31 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.95 NAME 'dcmRejectExpiredStudiesAETi
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.96 NAME 'dcmRejectionNoteType'
+  DESC 'Type of Rejection Note. Enumerated values: REJECTED_FOR_QUALITY_REASONS, REJECTED_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY, DATA_RETENTION_POLICY_EXPIRED, REVOKE_REJECTION'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.97 NAME 'dcmFallbackCMoveSCPStudyOlderThan'
+  DESC 'Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.98 NAME 'dcmIDGeneratorName'
+  DESC 'ID Generator Name. Enumerated values: PatientID, AccessionNumber, RequestedProcedureID, ScheduledProcedureStepID'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.99 NAME 'dcmIDGeneratorFormat'
+  DESC 'Format string used by this ID Generator. %0<width>d will be replaced by a sequential number with leading zeros according the given width'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.100 NAME 'dcmIDGeneratorInitialValue'
+  DESC 'Initial value for sequence used by this ID Generator; 1 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -506,6 +531,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFallbackCMoveSCPDestination $
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
+    dcmFallbackCMoveSCPStudyOlderThan $
     dcmAltCMoveSCP $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
@@ -564,6 +590,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmFallbackCMoveSCPDestination $
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
+    dcmFallbackCMoveSCPStudyOlderThan $
     dcmAltCMoveSCP ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
@@ -677,6 +704,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.19 NAME 'dcmRejectionNote'
     dcmRejectionNoteLabel $
     dcmRejectionNoteCode )
   MAY (
+    dcmRejectionNoteType $
     dcmRevokeRejection $
     dcmAcceptPreviousRejectedInstance $
     dcmOverwritePreviousRejection $
@@ -692,3 +720,11 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
     dcmRulePriority $
     dcmProperty $
     dcmExpireSeriesIndividually) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
+  DESC 'ID Generator'
+  SUP top STRUCTURAL
+  MUST (
+    dcmIDGeneratorName $
+    dcmIDGeneratorFormat )
+  MAY (
+    dcmIDGeneratorInitialValue ) )

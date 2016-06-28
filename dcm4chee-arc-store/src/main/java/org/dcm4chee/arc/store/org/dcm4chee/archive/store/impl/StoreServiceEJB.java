@@ -194,17 +194,23 @@ public class StoreServiceEJB {
                 }
                 if (inst != null) {
                     series = inst.getSeries();
-                    series.setRejectionState(rjNote.isRevokeRejection()
-                        ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
-                        : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE);
+                    RejectionState rejectionState = rjNote.isRevokeRejection()
+                            ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
+                            : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
+                    series.setRejectionState(rejectionState);
+                    if (rejectionState == RejectionState.COMPLETE)
+                        series.setExpirationDate(null);
                     deleteSeriesQueryAttributes(series);
                 }
             }
             if (series != null) {
                 Study study = series.getStudy();
-                study.setRejectionState(rjNote.isRevokeRejection()
+                RejectionState rejectionState = rjNote.isRevokeRejection()
                         ? hasRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.NONE
-                        : hasNotRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.COMPLETE);
+                        : hasNotRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
+                study.setRejectionState(rejectionState);
+                if (rejectionState == RejectionState.COMPLETE)
+                    study.setExpirationDate(null);
                 deleteStudyQueryAttributes(study);
             }
         }
@@ -380,7 +386,7 @@ public class StoreServiceEJB {
                 study = updateStudy(ctx, study);
                 updatePatient(ctx, study.getPatient());
             }
-            series = createSeries(ctx, study);
+            series = createSeries(ctx, study, result);
         } else {
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
@@ -593,12 +599,13 @@ public class StoreServiceEJB {
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
     }
 
-    private Series createSeries(StoreContext ctx, Study study) {
+    private Series createSeries(StoreContext ctx, Study study, UpdateDBResult result) {
         Series series = new Series();
         series.setRejectionState(ctx.getRejectionNote() == null ? RejectionState.NONE : RejectionState.COMPLETE);
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
-        processExpirationDate(ctx, series);
+        if (result.getRejectionNote() == null)
+            processExpirationDate(ctx, series);
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;

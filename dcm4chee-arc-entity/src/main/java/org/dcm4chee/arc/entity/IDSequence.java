@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,64 +35,49 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.ctrl;
+package org.dcm4chee.arc.entity;
 
-import org.dcm4chee.arc.ArchiveService;
+import org.dcm4chee.arc.conf.IDGenerator;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
+import javax.persistence.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Jun 2016
  */
-@Path("/ctrl")
-@RequestScoped
-public class ArchiveCtrl {
+@Entity
+@Table(name = "id_sequence")
+public class IDSequence {
 
-    @Inject
-    private ArchiveService service;
+    @Id
+    @Column(name = "name")
+    @Enumerated(EnumType.STRING)
+    private IDGenerator.Name name;
 
-    @Context
-    private HttpServletRequest request;
+    @Version
+    @Column(name = "version")
+    private long version;
 
-    @GET
-    @Path("start")
-    public void start() throws Exception {
-        service.start(request);
+    @Basic(optional = false)
+    @Column(name = "next_value")
+    private int nextValue;
+
+    public IDGenerator.Name getName() {
+        return name;
     }
 
-    @GET
-    @Path("stop")
-    public void stop() {
-        service.stop(request);
+    public void setName(IDGenerator.Name name) {
+        this.name = name;
     }
 
-    @GET
-    @Path("reload")
-    public void reload() throws Exception {
-        service.reload(request);
+    public void setNextValue(int nextValue) {
+        this.nextValue = nextValue;
     }
 
-    @GET
-    @Path("status")
-    @Produces("application/json")
-    public String status() {
-        return "{\"status\":\"" + service.status(request) + "\"}";
-    }
-
-    @GET
-    @Path("devicename")
-    @Produces("application/json")
-    public String devicename() {
-        return "{\"devicename\":\"" + service.status(request) + "\"}";
+    public int nextValue() {
+        return nextValue++;
     }
 }

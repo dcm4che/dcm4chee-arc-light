@@ -2,10 +2,8 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
@@ -16,9 +14,9 @@ import java.util.regex.Pattern;
  */
 public class Conditions {
 
-    private static final String ReceivingApplicationEntityTitle = "ReceivingApplicationEntityTitle";
-    private static final String SendingApplicationEntityTitle = "SendingApplicationEntityTitle";
-    private static final String SendingHostname = "SendingHostname";
+    private static final String ReceivingApplicationEntityTitleNE = "ReceivingApplicationEntityTitle!";
+    private static final String SendingApplicationEntityTitleNE = "SendingApplicationEntityTitle!";
+    private static final String SendingHostnameNE = "SendingHostname!";
 
     private Pattern receivingAETPattern;
     private Pattern sendingAETPattern;
@@ -35,24 +33,24 @@ public class Conditions {
     }
 
     public void setReceivingAETitle(String value) {
-        setCondition(ReceivingApplicationEntityTitle, value);
+        setCondition("ReceivingApplicationEntityTitle", value);
     }
 
     public void setSendingAETitle(String value) {
-        setCondition(SendingApplicationEntityTitle, value);
+        setCondition("SendingApplicationEntityTitle", value);
     }
 
     public void setSendingHostname(String value) {
-        setCondition(SendingHostname, value);
+        setCondition("SendingHostname", value);
     }
 
     public void setCondition(String tagPath, String value) {
         Pattern pattern = Pattern.compile(value);
-        if (tagPath.equals(SendingHostname))
+        if (tagPath.equals("SendingHostname") || tagPath.equals(SendingHostnameNE))
             sendingHostnamePattern = pattern;
-        else if (tagPath.equals(SendingApplicationEntityTitle))
+        else if (tagPath.equals("SendingApplicationEntityTitle") || tagPath.equals(SendingApplicationEntityTitleNE))
             sendingAETPattern = pattern;
-        else if (tagPath.equals(ReceivingApplicationEntityTitle))
+        else if (tagPath.equals("ReceivingApplicationEntityTitle") || tagPath.equals(ReceivingApplicationEntityTitleNE))
             receivingAETPattern = pattern;
         map.put(tagPath, pattern);
     }
@@ -62,42 +60,62 @@ public class Conditions {
     }
 
     public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
-        if (receivingAETPattern != null
-                && (receivingAET == null || !receivingAETPattern.matcher(receivingAET).matches()))
+        if (receivingAETPattern != null &&
+                (map.containsKey("ReceivingApplicationEntityTitle")
+                ? (receivingAET == null || !receivingAETPattern.matcher(receivingAET).matches())
+                : (receivingAET != null && receivingAETPattern.matcher(receivingAET).matches())))
             return false;
 
-        if (sendingAETPattern != null && (sendingAET == null || !sendingAETPattern.matcher(sendingAET).matches()))
+        if (sendingAETPattern != null &&
+                (map.containsKey("SendingApplicationEntityTitle")
+                    ? (sendingAET == null || !sendingAETPattern.matcher(sendingAET).matches())
+                    : (sendingAET != null && sendingAETPattern.matcher(sendingAET).matches())))
             return false;
 
-        if (sendingHostnamePattern != null
-                && (hostName == null || !sendingHostnamePattern.matcher(hostName).matches()))
+        if (sendingHostnamePattern != null &&
+                (map.containsKey("SendingHostname")
+                ? (hostName == null || !sendingHostnamePattern.matcher(hostName).matches())
+                : (hostName != null && sendingHostnamePattern.matcher(hostName).matches())))
             return false;
 
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
             String tagPath = entry.getKey();
             Pattern pattern = entry.getValue();
-            if (!tagPath.equals(ReceivingApplicationEntityTitle) &&
-                    !tagPath.equals(SendingApplicationEntityTitle) &&
-                    !tagPath.equals(SendingHostname)
-                    && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0))
+            boolean ne = tagPath.endsWith("!");
+            if (ne)
+                tagPath = tagPath.substring(0, tagPath.lastIndexOf('!'));
+            if (!tagPath.equals("ReceivingApplicationEntityTitle") &&
+                    !tagPath.equals("SendingApplicationEntityTitle") &&
+                    !tagPath.equals("SendingHostname")
+                    && !match(attrs, TagUtils.parseTagPath(tagPath), pattern, 0, ne))
                 return false;
         }
         return true;
     }
 
-    private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level) {
+    private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level, boolean ne) {
         if (level < tagPath.length-1) {
             Sequence seq = attrs.getSequence(tagPath[level]);
             if (seq != null)
                 for (Attributes item : seq)
-                    if (match(item, tagPath, pattern, level+1))
+                    if (match(item, tagPath, pattern, level+1, false))
                         return true;
         } else {
             String[] ss = attrs.getStrings(tagPath[level]);
             if (ss != null)
                 for (String s : ss)
-                    if (pattern.matcher(s).matches())
+                    if (pattern != null && s != null && pattern.matcher(s).matches() && !ne)
                         return true;
+                    else if (pattern == null || s == null)
+                        return false;
+                    else if (ne && !pattern.matcher(s).matches())
+                        return true;
+//            if (pattern.matcher(s).matches())
+//                        return true;
+            if (ss == null && ne)
+                return true;
+            if (ss == null && !ne)
+                return false;
         }
         return false;
     }

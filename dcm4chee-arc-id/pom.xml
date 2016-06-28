@@ -18,7 +18,7 @@
   ~
   ~ The Initial Developer of the Original Code is
   ~ J4Care.
-  ~ Portions created by the Initial Developer are Copyright (C) 2015
+  ~ Portions created by the Initial Developer are Copyright (C) 2013
   ~ the Initial Developer. All Rights Reserved.
   ~
   ~ Contributor(s):
@@ -49,15 +49,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arc-delete</artifactId>
+  <artifactId>dcm4chee-arc-id</artifactId>
 
   <dependencies>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-code</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-conf</artifactId>
@@ -67,30 +61,6 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-entity</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-service</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-storage</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-query</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-store</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

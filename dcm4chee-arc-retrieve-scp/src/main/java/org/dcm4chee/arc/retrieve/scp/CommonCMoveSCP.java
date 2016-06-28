@@ -44,6 +44,7 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.Status;
@@ -94,7 +95,6 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
         RetrieveContext ctx = newRetrieveContext(as, rq, qrLevel, keys);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        ArrayList<String> failedIUIDs = new ArrayList<>();
         String fallbackCMoveSCP = arcAE.fallbackCMoveSCP();
         String fallbackCMoveSCPDestination = arcAE.fallbackCMoveSCPDestination();
         if (!retrieveService.calculateMatches(ctx)) {
@@ -119,27 +119,95 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         if (altCMoveSCP != null) {
             Collection<InstanceLocations> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
             if (ctx.getMatches().isEmpty()) {
-                LOG.info("{}: Requested objects not locally accessable - forward C-MOVE RQ to {}",
-                        as, altCMoveSCP);
+                LOG.info("{}: No objects of study{} locally accessable - forward C-MOVE RQ to {}",
+                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), altCMoveSCP);
                 return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, altCMoveSCP);
             }
 
             if (!notAccessable.isEmpty()) {
-                LOG.warn("{}: {} of {} requested objects not locally accessable",
-                        as, notAccessable.size(), ctx.getNumberOfMatches());
-                for (InstanceLocations remoteMatch : notAccessable)
-                    ctx.addFailedSOPInstanceUID(remoteMatch.getSopInstanceUID());
-            }
-        }
-        if (!failedIUIDs.isEmpty()) {
-            if (ctx.getSopInstanceUIDs().length > 0)
-                failedIUIDs.retainAll(Arrays.asList(ctx.getSopInstanceUIDs()));
-            ctx.incrementNumberOfMatches(failedIUIDs.size());
-            for (String failedIUID : failedIUIDs) {
-                ctx.addFailedSOPInstanceUID(failedIUID);
+                Set<SeriesKey> localSeries = seriesOf(ctx.getMatches());
+                Map<SeriesKey, Collection<String>> remoteSeries = instancesBySeriesOf(notAccessable);
+                LOG.info("{}: {} objects of study{} not locally accessable - send {} C-MOVE RQs to {}",
+                        as, notAccessable.size(), Arrays.toString(ctx.getStudyInstanceUIDs()), remoteSeries.size(),
+                        altCMoveSCP);
+                for (RetrieveTask task :
+                        moveSCU.newForwardRetrieveTasks(ctx, pc, rq, toKeys(remoteSeries, localSeries), altCMoveSCP))
+                    ctx.getLocalApplicationEntity().getDevice().execute(task);
             }
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
+    }
+
+    private Set<SeriesKey> seriesOf(Collection<InstanceLocations> instances) {
+        Set<SeriesKey> series = new HashSet<>();
+        for (InstanceLocations instance : instances)
+            series.add(new SeriesKey(instance.getAttributes()));
+        return series;
+    }
+
+    private Map<SeriesKey, Collection<String>> instancesBySeriesOf(Collection<InstanceLocations> instances) {
+        Map<SeriesKey, Collection<String>> series = new HashMap<>();
+        for (InstanceLocations instance : instances) {
+            SeriesKey seriesKey = new SeriesKey(instance.getAttributes());
+            Collection<String> iuids = series.get(seriesKey);
+            if (iuids == null) {
+                iuids = new ArrayList<>(instances.size());
+                series.put(seriesKey, iuids);
+            }
+            iuids.add(instance.getSopInstanceUID());
+        }
+        return series;
+    }
+
+    private Attributes[] toKeys(Map<SeriesKey, Collection<String>> remoteSeries, Set<SeriesKey> localSeries) {
+        Attributes[] keys = new Attributes[remoteSeries.size()];
+        int i = 0;
+        for (Map.Entry<SeriesKey, Collection<String>> entry : remoteSeries.entrySet()) {
+            SeriesKey seriesKey = entry.getKey();
+            keys[i++] = seriesKey.makeKeys(
+                    localSeries.contains(seriesKey) ? QueryRetrieveLevel2.IMAGE : QueryRetrieveLevel2.SERIES,
+                    entry.getValue());
+        }
+        return keys;
+    }
+
+    private static class SeriesKey {
+        final String studyIUID;
+        final String seriesIUID;
+
+        SeriesKey(Attributes attrs) {
+            studyIUID = attrs.getString(Tag.StudyInstanceUID);
+            seriesIUID = attrs.getString(Tag.SeriesInstanceUID);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            SeriesKey seriesKey = (SeriesKey) o;
+
+            if (!studyIUID.equals(seriesKey.studyIUID)) return false;
+            return seriesIUID.equals(seriesKey.seriesIUID);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = studyIUID.hashCode();
+            result = 31 * result + seriesIUID.hashCode();
+            return result;
+        }
+
+        public Attributes makeKeys(QueryRetrieveLevel2 qrLevel, Collection<String> iuids) {
+            Attributes keys = new Attributes(4);
+            keys.setString(Tag.QueryRetrieveLevel, VR.CS, qrLevel.toString());
+            if (qrLevel == QueryRetrieveLevel2.IMAGE)
+                keys.setString(Tag.SOPInstanceUID, VR.UI, iuids.toArray(new String[iuids.size()]));
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
+            keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+            return keys;
+        }
     }
 
     private RetrieveContext newRetrieveContext(Association as, Attributes rq, QueryRetrieveLevel2 qrLevel,

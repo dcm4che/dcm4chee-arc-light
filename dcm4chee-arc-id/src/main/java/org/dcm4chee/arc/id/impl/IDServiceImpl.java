@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,64 +35,42 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.ctrl;
+package org.dcm4chee.arc.id.impl;
 
-import org.dcm4chee.arc.ArchiveService;
+import org.dcm4chee.arc.conf.IDGenerator;
+import org.dcm4chee.arc.id.IDService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Jun 2016
  */
-@Path("/ctrl")
-@RequestScoped
-public class ArchiveCtrl {
+@ApplicationScoped
+public class IDServiceImpl implements IDService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IDServiceImpl.class);
 
     @Inject
-    private ArchiveService service;
+    private IDServiceEJB ejb;
 
-    @Context
-    private HttpServletRequest request;
-
-    @GET
-    @Path("start")
-    public void start() throws Exception {
-        service.start(request);
+    @Override
+    public String createID(IDGenerator generator) {
+        return String.format(generator.getFormat(), nextValue(generator));
     }
 
-    @GET
-    @Path("stop")
-    public void stop() {
-        service.stop(request);
-    }
-
-    @GET
-    @Path("reload")
-    public void reload() throws Exception {
-        service.reload(request);
-    }
-
-    @GET
-    @Path("status")
-    @Produces("application/json")
-    public String status() {
-        return "{\"status\":\"" + service.status(request) + "\"}";
-    }
-
-    @GET
-    @Path("devicename")
-    @Produces("application/json")
-    public String devicename() {
-        return "{\"devicename\":\"" + service.status(request) + "\"}";
+    private int nextValue(IDGenerator generator) {
+        try {
+            return ejb.nextValue(generator);
+        } catch (RuntimeException e) {
+            LOG.info("Failed to create {} - retry\n", generator.getName(), e);
+            return ejb.nextValue(generator);
+        }
     }
 }

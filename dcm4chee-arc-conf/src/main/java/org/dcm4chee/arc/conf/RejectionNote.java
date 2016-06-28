@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.dcm4che3.data.Code;
 
 /**
@@ -49,29 +48,25 @@ import org.dcm4che3.data.Code;
  */
 public class RejectionNote {
 
-    public RejectionNote() {
-    }
-
     public enum AcceptPreviousRejectedInstance { REJECT, RESTORE, IGNORE }
 
-    //    private final String rejectionNoteLabel;
+    public enum Type {
+        REJECTED_FOR_QUALITY_REASONS,
+        REJECTED_FOR_PATIENT_SAFETY_REASONS,
+        INCORRECT_MODALITY_WORKLIST_ENTRY,
+        DATA_RETENTION_POLICY_EXPIRED,
+        REVOKE_REJECTION
+    }
+
     private String rejectionNoteLabel;
+    private Type rejectionNoteType;
     private Code rejectionNoteCode;
     private int seriesNumber;
     private int instanceNumber;
-    private boolean revokeRejection;
     private AcceptPreviousRejectedInstance acceptPreviousRejectedInstance;
     private Code[] overwritePreviousRejection = {};
     private Duration deleteRejectedInstanceDelay;
     private Duration deleteRejectionNoteDelay;
-
-//    public RejectionNote(String rejectionNoteLabel) {
-//        this.rejectionNoteLabel = rejectionNoteLabel;
-//    }
-
-    public RejectionNote(String rejectionNoteLabel) {
-        setRejectionNoteLabel(rejectionNoteLabel);
-    }
 
     public String getRejectionNoteLabel() {
         return rejectionNoteLabel;
@@ -79,6 +74,18 @@ public class RejectionNote {
 
     public void setRejectionNoteLabel(String rejectionNoteLabel) {
         this.rejectionNoteLabel = rejectionNoteLabel;
+    }
+
+    public Type getRejectionNoteType() {
+        return rejectionNoteType;
+    }
+
+    public void setRejectionNoteType(Type rejectionNoteType) {
+        this.rejectionNoteType = rejectionNoteType;
+    }
+
+    public boolean isRevokeRejection() {
+        return rejectionNoteType == Type.REVOKE_REJECTION;
     }
 
     public Code getRejectionNoteCode() {
@@ -103,14 +110,6 @@ public class RejectionNote {
 
     public void setInstanceNumber(int instanceNumber) {
         this.instanceNumber = instanceNumber;
-    }
-
-    public boolean isRevokeRejection() {
-        return revokeRejection;
-    }
-
-    public void setRevokeRejection(boolean revokeRejection) {
-        this.revokeRejection = revokeRejection;
     }
 
     public AcceptPreviousRejectedInstance getAcceptPreviousRejectedInstance() {

@@ -102,7 +102,7 @@ public class ArchiveDeviceConfigurationTest {
             hl7Config.registerHL7Application(ArchiveDeviceFactory.PIX_MANAGER);
             for (int i = ArchiveDeviceFactory.OTHER_AES.length; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++)
                 config.persist(setThisNodeCertificates(
-                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i])));
+                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], configType)));
             config.persist(setThisNodeCertificates(
                     ArchiveDeviceFactory.createHL7Device("hl7rcv",
                         ArchiveDeviceFactory.SITE_A,
@@ -110,7 +110,7 @@ public class ArchiveDeviceConfigurationTest {
                         ArchiveDeviceFactory.PIX_MANAGER,
                         "localhost", 2576, 12576)));
         }
-        Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514);
+        Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514, configType);
         config.persist(arrDevice);
         config.registerAETitle("DCM4CHEE");
 

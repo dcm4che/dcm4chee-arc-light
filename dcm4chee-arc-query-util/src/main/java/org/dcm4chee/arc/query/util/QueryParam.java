@@ -58,13 +58,14 @@ public class QueryParam {
     private final boolean fuzzySemanticMatching;
     private final boolean returnEmpty;
     private final boolean expired;
+    private final boolean expiredSeries;
     private final QueryRetrieveView qrView;
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
     public QueryParam(ApplicationEntity ae, boolean combinedDatetimeMatching, boolean fuzzySemanticMatching,
-                      boolean returnEmpty, boolean expired) {
+                      boolean returnEmpty, boolean expired, boolean expiredSeries) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
@@ -72,6 +73,7 @@ public class QueryParam {
         this.fuzzySemanticMatching = fuzzySemanticMatching;
         this.returnEmpty = returnEmpty;
         this.expired = expired;
+        this.expiredSeries = expiredSeries;
     }
 
     public String getAETitle() {
@@ -96,6 +98,10 @@ public class QueryParam {
 
     public boolean isExpired() {
         return expired;
+    }
+
+    public boolean isExpiredSeries() {
+        return expiredSeries;
     }
 
     public FuzzyStr getFuzzyStr() {

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf.json;
 
+import org.dcm4che3.conf.api.AttributeCoercion;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
@@ -57,10 +58,7 @@ import java.lang.reflect.Array;
 import java.net.URI;
 import java.time.LocalTime;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -130,6 +128,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmRejectExpiredStudiesFetchSize", arcDev.getRejectExpiredStudiesFetchSize(), 0);
         writer.writeNotDef("dcmRejectExpiredSeriesFetchSize", arcDev.getRejectExpiredSeriesFetchSize(), 0);
         writer.writeNotNull("dcmRejectExpiredStudiesAETitle", arcDev.getRejectExpiredStudiesAETitle());
+        writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcDev.getFallbackCMoveSCPStudyOlderThan());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -140,6 +139,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
         writeStudyRetentionPolicy(writer, arcDev.getStudyRetentionPolicies());
+        writeIDGenerators(writer, arcDev);
         writer.writeEnd();
     }
 
@@ -296,8 +296,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (RejectionNote rn : rejectionNoteList) {
             writer.writeStartObject();
             writer.writeNotNull("dcmRejectionNoteLabel", rn.getRejectionNoteLabel());
+            writer.writeNotNull("dcmRejectionNoteType", rn.getRejectionNoteType());
             writer.writeNotNull("dcmRejectionNoteCode", rn.getRejectionNoteCode());
-            writer.writeNotNull("dcmRevokeRejection", rn.isRevokeRejection());
             writer.writeNotNull("dcmAcceptPreviousRejectedInstance", rn.getAcceptPreviousRejectedInstance());
             writer.writeNotEmpty("dcmOverwritePreviousRejection", rn.getOverwritePreviousRejection());
             writer.writeNotNull("dcmDeleteRejectedInstanceDelay", rn.getDeleteRejectedInstanceDelay());
@@ -318,6 +318,23 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmExpireSeriesIndividually", srp.isExpireSeriesIndividually());
             writer.writeEnd();
         }
+        writer.writeEnd();
+    }
+
+    protected void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
+        writer.writeStartArray("dcmIDGenerator");
+        for (IDGenerator.Name name : IDGenerator.Name.values()) {
+            IDGenerator generator = arcDev.getIDGenerator(name);
+            writeIDGenerator(writer, name, generator);
+        }
+        writer.writeEnd();
+    }
+
+    private void writeIDGenerator(JsonWriter writer, IDGenerator.Name name, IDGenerator generator) {
+        writer.writeStartObject();
+        writer.writeNotNull("dcmIDGeneratorName", generator.getName().toString());
+        writer.writeNotNull("dcmIDGeneratorFormat", generator.getFormat());
+        writer.writeNotDef("dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         writer.writeEnd();
     }
 
@@ -350,6 +367,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
+        writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcAE.getFallbackCMoveSCPStudyOlderThan());
+        writeExportRule(writer, arcAE.getExportRules());
+        writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
+        writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
+        writeStudyRetentionPolicy(writer, arcAE.getStudyRetentionPolicies());
         writer.writeEnd();
     }
 
@@ -533,6 +555,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmRejectExpiredStudiesAETitle":
                     arcDev.setRejectExpiredStudiesAETitle(reader.stringValue());
                     break;
+                case "dcmFallbackCMoveSCPStudyOlderThan":
+                    arcDev.setFallbackCMoveSCPStudyOlderThan(reader.stringValue());
+                    break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
                     break;
@@ -549,19 +574,22 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadExporterDescriptorFrom(arcDev, reader);
                     break;
                 case "dcmExportRule":
-                    loadExportRuleFrom(arcDev, reader);
+                    loadExportRule(arcDev.getExportRules(), reader);
                     break;
                 case "dcmArchiveCompressionRule":
-                    loadArchiveCompressionRuleFrom(arcDev, reader);
+                    loadArchiveCompressionRule(arcDev.getCompressionRules(), reader);
                     break;
                 case "dcmArchiveAttributeCoercion":
-                    loadArchiveAttributeCoercionFrom(arcDev, reader);
+                    loadArchiveAttributeCoercion(arcDev.getAttributeCoercions(), reader);
                     break;
                 case "dcmRejectionNote":
                     loadRejectionNoteFrom(arcDev, reader);
                     break;
                 case "dcmStudyRetentionPolicy":
-                    loadStudyRetentionPolicy(arcDev, reader);
+                    loadStudyRetentionPolicy(arcDev.getStudyRetentionPolicies(), reader);
+                    break;
+                case "dcmIDGenerator":
+                    loadIDGenerators(arcDev, reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -766,7 +794,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return se;
     }
 
-    private void loadExportRuleFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
+    private void loadExportRule(Collection<ExportRule> rules, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -797,12 +825,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.addExportRule(er);
+            rules.add(er);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadArchiveCompressionRuleFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
+    private void loadArchiveCompressionRule(Collection<ArchiveCompressionRule> rules, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -830,12 +858,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.addCompressionRule(acr);
+            rules.add(acr);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadArchiveAttributeCoercionFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
+    private void loadArchiveAttributeCoercion(Collection<ArchiveAttributeCoercion> coercions, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -881,7 +909,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.addAttributeCoercion(aac);
+            coercions.add(aac);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
@@ -897,11 +925,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmRejectionNoteLabel":
                         rn.setRejectionNoteLabel(reader.stringValue());
                         break;
+                    case "dcmRejectionNoteType":
+                        rn.setRejectionNoteType(RejectionNote.Type.valueOf(reader.stringValue()));
+                        break;
                     case "dcmRejectionNoteCode":
                         rn.setRejectionNoteCode(new Code(reader.stringValue()));
-                        break;
-                    case "dcmRevokeRejection":
-                        rn.setRevokeRejection(reader.booleanValue());
                         break;
                     case "dcmAcceptPreviousRejectedInstance":
                         rn.setAcceptPreviousRejectedInstance(RejectionNote.AcceptPreviousRejectedInstance.valueOf(reader.stringValue()));
@@ -933,7 +961,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return overwritePreviousRejectionCodes;
     }
 
-    private void loadStudyRetentionPolicy(ArchiveDeviceExtension arcDev, JsonReader reader) {
+    private void loadStudyRetentionPolicy(Collection<StudyRetentionPolicy> policies, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -961,7 +989,35 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.addStudyRetentionPolicy(srp);
+            policies.add(srp);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadIDGenerators(ArchiveDeviceExtension arcDev, JsonReader reader) {
+        IDGenerator.Name name = null;
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            IDGenerator generator = new IDGenerator();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmIDGeneratorName":
+                        name = IDGenerator.Name.valueOf(reader.stringValue());
+                        break;
+                    case "dcmIDGeneratorFormat":
+                        generator.setFormat(reader.stringValue());
+                        break;
+                    case "dcmIDGeneratorInitialValue":
+                        generator.setInitialValue(reader.intValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            arcDev.setIDGenerator(name, generator);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
@@ -1048,6 +1104,21 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAltCMoveSCP":
                     arcAE.setAlternativeCMoveSCP(reader.stringValue());
+                    break;
+                case "dcmFallbackCMoveSCPStudyOlderThan":
+                    arcAE.setFallbackCMoveSCPStudyOlderThan(reader.stringValue());
+                    break;
+                case "dcmExportRule":
+                    loadExportRule(arcAE.getExportRules(), reader);
+                    break;
+                case "dcmArchiveCompressionRule":
+                    loadArchiveCompressionRule(arcAE.getCompressionRules(), reader);
+                    break;
+                case "dcmArchiveAttributeCoercion":
+                    loadArchiveAttributeCoercion(arcAE.getAttributeCoercions(), reader);
+                    break;
+                case "dcmStudyRetentionPolicy":
+                    loadStudyRetentionPolicy(arcAE.getStudyRetentionPolicies(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();

@@ -79,6 +79,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String alternativeCMoveSCP;
     private int qidoMaxNumberOfResults;
     private MWLStatus[] hideSPSWithStatusFromMWL = {};
+    private String fallbackCMoveSCPStudyOlderThan;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -357,6 +358,12 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getAlternativeCMoveSCP();
     }
 
+    public String fallbackCMoveSCPStudyOlderThan() {
+        return fallbackCMoveSCPStudyOlderThan != null
+                ? fallbackCMoveSCPStudyOlderThan
+                : getArchiveDeviceExtension().getFallbackCMoveSCPStudyOlderThan();
+    }
+
     public int getQidoMaxNumberOfResults() {
         return qidoMaxNumberOfResults;
     }
@@ -383,6 +390,14 @@ public class ArchiveAEExtension extends AEExtension {
         return hideSPSWithStatusFromMWL.length > 0
                 ? hideSPSWithStatusFromMWL
                 : getArchiveDeviceExtension().getHideSPSWithStatusFrom();
+    }
+
+    public String getFallbackCMoveSCPStudyOlderThan() {
+        return fallbackCMoveSCPStudyOlderThan;
+    }
+
+    public void setFallbackCMoveSCPStudyOlderThan(String fallbackCMoveSCPStudyOlderThan) {
+        this.fallbackCMoveSCPStudyOlderThan = fallbackCMoveSCPStudyOlderThan;
     }
 
     public QueryRetrieveView getQueryRetrieveView() {
@@ -479,6 +494,7 @@ public class ArchiveAEExtension extends AEExtension {
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
+        fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

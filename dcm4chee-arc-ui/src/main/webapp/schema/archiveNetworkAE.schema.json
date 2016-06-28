@@ -132,6 +132,35 @@
       "title": "AltCMoveSCP",
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
       "type": "string"
+    },
+    "dcmFallbackCMoveSCPStudyOlderThan": {
+      "title": "Fallback C-Move SCP Study Older Than",
+      "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
+      "type": "string"
+    },
+    "dcmExportRule": {
+      "type": "array",
+      "items" : {
+        "$ref": "exportRule.schema.json"
+      }
+    },
+    "dcmArchiveCompressionRule": {
+      "type": "array",
+      "items" : {
+        "$ref": "archiveCompressionRule.schema.json"
+      }
+    },
+    "dcmArchiveAttributeCoercion": {
+      "type": "array",
+      "items" : {
+        "$ref": "archiveAttributeCoercion.schema.json"
+      }
+    },
+    "dcmStudyRetentionPolicy": {
+      "type": "array",
+      "items" : {
+        "$ref": "studyRetentionPolicy.schema.json"
+      }
     }
   }
 }

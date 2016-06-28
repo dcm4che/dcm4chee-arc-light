@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,64 +35,47 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.ctrl;
-
-import org.dcm4chee.arc.ArchiveService;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
+package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Jun 2016
  */
-@Path("/ctrl")
-@RequestScoped
-public class ArchiveCtrl {
+public class IDGenerator {
+    public enum Name {
+        PatientID,
+        AccessionNumber,
+        RequestedProcedureID,
+        ScheduledProcedureStepID
+    }
+    private Name name;
+    private String format;
+    private int initialValue = 1;
 
-    @Inject
-    private ArchiveService service;
-
-    @Context
-    private HttpServletRequest request;
-
-    @GET
-    @Path("start")
-    public void start() throws Exception {
-        service.start(request);
+    public Name getName() {
+        return name;
     }
 
-    @GET
-    @Path("stop")
-    public void stop() {
-        service.stop(request);
+    public void setName(Name name) {
+        this.name = name;
     }
 
-    @GET
-    @Path("reload")
-    public void reload() throws Exception {
-        service.reload(request);
+    public String getFormat() {
+        return format;
     }
 
-    @GET
-    @Path("status")
-    @Produces("application/json")
-    public String status() {
-        return "{\"status\":\"" + service.status(request) + "\"}";
+    public void setFormat(String format) {
+        this.format = format;
     }
 
-    @GET
-    @Path("devicename")
-    @Produces("application/json")
-    public String devicename() {
-        return "{\"devicename\":\"" + service.status(request) + "\"}";
+    public int getInitialValue() {
+        return initialValue;
+    }
+
+    public void setInitialValue(int initialValue) {
+        this.initialValue = initialValue;
     }
 }

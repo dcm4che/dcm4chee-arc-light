@@ -12,19 +12,26 @@
       "description": "Rejection Note Label",
       "type": "string"
     },
+    "dcmRejectionNoteType": {
+      "title": "Rejection Note Type",
+      "description": "Rejection Note Type",
+      "type": "string",
+      "enum": [
+        "REJECTED_FOR_QUALITY_REASONS",
+        "REJECTED_FOR_PATIENT_SAFETY_REASONS",
+        "INCORRECT_MODALITY_WORKLIST_ENTRY",
+        "DATA_RETENTION_POLICY_EXPIRED",
+        "REVOKE_REJECTION"
+      ]
+    },
     "dcmRejectionNoteCode": {
-      "title": "dcmRejectionNoteCode",
+      "title": "Rejection Note Code",
       "description": "Specifies Document Title of Rejection Note in format (CV, CSD, 'CM')",
       "type": "string"
     },
-    "dcmRevokeRejection": {
-      "title": "Revoke Rejection",
-      "description": "Specifies if a particular Rejection Note is actually used to revoke the rejection of the referenced instances; disabled if absent.",
-      "type": "boolean"
-    },
     "dcmAcceptPreviousRejectedInstance": {
       "title": "Accept Previous Rejected Instance",
-      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note. Enumerated values: REJECT, RESTORE, IGNORE. REJECT if absent.",
+      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note",
       "type": "string",
       "enum": [
         "REJECT",

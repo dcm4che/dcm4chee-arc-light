@@ -1,5 +1,5 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,64 +35,37 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * **** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.ctrl;
+package org.dcm4chee.arc.id.impl;
 
-import org.dcm4chee.arc.ArchiveService;
+import org.dcm4chee.arc.conf.IDGenerator;
+import org.dcm4chee.arc.entity.IDSequence;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Jun 2016
  */
-@Path("/ctrl")
-@RequestScoped
-public class ArchiveCtrl {
+@Stateless
+public class IDServiceEJB {
 
-    @Inject
-    private ArchiveService service;
+    @PersistenceContext(unitName="dcm4chee-arc")
+    private EntityManager em;
 
-    @Context
-    private HttpServletRequest request;
+    public int nextValue(IDGenerator generator) {
+        IDSequence idSeq = em.find(IDSequence.class, generator.getName());
+        if (idSeq != null)
+            return idSeq.nextValue();
 
-    @GET
-    @Path("start")
-    public void start() throws Exception {
-        service.start(request);
-    }
-
-    @GET
-    @Path("stop")
-    public void stop() {
-        service.stop(request);
-    }
-
-    @GET
-    @Path("reload")
-    public void reload() throws Exception {
-        service.reload(request);
-    }
-
-    @GET
-    @Path("status")
-    @Produces("application/json")
-    public String status() {
-        return "{\"status\":\"" + service.status(request) + "\"}";
-    }
-
-    @GET
-    @Path("devicename")
-    @Produces("application/json")
-    public String devicename() {
-        return "{\"devicename\":\"" + service.status(request) + "\"}";
+        idSeq = new IDSequence();
+        idSeq.setName(generator.getName());
+        idSeq.setNextValue(generator.getInitialValue() + 1);
+        em.persist(idSeq);
+        return generator.getInitialValue();
     }
 }
