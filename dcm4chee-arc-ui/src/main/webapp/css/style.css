@@ -1513,6 +1513,10 @@ table.j4care-table {
   border-collapse: collapse;
   border-spacing: 0;
   box-sizing: border-box; }
+  table.j4care-table .listlink {
+    color: black; }
+    table.j4care-table .listlink:hover {
+      cursor: pointer; }
   table.j4care-table tr:hover td {
     background: #DADADA; }
   table.j4care-table td, table.j4care-table th {
@@ -1544,6 +1548,24 @@ table.j4care-table {
         background: #ddd;
         color: black; }
 
+.devicelist_block .filter {
+  position: relative;
+  float: left;
+  margin-bottom: 5px; }
+  .devicelist_block .filter select, .devicelist_block .filter button {
+    /* 			height: 30px;
+     */
+    margin-top: 2px; }
+  .devicelist_block .filter select, .devicelist_block .filter input {
+    border-radius: 0;
+    border: 1px solid #ccc;
+    height: 27px; }
+  .devicelist_block .filter button {
+    background: #3b6b8c none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    color: white;
+    border-radius: 0;
+    height: 27px; }
 .devicelist_block .adddevice {
   background: #3b6b8c none repeat scroll 0 0;
   border: 1px solid #ccc;

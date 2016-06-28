@@ -7,59 +7,62 @@
 <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
 <div ng-show="advancedConfig" class="ng-hide">
 	<div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
-    <div class="col-md-3 block-2-1" >
-        <div class="row">
-            <div class="col-md-6">
-                <input id="dicomDeviceName" type="text" ng-model="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
-            </div>
-            <div class="col-md-6">
-                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomDeviceDescription" placeholder="Device description" title="Device description" class="col-md-12" />
-            </div>
-            <div class="col-md-6">
-                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomManufacturer" placeholder="Manufacturer" title="Manufacturer" class="col-md-12" />
-            </div>
-            <div class="col-md-6">
-                <input id="dicomManufacturerModelName" type="text" ng-model="filter.dicomManufacturerModelName" placeholder="Manufacturer model name" title="Manufacturer model name" class="col-md-12" />
-            </div>
-        </div>    
-    </div>
-    <div class="col-md-3 block-2-1">
-        <div class="row">
-            <div class="col-md-6">
-                <input id="dicomSoftwareVersion" type="text" ng-model="filter.dicomSoftwareVersion" placeholder="Software version" title="Software version" class="col-md-12 clearable" />
-            </div>
-            <div class="col-md-6">
-                <input id="dicomStationName" type="text" ng-model="filter.dicomStationName" placeholder="Station name" title="Station name" class="col-md-12 clearable" />
-            </div>
-            <div class="col-md-6">
-                <input id="dicomPrimaryDeviceType" type="text" ng-model="filter.dicomPrimaryDeviceType" placeholder="Primary device type" title="Primary device type" class="col-md-12 clearable" />
-            </div>
-            <div class="col-md-6">
-                <input id="dicomInstitutionName" type="text" ng-model="filter.dicomInstitutionName" placeholder="Institution name" title="Institution name" class="col-md-12 clearable" />
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 block-2-1">
-            <div class="row">
-            <div class="col-md-6">
-                <input id="dicomInstitutionDepartmentName" type="text" ng-model="filter.dicomInstitutionDepartmentName" placeholder="Institution department name" title="Institution department name" class="col-md-12 clearable" />
-            </div>
-            <div class="col-md-6">
-            	<div class="dummyinput"></div>
-            </div>
-            <div class="col-md-6">
-                <select id="dicomInstalled" ng-model="filter.dicomInstalled" class="col-md-12">
-                    <option value=""></option>
-                    <option value="true">True</option>
-                    <option value="false">False</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-            	<button class="col-md-12" ng-click="searchDevices()">Search</button>
-            </div>
-        </div>
-    </div>
-</div>
+	    <div class="col-md-3 block-2-1" >
+	        <div class="row">
+	            <div class="col-md-6">
+	                <input id="dicomDeviceName" type="text" ng-model="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
+	            </div>
+	            <div class="col-md-6">
+	                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomDeviceDescription" placeholder="Device description" title="Device description" class="col-md-12" />
+	            </div>
+	            <div class="col-md-6">
+	                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomManufacturer" placeholder="Manufacturer" title="Manufacturer" class="col-md-12" />
+	            </div>
+	            <div class="col-md-6">
+	                <input id="dicomManufacturerModelName" type="text" ng-model="filter.dicomManufacturerModelName" placeholder="Manufacturer model name" title="Manufacturer model name" class="col-md-12" />
+	            </div>
+	        </div>    
+	    </div>
+	    <div class="col-md-3 block-2-1">
+	        <div class="row">
+	            <div class="col-md-6">
+	                <input id="dicomSoftwareVersion" type="text" ng-model="filter.dicomSoftwareVersion" placeholder="Software version" title="Software version" class="col-md-12 clearable" />
+	            </div>
+	            <div class="col-md-6">
+	                <input id="dicomStationName" type="text" ng-model="filter.dicomStationName" placeholder="Station name" title="Station name" class="col-md-12 clearable" />
+	            </div>
+	            <div class="col-md-6">
+	                <input id="dicomPrimaryDeviceType" type="text" ng-model="filter.dicomPrimaryDeviceType" placeholder="Primary device type" title="Primary device type" class="col-md-12 clearable" />
+	            </div>
+	            <div class="col-md-6">
+	                <input id="dicomInstitutionName" type="text" ng-model="filter.dicomInstitutionName" placeholder="Institution name" title="Institution name" class="col-md-12 clearable" />
+	            </div>
+	        </div>
+	    </div>
+	    <div class="col-md-3 block-2-1">
+	            <div class="row">
+	            <div class="col-md-6">
+	                <input id="dicomInstitutionDepartmentName" type="text" ng-model="filter.dicomInstitutionDepartmentName" placeholder="Institution department name" title="Institution department name" class="col-md-12 clearable" />
+	            </div>
+	            <div class="col-md-6">
+	            	<div class="dummyinput"></div>
+	            </div>
+	            <div class="col-md-6">
+	                <select id="dicomInstalled" ng-model="filter.dicomInstalled" class="col-md-12">
+	                    <option value=""></option>
+	                    <option value="true">True</option>
+	                    <option value="false">False</option>
+	                </select>
+	            </div>
+	            <div class="col-md-6">
+	            	<button class="col-md-12" ng-click="searchDevices()">Search</button>
+	            </div>
+	        </div>
+	    </div>
+	    <a class="clearform_button" title="Clear all filters" href="" ng-click="clearForm()">
+	        Clear <span class="glyphicon glyphicon-remove"></span>
+	    </a>
+	</div>
 </div>
 	<table class="j4care-table">
 		<thead>
@@ -70,8 +73,9 @@
 				<th>Device Description</th>
 				<th>Manufacturer</th>
 				<th>Model Name</th>
-				<th>Software Version</th>
+				<th>Primary device type</th>
 				<th>Station Name</th>
+				<th>Installed</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -88,13 +92,14 @@
 						<span class="glyphicon glyphicon-duplicate"></span>
 					</a>
 				</td>
-				<td>{{value.dicomDeviceName}}</td>
+				<td><a class="listlink" ng-click="editDeviceList(value.dicomDeviceName)"  title="Edit device">{{value.dicomDeviceName}}</a></td>
 				<td>{{value.dicomInstitutionDepartmentName[0]}}</td>
 				<td>{{value.dicomDescription}}</td>
 				<td>{{value.dicomManufacturer}}</td>
 				<td>{{value.dicomManufacturerModelName}}</td>
-				<td>{{value.dicomSoftwareVersion[0]}}</td>
+				<td>{{value.dicomPrimaryDeviceType[0]}}</td>
 				<td>{{value.dicomStationName}}</td>
+				<td>{{value.dicomInstalled}}</td>
 			</tr>
 		</tbody>
 	</table>

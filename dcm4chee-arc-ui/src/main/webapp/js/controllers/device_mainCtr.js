@@ -1024,7 +1024,14 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         },301);
     };
     $scope.filter = {};
+    $scope.$watchCollection('filter', function(newValue, oldValue){
+        console.log("newValue",newValue);
+    });  
     $scope.searchDevices = function(){
+        searchDevices();
+    }
+    var searchDevices = function(){
+         cfpLoadingBar.start();
         var urlParam = Object.keys($scope.filter).map(function(key){
             if($scope.filter[key]){
                 return encodeURIComponent(key) + '=' + encodeURIComponent($scope.filter[key]); 
@@ -1038,12 +1045,18 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 // url: 'json/devices.json'
                 url: '../devices'+urlParam
             }).then(function successCallback(response) {
-            console.log("filter responnse");
             $scope.devices = response.data;
+            cfpLoadingBar.complete();
         }, function errorCallback(response) {
             $log.error("Error loading device names", response);
             vex.dialog.alert("Error loading device names, please reload the page and try again!");
         });   
+    };
+    $scope.clearForm = function(){
+        angular.forEach($scope.filter,function(m,i){
+            $scope.filter[i] = "";
+        });
+        searchDevices();
     };
 });
 

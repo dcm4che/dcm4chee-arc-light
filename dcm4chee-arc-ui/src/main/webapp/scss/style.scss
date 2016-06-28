@@ -2058,6 +2058,12 @@ table.j4care-table{
     border-collapse: collapse;
     border-spacing: 0;
     box-sizing: border-box;
+    .listlink{
+    	color: black;
+    	&:hover{
+    		cursor: pointer;
+    	}
+    }
 	tr{
 		&:hover td{
 			background:#DADADA;
@@ -2107,6 +2113,27 @@ table.j4care-table{
 	}
 }
 .devicelist_block{
+	.filter{
+		position:relative;
+		float: left;
+    	margin-bottom: 5px;
+		select, button{
+/* 			height: 30px;
+ */			margin-top: 2px;
+		}
+		select, input{
+			border-radius: 0;
+		    border: 1px solid #ccc;
+		    height: 27px;
+		}
+		button{
+			background: #3b6b8c none repeat scroll 0 0;
+		    border: 1px solid #ccc;
+		    color: white;
+		    border-radius:0;
+		    height: 27px;
+		}
+	}
 	.adddevice{
 	  	background: #3b6b8c none repeat scroll 0 0;
 	    border: 1px solid #ccc;
