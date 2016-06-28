@@ -728,8 +728,8 @@ class ArchiveDeviceFactory {
     };
 
     static final String[] ACCESS_CONTROL_IDS = {
-            "Customer1",
-            "Customer2"
+            "*",
+            "*"
     };
 
     static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
@@ -1288,7 +1288,7 @@ class ArchiveDeviceFactory {
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         if (configType == configType.TEST) {
             aeExt.setStorageID(STORAGE_ID);
-            aeExt.setStoreAccessControlID("Graz");
+            aeExt.setStoreAccessControlID("*");
             aeExt.setAccessControlIDs(ACCESS_CONTROL_IDS);
             aeExt.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
             aeExt.setPersonNameComponentOrderInsensitiveMatching(true);
