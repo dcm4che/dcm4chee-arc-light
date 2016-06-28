@@ -821,6 +821,223 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
           cfpLoadingBar.complete();
       }
     };
+
+
+    //Device list
+
+
+    //Deleting device
+    $scope.deleteDeviceList = function(devicename) {
+        $scope.devicename = devicename;
+        if ($scope.devicename) {
+            vex.dialog.confirm({
+                  message: 'Are you sure you want to delete the device ' + $scope.devicename + '?',
+                  callback: function(value) {
+                    if(value){
+                      DeviceService.deleteDevice($scope);
+                    }else{
+                      $log.log("deleting canceled");
+                    }
+                  }
+               });
+        } else {
+          vex.dialog.alert('Please select device first!');
+        }
+    };
+    $scope.cloneDeviceDeviceList = function(devicename){
+      cfpLoadingBar.start();
+        $scope.devicename = devicename;
+      var html =$compile(
+        '<label>set the name for the new devace</label>'+
+        '<input type="text" ng-model="clonename" required/>'
+      )($scope);
+      vex.dialog.open({
+        message: 'Clone device: '+devicename,
+        input: html,
+        buttons: [
+          $.extend({}, vex.dialog.buttons.YES, {
+            text: 'Clone'
+          }), $.extend({}, vex.dialog.buttons.NO, {
+            text: 'Cancle'
+          })
+        ],
+        callback: function(data) {
+          if (data === false) {
+            cfpLoadingBar.complete();
+            return console.log('Cancelled');
+          }else{
+              var isAlreadyThere = false;
+              angular.forEach($scope.devices, function(m){
+                  if(m.dicomDeviceName === $scope.clonename){
+                      isAlreadyThere = true;
+                  }
+              });
+              if(!isAlreadyThere && $scope.devicename != undefined && $scope.devicename != "" && $scope.clonename != undefined && $scope.clonename != ""){
+                $http({
+                        method: 'GET',
+                        url: '../devices/'+$scope.devicename
+                        }).then(function successCallback(response) {
+                          cfpLoadingBar.set(cfpLoadingBar.status()+(0.5));
+                          var device = response.data;
+                          device.dicomDeviceName = $scope.clonename;
+                          $http.put("../devices/" + $scope.clonename, device)
+                              .success(function(data, status, headers, config) {
+                                  DeviceService.msg($scope, {
+                                      "title": "Info",
+                                      "text": "Clone created successfully!",
+                                      "status": "info"
+                                  });
+                                  $scope.devices.push({
+                                    dicomDeviceName : $scope.clonename,
+                                    dicomInstalled: true
+                                  });
+                                  $scope.devicename = "";
+                                  $scope.clonename = "";
+                                  cfpLoadingBar.complete();
+                              })
+                              .error(function(data, status, headers, config) {
+                                  $log.error("Error sending data on put!", status);
+                                  addEmptyArrayFieldsPrivate($scope);
+                                  DeviceService.msg($scope, {
+                                      "title": "error",
+                                      "text": "Error, clone could not be created!",
+                                      "status": "error"
+                                  });
+                                  cfpLoadingBar.complete();
+                              });
+                      }, function errorCallback(response) {
+                          DeviceService.msg($scope, {
+                              "title": "Error",
+                              "text": response.status+":"+response.statusText,
+                              "status": "error"
+                          });
+                          $log.error("Error",response);
+                          cfpLoadingBar.complete();
+                      });
+              }else{
+                $scope.$apply(function() {
+                  if(isAlreadyThere){
+                      DeviceService.msg($scope, {
+                          "title": "Error",
+                          "text": "Name need to be unique!",
+                          "status": "error"
+                      });
+                  }else{
+                    
+                      DeviceService.msg($scope, {
+                          "title": "Error",
+                          "text": "Error, fealds required",
+                          "status": "error"
+                      });
+                  }
+                  cfpLoadingBar.complete();
+                });
+              }
+          }
+        }
+      });
+    };
+    $scope.editDeviceList = function(devicename) {
+            $scope.devicename       = devicename;
+            $scope.currentDevice    = $scope.devicename;
+            $scope.form             = {};
+            cfpLoadingBar.start();
+            if($scope.devicename){
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                setTimeout(function(){ 
+                    $scope.showDropdownLoader = true;
+                    $scope.showFormLoader   = true;
+                });
+                $scope.selectedElement = "device";
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                DeviceService
+                .addDirectiveToDom(
+                    $scope, 
+                    "add_dropdowns",
+                    "<div select-device-part></div>"
+                );
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
+                //Wait a little bit so the angularjs has time to render the first directive otherwise some input fields are not showing
+                window.setTimeout(function() {
+                DeviceService
+                .addDirectiveToDom(
+                  $scope, 
+                  "add_edit_area",
+                  "<div edit-area></div>"
+                );
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                }, 100);
+            }else{
+                cfpLoadingBar.complete();
+                vex.dialog.alert("Select device");
+            }
+            setTimeout(function(){
+                DeviceService.warnEvent($scope);
+                addEffect("right",".devicelist_block", "hide");
+                setTimeout(function(){
+                    addEffect("left",".deviceedit_block", "show");
+                },301);
+            },1000);
+    };
+    var addEffect = function(direction, selector, display){
+        var element = angular.element(selector);
+            element.removeClass('fadeInRight').removeClass('fadeInLeft');
+            if(display === "hide"){
+                setTimeout(function(){
+                    if(direction === "left"){
+                        element.addClass('animated').addClass("fadeOutRight");
+                    }
+                    if(direction === "right"){
+                        element.addClass('animated').addClass("fadeOutLeft");
+                    }
+                },1);
+                setTimeout(function(){
+                    element.hide();
+                },301);
+            }else{
+                setTimeout(function(){
+                    element.removeClass('fadeOutRight').removeClass('fadeOutLeft');
+                    if(direction === "left"){
+                        element.addClass("fadeInLeft").removeClass('animated');
+                    }
+                    if(direction === "right"){
+                        element.addClass("fadeInRight").removeClass('animated');
+                    }
+                },1);
+                setTimeout(function(){
+                    element.show();
+                },301);
+            }
+    };
+    $scope.goBackToDeviceList = function(){
+        addEffect("left",".deviceedit_block", "hide");
+        setTimeout(function(){
+            addEffect("right",".devicelist_block", "show");
+            cancel();
+        },301);
+    };
+    $scope.filter = {};
+    $scope.searchDevices = function(){
+        var urlParam = Object.keys($scope.filter).map(function(key){
+            if($scope.filter[key]){
+                return encodeURIComponent(key) + '=' + encodeURIComponent($scope.filter[key]); 
+            }
+        }).join('&');
+        if(urlParam){
+            urlParam = "?"+urlParam;
+        }
+        $http({
+                method: 'GET',
+                // url: 'json/devices.json'
+                url: '../devices'+urlParam
+            }).then(function successCallback(response) {
+            console.log("filter responnse");
+            $scope.devices = response.data;
+        }, function errorCallback(response) {
+            $log.error("Error loading device names", response);
+            vex.dialog.alert("Error loading device names, please reload the page and try again!");
+        });   
+    };
 });
 
 //http://localhost:8080/dcm4chee-arc/devices/dcm4chee-arc

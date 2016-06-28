@@ -21,7 +21,7 @@ myApp.filter("formatTM", function() {
 
 myApp.filter("contentDescription", function() {
     function valueOf(attr) {
-        return attr && attr.Value[0];
+        return attr && attr.Value && attr.Value[0];
     };
     function valuesOf(attr) {
         return attr && attr.Value && attr.Value.join();
@@ -43,10 +43,20 @@ myApp.filter("contentDescription", function() {
             ].filter(function (obj) { return obj }).join(" ");
     };
     return function(attrs) {
-        return valueOf(attrs["00700081"]) // ContentDescription
-            || imageDescriptionOf(attrs)
-            || srDescriptionOf(attrs)
-            || valueOf(inst["00080016"]); // SOPClassUID
+        try {
+            var instCheck = false;        
+            if((inst != undefined  || inst != null) && inst["00080016"] && valueOf(inst["00080016"])){
+               instCheck = true; 
+            }
+            return valueOf(attrs["00700081"]) // ContentDescription
+                || imageDescriptionOf(attrs)
+                || srDescriptionOf(attrs)
+                || instCheck; // SOPClassUID
+
+        }
+        catch(err) {
+            return false;
+        }
     };
 
 });
