@@ -59,7 +59,6 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -67,12 +66,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import static org.dcm4chee.arc.entity.QStudy.study;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -601,38 +597,42 @@ public class StoreServiceEJB {
 
     private Series createSeries(StoreContext ctx, Study study, UpdateDBResult result) {
         Series series = new Series();
-        series.setRejectionState(ctx.getRejectionNote() == null ? RejectionState.NONE : RejectionState.COMPLETE);
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
-        if (result.getRejectionNote() == null)
-            processExpirationDate(ctx, series);
-        processFailedIUIDs(ctx, series);
+        if (result.getRejectionNote() == null) {
+            markOldStudiesAsIncomplete(ctx, series);
+            applyStudyRetentionPolicy(ctx, series);
+            series.setRejectionState(RejectionState.NONE);
+        } else {
+            series.setRejectionState(RejectionState.COMPLETE);
+        }
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
     }
 
-    private void processFailedIUIDs(StoreContext ctx, Series series) {
-        StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        String studyDate = ctx.getAttributes().getString(Tag.StudyDate);
-        String configuredDate = arcAE.fallbackCMoveSCPStudyOlderThan();
-        if (studyDate == null || (configuredDate != null && studyDate.compareTo(configuredDate) == -1)) {
-            series.getStudy().setFailedSOPInstanceUIDList("*");
+    private void markOldStudiesAsIncomplete(StoreContext ctx, Series series) {
+        String studyDateThreshold = ctx.getStoreSession().getArchiveAEExtension().fallbackCMoveSCPStudyOlderThan();
+        if (studyDateThreshold == null)
+            return;
+
+        Study study = series.getStudy();
+        if (study.getStudyDate().compareTo(studyDateThreshold) < 0) {
             series.setFailedSOPInstanceUIDList("*");
+            study.setFailedSOPInstanceUIDList("*");
         }
     }
 
-    private void processExpirationDate(StoreContext ctx, Series series) {
+    private void applyStudyRetentionPolicy(StoreContext ctx, Series series) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         StudyRetentionPolicy retentionPolicy = arcAE.findStudyRetentionPolicy(session.getRemoteHostName(),
-                session.getCallingAET(), session.getCalledAET(), ctx.getAttributes());
+            session.getCallingAET(), session.getCalledAET(), ctx.getAttributes());
         if (retentionPolicy == null)
             return;
 
-        LocalDate expirationDate = LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
         Study study = series.getStudy();
+        LocalDate expirationDate = LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
         LocalDate studyExpirationDate = study.getExpirationDate();
         if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
             study.setExpirationDate(expirationDate);
