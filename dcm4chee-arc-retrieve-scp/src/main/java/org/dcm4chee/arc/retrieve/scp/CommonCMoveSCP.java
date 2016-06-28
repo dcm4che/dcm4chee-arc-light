@@ -125,32 +125,49 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             }
 
             if (!notAccessable.isEmpty()) {
-                HashMap<SeriesKey, Collection<String>> remoteSeries = new HashMap<>();
-                for (InstanceLocations remoteMatch : notAccessable) {
-                    SeriesKey seriesKey = new SeriesKey(remoteMatch.getAttributes());
-                    Collection<String> iuids = remoteSeries.get(seriesKey);
-                    if (iuids == null) {
-                        iuids = new ArrayList<>(notAccessable.size());
-                        remoteSeries.put(seriesKey, iuids);
-                    }
-                    iuids.add(remoteMatch.getSopInstanceUID());
-                }
+                Set<SeriesKey> localSeries = seriesOf(ctx.getMatches());
+                Map<SeriesKey, Collection<String>> remoteSeries = instancesBySeriesOf(notAccessable);
                 LOG.info("{}: {} objects of study{} not locally accessable - send {} C-MOVE RQs to {}",
                         as, notAccessable.size(), Arrays.toString(ctx.getStudyInstanceUIDs()), remoteSeries.size(),
                         altCMoveSCP);
                 for (RetrieveTask task :
-                        moveSCU.newForwardRetrieveTasks(ctx, pc, rq, toKeys(remoteSeries), altCMoveSCP))
+                        moveSCU.newForwardRetrieveTasks(ctx, pc, rq, toKeys(remoteSeries, localSeries), altCMoveSCP))
                     ctx.getLocalApplicationEntity().getDevice().execute(task);
             }
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
     }
 
-    private Attributes[] toKeys(HashMap<SeriesKey, Collection<String>> remoteSeries) {
+    private Set<SeriesKey> seriesOf(Collection<InstanceLocations> instances) {
+        Set<SeriesKey> series = new HashSet<>();
+        for (InstanceLocations instance : instances)
+            series.add(new SeriesKey(instance.getAttributes()));
+        return series;
+    }
+
+    private Map<SeriesKey, Collection<String>> instancesBySeriesOf(Collection<InstanceLocations> instances) {
+        Map<SeriesKey, Collection<String>> series = new HashMap<>();
+        for (InstanceLocations instance : instances) {
+            SeriesKey seriesKey = new SeriesKey(instance.getAttributes());
+            Collection<String> iuids = series.get(seriesKey);
+            if (iuids == null) {
+                iuids = new ArrayList<>(instances.size());
+                series.put(seriesKey, iuids);
+            }
+            iuids.add(instance.getSopInstanceUID());
+        }
+        return series;
+    }
+
+    private Attributes[] toKeys(Map<SeriesKey, Collection<String>> remoteSeries, Set<SeriesKey> localSeries) {
         Attributes[] keys = new Attributes[remoteSeries.size()];
         int i = 0;
-        for (Map.Entry<SeriesKey, Collection<String>> entry : remoteSeries.entrySet())
-            keys[i++] = entry.getKey().makeKeys(entry.getValue());
+        for (Map.Entry<SeriesKey, Collection<String>> entry : remoteSeries.entrySet()) {
+            SeriesKey seriesKey = entry.getKey();
+            keys[i++] = seriesKey.makeKeys(
+                    localSeries.contains(seriesKey) ? QueryRetrieveLevel2.IMAGE : QueryRetrieveLevel2.SERIES,
+                    entry.getValue());
+        }
         return keys;
     }
 
@@ -182,10 +199,11 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             return result;
         }
 
-        public Attributes makeKeys(Collection<String> iuids) {
+        public Attributes makeKeys(QueryRetrieveLevel2 qrLevel, Collection<String> iuids) {
             Attributes keys = new Attributes(4);
-            keys.setString(Tag.QueryRetrieveLevel, VR.CS, "IMAGE");
-            keys.setString(Tag.SOPInstanceUID, VR.UI, iuids.toArray(new String[iuids.size()]));
+            keys.setString(Tag.QueryRetrieveLevel, VR.CS, qrLevel.toString());
+            if (qrLevel == QueryRetrieveLevel2.IMAGE)
+                keys.setString(Tag.SOPInstanceUID, VR.UI, iuids.toArray(new String[iuids.size()]));
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
             return keys;
