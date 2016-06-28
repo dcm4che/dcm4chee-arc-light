@@ -606,9 +606,21 @@ public class StoreServiceEJB {
         series.setStudy(study);
         if (result.getRejectionNote() == null)
             processExpirationDate(ctx, series);
+        processFailedIUIDs(ctx, series);
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
+    }
+
+    private void processFailedIUIDs(StoreContext ctx, Series series) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        String studyDate = ctx.getAttributes().getString(Tag.StudyDate);
+        String configuredDate = arcAE.fallbackCMoveSCPStudyOlderThan();
+        if (studyDate == null || (configuredDate != null && studyDate.compareTo(configuredDate) == -1)) {
+            series.getStudy().setFailedSOPInstanceUIDList("*");
+            series.setFailedSOPInstanceUIDList("*");
+        }
     }
 
     private void processExpirationDate(StoreContext ctx, Series series) {
