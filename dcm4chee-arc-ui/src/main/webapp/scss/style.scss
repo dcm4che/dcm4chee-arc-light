@@ -161,11 +161,11 @@ ul.nav {
 #showDeviceForm.active_dropbox:focus,
  {
  	outline: 0;
-    background: rgba(79, 136, 255, 0.92) none repeat scroll 0 0;
+    background: #3b6b8c none repeat scroll 0 0;
     border: 1px solid #00526d;
-    -moz-box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
-    -webkit-box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
-    box-shadow: 1px 0 3px 0 rgba(0, 5, 237, 0.65) inset;
+    -moz-box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
+    -webkit-box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
+    box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
     color: white;
 }
 .block_layer {
@@ -180,7 +180,7 @@ ul.nav {
 	.btn {
 	    //background: rgba(54, 54, 54, 0.55) none repeat scroll 0 0;
 	    //border: 1px solid #ccc;
-	    background: rgba(79, 136, 255, 0.92);
+	    background: #3b6b8c;
 		border:1px solid #2e6da4;
 	    color: #ffffff;
 	    display: block;
@@ -227,12 +227,20 @@ device and create an other one with the new name*/
 		    box-shadow: 4px 3px 8px 1px #cccccc;
 		     background: rgba(255, 255, 255, 0.63);
 		}
-		.btn-primary,.save{
-			background: rgba(79, 136, 255, 0.92);
+		.btn-primary,.save, .btn{
+			background: #3b6b8c;
 			border:1px solid #2e6da4;
+			border-radius:0;
 		}
-		.btn-primary:hover,.save:hover{
-			background: rgba(71, 114, 204, 0.93);
+		.btn-primary:hover,.save:hover, .btn:hover{
+			background: #365C77;
+			color: white;
+
+		}
+		#showDeviceForm.btn{
+			&:hover{
+				color: block;
+			}
 		}
 /* 		&:hover{
 			 -webkit-transform: rotate(-90deg);
