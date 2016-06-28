@@ -58,6 +58,7 @@ import java.util.Date;
  * @author Justin Falk <jfalkmu@gmail.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Michael Backhaus <michael.backhaus@agfa.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
 @NamedQueries({
 @NamedQuery(
@@ -374,6 +375,13 @@ public class Study {
         this.expirationDate = expirationDate != null ? expirationDate.toString() : null;
     }
 
+    public String getFailedSOPInstanceUIDList() {
+        return failedSOPInstanceUIDList;
+    }
+
+    public void setFailedSOPInstanceUIDList(String failedSOPInstanceUIDList) {
+        this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
+    }
 
     public Collection<CodeEntity> getProcedureCodes() {
         if (procedureCodes == null)

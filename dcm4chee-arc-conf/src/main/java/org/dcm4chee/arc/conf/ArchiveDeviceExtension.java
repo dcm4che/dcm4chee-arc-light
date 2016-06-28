@@ -898,6 +898,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCPStudyOlderThan = arcdev.fallbackCMoveSCPStudyOlderThan;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
+        idGenerators.clear();
+        idGenerators.putAll(arcdev.idGenerators);
         storageDescriptorMap.clear();
         storageDescriptorMap.putAll(arcdev.storageDescriptorMap);
         queueDescriptorMap.clear();

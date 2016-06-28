@@ -57,6 +57,7 @@ import java.util.Date;
  * @author Justin Falk <jfalkmu@gmail.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Michael Backhaus <michael.backhaus@agfa.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
 @NamedQueries({
 @NamedQuery(
@@ -110,8 +111,7 @@ import java.util.Date;
 @NamedQuery(
         name=Series.GET_EXPIRED_SERIES,
         query="select se from Series se " +
-             "where se.expirationDate <= ?1"
-)
+             "where se.expirationDate <= ?1")
 })
 @Entity
 @Table(name = "series",
@@ -392,6 +392,14 @@ public class Series {
 
     public void setExpirationDate(LocalDate expirationDate) {
         this.expirationDate = expirationDate != null ? expirationDate.toString() : null;
+    }
+
+    public String getFailedSOPInstanceUIDList() {
+        return failedSOPInstanceUIDList;
+    }
+
+    public void setFailedSOPInstanceUIDList(String failedSOPInstanceUIDList) {
+        this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
     }
 
     public CodeEntity getInstitutionCode() {

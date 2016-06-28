@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.id.impl;
 
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.IDGenerator;
 import org.dcm4chee.arc.id.IDService;
 import org.slf4j.Logger;
@@ -58,10 +60,14 @@ public class IDServiceImpl implements IDService {
     private static final Logger LOG = LoggerFactory.getLogger(IDServiceImpl.class);
 
     @Inject
+    private Device device;
+
+    @Inject
     private IDServiceEJB ejb;
 
     @Override
-    public String createID(IDGenerator generator) {
+    public String createID(IDGenerator.Name name) {
+        IDGenerator generator = device.getDeviceExtension(ArchiveDeviceExtension.class).getIDGenerator(name);
         return String.format(generator.getFormat(), nextValue(generator));
     }
 
