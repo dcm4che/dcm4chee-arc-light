@@ -1559,13 +1559,18 @@ table.j4care-table {
   .devicelist_block .filter select, .devicelist_block .filter input {
     border-radius: 0;
     border: 1px solid #ccc;
-    height: 27px; }
+    height: 27px;
+    background: white; }
   .devicelist_block .filter button {
     background: #3b6b8c none repeat scroll 0 0;
     border: 1px solid #ccc;
     color: white;
     border-radius: 0;
     height: 27px; }
+  .devicelist_block .filter select#dicomInstalled option[value=""], .devicelist_block .filter select.ng-empty {
+    color: #777; }
+  .devicelist_block .filter select#dicomInstalled option:not([value=""]) {
+    color: black; }
 .devicelist_block .adddevice {
   background: #3b6b8c none repeat scroll 0 0;
   border: 1px solid #ccc;
@@ -1598,6 +1603,8 @@ table.j4care-table {
     font-weight: bold; }
     .deviceedit_block .back:hover {
       color: #3b6b8c; }
+  .deviceedit_block .input span.x {
+    top: 10px; }
   .deviceedit_block bootstrap-decorator {
     border-color: #ddd;
     border-image: none;
@@ -1606,6 +1613,8 @@ table.j4care-table {
     color: black;
     float: left;
     width: 100%; }
+    .deviceedit_block bootstrap-decorator:last-child {
+      border-bottom: 1px solid #ddd; }
     .deviceedit_block bootstrap-decorator .form-control-feedback.glyphicon-ok, .deviceedit_block bootstrap-decorator span.sr-only {
       display: none; }
     .deviceedit_block bootstrap-decorator > .schema-form-text {
