@@ -158,7 +158,7 @@ myApp.controller('MainController', function ($scope, $location, $http) {
           html +=         '<div class="head">'
           html +=             '<h1>J4Care</h1>'
           html +=             '<h3>SMooTH Archive</h3>'
-          html +=             '<h4>Version 5.4.1</h4>'
+          html +=             '<h4>Version 5.5.0</h4>'
           html +=         '</div>'
           html +=         '<div class="content">'
           html +=             '<p><b>J4Care GmbH</b><br/>Enzersdorfer Strasse 7<br/>A-2340 Mödling</p>'

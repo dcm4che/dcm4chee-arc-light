@@ -10,7 +10,7 @@
 	    <div class="col-md-3 block-2-1" >
 	        <div class="row">
 	            <div class="col-md-6">
-	                <input id="dicomDeviceName" type="text" ng-model="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
+	                <input id="dDeviceName" type="text" ng-model="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
 	            </div>
 	            <div class="col-md-6">
 	                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomDeviceDescription" placeholder="Device description" title="Device description" class="col-md-12" />
@@ -48,8 +48,8 @@
 	            	<div class="dummyinput"></div>
 	            </div>
 	            <div class="col-md-6">
-	                <select id="dicomInstalled" ng-model="filter.dicomInstalled" class="col-md-12">
-	                    <option value=""></option>
+	                <select id="dicomInstalled" ng-model="filter.dicomInstalled" class="col-md-12" title="Installed" ng-class="{empty:filter.dicomInstall === ''}">
+	                    <option value="">-- Installed --</option>
 	                    <option value="true">True</option>
 	                    <option value="false">False</option>
 	                </select>

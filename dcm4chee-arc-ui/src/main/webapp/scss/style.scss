@@ -2125,6 +2125,7 @@ table.j4care-table{
 			border-radius: 0;
 		    border: 1px solid #ccc;
 		    height: 27px;
+		    background:white;
 		}
 		button{
 			background: #3b6b8c none repeat scroll 0 0;
@@ -2132,6 +2133,12 @@ table.j4care-table{
 		    color: white;
 		    border-radius:0;
 		    height: 27px;
+		}
+		select#dicomInstalled option[value=""],select.ng-empty{
+			color: #777;
+		}
+		select#dicomInstalled option:not([value=""]){
+			color: black;
 		}
 	}
 	.adddevice{
@@ -2175,6 +2182,11 @@ table.j4care-table{
 	    	color: #3b6b8c;
 	    }
 	}
+	.input{
+		span.x{
+			top: 10px;
+		}
+	}
 	bootstrap-decorator {
 	    border-color: #ddd;
 	    border-image: none;
@@ -2183,6 +2195,9 @@ table.j4care-table{
 	    color: black;
 	    float: left;
 	    width: 100%;
+	    &:last-child{
+	    	border-bottom:1px solid #ddd;
+	    }
 		.form-control-feedback.glyphicon-ok,span.sr-only{
 			display: none;
 		}
