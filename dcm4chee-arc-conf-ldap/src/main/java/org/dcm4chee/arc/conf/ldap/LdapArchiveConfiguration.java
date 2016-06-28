@@ -1277,11 +1277,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private void storeIDGenerators(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
-        for (IDGenerator generator : arcDev.getIDGenerators()) {
-            String name = generator.getName().toString();
+        for (IDGenerator.Name name : IDGenerator.Name.values()) {
             config.createSubcontext(
-                    LdapUtils.dnOf("dcmIDGeneratorName", name, deviceDN),
-                    storeTo(generator, new BasicAttributes(true)));
+                    LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN),
+                    storeTo(arcDev.getIDGenerator(name), name, new BasicAttributes(true)));
         }
     }
 
@@ -1297,9 +1296,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private Attributes storeTo(IDGenerator generator, BasicAttributes attrs) {
+    private Attributes storeTo(IDGenerator generator, IDGenerator.Name name, BasicAttributes attrs) {
         attrs.put("objectClass", "dcmIDGenerator");
-        attrs.put("dcmIDGeneratorName", generator.getName());
+        attrs.put("dcmIDGeneratorName", name.name());
         LdapUtils.storeNotNull(attrs, "dcmIDGeneratorFormat", generator.getFormat());
         LdapUtils.storeNotDef(attrs, "dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         return attrs;
@@ -1372,21 +1371,28 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void mergeIDGenerators(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
-        for (IDGenerator generator : prev.getIDGenerators()) {
-            String name = generator.getName().toString();
-            if (arcDev.getIDGenerator(IDGenerator.Name.valueOf(name)) == null)
-                config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name, deviceDN));
+        for (IDGenerator.Name name : IDGenerator.Name.values()) {
+            config.modifyAttributes(
+                    LdapUtils.dnOf("dcmIDGeneratorName", name.toString(), deviceDN),
+                    storeDiffs(prev.getIDGenerator(name),
+                            arcDev.getIDGenerator(name),
+                            new ArrayList<ModificationItem>()));
         }
-        for (IDGenerator entryNew : arcDev.getIDGenerators()) {
-            String name = entryNew.getName().toString();
-            String dn = LdapUtils.dnOf("dcmIDGenerator", name, deviceDN);
-            IDGenerator entryOld = prev.getIDGenerator(IDGenerator.Name.valueOf(name));
-            if (entryOld == null) {
-                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
-            } else{
-                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
-            }
-        }
+//        for (IDGenerator generator : prev.getIDGenerators()) {
+//            String name = generator.getName().toString();
+//            if (arcDev.getIDGenerator(IDGenerator.Name.valueOf(name)) == null)
+//                config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name, deviceDN));
+//        }
+//        for (IDGenerator entryNew : arcDev.getIDGenerators()) {
+//            String name = entryNew.getName().toString();
+//            String dn = LdapUtils.dnOf("dcmIDGenerator", name, deviceDN);
+//            IDGenerator entryOld = prev.getIDGenerator(IDGenerator.Name.valueOf(name));
+//            if (entryOld == null) {
+//                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
+//            } else{
+//                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
+//            }
+//        }
     }
 
     private List<ModificationItem> storeDiffs(RejectionNote prev, RejectionNote rjNote,
@@ -1410,7 +1416,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(IDGenerator prev, IDGenerator generator,
                                               ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiff(mods, "dcmIDGeneratorName", prev.getName(), generator.getName());
+//        LdapUtils.storeDiff(mods, "dcmIDGeneratorName", prev.getName(), generator.getName());
         LdapUtils.storeDiff(mods, "dcmIDGeneratorFormat", prev.getFormat(), generator.getFormat());
         LdapUtils.storeDiff(mods, "dcmIDGeneratorInitialValue", prev.getInitialValue(), generator.getInitialValue(), 1);
         return mods;

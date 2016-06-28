@@ -139,7 +139,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
         writeStudyRetentionPolicy(writer, arcDev.getStudyRetentionPolicies());
-        writeIDGenerators(writer, arcDev.getIDGenerators());
+        writeIDGenerators(writer, arcDev);
         writer.writeEnd();
     }
 
@@ -321,15 +321,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    protected void writeIDGenerators(JsonWriter writer, Collection<IDGenerator> generators) {
+    protected void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmIDGenerator");
-        for (IDGenerator generator : generators) {
-            writer.writeStartObject();
-            writer.writeNotNull("dcmIDGeneratorName", generator.getName().toString());
-            writer.writeNotNull("dcmIDGeneratorFormat", generator.getFormat());
-            writer.writeNotDef("dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
-            writer.writeEnd();
+        for (IDGenerator.Name name : IDGenerator.Name.values()) {
+            IDGenerator generator = arcDev.getIDGenerator(name);
+            writeIDGenerator(writer, name, generator);
         }
+        writer.writeEnd();
+    }
+
+    private void writeIDGenerator(JsonWriter writer, IDGenerator.Name name, IDGenerator generator) {
+        writer.writeStartObject();
+        writer.writeNotNull("dcmIDGeneratorName", generator.getName().toString());
+        writer.writeNotNull("dcmIDGeneratorFormat", generator.getFormat());
+        writer.writeNotDef("dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         writer.writeEnd();
     }
 
@@ -990,6 +995,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadIDGenerators(ArchiveDeviceExtension arcDev, JsonReader reader) {
+        IDGenerator.Name name = null;
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -998,7 +1004,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmIDGeneratorName":
-                        generator.setName(IDGenerator.Name.valueOf(reader.stringValue()));
+                        name = IDGenerator.Name.valueOf(reader.stringValue());
                         break;
                     case "dcmIDGeneratorFormat":
                         generator.setFormat(reader.stringValue());
@@ -1011,7 +1017,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.addIDGenerator(generator);
+            arcDev.setIDGenerator(name, generator);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

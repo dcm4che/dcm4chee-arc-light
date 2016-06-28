@@ -627,6 +627,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return filter;
     }
 
+    public void setIDGenerator(IDGenerator.Name name, IDGenerator generator) {
+        idGenerators.put(name, generator);
+    }
+
     public void addIDGenerator(IDGenerator generator) {
         idGenerators.put(generator.getName(), generator);
     }
