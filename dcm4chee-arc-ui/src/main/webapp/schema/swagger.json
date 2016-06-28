@@ -905,8 +905,100 @@
         }
       }
     },
-    "/aets/{aet}/rs/mwlitems": {
+    "/aets/{aet}/rs/patients/{patientID}/mwlitems": {
       "post": {
+        "tags": [
+          "MWL-RS"
+        ],
+        "summary": "Create Scheduled Procedure Step",
+        "operationId": "CreateSPS",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{patientID}/mwlitems/{studyUID}/{spsID}": {
+      "put": {
+        "tags": [
+          "MWL-RS"
+        ],
+        "summary": "Update Scheduled Procedure Step",
+        "operationId": "UpdateSPS",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "spsID",
+            "in": "path",
+            "description": "Identifier of the Scheduled Procedure Step",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/mwlitems": {
+      "get": {
         "tags": [
           "MWL-RS"
         ],
