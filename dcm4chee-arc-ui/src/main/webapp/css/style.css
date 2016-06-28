@@ -1554,6 +1554,12 @@ table.j4care-table {
   border-radius: 0;
   height: 27px;
   padding-left: 7px; }
+.devicelist_block .more {
+  float: left;
+  margin: 15px 90% 15px 0;
+  color: black; }
+  .devicelist_block .more i {
+    padding-left: 7px; }
 
 .deviceedit_block {
   display: none; }

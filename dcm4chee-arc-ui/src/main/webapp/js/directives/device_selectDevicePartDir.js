@@ -45,11 +45,19 @@ myApp.directive("selectDevicePart",function($http,$compile, cfpLoadingBar, $log,
                         });
                     }, function errorCallback(response) {
                         scope.wholeDevice               = {};
-                        DeviceService.msg($scope, {
-                            "title": "Error",
-                            "text": response.status+":"+response.statusText,
-                            "status": "error"
-                        });
+                        if(response.status && response.statusText){
+                            DeviceService.msg(scope, {
+                                "title": "Error",
+                                "text": response.status+":"+response.statusText,
+                                "status": "error"
+                            });
+                        }else{
+                            DeviceService.msg(scope, {
+                                "title": "Error",
+                                "text": "Error loading device!",
+                                "status": "error"
+                            });
+                        }
                         $log.error("Error",response);
                     });
                 }

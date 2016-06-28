@@ -2114,10 +2114,18 @@ table.j4care-table{
 	    height: 27px;
 	}
 	#devicefilter{
-		   border: 1px solid #ccc;
-    border-radius: 0;
-    height: 27px;
-    padding-left: 7px;
+		border: 1px solid #ccc;
+	    border-radius: 0;
+	    height: 27px;
+	    padding-left: 7px;
+	}
+	.more {
+	    float: left;
+ 		margin: 15px 90% 15px 0;
+ 	    color: black;
+ 	    i{
+ 	    	padding-left:7px;
+ 	    }
 	}
 }
 .deviceedit_block{

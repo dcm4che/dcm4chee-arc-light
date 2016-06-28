@@ -2,7 +2,12 @@
 	<h2>Device list</h2>
 	<input autocomplete="off" id="devicefilter" class="devicefilter" ng-model="devicefilter" placeholder="Serch device"/>
 	<button class="adddevice" ng-click="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>
-	<button class="adddevice" ng-click="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button>
+<!-- 	<button class="adddevice" ng-click="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
+<a  ng-init="advancedConfig=false" href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
+<div ng-show="advancedConfig" class="ng-hide">
+	extended serch filters 
+</div>
 	<table class="j4care-table">
 		<thead>
 			<tr>
