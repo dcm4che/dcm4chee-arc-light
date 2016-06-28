@@ -584,7 +584,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadStudyRetentionPolicy(arcDev.getStudyRetentionPolicies(), reader);
                     break;
                 case "dcmIDGenerator":
-                    loadIDGenerators(arcDev.getIDGenerators(), reader);
+                    loadIDGenerators(arcDev, reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -989,7 +989,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadIDGenerators(Collection<IDGenerator> generators, JsonReader reader) {
+    private void loadIDGenerators(ArchiveDeviceExtension arcDev, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -1011,7 +1011,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            generators.add(generator);
+            arcDev.addIDGenerator(generator);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
