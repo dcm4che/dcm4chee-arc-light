@@ -338,7 +338,7 @@ public class QidoRS {
             throws Exception {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, includetags);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, includetags, model);
         Query query = model.createQuery(service, ctx);
         try {
             query.initQuery();
@@ -375,9 +375,10 @@ public class QidoRS {
     }
 
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
-                                         String seriesInstanceUID, int[] includetags) {
+                                         String seriesInstanceUID, int[] includetags, Model model) {
         QueryContext ctx = service.newQueryContextQIDO(request, method, getApplicationEntity(),
-                Boolean.parseBoolean(fuzzymatching), Boolean.parseBoolean(returnempty), Boolean.parseBoolean(expired));
+                Boolean.parseBoolean(fuzzymatching), Boolean.parseBoolean(returnempty), Boolean.parseBoolean(expired),
+                model == Model.SERIES && Boolean.parseBoolean(expired));
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)

@@ -306,7 +306,7 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
-        if (queryParam.isExpired())
+        if (queryParam.isExpired() && !queryParam.isExpiredSeries())
             builder.and(QStudy.study.expirationDate.loe(LocalDate.now().toString()));
     }
 
@@ -367,6 +367,8 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QSeries.series.seriesCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
+        if (queryParam.isExpiredSeries())
+            builder.and(QSeries.series.expirationDate.loe(LocalDate.now().toString()));
     }
 
     public static HibernateQuery<Tuple> applyInstanceLevelJoins(
