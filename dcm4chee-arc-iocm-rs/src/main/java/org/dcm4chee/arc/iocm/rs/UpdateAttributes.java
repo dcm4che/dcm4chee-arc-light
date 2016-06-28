@@ -45,6 +45,8 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.IDGenerator;
+import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -79,7 +81,10 @@ public class UpdateAttributes {
     private PatientService patientService;
 
     @Inject
-    private StudyService iocmService;
+    private StudyService studyService;
+
+    @Inject
+    private IDService idService;
 
     @PathParam("AETitle")
     private String aet;
@@ -104,7 +109,8 @@ public class UpdateAttributes {
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID != null)
             throw new WebApplicationException("Patient ID in message body", Response.Status.BAD_REQUEST);
-        patientID = new IDWithIssuer(UIDUtils.createUID(), getApplicationEntity().getDevice().getIssuerOfPatientID());
+        patientID = new IDWithIssuer(idService.createID(IDGenerator.Name.PatientID),
+                getApplicationEntity().getDevice().getIssuerOfPatientID());
         patientID.exportPatientIDWithIssuer(attrs);
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
         ctx.setAttributes(attrs);
@@ -146,10 +152,10 @@ public class UpdateAttributes {
             throw new WebApplicationException("Study Instance UID in message body", Response.Status.BAD_REQUEST);
         studyIUID = UIDUtils.createUID();
         attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
-        StudyMgtContext ctx = iocmService.createIOCMContextWEB(request, getApplicationEntity());
+        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
         ctx.setPatientID(patientID);
         ctx.setAttributes(attrs);
-        iocmService.updateStudy(ctx);
+        studyService.updateStudy(ctx);
         return studyIUID;
     }
 
@@ -160,7 +166,7 @@ public class UpdateAttributes {
                             @PathParam("StudyUID") String studyUID,
                             InputStream in) throws Exception {
         logRequest();
-        StudyMgtContext ctx = iocmService.createIOCMContextWEB(request, getApplicationEntity());
+        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         ctx.setPatientID(patientID);
         ctx.setAttributes(reader.readDataset(null));
@@ -172,7 +178,7 @@ public class UpdateAttributes {
                     "] in message body does not match Study Instance UID[" + studyUID + "] in path",
                     Response.Status.BAD_REQUEST);
 
-        iocmService.updateStudy(ctx);
+        studyService.updateStudy(ctx);
     }
 
     private void logRequest() {

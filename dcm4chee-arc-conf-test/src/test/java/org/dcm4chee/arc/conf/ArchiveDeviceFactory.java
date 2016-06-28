@@ -1142,10 +1142,10 @@ class ArchiveDeviceFactory {
             ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
         }
 
-        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.PatientID, "P-08d"));
-        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.AccessionNumber, "A-08d"));
-        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.RequestedProcedureID, "RP-08d"));
-        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.ScheduledProcedureStepID, "SPS-08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.PatientID, "P-%08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.AccessionNumber, "A-%08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.RequestedProcedureID, "RP-%08d"));
+        ext.addIDGenerator(newIDGenerator(IDGenerator.Name.ScheduledProcedureStepID, "SPS-%08d"));
 
         StorageDescriptor storageDescriptor = new StorageDescriptor(STORAGE_ID);
         storageDescriptor.setStorageURIStr(STORAGE_URI);

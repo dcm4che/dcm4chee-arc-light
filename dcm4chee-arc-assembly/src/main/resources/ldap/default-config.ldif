@@ -640,22 +640,22 @@ dcmDeleteRejectionNoteDelay: P1D
 
 dn: dcmIDGeneratorName=PatientID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: PatientID
-dcmIDGeneratorFormat: P-08d
+dcmIDGeneratorFormat: P-%08d
 objectClass: dcmIDGenerator
 
 dn: dcmIDGeneratorName=AccessionNumber,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: AccessionNumber
-dcmIDGeneratorFormat: A-08d
+dcmIDGeneratorFormat: A-%08d
 objectClass: dcmIDGenerator
 
 dn: dcmIDGeneratorName=RequestedProcedureID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: RequestedProcedureID
-dcmIDGeneratorFormat: RP-08d
+dcmIDGeneratorFormat: RP-%08d
 objectClass: dcmIDGenerator
 
 dn: dcmIDGeneratorName=ScheduledProcedureStepID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: ScheduledProcedureStepID
-dcmIDGeneratorFormat: SPS-08d
+dcmIDGeneratorFormat: SPS-%08d
 objectClass: dcmIDGenerator
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org

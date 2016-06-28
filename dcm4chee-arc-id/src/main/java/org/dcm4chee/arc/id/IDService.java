@@ -47,5 +47,5 @@ import org.dcm4chee.arc.conf.IDGenerator;
  * @since Jun 2016
  */
 public interface IDService {
-    String createID(IDGenerator generator);
+    String createID(IDGenerator.Name name);
 }
