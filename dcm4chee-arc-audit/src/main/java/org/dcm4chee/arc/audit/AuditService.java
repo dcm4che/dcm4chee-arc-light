@@ -627,14 +627,17 @@ public class AuditService {
         StoreSession ss = ctx.getStoreSession();
         HttpServletRequest req = ss.getHttpRequest();
         Attributes attr = ctx.getAttributes();
+        String callingHost = ss.getRemoteHostName();
         String callingAET = ss.getCallingAET() != null ? ss.getCallingAET()
                 : req != null && req.getAttribute(keycloakClassName) != null
-                ? getPreferredUsername(req) : ss.getRemoteHostName();
+                ? getPreferredUsername(req) : callingHost;
+        if (callingAET == null && callingHost == null)
+            callingAET = ss.toString();
         String outcome = null != ctx.getRejectionNote() ? null != ctx.getException()
                 ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
                 : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
                 : getOD(ctx.getException());
-        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ss.getRemoteHostName()).callingAET(callingAET)
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(callingHost).callingAET(callingAET)
                 .calledAET(req != null ? req.getRequestURI() : ss.getCalledAET()).studyUID(ctx.getStudyInstanceUID())
                 .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(attr))
                 .outcome(outcome).studyDate(getSD(attr)).build();
