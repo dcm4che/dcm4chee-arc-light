@@ -68,7 +68,6 @@ public class ProcedureContextImpl implements ProcedureContext {
     private final Socket socket;
     private final HL7Segment msh;
     private Patient patient;
-    private IDWithIssuer patientID;
     private String studyInstanceUID;
     private Attributes attributes;
     private String eventActionCode;
@@ -131,11 +130,6 @@ public class ProcedureContextImpl implements ProcedureContext {
     }
 
     @Override
-    public IDWithIssuer getPatientID() {
-        return patientID;
-    }
-
-    @Override
     public String getStudyInstanceUID() {
         return studyInstanceUID;
     }
@@ -148,7 +142,6 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setAttributes(Attributes attrs) {
         this.attributes = attrs;
-        this.patientID = IDWithIssuer.pidOf(attrs);
         this.studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
     }
 

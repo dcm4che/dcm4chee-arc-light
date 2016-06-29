@@ -62,8 +62,6 @@ public interface ProcedureContext {
 
     String getRemoteHostName();
 
-    IDWithIssuer getPatientID();
-
     String getStudyInstanceUID();
 
     Attributes getAttributes();

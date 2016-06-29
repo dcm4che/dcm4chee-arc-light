@@ -45,11 +45,12 @@ import org.dcm4che3.data.*;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.entity.CodeEntity;
+import org.dcm4chee.arc.entity.IssuerEntity;
+import org.dcm4chee.arc.entity.RejectionState;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.issuer.IssuerService;
-import org.dcm4chee.arc.patient.NoSuchPatientException;
 import org.dcm4chee.arc.patient.PatientMismatchException;
-import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.study.StudyMgtContext;
 
 import javax.ejb.Stateless;
@@ -74,14 +75,7 @@ public class StudyServiceEJB {
     @Inject
     private IssuerService issuerService;
 
-    @Inject
-    private PatientService patientService;
-
     public void updateStudy(StudyMgtContext ctx) {
-        Patient patient = patientService.findPatient(ctx.getPatientID());
-        if (patient == null)
-            throw new NoSuchPatientException("Patient[id=" + ctx.getPatientID() + "] does not exists");
-
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         AttributeFilter filter = ctx.getStudyAttributeFilter();
         Attributes attrs = new Attributes(ctx.getAttributes(), filter.getSelection());
@@ -94,8 +88,8 @@ public class StudyServiceEJB {
 
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             ctx.setStudy(study);
-            if (study.getPatient().getPk() != patient.getPk())
-                throw new PatientMismatchException("" + patient + " does not match " +
+            if (study.getPatient().getPk() != ctx.getPatient().getPk())
+                throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
                         study.getPatient() + " in existing " + study);
 
             study.setAttributes(attrs, filter, ctx.getFuzzyStr());
@@ -112,7 +106,7 @@ public class StudyServiceEJB {
             study.setIssuerOfAccessionNumber(
                     findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
             setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
-            study.setPatient(patient);
+            study.setPatient(ctx.getPatient());
             ctx.setStudy(study);
             em.persist(study);
         }

@@ -46,6 +46,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 
 import javax.servlet.http.HttpServletRequest;
@@ -69,9 +70,9 @@ public interface StudyMgtContext {
 
     void setAttributes(Attributes attrs);
 
-    IDWithIssuer getPatientID();
+    Patient getPatient();
 
-    void setPatientID(IDWithIssuer patientID);
+    void setPatient(Patient patient);
 
     String getStudyInstanceUID();
 

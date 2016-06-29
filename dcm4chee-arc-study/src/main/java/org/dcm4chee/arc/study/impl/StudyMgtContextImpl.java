@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.study.StudyMgtContext;
 
@@ -66,7 +67,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private final ArchiveAEExtension arcAE;
     private Study study;
     private Attributes attributes;
-    private IDWithIssuer patientID;
+    private Patient patient;
     private String studyInstanceUID;
     private String eventActionCode;
     private Exception exception;
@@ -115,13 +116,13 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     }
 
     @Override
-    public IDWithIssuer getPatientID() {
-        return patientID;
+    public Patient getPatient() {
+        return patient;
     }
 
     @Override
-    public void setPatientID(IDWithIssuer patientID) {
-        this.patientID = patientID;
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 
     @Override

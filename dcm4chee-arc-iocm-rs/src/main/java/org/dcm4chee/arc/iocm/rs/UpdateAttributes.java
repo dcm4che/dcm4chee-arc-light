@@ -47,6 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.IDGenerator;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -153,10 +154,16 @@ public class UpdateAttributes {
         if (patientID == null)
             throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
 
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND);
+
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+
         StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
-        ctx.setPatientID(patientID);
+        ctx.setPatient(patient);
         ctx.setAttributes(attrs);
         studyService.updateStudy(ctx);
         return new StreamingOutput() {
@@ -182,10 +189,16 @@ public class UpdateAttributes {
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         if (studyIUID != null)
             throw new WebApplicationException("Study Instance UID in message body", Response.Status.BAD_REQUEST);
-        studyIUID = UIDUtils.createUID();
-        attrs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND);
+
+        attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+
         StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
-        ctx.setPatientID(patientID);
+        ctx.setPatient(patient);
         ctx.setAttributes(attrs);
         studyService.updateStudy(ctx);
         return studyIUID;
@@ -198,10 +211,9 @@ public class UpdateAttributes {
                             @PathParam("StudyUID") String studyUID,
                             InputStream in) throws Exception {
         logRequest();
-        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        ctx.setPatientID(patientID);
-        ctx.setAttributes(reader.readDataset(null));
+
+        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
         String studyIUIDBody = ctx.getStudyInstanceUID();
         if (studyIUIDBody == null)
             throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
@@ -209,6 +221,14 @@ public class UpdateAttributes {
             throw new WebApplicationException("Study Instance UID[" + studyIUIDBody +
                     "] in message body does not match Study Instance UID[" + studyUID + "] in path",
                     Response.Status.BAD_REQUEST);
+
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND);
+
+        ctx.setPatient(patient);
+        ctx.setAttributes(reader.readDataset(null));
 
         studyService.updateStudy(ctx);
     }
