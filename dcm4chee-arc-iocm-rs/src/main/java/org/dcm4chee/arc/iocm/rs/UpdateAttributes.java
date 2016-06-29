@@ -42,6 +42,7 @@ package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
@@ -57,12 +58,16 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -134,6 +139,36 @@ public class UpdateAttributes {
             ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
         }
+    }
+
+    @POST
+    @Path("/studies")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public StreamingOutput updateStudy(InputStream in) throws Exception {
+        logRequest();
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        final Attributes attrs = reader.readDataset(null);
+        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
+        if (patientID == null)
+            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+
+        if (!attrs.containsValue(Tag.StudyInstanceUID))
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
+        ctx.setPatientID(patientID);
+        ctx.setAttributes(attrs);
+        studyService.updateStudy(ctx);
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                try (JsonGenerator gen = Json.createGenerator(out)) {
+                    JSONWriter writer = new JSONWriter(gen);
+                    writer.write(attrs);
+                    gen.writeEnd();
+                }
+            }
+        };
     }
 
     @POST

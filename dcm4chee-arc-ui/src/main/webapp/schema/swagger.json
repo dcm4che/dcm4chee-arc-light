@@ -820,84 +820,34 @@
         }
       }
     },
-    "/aets/{aet}/rs/patients/{patientID}/studies": {
+    "/aets/{aet}/rs/studies": {
       "post": {
         "tags": [
           "IOCM-RS"
         ],
-        "summary": "create study",
-        "operationId": "createStudy",
+        "summary": "Create/Update Study",
+        "operationId": "CreateUpdateStudy",
         "consumes": [
           "application/json"
         ],
         "produces": [
-          "text/plan"
+          "application/json"
         ],
         "parameters": [
           {
             "name": "aet",
             "in": "path",
             "description": "Archive AE Title",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "patientID",
-            "in": "path",
-            "description": "Patient ID and Issuer encoded as HL7 CX",
             "required": true,
             "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "Study Instance UID of created Study",
+            "description": "Created/Updated Study Attributes",
             "schema": {
-              "type": "string"
+              "type": "file"
             }
-          },
-          "default": {
-            "description": "unexpected error"
-          }
-        }
-      }
-    },
-    "/aets/{aet}/rs/patients/{patientID}/studies/{studyUID}": {
-      "put": {
-        "tags": [
-          "IOCM-RS"
-        ],
-        "summary": "update or create study",
-        "operationId": "updateStudy",
-        "consumes": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "aet",
-            "in": "path",
-            "description": "Archive AE Title",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "patientID",
-            "in": "path",
-            "description": "Patient ID and Issuer encoded as HL7 CX",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "studyUID",
-            "in": "path",
-            "description": "Unique Identifier of the Study",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
           },
           "default": {
             "description": "unexpected error"
@@ -977,7 +927,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Matching Scheduled Procedure Steps",
             "schema": {
               "type": "file"
             }
@@ -1010,7 +960,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Created/Updated Scheduled Procedure Step",
             "schema": {
               "type": "file"
             }
