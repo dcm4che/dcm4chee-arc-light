@@ -906,41 +906,6 @@
       }
     },
     "/aets/{aet}/rs/mwlitems": {
-      "post": {
-        "tags": [
-          "MWL-RS"
-        ],
-        "summary": "Create/Update Scheduled Procedure Step",
-        "operationId": "CreateUpdateSPS",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "aet",
-            "in": "path",
-            "description": "Archive AE Title",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "file"
-            }
-          },
-          "default": {
-            "description": "unexpected error"
-          }
-        }
-      }
-    },
-    "/aets/{aet}/rs/mwlitems": {
       "get": {
         "tags": [
           "MWL-RS"
@@ -1008,6 +973,39 @@
             "in": "query",
             "description": "limit={maximumResults}",
             "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MWL-RS"
+        ],
+        "summary": "Create/Update Scheduled Procedure Step",
+        "operationId": "CreateUpdateSPS",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
