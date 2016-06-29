@@ -170,9 +170,7 @@ public class UpdateAttributes {
             @Override
             public void write(OutputStream out) throws IOException {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
-                    JSONWriter writer = new JSONWriter(gen);
-                    writer.write(attrs);
-                    gen.writeEnd();
+                    new JSONWriter(gen).write(attrs);
                 }
             }
         };
