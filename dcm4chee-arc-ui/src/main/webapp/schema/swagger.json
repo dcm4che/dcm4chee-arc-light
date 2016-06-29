@@ -145,11 +145,10 @@
         }
       }
     },
-    "/ctrl/devicename": {
+    "/devicename": {
       "get": {
         "tags": [
-          "CONFIG-RS",
-          "CTRL-RS"
+          "CONFIG-RS"
         ],
         "summary": "Get Archive Device Name",
         "operationId": "devicename",
