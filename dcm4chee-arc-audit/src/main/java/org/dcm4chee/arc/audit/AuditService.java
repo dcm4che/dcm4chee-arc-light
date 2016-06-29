@@ -577,14 +577,31 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            Attributes attr = ctx.getAttributes();
-            BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName()).callingAET(ctx.getHL7MessageHeader().getSendingApplicationWithFacility())
-                                .calledAET(ctx.getHL7MessageHeader().getReceivingApplicationWithFacility()).studyUID(ctx.getStudyInstanceUID())
-                                .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(ctx.getPatient().getAttributes()))
-                                .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
+            BuildAuditInfo i = ctx.getHttpRequest() != null ? buildAuditInfoFORRestful(ctx) : buildAuditInfoFORHL7(ctx);
             obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
+    }
+
+    private BuildAuditInfo buildAuditInfoFORRestful(ProcedureContext ctx) {
+        Attributes attr = ctx.getAttributes();
+        HttpServletRequest req  = ctx.getHttpRequest();
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
+                .callingAET(req.getAttribute(keycloakClassName) != null ? getPreferredUsername(req) : req.getRemoteAddr())
+                .calledAET(ctx.getCalledAET()).studyUID(ctx.getStudyInstanceUID())
+                .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(ctx.getPatient().getAttributes()))
+                .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
+        return i;
+    }
+
+    private BuildAuditInfo buildAuditInfoFORHL7(ProcedureContext ctx) {
+        Attributes attr = ctx.getAttributes();
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
+                .callingAET(ctx.getHL7MessageHeader().getSendingApplicationWithFacility())
+                .calledAET(ctx.getHL7MessageHeader().getReceivingApplicationWithFacility()).studyUID(ctx.getStudyInstanceUID())
+                .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(ctx.getPatient().getAttributes()))
+                .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
+        return i;
     }
 
     void spoolProcedureRecord(StudyMgtContext ctx) {
@@ -668,6 +685,7 @@ public class AuditService {
     private String sopCUID(Attributes attrs) {
         return attrs.getString(Tag.SOPClassUID);
     }
+
     private String getPreferredUsername(HttpServletRequest req) {
         RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
                 req.getAttribute(KeycloakSecurityContext.class.getName());
