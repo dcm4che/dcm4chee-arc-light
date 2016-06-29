@@ -106,17 +106,14 @@ public class UpdateAttributes {
         logRequest();
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         Attributes attrs = reader.readDataset(null);
-        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID != null)
+        if (attrs.containsValue(Tag.PatientID))
             throw new WebApplicationException("Patient ID in message body", Response.Status.BAD_REQUEST);
-        patientID = new IDWithIssuer(idService.createID(IDGenerator.Name.PatientID),
-                getApplicationEntity().getDevice().getIssuerOfPatientID());
-        patientID.exportPatientIDWithIssuer(attrs);
+        idService.newPatientID(attrs);
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
         ctx.setAttributes(attrs);
         ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
         patientService.updatePatient(ctx);
-        return patientID.toString();
+        return IDWithIssuer.pidOf(attrs).toString();
     }
 
     @PUT

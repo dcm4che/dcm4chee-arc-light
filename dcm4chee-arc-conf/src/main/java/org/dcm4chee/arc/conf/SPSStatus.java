@@ -44,6 +44,6 @@ package org.dcm4chee.arc.conf;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2016
  */
-public enum MWLStatus {
+public enum SPSStatus {
     SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELLED, DISCONTINUED, COMPLETED
 }

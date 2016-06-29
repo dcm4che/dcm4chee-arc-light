@@ -679,8 +679,8 @@ class ArchiveDeviceFactory {
             UID.PatientStudyOnlyQueryRetrieveInformationModelGETRetired,
             UID.PatientStudyOnlyQueryRetrieveInformationModelMOVERetired
     };
-    static final MWLStatus[] HIDE_SPS_WITH_STATUS_FROM_MWL = {
-            MWLStatus.STARTED, MWLStatus.DEPARTED, MWLStatus.CANCELLED, MWLStatus.DISCONTINUED, MWLStatus.COMPLETED
+    static final SPSStatus[] HIDE_SPS_WITH_STATUS_FROM_MWL = {
+            SPSStatus.STARTED, SPSStatus.DEPARTED, SPSStatus.CANCELLED, SPSStatus.DISCONTINUED, SPSStatus.COMPLETED
     };
 
     static final Code INCORRECT_WORKLIST_ENTRY_SELECTED =

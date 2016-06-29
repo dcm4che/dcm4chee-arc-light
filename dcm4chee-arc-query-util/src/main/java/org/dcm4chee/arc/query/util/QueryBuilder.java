@@ -52,7 +52,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
-import org.dcm4chee.arc.conf.MWLStatus;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
 import java.time.LocalDate;
@@ -477,7 +477,7 @@ public class QueryBuilder {
     }
 
     private static Predicate hideSPSWithStatus(QueryParam queryParam) {
-        MWLStatus[] hideSPSWithStatusFromMWL = queryParam.getHideSPSWithStatusFromMWL();
+        SPSStatus[] hideSPSWithStatusFromMWL = queryParam.getHideSPSWithStatusFromMWL();
         return (hideSPSWithStatusFromMWL.length > 0)
                 ? QMWLItem.mWLItem.status.notIn(hideSPSWithStatusFromMWL)
                 : null;

@@ -47,12 +47,18 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2016
  */
 public interface ProcedureContext {
+    HttpServletRequest getHttpRequest();
+
     HL7Segment getHL7MessageHeader();
+
+    String getCalledAET();
 
     String getRemoteHostName();
 

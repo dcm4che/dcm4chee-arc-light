@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.id;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.conf.IDGenerator;
 
 /**
@@ -48,4 +49,12 @@ import org.dcm4chee.arc.conf.IDGenerator;
  */
 public interface IDService {
     String createID(IDGenerator.Name name);
+
+    void newPatientID(Attributes attrs);
+
+    void newAccessionNumber(Attributes attrs);
+
+    void newRequestedProcedureID(Attributes attrs);
+
+    void newScheduledProcedureStepID(Attributes attrs);
 }

@@ -41,7 +41,9 @@
 package org.dcm4chee.arc.procedure;
 
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.ApplicationEntity;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 
 /**
@@ -50,6 +52,8 @@ import java.net.Socket;
  */
 public interface ProcedureService {
     ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh);
+
+    ProcedureContext createProcedureContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
 
     void updateProcedure(ProcedureContext ctx);
 }

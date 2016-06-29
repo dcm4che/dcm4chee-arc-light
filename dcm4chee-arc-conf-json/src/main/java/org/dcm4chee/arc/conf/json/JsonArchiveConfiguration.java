@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.conf.json;
 
-import org.dcm4che3.conf.api.AttributeCoercion;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfigurationExtension;
@@ -409,7 +408,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setBulkDataSpoolDirectory(reader.stringValue());
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
-                    arcDev.setHideSPSWithStatusFrom(enumArray(MWLStatus.class, reader.stringArray()));
+                    arcDev.setHideSPSWithStatusFrom(enumArray(SPSStatus.class, reader.stringArray()));
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcDev.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
@@ -1058,7 +1057,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setBulkDataSpoolDirectory(reader.stringValue());
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
-                    arcAE.setHideSPSWithStatusFromMWL(enumArray(MWLStatus.class, reader.stringArray()));
+                    arcAE.setHideSPSWithStatusFromMWL(enumArray(SPSStatus.class, reader.stringArray()));
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcAE.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());

@@ -84,7 +84,7 @@ public class QueryParam {
         return arcAE.getAccessControlIDs();
     }
 
-    public MWLStatus[] getHideSPSWithStatusFromMWL() {
+    public SPSStatus[] getHideSPSWithStatusFromMWL() {
         return arcAE.hideSPSWithStatusFromMWL();
     }
 

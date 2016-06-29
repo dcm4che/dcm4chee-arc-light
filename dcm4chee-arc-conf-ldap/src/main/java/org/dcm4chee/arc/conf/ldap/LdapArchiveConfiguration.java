@@ -198,7 +198,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmPurgeQueueMessagePollingInterval"), null)));
         ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
-        ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(MWLStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
+        ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
         ext.setRejectExpiredStudiesPollingInterval(toDuration(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesPollingInterval"), null)));
         ext.setRejectExpiredStudiesPollingStartTime(toLocalTime(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesPollingStartTime"), null)));
         ext.setRejectExpiredStudiesFetchSize(LdapUtils.intValue(attrs.get("dcmRejectExpiredStudiesFetchSize"), 0));
@@ -440,7 +440,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmIanDelay"), null)));
         ext.setIanTimeout(toDuration(LdapUtils.stringValue(attrs.get("dcmIanTimeout"), null)));
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
-        ext.setHideSPSWithStatusFromMWL(LdapUtils.enumArray(MWLStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
+        ext.setHideSPSWithStatusFromMWL(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
         ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
     }
 

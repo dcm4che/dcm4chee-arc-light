@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.id.impl;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Issuer;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.IDGenerator;
@@ -69,6 +73,34 @@ public class IDServiceImpl implements IDService {
     public String createID(IDGenerator.Name name) {
         IDGenerator generator = device.getDeviceExtension(ArchiveDeviceExtension.class).getIDGenerator(name);
         return String.format(generator.getFormat(), nextValue(generator));
+    }
+
+    @Override
+    public void newPatientID(Attributes attrs) {
+        attrs.setString(Tag.PatientID, VR.LO, createID(IDGenerator.Name.PatientID));
+        Issuer issuer = device.getIssuerOfPatientID();
+        if (issuer != null)
+            issuer.toIssuerOfPatientID(attrs);
+
+    }
+
+    @Override
+    public void newAccessionNumber(Attributes attrs) {
+        attrs.setString(Tag.AccessionNumber, VR.SH, createID(IDGenerator.Name.AccessionNumber));
+        Issuer issuer = device.getIssuerOfAccessionNumber();
+        if (issuer != null)
+            attrs.newSequence(Tag.IssuerOfAccessionNumberSequence, 1).add(issuer.toItem());
+    }
+
+    @Override
+    public void newRequestedProcedureID(Attributes attrs) {
+        attrs.setString(Tag.RequestedProcedureID, VR.SH, createID(IDGenerator.Name.RequestedProcedureID));
+    }
+
+    @Override
+    public void newScheduledProcedureStepID(Attributes attrs) {
+        attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, createID(IDGenerator.Name.ScheduledProcedureStepID));
+
     }
 
     private int nextValue(IDGenerator generator) {

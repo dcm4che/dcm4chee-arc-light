@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.AEExtension;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
@@ -78,7 +77,7 @@ public class ArchiveAEExtension extends AEExtension {
     private int fallbackCMoveSCPRetries;
     private String alternativeCMoveSCP;
     private int qidoMaxNumberOfResults;
-    private MWLStatus[] hideSPSWithStatusFromMWL = {};
+    private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private String fallbackCMoveSCPStudyOlderThan;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -378,15 +377,15 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
     }
 
-    public MWLStatus[] getHideSPSWithStatusFromMWL() {
+    public SPSStatus[] getHideSPSWithStatusFromMWL() {
         return hideSPSWithStatusFromMWL;
     }
 
-    public void setHideSPSWithStatusFromMWL(MWLStatus[] hideSPSWithStatusFromMWL) {
+    public void setHideSPSWithStatusFromMWL(SPSStatus[] hideSPSWithStatusFromMWL) {
         this.hideSPSWithStatusFromMWL = hideSPSWithStatusFromMWL;
     }
 
-    public MWLStatus[] hideSPSWithStatusFromMWL() {
+    public SPSStatus[] hideSPSWithStatusFromMWL() {
         return hideSPSWithStatusFromMWL.length > 0
                 ? hideSPSWithStatusFromMWL
                 : getArchiveDeviceExtension().getHideSPSWithStatusFrom();

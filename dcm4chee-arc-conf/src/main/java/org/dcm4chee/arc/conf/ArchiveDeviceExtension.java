@@ -101,7 +101,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String wadoSpoolDirectory;
     private Duration purgeQueueMessagePollingInterval;
     private int purgeQueueMessageFetchSize = 100;
-    private MWLStatus[] hideSPSWithStatusFrom = {};
+    private SPSStatus[] hideSPSWithStatusFrom = {};
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
     private Duration rejectExpiredStudiesPollingInterval;
@@ -599,11 +599,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.purgeQueueMessageFetchSize = purgeQueueMessageFetchSize;
     }
 
-    public MWLStatus[] getHideSPSWithStatusFrom() {
+    public SPSStatus[] getHideSPSWithStatusFrom() {
         return hideSPSWithStatusFrom;
     }
 
-    public void setHideSPSWithStatusFrom(MWLStatus[] hideSPSWithStatusFrom) {
+    public void setHideSPSWithStatusFrom(SPSStatus[] hideSPSWithStatusFrom) {
         this.hideSPSWithStatusFrom = hideSPSWithStatusFrom;
     }
 

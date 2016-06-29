@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -48,6 +49,7 @@ import org.dcm4chee.arc.procedure.ProcedureService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 
 /**
@@ -67,7 +69,12 @@ public class ProcedureServiceImpl implements ProcedureService {
 
     @Override
     public ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh) {
-        return new ProcedureContextImpl(device, s, msh);
+        return new ProcedureContextImpl(device, null, null, s, msh);
+    }
+
+    @Override
+    public ProcedureContext createProcedureContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
+        return new ProcedureContextImpl(device, httpRequest, ae, null, null);
     }
 
     @Override
