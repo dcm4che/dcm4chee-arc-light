@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.mwl.rs;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONReader;
@@ -52,6 +53,7 @@ import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
+import org.dcm4chee.arc.patient.NoSuchPatientException;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -112,13 +114,20 @@ public class MwlRS {
         LOG.info("Process {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         final Attributes attrs = reader.readDataset(null);
+        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
+        if (patientID == null)
+            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (spsItem == null)
             throw new WebApplicationException(
                     "Missing or empty (0040,0100) Scheduled Procedure Step Sequence", Response.Status.BAD_REQUEST);
 
-        if (!attrs.containsValue(Tag.PatientID))
-            idService.newPatientID(attrs);
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND);
+
         if (!attrs.containsValue(Tag.AccessionNumber))
             idService.newAccessionNumber(attrs);
         if (!attrs.containsValue(Tag.RequestedProcedureID))
@@ -132,7 +141,7 @@ public class MwlRS {
         if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
             spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
         ProcedureContext ctx = procedureService.createProcedureContextWEB(request, getApplicationEntity());
-        ctx.setPatient(getPatient(attrs));
+        ctx.setPatient(patient);
         ctx.setAttributes(attrs);
         procedureService.updateProcedure(ctx);
         return new StreamingOutput() {
@@ -145,12 +154,6 @@ public class MwlRS {
                 }
             }
         };
-    }
-
-    private Patient getPatient(Attributes attrs) {
-        PatientMgtContext patctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
-        patctx.setAttributes(attrs);
-        return patientService.updatePatient(patctx);
     }
 
     private ApplicationEntity getApplicationEntity() {
