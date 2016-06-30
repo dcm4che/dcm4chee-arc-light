@@ -30,6 +30,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.modalities = $modalities;
     $scope.rjcode = null;
     $scope.options = {};
+    $scope.disabled = {};
     $scope.options["genders"] = [
             {
                 "vr": "CS",
@@ -1801,7 +1802,19 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         );
     };
-
+    $scope.conditionWarning = function($event, condition, msg){
+        if(condition){
+            $scope.disabled[$event.currentTarget.id] = true;
+            DeviceService.msg($scope, {
+                "title": "Warning",
+                "text": msg,
+                "status": "warning"
+            });
+            setTimeout(function() {
+                $scope.disabled[$event.currentTarget.id] = false;
+            }, 100);
+        }
+    };
     initAETs(1);
     initAttributeFilter("Patient", 1);
     initExporters(1);

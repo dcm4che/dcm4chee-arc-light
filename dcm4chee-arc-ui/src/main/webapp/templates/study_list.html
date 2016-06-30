@@ -31,7 +31,7 @@
                 <input id="PatientID" type="text" ng-model="filter.PatientID" placeholder="Patient ID" title="Patient ID" class="col-md-12" />
             </div>
             <div class="col-md-6">
-                <input id="IssuerOfPatientID" type="text" ng-model="filter.IssuerOfPatientID" placeholder="Issuer of patient ID" title="Issuer of patient ID" class="col-md-12" />
+                <input autocomplete="off" id="IssuerOfPatientID" ng-disabled="disabled.IssuerOfPatientID" type="text" ng-model="filter.IssuerOfPatientID" placeholder="Issuer of patient ID" title="Issuer of patient ID" class="col-md-12" ng-click="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" />
             </div>
         </div>
     </div>
