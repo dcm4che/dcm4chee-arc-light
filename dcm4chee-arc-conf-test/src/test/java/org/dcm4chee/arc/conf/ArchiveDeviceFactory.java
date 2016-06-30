@@ -817,6 +817,21 @@ class ArchiveDeviceFactory {
             "OMG^O19",
             "ORU^R01"
     };
+
+    static final String[] DEVICE_TYPES = {
+            "ARCHIVE",
+            "CT",
+            "ARCHIVE",
+            "WSD",
+            "DSS",
+            "CT",
+            "DSS",
+            "WSD",
+            "WSD",
+            "WSD",
+            "DSS"
+    };
+
     static final String DCM4CHEE_ARC_VERSION = "5.5.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
@@ -869,6 +884,7 @@ class ArchiveDeviceFactory {
         syslog.setProtocol(protocol);
         arrDevice.addConnection(syslog);
         arr.addConnection(syslog);
+        arrDevice.setPrimaryDeviceTypes("LOG");
         return arrDevice ;
     }
 
@@ -927,6 +943,7 @@ class ArchiveDeviceFactory {
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
         device.addConnection(hl7TLS);
         hl7app.addConnection(hl7TLS);
+        device.setPrimaryDeviceTypes("DSS");
         return device;
     }
     public static Device createArchiveDevice(String name, Device arrDevice, ConfigType configType) throws Exception {
@@ -964,6 +981,7 @@ class ArchiveDeviceFactory {
         device.setKeyStoreURL(DCM4CHEE_ARC_KEY_JKS);
         device.setKeyStoreType("JKS");
         device.setKeyStorePin("secret");
+        device.setPrimaryDeviceTypes(DEVICE_TYPES);
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType));
