@@ -45,28 +45,38 @@ import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2016
  */
 public class StudyDeleteContextImpl implements StudyDeleteContext {
 
     private final Long studyPk;
+    private final String studyIUID;
     private final List<Instance> instances = new ArrayList<>();
     private Patient patient;
     private Study study;
     private Exception exception;
+    private HttpServletRequest request;
 
-    public StudyDeleteContextImpl(Long studyPk) {
+    public StudyDeleteContextImpl(Long studyPk, String studyIUID) {
         this.studyPk = studyPk;
+        this.studyIUID = studyIUID;
     }
 
     @Override
     public Long getStudyPk() {
         return studyPk;
+    }
+
+    @Override
+    public String getStudyIUID() {
+        return studyIUID;
     }
 
     @Override
@@ -107,5 +117,15 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     @Override
     public void setPatient(Patient patient) {
         this.patient = patient;
+    }
+
+    @Override
+    public HttpServletRequest getHttpRequest() {
+        return request;
+    }
+
+    @Override
+    public void setHttpRequest(HttpServletRequest request) {
+        this.request = request;
     }
 }

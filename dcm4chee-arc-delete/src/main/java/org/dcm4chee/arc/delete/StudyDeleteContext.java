@@ -44,6 +44,7 @@ import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -52,6 +53,8 @@ import java.util.List;
  */
 public interface StudyDeleteContext {
     Long getStudyPk();
+
+    String getStudyIUID();
 
     Study getStudy();
 
@@ -68,4 +71,8 @@ public interface StudyDeleteContext {
     Patient getPatient();
 
     void setPatient(Patient patient);
+
+    HttpServletRequest getHttpRequest();
+
+    void setHttpRequest(HttpServletRequest request);
 }

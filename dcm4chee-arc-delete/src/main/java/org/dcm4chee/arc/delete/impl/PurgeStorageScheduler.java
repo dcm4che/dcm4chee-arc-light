@@ -63,6 +63,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @ApplicationScoped
@@ -160,7 +161,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 }
             }
             Long studyPk = studyPks.remove(0);
-            StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
+            StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk, null);
             try {
                 studyRemoved = ejb.removeStudyOnStorage(ctx, deletePatient);
                 if (studyRemoved) {
@@ -175,7 +176,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 studyDeletedEvent.fire(ctx);
                 return null;
             }
-        };
+        }
         return studyPks;
     }
 

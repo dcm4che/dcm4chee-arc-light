@@ -50,6 +50,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -93,11 +94,17 @@ public class DeletionServiceEJB {
 
     public boolean removeStudyOnStorage(StudyDeleteContext ctx, boolean deletePatient) {
         Long studyPk = ctx.getStudyPk();
-        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
-                .setParameter(1, studyPk)
-                .getResultList();
+        String studyUID = ctx.getStudyIUID();
+        List<Location> locations = studyUID != null
+                ? getLocations(Location.FIND_BY_STUDY_UID, studyUID) : getLocations(Location.FIND_BY_STUDY_PK, studyPk);
         deleteInstances(locations, ctx, deletePatient);
         return true;
+    }
+
+    private List<Location> getLocations(String queryName, Object parameterValue) {
+        return em.createNamedQuery(queryName, Location.class)
+                .setParameter(1, parameterValue)
+                .getResultList();
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(

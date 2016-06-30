@@ -103,8 +103,10 @@ class AuditServiceUtils {
         RJN_DELETE(EventClass.DELETE, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete,
                 null, null, true, false, false, null),
 
-        PERM_DELET(EventClass.PERM_DELETE, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
+        PRMDLT_SCH(EventClass.PERM_DELETE, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
                 null, null, false, false, false, null),
+        PRMDLT_WEB(EventClass.PERM_DELETE, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
+                null, null, true, false, false, null),
 
         APPLNSTART(EventClass.APPLN_ACTIVITY, AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute,
                 null, null, false, false, false, AuditMessages.EventTypeCode.ApplicationStart),

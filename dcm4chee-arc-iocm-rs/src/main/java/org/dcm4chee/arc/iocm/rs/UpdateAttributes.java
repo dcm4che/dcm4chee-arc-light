@@ -212,6 +212,7 @@ public class UpdateAttributes {
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
 
         StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
+        ctx.setAttributes(reader.readDataset(null));
         String studyIUIDBody = ctx.getStudyInstanceUID();
         if (studyIUIDBody == null)
             throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
@@ -226,7 +227,6 @@ public class UpdateAttributes {
                     Response.Status.NOT_FOUND);
 
         ctx.setPatient(patient);
-        ctx.setAttributes(reader.readDataset(null));
 
         studyService.updateStudy(ctx);
     }
