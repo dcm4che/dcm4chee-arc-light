@@ -181,25 +181,38 @@ public class AuditService {
         }
         Study s = ctx.getStudy();
         Patient p = ctx.getPatient();
-        BuildAuditInfo i = new BuildAuditInfo.Builder().studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
-                            .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
-                            .pName(null != ctx.getPatient().getPatientName().toString() ? ctx.getPatient().getPatientName().toString() : null).build();
-        writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.PERM_DELET),
-                getDeletionObjsForSpooling(sopClassMap, new AuditInfo(i)));
+        HttpServletRequest request = ctx.getHttpRequest();
+        BuildAuditInfo i = request != null ? buildPermDeletionAuditInfoForWeb(request, ctx, s, p)
+                                           : buildPermDeletionAuditInfoForScheduler(ctx, s, p);
+        AuditServiceUtils.EventType eventType = request != null ? AuditServiceUtils.EventType.PRMDLT_WEB : AuditServiceUtils.EventType.PRMDLT_SCH;
+        writeSpoolFile(String.valueOf(eventType), getDeletionObjsForSpooling(sopClassMap, new AuditInfo(i)));
+    }
+
+    private BuildAuditInfo buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx, Study s, Patient p) {
+        String callingAET = req.getAttribute(keycloakClassName) != null ? getPreferredUsername(req) : req.getRemoteAddr();
+        return new BuildAuditInfo.Builder().callingAET(callingAET).callingHost(req.getRemoteHost()).calledAET(req.getRequestURI())
+                .studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
+                .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
+                .pName(null != p.getPatientName().toString() ? p.getPatientName().toString() : null).build();
+    }
+
+    private BuildAuditInfo buildPermDeletionAuditInfoForScheduler(StudyDeleteContext ctx, Study s, Patient p) {
+        return new BuildAuditInfo.Builder().studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
+                .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
+                .pName(null != p.getPatientName().toString() ? p.getPatientName().toString() : null).build();
     }
 
     private void auditDeletion(SpoolFileReader readerObj, AuditServiceUtils.EventType eventType) {
         AuditInfo dI = new AuditInfo(readerObj.getMainInfo());
         EventIdentification ei = getEI(eventType, dI.getField(AuditInfo.OUTCOME), log().timeStamp());
         BuildActiveParticipant ap1 = null;
-        if (eventType.eventClass == AuditServiceUtils.EventClass.DELETE) {
+        if (eventType.isSource) {
             ap1 = new BuildActiveParticipant.Builder(
                     dI.getField(AuditInfo.CALLING_AET), dI.getField(AuditInfo.CALLING_HOST))
                     .requester(eventType.isSource).build();
         }
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(
-                eventType.eventClass == AuditServiceUtils.EventClass.DELETE
-                        ? dI.getField(AuditInfo.CALLED_AET) : getAET(device),
+                eventType.isSource ? dI.getField(AuditInfo.CALLED_AET) : getAET(device),
                 getLocalHostName(log())).altUserID(AuditLogger.processID())
                 .requester(eventType.eventClass != AuditServiceUtils.EventClass.DELETE || eventType.isDest).build();
         ParticipantObjectContainsStudy pocs = getPocs(dI.getField(AuditInfo.STUDY_UID));
