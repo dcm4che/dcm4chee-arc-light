@@ -5,6 +5,7 @@ dicomInstalled: TRUE
 dicomDeviceName: logstash
 objectClass: dicomDevice
 objectClass: dcmDevice
+dicomPrimaryDeviceType: LOG
 
 dn: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
@@ -62,6 +63,7 @@ dcmSendPendingCGet: TRUE
 dcmQueryRetrieveViewID: hideRejected
 dicomDeviceName: dcm4chee-arc
 dcmRejectExpiredStudiesFetchSize: 10
+dicomPrimaryDeviceType: ARCHIVE
 hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl
 dcmStorageID: fs1
 dicomManufacturer: dcm4che.org
