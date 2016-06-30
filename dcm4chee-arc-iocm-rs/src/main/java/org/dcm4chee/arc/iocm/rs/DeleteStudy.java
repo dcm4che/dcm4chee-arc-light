@@ -43,22 +43,21 @@ package org.dcm4chee.arc.iocm.rs;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @RequestScoped
@@ -79,12 +78,13 @@ public class DeleteStudy {
     @Context
     private HttpServletRequest request;
 
-    @POST
+    @DELETE
     @Path("/studies/{StudyUID}")
-    public void updateStudy(InputStream in) throws Exception {
+    public void deleteStudy(@PathParam("StudyUID") String studyUID) throws Exception {
         LOG.info("Process DELETE {} from {}@{}",
                 request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        //TODO
+        StudyDeleteContext ctx = deletionService.createStudyDeleteContext(studyUID, request);
+        deletionService.deleteStudy(ctx);
     }
 
     private ApplicationEntity getApplicationEntity() {

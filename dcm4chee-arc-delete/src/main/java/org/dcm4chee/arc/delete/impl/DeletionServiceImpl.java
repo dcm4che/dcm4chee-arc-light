@@ -41,23 +41,43 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.Study;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2015
  */
 @ApplicationScoped
 public class DeletionServiceImpl implements DeletionService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DeletionServiceImpl.class);
+
     @Inject
     private DeletionServiceEJB ejb;
+
+    @Inject
+    private Device device;
+
+    @Inject
+    private Event<StudyDeleteContext> studyDeletedEvent;
 
     @Override
     public int deleteRejectedInstancesBefore(Code rjCode, Date before, int fetchSize) {
@@ -78,5 +98,32 @@ public class DeletionServiceImpl implements DeletionService {
             total += deleted = ejb.deleteRejectedInstancesOrRejectionNotesBefore(queryName, rjCode, before, fetchSize);
         } while (deleted == fetchSize);
         return total;
+    }
+
+    @Override
+    public StudyDeleteContext createStudyDeleteContext(String studyUID, HttpServletRequest request) {
+        StudyDeleteContext ctx = new StudyDeleteContextImpl(null, studyUID);
+        ctx.setHttpRequest(request);
+        return ctx;
+    }
+
+    @Override
+    public void deleteStudy(StudyDeleteContext ctx) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
+        boolean studyRemoved;
+        try {
+            studyRemoved = ejb.removeStudyOnStorage(ctx, deletePatient);
+            if (studyRemoved) {
+                LOG.info("Successfully delete {} on {} from database", ctx.getStudy());
+            } else {
+                LOG.warn("Failed to delete {} on {}", ctx.getStudy(), ctx.getException());
+            }
+            studyDeletedEvent.fire(ctx);
+        } catch (Exception e) {
+            LOG.warn("Failed to delete {} on {}", ctx.getStudy(), e);
+            ctx.setException(e);
+            studyDeletedEvent.fire(ctx);
+        }
     }
 }
