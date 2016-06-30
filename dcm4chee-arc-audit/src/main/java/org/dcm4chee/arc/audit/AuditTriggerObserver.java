@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -170,6 +171,8 @@ public class AuditTriggerObserver {
     }
 
     public void onStudyUpdate(@Observes StudyMgtContext ctx) {
+        if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create))
+            return;
         if (auditService.isAuditInstalled())
             auditService.spoolProcedureRecord(ctx);
     }
