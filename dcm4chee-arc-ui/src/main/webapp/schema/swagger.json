@@ -819,41 +819,6 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies": {
-      "post": {
-        "tags": [
-          "IOCM-RS"
-        ],
-        "summary": "Create/Update Study",
-        "operationId": "CreateUpdateStudy",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "aet",
-            "in": "path",
-            "description": "Archive AE Title",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Created/Updated Study Attributes",
-            "schema": {
-              "type": "file"
-            }
-          },
-          "default": {
-            "description": "unexpected error"
-          }
-        }
-      }
-    },
     "/aets/{aet}/rs/mwlitems": {
       "get": {
         "tags": [
@@ -963,6 +928,77 @@
             "schema": {
               "type": "file"
             }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Create/Update Study",
+        "operationId": "CreateUpdateStudy",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created/Updated Study Attributes",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{studyUID}": {
+      "delete": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Delete Study Permanently",
+        "operationId": "DeleteStudy",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no such study"
           },
           "default": {
             "description": "unexpected error"
