@@ -821,11 +821,11 @@ class ArchiveDeviceFactory {
     static final String[] DEVICE_TYPES = {
             "ARCHIVE",
             "CT",
-            "ARCHIVE",
             "WSD",
             "DSS",
-            "CT",
             "DSS",
+            "CT",
+            "CT",
             "WSD",
             "WSD",
             "WSD",
