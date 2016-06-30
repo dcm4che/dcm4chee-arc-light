@@ -906,7 +906,7 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public static Device createDevice(String name, Issuer issuer, Code institutionCode, String aet,
+    public static Device createDevice(String name, String primaryDeviceType, Issuer issuer, Code institutionCode, String aet,
                                String host, int port, int tlsPort) throws Exception {
         Device device = init(new Device(name), issuer, institutionCode);
         ApplicationEntity ae = new ApplicationEntity(aet);
@@ -981,7 +981,7 @@ class ArchiveDeviceFactory {
         device.setKeyStoreURL(DCM4CHEE_ARC_KEY_JKS);
         device.setKeyStoreType("JKS");
         device.setKeyStorePin("secret");
-        device.setPrimaryDeviceTypes(DEVICE_TYPES);
+        device.setPrimaryDeviceTypes("ARCHIVE");
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType));

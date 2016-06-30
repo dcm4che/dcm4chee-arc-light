@@ -92,7 +92,7 @@ public class ArchiveDeviceConfigurationTest {
                 String aet = ArchiveDeviceFactory.OTHER_AES[i];
                 config.registerAETitle(aet);
                 config.persist(setThisNodeCertificates(
-                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i],
+                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], ArchiveDeviceFactory.DEVICE_TYPES[i],
                             ArchiveDeviceFactory.OTHER_ISSUER[i],
                             ArchiveDeviceFactory.OTHER_INST_CODES[i],
                             aet, "localhost",
