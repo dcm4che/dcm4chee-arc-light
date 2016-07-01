@@ -1,7 +1,9 @@
 <!-- <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
         filterMode:{{filterMode}}
         orderby:{{orderby}}
-<button ng-click="queryMWL(0)">MWL</button>
+        filter.orderby:{{filter.orderby}}
+        
+    <button ng-click="queryMWL(0)">MWL</button>
 </pre> -->
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
 <div class="headerblock">
@@ -178,20 +180,17 @@
                     </ul>
                 </div>
 <!--                 <button class="btn btn-default" type="button">Go!</button>
--->             <button type="button" class="btn btn-default executebutton" ng-hide="
-                        filter.orderby === '' ||
-                        filter.orderby === 'StudyDate,StudyTime' || 
-                        filter.orderby === '-StudyDate,-StudyTime' ||
-                        filter.orderby === 'PatientName,StudyDate,StudyTime'||
-                        filter.orderby === 'PatientName,-StudyDate,-StudyTime'||
-                        filter.orderby === '-PatientName,StudyDate,StudyTime'||
-                        filter.orderby === '-PatientName,-StudyDate,-StudyTime'
-                    " 
-                    id="querypatients" class="btn btn-info" ng-click="queryPatients(0);patientmode=true" title="Query Patients">
+-->             <button type="button" class="btn btn-info btn-default executebutton" ng-show="filterMode==='patient'"
+
+                    id="querypatients" ng-click="queryPatients(0);patientmode=true" title="Query Patients">
                 <span class="glyphicon glyphicon-refresh"></span>
                 </button>
-                <button type="button" class="btn btn-default executebutton" ng-disabled="filter.orderby === ''" class="btn" ng-hide="filter.orderby === 'PatientName' || filter.orderby === '-PatientName'" id="querystudies" class="btn btn-info" ng-click="queryStudies(0);patientmode=false" title="Query Studies">
-                <span class="glyphicon glyphicon-refresh"></span>
+                <button type="button" class="btn btn-default executebutton" ng-disabled="filter.orderby === ''" 
+                ng-show="filterMode==='study'" id="querystudies" class="btn btn-info" ng-click="queryStudies(0);patientmode=false" title="Query Studies">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                </button>
+                <button ng-show="filterMode==='mwl'" type="button" class="btn btn-default executebutton btn-info"  id="querymwl" ng-click="queryMWL(0);patientmode=false" title="Query MWL">
+                    <span class="glyphicon glyphicon-refresh"></span>
                 </button>
             </div>
         </div>
