@@ -111,15 +111,15 @@ public class DeletionServiceImpl implements DeletionService {
     public void deleteStudy(StudyDeleteContext ctx) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
-        boolean studyRemoved;
+        boolean nonEmptyStudyRemoved;
         try {
-            studyRemoved = ejb.removeStudyOnStorage(ctx, deletePatient);
-            if (studyRemoved) {
-                LOG.info("Successfully delete {} on {} from database", ctx.getStudy());
+            nonEmptyStudyRemoved = ejb.removeStudyOnStorage(ctx, deletePatient);
+            if (nonEmptyStudyRemoved) {
+                LOG.info("Successfully delete {} from database", ctx.getStudy());
+                studyDeletedEvent.fire(ctx);
             } else {
-                LOG.warn("Failed to delete {} on {}", ctx.getStudy(), ctx.getException());
+                LOG.warn("Successfully delete empty study {} from database", ctx.getStudyIUID());
             }
-            studyDeletedEvent.fire(ctx);
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", ctx.getStudy(), e);
             ctx.setException(e);

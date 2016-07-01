@@ -50,6 +50,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.NotFoundException;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
@@ -97,8 +98,14 @@ public class DeletionServiceEJB {
         String studyUID = ctx.getStudyIUID();
         List<Location> locations = studyUID != null
                 ? getLocations(Location.FIND_BY_STUDY_UID, studyUID) : getLocations(Location.FIND_BY_STUDY_PK, studyPk);
-        deleteInstances(locations, ctx, deletePatient);
-        return true;
+        if (locations.size() > 0) {
+            deleteInstances(locations, ctx, deletePatient);
+            return true;
+        }
+        else {
+            deleteEmptyStudy(ctx);
+            return false;
+        }
     }
 
     private List<Location> getLocations(String queryName, Object parameterValue) {
@@ -116,6 +123,15 @@ public class DeletionServiceEJB {
 
         List<Location> locations = query.setMaxResults(limit).getResultList();
         return deleteInstances(locations, null, false);
+    }
+
+    private void deleteEmptyStudy(StudyDeleteContext ctx) {
+        Study s = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                .setParameter(1, ctx.getStudyIUID()).getSingleResult();
+        if (s != null)
+            em.remove(s);
+        else
+            throw new NotFoundException("Study having study instance UID : " + ctx.getStudyIUID() + " not found.");
     }
 
     private int deleteInstances(List<Location> locations, StudyDeleteContext studyDeleteContext, boolean deletePatient) {
