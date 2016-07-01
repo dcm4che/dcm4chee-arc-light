@@ -845,7 +845,7 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "no such study"
+            "description": "no such patient"
           },
           "default": {
             "description": "unexpected error"
