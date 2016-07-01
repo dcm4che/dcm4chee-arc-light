@@ -1,5 +1,4 @@
-/*
- * *** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -16,8 +15,8 @@
  * Java(TM), hosted at https://github.com/gunterze/dcm4che.
  *
  * The Initial Developer of the Original Code is
- * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Agfa Healthcare.
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,48 +34,22 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
- */
+ * ***** END LICENSE BLOCK ***** */
 
 package org.dcm4chee.arc.delete;
 
-import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Study;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Mar 2016
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Jun 2016
  */
-public interface StudyDeleteContext {
-    Long getStudyPk();
 
-    String getStudyIUID();
+public class StudyNotFoundException extends Exception {
 
-    Study getStudy();
+    public StudyNotFoundException() {
+    }
 
-    void setStudy(Study study);
-
-    List<Instance> getInstances();
-
-    void addInstance(Instance inst);
-
-    Exception getException();
-
-    void setException(Exception exception);
-
-    Patient getPatient();
-
-    void setPatient(Patient patient);
-
-    HttpServletRequest getHttpRequest();
-
-    void setHttpRequest(HttpServletRequest request);
-
-    boolean isDeletePatientOnDeleteLastStudy();
-
-    void setDeletePatientOnDeleteLastStudy(boolean deletePatientOnDeleteLastStudy);
+    public StudyNotFoundException(String message) {
+        super(message);
+    }
 }

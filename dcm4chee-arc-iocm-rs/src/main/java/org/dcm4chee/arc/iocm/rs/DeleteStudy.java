@@ -42,6 +42,7 @@ package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.slf4j.Logger;
@@ -83,7 +84,9 @@ public class DeleteStudy {
     public void deleteStudy(@PathParam("StudyUID") String studyUID) throws Exception {
         LOG.info("Process DELETE {} from {}@{}",
                 request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         StudyDeleteContext ctx = deletionService.createStudyDeleteContext(studyUID, request);
+        ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
         deletionService.deleteStudy(ctx);
     }
 

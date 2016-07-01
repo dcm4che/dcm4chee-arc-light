@@ -42,6 +42,7 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 
@@ -50,14 +51,13 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.ws.rs.NotFoundException;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @Stateless
@@ -93,19 +93,16 @@ public class DeletionServiceEJB {
         em.remove(em.merge(location));
     }
 
-    public boolean removeStudyOnStorage(StudyDeleteContext ctx, boolean deletePatient) {
+    public boolean removeStudyOnStorage(StudyDeleteContext ctx) throws StudyNotFoundException {
         Long studyPk = ctx.getStudyPk();
         String studyUID = ctx.getStudyIUID();
         List<Location> locations = studyUID != null
                 ? getLocations(Location.FIND_BY_STUDY_UID, studyUID) : getLocations(Location.FIND_BY_STUDY_PK, studyPk);
-        if (locations.size() > 0) {
-            deleteInstances(locations, ctx, deletePatient);
-            return true;
-        }
-        else {
-            deleteEmptyStudy(ctx);
+        if (locations.isEmpty())
             return false;
-        }
+        else
+            deleteInstances(locations, ctx);
+        return true;
     }
 
     private List<Location> getLocations(String queryName, Object parameterValue) {
@@ -122,19 +119,20 @@ public class DeletionServiceEJB {
             query.setParameter(2, before);
 
         List<Location> locations = query.setMaxResults(limit).getResultList();
-        return deleteInstances(locations, null, false);
+        return deleteInstances(locations, null);
     }
 
-    private void deleteEmptyStudy(StudyDeleteContext ctx) {
+    public void deleteEmptyStudy(StudyDeleteContext ctx) throws StudyNotFoundException {
         Study s = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                 .setParameter(1, ctx.getStudyIUID()).getSingleResult();
         if (s != null)
             em.remove(s);
         else
-            throw new NotFoundException("Study having study instance UID : " + ctx.getStudyIUID() + " not found.");
+            throw new StudyNotFoundException("Study having study instance UID : " + ctx.getStudyIUID() + " not found.");
     }
 
-    private int deleteInstances(List<Location> locations, StudyDeleteContext studyDeleteContext, boolean deletePatient) {
+    private int deleteInstances(List<Location> locations, StudyDeleteContext studyDeleteContext) {
+        boolean deletePatient = studyDeleteContext != null && studyDeleteContext.isDeletePatientOnDeleteLastStudy();
         if (locations.isEmpty())
             return 0;
 

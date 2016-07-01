@@ -42,14 +42,10 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.entity.Instance;
+import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Study;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +53,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.NotFoundException;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -109,21 +105,23 @@ public class DeletionServiceImpl implements DeletionService {
 
     @Override
     public void deleteStudy(StudyDeleteContext ctx) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
-        boolean nonEmptyStudyRemoved;
+        boolean studyRemoved;
         try {
-            nonEmptyStudyRemoved = ejb.removeStudyOnStorage(ctx, deletePatient);
-            if (nonEmptyStudyRemoved) {
+            studyRemoved = ejb.removeStudyOnStorage(ctx);
+            if (studyRemoved) {
                 LOG.info("Successfully delete {} from database", ctx.getStudy());
                 studyDeletedEvent.fire(ctx);
             } else {
+                ejb.deleteEmptyStudy(ctx);
                 LOG.warn("Successfully delete empty study {} from database", ctx.getStudyIUID());
             }
+        } catch (StudyNotFoundException e) {
+            throw new NotFoundException("Study having study instance UID : " + ctx.getStudyIUID() + " not found.");
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", ctx.getStudy(), e);
             ctx.setException(e);
             studyDeletedEvent.fire(ctx);
         }
     }
+
 }
