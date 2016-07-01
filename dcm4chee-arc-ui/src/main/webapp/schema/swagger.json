@@ -817,6 +817,40 @@
             "description": "unexpected error"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Delete Patient Permanently",
+        "operationId": "DeletePatient",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no such study"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
       }
     },
     "/aets/{aet}/rs/mwlitems": {
