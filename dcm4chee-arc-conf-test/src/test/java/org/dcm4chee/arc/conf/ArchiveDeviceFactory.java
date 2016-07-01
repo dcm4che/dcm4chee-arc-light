@@ -920,6 +920,7 @@ class ArchiveDeviceFactory {
                 Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
         device.addConnection(dicomTLS);
+        device.setPrimaryDeviceTypes(primaryDeviceType);
         ae.addConnection(dicomTLS);
         return device;
     }
