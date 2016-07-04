@@ -33,7 +33,7 @@
                 <input id="PatientID" type="text" ng-model="filter.PatientID" placeholder="Patient ID" title="Patient ID" class="col-md-12" />
             </div>
             <div class="col-md-6">
-                <input autocomplete="off" id="IssuerOfPatientID" ng-disabled="disabled.IssuerOfPatientID" type="text" ng-model="filter.IssuerOfPatientID" placeholder="Issuer of patient ID" title="Issuer of patient ID" class="col-md-12" ng-click="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" />
+                <input autocomplete="off" id="IssuerOfPatientID" ng-disabled="disabled.IssuerOfPatientID" type="text" ng-model="filter.IssuerOfPatientID" placeholder="Issuer of patient ID" title="Issuer of patient ID" class="col-md-12" ng-click="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')"/>
             </div>
         </div>
     </div>
@@ -43,14 +43,17 @@
                 <input id="AccessionNumber" type="text" ng-model="filter.AccessionNumber" placeholder="Accession number" title="Accession number" class="col-md-12" />
             </div>
             <div class="col-md-6">
-                <input id="LocalNamespaceEntityID" type="text" ng-model="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder="Issuer of accession number" title="Issuer of accession number" class="col-md-12"  />
+                <input id="LocalNamespaceEntityID" type="text" ng-disabled="disabled.LocalNamespaceEntityID" ng-model="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder="Issuer of accession number" title="Issuer of accession number" class="col-md-12"  ng-keypress="conditionWarning($event, !filter.AccessionNumber, 'Accession Number is empty, set first the Accession Number!')" ng-click="conditionWarning($event, !filter.AccessionNumber, 'Accession Number is empty, set first the Accession Number!')"/>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" ng-show="filterMode === 'mwl'" >
+                <input id="ReferringPhysicianName" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="Modality" type="text" size="5"  ng-model="filter.ModalitiesInStudy" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                 <div class="modality_selector ng-hide" ng-show="showModalitySelector">
                     <a href="" ng-click="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
@@ -70,6 +73,27 @@
                         </div>
                     </div>
                 </div>
+            </div>  
+            <div class="col-md-6" ng-show="filterMode === 'mwl'">
+                <input id="Modality" type="text" size="5"  ng-model="filter['ScheduledProcedureStepSequence.Modality']" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality2"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+                <div class="modality_selector ng-hide" ng-show="showModalitySelector">
+                    <a href="" ng-click="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
+                    <div class="common">
+                        <a href="" ng-repeat="(key, value) in modalities.common" ng-click="selectModality(key)" title="{{value}}">{{key}}</a>
+                    </div>
+                    <button ng-click="filter.ScheduledProcedureStepSequence.Modality='';showModalitySelector=false;" class="clear custom_button">Clear</button>
+                    <!-- <div class="col-md-12"></div> -->
+                    <a href="" ng-click="showMore=true" ng-show="!showMore" class="more">more<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                    <a href="" ng-click="showMore=false" ng-show="showMore" class="more">less<i class="glyphicon glyphicon-triangle-top"></i></a>
+                    <div class="more_block" ng-show="showMore">
+                        <a href="" ng-repeat="(key, value) in modalities.more" ng-click="selectModality(key)" title="{{value}}">{{key}}</a>
+                        <div class="form-group">
+                            <label>Custom modality code:</label>
+                            <input ng-model="filter['ScheduledProcedureStepSequence.Modality']" />
+                            <button ng-click="showModalitySelector=false" class="custom_button">Add</button>
+                        </div>
+                    </div>
+                </div>
             </div>    
         </div>
         <div class="row">
@@ -81,10 +105,71 @@
             </div>
         </div>
         
+    </div>  
+    <div class="col-md-3 block-1-2" ng-show="filterMode === 'mwl'">
+        <div class="row">
+            <label for="StudyDateFrom" class="col-md-12">Scheduled Procedure Step Start Date / Time:</label>
+        </div>
+        <div class="row datetime">
+            <div class="block_seid">
+                <div class="col-md-12">
+                    <input 
+                        class="col-md-12"
+                        placeholder="Start date from" 
+                        ng-click="studyDateFromOpen()" 
+                        id="StudyDateFrom" 
+                        type="text" 
+                        uib-datepicker-popup="{{format}}" 
+                        ng-model="studyDate.fromObject" 
+                        is-open="studyDateFrom.opened" 
+                        datepicker-options="dateOptions"
+                        close-text="Close"/>
+                </div>
+                <div class="col-md-12">
+                    <input 
+                        class="col-md-12"
+                        placeholder="Start time from" 
+                        id="StudyTimeFrom" 
+                        type="text" 
+                        size="10"  
+                        ng-model="studyTime.fromObject" 
+                        data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
+                </div>
+            </div>
+            <div class="minus text-center">
+                -
+            </div>
+            <div class="block_seid">
+                <div class="col-md-12">
+                    <input
+                        class="col-md-12"
+                        placeholder=" Start date to"  
+                        class="col-md-12"
+                        id="StudyDateTo" 
+                        ng-click="studyDateToOpen()"  
+                        is-open="studyDateTo.opened" 
+                        close-text="Close" 
+                        type="text" 
+                        size="10" 
+                        ng-model="studyDate.toObject" 
+                        uib-datepicker-popup="{{format}}"/>
+                </div>
+                <div class="col-md-12">
+                    <input 
+                        class="col-md-12"
+                        placeholder="Start time to" 
+                        id="StudyTimeTo" 
+                        type="text" 
+                        size="10"  
+                        ng-model="studyTime.toObject" 
+                        data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-3 block-1-2" ng-show="filterMode === 'study'">
         <div class="row">
-            <label for="StudyDateFrom" class="col-md-12">Study Date:</label>
+            <label for="StudyDateFrom" class="col-md-12">Study Date / Time:</label>
         </div>
         <div class="row datetime">
             <div class="block_seid">
@@ -200,12 +285,12 @@
         </a>
     </div>
 </div>
-<div class="placeholder-35" ng-show="filterMode != 'study'"></div>
-<a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig && filterMode === 'study'" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig && filterMode === 'study'" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
+<div class="placeholder-35" ng-show="filterMode != 'study' && filterMode != 'mwl'"></div>
+<a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig && (filterMode === 'study' || filterMode === 'mwl')" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig && (filterMode === 'study' || filterMode === 'mwl')" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
 
 <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
-    <div class="col-md-3 block-2-1"  ng-show="filterMode === 'study'">
+    <div class="col-md-3 block-2-1"  ng-show="filterMode === 'study' || filterMode === 'mwl'">
 
 <!--         <div class="row">
             <label for="exporter" class="col-md-6 text-right">Export:</label>
@@ -216,11 +301,17 @@
             </div>
         </div> -->
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder="Study ID" title="Study ID" class="col-md-12" />
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder="Study description" title="Study description" class="col-md-12" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'mwl'">
+                <input id="ScheduledProcedureStepStatus" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStatus']" placeholder="SPS Status" title="Scheduled Procedure Step Status" class="col-md-12" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'mwl'">
+                <input id="ScheduledProcedureStepSequence" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledProcedureStepDescription']" placeholder="SPS Description" title="Scheduled Procedure Step Description" class="col-md-12" />
             </div>
         </div>    
 <!--         <div class="row">
@@ -253,7 +344,7 @@
         </div> -->
 
     </div>
-    <div class="col-md-3 block-2-1" ng-show="filterMode === 'study'">
+    <div class="col-md-3 block-2-1" ng-show="filterMode === 'study'|| filterMode === 'mwl'">
         <!-- <div class="row" ng-show="isRole('admin')"> -->
 <!--             <label for="reject" class="block_seid text-right">Reject:</label>
             <div class="block_seid"> -->
@@ -267,10 +358,13 @@
             <!-- </div> -->
         <!-- </div> -->
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12 clearable" />
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" ng-show="filterMode === 'mwl'">
+                <input id="ScheduledStationName" type="text" ng-model="filter.ScheduledStationName" placeholder="Scheduled Station Name" title="Scheduled Station Name" class="col-md-12 clearable" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'study'|| filterMode === 'mwl'">
                 <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12 clearable" />
             </div>
         </div>
@@ -439,7 +533,7 @@
 </div>
 
 <!-- Table -->
-<div class="div-table animated" ng-class="{extended:(advancedConfig && filterMode === 'study')}">
+<div class="div-table animated" ng-class="{extended:(advancedConfig && (filterMode === 'study' || filterMode === 'mwl'))}">
 
     <div class="repeat0" ng-repeat="(patientkey, patient) in patients" ng-init="patient.hide=false">
 <!--         <span ng-show="!patient.hide" class="glyphicon glyphicon-triangle-bottom close_patient" title="Hide this patient" ng-click="patient.hide=true"></span>        

@@ -24,7 +24,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.showModalitySelector = false;
     $scope.filter = { orderby: "StudyDate,StudyTime" };
     $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
+    $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"] = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
     $scope.studyTime = { from: '', to: ''};
+    $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"] = { from: '', to: ''};
     $scope.format = "yyyyMMdd";
     $scope.format2 = "yyyy-MM-dd";
     $scope.modalities = $modalities;
@@ -89,6 +91,21 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             value:"PatientName,-StudyDate,-StudyTime",
             label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>",
             mode:"study"
+        },
+        {
+            value:"-PatientName,-StudyDate,-StudyTime",
+            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
+            mode:"study"
+        },
+        {
+            value:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+            label:"<label title=\"Modality worklist\">MWL</label></span><span class=\"orderbydateasc\"></span>",
+            mode:"mwl"
+        },
+        {
+            value:"-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+            label:"<label title=\"Modality worklist\">MWL</label><span class=\"orderbydatedesc\"></span>",
+            mode:"mwl"
         },
         {
             value:"PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
@@ -968,9 +985,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.studyTime.toObject = null;
         $scope.studyTime.from = "";
         $scope.studyTime.to = "";
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].fromObject = null;
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].toObject = null;
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].from = "";
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].to = "";
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].fromObject = null;
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].toObject = null;
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].from = "";
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].to = "";
     };
     $scope.selectModality = function(key){
         $scope.filter.ModalitiesInStudy = key;
+        $scope.filter['ScheduledProcedureStepSequence.Modality'] = key;
         angular.element(".Modality").show();
         $scope.showModalitySelector=false;
     };
@@ -1044,7 +1070,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
                 clearInterval(watchPicker);
                 cfpLoadingBar.complete();
-
             }
         }, 10);
     };
@@ -1053,7 +1078,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         // console.log("t",t);
         // console.log("vr",vr);
         // console.log("$scope.dateOpen",$scope.dateOpen);
-        console.log("dateplaceholder[t]",$scope.dateplaceholder[t]);
+        // console.log("dateplaceholder[t]",$scope.dateplaceholder[t]);
         if(!$scope.dateOpen[t]){
             $scope.dateOpen[t] = true;
         }
@@ -1089,11 +1114,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
           nativeOnMobile: true,
           afterDone: function() {
                     cfpLoadingBar.start();
-                    StudiesService.updateTime($scope.studyTime);
+                    StudiesService.updateTime($scope.studyTime, $scope);
           }
     };
 
     $scope.$watchCollection('studyDate', function(newValue, oldValue){
+        console.log("studyDate",$scope.studyDate);
+        console.log("newValue",newValue);
+        console.log("oldValue",oldValue);
         cfpLoadingBar.start();
         if(newValue.fromObject != oldValue.fromObject){
             if($scope.studyDate.fromObject){
@@ -1101,16 +1129,22 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }else{
                 angular.element(".StudyDateFrom").hide();
             }
-            StudiesService.updateFromDate($scope.studyDate);
+            console.log("in if1");
+            StudiesService.updateFromDate($scope.studyDate, $scope);
+            // StudiesService.updateFromDate($scope.ScheduledProcedureStepSequence);
         }
         if(newValue.toObject != oldValue.toObject){
             cfpLoadingBar.start();
+            console.log("in if2");
             if($scope.studyDate.toObject){
                 angular.element(".StudyDateTo").show();
             }else{
                 angular.element(".StudyDateTo").hide();
             }
-            StudiesService.updateToDate($scope.studyDate);
+            StudiesService.updateToDate($scope.studyDate, $scope);
+            console.log("before updatetodate",$scope.ScheduledProcedureStepSequence);
+            // StudiesService.updateToDate($scope.ScheduledProcedureStepSequence);
+            console.log("after updatetodate",$scope.ScheduledProcedureStepSequence);
         }
         cfpLoadingBar.complete();
     });
@@ -1592,16 +1626,30 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     function createStudyFilterParams() {
         var filter = angular.extend({}, $scope.filter);
         appendFilter(filter, "StudyDate", $scope.studyDate, /-/g);
+        appendFilter(filter, "ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate", $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"], /-/g);
         appendFilter(filter, "StudyTime", $scope.studyTime, /:/g);
+        appendFilter(filter, "ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime", $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"], /-/g);
+        // appendFilterMWL(filter, "ScheduledProcedureStepSequence", $scope.ScheduledProcedureStepSequence, /:/g);
         return filter;
     }
     function appendFilter(filter, key, range, regex) {
+        console.log("range",range);
         var value = range.from.replace(regex, '');
         if (range.to !== range.from)
             value += '-' + range.to.replace(regex, '');
         if (value.length)
             filter[key] = value;
     }
+    // function appendFilterMWL(filter, key, range, regex) {
+    //     console.log("range",range);
+    //     var value = range["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].replace(regex, '');
+    //     // console.log("range.ScheduledProcedureStepEndDate",range.ScheduledProcedureStepEndDate);
+    //     // console.log("range.ScheduledProcedureStepStartDate",range.ScheduledProcedureStepStartDate);
+    //     if (range["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"] !== range["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"])
+    //         value += '-' + range["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].replace(regex, '');
+    //     if (value.length)
+    //         filter[key] = value;
+    // }
     function createQueryParams(offset, limit, filter) {
         var params = {
             includefield: 'all',

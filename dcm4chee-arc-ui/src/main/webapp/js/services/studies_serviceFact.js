@@ -128,7 +128,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
 		    }
 		   return yyyy+mm+dd;
         },
-        updateTime : function(studyTime){
+        updateTime : function(studyTime, scope){
             if(studyTime.fromObject){
                 var timestampFrom   = Date.parse(studyTime.fromObject);
                 var d1From          = new Date(timestampFrom);
@@ -141,6 +141,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     minuteFrom = '0'+minuteFrom;
                 }
                 studyTime.from      = hourFrom+":"+minuteFrom;
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].from = hourFrom+":"+minuteFrom;
             }
             if(studyTime.toObject){
                 var timestampTo = Date.parse(studyTime.toObject);
@@ -154,10 +155,12 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     minuteTo = '0'+minuteTo;
                 }
                 studyTime.to = hourTo+":"+minuteTo;
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].to = hourTo+":"+minuteTo;
+
             }
             cfpLoadingBar.complete();
         },
-        updateFromDate : function(studyDate){
+        updateFromDate : function(studyDate, scope){
 
             if(studyDate.fromObject){
                 var timestampFrom   = Date.parse(studyDate.fromObject);
@@ -172,12 +175,15 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     ddFrom = '0'+ddFrom;
                 }
                 studyDate.from      = yyyyFrom+MMFrom+ddFrom;
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].from = yyyyFrom+MMFrom+ddFrom;
             }else{
                 studyDate.from      = "";
             }
             cfpLoadingBar.complete();
         },
-        updateToDate : function(studyDate){
+        updateToDate : function(studyDate, scope){
+            console.log("studyDate",studyDate);
+            console.log("studyDate.toObject",studyDate.toObject);
         	if(studyDate.toObject){
                 var timestampTo   = Date.parse(studyDate.toObject);
                 var d1To          = new Date(timestampTo);
@@ -191,6 +197,9 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     ddTo = '0'+ddTo;
                 }
                 studyDate.to      = yyyyTo+MMTo+ddTo;
+                // console.log("in updateTo date studyDate.ScheduledProcedureStepEndDate",studyDate.ScheduledProcedureStepEndDate);
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].to     = yyyyTo+MMTo+ddTo;
+                // console.log("in updateTo date studyDate.ScheduledProcedureStepEndDate",ScheduledProcedureStepSequence.ScheduledProcedureStepEndDate);
             }else{
                 studyDate.to      = "";
             }
