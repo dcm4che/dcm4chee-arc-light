@@ -84,9 +84,7 @@ public class DeleteStudy {
     public void deleteStudy(@PathParam("StudyUID") String studyUID) throws Exception {
         LOG.info("Process DELETE {} from {}@{}",
                 request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        StudyDeleteContext ctx = deletionService.createStudyDeleteContext(studyUID, request);
-        ctx.setDeletePatientOnDeleteLastStudy(false);
-        deletionService.deleteStudy(ctx);
+        deletionService.deleteStudy(studyUID, request);
     }
 
     private ApplicationEntity getApplicationEntity() {

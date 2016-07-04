@@ -60,7 +60,7 @@ public interface DeletionService {
 
     StudyDeleteContext createStudyDeleteContext(String studyUID, HttpServletRequest httpRequest);
 
-    void deleteStudy(StudyDeleteContext ctx);
+    void deleteStudy(String studyUID, HttpServletRequest request);
 
     void deletePatient(IDWithIssuer patientID, HttpServletRequest request, ApplicationEntity ae);
 }

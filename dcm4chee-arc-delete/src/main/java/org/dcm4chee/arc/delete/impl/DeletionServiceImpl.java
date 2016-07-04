@@ -124,9 +124,16 @@ public class DeletionServiceImpl implements DeletionService {
     }
 
     @Override
-    public void deleteStudy(StudyDeleteContext ctx) {
+    public void deleteStudy(String studyUID, HttpServletRequest request) {
+        List<Study> studyList = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                .setParameter(1, studyUID).getResultList();
         boolean studyRemoved;
+        StudyDeleteContext ctx = null;
         try {
+            if (studyList.isEmpty())
+                throw new StudyNotFoundException();
+            ctx = createStudyDeleteContext(studyUID, request);
+            ctx.setDeletePatientOnDeleteLastStudy(false);
             studyRemoved = ejb.removeStudyOnStorage(ctx);
             if (studyRemoved) {
                 LOG.info("Successfully delete {} from database", ctx.getStudy());
@@ -136,7 +143,7 @@ public class DeletionServiceImpl implements DeletionService {
                 LOG.warn("Successfully delete empty study {} from database", ctx.getStudyIUID());
             }
         } catch (StudyNotFoundException e) {
-            throw new NotFoundException("Study having study instance UID : " + ctx.getStudyIUID() + " not found.");
+            throw new NotFoundException("Study having study instance UID : " + studyUID + " not found.");
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", ctx.getStudy(), e);
             ctx.setException(e);
@@ -177,6 +184,7 @@ public class DeletionServiceImpl implements DeletionService {
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", patientID, e);
             ctx.setException(e);
+            patientDeletedEvent.fire(ctx);
         }
     }
 
