@@ -44,7 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.AEExtension;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
-import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 
 import java.io.File;
@@ -81,8 +80,8 @@ public class ArchiveAEExtension extends AEExtension {
     private int qidoMaxNumberOfResults;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private String fallbackCMoveSCPStudyOlderThan;
-    private String storagePermissionServiceURL;
-    private Pattern storagePermissionServiceResponsePattern;
+    private String storePermissionServiceURL;
+    private Pattern storePermissionServiceResponsePattern;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -403,32 +402,32 @@ public class ArchiveAEExtension extends AEExtension {
         this.fallbackCMoveSCPStudyOlderThan = fallbackCMoveSCPStudyOlderThan;
     }
 
-    public String getStoragePermissionServiceURL() {
-        return storagePermissionServiceURL;
+    public String getStorePermissionServiceURL() {
+        return storePermissionServiceURL;
     }
 
-    public void setStoragePermissionServiceURL(String storagePermissionServiceURL) {
-        this.storagePermissionServiceURL = storagePermissionServiceURL;
+    public void setStorePermissionServiceURL(String storePermissionServiceURL) {
+        this.storePermissionServiceURL = storePermissionServiceURL;
     }
 
-    public String storagePermissionServiceURL() {
-        return storagePermissionServiceURL != null
-                ? storagePermissionServiceURL
-                : getArchiveDeviceExtension().getStoragePermissionServiceURL();
+    public String storePermissionServiceURL() {
+        return storePermissionServiceURL != null
+                ? storePermissionServiceURL
+                : getArchiveDeviceExtension().getStorePermissionServiceURL();
     }
 
-    public Pattern getStoragePermissionServiceResponsePattern() {
-        return storagePermissionServiceResponsePattern;
+    public Pattern getStorePermissionServiceResponsePattern() {
+        return storePermissionServiceResponsePattern;
     }
 
-    public void setStoragePermissionServiceResponsePattern(Pattern storagePermissionServiceResponsePattern) {
-        this.storagePermissionServiceResponsePattern = storagePermissionServiceResponsePattern;
+    public void setStorePermissionServiceResponsePattern(Pattern storePermissionServiceResponsePattern) {
+        this.storePermissionServiceResponsePattern = storePermissionServiceResponsePattern;
     }
 
-    public Pattern storagePermissionServiceResponsePattern() {
-        return storagePermissionServiceResponsePattern != null
-                ? storagePermissionServiceResponsePattern
-                : getArchiveDeviceExtension().getStoragePermissionServiceResponsePattern();
+    public Pattern storePermissionServiceResponsePattern() {
+        return storePermissionServiceResponsePattern != null
+                ? storePermissionServiceResponsePattern
+                : getArchiveDeviceExtension().getStorePermissionServiceResponsePattern();
     }
 
     public QueryRetrieveView getQueryRetrieveView() {
@@ -526,8 +525,8 @@ public class ArchiveAEExtension extends AEExtension {
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
-        storagePermissionServiceURL = aeExt.storagePermissionServiceURL;
-        storagePermissionServiceResponsePattern = aeExt.storagePermissionServiceResponsePattern;
+        storePermissionServiceURL = aeExt.storePermissionServiceURL;
+        storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

@@ -110,11 +110,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int rejectExpiredSeriesFetchSize = 0;
     private String rejectExpiredStudiesAETitle;
     private String fallbackCMoveSCPStudyOlderThan;
-    private String storagePermissionServiceURL;
-    private Pattern storagePermissionServiceResponsePattern;
-    private String storageDeniedAccessControlID;
-    private Duration storageDeniedDeleteDelay;
-    private int storageDeniedDeleteFetchSize = 100;
+    private String storePermissionServiceURL;
+    private Pattern storePermissionServiceResponsePattern;
+    private String storeDeniedAccessControlID;
+    private Duration storeDeniedDeleteDelay;
+    private int storeDeniedDeleteFetchSize = 100;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -612,44 +612,44 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hideSPSWithStatusFrom = hideSPSWithStatusFrom;
     }
 
-    public String getStoragePermissionServiceURL() {
-        return storagePermissionServiceURL;
+    public String getStorePermissionServiceURL() {
+        return storePermissionServiceURL;
     }
 
-    public void setStoragePermissionServiceURL(String storagePermissionServiceURL) {
-        this.storagePermissionServiceURL = storagePermissionServiceURL;
+    public void setStorePermissionServiceURL(String storePermissionServiceURL) {
+        this.storePermissionServiceURL = storePermissionServiceURL;
     }
 
-    public Pattern getStoragePermissionServiceResponsePattern() {
-        return storagePermissionServiceResponsePattern;
+    public Pattern getStorePermissionServiceResponsePattern() {
+        return storePermissionServiceResponsePattern;
     }
 
-    public void setStoragePermissionServiceResponsePattern(Pattern storagePermissionServiceResponsePattern) {
-        this.storagePermissionServiceResponsePattern = storagePermissionServiceResponsePattern;
+    public void setStorePermissionServiceResponsePattern(Pattern storePermissionServiceResponsePattern) {
+        this.storePermissionServiceResponsePattern = storePermissionServiceResponsePattern;
     }
 
-    public String getStorageDeniedAccessControlID() {
-        return storageDeniedAccessControlID;
+    public String getStoreDeniedAccessControlID() {
+        return storeDeniedAccessControlID;
     }
 
-    public void setStorageDeniedAccessControlID(String storageDeniedAccessControlID) {
-        this.storageDeniedAccessControlID = storageDeniedAccessControlID;
+    public void setStoreDeniedAccessControlID(String storeDeniedAccessControlID) {
+        this.storeDeniedAccessControlID = storeDeniedAccessControlID;
     }
 
-    public Duration getStorageDeniedDeleteDelay() {
-        return storageDeniedDeleteDelay;
+    public Duration getStoreDeniedDeleteDelay() {
+        return storeDeniedDeleteDelay;
     }
 
-    public void setStorageDeniedDeleteDelay(Duration storageDeniedDeleteDelay) {
-        this.storageDeniedDeleteDelay = storageDeniedDeleteDelay;
+    public void setStoreDeniedDeleteDelay(Duration storeDeniedDeleteDelay) {
+        this.storeDeniedDeleteDelay = storeDeniedDeleteDelay;
     }
 
-    public int getStorageDeniedDeleteFetchSize() {
-        return storageDeniedDeleteFetchSize;
+    public int getStoreDeniedDeleteFetchSize() {
+        return storeDeniedDeleteFetchSize;
     }
 
-    public void setStorageDeniedDeleteFetchSize(int storageDeniedDeleteFetchSize) {
-        this.storageDeniedDeleteFetchSize = storageDeniedDeleteFetchSize;
+    public void setStoreDeniedDeleteFetchSize(int storeDeniedDeleteFetchSize) {
+        this.storeDeniedDeleteFetchSize = storeDeniedDeleteFetchSize;
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {
@@ -941,11 +941,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rejectExpiredSeriesFetchSize = arcdev.rejectExpiredSeriesFetchSize;
         rejectExpiredStudiesAETitle = arcdev.rejectExpiredStudiesAETitle;
         fallbackCMoveSCPStudyOlderThan = arcdev.fallbackCMoveSCPStudyOlderThan;
-        storagePermissionServiceURL = arcdev.storagePermissionServiceURL;
-        storagePermissionServiceResponsePattern = arcdev.storagePermissionServiceResponsePattern;
-        storageDeniedAccessControlID= arcdev.storageDeniedAccessControlID;
-        storageDeniedDeleteDelay = arcdev.storageDeniedDeleteDelay;
-        storageDeniedDeleteFetchSize = arcdev.storageDeniedDeleteFetchSize;
+        storePermissionServiceURL = arcdev.storePermissionServiceURL;
+        storePermissionServiceResponsePattern = arcdev.storePermissionServiceResponsePattern;
+        storeDeniedAccessControlID = arcdev.storeDeniedAccessControlID;
+        storeDeniedDeleteDelay = arcdev.storeDeniedDeleteDelay;
+        storeDeniedDeleteFetchSize = arcdev.storeDeniedDeleteFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();
