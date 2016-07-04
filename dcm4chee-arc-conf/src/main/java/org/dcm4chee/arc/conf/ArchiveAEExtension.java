@@ -44,10 +44,12 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.AEExtension;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -79,6 +81,8 @@ public class ArchiveAEExtension extends AEExtension {
     private int qidoMaxNumberOfResults;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private String fallbackCMoveSCPStudyOlderThan;
+    private String storagePermissionServiceURL;
+    private Pattern storagePermissionServiceResponsePattern;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -399,6 +403,34 @@ public class ArchiveAEExtension extends AEExtension {
         this.fallbackCMoveSCPStudyOlderThan = fallbackCMoveSCPStudyOlderThan;
     }
 
+    public String getStoragePermissionServiceURL() {
+        return storagePermissionServiceURL;
+    }
+
+    public void setStoragePermissionServiceURL(String storagePermissionServiceURL) {
+        this.storagePermissionServiceURL = storagePermissionServiceURL;
+    }
+
+    public String storagePermissionServiceURL() {
+        return storagePermissionServiceURL != null
+                ? storagePermissionServiceURL
+                : getArchiveDeviceExtension().getStoragePermissionServiceURL();
+    }
+
+    public Pattern getStoragePermissionServiceResponsePattern() {
+        return storagePermissionServiceResponsePattern;
+    }
+
+    public void setStoragePermissionServiceResponsePattern(Pattern storagePermissionServiceResponsePattern) {
+        this.storagePermissionServiceResponsePattern = storagePermissionServiceResponsePattern;
+    }
+
+    public Pattern storagePermissionServiceResponsePattern() {
+        return storagePermissionServiceResponsePattern != null
+                ? storagePermissionServiceResponsePattern
+                : getArchiveDeviceExtension().getStoragePermissionServiceResponsePattern();
+    }
+
     public QueryRetrieveView getQueryRetrieveView() {
         return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
     }
@@ -494,6 +526,8 @@ public class ArchiveAEExtension extends AEExtension {
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
+        storagePermissionServiceURL = aeExt.storagePermissionServiceURL;
+        storagePermissionServiceResponsePattern = aeExt.storagePermissionServiceResponsePattern;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

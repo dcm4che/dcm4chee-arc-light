@@ -47,6 +47,7 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -56,7 +57,6 @@ import java.util.*;
 public class ArchiveDeviceExtension extends DeviceExtension {
 
     private String fuzzyAlgorithmClass;
-
     private String storageID;
     private OverwritePolicy overwritePolicy;
     private String bulkDataSpoolDirectory;
@@ -110,6 +110,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int rejectExpiredSeriesFetchSize = 0;
     private String rejectExpiredStudiesAETitle;
     private String fallbackCMoveSCPStudyOlderThan;
+    private String storagePermissionServiceURL;
+    private Pattern storagePermissionServiceResponsePattern;
+    private String storageDeniedAccessControlID;
+    private Duration storageDeniedDeleteDelay;
+    private int storageDeniedDeleteFetchSize = 100;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -607,6 +612,46 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hideSPSWithStatusFrom = hideSPSWithStatusFrom;
     }
 
+    public String getStoragePermissionServiceURL() {
+        return storagePermissionServiceURL;
+    }
+
+    public void setStoragePermissionServiceURL(String storagePermissionServiceURL) {
+        this.storagePermissionServiceURL = storagePermissionServiceURL;
+    }
+
+    public Pattern getStoragePermissionServiceResponsePattern() {
+        return storagePermissionServiceResponsePattern;
+    }
+
+    public void setStoragePermissionServiceResponsePattern(Pattern storagePermissionServiceResponsePattern) {
+        this.storagePermissionServiceResponsePattern = storagePermissionServiceResponsePattern;
+    }
+
+    public String getStorageDeniedAccessControlID() {
+        return storageDeniedAccessControlID;
+    }
+
+    public void setStorageDeniedAccessControlID(String storageDeniedAccessControlID) {
+        this.storageDeniedAccessControlID = storageDeniedAccessControlID;
+    }
+
+    public Duration getStorageDeniedDeleteDelay() {
+        return storageDeniedDeleteDelay;
+    }
+
+    public void setStorageDeniedDeleteDelay(Duration storageDeniedDeleteDelay) {
+        this.storageDeniedDeleteDelay = storageDeniedDeleteDelay;
+    }
+
+    public int getStorageDeniedDeleteFetchSize() {
+        return storageDeniedDeleteFetchSize;
+    }
+
+    public void setStorageDeniedDeleteFetchSize(int storageDeniedDeleteFetchSize) {
+        this.storageDeniedDeleteFetchSize = storageDeniedDeleteFetchSize;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -896,6 +941,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rejectExpiredSeriesFetchSize = arcdev.rejectExpiredSeriesFetchSize;
         rejectExpiredStudiesAETitle = arcdev.rejectExpiredStudiesAETitle;
         fallbackCMoveSCPStudyOlderThan = arcdev.fallbackCMoveSCPStudyOlderThan;
+        storagePermissionServiceURL = arcdev.storagePermissionServiceURL;
+        storagePermissionServiceResponsePattern = arcdev.storagePermissionServiceResponsePattern;
+        storageDeniedAccessControlID= arcdev.storageDeniedAccessControlID;
+        storageDeniedDeleteDelay = arcdev.storageDeniedDeleteDelay;
+        storageDeniedDeleteFetchSize = arcdev.storageDeniedDeleteFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();

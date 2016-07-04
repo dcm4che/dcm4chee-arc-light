@@ -599,6 +599,36 @@ attributetype ( 1.2.40.0.13.1.15.110.3.100 NAME 'dcmIDGeneratorInitialValue'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.101 NAME 'dcmStoragePermissionServiceURL'
+  DESC 'URL of Storage Permission Service which will be invoked on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030}'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.102 NAME 'dcmStoragePermissionServiceResponsePattern'
+  DESC 'Regular Expression applied to responses from Storage Permission Service to determine agreement for storage. E.g. (?s).*"validation"\s*:\s*"true".* . If absent, every success response will be treated as agreement for storage.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.103 NAME 'dcmStorageDeniedAccessControlID'
+  DESC 'AccessControlID used to mark studies which storage was denied by the Storage Permission Service and which will be deleted after configured dcmStorageDeniedDeleteDelay. If absent, check for Storage Permission is disabled.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.104 NAME 'dcmStorageDeniedDeleteDelay'
+  DESC 'Delay of deletion of Studies which storage was denied by the Storage Permission Service in ISO-8601 duration format PnDTnHnMn.nS. If absent, Studies which storage was denied will not be deleted automatically.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.105 NAME 'dcmStorageDeniedDeleteFetchSize'
+  DESC 'Maximal number of Studies which storage was denied by the Storage Permission Service fetched in one query for deletion; 100 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -660,7 +690,12 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRejectExpiredStudiesPollingStartTime $
     dcmRejectExpiredStudiesFetchSize $
     dcmRejectExpiredSeriesFetchSize $
-    dcmRejectExpiredStudiesAETitle ))
+    dcmRejectExpiredStudiesAETitle $
+    dcmStoragePermissionServiceURL $
+    dcmStoragePermissionServiceResponsePattern $
+    dcmStorageDeniedAccessControlID $
+    dcmStorageDeniedDeleteDelay $
+    dcmStorageDeniedDeleteFetchSize ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
@@ -690,7 +725,9 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
-    dcmAltCMoveSCP ) )
+    dcmAltCMoveSCP $
+    dcmStoragePermissionServiceURL $
+    dcmStoragePermissionServiceResponsePattern ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
