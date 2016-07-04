@@ -41,20 +41,30 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.PatientNotFoundException;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.patient.PatientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotFoundException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -66,8 +76,14 @@ public class DeletionServiceImpl implements DeletionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeletionServiceImpl.class);
 
+    @PersistenceContext(unitName = "dcm4chee-arc")
+    private EntityManager em;
+
     @Inject
     private DeletionServiceEJB ejb;
+
+    @Inject
+    private PatientService patientService;
 
     @Inject
     private Device device;
@@ -121,6 +137,39 @@ public class DeletionServiceImpl implements DeletionService {
             LOG.warn("Failed to delete {} on {}", ctx.getStudy(), e);
             ctx.setException(e);
             studyDeletedEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public void deletePatient(IDWithIssuer patientID, HttpServletRequest request, ApplicationEntity ae) {
+        Patient patient = patientService.findPatient(patientID);
+        PatientMgtContext ctx = null;
+        try {
+            if (patient == null)
+                throw new PatientNotFoundException();
+            ctx = patientService.createPatientMgtContextWEB(request, ae);
+            ctx.setPatientID(patientID);
+            List<Study> sList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class).setParameter(1, patient).getResultList();
+            boolean studiesRemoved;
+            for (Study s : sList) {
+                Long studyPk = s.getPk();
+                StudyDeleteContextImpl sCtx = new StudyDeleteContextImpl(studyPk, null);
+                sCtx.setDeletePatientOnDeleteLastStudy(false);
+                sCtx.setHttpRequest(ctx.getHttpRequest());
+                studiesRemoved = ejb.removeStudyOnStorage(sCtx);
+                if(!studiesRemoved)
+                    ejb.deleteEmptyStudy(sCtx);
+                else
+                    studyDeletedEvent.fire(sCtx);
+            }
+            patientService.deletePatient(patient);
+            LOG.info("Successfully delete {} from database", patientID);
+            //fire patientdeletedevent
+        } catch (PatientNotFoundException e) {
+            throw new NotFoundException("Patient having patient ID : " + patientID + " not found.");
+        } catch (Exception e) {
+            LOG.warn("Failed to delete {} on {}", patientID, e);
+            ctx.setException(e);
         }
     }
 

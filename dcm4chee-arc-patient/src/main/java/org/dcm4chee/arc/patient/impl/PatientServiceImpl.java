@@ -64,6 +64,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 @ApplicationScoped
@@ -161,5 +162,10 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public Patient findPatient(PatientMgtContext ctx) {
         return ejb.findPatient(ctx);
+    }
+
+    @Override
+    public void deletePatient(Patient patient) {
+        ejb.deletePatient(patient);
     }
 }

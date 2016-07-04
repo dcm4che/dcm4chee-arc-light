@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.patient;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
@@ -53,6 +52,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 public interface PatientService {
@@ -79,4 +79,6 @@ public interface PatientService {
             throws NonUniquePatientException, PatientMergedException;
 
     Patient findPatient(PatientMgtContext ctx);
+
+    void deletePatient(Patient patient);
 }

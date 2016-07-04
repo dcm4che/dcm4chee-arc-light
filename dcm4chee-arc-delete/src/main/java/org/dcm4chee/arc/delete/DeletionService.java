@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.delete;
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.net.ApplicationEntity;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -59,4 +61,6 @@ public interface DeletionService {
     StudyDeleteContext createStudyDeleteContext(String studyUID, HttpServletRequest httpRequest);
 
     void deleteStudy(StudyDeleteContext ctx);
+
+    void deletePatient(IDWithIssuer patientID, HttpServletRequest request, ApplicationEntity ae);
 }

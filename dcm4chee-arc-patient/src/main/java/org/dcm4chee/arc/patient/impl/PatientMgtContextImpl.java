@@ -57,6 +57,7 @@ import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2016
  */
 public class PatientMgtContextImpl implements PatientMgtContext {
@@ -195,5 +196,10 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setException(Exception exception) {
         this.exception = exception;
+    }
+
+    @Override
+    public void setPatientID(IDWithIssuer patientID) {
+        this.patientID = patientID;
     }
 }

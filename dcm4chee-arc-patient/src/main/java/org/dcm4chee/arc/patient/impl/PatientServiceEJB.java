@@ -57,6 +57,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -258,5 +259,24 @@ public class PatientServiceEJB {
             patientID.setIssuer(issuerService.findOrCreate(idWithIssuer.getIssuer()));
 
         return patientID;
+    }
+
+    public void deletePatient(Patient patient) {
+        if (em.createNamedQuery(Patient.COUNT_BY_MERGED_WITH, Long.class)
+                .setParameter(1, patient)
+                .getSingleResult() > 0) {
+            return;
+        }
+        List<MPPS> mppsList = em.createNamedQuery(MPPS.FIND_BY_PATIENT, MPPS.class)
+                .setParameter(1, patient)
+                .getResultList();
+        for (MPPS mpps : mppsList)
+            em.remove(mpps);
+        if (em.contains(patient))
+            em.remove(patient);
+        else {
+            Patient p = em.merge(patient);
+            em.remove(p);
+        }
     }
 }

@@ -44,7 +44,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.delete.DeletionService;
-import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.patient.PatientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +75,9 @@ public class DeletePatient {
     @Inject
     private DeletionService deletionService;
 
+    @Inject
+    private PatientService patientService;
+
     @PathParam("AETitle")
     private String aet;
 
@@ -83,10 +86,10 @@ public class DeletePatient {
 
     @DELETE
     @Path("/patients/{PatientID}")
-    public void deleteStudy(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
+    public void deletePatient(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
         LOG.info("Process DELETE {} from {}@{}",
                 request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        //TODO
+        deletionService.deletePatient(patientID, request, getApplicationEntity());
     }
 
     private ApplicationEntity getApplicationEntity() {

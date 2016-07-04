@@ -42,9 +42,12 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.delete.PatientNotFoundException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.patient.PatientService;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -68,6 +71,9 @@ public class DeletionServiceEJB {
 
     @Inject
     private CodeCache codeCache;
+
+    @Inject
+    private PatientService patientService;
 
     public List<Location> findLocationsToDelete(String storageID, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
@@ -93,7 +99,7 @@ public class DeletionServiceEJB {
         em.remove(em.merge(location));
     }
 
-    public boolean removeStudyOnStorage(StudyDeleteContext ctx) throws StudyNotFoundException {
+    public boolean removeStudyOnStorage(StudyDeleteContext ctx) {
         Long studyPk = ctx.getStudyPk();
         String studyUID = ctx.getStudyIUID();
         List<Location> locations = studyUID != null
@@ -187,23 +193,9 @@ public class DeletionServiceEJB {
         }
         for (Patient patient : patients.values()) {
             if (patient != null && countStudiesOfPatient(patient) == 0)
-                deletePatient(patient);
+                patientService.deletePatient(patient);
         }
         return insts.size();
-    }
-
-    private void deletePatient(Patient patient) {
-        if (em.createNamedQuery(Patient.COUNT_BY_MERGED_WITH, Long.class)
-                .setParameter(1, patient)
-                .getSingleResult() > 0) {
-             return;
-        }
-        List<MPPS> mppsList = em.createNamedQuery(MPPS.FIND_BY_PATIENT, MPPS.class)
-                .setParameter(1, patient)
-                .getResultList();
-        for (MPPS mpps : mppsList)
-            em.remove(mpps);
-        em.remove(patient);
     }
 
     private long countStudiesOfPatient(Patient patient) {

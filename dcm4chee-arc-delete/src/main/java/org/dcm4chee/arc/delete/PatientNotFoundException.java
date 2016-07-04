@@ -1,5 +1,4 @@
-/*
- * ** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -16,8 +15,8 @@
  * Java(TM), hosted at https://github.com/gunterze/dcm4che.
  *
  * The Initial Developer of the Original Code is
- * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Agfa Healthcare.
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,65 +34,20 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * ** END LICENSE BLOCK *****
- */
+ * ***** END LICENSE BLOCK ***** */
 
-package org.dcm4chee.arc.patient;
-
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.AttributeFilter;
-
-import javax.servlet.http.HttpServletRequest;
+package org.dcm4chee.arc.delete;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Mar 2016
+ * @since Jun 2016
  */
-public interface PatientMgtContext {
-    AttributeFilter getAttributeFilter();
 
-    FuzzyStr getFuzzyStr();
+public class PatientNotFoundException extends Exception {
+    public PatientNotFoundException() {
+    }
 
-    Association getAssociation();
-
-    HttpServletRequest getHttpRequest();
-
-    HL7Segment getHL7MessageHeader();
-
-    String getCalledAET();
-
-    String getCallingAET();
-
-    String getRemoteHostName();
-
-    IDWithIssuer getPatientID();
-
-    Attributes getAttributes();
-
-    void setAttributes(Attributes attributes);
-
-    IDWithIssuer getPreviousPatientID();
-
-    Attributes getPreviousAttributes();
-
-    void setPreviousAttributes(Attributes attrs);
-
-    Attributes.UpdatePolicy getAttributeUpdatePolicy();
-
-    void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy);
-
-    String getEventActionCode();
-
-    void setEventActionCode(String eventActionCode);
-
-    Exception getException();
-
-    void setException(Exception ex);
-
-    void setPatientID(IDWithIssuer patientID);
+    public PatientNotFoundException(String message) {
+        super(message);
+    }
 }
