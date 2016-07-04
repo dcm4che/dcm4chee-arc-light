@@ -182,8 +182,6 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             cfpLoadingBar.complete();
         },
         updateToDate : function(studyDate, scope){
-            console.log("studyDate",studyDate);
-            console.log("studyDate.toObject",studyDate.toObject);
         	if(studyDate.toObject){
                 var timestampTo   = Date.parse(studyDate.toObject);
                 var d1To          = new Date(timestampTo);
@@ -314,11 +312,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             return object;
         },
         convertDateToString : function($scope, mode){
-            console.log("mode",mode);
             angular.forEach($scope[mode].attrs,function(m, i){
-                console.log("m",m);
-                console.log("i",i);
-                console.log("$scope[mode][i]",$scope[mode].attrs[i]);
                 if(m.vr === "DA"){
                     // var string = value.Value[0];
                     // var yyyy = string.substring(0,4);
@@ -330,7 +324,6 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
                     // console.log("testDate",testDate);
                     var d = new Date($scope.dateplaceholder[i]);
-                    console.log("d",d);
                     d.yyyymmdd();
                     // console.log("d",d.yyyymmdd());
                     // var timestampDate   = Date.parse(m.Value[0]);

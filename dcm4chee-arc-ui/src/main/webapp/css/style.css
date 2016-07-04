@@ -534,9 +534,9 @@ table.subtable_1, table.subtable_2 {
         padding-left: 7px;
         width: 10%;
         border-right: 1px solid #dddddd; }
-      .headerblock > .header_block > .thead.header2 > .tr_row {
+      .headerblock > .header_block > .thead.header2 > .tr_row, .headerblock > .header_block > .thead.header5 > .tr_row {
         padding-left: 3%; }
-        .headerblock > .header_block > .thead.header2 > .tr_row .th:first-child {
+        .headerblock > .header_block > .thead.header2 > .tr_row .th:first-child, .headerblock > .header_block > .thead.header5 > .tr_row .th:first-child {
           border: none; }
       .headerblock > .header_block > .thead.header3 > .tr_row {
         padding-left: 6%; }

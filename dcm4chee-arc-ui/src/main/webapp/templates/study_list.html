@@ -48,7 +48,7 @@
         </div>
         <div class="row">
             <div class="col-md-6" ng-show="filterMode === 'mwl'" >
-                <input id="ReferringPhysicianName" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
+                <input id="ScheduledStationAETitle" type="text" ng-model="filter.ScheduledStationAETitle" placeholder="Scheduled Station AE Title" title="Scheduled Station AE Title" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
@@ -75,7 +75,7 @@
                 </div>
             </div>  
             <div class="col-md-6" ng-show="filterMode === 'mwl'">
-                <input id="Modality" type="text" size="5"  ng-model="filter['ScheduledProcedureStepSequence.Modality']" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality2"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+                <input id="Modality" type="text" size="5"  ng-model="filter['ScheduledProcedureStepSequence.Modality']" ng-click="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                 <div class="modality_selector ng-hide" ng-show="showModalitySelector">
                     <a href="" ng-click="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                     <div class="common">
@@ -362,7 +362,7 @@
                 <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'mwl'">
-                <input id="ScheduledStationName" type="text" ng-model="filter.ScheduledStationName" placeholder="Scheduled Station Name" title="Scheduled Station Name" class="col-md-12 clearable" />
+                <input id="ReferringPhysicianName" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'|| filterMode === 'mwl'">
                 <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12 clearable" />
@@ -477,7 +477,6 @@
                 <div style="width:3%" class="th">#I</div>
             </div>
         </div>
-
         <div class="thead header3" ng-class="{'hover':visibleHeaderIndex === 2}">
             
             <div class="tr_row">
@@ -529,6 +528,33 @@
                 <div style="width:2%" class="th">#F</div>
             </div>
         </div>
+        <div class="thead header5" ng-class="{'hover':visibleHeaderIndex === 4}">
+            <div class="tr_row">
+                <div class="th">                
+
+                </div>
+                <div class="th">
+                        Requested Procedure ID
+                </div>
+                <div class="th"  style="width:16.6%">
+                        Study Instance UID
+                </div>
+                <div class="th" title="Scheduled Procedure Step Start Date">SPS Start Date
+<!--                     <a href="" class="order_arrow" ng-click="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)">
+                        <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
+                    </a>
+                    <a href="" class="order_arrow" ng-click="filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)">
+                        <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                    </a> -->
+                </div>
+                <div style="width:5%" class="th" title="Scheduled Procedure Step Start Time">SPS Start Time</div>
+                <div class="th" title="Scheduled Performing Physician's Name">SP Physician's Name</div>
+                <div class="th">Accession Number</div>
+                <div style="width:5%" class="th">Modalitie</div>
+                <div style="width:17.3%" class="th" title="Scheduled Procedure Step Description">SPS Description</div>
+                <div style="width:6%" class="th" title="Scheduled Station AE Title">SS AE Title</div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -548,7 +574,10 @@
                     <a class="table_btn" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a>               
-                    <a class="table_btn" ng-click="createStudy(patient)" href="" title="Create study">
+                    <a ng-show="patient.studies" class="table_btn" ng-click="createStudy(patient)" href="" title="Create study">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </a>               
+                    <a gn-show="patient.mwls"class="table_btn" ng-click="createStudy(patient)" href="" title="Create MWL">
                         <span class="glyphicon glyphicon-plus"></span>
                     </a>
                     <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
@@ -567,7 +596,7 @@
                 <attribute-list ng-if="patient.attrs" attrs="patient.attrs"></attribute-list>
             </div>
         </div>
-        <div class="repeat1" ng-repeat="(studykey, study) in patient.studies">
+        <div ng-show="patient.studies" class="repeat1" ng-repeat="(studykey, study) in patient.studies">
 <!--             <div class="thead">
                 <div class="tr_row">
                     <div class="th">     
@@ -823,18 +852,107 @@
 
             </div>
         </div>
+        <div ng-show="patient.mwls" class="repeat1" ng-repeat="(mwlkey, mwl) in patient.mwls">
+            <div class="tbody">
+                <div class="tr_row">
+                    <div class="colcell" ng-bind="mwl.offset+1+'.'"> </div>
+                    <div class="subblock">
+                        <div class="td_row thead repeat4_hover">
+                            <div class="td_cell table_btn">
+                                <a ng-click="mwl.showAttributes = !mwl.showAttributes" href="" title="Show Attributes">
+                                    <span class="glyphicon glyphicon-th-list"></span>
+                                </a>
+                                <a ng-click="editMWL(patients[patientkey], patientkey, mwlkey, mwl)" href="" title="Edit MWL">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </a>
+<!--                                 <a ng-click="exportStudy(mwl)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
+                                    <span class="glyphicon glyphicon-export"></span>
+                                </a>
+                                <a ng-hide="trashaktive || !isRole('admin') || mwl.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(mwl)" href="" title="Reject Study">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                                <a ng-show="trashaktive && isRole('admin')" ng-click="rejectStudy(mwl)" href="" title="Restore Study">
+                                    <span class="glyphicon glyphicon-repeat"></span>
+                                </a> -->
+                                <!--
+                                <a ng-href="{{study.attrs['00081190'].Value[0]}}" tooltip="Download Study">
+                                    <span class="glyphicon glyphicon-save"></span>
+                                </a>
+                                -->
+<!--                                 <a ng-hide="mwl.series" ng-click="querySeries(mwl,0)" href="" title="Show Series">&#9658;</a>
+                                <a ng-show="mwl.series" ng-click="mwl.series = null" href="" title="Hide Series">&#9660;</a> -->
+                            </div>
+                            <div style="width:10.4%" class="td_cell txt hover_cell" tooltip="{{mwl.attrs['00401001'].Value[0]}}">{{(mwl.attrs['00401001'].Value[0]) || '&nbsp;'}}</div>
+                            <div  style="width:17.3%" tooltip="{{mwl.attrs['0020000D'].Value[0]}}" test="{{mwl.attrs['0020000D'].Value[0]}}" class="td_cell txt hover_cell" tooltip="{{mwl.attrs['0020000D'].Value[0]}}">{{(mwl.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div>
+                            <div class="td_cell txt hover_cell" tooltip="{{mwl.attrs['00400100'].Value[0]['00400002'].Value[0]}}" >
+                                {{(mwl.attrs['00400100'].Value[0]['00400002'].Value[0] | formatDA) || '&nbsp;'}}
+<!--                                 <a ng-show="mwl.attrs['00080020'].Value[0]" href="" class="order_arrow" ng-click="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)" title="Order Study by Date (descending)">
+                                    <span class="glyphicon glyphicon-triangle-top" aria-hidden="true" ></span>
+                                </a>
+                                <a ng-show="mwl.attrs['00080020'].Value[0]" href="" class="order_arrow" ng-click="filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)" title="Order Study by Date (ascending)">
+                                    <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                                </a> -->
+                            </div>
+                            <div style="width:5.1%" class="td_cell hover_cell" ng-bind="(mwl.attrs['00400100'].Value[0]['00400003'].Value[0] | formatTM) || '&nbsp;'">&nbsp;</div>
+                            <div style="width:10.2%" class="td_cell txt hover_cell"  tooltip="{{mwl.attrs['00400100'].Value[0]['00400006'].Value[0].Alphabetic}}">{{(mwl.attrs['00400100'].Value[0]['00400006'].Value[0].Alphabetic) || '&nbsp;'}}</div>
+                            <div class="td_cell txt hover_cell" tooltip="{{mwl.attrs['00080050'].Value[0]}}" >{{(mwl.attrs['00080050'].Value[0]) || '&nbsp;'}}</div>
+                            <div style="width:5.2%" class="td_cell hover_cell" ng-bind="(mwl.attrs['00400100'].Value[0]['00080060'].Value[0]) || '&nbsp;'">&nbsp;</div>
+                            <div style="width:18%" class="td_cell txt hover_cell" tooltip="{{mwl.attrs['00400100'].Value[0]['00400007'].Value[0] || mwl.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0]}}">{{(mwl.attrs['00400100'].Value[0]['00400007'].Value[0]) || (mwl.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0]) || '&nbsp;'}}</div>
+                            <div style="width:6%" class="td_cell txt hover_cell" tooltip="{{mwl.attrs['00400100'].Value[0]['00400001'].Value[0]}}">{{(mwl.attrs['00400100'].Value[0]['00400001'].Value[0]) || '&nbsp;'}}</div>
+                        </div>
+                        <div class="td_row">
+                            <div class="tr_row"  ng-show="mwl.showAttributes">
+                                <div class="td_cell attribute_list" id="{{patient.attrs['00100020'].Value[0] | removedots}}{{mwl.attrs['0020000D'].Value[0] | removedots}}"> 
+                                    <attribute-list attrs="mwl.attrs"></attribute-list>
+                                </div>
+                            </div>
+<!--                             <div class="tr_row thead2"  ng-show="mwl.series && mwl.series.length">
+                                <div class="th">
+
+                                </div>
+                                <div class="th">Station Name</div>
+                                <div class="th">Series Number</div>
+                                <div class="th">PPS Start Date</div>
+                                <div class="th">PPS Start Time</div>
+                                <div class="th">Body Part</div>
+                                <div class="th">Modality</div>
+                                <div style="width:21%" class="th">Series Description</div>
+                                <div style="width:2%" class="th">#I</div>
+                            </div> -->
+                    </div>
+                        <div class="arrows" ng-show="mwl.series && mwl.series.length">
+                            <div class="arrows_block">
+                                <button class="btn btn-link btn-xs"
+                                        ng-disabled="mwl.series[0].offset==0"
+                                        ng-click="querySeries(mwl, mwl.series[0].offset-limit)"
+                                        title="Previous Series">
+                                    <span class="glyphicon glyphicon-menu-left"></span>
+                                </button>
+                                <button class="btn btn-link btn-xs"
+                                        ng-disabled="!mwl.moreSeries"
+                                        ng-click="querySeries(mwl, mwl.series[0].offset+limit)"
+                                        title="Next Series">
+                                    <span class="glyphicon glyphicon-menu-right"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
         <div class="arrows" ng-show="patient.studies[0].fromAllStudies">
             <div class="arrows_block">
                 <button class="btn btn-link btn-xs"
                         ng-disabled="patient.studies[0].offset===0"
                         ng-click="queryAllStudiesOfPatient(patient, patient[0].offset-limit)"
-                        title="Previous Study">
+                        title="Previous Mwl">
                     <span class="glyphicon glyphicon-menu-left"></span>
                 </button>
                 <button class="btn btn-link btn-xs"
                         ng-disabled="!patient.moreStudies"
                         ng-click="queryAllStudiesOfPatient(patient, patient[0].offset+limit)"
-                        title="Next Study">
+                        title="Next Mwl">
                     <span class="glyphicon glyphicon-menu-right"></span>
                 </button>
             </div>  
@@ -867,6 +985,20 @@
                         ng-disabled="!moreStudies"
                         ng-click="queryStudies(patients[0].studies[0].offset+limit);addEffect('right')"
                         title="Next Studies">
+                    <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                </button> 
+    </div>
+    <div class="arrows_block" ng-show="moreMWL !== undefined" >
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="patients[0].mwls[0].offset === 0"
+                        ng-click="queryMWL(patients[0].mwls[0].offset-limit);addEffect('left')"
+                        title="Previous MWL">
+                    <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                </button>
+                <button class="btn btn-link btn-xs"
+                        ng-disabled="!moreMWL"
+                        ng-click="queryMWL(patients[0].mwls[0].offset+limit);addEffect('right')"
+                        title="Next MWL">
                     <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
                 </button> 
     </div>
