@@ -214,7 +214,7 @@ public class AuditService {
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(
                 eventType.isSource ? dI.getField(AuditInfo.CALLED_AET) : getAET(device),
                 getLocalHostName(log())).altUserID(AuditLogger.processID())
-                .requester(eventType.eventClass != AuditServiceUtils.EventClass.DELETE || eventType.isDest).build();
+                .requester(eventType.isDest).build();
         ParticipantObjectContainsStudy pocs = getPocs(dI.getField(AuditInfo.STUDY_UID));
         BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(
                 getSopClasses(readerObj.getInstanceLines()), pocs)
@@ -228,7 +228,7 @@ public class AuditService {
                 dI.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                 .name(dI.getField(AuditInfo.P_NAME)).build();
-        emitAuditMessage(ei, eventType.eventClass == AuditServiceUtils.EventClass.DELETE ? getApList(ap1, ap2) : getApList(ap2),
+        emitAuditMessage(ei, eventType.isSource ? getApList(ap1, ap2) : getApList(ap2),
                 getPoiList(poi1, poi2), log());
     }
 

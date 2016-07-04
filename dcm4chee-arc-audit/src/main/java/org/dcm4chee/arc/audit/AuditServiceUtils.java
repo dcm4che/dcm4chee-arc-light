@@ -104,7 +104,7 @@ class AuditServiceUtils {
                 null, null, true, false, false, null),
 
         PRMDLT_SCH(EventClass.PERM_DELETE, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
-                null, null, false, false, false, null),
+                null, null, false, true, false, null),
         PRMDLT_WEB(EventClass.PERM_DELETE, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
                 null, null, true, false, false, null),
 

@@ -158,7 +158,8 @@ public class DeletionServiceImpl implements DeletionService {
             boolean studiesRemoved;
             for (Study s : sList) {
                 Long studyPk = s.getPk();
-                StudyDeleteContextImpl sCtx = new StudyDeleteContextImpl(studyPk, null);
+                String studyUID = s.getStudyInstanceUID();
+                StudyDeleteContextImpl sCtx = new StudyDeleteContextImpl(studyPk, studyUID);
                 sCtx.setDeletePatientOnDeleteLastStudy(false);
                 sCtx.setHttpRequest(ctx.getHttpRequest());
                 studiesRemoved = ejb.removeStudyOnStorage(sCtx);
