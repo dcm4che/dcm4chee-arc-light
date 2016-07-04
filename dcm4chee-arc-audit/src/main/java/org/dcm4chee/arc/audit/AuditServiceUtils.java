@@ -121,11 +121,11 @@ class AuditServiceUtils {
         CONN__RJCT(EventClass.CONN_REJECT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
                 null, null, false, false, false, AuditMessages.EventTypeCode.NodeAuthentication),
 
-        HL7_CREATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
+        PAT_CREATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Create,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        HL7_UPDATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
+        PAT_UPDATE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Update,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        HL7_DELETE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+        PAT_DELETE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
         PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
@@ -216,12 +216,13 @@ class AuditServiceUtils {
         static HashSet<EventType> forHL7(PatientMgtContext ctx) {
             HashSet<EventType> eventType = new HashSet<>();
             eventType.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
-                    ? HL7_CREATE
+                    ? PAT_CREATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
-                    ? HL7_UPDATE
-                    : null);
+                    ? PAT_UPDATE
+                    : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
+                    ? PAT_DELETE : null);
             if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null)
-                eventType.add(HL7_DELETE);
+                eventType.add(PAT_DELETE);
             return eventType;
         }
 

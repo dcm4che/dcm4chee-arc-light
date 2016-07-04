@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.delete.impl;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
@@ -90,6 +91,9 @@ public class DeletionServiceImpl implements DeletionService {
 
     @Inject
     private Event<StudyDeleteContext> studyDeletedEvent;
+
+    @Inject
+    private Event<PatientMgtContext> patientDeletedEvent;
 
     @Override
     public int deleteRejectedInstancesBefore(Code rjCode, Date before, int fetchSize) {
@@ -149,6 +153,7 @@ public class DeletionServiceImpl implements DeletionService {
                 throw new PatientNotFoundException();
             ctx = patientService.createPatientMgtContextWEB(request, ae);
             ctx.setPatientID(patientID);
+            ctx.setAttributes(patient.getAttributes());
             List<Study> sList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class).setParameter(1, patient).getResultList();
             boolean studiesRemoved;
             for (Study s : sList) {
@@ -164,7 +169,8 @@ public class DeletionServiceImpl implements DeletionService {
             }
             patientService.deletePatient(patient);
             LOG.info("Successfully delete {} from database", patientID);
-            //fire patientdeletedevent
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+            patientDeletedEvent.fire(ctx);
         } catch (PatientNotFoundException e) {
             throw new NotFoundException("Patient having patient ID : " + patientID + " not found.");
         } catch (Exception e) {

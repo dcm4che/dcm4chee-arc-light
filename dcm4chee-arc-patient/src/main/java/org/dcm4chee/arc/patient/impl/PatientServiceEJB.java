@@ -272,11 +272,6 @@ public class PatientServiceEJB {
                 .getResultList();
         for (MPPS mpps : mppsList)
             em.remove(mpps);
-        if (em.contains(patient))
-            em.remove(patient);
-        else {
-            Patient p = em.merge(patient);
-            em.remove(p);
-        }
+        em.remove(em.contains(patient) ? patient : em.merge(patient));
     }
 }

@@ -557,10 +557,10 @@ public class AuditService {
                 source = ctx.getAssociation().getCallingAET();
                 dest = ctx.getAssociation().getCalledAET();
             }
-            String pID = eventType == AuditServiceUtils.EventType.HL7_DELETE && ctx.getPreviousPatientID() != null
+            String pID = eventType == AuditServiceUtils.EventType.PAT_DELETE && ctx.getPreviousPatientID() != null
                     ? ctx.getPreviousPatientID().toString()
                     : ctx.getPatientID() != null ? ctx.getPatientID().toString() : noValue;
-            String pName = eventType == AuditServiceUtils.EventType.HL7_DELETE
+            String pName = eventType == AuditServiceUtils.EventType.PAT_DELETE && ctx.getPreviousAttributes() != null
                     ? StringUtils.maskEmpty(pName(ctx.getPreviousAttributes()), null)
                     : StringUtils.maskEmpty(pName(ctx.getAttributes()), null);
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest() != null
