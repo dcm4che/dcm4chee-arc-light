@@ -15,9 +15,8 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveCompressionRule;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.storage.StorageException;
@@ -122,6 +121,7 @@ class StoreServiceImpl implements StoreService {
                 result = result2;
             }
             postUpdateDB(ctx, result);
+            checkStoreDenied(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
@@ -161,6 +161,23 @@ class StoreServiceImpl implements StoreService {
         ctx.getStoreSession().cacheSeries(series);
     }
 
+    private void checkStoreDenied(StoreContext ctx, UpdateDBResult result) throws DicomServiceException {
+        ArchiveDeviceExtension arcDev = ctx.getStoreSession().getArchiveAEExtension().getArchiveDeviceExtension();
+        String storeDeniedAccessControlID = arcDev.getStoreDeniedAccessControlID();
+        if (storeDeniedAccessControlID != null) {
+            Location location = result.getLocation();
+            Instance instance = location != null ? location.getInstance() : result.getPreviousInstance();
+            if (instance.getSeries().getStudy().getAccessControlID().equals(storeDeniedAccessControlID)) {
+                LOG.info("{}: Deny store of Instance[studyUID={},seriesUID={},objectUID={}]",
+                        ctx.getStoreSession(),
+                        ctx.getStudyInstanceUID(),
+                        ctx.getSeriesInstanceUID(),
+                        ctx.getSopInstanceUID());
+                throw new DicomServiceException(Status.NotAuthorized);
+            }
+        }
+    }
+
     @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
         UpdateDBResult result = new UpdateDBResult();
@@ -179,6 +196,7 @@ class StoreServiceImpl implements StoreService {
                 result = result2;
             }
             postUpdateDB(ctx, result);
+            checkStoreDenied(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;

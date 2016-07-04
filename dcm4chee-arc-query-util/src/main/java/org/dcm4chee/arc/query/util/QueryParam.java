@@ -80,6 +80,10 @@ public class QueryParam {
         return arcAE.getApplicationEntity().getAETitle();
     }
 
+    public String getStoreDeniedAccessControlID() {
+        return arcDev.getStoreDeniedAccessControlID();
+    }
+
     public String[] getAccessControlIDs() {
         return arcAE.getAccessControlIDs();
     }
@@ -107,7 +111,6 @@ public class QueryParam {
     public FuzzyStr getFuzzyStr() {
         return arcDev.getFuzzyStr();
     }
-
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
         return arcAE.personNameComponentOrderInsensitiveMatching();

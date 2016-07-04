@@ -276,7 +276,7 @@ public class QueryBuilder {
 
     public static void addStudyLevelPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
-        builder.and(accessControl(queryParam.getAccessControlIDs()));
+        builder.and(accessControl(queryParam.getAccessControlIDs(), queryParam.getStoreDeniedAccessControlID()));
         builder.and(uidsPredicate(QStudy.study.studyInstanceUID, keys.getStrings(Tag.StudyInstanceUID)));
         builder.and(wildCard(QStudy.study.studyID, keys.getString(Tag.StudyID, "*"), false));
         builder.and(MatchDateTimeRange.rangeMatch(
@@ -310,10 +310,12 @@ public class QueryBuilder {
             builder.and(QStudy.study.expirationDate.loe(LocalDate.now().toString()));
     }
 
-    public static Predicate accessControl(String[] accessControlIDs) {
-        if (accessControlIDs.length == 0)
-            return null;
-
+    public static Predicate accessControl(String[] accessControlIDs, String storeDeniedAccessControlID) {
+        if (accessControlIDs.length == 0) {
+            return storeDeniedAccessControlID == null
+                    ? null
+                    : QStudy.study.accessControlID.ne(storeDeniedAccessControlID);
+        }
         String[] a = new String[accessControlIDs.length + 1];
         a[0] = "*";
         System.arraycopy(accessControlIDs, 0, a, 1, accessControlIDs.length);

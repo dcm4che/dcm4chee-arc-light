@@ -44,6 +44,8 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.AttributesFormat;
+import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.code.CodeCache;
@@ -65,10 +67,18 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -577,19 +587,57 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
         study.setStorageIDs(arcAE.storageID());
+        study.setAccessControlID(storeAccessControlID(ctx));
         study.setRejectionState(RejectionState.NONE);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
         em.persist(study);
-        LOG.info("{}: Create {}", ctx.getStoreSession(), study);
+        LOG.info("{}: Create {}", session, study);
         return study;
+    }
+
+    private String storeAccessControlID(StoreContext ctx) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        String serviceURL = arcAE.storePermissionServiceURL();
+        String storeDeniedAccessControlID = arcAE.getArchiveDeviceExtension().getStoreDeniedAccessControlID();
+        if (serviceURL != null && storeDeniedAccessControlID != null) {
+            String urlspec = new AttributesFormat(serviceURL).format(ctx.getAttributes());
+            try {
+                URL url = new URL(urlspec);
+                HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+                ByteArrayOutputStream out = new ByteArrayOutputStream(512);
+                try (InputStream in = httpConn.getInputStream()) {
+                    StreamUtils.copy(in, out);
+                }
+                int responseCode = httpConn.getResponseCode();
+                Pattern responsePattern = arcAE.storePermissionServiceResponsePattern();
+                if (responsePattern != null) {
+                    if (responseCode != HttpURLConnection.HTTP_OK
+                            || !responsePattern.matcher(new String(out.toByteArray(), charsetOf(httpConn))).matches())
+                        return storeDeniedAccessControlID;
+                } else {
+                    if (responseCode != HttpURLConnection.HTTP_OK && responseCode != HttpURLConnection.HTTP_NO_CONTENT)
+                        return storeDeniedAccessControlID;
+                }
+            } catch (Exception e) {
+                LOG.warn("{}: Failed to query Store Permission Service {}:\n", session, urlspec, e);
+                return storeDeniedAccessControlID;
+            }
+        }
+        return arcAE.getStoreAccessControlID();
+    }
+
+    private String charsetOf(HttpURLConnection httpConn) {
+        String contentType = httpConn.getContentType().toUpperCase();
+        int index = contentType.lastIndexOf("CHARSET=");
+        return index >= 0 ? contentType.substring(index + 8) : "UTF-8";
     }
 
     private void setStudyAttributes(StoreContext ctx, Study study) {
         ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         Attributes attrs = ctx.getAttributes();
-        study.setAccessControlID(arcAE.getStoreAccessControlID());
         study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
