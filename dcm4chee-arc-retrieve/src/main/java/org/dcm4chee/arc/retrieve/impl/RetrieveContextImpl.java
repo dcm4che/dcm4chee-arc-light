@@ -68,6 +68,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 class RetrieveContextImpl implements RetrieveContext {
     private Association requestAssociation;
     private Association storeAssociation;
+    private Association forwardAssociation;
     private HttpServletRequest httpRequest;
     private final RetrieveService retrieveService;
     private final ArchiveAEExtension arcAE;
@@ -91,7 +92,6 @@ class RetrieveContextImpl implements RetrieveContext {
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
     private final AtomicInteger pendingCStoreForward = new AtomicInteger();
-    private final AtomicInteger pendingCMoveForward = new AtomicInteger();
     private final Collection<String> failedSOPInstanceUIDs =
             Collections.synchronizedCollection(new ArrayList<String>());
     private final HashMap<String, Storage> storageMap = new HashMap<>();
@@ -134,6 +134,16 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setStoreAssociation(Association storeAssociation) {
         this.storeAssociation = storeAssociation;
+    }
+
+    @Override
+    public Association getForwardAssociation() {
+        return forwardAssociation;
+    }
+
+    @Override
+    public void setForwardAssociation(Association forwardAssociation) {
+        this.forwardAssociation = forwardAssociation;
     }
 
     @Override
@@ -480,27 +490,6 @@ class RetrieveContextImpl implements RetrieveContext {
         synchronized (pendingCStoreForward) {
             while (pendingCStoreForward.get() > 0)
                 pendingCStoreForward.wait();
-        }
-    }
-
-    @Override
-    public void incrementPendingCMoveForward() {
-        pendingCMoveForward.getAndIncrement();
-    }
-
-    @Override
-    public void decrementPendingCMoveForward() {
-        synchronized (pendingCMoveForward) {
-            pendingCMoveForward.getAndDecrement();
-            pendingCMoveForward.notifyAll();
-        }
-    }
-
-    @Override
-    public void waitForPendingCMoveForward() throws InterruptedException {
-        synchronized (pendingCMoveForward) {
-            while (pendingCMoveForward.get() > 0)
-                pendingCMoveForward.wait();
         }
     }
 

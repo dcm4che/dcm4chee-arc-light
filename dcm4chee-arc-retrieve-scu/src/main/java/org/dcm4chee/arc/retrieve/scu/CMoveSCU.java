@@ -41,8 +41,6 @@
 package org.dcm4chee.arc.retrieve.scu;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
@@ -63,7 +61,7 @@ public interface CMoveSCU {
             String fallbackCMoveSCP, String fallbackCMoveSCPDestination)
             throws DicomServiceException;
 
-    RetrieveTask[] newForwardRetrieveTasks(
+    void forwardMoveRQs(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes[] keys, String otherCMoveSCP)
             throws DicomServiceException;
 }

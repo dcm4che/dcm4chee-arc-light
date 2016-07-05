@@ -130,9 +130,13 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                 LOG.info("{}: {} objects of study{} not locally accessable - send {} C-MOVE RQs to {}",
                         as, notAccessable.size(), Arrays.toString(ctx.getStudyInstanceUIDs()), remoteSeries.size(),
                         altCMoveSCP);
-                for (RetrieveTask task :
-                        moveSCU.newForwardRetrieveTasks(ctx, pc, rq, toKeys(remoteSeries, localSeries), altCMoveSCP))
-                    ctx.getLocalApplicationEntity().getDevice().execute(task);
+                try {
+                    moveSCU.forwardMoveRQs(ctx, pc, rq, toKeys(remoteSeries, localSeries), altCMoveSCP);
+                } catch (Exception e) {
+                    for (InstanceLocations inst: notAccessable) {
+                        ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
+                    }
+                }
             }
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);

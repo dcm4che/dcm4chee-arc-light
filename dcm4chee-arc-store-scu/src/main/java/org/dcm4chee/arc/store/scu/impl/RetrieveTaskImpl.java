@@ -240,15 +240,27 @@ final class RetrieveTaskImpl implements RetrieveTask {
                     outstandingRSP.wait();
             }
         } catch (InterruptedException e) {
-            LOG.warn("{}: failed to wait for outstanding RSP on association to {}", rqas, storeas.getRemoteAET(), e);
+            LOG.warn("{}: failed to wait for outstanding C-STORE RSP(s) on association to {}",
+                    rqas, storeas.getRemoteAET(), e);
         }
     }
 
     private void waitForPendingCMoveForward() {
-        try {
-            ctx.waitForPendingCMoveForward();
-        } catch (InterruptedException e) {
-            LOG.warn("{}: failed to wait for pending C-MOVE RQ forward", rqas, e);
+        Association fwdas = ctx.getForwardAssociation();
+        if (fwdas != null) {
+            LOG.info("{}: wait for outstanding C-MOVE RSP(s) for C-MOVE RQ(s) forwarded to {}",
+                    rqas, fwdas.getRemoteAET());
+            try {
+                fwdas.waitForOutstandingRSP();
+            } catch (InterruptedException e) {
+                LOG.warn("{}: failed to wait for outstanding C-MOVE RSP(s) for C-MOVE RQ(s) forwarded to {}",
+                        rqas, fwdas.getRemoteAET(), e);
+            }
+            try {
+                fwdas.release();
+            } catch (IOException e) {
+                LOG.warn("{}: failed to release association to {}", rqas, fwdas.getRemoteAET(), e);
+            }
         }
     }
 

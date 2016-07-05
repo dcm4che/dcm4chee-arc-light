@@ -70,6 +70,10 @@ public interface RetrieveContext extends Closeable {
 
     void setStoreAssociation(Association storeAssociation);
 
+    Association getForwardAssociation();
+
+    void setForwardAssociation(Association fwdas);
+
     HttpServletRequest getHttpRequest();
 
     void setHttpRequest(HttpServletRequest httpRequest);
@@ -197,12 +201,6 @@ public interface RetrieveContext extends Closeable {
     void decrementPendingCStoreForward();
 
     void waitForPendingCStoreForward() throws InterruptedException;
-
-    void incrementPendingCMoveForward();
-
-    void decrementPendingCMoveForward();
-
-    void waitForPendingCMoveForward() throws InterruptedException;
 
     void addMatch(InstanceLocations inst);
 }

@@ -108,7 +108,6 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
     public void run() {
         rqas.addCancelRQHandler(msgId, this);
         try {
-            ctx.incrementPendingCMoveForward();
             forwardMoveRQ();
             waitForFinalMoveRSP();
         } catch (DicomServiceException e) {
@@ -116,16 +115,15 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         } finally {
             releaseAssociation();
             rqas.removeCancelRQHandler(msgId);
-            ctx.decrementPendingCMoveForward();
         }
         onFinished();
     }
 
-    protected abstract void onFailure(DicomServiceException e);
+    protected void onFailure(DicomServiceException e) {};
 
     protected void onFinished() {}
 
-    private void forwardMoveRQ() throws DicomServiceException {
+    public void forwardMoveRQ() throws DicomServiceException {
         try {
             fwdas.invoke(fwdas.pcFor(cuid, null), rqCmd, new DataWriterAdapter(keys), rspHandler,
                     fwdas.getConnection().getRetrieveTimeout());
@@ -227,12 +225,6 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         public UpdateRetrieveCtx(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
                                  Association fwdas) {
             super(ctx, pc, rqCmd, keys, fwdas);
-        }
-
-        @Override
-        protected void onFailure(DicomServiceException e) {
-            for (String iuid : keys.getStrings(Tag.SOPInstanceUID))
-                ctx.addFailedSOPInstanceUID(iuid);
         }
 
         @Override
