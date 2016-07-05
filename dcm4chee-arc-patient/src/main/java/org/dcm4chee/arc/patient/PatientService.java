@@ -80,5 +80,7 @@ public interface PatientService {
 
     Patient findPatient(PatientMgtContext ctx);
 
-    void deletePatient(Patient patient);
+    void deletePatientFromUI(Patient patient);
+
+    void deletePatientIfHasNoMergedWith(Patient patient);
 }

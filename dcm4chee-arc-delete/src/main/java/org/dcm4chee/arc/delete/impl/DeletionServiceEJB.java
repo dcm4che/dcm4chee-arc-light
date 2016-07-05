@@ -193,7 +193,7 @@ public class DeletionServiceEJB {
         }
         for (Patient patient : patients.values()) {
             if (patient != null && countStudiesOfPatient(patient) == 0)
-                patientService.deletePatient(patient);
+                patientService.deletePatientIfHasNoMergedWith(patient);
         }
         return insts.size();
     }

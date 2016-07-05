@@ -165,7 +165,12 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public void deletePatient(Patient patient) {
-        ejb.deletePatient(patient);
+    public void deletePatientFromUI(Patient patient) {
+        ejb.deletePatientFromUI(patient);
+    }
+
+    @Override
+    public void deletePatientIfHasNoMergedWith(Patient patient) {
+        ejb.deletePatientIfHasNoMergedWith(patient);
     }
 }

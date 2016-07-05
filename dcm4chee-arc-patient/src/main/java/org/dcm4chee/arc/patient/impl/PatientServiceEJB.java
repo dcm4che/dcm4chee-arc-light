@@ -261,12 +261,22 @@ public class PatientServiceEJB {
         return patientID;
     }
 
-    public void deletePatient(Patient patient) {
+    public void deletePatientIfHasNoMergedWith(Patient patient) {
         if (em.createNamedQuery(Patient.COUNT_BY_MERGED_WITH, Long.class)
                 .setParameter(1, patient)
-                .getSingleResult() > 0) {
+                .getSingleResult() > 0)
             return;
-        }
+        removeMPPSAndPatient(patient);
+    }
+
+    public void deletePatientFromUI(Patient patient) {
+        List<Patient> patients = em.createNamedQuery(Patient.FIND_BY_MERGED_WITH, Patient.class).setParameter(1, patient).getResultList();
+        for (Patient p : patients)
+            deletePatientFromUI(p);
+        removeMPPSAndPatient(patient);
+    }
+
+    private void removeMPPSAndPatient(Patient patient) {
         List<MPPS> mppsList = em.createNamedQuery(MPPS.FIND_BY_PATIENT, MPPS.class)
                 .setParameter(1, patient)
                 .getResultList();

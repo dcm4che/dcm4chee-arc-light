@@ -161,6 +161,7 @@ public class DeletionServiceImpl implements DeletionService {
             ctx = patientService.createPatientMgtContextWEB(request, ae);
             ctx.setPatientID(patientID);
             ctx.setAttributes(patient.getAttributes());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
             List<Study> sList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class).setParameter(1, patient).getResultList();
             boolean studiesRemoved;
             for (Study s : sList) {
@@ -175,9 +176,8 @@ public class DeletionServiceImpl implements DeletionService {
                 else
                     studyDeletedEvent.fire(sCtx);
             }
-            patientService.deletePatient(patient);
+            patientService.deletePatientFromUI(patient);
             LOG.info("Successfully delete {} from database", patientID);
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
             patientDeletedEvent.fire(ctx);
         } catch (PatientNotFoundException e) {
             throw new NotFoundException("Patient having patient ID : " + patientID + " not found.");
