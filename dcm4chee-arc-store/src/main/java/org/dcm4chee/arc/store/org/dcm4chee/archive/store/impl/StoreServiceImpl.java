@@ -168,12 +168,12 @@ class StoreServiceImpl implements StoreService {
             Location location = result.getLocation();
             Instance instance = location != null ? location.getInstance() : result.getPreviousInstance();
             if (instance.getSeries().getStudy().getAccessControlID().equals(storeDeniedAccessControlID)) {
-                LOG.info("{}: Deny store of Instance[studyUID={},seriesUID={},objectUID={}]",
+                LOG.info("{}: Store of Instance[studyUID={},seriesUID={},objectUID={}] denied",
                         ctx.getStoreSession(),
                         ctx.getStudyInstanceUID(),
                         ctx.getSeriesInstanceUID(),
                         ctx.getSopInstanceUID());
-                throw new DicomServiceException(Status.NotAuthorized);
+                throw new DicomServiceException(Status.NotAuthorized, "Store denied");
             }
         }
     }
