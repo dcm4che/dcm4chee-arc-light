@@ -123,11 +123,9 @@ public class PurgeStorageScheduler extends Scheduler {
                 ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
                 try {
                     ejb.removeStudyOnStorage(ctx);
-                    LOG.info("Successfully delete storage denied {} on {} from database",
-                            ctx.getStudy(), desc.getStorageURI());
+                    LOG.info("Successfully delete storage denied {} from database", ctx.getStudy());
                 } catch (Exception e) {
-                    LOG.info("Failed to delete storage denied {} on {} from database",
-                            ctx.getStudy(), desc.getStorageURI(), e);
+                    LOG.warn("Failed to delete storage denied {} from database", ctx.getStudy(), e);
                 }
             }
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
