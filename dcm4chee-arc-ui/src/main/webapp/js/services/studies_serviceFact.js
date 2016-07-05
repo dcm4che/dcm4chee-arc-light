@@ -56,11 +56,26 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
 
     var getArrayFromIodHelper = function(data, dropdown){
         angular.forEach(data, function(m, i){
-            dropdown.push({
-                "code":i,
-                "codeComma": i.slice(0, 4)+","+i.slice(4),
-                "name":DCM4CHE.elementName.forTag(i)
-            });
+            console.log("i",i);
+            console.log("m",m);
+            if(i === "00400100"){
+                console.log("in if m",m.items);
+                angular.forEach(m.items, function(l, j){
+                    console.log("l",l);
+                    console.log("j",j);
+                    dropdown.push({
+                        "code":"00400100:"+j,
+                        "codeComma": ">"+j.slice(0, 4)+","+j.slice(4),
+                        "name":DCM4CHE.elementName.forTag(j)
+                    });
+                });
+            }else{
+                dropdown.push({
+                    "code":i,
+                    "codeComma": i.slice(0, 4)+","+i.slice(4),
+                    "name":DCM4CHE.elementName.forTag(i)
+                });
+            }
         });
         return dropdown;
     };

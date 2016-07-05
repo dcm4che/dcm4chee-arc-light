@@ -153,8 +153,8 @@ myApp.filter("study", function(){
 myApp.filter("mwl", function(){
     return function(object, iod){
         var localObject = {};
-        console.log("iod",iod);
-        console.log("object",object);
+        // console.log("iod",iod);
+        // console.log("object",object);
         angular.forEach(object, function(m, i){
             if(iod.mwl[i]){
                 localObject[i] = m;

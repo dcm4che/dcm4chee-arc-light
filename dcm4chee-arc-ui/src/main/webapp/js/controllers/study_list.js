@@ -569,18 +569,21 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             //         delete $scope.editmwl.attrs[i];
             //     }
             // });
+            console.log("res",angular.copy(res));
             var dropdown                = StudiesService.getArrayFromIod(res);
+            console.log("before replace res.data",angular.copy(res.data));
             res.data = StudiesService.replaceKeyInJson(res.data, "items", "Value");
+            console.log("after replace res.data",angular.copy(res.data));
             $templateRequest('templates/edit_mwl.html').then(function(tpl) {
             $scope.dropdown             = dropdown;
             $scope.DCM4CHE              = DCM4CHE;
             $scope.addPatientAttribut   = "";
             $scope.opendropdown         = false;
+            console.log("after replaceres",angular.copy(res));
             var html                    = $compile(tpl)($scope);
             var header = "Create new mwl";
             if(mode === "edit"){
                 header = 'Edit mwl of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
-
             }
             var $vex = vex.dialog.open({
               message: header,
@@ -651,28 +654,87 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             }else{
                                 var attrcode = filtered[0].code;
                             }
-                            if($scope.editmwl.attrs[attrcode] != undefined){
-                                if(res.data[attrcode].multi){
-                                    $timeout(function() {
-                                        $scope.$apply(function(){
-                                            $scope.editmwl.attrs[attrcode]["Value"].push("");
-                                            $scope.addPatientAttribut           = "";
-                                            $scope.opendropdown                 = false;
+                            console.log("attrcode=",attrcode);
+                            var codes = [];
+                            if(attrcode.indexOf(':') >= 0){
+                               codes =  attrcode.split(":"); 
+                                if($scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
+                                    // if(!$scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
+                                        // $timeout(function() {
+                                        //     $scope.$apply(function(){
+                                        //         console.log("codes[0]]",codes[0]);
+                                        //         console.log("codes[1]]",codes[1]);
+                                        //         console.log("$scope.editmwl.attrs[codes[0]]",$scope.editmwl.attrs[codes[0]]);
+                                        //         $scope.editmwl.attrs[codes[0]]["Value"] = $scope.editmwl.attrs[codes[0]]["Value"] || [];
+                                        //         $scope.editmwl.attrs[codes[0]]["Value"][0] = $scope.editmwl.attrs[codes[0]]["Value"][0] || [];
+                                        //         $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]] = $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]] || {};
+                                        //         $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"] = $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"] || [];
+                                        //         $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"].push("");
+                                        //         console.log("$scope.editmwl",$scope.editmwl);
+                                        //         $scope.addPatientAttribut           = "";
+                                        //         $scope.opendropdown                 = false;
+                                        //     });
+                                        // });
+                                    if(res.data[codes[0]]["Value"][0][codes[1]].multi){
+                                        $timeout(function() {
+                                            $scope.$apply(function(){
+                                                console.log("$scope.editmwl.attrs[codes[0]]['Value'][0][codes[1]]['Value']",$scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"]);
+                                                $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"].push("");
+                                                $scope.addPatientAttribut           = "";
+                                                $scope.opendropdown                 = false;
+                                            });
                                         });
-                                    });
+                                    }else{
+                                        DeviceService.msg($scope, {
+                                            "title": "Warning",
+                                            "text": "Attribute already exists!",
+                                            "status": "warning"
+                                        });
+                                    }
+                                    // }else{
+                                    //     DeviceService.msg($scope, {
+                                    //         "title": "Warning",
+                                    //         "text": "Attribute already exists!",
+                                    //         "status": "warning"
+                                    //     });
+                                    // }
                                 }else{
-                                    DeviceService.msg($scope, {
-                                        "title": "Warning",
-                                        "text": "Attribute already exists!",
-                                        "status": "warning"
-                                    });
+                                    if($scope.editmwl.attrs[codes[0]]){
+                                        $timeout(function() {
+                                            $scope.$apply(function(){
+                                                console.log("res.data[codes[0]]",angular.copy(res.data));
+                                                $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]  = res.data[codes[0]]["Value"][0][codes[1]];
+                                                console.log("res.data[codes[0]]",angular.copy($scope.editmwl.attrs));
+                                            });
+                                        });
+                                    }else{
+                                        
+                                    }
                                 }
                             }else{
-                                $timeout(function() {
-                                    $scope.$apply(function(){
-                                        $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                if($scope.editmwl.attrs[attrcode] != undefined){
+                                    if(res.data[attrcode].multi){
+                                        $timeout(function() {
+                                            $scope.$apply(function(){
+                                                $scope.editmwl.attrs[attrcode]["Value"].push("");
+                                                $scope.addPatientAttribut           = "";
+                                                $scope.opendropdown                 = false;
+                                            });
+                                        });
+                                    }else{
+                                        DeviceService.msg($scope, {
+                                            "title": "Warning",
+                                            "text": "Attribute already exists!",
+                                            "status": "warning"
+                                        });
+                                    }
+                                }else{
+                                    $timeout(function() {
+                                        $scope.$apply(function(){
+                                            $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                        });
                                     });
-                                });
+                                }
                             }
                             setTimeout(function(){
                                 $scope.lastPressedCode = 0;
@@ -765,7 +827,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 local[i] = m;
                             }
                         });
-                        if($scope.editmwl.attrs["0020000D"].Value[0]){
+                        // if($scope.editmwl.attrs["0020000D"].Value[0]){
                             angular.forEach($scope.editmwl.attrs, function(m, i){
                                 // console.log("res.data",res.data);
                                 // console.log("i",i);
@@ -776,8 +838,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
 
 
                             // local["00081030"] = { "vr": "SH", "Value":[""]};
-                            $http.put(
-                                "../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies/"+local["0020000D"].Value[0],
+                            // local["local["00100020"].Value[0]"] = { "vr": "SH", "Value":[""]};
+                            // console.log("local",local);
+                            $http.post(
+                                "../aets/"+$scope.aet+"/rs/mwlitems",
                                 local
                             ).then(function successCallback(response) {
                                 if(mode === "edit"){
@@ -788,12 +852,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     //     }
                                     // });
                                     // mwl.attrs = $scope.editmwl.attrs;
-                                    $scope.patients[patientkey].studies[mwlkey].attrs = $scope.editmwl.attrs;
+                                    $scope.patients[patientkey].mwls[mwlkey].attrs = $scope.editmwl.attrs;
                                     //Force rerendering the directive attribute-list
                                     var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editmwl.attrs['0020000D'].Value[0];
                                     id = id.replace(/\./g, '');
                                     // var id = "#"+$scope.editmwl.attrs["0020000D"].Value;
-                                    var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+mwlkey+'].attrs"></attribute-list>')($scope);
+                                    var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].mwls['+mwlkey+'].attrs"></attribute-list>')($scope);
                                     $(id).html(attribute);
                                 }else{
                                     if($scope.patientmode){
@@ -820,35 +884,35 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     "status": "error"
                                 });
                             });
-                        }else{
-                            $http({
-                                    method: 'POST',
+                        // }else{
+                        //     $http({
+                        //             method: 'POST',
 
-                                    url:"../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies",
-                                    // url: "../aets/"+$scope.aet+"/rs/patients/",
-                                    data:local,
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'text/plain'
-                                    }
-                                }).then(
-                                    function successCallback(response) {
-                                        console.log("response",response);
-                                    },
-                                    function errorCallback(response) {
-                                        DeviceService.msg($scope, {
-                                            "title": "Error",
-                                            "text": "Error saving mwl!",
-                                            "status": "error"
-                                        });
-                                    }
-                                );
-                            // DeviceService.msg($scope, {
-                            //     "title": "Error",
-                            //     "text": "mwl Instance UID is required!",
-                            //     "status": "error"
-                            // });
-                        }
+                        //             url:"../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies",
+                        //             // url: "../aets/"+$scope.aet+"/rs/patients/",
+                        //             data:local,
+                        //             headers: {
+                        //                 'Content-Type': 'application/json',
+                        //                 'Accept': 'text/plain'
+                        //             }
+                        //         }).then(
+                        //             function successCallback(response) {
+                        //                 console.log("response",response);
+                        //             },
+                        //             function errorCallback(response) {
+                        //                 DeviceService.msg($scope, {
+                        //                     "title": "Error",
+                        //                     "text": "Error saving mwl!",
+                        //                     "status": "error"
+                        //                 });
+                        //             }
+                        //         );
+                        //     // DeviceService.msg($scope, {
+                        //     //     "title": "Error",
+                        //     //     "text": "mwl Instance UID is required!",
+                        //     //     "status": "error"
+                        //     // });
+                        // }
                     }
                     vex.close($vex.data().vex.id);
                 }
@@ -865,9 +929,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         // 00200010
         var mwl = {
             "attrs":{
-                "00200010": { "vr": "SH", "Value":[""]},
+                "00400100": {
+                    "vr": "SQ",
+                    "Value": [{
+                      "00400001": { "vr": "AE","Value":[""]}
+                    }]
+                },
                 "0020000D": { "vr": "UI", "Value":[""]},
-                "00080050": { "vr": "SH", "Value":[""]}
+                "00400009": { "vr": "SH", "Value":[""]},
+                "00080050": { "vr": "SH", "Value":[""]},
+                "00401001": { "vr": "SH", "Value":[""]}
             }
         };
         // modifyStudy(patient, "create");
