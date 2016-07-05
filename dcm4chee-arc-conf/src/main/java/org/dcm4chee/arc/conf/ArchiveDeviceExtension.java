@@ -664,6 +664,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         attributeFilters.put(entity, filter);
     }
 
+    public Map<Entity, AttributeFilter> getAttributeFilters() {
+        return attributeFilters;
+    }
+
     public IDGenerator getIDGenerator(IDGenerator.Name name) {
         IDGenerator filter = idGenerators.get(name);
         if (filter == null)
@@ -684,8 +688,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         idGenerators.remove(generator.getName());
     }
 
-    public Collection<IDGenerator> getIDGenerators() {
-        return idGenerators.values();
+    public Map<IDGenerator.Name, IDGenerator> getIDGenerators() {
+        return idGenerators;
     }
 
     public QueryRetrieveView[] getQueryRetrieveViews() {
@@ -732,10 +736,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public Collection<StorageDescriptor> getStorageDescriptors() {
         return storageDescriptorMap.values();
-    }
-
-    public Collection<AttributeFilter> getAttributeFilters() {
-        return attributeFilters.values();
     }
 
     public QueueDescriptor getQueueDescriptor(String queueName) {

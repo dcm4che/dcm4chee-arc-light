@@ -150,9 +150,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
     protected void writeAttributeFilters(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmAttributeFilter");
-        for (Entity entity : Entity.values()) {
-            AttributeFilter attributeFilter = arcDev.getAttributeFilter(entity);
-            writeAttributeFilter(writer, entity, attributeFilter);
+        for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
+            writeAttributeFilter(writer, entry.getKey(), entry.getValue());
         }
         writer.writeEnd();
     }
@@ -328,14 +327,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
     protected void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmIDGenerator");
-        for (IDGenerator.Name name : IDGenerator.Name.values()) {
-            IDGenerator generator = arcDev.getIDGenerator(name);
-            writeIDGenerator(writer, name, generator);
+        for (IDGenerator generator : arcDev.getIDGenerators().values()) {
+             writeIDGenerator(writer, generator);
         }
         writer.writeEnd();
     }
 
-    private void writeIDGenerator(JsonWriter writer, IDGenerator.Name name, IDGenerator generator) {
+    private void writeIDGenerator(JsonWriter writer, IDGenerator generator) {
         writer.writeStartObject();
         writer.writeNotNull("dcmIDGeneratorName", generator.getName().toString());
         writer.writeNotNull("dcmIDGeneratorFormat", generator.getFormat());

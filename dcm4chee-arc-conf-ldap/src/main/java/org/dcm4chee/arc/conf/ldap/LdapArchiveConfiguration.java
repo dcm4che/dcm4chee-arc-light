@@ -555,10 +555,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void storeAttributeFilter(String deviceDN, ArchiveDeviceExtension arcDev)
             throws NamingException {
-        for (Entity entity : Entity.values()) {
+        for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
             config.createSubcontext(
-                    LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN),
-                    storeTo(arcDev.getAttributeFilter(entity), entity, new BasicAttributes(true)));
+                    LdapUtils.dnOf("dcmEntity", entry.getKey().name(), deviceDN),
+                    storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
         }
     }
 
@@ -572,6 +572,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAttributeUpdatePolicy", filter.getAttributeUpdatePolicy());
         return attrs;
     }
+
     private static Attribute tagsAttr(String attrID, int[] tags) {
         Attribute attr = new BasicAttribute(attrID);
         for (int tag : tags)
@@ -616,14 +617,23 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return is;
     }
 
-    private void mergeAttributeFilters(ArchiveDeviceExtension prev, ArchiveDeviceExtension devExt,
+    private void mergeAttributeFilters(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
                                        String deviceDN) throws NamingException {
-        for (Entity entity : Entity.values())
-            config.modifyAttributes(
-                    LdapUtils.dnOf("dcmEntity", entity.toString(), deviceDN),
-                    storeDiffs(prev.getAttributeFilter(entity),
-                            devExt.getAttributeFilter(entity),
-                            new ArrayList<ModificationItem>()));
+        for (Entity entity : prev.getAttributeFilters().keySet()) {
+            if (!arcDev.getAttributeFilters().containsKey(entity))
+                config.destroySubcontext(LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN));
+        }
+        for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
+            Entity entity = entry.getKey();
+            String dn = LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN);
+            AttributeFilter prevFilter = prev.getAttributeFilters().get(entity);
+            if (prevFilter == null)
+                config.createSubcontext(dn,
+                        storeTo(entry.getValue(), entity, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn,
+                        storeDiffs(prevFilter, entry.getValue(), new ArrayList<ModificationItem>()));
+        }
     }
 
     private List<ModificationItem> storeDiffs(AttributeFilter prev, AttributeFilter filter,
@@ -1306,10 +1316,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private void storeIDGenerators(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
-        for (IDGenerator.Name name : IDGenerator.Name.values()) {
+        for (IDGenerator generator : arcDev.getIDGenerators().values()) {
             config.createSubcontext(
-                    LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN),
-                    storeTo(arcDev.getIDGenerator(name), name, new BasicAttributes(true)));
+                    LdapUtils.dnOf("dcmIDGeneratorName", generator.getName().name(), deviceDN),
+                    storeTo(generator, new BasicAttributes(true)));
         }
     }
 
@@ -1325,9 +1335,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private Attributes storeTo(IDGenerator generator, IDGenerator.Name name, BasicAttributes attrs) {
+    private Attributes storeTo(IDGenerator generator, BasicAttributes attrs) {
         attrs.put("objectClass", "dcmIDGenerator");
-        attrs.put("dcmIDGeneratorName", name.name());
+        attrs.put("dcmIDGeneratorName", generator.getName().name());
         LdapUtils.storeNotNull(attrs, "dcmIDGeneratorFormat", generator.getFormat());
         LdapUtils.storeNotDef(attrs, "dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         return attrs;
@@ -1400,28 +1410,20 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void mergeIDGenerators(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
-        for (IDGenerator.Name name : IDGenerator.Name.values()) {
-            config.modifyAttributes(
-                    LdapUtils.dnOf("dcmIDGeneratorName", name.toString(), deviceDN),
-                    storeDiffs(prev.getIDGenerator(name),
-                            arcDev.getIDGenerator(name),
-                            new ArrayList<ModificationItem>()));
+        for (IDGenerator.Name name : prev.getIDGenerators().keySet()) {
+            if (!arcDev.getIDGenerators().containsKey(name))
+                            config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name.name(), deviceDN));
         }
-//        for (IDGenerator generator : prev.getIDGenerators()) {
-//            String name = generator.getName().toString();
-//            if (arcDev.getIDGenerator(IDGenerator.Name.valueOf(name)) == null)
-//                config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name, deviceDN));
-//        }
-//        for (IDGenerator entryNew : arcDev.getIDGenerators()) {
-//            String name = entryNew.getName().toString();
-//            String dn = LdapUtils.dnOf("dcmIDGenerator", name, deviceDN);
-//            IDGenerator entryOld = prev.getIDGenerator(IDGenerator.Name.valueOf(name));
-//            if (entryOld == null) {
-//                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
-//            } else{
-//                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
-//            }
-//        }
+        for (IDGenerator entryNew : arcDev.getIDGenerators().values()) {
+            String name = entryNew.getName().toString();
+            String dn = LdapUtils.dnOf("dcmIDGenerator", name, deviceDN);
+            IDGenerator entryOld = prev.getIDGenerators().get(name);
+            if (entryOld == null) {
+                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
+            } else{
+                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
+            }
+        }
     }
 
     private List<ModificationItem> storeDiffs(RejectionNote prev, RejectionNote rjNote,
