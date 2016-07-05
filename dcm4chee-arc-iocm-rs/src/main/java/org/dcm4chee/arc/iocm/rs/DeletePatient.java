@@ -40,21 +40,23 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.PatientNotFoundException;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
@@ -78,6 +80,9 @@ public class DeletePatient {
     @Inject
     private PatientService patientService;
 
+    @Inject
+    private Event<PatientMgtContext> patientDeletedEvent;
+
     @PathParam("AETitle")
     private String aet;
 
@@ -89,7 +94,24 @@ public class DeletePatient {
     public void deletePatient(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
         LOG.info("Process DELETE {} from {}@{}",
                 request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        deletionService.deletePatient(patientID, request, getApplicationEntity());
+        Patient patient = patientService.findPatient(patientID);
+        PatientMgtContext ctx = null;
+        try {
+            if (patient == null)
+                throw new PatientNotFoundException();
+            ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+            ctx.setPatientID(patientID);
+            ctx.setAttributes(patient.getAttributes());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+            ctx.setPatient(patient);
+            deletionService.deletePatient(ctx);
+        } catch (PatientNotFoundException e) {
+            throw new NotFoundException("Patient having patient ID : " + patientID + " not found.");
+        } catch (Exception e) {
+            LOG.warn("Failed to delete {} on {}", patientID, e);
+            ctx.setException(e);
+            patientDeletedEvent.fire(ctx);
+        }
     }
 
     private ApplicationEntity getApplicationEntity() {

@@ -44,6 +44,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.Patient;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,6 +64,8 @@ public interface PatientService {
 
     PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh);
 
+    PatientMgtContext createPatientMgtContextScheduler(ApplicationEntity ae);
+
     List<Patient> findPatients(IDWithIssuer pid);
 
     Patient findPatient(IDWithIssuer pid);
@@ -80,7 +83,7 @@ public interface PatientService {
 
     Patient findPatient(PatientMgtContext ctx);
 
-    void deletePatientFromUI(Patient patient);
+    void deletePatientFromUI(PatientMgtContext ctx);
 
-    void deletePatientIfHasNoMergedWith(Patient patient);
+    void deletePatientIfHasNoMergedWith(PatientMgtContext ctx);
 }

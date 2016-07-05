@@ -50,6 +50,7 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 
 import javax.servlet.http.HttpServletRequest;
@@ -76,6 +77,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
     private String eventActionCode;
     private Exception exception;
+    private Patient patient;
 
     PatientMgtContextImpl(Device device, HttpServletRequest httpRequest, Association as, ApplicationEntity ae,
                           Socket socket, HL7Segment msh) {
@@ -201,5 +203,15 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setPatientID(IDWithIssuer patientID) {
         this.patientID = patientID;
+    }
+
+    @Override
+    public Patient getPatient() {
+        return patient;
+    }
+
+    @Override
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 }

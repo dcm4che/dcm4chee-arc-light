@@ -46,6 +46,7 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.entity.Patient;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -96,4 +97,8 @@ public interface PatientMgtContext {
     void setException(Exception ex);
 
     void setPatientID(IDWithIssuer patientID);
+
+    Patient getPatient();
+
+    void setPatient(Patient patient);
 }

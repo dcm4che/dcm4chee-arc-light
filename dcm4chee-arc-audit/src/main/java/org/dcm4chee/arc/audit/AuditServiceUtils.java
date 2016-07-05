@@ -127,6 +127,8 @@ class AuditServiceUtils {
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
         PAT_DELETE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
+        PAT_DLT_SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, false, null),
 
         PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
                 null, null, true, false, false, null),
@@ -220,7 +222,7 @@ class AuditServiceUtils {
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
                     ? PAT_UPDATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
-                    ? PAT_DELETE : null);
+                    ? ctx.getHttpRequest() != null ? PAT_DELETE : PAT_DLT_SC : null);
             if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null)
                 eventType.add(PAT_DELETE);
             return eventType;

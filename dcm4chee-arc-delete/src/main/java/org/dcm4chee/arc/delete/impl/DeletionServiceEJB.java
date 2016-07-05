@@ -40,7 +40,11 @@
 
 package org.dcm4chee.arc.delete.impl;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.delete.PatientNotFoundException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
@@ -48,6 +52,7 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.patient.impl.PatientMgtContextImpl;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -71,6 +76,9 @@ public class DeletionServiceEJB {
 
     @Inject
     private CodeCache codeCache;
+
+    @Inject
+    private Device device;
 
     @Inject
     private PatientService patientService;
@@ -192,8 +200,14 @@ public class DeletionServiceEJB {
             }
         }
         for (Patient patient : patients.values()) {
-            if (patient != null && countStudiesOfPatient(patient) == 0)
-                patientService.deletePatientIfHasNoMergedWith(patient);
+            if (patient != null && countStudiesOfPatient(patient) == 0) {
+                PatientMgtContext ctx = patientService.createPatientMgtContextScheduler(getApplicationEntity());
+                ctx.setPatient(patient);
+                ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+                ctx.setAttributes(patient.getAttributes());
+                ctx.setPatientID(IDWithIssuer.pidOf(patient.getAttributes()));
+                patientService.deletePatientIfHasNoMergedWith(ctx);
+            }
         }
         return insts.size();
     }
@@ -219,5 +233,14 @@ public class DeletionServiceEJB {
 
     private int deleteSeriesQueryAttributes(Series series) {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
+    }
+
+    private ApplicationEntity getApplicationEntity() {
+        String[] aets = device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()]);
+        StringBuilder b = new StringBuilder();
+        b.append(aets[0]);
+        for (int i = 1; i < aets.length; i++)
+            b.append(';').append(aets[i]);
+        return device.getApplicationEntity(b.toString(), true);
     }
 }

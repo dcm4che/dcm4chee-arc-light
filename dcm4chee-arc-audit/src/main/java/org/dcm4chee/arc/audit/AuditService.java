@@ -574,16 +574,19 @@ public class AuditService {
 
     private void auditPatientRecord(AuditInfo hl7I, AuditServiceUtils.EventType et) {
         EventIdentification ei = getEI(et, hl7I.getField(AuditInfo.OUTCOME), log().timeStamp());
-        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(hl7I.getField(AuditInfo.CALLING_AET),
+        BuildActiveParticipant ap1 = null;
+        if (et.isSource)
+             ap1 = new BuildActiveParticipant.Builder(hl7I.getField(AuditInfo.CALLING_AET),
                 hl7I.getField(AuditInfo.CALLING_HOST)).requester(et.isSource).roleIDCode(et.source).build();
-        BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(hl7I.getField(AuditInfo.CALLED_AET),
+        BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(
+                et.isSource ? hl7I.getField(AuditInfo.CALLED_AET) : getAET(device),
                 getLocalHostName(log())).altUserID(AuditLogger.processID()).requester(et.isDest)
                 .roleIDCode(et.destination).build();
         BuildParticipantObjectIdentification poi = new BuildParticipantObjectIdentification.Builder(
                 hl7I.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                 .name(hl7I.getField(AuditInfo.P_NAME)).build();
-        emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi), log());
+        emitAuditMessage(ei, et.isSource ? getApList(ap1, ap2) : getApList(ap2), getPoiList(poi), log());
     }
 
     void spoolProcedureRecord(ProcedureContext ctx) {

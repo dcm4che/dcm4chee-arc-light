@@ -92,8 +92,6 @@ public class DeletionServiceImpl implements DeletionService {
     @Inject
     private Event<StudyDeleteContext> studyDeletedEvent;
 
-    @Inject
-    private Event<PatientMgtContext> patientDeletedEvent;
 
     @Override
     public int deleteRejectedInstancesBefore(Code rjCode, Date before, int fetchSize) {
@@ -152,40 +150,27 @@ public class DeletionServiceImpl implements DeletionService {
     }
 
     @Override
-    public void deletePatient(IDWithIssuer patientID, HttpServletRequest request, ApplicationEntity ae) {
-        Patient patient = patientService.findPatient(patientID);
-        PatientMgtContext ctx = null;
-        try {
-            if (patient == null)
-                throw new PatientNotFoundException();
-            ctx = patientService.createPatientMgtContextWEB(request, ae);
-            ctx.setPatientID(patientID);
-            ctx.setAttributes(patient.getAttributes());
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
-            List<Study> sList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class).setParameter(1, patient).getResultList();
-            boolean studiesRemoved;
-            for (Study s : sList) {
-                Long studyPk = s.getPk();
-                String studyUID = s.getStudyInstanceUID();
-                StudyDeleteContextImpl sCtx = new StudyDeleteContextImpl(studyPk, studyUID);
-                sCtx.setDeletePatientOnDeleteLastStudy(false);
-                sCtx.setHttpRequest(ctx.getHttpRequest());
-                studiesRemoved = ejb.removeStudyOnStorage(sCtx);
-                if(!studiesRemoved)
+    public void deletePatient(PatientMgtContext ctx) {
+        List<Study> sList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
+                .setParameter(1, ctx.getPatient()).getResultList();
+        boolean studiesRemoved;
+        for (Study s : sList) {
+            Long studyPk = s.getPk();
+            String studyUID = s.getStudyInstanceUID();
+            StudyDeleteContextImpl sCtx = new StudyDeleteContextImpl(studyPk, studyUID);
+            sCtx.setDeletePatientOnDeleteLastStudy(false);
+            sCtx.setHttpRequest(ctx.getHttpRequest());
+            studiesRemoved = ejb.removeStudyOnStorage(sCtx);
+            if(!studiesRemoved)
+                try {
                     ejb.deleteEmptyStudy(sCtx);
-                else
-                    studyDeletedEvent.fire(sCtx);
-            }
-            patientService.deletePatientFromUI(patient);
-            LOG.info("Successfully delete {} from database", patientID);
-            patientDeletedEvent.fire(ctx);
-        } catch (PatientNotFoundException e) {
-            throw new NotFoundException("Patient having patient ID : " + patientID + " not found.");
-        } catch (Exception e) {
-            LOG.warn("Failed to delete {} on {}", patientID, e);
-            ctx.setException(e);
-            patientDeletedEvent.fire(ctx);
+                } catch (StudyNotFoundException e) {
+                    throw new NotFoundException("Study having study instance UID : " + studyUID + " not found.");
+                }
+            else
+                studyDeletedEvent.fire(sCtx);
         }
+        patientService.deletePatientFromUI(ctx);
+        LOG.info("Successfully delete {} from database", ctx.getPatient());
     }
-
 }

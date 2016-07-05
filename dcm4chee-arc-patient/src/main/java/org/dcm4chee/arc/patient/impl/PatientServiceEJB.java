@@ -64,6 +64,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 @Stateless
@@ -261,12 +262,13 @@ public class PatientServiceEJB {
         return patientID;
     }
 
-    public void deletePatientIfHasNoMergedWith(Patient patient) {
+    public boolean deletePatientIfHasNoMergedWith(Patient patient) {
         if (em.createNamedQuery(Patient.COUNT_BY_MERGED_WITH, Long.class)
                 .setParameter(1, patient)
                 .getSingleResult() > 0)
-            return;
+            return false;
         removeMPPSAndPatient(patient);
+        return true;
     }
 
     public void deletePatientFromUI(Patient patient) {

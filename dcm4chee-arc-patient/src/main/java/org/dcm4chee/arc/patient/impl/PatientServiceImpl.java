@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.patient.impl;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
@@ -59,6 +60,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.net.Socket;
 import java.util.List;
 
@@ -92,6 +95,11 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh) {
         return new PatientMgtContextImpl(device, null, null, null, socket, msh);
+    }
+
+    @Override
+    public PatientMgtContext createPatientMgtContextScheduler(ApplicationEntity ae) {
+        return new PatientMgtContextImpl(device, null, null, ae, null, null);
     }
 
     @Override
@@ -165,12 +173,15 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public void deletePatientFromUI(Patient patient) {
-        ejb.deletePatientFromUI(patient);
+    public void deletePatientFromUI(PatientMgtContext ctx) {
+        ejb.deletePatientFromUI(ctx.getPatient());
+        patientMgtEvent.fire(ctx);
     }
 
     @Override
-    public void deletePatientIfHasNoMergedWith(Patient patient) {
-        ejb.deletePatientIfHasNoMergedWith(patient);
+    public void deletePatientIfHasNoMergedWith(PatientMgtContext ctx) {
+        boolean patientDeleted = ejb.deletePatientIfHasNoMergedWith(ctx.getPatient());
+        if (patientDeleted)
+            patientMgtEvent.fire(ctx);
     }
 }
