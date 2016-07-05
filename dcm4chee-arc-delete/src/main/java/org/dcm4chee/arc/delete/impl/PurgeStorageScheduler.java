@@ -63,6 +63,7 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -117,7 +118,7 @@ public class PurgeStorageScheduler extends Scheduler {
             if (arcDev.getStoreDeniedAccessControlID() != null && arcDev.getStoreDeniedDeleteDelay() != null) {
                 List<Study> studyList = em.createNamedQuery(Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID, Study.class)
                         .setParameter(1, arcDev.getStoreDeniedAccessControlID())
-                        .setParameter(2, System.currentTimeMillis() - arcDev.getStoreDeniedDeleteDelay().getSeconds())
+                        .setParameter(2, new Date(System.currentTimeMillis() - arcDev.getStoreDeniedDeleteDelay().getSeconds()))
                         .setMaxResults(arcDev.getStoreDeniedDeleteFetchSize()).getResultList();
                 for (Study study : studyList) {
                     StudyDeleteContext ctx = new StudyDeleteContextImpl(study.getPk(), study.getStudyInstanceUID());

@@ -167,7 +167,7 @@ class StoreServiceImpl implements StoreService {
         if (storeDeniedAccessControlID != null) {
             Location location = result.getLocation();
             Instance instance = location != null ? location.getInstance() : result.getPreviousInstance();
-            if (instance.getSeries().getStudy().getAccessControlID().equals(storeDeniedAccessControlID)) {
+            if (storeDeniedAccessControlID.equals(instance.getSeries().getStudy().getAccessControlID())) {
                 LOG.info("{}: Store of Instance[studyUID={},seriesUID={},objectUID={}] denied",
                         ctx.getStoreSession(),
                         ctx.getStudyInstanceUID(),
