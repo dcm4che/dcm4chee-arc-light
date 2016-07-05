@@ -330,6 +330,33 @@
       "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
       "type": "string"
     },
+    "dcmStorePermissionServiceURL": {
+      "title": "Store Permission Service URL",
+      "description": "URL of Store Permission Service which will be invoked on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030}",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceResponsePattern": {
+      "title": "Store Permission Service Response Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. (?s).*'validation'\s*:\s*'true'.* . If absent, every success response will be treated as agreement for storage.",
+      "type": "string"
+    },
+    "dcmStoreDeniedAccessControlID": {
+      "title": "Store Denied Access Control ID",
+      "description": "Access Control ID assigned to Studies which storage was denied by the Store Permission Service and which will be deleted after configured dcmStoreDeniedDeleteDelay. If absent, check for Store Permission is disabled.",
+      "type": "string"
+    },
+    "dcmStoreDeniedDeleteDelay": {
+      "title": "Store Denied Delete Delay",
+      "description": "Delay of deletion of Studies which storage was denied by the Store Permission Service in ISO-8601 duration format PnDTnHnMn.nS. If absent, Studies which storage was denied will not be deleted automatically.",
+      "type": "string"
+    },
+    "dcmStoreDeniedDeleteFetchSize": {
+      "title": "Store Denied Delete Fetch Size",
+      "description": "Maximal number of Studies which storage was denied by the Store Permission Service fetched in one query for deletion; 100 if absent.",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "dcmAttributeFilter": {
       "type": "array",
       "items" : {

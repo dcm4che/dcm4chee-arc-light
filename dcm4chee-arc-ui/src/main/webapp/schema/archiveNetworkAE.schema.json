@@ -138,6 +138,16 @@
       "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
       "type": "string"
     },
+    "dcmStorePermissionServiceURL": {
+      "title": "Store Permission Service URL",
+      "description": "URL of Store Permission Service which will be invoked on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030}",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceResponsePattern": {
+      "title": "Store Permission Service Response Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. (?s).*'validation'\s*:\s*'true'.* . If absent, every success response will be treated as agreement for storage.",
+      "type": "string"
+    },
     "dcmExportRule": {
       "type": "array",
       "items" : {

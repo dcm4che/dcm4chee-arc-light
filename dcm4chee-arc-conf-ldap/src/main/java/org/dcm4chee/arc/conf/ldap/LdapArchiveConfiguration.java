@@ -61,6 +61,7 @@ import java.security.cert.CertificateException;
 import java.time.LocalTime;
 import java.time.Period;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -133,6 +134,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmRejectExpiredSeriesFetchSize", ext.getRejectExpiredSeriesFetchSize(), 0);
         LdapUtils.storeNotNull(attrs, "dcmRejectExpiredStudiesAETitle", ext.getRejectExpiredStudiesAETitle());
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan());
+        LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL());
+        LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern());
+        LdapUtils.storeNotNull(attrs, "dcmStoreDeniedAccessControlID", ext.getStoreDeniedAccessControlID());
+        LdapUtils.storeNotNull(attrs, "dcmStoreDeniedDeleteDelay", ext.getStoreDeniedDeleteDelay());
+        LdapUtils.storeNotDef(attrs, "dcmStoreDeniedDeleteFetchSize", ext.getStoreDeniedDeleteFetchSize(), 100);
     }
 
     @Override
@@ -205,6 +211,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRejectExpiredSeriesFetchSize(LdapUtils.intValue(attrs.get("dcmRejectExpiredSeriesFetchSize"), 0));
         ext.setRejectExpiredStudiesAETitle(LdapUtils.stringValue(attrs.get("dcmRejectExpiredStudiesAETitle"), null));
         ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
+        ext.setStorePermissionServiceURL(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceURL"), null));
+        ext.setStorePermissionServiceResponsePattern(Pattern.compile(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceResponsePattern"), null)));
+        ext.setStoreDeniedAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreDeniedAccessControlID"), null));
+        ext.setStoreDeniedDeleteDelay(toDuration(LdapUtils.stringValue(attrs.get("dcmStoreDeniedDeleteDelay"), null)));
+        ext.setStoreDeniedDeleteFetchSize(LdapUtils.intValue(attrs.get("dcmStoreDeniedDeleteFetchSize"), 100));
     }
 
     @Override
@@ -311,6 +322,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRejectExpiredStudiesAETitle(), bb.getRejectExpiredStudiesAETitle());
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPStudyOlderThan",
                 aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan());
+        LdapUtils.storeDiff(mods, "dcmStorePermissionServiceURL",
+                aa.getStorePermissionServiceURL(), bb.getStorePermissionServiceURL());
+        LdapUtils.storeDiff(mods, "dcmStorePermissionServiceResponsePattern",
+                aa.getStorePermissionServiceResponsePattern(), bb.getStorePermissionServiceResponsePattern());
+        LdapUtils.storeDiff(mods, "dcmStoreDeniedAccessControlID",
+                aa.getStoreDeniedAccessControlID(), bb.getStoreDeniedAccessControlID());
+        LdapUtils.storeDiff(mods, "dcmStoreDeniedDeleteDelay",
+                aa.getStoreDeniedDeleteDelay(), bb.getStoreDeniedDeleteDelay());
+        LdapUtils.storeDiff(mods, "dcmStoreDeniedDeleteFetchSize",
+                aa.getStoreDeniedDeleteFetchSize(), bb.getStoreDeniedDeleteFetchSize(), 100);
     }
 
     @Override
@@ -408,6 +429,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmIanOnTimeout", ext.getIanOnTimeout());
         LdapUtils.storeNotEmpty(attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFromMWL());
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan());
+        LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL());
+        LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern());
     }
 
     @Override
@@ -442,6 +465,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setIanOnTimeout(LdapUtils.booleanValue(attrs.get("dcmIanOnTimeout"), null));
         ext.setHideSPSWithStatusFromMWL(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
         ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
+        ext.setStorePermissionServiceURL(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceURL"), null));
+        ext.setStorePermissionServiceResponsePattern(Pattern.compile(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceResponsePattern"), null)));
     }
 
     @Override
@@ -485,6 +510,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFromMWL(), bb.getHideSPSWithStatusFromMWL());
         LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPStudyOlderThan",
                 aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan());
+        LdapUtils.storeDiff(mods, "dcmStorePermissionServiceURL",
+                aa.getStorePermissionServiceURL(), bb.getStorePermissionServiceURL());
+        LdapUtils.storeDiff(mods, "dcmStorePermissionServiceResponsePattern",
+                aa.getStorePermissionServiceResponsePattern(), bb.getStorePermissionServiceResponsePattern());
     }
 
     @Override

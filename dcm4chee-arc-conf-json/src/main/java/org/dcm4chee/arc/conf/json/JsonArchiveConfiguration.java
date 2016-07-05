@@ -58,6 +58,7 @@ import java.net.URI;
 import java.time.LocalTime;
 import java.time.Period;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -128,6 +129,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmRejectExpiredSeriesFetchSize", arcDev.getRejectExpiredSeriesFetchSize(), 0);
         writer.writeNotNull("dcmRejectExpiredStudiesAETitle", arcDev.getRejectExpiredStudiesAETitle());
         writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcDev.getFallbackCMoveSCPStudyOlderThan());
+        writer.writeNotNull("dcmStorePermissionServiceURL", arcDev.getStorePermissionServiceURL());
+        writer.writeNotNull("dcmStorePermissionServiceResponsePattern", arcDev.getStorePermissionServiceResponsePattern());
+        writer.writeNotNull("dcmStoreDeniedAccessControlID", arcDev.getStoreDeniedAccessControlID());
+        writer.writeNotNull("dcmStoreDeniedDeleteDelay", arcDev.getStoreDeniedDeleteDelay());
+        writer.writeNotDef("dcmStoreDeniedDeleteFetchSize", arcDev.getStoreDeniedDeleteFetchSize(), 100);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -367,6 +373,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries(), 0);
         writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcAE.getFallbackCMoveSCPStudyOlderThan());
+        writer.writeNotNull("dcmStorePermissionServiceURL", arcAE.getStorePermissionServiceURL());
+        writer.writeNotNull("dcmStorePermissionServiceResponsePattern", arcAE.getStorePermissionServiceResponsePattern());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -556,6 +564,21 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPStudyOlderThan":
                     arcDev.setFallbackCMoveSCPStudyOlderThan(reader.stringValue());
+                    break;
+                case "dcmStorePermissionServiceURL":
+                    arcDev.setStorePermissionServiceURL(reader.stringValue());
+                    break;
+                case "dcmStorePermissionServiceResponsePattern":
+                    arcDev.setStorePermissionServiceResponsePattern(Pattern.compile(reader.stringValue()));
+                    break;
+                case "dcmStoreDeniedAccessControlID":
+                    arcDev.setStoreDeniedAccessControlID(reader.stringValue());
+                    break;
+                case "dcmStoreDeniedDeleteDelay":
+                    arcDev.setStoreDeniedDeleteDelay(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmStoreDeniedDeleteFetchSize":
+                    arcDev.setStoreDeniedDeleteFetchSize(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1106,6 +1129,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPStudyOlderThan":
                     arcAE.setFallbackCMoveSCPStudyOlderThan(reader.stringValue());
+                    break;
+                case "dcmStorePermissionServiceURL":
+                    arcAE.setStorePermissionServiceURL(reader.stringValue());
+                    break;
+                case "dcmStorePermissionServiceResponsePattern":
+                    arcAE.setStorePermissionServiceResponsePattern(Pattern.compile(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
