@@ -104,7 +104,11 @@ import java.util.Date;
 @NamedQuery(
     name=Study.GET_EXPIRED_STUDIES,
     query="select st from Study st " +
-            "where st.expirationDate <= ?1")
+            "where st.expirationDate <= ?1"),
+@NamedQuery(
+    name = Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID,
+    query = "select st from Study st " +
+            "where st.accessControlID = ?1 and st.accessTime = ?2")
 })
 @Entity
 @Table(name = "study",
@@ -135,6 +139,7 @@ public class Study {
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Study.ClearFailedSOPInstanceUIDList";
     public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
     public static final String GET_EXPIRED_STUDIES = "Study.GetExpiredStudies";
+    public static final String FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID = "Study.FindByAccessTimeAndAccessControlID";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

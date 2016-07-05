@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
@@ -56,7 +57,10 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -70,6 +74,9 @@ import java.util.List;
 public class PurgeStorageScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeStorageScheduler.class);
+
+    @PersistenceContext(unitName="dcm4chee-arc")
+    private EntityManager em;
 
     @Inject
     private Device device;
@@ -107,7 +114,17 @@ public class PurgeStorageScheduler extends Scheduler {
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
             if (desc.isReadOnly())
                 continue;
-
+            List<Study> studyList = em.createNamedQuery(Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID, Study.class)
+                    .setParameter(1, arcDev.getStoreDeniedAccessControlID())
+                    .setParameter(2, System.currentTimeMillis() - arcDev.getStoreDeniedDeleteDelay().getSeconds())
+                    .setMaxResults(arcDev.getStoreDeniedDeleteFetchSize()).getResultList();
+            for (Study study : studyList) {
+                StudyDeleteContext ctx = new StudyDeleteContextImpl(study.getPk(), study.getStudyInstanceUID());
+                ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
+                ejb.removeStudyOnStorage(ctx);
+                LOG.info("Study with access control id " + study.getAccessControlID()
+                        + " for which storage was denied by the Store Permission Service is deleted.");
+            }
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
             List<Long> studyPks = Collections.emptyList();
