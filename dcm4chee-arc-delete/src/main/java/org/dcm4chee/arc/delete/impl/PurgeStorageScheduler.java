@@ -114,18 +114,20 @@ public class PurgeStorageScheduler extends Scheduler {
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
             if (desc.isReadOnly())
                 continue;
-            List<Study> studyList = em.createNamedQuery(Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID, Study.class)
-                    .setParameter(1, arcDev.getStoreDeniedAccessControlID())
-                    .setParameter(2, System.currentTimeMillis() - arcDev.getStoreDeniedDeleteDelay().getSeconds())
-                    .setMaxResults(arcDev.getStoreDeniedDeleteFetchSize()).getResultList();
-            for (Study study : studyList) {
-                StudyDeleteContext ctx = new StudyDeleteContextImpl(study.getPk(), study.getStudyInstanceUID());
-                ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
-                try {
-                    ejb.removeStudyOnStorage(ctx);
-                    LOG.info("Successfully delete storage denied {} from database", ctx.getStudy());
-                } catch (Exception e) {
-                    LOG.warn("Failed to delete storage denied {} from database", ctx.getStudy(), e);
+            if (arcDev.getStoreDeniedAccessControlID() != null && arcDev.getStoreDeniedDeleteDelay() != null) {
+                List<Study> studyList = em.createNamedQuery(Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID, Study.class)
+                        .setParameter(1, arcDev.getStoreDeniedAccessControlID())
+                        .setParameter(2, System.currentTimeMillis() - arcDev.getStoreDeniedDeleteDelay().getSeconds())
+                        .setMaxResults(arcDev.getStoreDeniedDeleteFetchSize()).getResultList();
+                for (Study study : studyList) {
+                    StudyDeleteContext ctx = new StudyDeleteContextImpl(study.getPk(), study.getStudyInstanceUID());
+                    ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
+                    try {
+                        ejb.removeStudyOnStorage(ctx);
+                        LOG.info("Successfully delete storage denied {} from database", ctx.getStudy());
+                    } catch (Exception e) {
+                        LOG.warn("Failed to delete storage denied {} from database", ctx.getStudy(), e);
+                    }
                 }
             }
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
