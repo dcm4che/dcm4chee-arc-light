@@ -40,7 +40,7 @@
 
 package org.dcm4chee.arc.mwl.rs;
 
-import org.dcm4che3.audit.AuditMessages;
+
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
@@ -51,15 +51,11 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.SPSStatus;
-import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
-import org.dcm4chee.arc.patient.NoSuchPatientException;
-import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
-import org.dcm4chee.arc.procedure.impl.ProcedureContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
