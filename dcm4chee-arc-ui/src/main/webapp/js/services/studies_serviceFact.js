@@ -56,13 +56,13 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
 
     var getArrayFromIodHelper = function(data, dropdown){
         angular.forEach(data, function(m, i){
-            console.log("i",i);
-            console.log("m",m);
+            // console.log("i",i);
+            // console.log("m",m);
             if(i === "00400100"){
                 console.log("in if m",m.items);
                 angular.forEach(m.items, function(l, j){
-                    console.log("l",l);
-                    console.log("j",j);
+                    // console.log("l",l);
+                    // console.log("j",j);
                     dropdown.push({
                         "code":"00400100:"+j,
                         "codeComma": ">"+j.slice(0, 4)+","+j.slice(4),

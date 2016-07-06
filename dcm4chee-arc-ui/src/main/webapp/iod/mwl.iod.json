@@ -185,7 +185,7 @@
   "00380400": { "vr": "LO" },
   "00380500": { "vr": "LO", "required": 2 },
   "00384000": { "vr": "LT" },
-  "00400100": { "vr": "SQ", "required": 1,
+  "00140106": { "vr": "SQ", "required": 1,
     "items": {
       "00400001": { "vr": "AE", "multi": true, "required": 1 },
       "00400002": { "vr": "DA", "required": 1 },

@@ -519,6 +519,46 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         modifyStudy(patient, "create", "", "", study);
     };
     var modifyMWL = function(patient, mode, patientkey, mwlkey, mwl){
+        $scope.testmodel = {};
+        console.log("$scope.testmodel",$scope.testmodel);
+        // $scope.categories = [{ 
+        //                 title: 'Computers',
+        //                 categories: [
+        //                   {
+        //                     title: 'Laptops',
+        //                     categories: [
+        //                       {
+        //                         title: 'Ultrabooks'
+        //                       },
+        //                       {
+        //                         title: 'Macbooks'            
+        //                       }
+        //                     ]
+        //                   },
+
+        //                   {
+        //                     title: 'Desktops'
+        //                   },
+
+        //                   {
+        //                     title: 'Tablets',
+        //                     categories: [
+        //                       { 
+        //                         title: 'Apple'
+        //                       },
+        //                       {
+        //                         title: 'Android'
+        //                       }
+        //                     ]        
+        //                   }
+        //                 ]
+        //               },
+        //               {
+        //                 title: 'Printers'
+        //               }
+
+        //             ];
+
         cfpLoadingBar.start();
         var editmwl     = {};
         console.log("patient",patient);
@@ -564,6 +604,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         };
         // console.log("$scope.editmwl",$scope.editmwl);
         $http.get('iod/mwl.iod.json',{ cache: true}).then(function (res) {
+            $scope.items = res.data;
             // angular.forEach($scope.editmwl.attrs,function(m, i){
             //     if(!res.data[i] || res.data[i] === undefined){
             //         delete $scope.editmwl.attrs[i];
@@ -654,10 +695,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             }else{
                                 var attrcode = filtered[0].code;
                             }
-                            console.log("attrcode=",attrcode);
+                            // console.log("attrcode=",attrcode);
                             var codes = [];
                             if(attrcode.indexOf(':') >= 0){
-                               codes =  attrcode.split(":"); 
+                                codes =  attrcode.split(":"); 
                                 if($scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
                                     // if(!$scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
                                         // $timeout(function() {
@@ -678,7 +719,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     if(res.data[codes[0]]["Value"][0][codes[1]].multi){
                                         $timeout(function() {
                                             $scope.$apply(function(){
-                                                console.log("$scope.editmwl.attrs[codes[0]]['Value'][0][codes[1]]['Value']",$scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"]);
+                                                // console.log("$scope.editmwl.attrs[codes[0]]['Value'][0][codes[1]]['Value']",$scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"]);
                                                 $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"].push("");
                                                 $scope.addPatientAttribut           = "";
                                                 $scope.opendropdown                 = false;

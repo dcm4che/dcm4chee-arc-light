@@ -3,6 +3,7 @@
 	<a class="dropdown_element" name="{{m.code}}" ng-repeat="(i,m) in dropdown | filter:addPatientAttribut" ng-click="addAttribute(m.code)">({{m.codeComma}}) {{m.name}}</a>
 </div>
 <table class="table">
+  <iterative-iod object="{{editmwl.attrs}}" value="{{p}}" key="{{i}}"></iterative-iod>
    <tr ng-repeat="(i, p) in editmwl.attrs | mwl:iod track by $index ">
       <td ng-if="p.vr != 'SQ'" class="col-md-2 control-label first_td">{{i}}</td>
       <td ng-if="p.vr === 'SQ'"  class="col-md-2 control-label first_td">
@@ -54,8 +55,31 @@
 	            <input ng-if="j2 != '00104000' && item2.vr === 'PN'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(j2)}} Ideographic" ng-model="editmwl.attrs[i].Value[0][j].Value[0][j2].Value[0]['Ideographic']">
 	            <input ng-if="j2 != '00104000' && item2.vr === 'PN'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(j2)}} Phonetic" ng-model="editmwl.attrs[i].Value[0][j].Value[0][j2].Value[0]['Phonetic']">
             </div>
+
          </div>
       </td>
    </tr>
 </table>
+
+<pre>
+  testmodel:{{testmodel | json}}
+  testmodel:{{testm | json}}
+</pre>
+    <script type="text/ng-template" id="itemTree">
+        <span ng-init="testm = testm[i]"></span>
+        <span>{{i}}</span><span>{{DCM4CHE.elementName.forTag(i)}}</span><span><input ng-if="item.vr!='SQ'" type="text" ng-model="testm[i].Value"></span>
+
+        <ul ng-if="item.items">
+            <li ng-repeat="(i, item) in item.items"  ng-include="'itemTree'">          
+            </li>
+        </ul>
+        <ul ng-if="item.vr==='SQ' && item.Value">
+            <li ng-repeat="(i, item) in item.Value[0]"   ng-include="'itemTree'">          
+            </li>
+        </ul>
+    </script>
+    <ul>
+        <li ng-repeat="(i, item) in items" ng-init="testm = testmodel" ng-include="'itemTree'"></li>
+    </ul>    
+</div>
 
