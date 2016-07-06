@@ -994,7 +994,7 @@
           {
             "name": "spsID",
             "in": "path",
-            "description": "Identifier of the Scueduled Procedure Step",
+            "description": "Identifier of the Scheduled Procedure Step",
             "required": true,
             "type": "string"
           }
