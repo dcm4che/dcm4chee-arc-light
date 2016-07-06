@@ -111,7 +111,7 @@ public class MwlRS {
     @Consumes("application/json")
     @Produces("application/json")
     public StreamingOutput updateSPS(InputStream in) throws Exception {
-        LOG.info("Process {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         final Attributes attrs = reader.readDataset(null);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
@@ -152,6 +152,14 @@ public class MwlRS {
                 }
             }
         };
+    }
+
+    @DELETE
+    @Path("/mwlitems/{studyIUID}/{spsID}")
+    public void deleteSPS(@PathParam("studyIUID") String studyIUID, @PathParam("spsID") String spsID)
+            throws Exception {
+        LOG.info("Process DELETE {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        //TODO
     }
 
     private ApplicationEntity getApplicationEntity() {

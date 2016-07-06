@@ -969,6 +969,49 @@
         }
       }
     },
+    "/aets/{aet}/rs/mwlitems/{studyUID}/{spsID}": {
+      "get": {
+        "tags": [
+          "MWL-RS"
+        ],
+        "summary": "Delete Scheduled Procedure Step",
+        "operationId": "DeleteSPS",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "spsID",
+            "in": "path",
+            "description": "Identifier of the Scueduled Procedure Step",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no such SPS"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies": {
       "post": {
         "tags": [
