@@ -970,7 +970,7 @@
       }
     },
     "/aets/{aet}/rs/mwlitems/{studyUID}/{spsID}": {
-      "get": {
+      "delete": {
         "tags": [
           "MWL-RS"
         ],
@@ -994,7 +994,7 @@
           {
             "name": "spsID",
             "in": "path",
-            "description": "Identifier of the Scheduled Procedure Step",
+            "description": "Identifier of the Scueduled Procedure Step",
             "required": true,
             "type": "string"
           }
