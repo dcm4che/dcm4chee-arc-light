@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.mwl.rs;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
@@ -58,6 +59,7 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
+import org.dcm4chee.arc.procedure.impl.ProcedureContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +80,7 @@ import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @RequestScoped
@@ -159,7 +162,12 @@ public class MwlRS {
     public void deleteSPS(@PathParam("studyIUID") String studyIUID, @PathParam("spsID") String spsID)
             throws Exception {
         LOG.info("Process DELETE {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
-        //TODO
+        ProcedureContext ctx = procedureService.createProcedureContextWEB(request, getApplicationEntity());
+        ctx.setStudyInstanceUID(studyIUID);
+        ctx.setSPSID(spsID);
+        procedureService.deleteProcedure(ctx);
+        if (ctx.getEventActionCode() == null)
+            throw new NotFoundException("MWLItem with study instance UID {} and SPS ID {} not found." + studyIUID + spsID);
     }
 
     private ApplicationEntity getApplicationEntity() {

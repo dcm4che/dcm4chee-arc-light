@@ -45,6 +45,8 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -54,18 +56,21 @@ import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @ApplicationScoped
 public class ProcedureServiceImpl implements ProcedureService {
+    private static final Logger LOG = LoggerFactory.getLogger(ProcedureServiceImpl.class);
+
     @Inject
     private Device device;
-
     @Inject
     private ProcedureServiceEJB ejb;
 
     @Inject
-    private Event<ProcedureContext> updateProcedureEvent;
+    private Event<ProcedureContext> procedureEvent;
+
 
     @Override
     public ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh) {
@@ -86,7 +91,16 @@ public class ProcedureServiceImpl implements ProcedureService {
             throw e;
         } finally {
             if (ctx.getEventActionCode() != null)
-                updateProcedureEvent.fire(ctx);
+                procedureEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public void deleteProcedure(ProcedureContext ctx) {
+        ejb.deleteProcedure(ctx);
+        if (ctx.getEventActionCode() != null) {
+            LOG.warn("Successfully deleted MWLItem {} from database." + ctx.getSPSID());
+            procedureEvent.fire(ctx);
         }
     }
 }

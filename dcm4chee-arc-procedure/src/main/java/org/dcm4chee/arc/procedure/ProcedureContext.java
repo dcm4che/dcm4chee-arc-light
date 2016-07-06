@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 public interface ProcedureContext {
@@ -83,4 +84,10 @@ public interface ProcedureContext {
     Exception getException();
 
     void setException(Exception exception);
+
+    void setStudyInstanceUID(String studyUID);
+
+    String getSPSID();
+
+    void setSPSID(String spsID);
 }

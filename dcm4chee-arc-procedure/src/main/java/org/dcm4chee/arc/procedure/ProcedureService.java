@@ -48,6 +48,7 @@ import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 public interface ProcedureService {
@@ -56,4 +57,6 @@ public interface ProcedureService {
     ProcedureContext createProcedureContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
 
     void updateProcedure(ProcedureContext ctx);
+
+    void deleteProcedure(ProcedureContext ctx);
 }

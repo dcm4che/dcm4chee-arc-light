@@ -58,6 +58,7 @@ import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 public class ProcedureContextImpl implements ProcedureContext {
@@ -72,6 +73,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private Attributes attributes;
     private String eventActionCode;
     private Exception exception;
+    private String spsID;
 
     ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Socket socket,
                          HL7Segment msh) {
@@ -163,5 +165,20 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setException(Exception exception) {
         this.exception = exception;
+    }
+
+    @Override
+    public void setStudyInstanceUID(String studyUID) {
+        this.studyInstanceUID = studyUID;
+    }
+
+    @Override
+    public String getSPSID() {
+        return spsID;
+    }
+
+    @Override
+    public void setSPSID(String spsID) {
+        this.spsID = spsID;
     }
 }

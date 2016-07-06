@@ -63,6 +63,7 @@ import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @Stateless
@@ -124,5 +125,19 @@ public class ProcedureServiceEJB {
             map.put(sps.getString(Tag.ScheduledProcedureStepID), mwlAttrs);
         }
         return map;
+    }
+
+    public void deleteProcedure(ProcedureContext ctx) {
+        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID, MWLItem.class)
+                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        if (mwlItems.isEmpty())
+            return;
+        if(mwlItems.size() > 1)
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        else
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+        for (MWLItem mwl : mwlItems)
+            if (mwl.getScheduledProcedureStepID().equals(ctx.getSPSID()))
+                em.remove(mwl);
     }
 }
