@@ -112,9 +112,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String fallbackCMoveSCPStudyOlderThan;
     private String storePermissionServiceURL;
     private Pattern storePermissionServiceResponsePattern;
-    private String storeDeniedAccessControlID;
-    private Duration storeDeniedDeleteDelay;
-    private int storeDeniedDeleteFetchSize = 100;
+    private Duration storePermissionCacheStaleTimeout;
+    private int storePermissionCacheSize = 10;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -628,28 +627,24 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storePermissionServiceResponsePattern = storePermissionServiceResponsePattern;
     }
 
-    public String getStoreDeniedAccessControlID() {
-        return storeDeniedAccessControlID;
+    public Duration getStorePermissionCacheStaleTimeout() {
+        return storePermissionCacheStaleTimeout;
     }
 
-    public void setStoreDeniedAccessControlID(String storeDeniedAccessControlID) {
-        this.storeDeniedAccessControlID = storeDeniedAccessControlID;
+    public void setStorePermissionCacheStaleTimeout(Duration storePermissionCacheStaleTimeout) {
+        this.storePermissionCacheStaleTimeout = storePermissionCacheStaleTimeout;
     }
 
-    public Duration getStoreDeniedDeleteDelay() {
-        return storeDeniedDeleteDelay;
+    public int getStorePermissionCacheStaleTimeoutSeconds() {
+        return toSeconds(storePermissionCacheStaleTimeout);
     }
 
-    public void setStoreDeniedDeleteDelay(Duration storeDeniedDeleteDelay) {
-        this.storeDeniedDeleteDelay = storeDeniedDeleteDelay;
+    public int getStorePermissionCacheSize() {
+        return storePermissionCacheSize;
     }
 
-    public int getStoreDeniedDeleteFetchSize() {
-        return storeDeniedDeleteFetchSize;
-    }
-
-    public void setStoreDeniedDeleteFetchSize(int storeDeniedDeleteFetchSize) {
-        this.storeDeniedDeleteFetchSize = storeDeniedDeleteFetchSize;
+    public void setStorePermissionCacheSize(int storePermissionCacheSize) {
+        this.storePermissionCacheSize = storePermissionCacheSize;
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {
@@ -943,9 +938,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCPStudyOlderThan = arcdev.fallbackCMoveSCPStudyOlderThan;
         storePermissionServiceURL = arcdev.storePermissionServiceURL;
         storePermissionServiceResponsePattern = arcdev.storePermissionServiceResponsePattern;
-        storeDeniedAccessControlID = arcdev.storeDeniedAccessControlID;
-        storeDeniedDeleteDelay = arcdev.storeDeniedDeleteDelay;
-        storeDeniedDeleteFetchSize = arcdev.storeDeniedDeleteFetchSize;
+        storePermissionCacheStaleTimeout = arcdev.storePermissionCacheStaleTimeout;
+        storePermissionCacheSize = arcdev.storePermissionCacheSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();

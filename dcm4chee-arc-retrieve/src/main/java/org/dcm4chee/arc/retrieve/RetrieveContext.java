@@ -86,8 +86,6 @@ public interface RetrieveContext extends Closeable {
 
     String[] getAccessControlIDs();
 
-    String getStoreDeniedAccessControlID();
-
     QueryRetrieveView getQueryRetrieveView();
 
     boolean isHideNotRejectedInstances();

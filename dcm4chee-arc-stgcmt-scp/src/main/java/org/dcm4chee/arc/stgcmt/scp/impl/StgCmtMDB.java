@@ -176,10 +176,6 @@ public class StgCmtMDB implements MessageListener {
             sopIUIDs[i] = requestSeq.get(i).getString(Tag.ReferencedSOPInstanceUID);
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(QInstance.instance.sopInstanceUID.in(sopIUIDs));
-        ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String storeDeniedAccessControlID = arcdev.getStoreDeniedAccessControlID();
-        if (storeDeniedAccessControlID != null)
-            builder.and(QStudy.study.accessControlID.ne(storeDeniedAccessControlID));
         return query.where(builder).fetch();
     }
 

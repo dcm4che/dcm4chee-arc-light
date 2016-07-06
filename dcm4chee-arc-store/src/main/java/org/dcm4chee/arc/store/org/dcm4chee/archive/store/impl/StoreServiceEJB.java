@@ -42,12 +42,14 @@ package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.StorePermissionCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
@@ -112,6 +114,9 @@ public class StoreServiceEJB {
 
     @Inject
     private PatientService patientService;
+
+    @Inject
+    private StorePermissionCache storePermissionCache;
 
     public UpdateDBResult updateDB(StoreContext ctx, UpdateDBResult result) throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
@@ -366,11 +371,15 @@ public class StoreServiceEJB {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
-    private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result) {
+    private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)
+            throws DicomServiceException {
         Series series = findSeries(ctx, result);
         if (series == null) {
             Study study = findStudy(ctx, result);
             if (study == null) {
+                if (!checkStorePermission(ctx))
+                    throw new DicomServiceException(Status.NotAuthorized, "Storage denied");
+
                 StoreSession session = ctx.getStoreSession();
                 HttpServletRequest httpRequest = session.getHttpRequest();
                 Association as = session.getAssociation();
@@ -587,7 +596,7 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
         study.setStorageIDs(arcAE.storageID());
-        study.setAccessControlID(storeAccessControlID(ctx));
+        study.setAccessControlID(arcAE.getStoreAccessControlID());
         study.setRejectionState(RejectionState.NONE);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
@@ -596,36 +605,38 @@ public class StoreServiceEJB {
         return study;
     }
 
-    private String storeAccessControlID(StoreContext ctx) {
+    private boolean checkStorePermission(StoreContext ctx) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         String serviceURL = arcAE.storePermissionServiceURL();
-        String storeDeniedAccessControlID = arcAE.getArchiveDeviceExtension().getStoreDeniedAccessControlID();
-        if (serviceURL != null && storeDeniedAccessControlID != null) {
-            String urlspec = new AttributesFormat(serviceURL).format(ctx.getAttributes());
-            try {
-                URL url = new URL(urlspec);
-                HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-                ByteArrayOutputStream out = new ByteArrayOutputStream(512);
-                try (InputStream in = httpConn.getInputStream()) {
-                    StreamUtils.copy(in, out);
-                }
-                int responseCode = httpConn.getResponseCode();
-                Pattern responsePattern = arcAE.storePermissionServiceResponsePattern();
-                if (responsePattern != null) {
-                    if (responseCode != HttpURLConnection.HTTP_OK
-                            || !responsePattern.matcher(new String(out.toByteArray(), charsetOf(httpConn))).matches())
-                        return storeDeniedAccessControlID;
-                } else {
-                    if (responseCode != HttpURLConnection.HTTP_OK && responseCode != HttpURLConnection.HTTP_NO_CONTENT)
-                        return storeDeniedAccessControlID;
-                }
-            } catch (Exception e) {
-                LOG.warn("{}: Failed to query Store Permission Service {}:\n", session, urlspec, e);
-                return storeDeniedAccessControlID;
+        if (serviceURL == null)
+            return true;
+
+        String urlspec = new AttributesFormat(serviceURL).format(ctx.getAttributes());
+        Boolean result = storePermissionCache.get(urlspec);
+        if (result != null)
+            return result;
+
+        LOG.info("{}: Query Store Permission Service {}", session, urlspec);
+        try {
+            URL url = new URL(urlspec);
+            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+            ByteArrayOutputStream out = new ByteArrayOutputStream(512);
+            try (InputStream in = httpConn.getInputStream()) {
+                StreamUtils.copy(in, out);
             }
+            int responseCode = httpConn.getResponseCode();
+            Pattern responsePattern = arcAE.storePermissionServiceResponsePattern();
+            result = responsePattern != null
+                    ? responseCode == HttpURLConnection.HTTP_OK
+                        && responsePattern.matcher(new String(out.toByteArray(), charsetOf(httpConn))).matches()
+                    : responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NO_CONTENT;
+        } catch (Exception e) {
+            LOG.warn("{}: Failed to query Store Permission Service {}:\n", session, urlspec, e);
+            result = false;
         }
-        return arcAE.getStoreAccessControlID();
+        storePermissionCache.put(urlspec, result);
+        return result;
     }
 
     private String charsetOf(HttpURLConnection httpConn) {

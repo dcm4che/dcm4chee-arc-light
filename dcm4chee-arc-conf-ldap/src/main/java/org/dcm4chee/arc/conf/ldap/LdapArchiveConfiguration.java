@@ -136,9 +136,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern());
-        LdapUtils.storeNotNull(attrs, "dcmStoreDeniedAccessControlID", ext.getStoreDeniedAccessControlID());
-        LdapUtils.storeNotNull(attrs, "dcmStoreDeniedDeleteDelay", ext.getStoreDeniedDeleteDelay());
-        LdapUtils.storeNotDef(attrs, "dcmStoreDeniedDeleteFetchSize", ext.getStoreDeniedDeleteFetchSize(), 100);
+        LdapUtils.storeNotNull(attrs, "dcmStorePermissionCacheStaleTimeout", ext.getStorePermissionCacheStaleTimeout());
+        LdapUtils.storeNotDef(attrs, "dcmStorePermissionCacheSize", ext.getStorePermissionCacheSize(), 10);
     }
 
     @Override
@@ -207,9 +206,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFallbackCMoveSCPStudyOlderThan(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPStudyOlderThan"), null));
         ext.setStorePermissionServiceURL(LdapUtils.stringValue(attrs.get("dcmStorePermissionServiceURL"), null));
         ext.setStorePermissionServiceResponsePattern(toPattern(attrs.get("dcmStorePermissionServiceResponsePattern")));
-        ext.setStoreDeniedAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreDeniedAccessControlID"), null));
-        ext.setStoreDeniedDeleteDelay(toDuration(attrs.get("dcmStoreDeniedDeleteDelay")));
-        ext.setStoreDeniedDeleteFetchSize(LdapUtils.intValue(attrs.get("dcmStoreDeniedDeleteFetchSize"), 100));
+        ext.setStorePermissionCacheStaleTimeout(toDuration(attrs.get("dcmStorePermissionCacheStaleTimeout")));
+        ext.setStorePermissionCacheSize(LdapUtils.intValue(attrs.get("dcmStorePermissionCacheSize"), 10));
     }
 
     @Override
@@ -320,12 +318,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorePermissionServiceURL(), bb.getStorePermissionServiceURL());
         LdapUtils.storeDiff(mods, "dcmStorePermissionServiceResponsePattern",
                 aa.getStorePermissionServiceResponsePattern(), bb.getStorePermissionServiceResponsePattern());
-        LdapUtils.storeDiff(mods, "dcmStoreDeniedAccessControlID",
-                aa.getStoreDeniedAccessControlID(), bb.getStoreDeniedAccessControlID());
-        LdapUtils.storeDiff(mods, "dcmStoreDeniedDeleteDelay",
-                aa.getStoreDeniedDeleteDelay(), bb.getStoreDeniedDeleteDelay());
-        LdapUtils.storeDiff(mods, "dcmStoreDeniedDeleteFetchSize",
-                aa.getStoreDeniedDeleteFetchSize(), bb.getStoreDeniedDeleteFetchSize(), 100);
+        LdapUtils.storeDiff(mods, "dcmStorePermissionCacheStaleTimeout",
+                aa.getStorePermissionCacheStaleTimeout(), bb.getStorePermissionCacheStaleTimeout());
+        LdapUtils.storeDiff(mods, "dcmStorePermissionCacheSize",
+                aa.getStorePermissionCacheSize(), bb.getStorePermissionCacheSize(), 10);
     }
 
     @Override

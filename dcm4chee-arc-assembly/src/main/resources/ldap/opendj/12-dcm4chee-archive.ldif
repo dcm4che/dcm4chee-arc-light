@@ -512,18 +512,13 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.102 NAME 'dcmStorePermissionServiceResp
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.103 NAME 'dcmStoreDeniedAccessControlID'
-  DESC 'Access Control ID assigned to Studies which storage was denied by the Store Permission Service and which will be deleted after configured dcmStoreDeniedDeleteDelay. If absent, check for Store Permission is disabled.'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.103 NAME 'dcmStorePermissionCacheStaleTimeout'
+  DESC 'Maximal staleness of cached responses from Storage Permission Service in ISO-8601 duration format PnDTnHnMn.nS. If absent, cache Study attributes are only removed on reaching the maximal cache size.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.104 NAME 'dcmStoreDeniedDeleteDelay'
-  DESC 'Delay of deletion of Studies which storage was denied by the Store Permission Service in ISO-8601 duration format PnDTnHnMn.nS. If absent, Studies which storage was denied will not be deleted automatically.'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.105 NAME 'dcmStoreDeniedDeleteFetchSize'
-  DESC 'Maximal number of Studies which storage was denied by the Store Permission Service fetched in one query for deletion; 100 if absent.'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.104 NAME 'dcmStorePermissionCacheSize'
+  DESC 'Maximum number of cached responses from Storage Permission Service; 10 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -591,9 +586,8 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRejectExpiredStudiesAETitle $
     dcmStorePermissionServiceURL $
     dcmStorePermissionServiceResponsePattern $
-    dcmStoreDeniedAccessControlID $
-    dcmStoreDeniedDeleteDelay $
-    dcmStoreDeniedDeleteFetchSize ))
+    dcmStorePermissionCacheStaleTimeout $
+    dcmStorePermissionCacheSize ))
 objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY

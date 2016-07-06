@@ -131,9 +131,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcDev.getFallbackCMoveSCPStudyOlderThan());
         writer.writeNotNull("dcmStorePermissionServiceURL", arcDev.getStorePermissionServiceURL());
         writer.writeNotNull("dcmStorePermissionServiceResponsePattern", arcDev.getStorePermissionServiceResponsePattern());
-        writer.writeNotNull("dcmStoreDeniedAccessControlID", arcDev.getStoreDeniedAccessControlID());
-        writer.writeNotNull("dcmStoreDeniedDeleteDelay", arcDev.getStoreDeniedDeleteDelay());
-        writer.writeNotDef("dcmStoreDeniedDeleteFetchSize", arcDev.getStoreDeniedDeleteFetchSize(), 100);
+        writer.writeNotNull("dcmStorePermissionCacheStaleTimeout", arcDev.getStorePermissionCacheStaleTimeout());
+        writer.writeNotDef("dcmStorePermissionCacheSize", arcDev.getStorePermissionCacheSize(), 10);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -569,14 +568,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStorePermissionServiceResponsePattern":
                     arcDev.setStorePermissionServiceResponsePattern(Pattern.compile(reader.stringValue()));
                     break;
-                case "dcmStoreDeniedAccessControlID":
-                    arcDev.setStoreDeniedAccessControlID(reader.stringValue());
+                case "dcmStorePermissionCacheStaleTimeout":
+                    arcDev.setStorePermissionCacheStaleTimeout(Duration.parse(reader.stringValue()));
                     break;
-                case "dcmStoreDeniedDeleteDelay":
-                    arcDev.setStoreDeniedDeleteDelay(Duration.parse(reader.stringValue()));
-                    break;
-                case "dcmStoreDeniedDeleteFetchSize":
-                    arcDev.setStoreDeniedDeleteFetchSize(reader.intValue());
+                case "dcmStorePermissionCacheSize":
+                    arcDev.setStorePermissionCacheSize(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

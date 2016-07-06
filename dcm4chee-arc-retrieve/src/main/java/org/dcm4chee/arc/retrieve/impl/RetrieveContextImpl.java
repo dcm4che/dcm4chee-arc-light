@@ -177,11 +177,6 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public String getStoreDeniedAccessControlID() {
-        return arcAE.getArchiveDeviceExtension().getStoreDeniedAccessControlID();
-    }
-
-    @Override
     public QueryRetrieveView getQueryRetrieveView() {
         return qrView;
     }

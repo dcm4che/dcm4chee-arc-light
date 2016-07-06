@@ -48,7 +48,6 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
@@ -60,10 +59,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -115,22 +112,7 @@ public class PurgeStorageScheduler extends Scheduler {
         for (StorageDescriptor desc : arcDev.getStorageDescriptors()) {
             if (desc.isReadOnly())
                 continue;
-            if (arcDev.getStoreDeniedAccessControlID() != null && arcDev.getStoreDeniedDeleteDelay() != null) {
-                List<Study> studyList = em.createNamedQuery(Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID, Study.class)
-                        .setParameter(1, arcDev.getStoreDeniedAccessControlID())
-                        .setParameter(2, new Date(System.currentTimeMillis() - arcDev.getStoreDeniedDeleteDelay().getSeconds()))
-                        .setMaxResults(arcDev.getStoreDeniedDeleteFetchSize()).getResultList();
-                for (Study study : studyList) {
-                    StudyDeleteContext ctx = new StudyDeleteContextImpl(study.getPk(), study.getStudyInstanceUID());
-                    ctx.setDeletePatientOnDeleteLastStudy(arcDev.isDeletePatientOnDeleteLastStudy());
-                    try {
-                        ejb.removeStudyOnStorage(ctx);
-                        LOG.info("Successfully delete storage denied {} from database", ctx.getStudy());
-                    } catch (Exception e) {
-                        LOG.warn("Failed to delete storage denied {} from database", ctx.getStudy(), e);
-                    }
-                }
-            }
+
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
             List<Long> studyPks = Collections.emptyList();

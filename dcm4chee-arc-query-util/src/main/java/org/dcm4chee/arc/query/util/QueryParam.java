@@ -80,10 +80,6 @@ public class QueryParam {
         return arcAE.getApplicationEntity().getAETitle();
     }
 
-    public String getStoreDeniedAccessControlID() {
-        return arcDev.getStoreDeniedAccessControlID();
-    }
-
     public String[] getAccessControlIDs() {
         return arcAE.getAccessControlIDs();
     }

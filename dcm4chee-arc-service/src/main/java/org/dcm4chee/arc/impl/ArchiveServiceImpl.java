@@ -48,10 +48,7 @@ import org.dcm4che3.net.hl7.service.HL7ServiceRegistry;
 import org.dcm4che3.net.service.BasicCEchoSCP;
 import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceRegistry;
-import org.dcm4chee.arc.ArchiveService;
-import org.dcm4chee.arc.ArchiveServiceEvent;
-import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
-import org.dcm4chee.arc.Scheduler;
+import org.dcm4chee.arc.*;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
 import javax.annotation.PostConstruct;
@@ -91,6 +88,9 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Inject
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
+
+    @Inject
+    private StorePermissionCache storePermissionCache;
 
     @Inject
     private Device device;
@@ -194,6 +194,9 @@ public class ArchiveServiceImpl implements ArchiveService {
         leadingCFindSCPQueryCache.setStaleTimeout(
                 arcdev.getLeadingCFindSCPQueryCacheStaleTimeoutSeconds() * 1000L);
         leadingCFindSCPQueryCache.setMaxSize(arcdev.getLeadingCFindSCPQueryCacheSize());
+        storePermissionCache.setStaleTimeout(
+                arcdev.getStorePermissionCacheStaleTimeoutSeconds() * 1000L);
+        storePermissionCache.setMaxSize(arcdev.getStorePermissionCacheSize());
     }
 
 }
