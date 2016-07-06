@@ -137,7 +137,10 @@ public class ProcedureServiceEJB {
         else
             ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
         for (MWLItem mwl : mwlItems)
-            if (mwl.getScheduledProcedureStepID().equals(ctx.getSPSID()))
+            if (mwl.getScheduledProcedureStepID().equals(ctx.getSPSID())) {
+                ctx.setAttributes(mwl.getAttributes());
+                ctx.setPatient(mwl.getPatient());
                 em.remove(mwl);
+            }
     }
 }
