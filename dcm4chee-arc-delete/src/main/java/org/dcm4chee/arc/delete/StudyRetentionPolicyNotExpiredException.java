@@ -1,5 +1,4 @@
-/*
- * *** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -16,8 +15,8 @@
  * Java(TM), hosted at https://github.com/gunterze/dcm4che.
  *
  * The Initial Developer of the Original Code is
- * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Agfa Healthcare.
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,61 +34,20 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
- */
+ * ***** END LICENSE BLOCK ***** */
 
-package org.dcm4chee.arc.iocm.rs;
-
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.delete.DeletionService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-
+package org.dcm4chee.arc.delete;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
-@RequestScoped
-@Path("aets/{AETitle}/rs")
-public class DeleteStudy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DeleteStudy.class);
-
-    @Inject
-    private Device device;
-
-    @Inject
-    private DeletionService deletionService;
-
-    @PathParam("AETitle")
-    private String aet;
-
-    @Context
-    private HttpServletRequest request;
-
-    @DELETE
-    @Path("/studies/{StudyUID}")
-    public void deleteStudy(@PathParam("StudyUID") String studyUID) throws Exception {
-        LOG.info("Process DELETE {} from {}@{}",
-                request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        deletionService.deleteStudy(studyUID, request);
+public class StudyRetentionPolicyNotExpiredException extends Exception {
+    public StudyRetentionPolicyNotExpiredException() {
     }
 
-    private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
-        return ae;
+    public StudyRetentionPolicyNotExpiredException(String message) {
+        super(message);
     }
 }

@@ -40,17 +40,11 @@
 
 package org.dcm4chee.arc.delete.impl;
 
-import org.dcm4che3.audit.AuditMessages;
+
 import org.dcm4che3.data.Code;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.delete.DeletionService;
-import org.dcm4chee.arc.delete.PatientNotFoundException;
-import org.dcm4chee.arc.delete.StudyDeleteContext;
-import org.dcm4chee.arc.delete.StudyNotFoundException;
+import org.dcm4chee.arc.delete.*;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -63,6 +57,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
 import java.util.Date;
 import java.util.List;
@@ -130,6 +125,8 @@ public class DeletionServiceImpl implements DeletionService {
         try {
             if (studyList.isEmpty())
                 throw new StudyNotFoundException();
+            if (studyList.get(0).getExpirationDate() != null)
+                throw new StudyRetentionPolicyNotExpiredException();
             ctx = createStudyDeleteContext(studyUID, request);
             ctx.setDeletePatientOnDeleteLastStudy(false);
             studyRemoved = ejb.removeStudyOnStorage(ctx);
@@ -141,7 +138,9 @@ public class DeletionServiceImpl implements DeletionService {
                 LOG.warn("Successfully delete empty study {} from database", ctx.getStudyIUID());
             }
         } catch (StudyNotFoundException e) {
-            throw new NotFoundException("Study having study instance UID : " + studyUID + " not found.");
+            throw new NotFoundException("Study having study instance UID " + studyUID + " not found.");
+        } catch (StudyRetentionPolicyNotExpiredException e) {
+            throw new ForbiddenException("Study retention policy for study " + studyUID + " not expired.");
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", ctx.getStudy(), e);
             ctx.setException(e);
