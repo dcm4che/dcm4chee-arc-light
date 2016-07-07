@@ -63,5 +63,5 @@ public interface DeletionService {
 
     void deleteStudy(String studyUID, HttpServletRequest request);
 
-    void deletePatient(PatientMgtContext ctx);
+    void deletePatient(PatientMgtContext ctx) throws StudyRetentionPolicyNotExpiredException;
 }
