@@ -1220,6 +1220,8 @@ table.subtable_1, table.subtable_2 {
 div[tooltip] {
   position: relative; }
 
+.vex.vex-theme-os.edit-patient .vex-overlay {
+  right: 13px; }
 .vex.vex-theme-os.edit-patient .vex-content {
   width: 90%;
   padding: 30px; }

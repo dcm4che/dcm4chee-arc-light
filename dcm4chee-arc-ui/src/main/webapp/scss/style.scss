@@ -1642,6 +1642,9 @@ div[tooltip]{
 	// overflow:visible;
 }
 .vex.vex-theme-os.edit-patient{
+	.vex-overlay{
+		right: 13px;
+	}
 	.vex-content {
 	    width: 90%;
 	    padding:30px;

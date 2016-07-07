@@ -150,6 +150,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     // $scope.trim = function(selector){
     //     StudiesService.trim(selector);
     // };
+    // $scope.getLengthOfObject = function(obj){
+    //     if(obj){
+    //         console.log("obj",obj);
+    //         console.log("obj.length",obj.length);
+    //         // console.log("Object.keys(obj).length",Object.keys(obj).length);
+    //         return Object.keys(obj).length;
+    //     }else{
+    //         return 0;
+    //     }
+    // };
     $scope.addFileAttribute = function(instance){
         var id      = '#file-attribute-list-'+(instance.attrs['00080018'].Value[0]).replace(/\./g, '');
         if(angular.element(id).find("*").length < 1){
@@ -162,7 +172,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             );
         }
     };
-
+    // $scope.getObjectFromString = function(string){
+    //     console.log("string",string);
+    //     console.log("string length=", string.lenght);
+    //     console.log("string[0]",string[0]);
+    //     return $scope.testmodel[string[0]];
+    // };
     var modifyStudy = function(patient, mode, patientkey, studykey, study){
         cfpLoadingBar.start();
         var editstudy     = {};
@@ -588,6 +603,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.editmwl  = editmwl;
         editmwl         = {};
         $scope.lastPressedCode = 0;
+        console.log("$scope.editmwl",$scope.editmwl);
+
         $scope.removeAttr = function(attrcode){
             switch(arguments.length) {
                 case 2:
