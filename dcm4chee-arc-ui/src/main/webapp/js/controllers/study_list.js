@@ -784,7 +784,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         StudiesService.convertDateToString($scope, "editpatient");
                         if($scope.editpatient.attrs["00100020"] && $scope.editpatient.attrs["00100020"].Value[0]){
                             angular.forEach($scope.editpatient.attrs, function(m, i){
-                                if(res.data[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
+                                if(res.data && res.data[i] && res.data[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
                                     delete $scope.editpatient.attrs[i];
                                 }
                             });
