@@ -134,7 +134,7 @@ public class UpdateAttributes {
         IDWithIssuer bodyPatientID = ctx.getPatientID();
         if (bodyPatientID == null)
             throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
-        if (patientID.matches(bodyPatientID)) {
+        if (patientID.equals(bodyPatientID)) {
             patientService.updatePatient(ctx);
         } else {
             ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));

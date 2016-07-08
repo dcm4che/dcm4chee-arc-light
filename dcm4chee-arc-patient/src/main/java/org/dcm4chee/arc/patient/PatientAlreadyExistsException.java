@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,19 +38,14 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.issuer;
-
-import org.dcm4che3.data.Issuer;
-import org.dcm4chee.arc.entity.IssuerEntity;
+package org.dcm4chee.arc.patient;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2015
+ * @since Jul 2016
  */
-public interface IssuerService {
-    IssuerEntity findOrCreate(Issuer issuer);
-
-    IssuerEntity updateOrCreate(Issuer issuer);
-
-    IssuerEntity mergeOrCreate(Issuer issuer);
+public class PatientAlreadyExistsException extends RuntimeException {
+    public PatientAlreadyExistsException(String message) {
+        super(message);
+    }
 }

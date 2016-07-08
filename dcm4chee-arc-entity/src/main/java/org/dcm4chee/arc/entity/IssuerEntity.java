@@ -93,4 +93,8 @@ public class IssuerEntity {
     public Issuer getIssuer() {
         return issuer;
     }
+
+    public void setIssuer(Issuer issuer) {
+        this.issuer = issuer;
+    }
 }

@@ -65,10 +65,36 @@ public class IssuerServiceEJB implements IssuerService {
         try {
             return find(issuer);
         } catch (NoResultException e) {
-            IssuerEntity entity = new IssuerEntity(issuer);
-            em.persist(entity);
-            return entity;
+            return create(issuer);
         }
+    }
+
+    @Override
+    public IssuerEntity updateOrCreate(Issuer issuer) {
+        try {
+            IssuerEntity entity = find(issuer);
+            entity.setIssuer(issuer);
+            return entity;
+        } catch (NoResultException e) {
+            return create(issuer);
+        }
+    }
+
+    @Override
+    public IssuerEntity mergeOrCreate(Issuer issuer) {
+        try {
+            IssuerEntity entity = find(issuer);
+            entity.getIssuer().merge(issuer);
+            return entity;
+        } catch (NoResultException e) {
+            return create(issuer);
+        }
+    }
+
+    private IssuerEntity create(Issuer issuer) {
+        IssuerEntity entity = new IssuerEntity(issuer);
+        em.persist(entity);
+        return entity;
     }
 
     private IssuerEntity find(Issuer issuer) {

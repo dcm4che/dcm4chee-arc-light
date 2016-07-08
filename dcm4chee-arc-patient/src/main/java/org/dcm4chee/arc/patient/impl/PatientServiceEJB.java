@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.NonUniquePatientException;
+import org.dcm4chee.arc.patient.PatientAlreadyExistsException;
 import org.dcm4chee.arc.patient.PatientMergedException;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.slf4j.Logger;
@@ -57,10 +58,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -118,7 +116,7 @@ public class PatientServiceEJB {
     private Patient createPatient(PatientMgtContext ctx, IDWithIssuer patientID, Attributes attributes) {
         Patient patient = new Patient();
         patient.setAttributes(attributes, ctx.getAttributeFilter(), ctx.getFuzzyStr());
-        patient.setPatientID(createPatientID(patientID));
+        patient.setPatientID(createPatientID(patientID, false));
         em.persist(patient);
         return patient;
     }
@@ -190,17 +188,36 @@ public class PatientServiceEJB {
     }
 
     public Patient changePatientID(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException {
+            throws NonUniquePatientException, PatientMergedException, PatientAlreadyExistsException {
         Patient pat = findPatient(ctx.getPreviousPatientID());
         if (pat == null) {
             ctx.setPreviousAttributes(null); // suppress audit message for deletion of merge patient
             return createPatient(ctx);
         }
 
-        pat.setPatientID(createPatientID(ctx.getPatientID()));
+        IDWithIssuer patientID = ctx.getPatientID();
+        Patient pat2 = findPatient(patientID);
+        if (pat2 == null)
+            pat.setPatientID(createPatientID(patientID, true));
+        else if (pat2 == pat)
+            updateIssuer(pat.getPatientID(), patientID.getIssuer());
+        else
+            throw new PatientAlreadyExistsException("Patient with Patient ID " + patientID + "already exists");
         updatePatient(pat, ctx);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         return pat;
+    }
+
+    private void updateIssuer(PatientID patientID, Issuer issuer) {
+        if (issuer == null) {
+            patientID.setIssuer(null);
+        } else {
+            IssuerEntity entity = patientID.getIssuer();
+            if (entity == null)
+                patientID.setIssuer(issuerService.updateOrCreate(issuer));
+            else
+                entity.setIssuer(issuer);
+        }
     }
 
     public Patient findPatient(PatientMgtContext ctx) {
@@ -250,14 +267,16 @@ public class PatientServiceEJB {
         }
     }
 
-    private PatientID createPatientID(IDWithIssuer idWithIssuer) {
+    private PatientID createPatientID(IDWithIssuer idWithIssuer, boolean updateIssuer) {
         if (idWithIssuer == null)
             return null;
 
         PatientID patientID = new PatientID();
         patientID.setID(idWithIssuer.getID());
         if (idWithIssuer.getIssuer() != null)
-            patientID.setIssuer(issuerService.findOrCreate(idWithIssuer.getIssuer()));
+            patientID.setIssuer(updateIssuer
+                    ? issuerService.updateOrCreate(idWithIssuer.getIssuer())
+                    : issuerService.findOrCreate(idWithIssuer.getIssuer()));
 
         return patientID;
     }
