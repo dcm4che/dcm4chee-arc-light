@@ -82,6 +82,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCPStudyOlderThan;
     private String storePermissionServiceURL;
     private Pattern storePermissionServiceResponsePattern;
+    private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -434,6 +435,21 @@ public class ArchiveAEExtension extends AEExtension {
         return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
     }
 
+    public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {
+        return allowRejectionForDataRetentionPolicyExpired;
+    }
+
+    public void setAllowRejectionForDataRetentionPolicyExpired(AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired) {
+        this.allowRejectionForDataRetentionPolicyExpired = allowRejectionForDataRetentionPolicyExpired;
+    }
+
+    public AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired() {
+        return allowRejectionForDataRetentionPolicyExpired != null
+                ? allowRejectionForDataRetentionPolicyExpired
+                : StringUtils.maskNull(getArchiveDeviceExtension().getAllowRejectionForDataRetentionPolicyExpired(),
+                    AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
+    }
+
     public void removeExportRule(ExportRule rule) {
         exportRules.remove(rule);
     }
@@ -527,6 +543,7 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
         storePermissionServiceURL = aeExt.storePermissionServiceURL;
         storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
+        allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

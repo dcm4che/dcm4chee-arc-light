@@ -114,6 +114,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Pattern storePermissionServiceResponsePattern;
     private Duration storePermissionCacheStaleTimeout;
     private int storePermissionCacheSize = 10;
+    private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -647,6 +648,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storePermissionCacheSize = storePermissionCacheSize;
     }
 
+    public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {
+        return allowRejectionForDataRetentionPolicyExpired;
+    }
+
+    public void setAllowRejectionForDataRetentionPolicyExpired(AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired) {
+        this.allowRejectionForDataRetentionPolicyExpired = allowRejectionForDataRetentionPolicyExpired;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -940,6 +949,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storePermissionServiceResponsePattern = arcdev.storePermissionServiceResponsePattern;
         storePermissionCacheStaleTimeout = arcdev.storePermissionCacheStaleTimeout;
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
+        allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();

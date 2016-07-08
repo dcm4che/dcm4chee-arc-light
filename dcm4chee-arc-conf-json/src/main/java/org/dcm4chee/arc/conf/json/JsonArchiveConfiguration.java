@@ -133,6 +133,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorePermissionServiceResponsePattern", arcDev.getStorePermissionServiceResponsePattern());
         writer.writeNotNull("dcmStorePermissionCacheStaleTimeout", arcDev.getStorePermissionCacheStaleTimeout());
         writer.writeNotDef("dcmStorePermissionCacheSize", arcDev.getStorePermissionCacheSize(), 10);
+        writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired", arcDev.getAllowRejectionForDataRetentionPolicyExpired());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -372,6 +373,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcAE.getFallbackCMoveSCPStudyOlderThan());
         writer.writeNotNull("dcmStorePermissionServiceURL", arcAE.getStorePermissionServiceURL());
         writer.writeNotNull("dcmStorePermissionServiceResponsePattern", arcAE.getStorePermissionServiceResponsePattern());
+        writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired", arcAE.getAllowRejectionForDataRetentionPolicyExpired());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -573,6 +575,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionCacheSize":
                     arcDev.setStorePermissionCacheSize(reader.intValue());
+                    break;
+                case "dcmAllowRejectionForDataRetentionPolicyExpired":
+                    arcDev.setAllowRejectionForDataRetentionPolicyExpired(
+                            AllowRejectionForDataRetentionPolicyExpired.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1129,6 +1135,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionServiceResponsePattern":
                     arcAE.setStorePermissionServiceResponsePattern(Pattern.compile(reader.stringValue()));
+                    break;
+                case "dcmAllowRejectionForDataRetentionPolicyExpired":
+                    arcAE.setAllowRejectionForDataRetentionPolicyExpired(
+                            AllowRejectionForDataRetentionPolicyExpired.valueOf(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

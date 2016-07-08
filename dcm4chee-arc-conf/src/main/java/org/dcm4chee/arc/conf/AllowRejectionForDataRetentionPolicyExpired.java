@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,32 +35,16 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.delete;
-
-import org.dcm4che3.data.Code;
-import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.store.StudyRetentionPolicyNotExpiredException;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-
+package org.dcm4chee.arc.conf;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Nov 2015
+ * @since Jul 2015
  */
-public interface DeletionService {
-    int deleteRejectedInstancesBefore(Code rjCode, Date before, int fetchSize);
 
-    int deleteRejectionNotesBefore(Code rjCode, Date before, int fetchSize);
-
-    StudyDeleteContext createStudyDeleteContext(String studyUID, HttpServletRequest httpRequest);
-
-    void deleteStudy(String studyUID, HttpServletRequest request);
-
-    void deletePatient(PatientMgtContext ctx) throws StudyRetentionPolicyNotExpiredException;
+public enum AllowRejectionForDataRetentionPolicyExpired {
+    NEVER, ALWAYS, STUDY_RETENTION_POLICY
 }

@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package org.dcm4chee.arc.delete;
+package org.dcm4chee.arc.store;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

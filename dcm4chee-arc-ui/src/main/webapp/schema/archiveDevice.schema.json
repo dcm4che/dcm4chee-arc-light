@@ -352,6 +352,16 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmAllowRejectionForDataRetentionPolicyExpired": {
+      "title": "Allow Rejection For Data Retention Policy Expired",
+      "description": "Allow Rejection For Data Retention Policy Expired : NEVER, ALWAYS, STUDY_RETENTION_POLICY. If absent, STUDY_RETENTION_POLICY will be applied.",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "STUDY_RETENTION_POLICY"
+      ]
+    },
     "dcmAttributeFilter": {
       "type": "array",
       "items" : {

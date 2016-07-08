@@ -48,6 +48,7 @@ import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.store.StudyRetentionPolicyNotExpiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

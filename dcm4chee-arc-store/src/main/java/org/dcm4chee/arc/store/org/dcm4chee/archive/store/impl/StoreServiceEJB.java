@@ -60,6 +60,7 @@ import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.store.StudyRetentionPolicyNotExpiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +119,8 @@ public class StoreServiceEJB {
     @Inject
     private StorePermissionCache storePermissionCache;
 
-    public UpdateDBResult updateDB(StoreContext ctx, UpdateDBResult result) throws DicomServiceException {
+    public UpdateDBResult updateDB(StoreContext ctx, UpdateDBResult result)
+            throws DicomServiceException, StudyRetentionPolicyNotExpiredException {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
@@ -174,6 +176,7 @@ public class StoreServiceEJB {
         CodeEntity conceptNameCode = findOrCreateCode(ctx.getAttributes(), Tag.ConceptNameCodeSequence);
         if (conceptNameCode != null && ctx.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)) {
             RejectionNote rjNote = arcDev.getRejectionNote(conceptNameCode.getCode());
+            checkStudyRetentionPolicyNotExpired(ctx, arcAE, rjNote, result);
             if (rjNote != null) {
                 result.setRejectionNote(rjNote);
                 boolean revokeRejection = rjNote.isRevokeRejection();
@@ -188,6 +191,19 @@ public class StoreServiceEJB {
         deleteQueryAttributes(instance);
         result.setLocation(location);
         return result;
+    }
+
+    private void checkStudyRetentionPolicyNotExpired(StoreContext ctx, ArchiveAEExtension arcAE,
+                                                     RejectionNote rjNote, UpdateDBResult result)
+            throws StudyRetentionPolicyNotExpiredException {
+        Study s = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class).setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
+        if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
+                && s.getExpirationDate() != null
+                && (arcAE.allowRejectionForDataRetentionPolicyExpired() == AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY
+                || arcAE.allowRejectionForDataRetentionPolicyExpired() == AllowRejectionForDataRetentionPolicyExpired.NEVER)) {
+            result.setRejectionNote(rjNote);
+            throw new StudyRetentionPolicyNotExpiredException("Rejection rejected as Study Retention Policy is not expired");
+        }
     }
 
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode)
