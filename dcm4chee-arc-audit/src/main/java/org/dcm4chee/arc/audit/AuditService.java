@@ -204,7 +204,8 @@ public class AuditService {
 
     private void auditDeletion(SpoolFileReader readerObj, AuditServiceUtils.EventType eventType) {
         AuditInfo dI = new AuditInfo(readerObj.getMainInfo());
-        EventIdentification ei = getEI(eventType, dI.getField(AuditInfo.OUTCOME), log().timeStamp());
+        EventIdentification ei = getCustomEI(eventType, dI.getField(AuditInfo.OUTCOME),
+                dI.getField(AuditInfo.WARNING), log().timeStamp());
         BuildActiveParticipant ap1 = null;
         if (eventType.isSource) {
             ap1 = new BuildActiveParticipant.Builder(
@@ -480,7 +481,7 @@ public class AuditService {
 
     private void auditRetrieve(SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
         AuditInfo ri = new AuditInfo(readerObj.getMainInfo());
-        EventIdentification ei = getRetrieveEI(eventType, ri.getField(AuditInfo.OUTCOME),
+        EventIdentification ei = getCustomEI(eventType, ri.getField(AuditInfo.OUTCOME),
                 ri.getField(AuditInfo.WARNING), eventTime);
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.CALLED_AET),
                 getLocalHostName(log())).altUserID(AuditLogger.processID()).requester(eventType.isSource)
@@ -666,14 +667,15 @@ public class AuditService {
                 ? getPreferredUsername(req) : callingHost;
         if (callingAET == null && callingHost == null)
             callingAET = ss.toString();
-        String outcome = null != ctx.getRejectionNote() ? null != ctx.getException()
+        String outcome = null != ctx.getException() ? null != ctx.getRejectionNote()
                 ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                : ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning()
-                : getOD(ctx.getException());
+                : getOD(ctx.getException()) : null;
+        String warning = ctx.getException() == null && null != ctx.getRejectionNote()
+                ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
         BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(callingHost).callingAET(callingAET)
                 .calledAET(req != null ? req.getRequestURI() : ss.getCalledAET()).studyUID(ctx.getStudyInstanceUID())
                 .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(attr))
-                .outcome(outcome).studyDate(getSD(attr)).build();
+                .outcome(outcome).warning(warning).studyDate(getSD(attr)).build();
         return i;
     }
 
@@ -853,7 +855,7 @@ public class AuditService {
         return AuditMessages.getEI(ei);
     }
 
-    private EventIdentification getRetrieveEI(AuditServiceUtils.EventType et, String failureDesc, String warningDesc, Calendar t) {
+    private EventIdentification getCustomEI(AuditServiceUtils.EventType et, String failureDesc, String warningDesc, Calendar t) {
         if (failureDesc != null)
             return getEI(et, failureDesc, t);
         else {
@@ -863,5 +865,4 @@ public class AuditService {
             return AuditMessages.getEI(ei);
         }
     }
-
 }
