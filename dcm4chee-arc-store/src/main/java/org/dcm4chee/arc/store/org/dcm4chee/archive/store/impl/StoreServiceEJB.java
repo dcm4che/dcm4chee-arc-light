@@ -178,7 +178,7 @@ public class StoreServiceEJB {
             if (rjNote != null) {
                 result.setRejectionNote(rjNote);
                 boolean revokeRejection = rjNote.isRevokeRejection();
-                rejectInstances(ctx, rjNote, conceptNameCode, result, policy);
+                rejectInstances(ctx, rjNote, conceptNameCode, policy);
                 if (revokeRejection)
                     return result;
             }
@@ -203,7 +203,7 @@ public class StoreServiceEJB {
     }
 
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode,
-                                 UpdateDBResult result, AllowRejectionForDataRetentionPolicyExpired policy)
+                                 AllowRejectionForDataRetentionPolicyExpired policy)
             throws DicomServiceException {
         for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
             Series series = null;
@@ -220,7 +220,7 @@ public class StoreServiceEJB {
                     series = inst.getSeries();
                     if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
                             && policy == AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY)
-                        processExpirationDate(series, rjNote, result);
+                        processExpirationDate(series, rjNote.getRejectionNoteType());
                     RejectionState rejectionState = rjNote.isRevokeRejection()
                             ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
                             : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
@@ -243,15 +243,15 @@ public class StoreServiceEJB {
         }
     }
 
-    private void processExpirationDate(Series series, RejectionNote rjNote, UpdateDBResult result)
+    private void processExpirationDate(Series series, RejectionNote.Type type)
             throws DicomServiceException {
         LocalDate now = LocalDate.now();
         LocalDate seriesExpirationDate = series.getExpirationDate();
         LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
         if ((seriesExpirationDate != null && seriesExpirationDate.isAfter(now))
                 || (studyExpirationDate != null && studyExpirationDate.isAfter(now))) {
-            result.setRejectionNote(rjNote);
-            throw new DicomServiceException(REJECTION_NOT_ALLOWED_INSTANCES_NOT_EXPIRED, "");
+            throw new DicomServiceException(REJECTION_NOT_ALLOWED_INSTANCES_NOT_EXPIRED, "Rejection for type "
+                    + type + " is not authorized as instances are not yet expired.");
         }
     }
 
