@@ -57,7 +57,6 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
     private final static Logger LOG = LoggerFactory.getLogger(CFindSCUAttributeCoercion.class);
 
     private final ApplicationEntity localAE;
-    private final String callingAET;
     private final String calledAET;
     private final Attributes.UpdatePolicy attributeUpdatePolicy;
     private final CFindSCU cfindSCU;
@@ -65,11 +64,10 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
     private final AttributesCoercion next;
 
     public CFindSCUAttributeCoercion(
-            ApplicationEntity localAE, String callingAET, String calledAET,
+            ApplicationEntity localAE, String calledAET,
             Attributes.UpdatePolicy attributeUpdatePolicy, CFindSCU cfindSCU, Cache<String, Attributes> queryCache,
             AttributesCoercion next) {
         this.localAE = localAE;
-        this.callingAET = callingAET;
         this.calledAET = calledAET;
         this.attributeUpdatePolicy = attributeUpdatePolicy;
         this.cfindSCU = cfindSCU;
@@ -86,7 +84,7 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
             newAttrs = entry.value();
         } else {
             try {
-                newAttrs = cfindSCU.queryStudy(localAE, callingAET, calledAET, studyIUID);
+                newAttrs = cfindSCU.queryStudy(localAE, calledAET, studyIUID);
             } catch (Exception e) {
                 newAttrs = null;
                 LOG.warn("Failed to query Study[{}] from {} - do not coerce attributes", studyIUID, calledAET, e);

@@ -451,7 +451,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         String leadingCFindSCP = rule.getLeadingCFindSCP();
         if (leadingCFindSCP != null) {
-            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), ctx.getLocalAETitle(),
+            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(),
                     leadingCFindSCP, rule.attributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         return coercion;

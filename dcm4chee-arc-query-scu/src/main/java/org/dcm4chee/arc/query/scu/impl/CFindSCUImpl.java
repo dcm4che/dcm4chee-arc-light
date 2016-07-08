@@ -68,10 +68,10 @@ public class CFindSCUImpl implements CFindSCU {
     private IApplicationEntityCache aeCache;
 
     @Override
-    public Attributes queryStudy(ApplicationEntity localAE, String callingAET, String calledAET, String studyIUID)
+    public Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID)
             throws Exception {
         ApplicationEntity remoteAE = aeCache.get(calledAET);
-        Association as = localAE.connect(remoteAE, createAARQ(callingAET));
+        Association as = localAE.connect(remoteAE, createAARQ());
         try {
             DimseRSP rsp = as.cfind(UID.StudyRootQueryRetrieveInformationModelFIND, Priority.NORMAL,
                     mkQueryStudyKeys(studyIUID), UID.ImplicitVRLittleEndian, 0);
@@ -101,9 +101,8 @@ public class CFindSCUImpl implements CFindSCU {
                 keys.setNull(tag, DICT.vrOf(tag));
     }
 
-    private AAssociateRQ createAARQ(String callingAET) {
+    private AAssociateRQ createAARQ() {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(callingAET);
         aarq.addPresentationContext(new PresentationContext(
                 1, UID.StudyRootQueryRetrieveInformationModelFIND, UID.ImplicitVRLittleEndian));
         return aarq;

@@ -85,7 +85,7 @@ public class EchoRS {
     private HttpServletRequest request;
 
     private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        ApplicationEntity ae = device.getApplicationEntity(aet);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     "No such Application Entity: " + aet,
@@ -110,7 +110,6 @@ public class EchoRS {
 
     private AAssociateRQ createAARQ() {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(aet);
         aarq.addPresentationContextFor(UID.VerificationSOPClass, UID.ImplicitVRLittleEndian);
         return aarq;
     }

@@ -48,6 +48,5 @@ import org.dcm4che3.net.ApplicationEntity;
  * @since May 2016
  */
 public interface CFindSCU {
-    Attributes queryStudy(ApplicationEntity localAE, String callingAET, String calledAET, String studyIUID)
-            throws Exception;
+    Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID) throws Exception;
 }

@@ -102,6 +102,14 @@
           "items": {
             "type": "string"
           }
+        },
+        "dcmMasqueradeCallingAETitle": {
+          "title": "Masquerade Calling AE Title",
+          "description": "AE Title used for initiating network associations, masquerading the actual AE Title for this Network AE - optional prefix [<Called AE Title>] limits the masquerading to association to a particular AE Title",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

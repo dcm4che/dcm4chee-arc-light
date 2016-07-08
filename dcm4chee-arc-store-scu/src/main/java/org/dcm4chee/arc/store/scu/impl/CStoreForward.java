@@ -110,7 +110,6 @@ class CStoreForward {
 
     private AAssociateRQ createAARQ(Association as) {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(retrieveCtx.getLocalAETitle());
         for (PresentationContext pc : as.getAAssociateRQ().getPresentationContexts())
             aarq.addPresentationContext(pc);
         return aarq;

@@ -84,7 +84,7 @@ public class CMoveSCUImpl implements CMoveSCU {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
             Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
+                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID())));
             fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
             return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas);
         } catch (Exception e) {
@@ -100,7 +100,7 @@ public class CMoveSCUImpl implements CMoveSCU {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
             Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
+                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID())));
             fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
             rq.setString(Tag.MoveDestination, VR.AE, fallbackCMoveSCPDestination);
             storeForwardSCU.addRetrieveContext(ctx);
@@ -125,7 +125,7 @@ public class CMoveSCUImpl implements CMoveSCU {
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(otherCMoveSCP);
             fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
+                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID())));
             ctx.setForwardAssociation(fwdas);
             fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
         } catch (Exception e) {
@@ -139,9 +139,8 @@ public class CMoveSCUImpl implements CMoveSCU {
         }
     }
 
-    private AAssociateRQ createAARQ(PresentationContext pc, String callingAET) {
+    private AAssociateRQ createAARQ(PresentationContext pc) {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(callingAET);
         aarq.addPresentationContext(pc);
         aarq.addExtendedNegotiation(new ExtendedNegotiation(pc.getAbstractSyntax(),
                 QueryOption.toExtendedNegotiationInformation(EnumSet.of(QueryOption.RELATIONAL))));
