@@ -253,8 +253,6 @@ public class StoreServiceEJB {
             result.setRejectionNote(rjNote);
             throw new DicomServiceException(REJECTION_NOT_ALLOWED_INSTANCES_NOT_EXPIRED, "");
         }
-        else
-            return;
     }
 
     private boolean hasRejectedInstances(Series series) {
