@@ -61,15 +61,6 @@ public class IssuerServiceEJB implements IssuerService {
     private EntityManager em;
 
     @Override
-    public IssuerEntity findOrCreate(Issuer issuer) {
-        try {
-            return find(issuer);
-        } catch (NoResultException e) {
-            return create(issuer);
-        }
-    }
-
-    @Override
     public IssuerEntity updateOrCreate(Issuer issuer) {
         try {
             IssuerEntity entity = find(issuer);

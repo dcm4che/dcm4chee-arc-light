@@ -116,7 +116,7 @@ public class PatientServiceEJB {
     private Patient createPatient(PatientMgtContext ctx, IDWithIssuer patientID, Attributes attributes) {
         Patient patient = new Patient();
         patient.setAttributes(attributes, ctx.getAttributeFilter(), ctx.getFuzzyStr());
-        patient.setPatientID(createPatientID(patientID, false));
+        patient.setPatientID(createPatientID(patientID));
         em.persist(patient);
         return patient;
     }
@@ -198,7 +198,7 @@ public class PatientServiceEJB {
         IDWithIssuer patientID = ctx.getPatientID();
         Patient pat2 = findPatient(patientID);
         if (pat2 == null)
-            pat.setPatientID(createPatientID(patientID, true));
+            pat.setPatientID(createPatientID(patientID));
         else if (pat2 == pat)
             updateIssuer(pat.getPatientID(), patientID.getIssuer());
         else
@@ -267,16 +267,14 @@ public class PatientServiceEJB {
         }
     }
 
-    private PatientID createPatientID(IDWithIssuer idWithIssuer, boolean updateIssuer) {
+    private PatientID createPatientID(IDWithIssuer idWithIssuer) {
         if (idWithIssuer == null)
             return null;
 
         PatientID patientID = new PatientID();
         patientID.setID(idWithIssuer.getID());
         if (idWithIssuer.getIssuer() != null)
-            patientID.setIssuer(updateIssuer
-                    ? issuerService.updateOrCreate(idWithIssuer.getIssuer())
-                    : issuerService.findOrCreate(idWithIssuer.getIssuer()));
+            patientID.setIssuer(issuerService.mergeOrCreate(idWithIssuer.getIssuer()));
 
         return patientID;
     }

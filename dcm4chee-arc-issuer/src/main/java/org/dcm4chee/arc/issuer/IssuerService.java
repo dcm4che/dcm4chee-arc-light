@@ -48,8 +48,6 @@ import org.dcm4chee.arc.entity.IssuerEntity;
  * @since Jul 2015
  */
 public interface IssuerService {
-    IssuerEntity findOrCreate(Issuer issuer);
-
     IssuerEntity updateOrCreate(Issuer issuer);
 
     IssuerEntity mergeOrCreate(Issuer issuer);

@@ -832,7 +832,7 @@ public class StoreServiceEJB {
 
     private IssuerEntity findOrCreateIssuer(Attributes attrs, int tag) {
         Attributes item = attrs.getNestedDataset(tag);
-        return item != null ? issuerService.findOrCreate(new Issuer(item)) : null;
+        return item != null ? issuerService.mergeOrCreate(new Issuer(item)) : null;
     }
 
     private CodeEntity findOrCreateCode(Attributes attrs, int seqTag) {

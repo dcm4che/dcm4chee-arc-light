@@ -121,6 +121,6 @@ public class StudyServiceEJB {
     }
 
     private IssuerEntity findOrCreateIssuer(Attributes item) {
-        return item != null ? issuerService.findOrCreate(new Issuer(item)) : null;
+        return item != null ? issuerService.mergeOrCreate(new Issuer(item)) : null;
     }
 }
