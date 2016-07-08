@@ -60,7 +60,6 @@ import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
-import org.dcm4chee.arc.store.StudyRetentionPolicyNotExpiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,12 +70,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -103,6 +99,8 @@ public class StoreServiceEJB {
     private static final int REJECTION_FAILED_NO_SUCH_INSTANCE = 0xA772;
     private static final int REJECTION_FAILED_CLASS_INSTANCE_CONFLICT  = 0xA773;
     private static final int REJECTION_FAILED_ALREADY_REJECTED  = 0xA774;
+    private static final int REJECTION_NOT_AUTHORIZED = 0x0124;
+    private static final int REJECTION_NOT_ALLOWED_INSTANCES_NOT_EXPIRED = 0xA775;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -120,7 +118,7 @@ public class StoreServiceEJB {
     private StorePermissionCache storePermissionCache;
 
     public UpdateDBResult updateDB(StoreContext ctx, UpdateDBResult result)
-            throws DicomServiceException, StudyRetentionPolicyNotExpiredException {
+            throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
@@ -172,15 +170,15 @@ public class StoreServiceEJB {
             LOG.info("{}: Replace previous received {}", session, prevInstance);
             deleteInstance(prevInstance, ctx);
         }
-
+        AllowRejectionForDataRetentionPolicyExpired policy = arcAE.allowRejectionForDataRetentionPolicyExpired();
         CodeEntity conceptNameCode = findOrCreateCode(ctx.getAttributes(), Tag.ConceptNameCodeSequence);
         if (conceptNameCode != null && ctx.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)) {
             RejectionNote rjNote = arcDev.getRejectionNote(conceptNameCode.getCode());
-            checkStudyRetentionPolicyNotExpired(ctx, arcAE, rjNote, result);
+            checkStudyRetentionPolicyNotExpired(policy, rjNote, result);
             if (rjNote != null) {
                 result.setRejectionNote(rjNote);
                 boolean revokeRejection = rjNote.isRevokeRejection();
-                rejectInstances(ctx, rjNote, conceptNameCode);
+                rejectInstances(ctx, rjNote, conceptNameCode, result, policy);
                 if (revokeRejection)
                     return result;
             }
@@ -193,20 +191,19 @@ public class StoreServiceEJB {
         return result;
     }
 
-    private void checkStudyRetentionPolicyNotExpired(StoreContext ctx, ArchiveAEExtension arcAE,
+    private void checkStudyRetentionPolicyNotExpired(AllowRejectionForDataRetentionPolicyExpired policy,
                                                      RejectionNote rjNote, UpdateDBResult result)
-            throws StudyRetentionPolicyNotExpiredException {
-        Study s = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class).setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
+            throws DicomServiceException {
         if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
-                && s.getExpirationDate() != null
-                && (arcAE.allowRejectionForDataRetentionPolicyExpired() == AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY
-                || arcAE.allowRejectionForDataRetentionPolicyExpired() == AllowRejectionForDataRetentionPolicyExpired.NEVER)) {
+                && policy == AllowRejectionForDataRetentionPolicyExpired.NEVER) {
             result.setRejectionNote(rjNote);
-            throw new StudyRetentionPolicyNotExpiredException("Rejection rejected as Study Retention Policy is not expired");
+            throw new DicomServiceException(REJECTION_NOT_AUTHORIZED, "Rejection for type "
+                    + rjNote.getRejectionNoteType() + " is not authorized");
         }
     }
 
-    private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode)
+    private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode,
+                                 UpdateDBResult result, AllowRejectionForDataRetentionPolicyExpired policy)
             throws DicomServiceException {
         for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
             Series series = null;
@@ -221,6 +218,9 @@ public class StoreServiceEJB {
                 }
                 if (inst != null) {
                     series = inst.getSeries();
+                    if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
+                            && policy == AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY)
+                        processExpirationDate(series, rjNote, result);
                     RejectionState rejectionState = rjNote.isRevokeRejection()
                             ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
                             : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
@@ -241,6 +241,20 @@ public class StoreServiceEJB {
                 deleteStudyQueryAttributes(study);
             }
         }
+    }
+
+    private void processExpirationDate(Series series, RejectionNote rjNote, UpdateDBResult result)
+            throws DicomServiceException {
+        LocalDate now = LocalDate.now();
+        LocalDate seriesExpirationDate = series.getExpirationDate();
+        LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
+        if ((seriesExpirationDate != null && seriesExpirationDate.isAfter(now))
+                || (studyExpirationDate != null && studyExpirationDate.isAfter(now))) {
+            result.setRejectionNote(rjNote);
+            throw new DicomServiceException(REJECTION_NOT_ALLOWED_INSTANCES_NOT_EXPIRED, "");
+        }
+        else
+            return;
     }
 
     private boolean hasRejectedInstances(Series series) {

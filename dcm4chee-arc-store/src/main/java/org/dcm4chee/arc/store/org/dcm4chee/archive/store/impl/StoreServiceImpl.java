@@ -25,7 +25,6 @@ import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
-import org.dcm4chee.arc.store.StudyRetentionPolicyNotExpiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,8 +126,6 @@ class StoreServiceImpl implements StoreService {
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
-        } catch (StudyRetentionPolicyNotExpiredException e) {
-          ctx.setException(e);
         } catch (Exception e) {
             DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
             ctx.setException(dse);
@@ -186,9 +183,6 @@ class StoreServiceImpl implements StoreService {
         } catch (DicomServiceException e) {
             ctx.setException(e);
             throw e;
-        } catch (StudyRetentionPolicyNotExpiredException e) {
-            ctx.setException(e);
-            throw new ForbiddenException("Rejection rejected : not allowed");
         } catch (Exception e) {
             DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
             ctx.setException(dse);

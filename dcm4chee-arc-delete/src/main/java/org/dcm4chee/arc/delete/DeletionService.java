@@ -42,7 +42,6 @@ package org.dcm4chee.arc.delete;
 
 import org.dcm4che3.data.Code;
 import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.store.StudyRetentionPolicyNotExpiredException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
