@@ -454,6 +454,16 @@ public class StoreServiceEJB {
 
         updateInfo.log(session, pat, attrs);
         pat = em.find(Patient.class, pat.getPk());
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(attrs);
+        Issuer issuer = idWithIssuer.getIssuer();
+        if (issuer != null) {
+            PatientID patientID = pat.getPatientID();
+            IssuerEntity issuerEntity = patientID.getIssuer();
+            if (issuerEntity == null)
+                patientID.setIssuer(issuerService.mergeOrCreate(issuer));
+            else
+                issuerEntity.getIssuer().merge(issuer);
+        }
         pat.setAttributes(attrs, filter, arcDev.getFuzzyStr());
         return pat;
     }
