@@ -160,7 +160,7 @@ public class MwlRS {
         LOG.info("Process DELETE {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         ProcedureContext ctx = procedureService.createProcedureContextWEB(request, getApplicationEntity());
         ctx.setStudyInstanceUID(studyIUID);
-        ctx.setSPSID(spsID);
+        ctx.setSpsID(spsID);
         procedureService.deleteProcedure(ctx);
         if (ctx.getEventActionCode() == null)
             throw new NotFoundException("MWLItem with study instance UID {} and SPS ID {} not found." + studyIUID + spsID);

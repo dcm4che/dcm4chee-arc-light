@@ -40,19 +40,29 @@
 
 package org.dcm4chee.arc.procedure.impl;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.SPSStatus;
+import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.dcm4che3.data.Tag;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,12 +84,17 @@ public class ProcedureServiceImpl implements ProcedureService {
 
     @Override
     public ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh) {
-        return new ProcedureContextImpl(device, null, null, s, msh);
+        return new ProcedureContextImpl(device, null, null, null, s, msh);
     }
 
     @Override
     public ProcedureContext createProcedureContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
-        return new ProcedureContextImpl(device, httpRequest, ae, null, null);
+        return new ProcedureContextImpl(device, httpRequest, ae, null,  null, null);
+    }
+
+    @Override
+    public ProcedureContext createProcedureContextAssociation(Association as) {
+        return new ProcedureContextImpl(device, null, as.getApplicationEntity(), as, as.getSocket(), null);
     }
 
     @Override
@@ -99,8 +114,40 @@ public class ProcedureServiceImpl implements ProcedureService {
     public void deleteProcedure(ProcedureContext ctx) {
         ejb.deleteProcedure(ctx);
         if (ctx.getEventActionCode() != null) {
-            LOG.warn("Successfully deleted MWLItem {} from database." + ctx.getSPSID());
+            LOG.info("Successfully deleted MWLItem {} from database." + ctx.getSpsID());
             procedureEvent.fire(ctx);
+        }
+    }
+
+    public void onMPPS(@Observes MPPSContext ctx) {
+        Attributes attr = ctx.getAttributes();
+        String mppsStatus = attr.getString(Tag.PerformedProcedureStepStatus);
+        if (mppsStatus != null) {
+            MPPS mergedMPPS = ctx.getMPPS();
+            Attributes mergedMppsAttr = mergedMPPS.getAttributes();
+            Sequence seq = mergedMppsAttr.getSequence(Tag.ScheduledStepAttributesSequence);
+            ProcedureContext pCtx = createProcedureContextAssociation(ctx.getAssociation());
+            if (mppsStatus.equals("IN PROGRESS"))
+                pCtx.setSpsStatus(SPSStatus.STARTED.toString());
+            else
+                pCtx.setSpsStatus(mppsStatus);
+            List<String> spsIDs = new ArrayList<>();
+            for (Attributes item : seq) {
+                spsIDs.add(item.getString(Tag.ScheduledProcedureStepID));
+                pCtx.setStudyInstanceUID(item.getString(Tag.StudyInstanceUID));
+            }
+            pCtx.setSPSIDs(spsIDs);
+            if (!pCtx.getSPSIDs().isEmpty()) {
+                try {
+                    ejb.updateSPSStatus(pCtx);
+                } catch (RuntimeException e) {
+                    pCtx.setException(e);
+                    throw e;
+                } finally {
+                    if (pCtx.getEventActionCode() != null)
+                        procedureEvent.fire(pCtx);
+                }
+            }
         }
     }
 }

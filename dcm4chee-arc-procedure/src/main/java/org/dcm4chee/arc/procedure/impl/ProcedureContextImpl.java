@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -54,6 +55,7 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,8 +75,11 @@ public class ProcedureContextImpl implements ProcedureContext {
     private String eventActionCode;
     private Exception exception;
     private String spsID;
+    private List<String> spsIDs;
+    private Association as;
+    private String spsStatus;
 
-    ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Socket socket,
+    ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Association as, Socket socket,
                          HL7Segment msh) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         this.attributeFilter = arcDev.getAttributeFilter(Entity.MWL);
@@ -83,11 +88,14 @@ public class ProcedureContextImpl implements ProcedureContext {
         this.ae = ae;
         this.socket = socket;
         this.msh = msh;
+        this.as = as;
     }
 
     @Override
     public String toString() {
-        return httpRequest != null ? httpRequest.getRemoteAddr() : msh.toString();
+        return httpRequest != null
+                ? httpRequest.getRemoteAddr()
+                : msh != null ? msh.toString() : as.toString();
     }
 
     @Override
@@ -172,12 +180,37 @@ public class ProcedureContextImpl implements ProcedureContext {
     }
 
     @Override
-    public String getSPSID() {
+    public List<String> getSPSIDs() {
+        return spsIDs;
+    }
+
+    @Override
+    public void setSPSIDs(List<String> spsIDs) {
+        this.spsIDs = spsIDs;
+    }
+
+    @Override
+    public String getSpsStatus() {
+        return spsStatus;
+    }
+
+    @Override
+    public void setSpsStatus(String spsStatus) {
+        this.spsStatus = spsStatus;
+    }
+
+    @Override
+    public Association getAssociation() {
+        return as;
+    }
+
+    @Override
+    public String getSpsID() {
         return spsID;
     }
 
     @Override
-    public void setSPSID(String spsID) {
+    public void setSpsID(String spsID) {
         this.spsID = spsID;
     }
 }

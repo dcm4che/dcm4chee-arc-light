@@ -138,7 +138,7 @@ public class DeletionServiceImpl implements DeletionService {
                 studyDeletedEvent.fire(ctx);
             } else {
                 ejb.deleteEmptyStudy(ctx);
-                LOG.warn("Successfully delete empty study {} from database", ctx.getStudyIUID());
+                LOG.info("Successfully delete empty study {} from database", ctx.getStudyIUID());
             }
         } catch (StudyNotFoundException e) {
             throw new NotFoundException("Study having study instance UID " + studyUID + " not found.");

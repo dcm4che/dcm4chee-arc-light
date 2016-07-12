@@ -43,9 +43,12 @@ package org.dcm4chee.arc.procedure.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Issuer;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.IssuerEntity;
+import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -137,10 +140,26 @@ public class ProcedureServiceEJB {
         else
             ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
         for (MWLItem mwl : mwlItems)
-            if (mwl.getScheduledProcedureStepID().equals(ctx.getSPSID())) {
+            if (mwl.getScheduledProcedureStepID().equals(ctx.getSpsID())) {
                 ctx.setAttributes(mwl.getAttributes());
                 ctx.setPatient(mwl.getPatient());
                 em.remove(mwl);
             }
+    }
+
+    public void updateSPSStatus(ProcedureContext ctx) {
+        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID, MWLItem.class)
+                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        for (MWLItem mwl : mwlItems) {
+            Attributes attr = mwl.getAttributes();
+            Sequence seq = attr.getSequence(Tag.ScheduledProcedureStepSequence);
+            for (Attributes item : seq) {
+                String status = item.getString(Tag.ScheduledProcedureStepStatus);
+                if (!status.equals(ctx.getSpsStatus())) {
+                    item.setString(Tag.ScheduledProcedureStepStatus, VR.CS, ctx.getSpsStatus());
+                    ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+                }
+            }
+        }
     }
 }
