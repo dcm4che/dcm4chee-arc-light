@@ -1083,6 +1083,51 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{studyUID}/move": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Move/Copy Instances to Study",
+        "operationId": "MoveInstances",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no such study"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
       "get": {
         "tags": [
