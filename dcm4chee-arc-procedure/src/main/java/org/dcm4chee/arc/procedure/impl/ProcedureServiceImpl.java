@@ -148,7 +148,7 @@ public class ProcedureServiceImpl implements ProcedureService {
                     ejb.updateSPSStatus(pCtx);
                 } catch (RuntimeException e) {
                     pCtx.setException(e);
-                    throw e;
+                    LOG.warn(e.getMessage());
                 } finally {
                     if (pCtx.getEventActionCode() != null)
                         procedureEvent.fire(pCtx);
