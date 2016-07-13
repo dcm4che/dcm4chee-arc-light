@@ -135,12 +135,8 @@ public class DeletionServiceEJB {
     }
 
     public void deleteEmptyStudy(StudyDeleteContext ctx) throws StudyNotFoundException {
-        Study s = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
-                .setParameter(1, ctx.getStudyIUID()).getSingleResult();
-        if (s != null)
-            em.remove(s);
-        else
-            throw new StudyNotFoundException("Study having study instance UID : " + ctx.getStudyIUID() + " not found.");
+        Study study = ctx.getStudy();
+        em.remove(em.contains(study) ? study : em.merge(study));
     }
 
     private int deleteInstances(List<Location> locations, StudyDeleteContext studyDeleteContext) {

@@ -51,6 +51,8 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.StudyNotFoundException;
+import org.dcm4chee.arc.delete.StudyRetentionPolicyNotExpiredException;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -222,14 +224,28 @@ public class IocmRS {
         ctx.setAttributes(patient.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
         ctx.setPatient(patient);
-        deletionService.deletePatient(ctx);
+        try {
+            deletionService.deletePatient(ctx);
+        } catch (StudyNotFoundException e) {
+            throw new WebApplicationException(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (StudyRetentionPolicyNotExpiredException e) {
+            throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
+        }
     }
 
     @DELETE
     @Path("/studies/{StudyUID}")
     public void deleteStudy(@PathParam("StudyUID") String studyUID) throws Exception {
         logRequest();
-        deletionService.deleteStudy(studyUID, request);
+        try {
+            deletionService.deleteStudy(studyUID, request);
+        } catch (StudyNotFoundException e) {
+            throw new WebApplicationException("Study having study instance UID " + studyUID + " not found.",
+                    Response.Status.NOT_FOUND);
+        } catch (StudyRetentionPolicyNotExpiredException e) {
+            throw new WebApplicationException("Study retention policy for study " + studyUID + " not expired.",
+                    Response.Status.FORBIDDEN);
+        }
     }
 
     @POST
