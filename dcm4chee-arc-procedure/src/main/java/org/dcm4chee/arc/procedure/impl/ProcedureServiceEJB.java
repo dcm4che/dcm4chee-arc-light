@@ -157,6 +157,7 @@ public class ProcedureServiceEJB {
                 String status = item.getString(Tag.ScheduledProcedureStepStatus);
                 if (!status.equals(ctx.getSpsStatus())) {
                     item.setString(Tag.ScheduledProcedureStepStatus, VR.CS, ctx.getSpsStatus());
+                    ctx.setAttributes(attr);
                     ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
                 }
             }

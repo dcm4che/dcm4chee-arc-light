@@ -46,6 +46,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.io.DicomOutputStream;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
@@ -594,10 +595,23 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            BuildAuditInfo i = ctx.getHttpRequest() != null ? buildAuditInfoFORRestful(ctx) : buildAuditInfoFORHL7(ctx);
+            BuildAuditInfo i = ctx.getHttpRequest() != null
+                                ? buildAuditInfoFORRestful(ctx)
+                                : ctx.getAssociation() != null ? buildAuditInfoForAssociation(ctx) : buildAuditInfoFORHL7(ctx);
             obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
+    }
+
+    private BuildAuditInfo buildAuditInfoForAssociation(ProcedureContext ctx) {
+        Association as = ctx.getAssociation();
+        Attributes attr = ctx.getAttributes();
+        Patient p = ctx.getPatient();
+        Attributes pAttr = p.getAttributes();
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName()).callingAET(as.getCallingAET())
+                .calledAET(as.getCalledAET()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(attr))
+                .pID(getPID(pAttr)).pName(pName(pAttr)).outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
+        return i;
     }
 
     private BuildAuditInfo buildAuditInfoFORRestful(ProcedureContext ctx) {
