@@ -101,5 +101,4 @@ public interface ProcedureContext {
     String getSpsID();
 
     void setSpsID(String spsID);
-
 }

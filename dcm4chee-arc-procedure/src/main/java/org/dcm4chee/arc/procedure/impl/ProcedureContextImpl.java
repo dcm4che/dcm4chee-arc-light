@@ -47,6 +47,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
@@ -78,6 +79,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private List<String> spsIDs;
     private Association as;
     private String spsStatus;
+    private Attributes.UpdatePolicy attributeUpdatePolicy;
 
     ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Association as, Socket socket,
                          HL7Segment msh) {

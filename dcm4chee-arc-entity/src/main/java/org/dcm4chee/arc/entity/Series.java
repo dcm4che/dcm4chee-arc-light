@@ -111,7 +111,11 @@ import java.util.Date;
 @NamedQuery(
         name=Series.GET_EXPIRED_SERIES,
         query="select se from Series se " +
-             "where se.expirationDate <= ?1")
+             "where se.expirationDate <= ?1"),
+@NamedQuery(
+        name=Series.FIND_SERIES_OF_STUDY,
+        query = "select se from Series se " +
+                "where se.study = ?1")
 })
 @Entity
 @Table(name = "series",
@@ -144,6 +148,7 @@ public class Series {
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Series.ClearFailedSOPInstanceUIDList";
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.ClearFailedSOPInstanceUIDListOfStudy";
     public static final String GET_EXPIRED_SERIES = "Series.GetExpiredSeries";
+    public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
