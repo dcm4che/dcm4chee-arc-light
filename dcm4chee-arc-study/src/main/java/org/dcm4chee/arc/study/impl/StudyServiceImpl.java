@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.study.impl;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -66,7 +67,7 @@ public class StudyServiceImpl implements StudyService {
     private Event<StudyMgtContext> updateStudyEvent;
 
     @Override
-    public StudyMgtContext createIOCMContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
+    public StudyMgtContext createStudyMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
         return new StudyMgtContextImpl(device, httpRequest, ae);
     }
 
@@ -81,6 +82,11 @@ public class StudyServiceImpl implements StudyService {
             if (ctx.getEventActionCode() != null)
                 updateStudyEvent.fire(ctx);
         }
+    }
+
+    @Override
+    public Attributes moveInstances(StudyMgtContext ctx) {
+        return null;
     }
 
 }

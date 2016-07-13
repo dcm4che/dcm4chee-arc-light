@@ -184,6 +184,16 @@ public class QueryServiceEJB {
         if (attrs == null)
             return null;
 
+        Attributes sopInstanceRefs = getSOPInstanceRefs(
+                studyUID, seriesUID, objectUID, queryParam, seriesAttrs, availability);
+        if (sopInstanceRefs != null)
+            attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(sopInstanceRefs);
+        return attrs;
+    }
+
+    public Attributes getSOPInstanceRefs(
+            String studyUID, String seriesUID, String objectUID, QueryParam queryParam,
+            Collection<Attributes> seriesAttrs, boolean availability) {
         BooleanBuilder predicate = new BooleanBuilder(QStudy.study.studyInstanceUID.eq(studyUID));
         if (seriesUID != null) {
             predicate.and(QSeries.series.seriesInstanceUID.eq(seriesUID));
@@ -200,10 +210,9 @@ public class QueryServiceEJB {
                 .fetch();
 
         if (tuples.isEmpty())
-            return attrs;
+            return null;
 
         Attributes refStudy = new Attributes(2);
-        attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(refStudy);
         Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
         refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
         HashMap<Long, Sequence> seriesMap = new HashMap<>();
@@ -228,7 +237,7 @@ public class QueryServiceEJB {
             refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
             refSOPSeq.add(refSOP);
         }
-        return attrs;
+        return refStudy;
     }
 
     private Attributes getStudyAttributes(String studyInstanceUID) {

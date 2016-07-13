@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.study;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +50,9 @@ import javax.servlet.http.HttpServletRequest;
  * @since Jun 2016
  */
 public interface StudyService {
-    StudyMgtContext createIOCMContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
+    StudyMgtContext createStudyMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
 
     void updateStudy(StudyMgtContext ctx);
+
+    Attributes moveInstances(StudyMgtContext ctx);
 }

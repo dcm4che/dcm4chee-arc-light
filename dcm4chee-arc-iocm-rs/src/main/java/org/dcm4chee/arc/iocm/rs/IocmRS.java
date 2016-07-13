@@ -51,7 +51,6 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.DeletionService;
-import org.dcm4chee.arc.delete.PatientNotFoundException;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -66,7 +65,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -79,7 +77,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -111,9 +108,6 @@ public class IocmRS {
 
     @Inject
     private IDService idService;
-
-    @Inject
-    private Event<PatientMgtContext> patientDeletedEvent;
 
     @PathParam("AETitle")
     private String aet;
@@ -152,28 +146,47 @@ public class IocmRS {
         reject("rejectInstance", studyUID, seriesUID, objectUID, codeValue, designator);
     }
 
+    @POST
+    @Path("/studies/{StudyUID}/move")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public StreamingOutput moveInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
+        logRequest();
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        Attributes ko = reader.readDataset(null);
+        Attributes instanceRefs = ko.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
+        if (!queryService.addSOPInstanceReferences(instanceRefs, getApplicationEntity()))
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
+        ctx.setAttributes(instanceRefs);
+        ctx.setTargetStudyInstanceUID(studyUID);
+        final Attributes result = studyService.moveInstances(ctx);
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                try (JsonGenerator gen = Json.createGenerator(out)) {
+                    new JSONWriter(gen).write(result);
+                }
+            }
+        };
+    }
+
     @DELETE
     @Path("/patients/{PatientID}")
     public void deletePatient(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
         logRequest();
         Patient patient = patientService.findPatient(patientID);
-        PatientMgtContext ctx = null;
-        try {
-            if (patient == null)
-                throw new PatientNotFoundException();
-            ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
-            ctx.setPatientID(patientID);
-            ctx.setAttributes(patient.getAttributes());
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
-            ctx.setPatient(patient);
-            deletionService.deletePatient(ctx);
-        } catch (PatientNotFoundException e) {
-            throw new NotFoundException("Patient having patient ID : " + patientID + " not found.");
-        } catch (Exception e) {
-            LOG.warn("Failed to delete {} on {}", patientID, e);
-            ctx.setException(e);
-            patientDeletedEvent.fire(ctx);
-        }
+        if (patient == null)
+            throw new WebApplicationException(
+                    "Patient having patient ID : " + patientID + " not found.", Response.Status.NOT_FOUND);
+
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+        ctx.setPatientID(patientID);
+        ctx.setAttributes(patient.getAttributes());
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+        ctx.setPatient(patient);
+        deletionService.deletePatient(ctx);
     }
 
     @DELETE
@@ -240,7 +253,7 @@ public class IocmRS {
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
 
-        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
         ctx.setPatient(patient);
         ctx.setAttributes(attrs);
         studyService.updateStudy(ctx);
@@ -273,7 +286,7 @@ public class IocmRS {
 
         attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
 
-        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
         ctx.setPatient(patient);
         ctx.setAttributes(attrs);
         studyService.updateStudy(ctx);
@@ -289,7 +302,7 @@ public class IocmRS {
         logRequest();
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
 
-        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
         ctx.setAttributes(reader.readDataset(null));
         String studyIUIDBody = ctx.getStudyInstanceUID();
         if (studyIUIDBody == null)

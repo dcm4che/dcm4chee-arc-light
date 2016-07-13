@@ -69,6 +69,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private Attributes attributes;
     private Patient patient;
     private String studyInstanceUID;
+    private String targetStudyInstanceUID;
     private String eventActionCode;
     private Exception exception;
 
@@ -158,5 +159,15 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     @Override
     public void setException(Exception exception) {
         this.exception = exception;
+    }
+
+    @Override
+    public String getTargetStudyInstanceUID() {
+        return targetStudyInstanceUID;
+    }
+
+    @Override
+    public void setTargetStudyInstanceUID(String targetStudyInstanceUID) {
+        this.targetStudyInstanceUID = targetStudyInstanceUID;
     }
 }

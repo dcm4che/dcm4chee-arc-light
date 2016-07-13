@@ -87,4 +87,8 @@ public interface StudyMgtContext {
     Exception getException();
 
     void setException(Exception exception);
+
+    String getTargetStudyInstanceUID();
+
+    void setTargetStudyInstanceUID(String targetStudyInstanceUID);
 }

@@ -46,13 +46,11 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.delete.PatientNotFoundException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.patient.impl.PatientMgtContextImpl;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
