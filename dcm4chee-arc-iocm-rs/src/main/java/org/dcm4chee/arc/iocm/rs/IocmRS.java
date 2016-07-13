@@ -40,30 +40,45 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
+import org.dcm4che3.json.JSONReader;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.PatientNotFoundException;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.id.IDService;
+import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Date;
 
 /**
@@ -84,6 +99,21 @@ public class IocmRS {
 
     @Inject
     private StoreService storeService;
+
+    @Inject
+    private DeletionService deletionService;
+
+    @Inject
+    private PatientService patientService;
+
+    @Inject
+    private StudyService studyService;
+
+    @Inject
+    private IDService idService;
+
+    @Inject
+    private Event<PatientMgtContext> patientDeletedEvent;
 
     @PathParam("AETitle")
     private String aet;
@@ -122,6 +152,168 @@ public class IocmRS {
         reject("rejectInstance", studyUID, seriesUID, objectUID, codeValue, designator);
     }
 
+    @DELETE
+    @Path("/patients/{PatientID}")
+    public void deletePatient(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
+        logRequest();
+        Patient patient = patientService.findPatient(patientID);
+        PatientMgtContext ctx = null;
+        try {
+            if (patient == null)
+                throw new PatientNotFoundException();
+            ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+            ctx.setPatientID(patientID);
+            ctx.setAttributes(patient.getAttributes());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+            ctx.setPatient(patient);
+            deletionService.deletePatient(ctx);
+        } catch (PatientNotFoundException e) {
+            throw new NotFoundException("Patient having patient ID : " + patientID + " not found.");
+        } catch (Exception e) {
+            LOG.warn("Failed to delete {} on {}", patientID, e);
+            ctx.setException(e);
+            patientDeletedEvent.fire(ctx);
+        }
+    }
+
+    @DELETE
+    @Path("/studies/{StudyUID}")
+    public void deleteStudy(@PathParam("StudyUID") String studyUID) throws Exception {
+        logRequest();
+        deletionService.deleteStudy(studyUID, request);
+    }
+
+    @POST
+    @Path("/patients")
+    @Consumes("application/json")
+    public String createPatient(InputStream in) throws Exception {
+        logRequest();
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        Attributes attrs = reader.readDataset(null);
+        if (attrs.containsValue(Tag.PatientID))
+            throw new WebApplicationException("Patient ID in message body", Response.Status.BAD_REQUEST);
+        idService.newPatientID(attrs);
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+        ctx.setAttributes(attrs);
+        ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+        patientService.updatePatient(ctx);
+        return IDWithIssuer.pidOf(attrs).toString();
+    }
+
+    @PUT
+    @Path("/patients/{PatientID}")
+    @Consumes("application/json")
+    public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
+        logRequest();
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        ctx.setAttributes(reader.readDataset(null));
+        ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+        IDWithIssuer bodyPatientID = ctx.getPatientID();
+        if (bodyPatientID == null)
+            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+        if (patientID.equals(bodyPatientID)) {
+            patientService.updatePatient(ctx);
+        } else {
+            ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
+            patientService.changePatientID(ctx);
+        }
+    }
+
+    @POST
+    @Path("/studies")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public StreamingOutput updateStudy(InputStream in) throws Exception {
+        logRequest();
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        final Attributes attrs = reader.readDataset(null);
+        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
+        if (patientID == null)
+            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND);
+
+        if (!attrs.containsValue(Tag.StudyInstanceUID))
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+
+        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
+        ctx.setPatient(patient);
+        ctx.setAttributes(attrs);
+        studyService.updateStudy(ctx);
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                try (JsonGenerator gen = Json.createGenerator(out)) {
+                    new JSONWriter(gen).write(attrs);
+                }
+            }
+        };
+    }
+
+    @POST
+    @Path("/patients/{PatientID}/studies")
+    @Consumes("application/json")
+    public String updateStudy(@PathParam("PatientID") IDWithIssuer patientID,
+                              InputStream in) throws Exception {
+        logRequest();
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        Attributes attrs = reader.readDataset(null);
+        String studyIUID = attrs.getString(Tag.StudyInstanceUID);
+        if (studyIUID != null)
+            throw new WebApplicationException("Study Instance UID in message body", Response.Status.BAD_REQUEST);
+
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND);
+
+        attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+
+        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
+        ctx.setPatient(patient);
+        ctx.setAttributes(attrs);
+        studyService.updateStudy(ctx);
+        return studyIUID;
+    }
+
+    @PUT
+    @Path("/patients/{PatientID}/studies/{StudyUID}")
+    @Consumes("application/json")
+    public void updateStudy(@PathParam("PatientID") IDWithIssuer patientID,
+                            @PathParam("StudyUID") String studyUID,
+                            InputStream in) throws Exception {
+        logRequest();
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+
+        StudyMgtContext ctx = studyService.createIOCMContextWEB(request, getApplicationEntity());
+        ctx.setAttributes(reader.readDataset(null));
+        String studyIUIDBody = ctx.getStudyInstanceUID();
+        if (studyIUIDBody == null)
+            throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
+        if (!studyIUIDBody.equals(studyUID))
+            throw new WebApplicationException("Study Instance UID[" + studyIUIDBody +
+                    "] in message body does not match Study Instance UID[" + studyUID + "] in path",
+                    Response.Status.BAD_REQUEST);
+
+        Patient patient = patientService.findPatient(patientID);
+        if (patient == null)
+            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND);
+
+        ctx.setPatient(patient);
+
+        studyService.updateStudy(ctx);
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
+    }
+
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
@@ -133,7 +325,7 @@ public class IocmRS {
 
     private void reject(String method, String studyUID, String seriesUID, String objectUID,
                         String codeValue, String designator) throws IOException {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         ApplicationEntity ae = getApplicationEntity();
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
