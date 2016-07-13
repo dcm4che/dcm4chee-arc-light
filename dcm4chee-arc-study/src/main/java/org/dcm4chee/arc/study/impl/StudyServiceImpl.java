@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.study.impl;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -82,11 +81,6 @@ public class StudyServiceImpl implements StudyService {
             if (ctx.getEventActionCode() != null)
                 updateStudyEvent.fire(ctx);
         }
-    }
-
-    @Override
-    public Attributes moveInstances(StudyMgtContext ctx) {
-        return null;
     }
 
 }

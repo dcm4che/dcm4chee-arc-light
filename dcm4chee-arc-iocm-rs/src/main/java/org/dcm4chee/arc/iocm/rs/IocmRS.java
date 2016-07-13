@@ -152,16 +152,52 @@ public class IocmRS {
     @Produces("application/json")
     public StreamingOutput moveInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
         logRequest();
+        ApplicationEntity ae = getApplicationEntity();
+        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         Attributes ko = reader.readDataset(null);
         Attributes instanceRefs = ko.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
-        if (!queryService.addSOPInstanceReferences(instanceRefs, getApplicationEntity()))
+        if (instanceRefs == null)
+            throw new WebApplicationException("missing Current Requested Procedure Evidence Sequence in message body",
+                    Response.Status.BAD_REQUEST);
+
+        String studyIUID1 = ko.getString(Tag.StudyInstanceUID);
+        String studyIUID2 = instanceRefs.getString(Tag.StudyInstanceUID);
+        if (studyIUID1 == null && studyIUID2 == null)
+            throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
+
+        if (studyIUID1 == null)
+            ko.setString(Tag.StudyInstanceUID, VR.UI, studyIUID2);
+        else if (studyIUID2 == null)
+            instanceRefs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID1);
+        else if (!studyIUID1.equals(studyIUID2))
+            throw new WebApplicationException("mismatch of Study Instance UIDs in message body",
+                    Response.Status.BAD_REQUEST);
+
+        Attributes kotitle = ko.getNestedDataset(Tag.ConceptNameCodeSequence);
+        RejectionNote rjNote = null;
+        if (kotitle != null) {
+            Code code = new Code(kotitle);
+            rjNote = arcDev.getRejectionNote(code);
+            if (rjNote == null)
+                throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
+        }
+
+        if (!queryService.addSOPInstanceReferences(instanceRefs, ae))
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
-        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
-        ctx.setAttributes(instanceRefs);
-        ctx.setTargetStudyInstanceUID(studyUID);
-        final Attributes result = studyService.moveInstances(ctx);
+        StoreSession session = storeService.newStoreSession(request, ae);
+        if (rjNote != null) {
+            queryService.supplementRejectionNote(ko, rjNote);
+            StoreContext ctx = storeService.newStoreContext(session);
+            ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+            ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            storeService.store(ctx, ko);
+        }
+
+        final Attributes result = storeService.moveInstances(session, instanceRefs, studyUID);
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {

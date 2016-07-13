@@ -196,15 +196,17 @@ class QueryServiceImpl implements QueryService {
     public Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote) {
         Attributes attrs = getStudyAttributesWithSOPInstanceRefs(studyUID, seriesUID, objectUID, ae, false);
-        if (attrs == null)
+        if (attrs == null || !attrs.containsValue(Tag.CurrentRequestedProcedureEvidenceSequence))
             return null;
 
-        Attributes studyRef =  attrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
-        if (studyRef == null)
-            return null;
-
-        mkKOS(attrs, studyRef, rjNote);
+        mkKOS(attrs, rjNote);
         return attrs;
+    }
+
+    @Override
+    public void supplementRejectionNote(Attributes attrs, RejectionNote rjNote) {
+        attrs.addAll(ejb.getStudyAttributes(attrs.getString(Tag.StudyInstanceUID)));
+        mkKOS(attrs, rjNote);
     }
 
     @Override
@@ -213,7 +215,7 @@ class QueryServiceImpl implements QueryService {
         String studyUID = attrs.getString(Tag.StudyInstanceUID);
         Sequence seriesSeq = attrs.getSequence(Tag.ReferencedSeriesSequence);
         if (seriesSeq == null) {
-            Attributes sopInstanceRefs = ejb.getSOPInstanceRefs(studyUID, null, null, null, null, false);
+            Attributes sopInstanceRefs = ejb.getSOPInstanceRefs(studyUID, null, null, queryParam, null, false);
             if (sopInstanceRefs == null)
                 return false;
 
@@ -243,7 +245,8 @@ class QueryServiceImpl implements QueryService {
             destSeq.add(srcSeq.remove(0));
     }
 
-    private void mkKOS(Attributes attrs, Attributes studyRef, RejectionNote rjNote) {
+    private void mkKOS(Attributes attrs, RejectionNote rjNote) {
+        Attributes studyRef =  attrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
         attrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
         attrs.setString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
         attrs.setDate(Tag.ContentDateAndTime, new Date());

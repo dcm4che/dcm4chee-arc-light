@@ -33,7 +33,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.ForbiddenException;
 import javax.xml.transform.Templates;
 import java.io.IOException;
 import java.io.InputStream;
@@ -194,6 +193,12 @@ class StoreServiceImpl implements StoreService {
             storeEvent.fire(ctx);
             cleanup(ctx);
         }
+    }
+
+    @Override
+    public Attributes moveInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID) {
+        // TODO
+        return new Attributes();
     }
 
     private static void cleanup(StoreContext ctx) {

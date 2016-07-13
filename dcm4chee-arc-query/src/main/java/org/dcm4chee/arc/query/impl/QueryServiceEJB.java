@@ -240,7 +240,7 @@ public class QueryServiceEJB {
         return refStudy;
     }
 
-    private Attributes getStudyAttributes(String studyInstanceUID) {
+    public Attributes getStudyAttributes(String studyInstanceUID) {
         Tuple result = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(PATIENT_STUDY_ATTRS)
                 .from(QStudy.study)

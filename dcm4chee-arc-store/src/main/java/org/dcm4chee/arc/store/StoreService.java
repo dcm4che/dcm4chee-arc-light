@@ -28,4 +28,6 @@ public interface StoreService {
     void store(StoreContext ctx, InputStream data) throws IOException;
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
+
+    Attributes moveInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID);
 }
