@@ -1083,13 +1083,13 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{studyUID}/move": {
+    "/aets/{aet}/rs/studies/{studyUID}/copy": {
       "post": {
         "tags": [
           "IOCM-RS"
         ],
-        "summary": "Move/Copy Instances to Study",
-        "operationId": "MoveInstances",
+        "summary": "Copy Instances to Study",
+        "operationId": "CopyInstances",
         "consumes": [
           "application/json"
         ],
@@ -1117,7 +1117,75 @@
             "description": "References to Source Instances",
             "required": true,
             "schema": {
-              "$ref": "moveInstancesBody.schema.json"
+              "$ref": "#/definitions/HierarchicalSOPInstanceReference"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no such study"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{studyUID}/move/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Move Instances to Study",
+        "operationId": "MoveInstances",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of Target Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instanceRefs",
+            "in": "body",
+            "description": "References to Source Instances",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HierarchicalSOPInstanceReference"
             }
           }
         ],
@@ -1749,6 +1817,49 @@
           "title": "RSP",
           "description": "Number of sent/received DIMSE-RSP",
           "type": "integer"
+        }
+      }
+    },
+    "HierarchicalSOPInstanceReference": {
+      "type": "object",
+      "required": [
+        "StudyInstanceUID"
+      ],
+      "properties": {
+        "StudyInstanceUID": {
+          "type": "string"
+        },
+        "ReferencedSeriesSequence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "SeriesInstanceUID"
+            ],
+            "properties": {
+              "SeriesInstanceUID": {
+                "type": "string"
+              },
+              "ReferencedSOPSequence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "ReferencedSOPClassUID",
+                    "ReferencedSOPInstanceUID"
+                  ],
+                  "properties": {
+                    "ReferencedSOPClassUID": {
+                      "type": "string"
+                    },
+                    "ReferencedSOPInstanceUID": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

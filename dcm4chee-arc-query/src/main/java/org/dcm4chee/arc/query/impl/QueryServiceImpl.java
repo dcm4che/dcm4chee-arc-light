@@ -204,9 +204,11 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public void supplementRejectionNote(Attributes attrs, RejectionNote rjNote) {
-        attrs.addAll(ejb.getStudyAttributes(attrs.getString(Tag.StudyInstanceUID)));
+    public Attributes createRejectionNote(Attributes sopInstanceRefs, RejectionNote rjNote) {
+        Attributes attrs = ejb.getStudyAttributes(sopInstanceRefs.getString(Tag.StudyInstanceUID));
+        attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(sopInstanceRefs);
         mkKOS(attrs, rjNote);
+        return attrs;
     }
 
     @Override

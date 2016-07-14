@@ -70,6 +70,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonParser;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -149,63 +150,23 @@ public class IocmRS {
     }
 
     @POST
-    @Path("/studies/{StudyUID}/move")
+    @Path("/studies/{StudyUID}/copy")
     @Consumes("application/json")
     @Produces("application/json")
-    public StreamingOutput moveInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
-        logRequest();
-        ApplicationEntity ae = getApplicationEntity();
-        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        Attributes ko = reader.readDataset(null);
-        Attributes instanceRefs = ko.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
-        if (instanceRefs == null)
-            throw new WebApplicationException("missing Current Requested Procedure Evidence Sequence in message body",
-                    Response.Status.BAD_REQUEST);
+    public StreamingOutput copyInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
+        return copyOrMoveInstances(studyUID, in, null);
+    }
 
-        String studyIUID1 = ko.getString(Tag.StudyInstanceUID);
-        String studyIUID2 = instanceRefs.getString(Tag.StudyInstanceUID);
-        if (studyIUID1 == null && studyIUID2 == null)
-            throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
-
-        if (studyIUID1 == null)
-            ko.setString(Tag.StudyInstanceUID, VR.UI, studyIUID2);
-        else if (studyIUID2 == null)
-            instanceRefs.setString(Tag.StudyInstanceUID, VR.UI, studyIUID1);
-        else if (!studyIUID1.equals(studyIUID2))
-            throw new WebApplicationException("mismatch of Study Instance UIDs in message body",
-                    Response.Status.BAD_REQUEST);
-
-        if (!queryService.addSOPInstanceReferences(instanceRefs, ae)) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
-        StoreSession session = storeService.newStoreSession(request, ae);
-        Attributes kotitle = ko.getNestedDataset(Tag.ConceptNameCodeSequence);
-        if (kotitle != null) {
-            Code code = new Code(kotitle);
-            RejectionNote rjNote = arcDev.getRejectionNote(code);
-            if (rjNote != null) {
-                kotitle.setString(Tag.CodeMeaning, VR.LO, rjNote.getRejectionNoteCode().getCodeMeaning());
-                queryService.supplementRejectionNote(ko, rjNote);
-                StoreContext ctx = storeService.newStoreContext(session);
-                ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-                ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
-                ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-                storeService.store(ctx, ko);
-            }
-        }
-
-        final Attributes result = storeService.copyInstances(session, instanceRefs, studyUID);
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    new JSONWriter(gen).write(result);
-                }
-            }
-        };
+    @POST
+    @Path("/studies/{StudyUID}/move/{CodeValue}^{CodingSchemeDesignator}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public StreamingOutput moveInstances(
+            @PathParam("StudyUID") String studyUID,
+            @PathParam("CodeValue") String codeValue,
+            @PathParam("CodingSchemeDesignator") String designator,
+            InputStream in) throws Exception {
+        return copyOrMoveInstances(studyUID, in, new Code(codeValue, designator, null, "?"));
     }
 
     @DELETE
@@ -409,4 +370,130 @@ public class IocmRS {
         storeService.store(ctx, attrs);
     }
 
+    private StreamingOutput copyOrMoveInstances(String studyUID, InputStream in, Code code) throws Exception {
+        logRequest();
+        Attributes instanceRefs = parseSOPInstanceReferences(in);
+        ApplicationEntity ae = getApplicationEntity();
+        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        RejectionNote rjNote = null;
+        if (code != null) {
+            rjNote = arcDev.getRejectionNote(code);
+            if (rjNote == null)
+                throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
+        }
+        if (!queryService.addSOPInstanceReferences(instanceRefs, ae))
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+
+        StoreSession session = storeService.newStoreSession(request, ae);
+        if (rjNote != null) {
+            Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
+            StoreContext ctx = storeService.newStoreContext(session);
+            ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+            ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            storeService.store(ctx, ko);
+        }
+
+        final Attributes result = storeService.copyInstances(session, instanceRefs, studyUID);
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                try (JsonGenerator gen = Json.createGenerator(out)) {
+                    new JSONWriter(gen).write(result);
+                }
+            }
+        };
+    }
+
+    private void expect(JsonParser parser, JsonParser.Event expected) {
+        JsonParser.Event next = parser.next();
+        if (next != expected)
+            throw new WebApplicationException("Unexpected " + next, Response.Status.BAD_REQUEST);
+    }
+
+    private Attributes parseSOPInstanceReferences(InputStream in) throws IOException {
+        JsonParser parser = Json.createParser(new InputStreamReader(in, "UTF-8"));
+        Attributes attrs = new Attributes(2);
+        expect(parser, JsonParser.Event.START_OBJECT);
+        while (parser.next() == JsonParser.Event.KEY_NAME) {
+            switch (parser.getString()) {
+                case "StudyInstanceUID":
+                    expect(parser, JsonParser.Event.VALUE_STRING);
+                    attrs.setString(Tag.StudyInstanceUID, VR.UI, parser.getString());
+                    break;
+                case "ReferencedSeriesSequence":
+                    parseReferencedSeriesSequence(parser,
+                            attrs.newSequence(Tag.ReferencedSeriesSequence, 10));
+                    break;
+                default:
+                    throw new WebApplicationException("Unexpected Key name", Response.Status.BAD_REQUEST);
+            }
+        }
+        if (!attrs.contains(Tag.StudyInstanceUID))
+            throw new WebApplicationException("Missing StudyInstanceUID", Response.Status.BAD_REQUEST);
+
+        return attrs;
+    }
+
+    private void parseReferencedSeriesSequence(JsonParser parser, Sequence seq) {
+        expect(parser, JsonParser.Event.START_ARRAY);
+        while (parser.next() == JsonParser.Event.START_OBJECT)
+            seq.add(parseReferencedSeries(parser));
+    }
+
+    private Attributes parseReferencedSeries(JsonParser parser) {
+        Attributes attrs = new Attributes(2);
+        expect(parser, JsonParser.Event.START_OBJECT);
+        while (parser.next() == JsonParser.Event.KEY_NAME) {
+            switch (parser.getString()) {
+                case "SeriesInstanceUID":
+                    expect(parser, JsonParser.Event.VALUE_STRING);
+                    attrs.setString(Tag.SeriesInstanceUID, VR.UI, parser.getString());
+                    break;
+                case "ReferencedSOPSequence":
+                    parseReferencedSOPSequence(parser,
+                            attrs.newSequence(Tag.ReferencedSOPSequence, 10));
+                    break;
+                default:
+                    throw new WebApplicationException("Unexpected Key name", Response.Status.BAD_REQUEST);
+            }
+        }
+        if (!attrs.contains(Tag.SeriesInstanceUID))
+            throw new WebApplicationException("Missing SeriesInstanceUID", Response.Status.BAD_REQUEST);
+
+        return attrs;
+    }
+
+    private void parseReferencedSOPSequence(JsonParser parser, Sequence seq) {
+        expect(parser, JsonParser.Event.START_ARRAY);
+        while (parser.next() == JsonParser.Event.START_OBJECT)
+            seq.add(parseReferencedSOP(parser));
+    }
+
+    private Attributes parseReferencedSOP(JsonParser parser) {
+        Attributes attrs = new Attributes(2);
+        expect(parser, JsonParser.Event.START_OBJECT);
+        while (parser.next() == JsonParser.Event.KEY_NAME) {
+            switch (parser.getString()) {
+                case "ReferencedSOPClassUID":
+                    expect(parser, JsonParser.Event.VALUE_STRING);
+                    attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, parser.getString());
+                    break;
+                case "ReferencedSOPInstanceUID":
+                    expect(parser, JsonParser.Event.VALUE_STRING);
+                    attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, parser.getString());
+                    break;
+                default:
+                    throw new WebApplicationException("Unexpected Key name", Response.Status.BAD_REQUEST);
+            }
+        }
+        if (!attrs.contains(Tag.ReferencedSOPClassUID))
+            throw new WebApplicationException("Missing ReferencedSOPClassUID", Response.Status.BAD_REQUEST);
+
+        if (!attrs.contains(Tag.ReferencedSOPInstanceUID))
+            throw new WebApplicationException("Missing ReferencedSOPInstanceUID", Response.Status.BAD_REQUEST);
+
+        return attrs;
+    }
 }

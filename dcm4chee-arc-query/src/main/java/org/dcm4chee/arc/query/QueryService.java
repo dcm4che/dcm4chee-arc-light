@@ -93,7 +93,7 @@ public interface QueryService {
     Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);
 
-    void supplementRejectionNote(Attributes attrs, RejectionNote rjNote);
+    Attributes createRejectionNote(Attributes sopInstanceRefs, RejectionNote rjNote);
 
     boolean addSOPInstanceReferences(Attributes attrs, ApplicationEntity applicationEntity);
 
