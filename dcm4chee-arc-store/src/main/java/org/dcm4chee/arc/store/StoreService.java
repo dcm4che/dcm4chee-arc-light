@@ -4,6 +4,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4chee.arc.entity.Location;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 public interface StoreService {
@@ -29,5 +31,5 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID);
+    Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID) throws IOException;
 }

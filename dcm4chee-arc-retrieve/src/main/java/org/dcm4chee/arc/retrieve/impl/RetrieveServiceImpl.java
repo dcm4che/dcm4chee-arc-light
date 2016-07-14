@@ -192,6 +192,18 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
+    @Override
+    public RetrieveContext newRetrieveContextIOCM(
+            HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs) {
+        RetrieveContext ctx = new RetrieveContextImpl(
+                this, device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class), localAET);
+        initCodes(ctx);
+        ctx.setHttpRequest(request);
+        ctx.setStudyInstanceUIDs(studyUID);
+        ctx.setSeriesInstanceUIDs(seriesUIDs);
+        return ctx;
+    }
+
     private RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
         RetrieveContext ctx = new RetrieveContextImpl(this,
                 device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class), localAET);

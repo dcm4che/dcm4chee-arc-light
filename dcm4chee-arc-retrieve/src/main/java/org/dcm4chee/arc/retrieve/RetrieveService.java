@@ -54,6 +54,7 @@ import java.util.Collection;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 public interface RetrieveService {
@@ -70,6 +71,9 @@ public interface RetrieveService {
     RetrieveContext newRetrieveContextSTORE(
             String localAET, String studyUID, String seriesUID, String objectUID, String destAET)
             throws ConfigurationException;
+
+    RetrieveContext newRetrieveContextIOCM(
+            HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs);
 
     boolean calculateMatches(RetrieveContext ctx);
 

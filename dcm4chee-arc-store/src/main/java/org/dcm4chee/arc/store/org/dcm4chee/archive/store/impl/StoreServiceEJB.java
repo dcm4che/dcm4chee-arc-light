@@ -778,6 +778,10 @@ public class StoreServiceEJB {
     }
 
     private Location createLocation(StoreContext ctx, Instance instance) {
+        return ctx.getLocation() != null ? createLocationClone(ctx, instance) : createLocationNew(ctx, instance);
+    }
+
+    private Location createLocationNew(StoreContext ctx, Instance instance) {
         WriteContext writeContext = ctx.getWriteContext();
         Storage storage = writeContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
@@ -788,6 +792,13 @@ public class StoreServiceEJB {
                 .size(writeContext.getSize())
                 .digest(writeContext.getDigest())
                 .build();
+        location.setInstance(instance);
+        em.persist(location);
+        return location;
+    }
+
+    private Location createLocationClone(StoreContext ctx, Instance instance) {
+        Location location = ctx.getLocation();
         location.setInstance(instance);
         em.persist(location);
         return location;

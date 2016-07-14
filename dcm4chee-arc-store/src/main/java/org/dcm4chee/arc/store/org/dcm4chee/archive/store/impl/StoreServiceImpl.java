@@ -1,7 +1,7 @@
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.UID;
+
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
@@ -13,11 +13,16 @@ import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveCompressionRule;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageException;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -38,9 +43,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 @ApplicationScoped
@@ -57,6 +68,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private Event<StoreContext> storeEvent;
+
+    @Inject
+    private RetrieveService retrieveService;
 
     @Override
     public StoreSession newStoreSession(Association as) {
@@ -166,10 +180,12 @@ class StoreServiceImpl implements StoreService {
         UpdateDBResult result = new UpdateDBResult();
         ctx.setAttributes(attrs);
         try {
-            try ( DicomOutputStream dos = new DicomOutputStream(openOutputStream(ctx), UID.ExplicitVRLittleEndian) ) {
-                dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
+            if (ctx.getLocation() == null) {
+                try (DicomOutputStream dos = new DicomOutputStream(openOutputStream(ctx), UID.ExplicitVRLittleEndian)) {
+                    dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
+                }
+                coerceAttributes(ctx);
             }
-            coerceAttributes(ctx);
             try {
                 ejb.updateDB(ctx, result);
             } catch (EJBException e) {
@@ -187,7 +203,8 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(dse);
             throw dse;
         } finally {
-            ctx.setLocation(result.getLocation());
+            if (ctx.getLocation() == null)
+                ctx.setLocation(result.getLocation());
             ctx.setRejectionNote(result.getRejectionNote());
             ctx.setPreviousInstance(result.getPreviousInstance());
             storeEvent.fire(ctx);
@@ -196,9 +213,68 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID) {
-        // TODO
-        return new Attributes();
+    public Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID)
+            throws IOException {
+        Attributes newAttr = new Attributes();
+        String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
+        HashMap<String, String> sourceTarget = new HashMap<>();
+        sourceTarget.put(sourceStudyUID, targetStudyIUID);
+        Sequence referencedSeriesSequence = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
+        Collection<InstanceLocations> filteredILList = populateMap(sourceStudyUID, sourceTarget, session, referencedSeriesSequence);
+        if (filteredILList != null)
+            for (InstanceLocations il : filteredILList) {
+                 storeNew(il, session, sourceTarget);
+            }
+        return newAttr;
+    }
+
+    private Collection<InstanceLocations> populateMap(String sourceStudyUID,
+            HashMap<String, String> sourceTarget, StoreSession session, Sequence referencedSeriesSequence) {
+        List<String> seriesUIDs = new ArrayList<>();
+        for (Attributes item : referencedSeriesSequence) {
+            String seriesUID = item.getString(Tag.SeriesInstanceUID);
+            sourceTarget.put(seriesUID, UIDUtils.createUID());
+            seriesUIDs.add(seriesUID);
+        }
+        RetrieveContext ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
+                sourceStudyUID, seriesUIDs.toArray(new String[seriesUIDs.size()]));
+        if (retrieveService.calculateMatches(ctx)) {
+            Collection<InstanceLocations> instLocations = ctx.getMatches();
+            Collection<InstanceLocations> filteredILList = filterInstanceLocations(instLocations, referencedSeriesSequence);
+            for (InstanceLocations il : filteredILList) {
+                sourceTarget.put(il.getSopInstanceUID(), UIDUtils.createUID());
+            }
+            return filteredILList;
+        }
+        else
+            return null;
+    }
+
+    private void storeNew(InstanceLocations il, StoreSession session, HashMap<String, String> sourceTarget)
+        throws IOException {
+        Attributes attr = il.getAttributes();
+        UIDUtils.remapUIDs(attr, sourceTarget);
+        StoreContext ctx = newStoreContext(session);
+        ctx.setLocation(il.getLocations().get(0));
+        store(ctx, attr);
+    }
+
+    private Collection<InstanceLocations> filterInstanceLocations(
+            Collection<InstanceLocations> ilList, Sequence referencedSeriesSequence) {
+        Collection<InstanceLocations> filteredILList = new ArrayList<>();
+        HashMap<String, InstanceLocations> sopIUIDInstanceLocation = new HashMap<>();
+        for (InstanceLocations il : ilList) {
+            sopIUIDInstanceLocation.put(il.getSopInstanceUID(), il);
+        }
+        for (Attributes seriesItem : referencedSeriesSequence) {
+            Sequence seq = seriesItem.getSequence(Tag.ReferencedSOPSequence);
+            for (Attributes item : seq) {
+                String sopIUID = item.getString(Tag.ReferencedSOPInstanceUID);
+                if (sopIUIDInstanceLocation.containsKey(sopIUID))
+                    filteredILList.add(sopIUIDInstanceLocation.get(sopIUID));
+            }
+        }
+        return filteredILList;
     }
 
     private static void cleanup(StoreContext ctx) {
