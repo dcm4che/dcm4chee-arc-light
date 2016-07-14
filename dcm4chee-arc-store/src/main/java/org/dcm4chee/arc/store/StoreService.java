@@ -29,5 +29,5 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    Attributes moveInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID);
+    Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID);
 }

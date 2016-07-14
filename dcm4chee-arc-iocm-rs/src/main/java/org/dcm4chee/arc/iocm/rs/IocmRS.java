@@ -177,29 +177,27 @@ public class IocmRS {
             throw new WebApplicationException("mismatch of Study Instance UIDs in message body",
                     Response.Status.BAD_REQUEST);
 
-        Attributes kotitle = ko.getNestedDataset(Tag.ConceptNameCodeSequence);
-        RejectionNote rjNote = null;
-        if (kotitle != null) {
-            Code code = new Code(kotitle);
-            rjNote = arcDev.getRejectionNote(code);
-            if (rjNote == null)
-                throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
-        }
-
-        if (!queryService.addSOPInstanceReferences(instanceRefs, ae))
+        if (!queryService.addSOPInstanceReferences(instanceRefs, ae)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
 
         StoreSession session = storeService.newStoreSession(request, ae);
-        if (rjNote != null) {
-            queryService.supplementRejectionNote(ko, rjNote);
-            StoreContext ctx = storeService.newStoreContext(session);
-            ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-            ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
-            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-            storeService.store(ctx, ko);
+        Attributes kotitle = ko.getNestedDataset(Tag.ConceptNameCodeSequence);
+        if (kotitle != null) {
+            Code code = new Code(kotitle);
+            RejectionNote rjNote = arcDev.getRejectionNote(code);
+            if (rjNote != null) {
+                kotitle.setString(Tag.CodeMeaning, VR.LO, rjNote.getRejectionNoteCode().getCodeMeaning());
+                queryService.supplementRejectionNote(ko, rjNote);
+                StoreContext ctx = storeService.newStoreContext(session);
+                ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+                ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+                ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+                storeService.store(ctx, ko);
+            }
         }
 
-        final Attributes result = storeService.moveInstances(session, instanceRefs, studyUID);
+        final Attributes result = storeService.copyInstances(session, instanceRefs, studyUID);
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {

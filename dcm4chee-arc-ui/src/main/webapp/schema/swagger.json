@@ -1107,9 +1107,18 @@
           {
             "name": "studyUID",
             "in": "path",
-            "description": "Unique Identifier of the Study",
+            "description": "Unique Identifier of Target Study",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "instanceRefs",
+            "in": "body",
+            "description": "References to Source Instances",
+            "required": true,
+            "schema": {
+              "$ref": "moveInstancesBody.schema.json"
+            }
           }
         ],
         "responses": {

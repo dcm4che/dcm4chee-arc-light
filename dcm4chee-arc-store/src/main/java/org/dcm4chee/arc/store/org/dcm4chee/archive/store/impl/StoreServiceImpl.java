@@ -196,7 +196,7 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes moveInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID) {
+    public Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID) {
         // TODO
         return new Attributes();
     }
