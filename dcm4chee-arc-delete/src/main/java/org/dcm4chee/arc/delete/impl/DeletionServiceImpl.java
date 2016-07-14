@@ -59,6 +59,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -86,6 +87,9 @@ public class DeletionServiceImpl implements DeletionService {
 
     @Inject
     private Event<StudyDeleteContext> studyDeletedEvent;
+
+    @Inject
+    private Event<PatientMgtContext> patientMgtEvent;
 
 
     @Override
@@ -124,7 +128,7 @@ public class DeletionServiceImpl implements DeletionService {
             Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, studyUID).getSingleResult();
             boolean studyRemoved;
-            ctx = checkStudyRetentionPolicyNotExpired(study, request, ctx);
+            ctx = checkStudyRetentionPolicyNotExpired(study, request, ctx, null);
             if (ctx != null && ctx.getException() != null)
                 throw new StudyRetentionPolicyNotExpiredException();
             else
@@ -159,14 +163,15 @@ public class DeletionServiceImpl implements DeletionService {
         if (!sList.isEmpty()) {
             try {
                 for (Study study : sList) {
-                    studyDeleteCtx = checkStudyRetentionPolicyNotExpired(study, ctx.getHttpRequest(), studyDeleteCtx);
+                    studyDeleteCtx = checkStudyRetentionPolicyNotExpired(study, ctx.getHttpRequest(), studyDeleteCtx, ctx);
                     if (studyDeleteCtx != null && studyDeleteCtx.getException() != null) {
-                        throw new StudyRetentionPolicyNotExpiredException(
-                                "Study having study instance UID " + study.getStudyInstanceUID() + " not found.");
+                        throw new StudyRetentionPolicyNotExpiredException(studyDeleteCtx.getException().getMessage());
                     }
                 }
             } catch(StudyRetentionPolicyNotExpiredException e) {
                 studyDeletedEvent.fire(studyDeleteCtx);
+                patientMgtEvent.fire(ctx);
+                throw new StudyRetentionPolicyNotExpiredException(e.getMessage());
             }
         }
         boolean studiesRemoved;
@@ -188,14 +193,24 @@ public class DeletionServiceImpl implements DeletionService {
         LOG.info("Successfully delete {} from database", ctx.getPatient());
     }
 
-    private StudyDeleteContext checkStudyRetentionPolicyNotExpired(Study study, HttpServletRequest request, StudyDeleteContext ctx)
+    private StudyDeleteContext checkStudyRetentionPolicyNotExpired(
+            Study study, HttpServletRequest request, StudyDeleteContext ctx, PatientMgtContext pCtx)
             throws StudyRetentionPolicyNotExpiredException {
-        if (study.getExpirationDate() != null) {
+        if (studyNotExpired(study)) {
             ctx = createStudyDeleteContext(study.getStudyInstanceUID(), request);
             ctx.setStudy(study);
             ctx.setPatient(study.getPatient());
             ctx.setException(new StudyRetentionPolicyNotExpiredException("Study retention policy for study has not expired."));
+            if (pCtx != null)
+                pCtx.setException(new StudyRetentionPolicyNotExpiredException(
+                        "Study retention policy for study " + study.getStudyInstanceUID() + " of patient has not expired."));
         }
         return ctx;
+    }
+
+    private boolean studyNotExpired(Study study) {
+        LocalDate now = LocalDate.now();
+        LocalDate studyExpirationDate = study.getExpirationDate();
+        return studyExpirationDate != null && studyExpirationDate.isAfter(now);
     }
 }
