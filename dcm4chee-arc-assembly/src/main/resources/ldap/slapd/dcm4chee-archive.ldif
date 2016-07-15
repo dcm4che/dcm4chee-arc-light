@@ -526,6 +526,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.105 NAME 'dcmAllowRejectionForDataRe
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.106 NAME 'dcmRetryOnWarning'
+  DESC 'Enables retries to process tasks not only on failure but also on a warning outcome status in a specific queue; disabled if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.107 NAME 'dcmStoreUpdateDBMaxRetries'
+  DESC 'Maximum number of retries to update the database on storage; 1 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -592,6 +602,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorePermissionServiceResponsePattern $
     dcmStorePermissionCacheStaleTimeout $
     dcmStorePermissionCacheSize $
+    dcmStoreUpdateDBMaxRetries $
     dcmAllowRejectionForDataRetentionPolicyExpired ))
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
@@ -680,6 +691,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmRetryDelay $
     dcmMaxRetryDelay $
     dcmRetryDelayMultiplier $
+    dcmRetryOnWarning $
     dcmPurgeQueueMessageCompletedDelay ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   DESC 'Exporter Descriptor'

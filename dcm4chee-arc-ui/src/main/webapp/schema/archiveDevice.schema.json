@@ -345,6 +345,12 @@
       "description": "Maximal staleness of cached responses from Storage Permission Service in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached responses are only removed on reaching the maximal cache size.",
       "type": "string"
     },
+    "dcmStoreUpdateDBMaxRetries": {
+      "title": "Store Update DB Maximum Number of Retries",
+      "description": "Maximum number of retries to update the database on storage; 1 if absent",
+      "type": "integer",
+      "minimum": 0
+    },
     "dcmStorePermissionCacheSize": {
       "title": "Store Permission Cache Size",
       "description": "Maximum number of cached responses from Storage Permission Service; 10 if absent",

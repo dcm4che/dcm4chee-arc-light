@@ -44,6 +44,11 @@
       "type": "integer",
       "minimum": 100
     },
+    "dcmRetryOnWarning": {
+      "title": "Retry on Warning",
+      "description": "Enables retries to process tasks not only on failure but also on a warning outcome status in a specific queue; disabled if absent.",
+      "type": "boolean"
+    },
     "dcmPurgeQueueMessageCompletedDelay": {
       "title": "Delay for purging completed queue messages",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which completed queue messages are purged. If absent, there is no deletion for that particular queue",

@@ -133,6 +133,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorePermissionServiceResponsePattern", arcDev.getStorePermissionServiceResponsePattern());
         writer.writeNotNull("dcmStorePermissionCacheStaleTimeout", arcDev.getStorePermissionCacheStaleTimeout());
         writer.writeNotDef("dcmStorePermissionCacheSize", arcDev.getStorePermissionCacheSize(), 10);
+        writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 1);
         writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired", arcDev.getAllowRejectionForDataRetentionPolicyExpired());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
@@ -217,6 +218,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmRetryDelay", qd.getRetryDelay());
             writer.writeNotNull("dcmMaxRetryDelay", qd.getMaxRetryDelay());
             writer.writeNotDef("dcmRetryDelayMultiplier", qd.getRetryDelayMultiplier(), 100);
+            writer.writeNotDef("dcmRetryOnWarning", qd.isRetryOnWarning(), false);
             writer.writeNotNull("dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay());
             writer.writeEnd();
         }
@@ -576,6 +578,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStorePermissionCacheSize":
                     arcDev.setStorePermissionCacheSize(reader.intValue());
                     break;
+                case "dcmStoreUpdateDBMaxRetries":
+                    arcDev.setStoreUpdateDBMaxRetries(reader.intValue());
+                    break;
                 case "dcmAllowRejectionForDataRetentionPolicyExpired":
                     arcDev.setAllowRejectionForDataRetentionPolicyExpired(
                             AllowRejectionForDataRetentionPolicyExpired.valueOf(reader.stringValue()));
@@ -758,6 +763,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRetryDelayMultiplier":
                         qd.setRetryDelayMultiplier(reader.intValue());
+                        break;
+                    case "dcmRetryOnWarning":
+                        qd.setRetryOnWarning(reader.booleanValue());
                         break;
                     case "dcmPurgeQueueMessageCompletedDelay":
                         qd.setPurgeQueueMessageCompletedDelay(Duration.parse(reader.stringValue()));

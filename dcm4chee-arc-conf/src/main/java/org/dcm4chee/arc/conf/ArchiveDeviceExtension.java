@@ -114,6 +114,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Pattern storePermissionServiceResponsePattern;
     private Duration storePermissionCacheStaleTimeout;
     private int storePermissionCacheSize = 10;
+    private int storeUpdateDBMaxRetries = 1;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -648,6 +649,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storePermissionCacheSize = storePermissionCacheSize;
     }
 
+    public int getStoreUpdateDBMaxRetries() {
+        return storeUpdateDBMaxRetries;
+    }
+
+    public void setStoreUpdateDBMaxRetries(int storeUpdateDBMaxRetries) {
+        this.storeUpdateDBMaxRetries = storeUpdateDBMaxRetries;
+    }
+
     public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {
         return allowRejectionForDataRetentionPolicyExpired;
     }
@@ -949,6 +958,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storePermissionServiceResponsePattern = arcdev.storePermissionServiceResponsePattern;
         storePermissionCacheStaleTimeout = arcdev.storePermissionCacheStaleTimeout;
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
+        storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);

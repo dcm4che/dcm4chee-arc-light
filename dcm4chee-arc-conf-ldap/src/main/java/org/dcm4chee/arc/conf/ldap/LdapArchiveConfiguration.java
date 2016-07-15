@@ -138,6 +138,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionCacheStaleTimeout", ext.getStorePermissionCacheStaleTimeout());
         LdapUtils.storeNotDef(attrs, "dcmStorePermissionCacheSize", ext.getStorePermissionCacheSize(), 10);
+        LdapUtils.storeNotDef(attrs, "dcmStoreUpdateDBMaxRetries", ext.getStoreUpdateDBMaxRetries(), 1);
         LdapUtils.storeNotNull(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired());
     }
 
@@ -209,6 +210,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceResponsePattern(toPattern(attrs.get("dcmStorePermissionServiceResponsePattern")));
         ext.setStorePermissionCacheStaleTimeout(toDuration(attrs.get("dcmStorePermissionCacheStaleTimeout")));
         ext.setStorePermissionCacheSize(LdapUtils.intValue(attrs.get("dcmStorePermissionCacheSize"), 10));
+        ext.setStoreUpdateDBMaxRetries(LdapUtils.intValue(attrs.get("dcmStoreUpdateDBMaxRetries"), 1));
         ext.setAllowRejectionForDataRetentionPolicyExpired(
                 LdapUtils.enumValue(AllowRejectionForDataRetentionPolicyExpired.class,
                         attrs.get("dcmAllowRejectionForDataRetentionPolicyExpired"), null));
@@ -326,6 +328,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorePermissionCacheStaleTimeout(), bb.getStorePermissionCacheStaleTimeout());
         LdapUtils.storeDiff(mods, "dcmStorePermissionCacheSize",
                 aa.getStorePermissionCacheSize(), bb.getStorePermissionCacheSize(), 10);
+        LdapUtils.storeDiff(mods, "dcmStoreUpdateDBMaxRetries",
+                aa.getStoreUpdateDBMaxRetries(), bb.getStoreUpdateDBMaxRetries(), 1);
         LdapUtils.storeDiff(mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired());
     }
@@ -770,6 +774,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmRetryDelay", descriptor.getRetryDelay());
         LdapUtils.storeNotNull(attrs, "dcmMaxRetryDelay", descriptor.getMaxRetryDelay());
         LdapUtils.storeNotDef(attrs, "dcmRetryDelayMultiplier", descriptor.getRetryDelayMultiplier(), 100);
+        LdapUtils.storeNotDef(attrs, "dcmRetryOnWarning", descriptor.isRetryOnWarning(), false);
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessageCompletedDelay", descriptor.getPurgeQueueMessageCompletedDelay());
         return attrs;
     }
@@ -787,6 +792,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setRetryDelay(toDuration(attrs.get("dcmRetryDelay")));
                 desc.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay")));
                 desc.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 0));
+                desc.setRetryOnWarning(LdapUtils.booleanValue(attrs.get("dcmRetryOnWarning"), false));
                 desc.setPurgeQueueMessageCompletedDelay(toDuration(attrs.get("dcmPurgeQueueMessageCompletedDelay")));
                 arcdev.addQueueDescriptor(desc);
             }
@@ -822,7 +828,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmMaxRetries", prev.getMaxRetries(), desc.getMaxRetries(), 0);
         LdapUtils.storeDiff(mods, "dcmRetryDelay", prev.getRetryDelay(), desc.getRetryDelay());
         LdapUtils.storeDiff(mods, "dcmMaxRetryDelay", prev.getMaxRetryDelay(), desc.getMaxRetryDelay());
-        LdapUtils.storeDiff(mods, "dcmMaxRetries", prev.getRetryDelayMultiplier(), desc.getRetryDelayMultiplier(), 100);
+        LdapUtils.storeDiff(mods, "dcmRetryDelayMultiplier",
+                prev.getRetryDelayMultiplier(), desc.getRetryDelayMultiplier(), 0);
+        LdapUtils.storeDiff(mods, "dcmRetryOnWarning", prev.isRetryOnWarning(), desc.isRetryOnWarning(), false);
+        LdapUtils.storeDiff(mods, "dcmPurgeQueueMessageCompletedDelay",
+                prev.getPurgeQueueMessageCompletedDelay(), desc.getPurgeQueueMessageCompletedDelay());
         return mods;
     }
 

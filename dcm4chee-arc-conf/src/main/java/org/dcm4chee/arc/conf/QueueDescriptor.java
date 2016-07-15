@@ -15,6 +15,7 @@ public class QueueDescriptor {
     private Duration retryDelay;
     private Duration maxRetryDelay;
     private int retryDelayMultiplier = 100;
+    private boolean retryOnWarning;
     private Duration purgeQueueMessageCompletedDelay;
 
     public QueueDescriptor(String queueName) {
@@ -89,6 +90,14 @@ public class QueueDescriptor {
 
     public void setRetryDelayMultiplier(int retryDelayMultiplier) {
         this.retryDelayMultiplier = retryDelayMultiplier;
+    }
+
+    public boolean isRetryOnWarning() {
+        return retryOnWarning;
+    }
+
+    public void setRetryOnWarning(boolean retryOnWarning) {
+        this.retryOnWarning = retryOnWarning;
     }
 
     public Duration getPurgeQueueMessageCompletedDelay() {
