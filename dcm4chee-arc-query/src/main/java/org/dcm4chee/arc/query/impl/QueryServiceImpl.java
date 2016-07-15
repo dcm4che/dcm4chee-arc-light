@@ -228,7 +228,7 @@ class QueryServiceImpl implements QueryService {
             String seriesUID = attrs.getString(Tag.StudyInstanceUID);
             Sequence sopSeq = attrs.getSequence(Tag.ReferencedSOPSequence);
             if (sopSeq == null) {
-                Attributes sopInstanceRefs = ejb.getSOPInstanceRefs(studyUID, seriesUID, null, null, null, false);
+                Attributes sopInstanceRefs = ejb.getSOPInstanceRefs(studyUID, seriesUID, null, queryParam, null, false);
                 if (sopInstanceRefs == null)
                     return false;
 

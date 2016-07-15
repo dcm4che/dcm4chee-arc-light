@@ -445,7 +445,6 @@ public class IocmRS {
 
     private Attributes parseReferencedSeries(JsonParser parser) {
         Attributes attrs = new Attributes(2);
-        expect(parser, JsonParser.Event.START_OBJECT);
         while (parser.next() == JsonParser.Event.KEY_NAME) {
             switch (parser.getString()) {
                 case "SeriesInstanceUID":
@@ -474,7 +473,6 @@ public class IocmRS {
 
     private Attributes parseReferencedSOP(JsonParser parser) {
         Attributes attrs = new Attributes(2);
-        expect(parser, JsonParser.Event.START_OBJECT);
         while (parser.next() == JsonParser.Event.KEY_NAME) {
             switch (parser.getString()) {
                 case "ReferencedSOPClassUID":
