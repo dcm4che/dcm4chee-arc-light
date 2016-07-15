@@ -107,6 +107,8 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.pk,
             QInstance.instance.sopClassUID,
             QInstance.instance.sopInstanceUID,
+            QInstance.instance.retrieveAETs,
+            QInstance.instance.availability,
             QueryBuilder.instanceAttributesBlob.encodedAttributes
     };
 
@@ -273,6 +275,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                     match = newInstanceLocations(
                             tuple.get(QInstance.instance.sopClassUID),
                             tuple.get(QInstance.instance.sopInstanceUID),
+                            tuple.get(QInstance.instance.retrieveAETs),
+                            tuple.get(QInstance.instance.availability),
                             instAttrs);
                     matches.add(match);
                     instMap.put(instPk, match);
@@ -289,8 +293,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public InstanceLocationsImpl newInstanceLocations(String sopClassUID, String sopInstanceUID, Attributes attrs) {
-        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, attrs);
+    public InstanceLocationsImpl newInstanceLocations(
+            String sopClassUID, String sopInstanceUID, String retrieveAETs, Availability availability, Attributes attrs) {
+        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, availability, attrs);
     }
 
     private void updateStudyAccessTime(RetrieveContext ctx) {

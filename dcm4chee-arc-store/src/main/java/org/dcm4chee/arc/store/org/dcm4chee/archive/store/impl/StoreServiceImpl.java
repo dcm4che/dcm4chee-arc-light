@@ -168,11 +168,16 @@ class StoreServiceImpl implements StoreService {
         }
 
         Series series = result.getLocation().getInstance().getSeries();
+        if (ctx.getWriteContext() != null)
+            commitStorage(ctx);
+        updateAttributes(ctx, series);
+        ctx.getStoreSession().cacheSeries(series);
+    }
+
+    private void commitStorage(StoreContext ctx) throws IOException {
         WriteContext writeContext = ctx.getWriteContext();
         Storage storage = writeContext.getStorage();
-        updateAttributes(ctx, series);
         storage.commitStorage(writeContext);
-        ctx.getStoreSession().cacheSeries(series);
     }
 
     @Override
@@ -256,6 +261,8 @@ class StoreServiceImpl implements StoreService {
         UIDUtils.remapUIDs(attr, sourceTarget);
         StoreContext ctx = newStoreContext(session);
         ctx.setLocation(il.getLocations().get(0));
+        attr.setString(Tag.RetrieveAETitle, VR.AE, il.getRetrieveAETs());
+        attr.setString(Tag.InstanceAvailability, VR.CS, il.getAvailability().toString());
         store(ctx, attr);
     }
 

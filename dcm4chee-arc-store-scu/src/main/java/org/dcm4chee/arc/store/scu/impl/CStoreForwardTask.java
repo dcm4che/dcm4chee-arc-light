@@ -58,6 +58,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2016
  */
 class CStoreForwardTask implements Runnable {
@@ -149,7 +150,7 @@ class CStoreForwardTask implements Runnable {
         instAttrs.addAll(patAttrs);
         RetrieveService service = ctx.getRetrieveService();
         InstanceLocations instanceLocations = service.newInstanceLocations(
-                storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), instAttrs);
+                storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), null, null, instAttrs);
         if (location != null)
             instanceLocations.getLocations().add(location);
         else

@@ -760,6 +760,24 @@ public class StoreServiceEJB {
         instance.setConceptNameCode(conceptNameCode);
         setContentItems(instance, attrs);
 
+        if (ctx.getWriteContext() != null)
+            setValuesForNewInstance(ctx, session, instance);
+        else
+            setValuesForClonedInstance(ctx, instance);
+
+        instance.setSeries(series);
+        em.persist(instance);
+        LOG.info("{}: Create {}", ctx.getStoreSession(), instance);
+        return instance;
+    }
+
+    private void setValuesForClonedInstance(StoreContext ctx, Instance instance) {
+        instance.setRetrieveAETs(ctx.getAttributes().getString(Tag.RetrieveAETitle));
+        instance.setAvailability(Availability.valueOf(ctx.getAttributes().getString(Tag.InstanceAvailability)));
+    }
+
+
+    private void setValuesForNewInstance(StoreContext ctx, StoreSession session, Instance instance) {
         WriteContext storageContext = ctx.getWriteContext();
         Storage storage = storageContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
@@ -770,12 +788,8 @@ public class StoreServiceEJB {
                         ? retrieveAETs
                         : new String[] { session.getLocalApplicationEntity().getAETitle() });
         instance.setAvailability(availability != null ? availability : Availability.ONLINE);
-
-        instance.setSeries(series);
-        em.persist(instance);
-        LOG.info("{}: Create {}", ctx.getStoreSession(), instance);
-        return instance;
     }
+
 
     private Location createLocation(StoreContext ctx, Instance instance) {
         return ctx.getLocation() != null ? createLocationClone(ctx, instance) : createLocationNew(ctx, instance);
@@ -800,7 +814,7 @@ public class StoreServiceEJB {
     private Location createLocationClone(StoreContext ctx, Instance instance) {
         Location location = ctx.getLocation();
         location.setInstance(instance);
-        em.persist(location);
+        em.persist(em.contains(location) ? location : em.merge(location));
         return location;
     }
 

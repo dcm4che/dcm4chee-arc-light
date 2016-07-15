@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 
@@ -49,17 +50,24 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 public class InstanceLocationsImpl implements InstanceLocations {
     private final String sopClassUID;
     private final String sopInstanceUID;
     private final Attributes attributes;
+    private final String retrieveAETs;
+    private final Availability availability;
     private final ArrayList<Location> locations = new ArrayList<>();
 
-    public InstanceLocationsImpl(String sopClassUID, String sopInstanceUID, Attributes attributes) {
+    public InstanceLocationsImpl(
+            String sopClassUID, String sopInstanceUID, String retrieveAETs,
+            Availability availability, Attributes attributes) {
         this.sopClassUID = sopClassUID;
         this.sopInstanceUID = sopInstanceUID;
+        this.retrieveAETs = retrieveAETs;
+        this.availability = availability;
         this.attributes = attributes;
     }
 
@@ -87,4 +95,15 @@ public class InstanceLocationsImpl implements InstanceLocations {
     public Attributes getAttributes() {
         return attributes;
     }
+
+    @Override
+    public String getRetrieveAETs() {
+        return retrieveAETs;
+    }
+
+    @Override
+    public Availability getAvailability() {
+        return availability;
+    }
+
 }
