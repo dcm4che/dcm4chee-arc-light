@@ -211,42 +211,6 @@ class QueryServiceImpl implements QueryService {
         return attrs;
     }
 
-    @Override
-    public boolean addSOPInstanceReferences(Attributes attrs, ApplicationEntity ae) {
-        QueryParam queryParam = newQueryParam(ae, false, false, false, false, false);
-        String studyUID = attrs.getString(Tag.StudyInstanceUID);
-        Sequence seriesSeq = attrs.getSequence(Tag.ReferencedSeriesSequence);
-        if (seriesSeq == null) {
-            Attributes sopInstanceRefs = ejb.getSOPInstanceRefs(studyUID, null, null, queryParam, null, false);
-            if (sopInstanceRefs == null)
-                return false;
-
-            moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, attrs);
-            return true;
-        }
-        for (Attributes seriesRef : seriesSeq) {
-            String seriesUID = seriesRef.getString(Tag.SeriesInstanceUID);
-            Sequence sopSeq = seriesRef.getSequence(Tag.ReferencedSOPSequence);
-            if (sopSeq == null) {
-                Attributes sopInstanceRefs = ejb.getSOPInstanceRefs(studyUID, seriesUID, null, queryParam, null, false);
-                if (sopInstanceRefs == null)
-                    return false;
-
-                moveSequence(sopInstanceRefs.getNestedDataset(Tag.ReferencedSeriesSequence), Tag.ReferencedSOPSequence,
-                        seriesRef);
-            }
-        }
-        return true;
-    }
-
-    private void moveSequence(Attributes src, int tag, Attributes dest) {
-        Sequence srcSeq = src.getSequence(tag);
-        int size = srcSeq.size();
-        Sequence destSeq = dest.newSequence(tag, size);
-        for (int i = 0; i < size; i++)
-            destSeq.add(srcSeq.remove(0));
-    }
-
     private void mkKOS(Attributes attrs, RejectionNote rjNote) {
         Attributes studyRef =  attrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
         attrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);

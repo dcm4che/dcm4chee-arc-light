@@ -381,13 +381,14 @@ public class IocmRS {
         ApplicationEntity ae = getApplicationEntity();
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        if (!queryService.addSOPInstanceReferences(instanceRefs, ae))
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
 
         Map<String, String> uidMap = new HashMap<>();
         StoreSession session = storeService.newStoreSession(request, ae);
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
-
+        if (instances.isEmpty())
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, ae, false);
+        moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
         rejectInstanceRefs(code, instanceRefs, session, arcDev);
         final Attributes result = storeService.copyInstances(session, instances, uidMap);
 
@@ -399,6 +400,43 @@ public class IocmRS {
                 }
             }
         };
+    }
+
+    private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
+                  ApplicationEntity ae, boolean availability) {
+        String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
+        Attributes refStudy = new Attributes(2);
+        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
+        refStudy.setString(Tag.StudyInstanceUID, VR.UI, sourceStudyUID);
+        HashMap<String, Sequence> seriesMap = new HashMap<>();
+        for (InstanceLocations instance : instances) {
+            Attributes iAttr = instance.getAttributes();
+            String seriesIUID = iAttr.getString(Tag.SeriesInstanceUID);
+            Sequence refSOPSeq = seriesMap.get(seriesIUID);
+            if (refSOPSeq == null) {
+                Attributes refSeries = new Attributes(4);
+                refSeries.setString(Tag.RetrieveAETitle, VR.AE, ae.getAETitle());
+                refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 10);
+                refSeries.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
+                seriesMap.put(seriesIUID, refSOPSeq);
+                refSeriesSeq.add(refSeries);
+            }
+            Attributes refSOP = new Attributes(3);
+            if (availability)
+                refSOP.setString(Tag.InstanceAvailability, VR.CS, instance.getAvailability().toString());
+            refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, instance.getSopClassUID());
+            refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, instance.getSopInstanceUID());
+            refSOPSeq.add(refSOP);
+        }
+        return refStudy;
+    }
+
+    private void moveSequence(Attributes src, int tag, Attributes dest) {
+        Sequence srcSeq = src.getSequence(tag);
+        int size = srcSeq.size();
+        Sequence destSeq = dest.newSequence(tag, size);
+        for (int i = 0; i < size; i++)
+            destSeq.add(srcSeq.remove(0));
     }
 
     private void rejectInstanceRefs(Code code, Attributes instanceRefs, StoreSession session,

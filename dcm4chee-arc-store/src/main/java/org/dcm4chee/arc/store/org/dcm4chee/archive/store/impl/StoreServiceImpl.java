@@ -33,7 +33,6 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Attr;
 
 import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
@@ -251,16 +250,21 @@ class StoreServiceImpl implements StoreService {
         uidMap.put(sourceStudyUID, targetStudyIUID);
         Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
         Map<String, Set<String>> refIUIDsBySeriesIUID = new HashMap<>();
-        for (Attributes item : refSeriesSeq) {
-            String seriesIUID = item.getString(Tag.SeriesInstanceUID);
-            uidMap.put(seriesIUID, UIDUtils.createUID());
-            refIUIDsBySeriesIUID.put(seriesIUID, refIUIDs(item.getSequence(Tag.ReferencedSOPSequence)));
+        RetrieveContext ctx;
+        if (refSeriesSeq == null) {
+             ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
+                    sourceStudyUID);
+        } else {
+            for (Attributes item : refSeriesSeq) {
+                String seriesIUID = item.getString(Tag.SeriesInstanceUID);
+                uidMap.put(seriesIUID, UIDUtils.createUID());
+                refIUIDsBySeriesIUID.put(seriesIUID, refIUIDs(item.getSequence(Tag.ReferencedSOPSequence)));
+            }
+            ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
+                    sourceStudyUID, refIUIDsBySeriesIUID.keySet().toArray(new String[refIUIDsBySeriesIUID.size()]));
         }
-        RetrieveContext ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
-                sourceStudyUID, refIUIDsBySeriesIUID.keySet().toArray(new String[refIUIDsBySeriesIUID.size()]));
         if (!retrieveService.calculateMatches(ctx))
             return null;
-                
         Collection<InstanceLocations> matches = ctx.getMatches();
         Iterator<InstanceLocations> matchesIter = matches.iterator();
         while (matchesIter.hasNext()) {
@@ -282,7 +286,7 @@ class StoreServiceImpl implements StoreService {
 
     private boolean contains(Map<String, Set<String>> refIUIDsBySeriesIUID, InstanceLocations il) {
         Set<String> iuids = refIUIDsBySeriesIUID.get(il.getAttributes().getString(Tag.SeriesInstanceUID));
-        return iuids != null && iuids.contains(il.getSopInstanceUID());
+        return iuids == null || iuids.contains(il.getSopInstanceUID());
     }
 
     private static void cleanup(StoreContext ctx) {

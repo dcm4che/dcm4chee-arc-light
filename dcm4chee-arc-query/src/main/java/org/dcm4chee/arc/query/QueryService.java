@@ -95,6 +95,4 @@ public interface QueryService {
 
     Attributes createRejectionNote(Attributes sopInstanceRefs, RejectionNote rjNote);
 
-    boolean addSOPInstanceReferences(Attributes attrs, ApplicationEntity applicationEntity);
-
 }
