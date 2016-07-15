@@ -900,19 +900,18 @@ public class StoreServiceEJB {
             return;
 
         List<Patient> patients = patientService.findPatients(pid);
-        switch (patients.size()) {
-            case 1:
-                return;
-            case 2:
-                break;
-            default:
-                LOG.warn("{}: Multiple({}) Patients with ID {}", ctx.getStoreSession(), patients.size(), pid);
-                return;
+        if (patients.size() == 1)
+            return;
+
+        Patient createdPatient = null;
+        Patient otherPatient = null;
+        for (Patient patient : patients) {
+            if (createdPatient == null && patient.getPk() == result.getCreatedPatient().getPk())
+                createdPatient = patient;
+            else if (otherPatient == null || otherPatient.getPk() > patient.getPk())
+                otherPatient = patient;
         }
 
-        int index = patients.get(0).getPk() == result.getCreatedPatient().getPk() ? 0 : 1;
-        Patient createdPatient = patients.get(index);
-        Patient otherPatient = patients.get(1-index);
         if (otherPatient.getMergedWith() != null) {
             LOG.warn("{}: Keep duplicate created {} because existing {} is circular merged",
                     ctx.getStoreSession(), createdPatient, otherPatient, pid);
