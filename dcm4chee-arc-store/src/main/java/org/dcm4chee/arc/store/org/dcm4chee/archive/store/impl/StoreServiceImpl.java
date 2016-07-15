@@ -44,10 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -231,68 +228,60 @@ class StoreServiceImpl implements StoreService {
     @Override
     public Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID)
             throws IOException {
-        Attributes newAttr = new Attributes();
-        String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
-        HashMap<String, String> sourceTarget = new HashMap<>();
-        sourceTarget.put(sourceStudyUID, targetStudyIUID);
-        Sequence referencedSeriesSequence = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
-        Collection<InstanceLocations> filteredILList = populateMap(sourceStudyUID, sourceTarget, session, referencedSeriesSequence);
-        if (filteredILList != null)
-            for (InstanceLocations il : filteredILList) {
-                 storeNew(il, session, sourceTarget);
+        Attributes result = new Attributes();
+        Map<String, String> uidMap = new HashMap<>();
+        Collection<InstanceLocations> instances = queryInstances(session, instanceRefs, targetStudyIUID, uidMap);
+        if (instances != null)
+            for (InstanceLocations il : instances) {
+                Attributes attr = il.getAttributes();
+                UIDUtils.remapUIDs(attr, uidMap);
+                StoreContext ctx = newStoreContext(session);
+                ctx.setLocation(il.getLocations().get(0));
+                attr.setString(Tag.RetrieveAETitle, VR.AE, il.getRetrieveAETs());
+                attr.setString(Tag.InstanceAvailability, VR.CS, il.getAvailability().toString());
+                store(ctx, attr);
             }
-        return newAttr;
+        return result;
     }
 
-    private Collection<InstanceLocations> populateMap(String sourceStudyUID,
-            HashMap<String, String> sourceTarget, StoreSession session, Sequence referencedSeriesSequence) {
-        List<String> seriesUIDs = new ArrayList<>();
-        for (Attributes item : referencedSeriesSequence) {
-            String seriesUID = item.getString(Tag.SeriesInstanceUID);
-            sourceTarget.put(seriesUID, UIDUtils.createUID());
-            seriesUIDs.add(seriesUID);
+    private Collection<InstanceLocations> queryInstances(
+            StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap) {
+        String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
+        uidMap.put(sourceStudyUID, targetStudyIUID);
+        Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
+        Map<String, Set<String>> refIUIDsBySeriesIUID = new HashMap<>();
+        for (Attributes item : refSeriesSeq) {
+            String seriesIUID = item.getString(Tag.SeriesInstanceUID);
+            uidMap.put(seriesIUID, UIDUtils.createUID());
+            refIUIDsBySeriesIUID.put(seriesIUID, refIUIDs(item.getSequence(Tag.ReferencedSOPSequence)));
         }
         RetrieveContext ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
-                sourceStudyUID, seriesUIDs.toArray(new String[seriesUIDs.size()]));
-        if (retrieveService.calculateMatches(ctx)) {
-            Collection<InstanceLocations> instLocations = ctx.getMatches();
-            Collection<InstanceLocations> filteredILList = filterInstanceLocations(instLocations, referencedSeriesSequence);
-            for (InstanceLocations il : filteredILList) {
-                sourceTarget.put(il.getSopInstanceUID(), UIDUtils.createUID());
-            }
-            return filteredILList;
-        }
-        else
+                sourceStudyUID, refIUIDsBySeriesIUID.keySet().toArray(new String[refIUIDsBySeriesIUID.size()]));
+        if (!retrieveService.calculateMatches(ctx))
             return null;
+                
+        Collection<InstanceLocations> matches = ctx.getMatches();
+        Iterator<InstanceLocations> matchesIter = matches.iterator();
+        while (matchesIter.hasNext()) {
+            InstanceLocations il = matchesIter.next();
+            if (contains(refIUIDsBySeriesIUID, il))
+                uidMap.put(il.getSopInstanceUID(), UIDUtils.createUID());
+            else
+                matchesIter.remove();
+        }
+        return matches;
     }
 
-    private void storeNew(InstanceLocations il, StoreSession session, HashMap<String, String> sourceTarget)
-        throws IOException {
-        Attributes attr = il.getAttributes();
-        UIDUtils.remapUIDs(attr, sourceTarget);
-        StoreContext ctx = newStoreContext(session);
-        ctx.setLocation(il.getLocations().get(0));
-        attr.setString(Tag.RetrieveAETitle, VR.AE, il.getRetrieveAETs());
-        attr.setString(Tag.InstanceAvailability, VR.CS, il.getAvailability().toString());
-        store(ctx, attr);
+    private Set<String> refIUIDs(Sequence refSOPSeq) {
+        Set<String> iuids = new HashSet<>(refSOPSeq.size() * 4 / 3 + 1);
+        for (Attributes refSOP : refSOPSeq)
+            iuids.add(refSOP.getString(Tag.ReferencedSOPInstanceUID));
+        return iuids;
     }
 
-    private Collection<InstanceLocations> filterInstanceLocations(
-            Collection<InstanceLocations> ilList, Sequence referencedSeriesSequence) {
-        Collection<InstanceLocations> filteredILList = new ArrayList<>();
-        HashMap<String, InstanceLocations> sopIUIDInstanceLocation = new HashMap<>();
-        for (InstanceLocations il : ilList) {
-            sopIUIDInstanceLocation.put(il.getSopInstanceUID(), il);
-        }
-        for (Attributes seriesItem : referencedSeriesSequence) {
-            Sequence seq = seriesItem.getSequence(Tag.ReferencedSOPSequence);
-            for (Attributes item : seq) {
-                String sopIUID = item.getString(Tag.ReferencedSOPInstanceUID);
-                if (sopIUIDInstanceLocation.containsKey(sopIUID))
-                    filteredILList.add(sopIUIDInstanceLocation.get(sopIUID));
-            }
-        }
-        return filteredILList;
+    private boolean contains(Map<String, Set<String>> refIUIDsBySeriesIUID, InstanceLocations il) {
+        Set<String> iuids = refIUIDsBySeriesIUID.get(il.getAttributes().getString(Tag.SeriesInstanceUID));
+        return iuids != null && iuids.contains(il.getSopInstanceUID());
     }
 
     private static void cleanup(StoreContext ctx) {
