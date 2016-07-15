@@ -120,11 +120,28 @@ public class QueueManagerEJB implements QueueManager {
             LOG.info("Finished processing of Task[id={}]", msgId);;
             return;
         }
-
-        LOG.info("Finished processing of Task[id={}] at Queue {}", msgId, entity.getQueueName());
+        QueueMessage.Status status = outcome.getStatus();
+        String queueName = entity.getQueueName();
         entity.setProcessingEndTime(new Date());
-        entity.setStatus(outcome.getStatus());
         entity.setOutcomeMessage(outcome.getDescription());
+        if (status == QueueMessage.Status.COMPLETED) {
+            LOG.info("Finished processing of Task[id={}] at Queue {}", msgId, queueName);
+            entity.setStatus(status);
+            return;
+        }
+        if (status == QueueMessage.Status.FAILED || status == QueueMessage.Status.WARNING) {
+            QueueDescriptor descriptor = descriptorOf(queueName);
+            long delay = status == QueueMessage.Status.FAILED || descriptor.isRetryOnWarning()
+                    ? descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures())
+                    : -1L;
+            if (delay >= 0) {
+                LOG.info("Failed processing of Task[id={}] at Queue {} with Status {} - retry",
+                        msgId, queueName, status);
+                rescheduleMessage(entity, descriptor, delay * 1000L);
+            }
+        }
+        LOG.warn("Failed processing of Task[id={}] at Queue {} with Status {}", msgId, queueName, status);
+        entity.setStatus(status);
     }
 
     @Override
