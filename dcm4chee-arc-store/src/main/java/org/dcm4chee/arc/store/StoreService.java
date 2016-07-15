@@ -5,11 +5,14 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.retrieve.InstanceLocations;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -31,5 +34,9 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID) throws IOException;
+    Attributes copyInstances(
+            StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap) throws IOException;
+
+    Collection<InstanceLocations> queryInstances(
+            StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap);
 }

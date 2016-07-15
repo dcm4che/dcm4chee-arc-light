@@ -33,6 +33,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Attr;
 
 import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
@@ -226,11 +227,10 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes copyInstances(StoreSession session, Attributes instanceRefs, String targetStudyIUID)
+    public Attributes copyInstances(
+            StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
             throws IOException {
         Attributes result = new Attributes();
-        Map<String, String> uidMap = new HashMap<>();
-        Collection<InstanceLocations> instances = queryInstances(session, instanceRefs, targetStudyIUID, uidMap);
         if (instances != null)
             for (InstanceLocations il : instances) {
                 Attributes attr = il.getAttributes();
@@ -244,7 +244,8 @@ class StoreServiceImpl implements StoreService {
         return result;
     }
 
-    private Collection<InstanceLocations> queryInstances(
+    @Override
+    public Collection<InstanceLocations> queryInstances(
             StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap) {
         String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
         uidMap.put(sourceStudyUID, targetStudyIUID);

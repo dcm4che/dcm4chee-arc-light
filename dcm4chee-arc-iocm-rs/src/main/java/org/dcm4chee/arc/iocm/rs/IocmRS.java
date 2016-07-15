@@ -58,6 +58,7 @@ import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -80,6 +81,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -377,26 +381,16 @@ public class IocmRS {
         ApplicationEntity ae = getApplicationEntity();
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        RejectionNote rjNote = null;
-        if (code != null) {
-            rjNote = arcDev.getRejectionNote(code);
-            if (rjNote == null)
-                throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
-        }
         if (!queryService.addSOPInstanceReferences(instanceRefs, ae))
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
+        Map<String, String> uidMap = new HashMap<>();
         StoreSession session = storeService.newStoreSession(request, ae);
-        if (rjNote != null) {
-            Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
-            StoreContext ctx = storeService.newStoreContext(session);
-            ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-            ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
-            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-            storeService.store(ctx, ko);
-        }
+        Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
 
-        final Attributes result = storeService.copyInstances(session, instanceRefs, studyUID);
+        rejectInstanceRefs(code, instanceRefs, session, arcDev);
+        final Attributes result = storeService.copyInstances(session, instances, uidMap);
+
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
@@ -405,6 +399,24 @@ public class IocmRS {
                 }
             }
         };
+    }
+
+    private void rejectInstanceRefs(Code code, Attributes instanceRefs, StoreSession session,
+                                            ArchiveDeviceExtension arcDev) throws IOException {
+        RejectionNote rjNote = null;
+        if (code != null) {
+            rjNote = arcDev.getRejectionNote(code);
+            if (rjNote == null)
+                throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
+        }
+        if (rjNote != null) {
+            Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
+            StoreContext ctx = storeService.newStoreContext(session);
+            ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+            ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            storeService.store(ctx, ko);
+        }
     }
 
     private void expect(JsonParser parser, JsonParser.Event expected) {
