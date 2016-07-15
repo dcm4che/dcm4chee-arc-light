@@ -1,10 +1,7 @@
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
