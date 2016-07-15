@@ -1,7 +1,10 @@
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
@@ -14,9 +17,10 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveCompressionRule;
-import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
@@ -99,7 +103,7 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
-        UpdateDBResult result = new UpdateDBResult();
+        UpdateDBResult result = null;
         try {
             String receiveTranferSyntax = ctx.getReceiveTranferSyntax();
             try (Transcoder transcoder = receiveTranferSyntax != null
@@ -127,14 +131,7 @@ class StoreServiceImpl implements StoreService {
                 throw new DicomServiceException(DIFF_STUDY_INSTANCE_UID);
             }
             coerceAttributes(ctx);
-            try {
-                ejb.updateDB(ctx, result);
-            } catch (EJBException e) {
-                LOG.info("Failed to update DB - retry", e);
-                UpdateDBResult result2 = new UpdateDBResult();
-                ejb.updateDB(ctx, result2);
-                result = result2;
-            }
+            result = updateDB(ctx);
             postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
@@ -144,12 +141,34 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(dse);
             throw dse;
         } finally {
-            ctx.setLocation(result.getLocation());
-            ctx.setRejectionNote(result.getRejectionNote());
-            ctx.setPreviousInstance(result.getPreviousInstance());
+            if (result != null) {
+                ctx.setLocation(result.getLocation());
+                ctx.setRejectionNote(result.getRejectionNote());
+                ctx.setPreviousInstance(result.getPreviousInstance());
+            }
             storeEvent.fire(ctx);
             cleanup(ctx);
         }
+    }
+
+    private UpdateDBResult updateDB(StoreContext ctx) throws DicomServiceException {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;)
+            try {
+                UpdateDBResult result = new UpdateDBResult();
+                ejb.updateDB(ctx, result);
+                return result;
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failed to update DB - retry:\n", e);
+                } else {
+                    LOG.warn("Failed to update DB:\n", e);
+                    throw e;
+                }
+            }
     }
 
     private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
@@ -182,8 +201,8 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
-        UpdateDBResult result = new UpdateDBResult();
         ctx.setAttributes(attrs);
+        UpdateDBResult result = null;
         try {
             if (ctx.getLocation() == null) {
                 try (DicomOutputStream dos = new DicomOutputStream(openOutputStream(ctx), UID.ExplicitVRLittleEndian)) {
@@ -191,14 +210,7 @@ class StoreServiceImpl implements StoreService {
                 }
                 coerceAttributes(ctx);
             }
-            try {
-                ejb.updateDB(ctx, result);
-            } catch (EJBException e) {
-                LOG.info("Failed to update DB - retry", e);
-                UpdateDBResult result2 = new UpdateDBResult();
-                ejb.updateDB(ctx, result2);
-                result = result2;
-            }
+            result = updateDB(ctx);
             postUpdateDB(ctx, result);
         } catch (DicomServiceException e) {
             ctx.setException(e);
@@ -208,10 +220,12 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(dse);
             throw dse;
         } finally {
-            if (ctx.getLocation() == null)
-                ctx.setLocation(result.getLocation());
-            ctx.setRejectionNote(result.getRejectionNote());
-            ctx.setPreviousInstance(result.getPreviousInstance());
+            if (result != null) {
+                if (ctx.getLocation() == null)
+                    ctx.setLocation(result.getLocation());
+                ctx.setRejectionNote(result.getRejectionNote());
+                ctx.setPreviousInstance(result.getPreviousInstance());
+            }
             storeEvent.fire(ctx);
             cleanup(ctx);
         }
