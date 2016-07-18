@@ -230,7 +230,9 @@ class StoreServiceImpl implements StoreService {
             StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
             throws IOException {
         Attributes result = new Attributes();
-        if (instances != null)
+        if (instances != null) {
+            Sequence refSOPSeq = result.newSequence(Tag.ReferencedSOPSequence, 10);
+            Sequence failedSOPSeq = result.newSequence(Tag.FailedSOPSequence, 10);
             for (InstanceLocations il : instances) {
                 Attributes attr = il.getAttributes();
                 UIDUtils.remapUIDs(attr, uidMap);
@@ -238,9 +240,23 @@ class StoreServiceImpl implements StoreService {
                 ctx.setLocation(il.getLocations().get(0));
                 attr.setString(Tag.RetrieveAETitle, VR.AE, il.getRetrieveAETs());
                 attr.setString(Tag.InstanceAvailability, VR.CS, il.getAvailability().toString());
-                store(ctx, attr);
+                try {
+                    store(ctx, attr);
+                    populateResult(refSOPSeq, attr);
+                } catch (DicomServiceException e) {
+                    result.setString(Tag.FailureReason, VR.US, Integer.toString(e.getStatus()) + e.getMessage());
+                    populateResult(failedSOPSeq, attr);
+                }
             }
+        }
         return result;
+    }
+
+    private void populateResult(Sequence refSOPSeq, Attributes ilAttr) {
+        Attributes refSOP = new Attributes(2);
+        refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, ilAttr.getString(Tag.SOPClassUID));
+        refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, ilAttr.getString(Tag.SOPInstanceUID));
+        refSOPSeq.add(refSOP);
     }
 
     @Override
