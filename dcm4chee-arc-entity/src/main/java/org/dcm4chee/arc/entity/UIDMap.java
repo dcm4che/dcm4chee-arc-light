@@ -38,45 +38,77 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.conf;
+package org.dcm4chee.arc.entity;
+
+import javax.persistence.*;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jun 2016
+ * @since Jul 2016
  */
-public class IDGenerator {
-    public enum Name {
-        PatientID,
-        AccessionNumber,
-        RequestedProcedureID,
-        ScheduledProcedureStepID,
-        LocationMultiReference
-    }
-    private Name name;
-    private String format;
-    private int initialValue = 1;
+@Entity
+@Table(name = "uidmap")
+public class UIDMap {
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "pk")
+    private long pk;
 
-    public Name getName() {
-        return name;
-    }
+    @Basic(optional = false)
+    @Column(name = "uidmap")
+    private byte[] encodedMap;
 
-    public void setName(Name name) {
-        this.name = name;
-    }
+    @Transient
+    private Map<String,String> cachedMap;
 
-    public String getFormat() {
-        return format;
+    @Override
+    public String toString() {
+        return "UIDMap[pk=" + pk + "]";
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public long getPk() {
+        return pk;
     }
 
-    public int getInitialValue() {
-        return initialValue;
+    public Map<String,String> getUIDMap() {
+        if (cachedMap == null)
+            cachedMap = decodeUIDMap(encodedMap);
+        return cachedMap;
     }
 
-    public void setInitialValue(int initialValue) {
-        this.initialValue = initialValue;
+    public void setUIDMap(Map<String,String> uidmap) {
+        encodedMap = encodeUIDMap(cachedMap = uidmap);
+    }
+
+    public byte[] getEncodedUIDMap() {
+        return encodedMap;
+    }
+
+    public static byte[] encodeUIDMap(Map<String, String> uidmap) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(512);
+        try (PrintStream ps = new PrintStream(out)) {
+            for (Map.Entry<String, String> entry : uidmap.entrySet())
+                ps.append(entry.getKey()).append('=').append(entry.getValue()).println();
+        }
+        return out.toByteArray();
+    }
+
+    public static Map<String,String> decodeUIDMap(byte[] b) {
+        Map<String,String> result = new HashMap<>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(b)));
+        String line;
+        int delimPos;
+        try {
+            while ((line = reader.readLine()) != null) {
+                delimPos = line.indexOf('=');
+                result.put(line.substring(0, delimPos), line.substring(delimPos+1));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 }

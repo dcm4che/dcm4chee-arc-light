@@ -6,6 +6,7 @@ create index FK_7w6f9bi2w91qr2abl6ddxnrwq on instance (srcode_fk) ;
 create index FK_6pnwsvi69g5ypye6gjo26vn7e on instance (reject_code_fk) ;
 create index FK_s4tgrew4sh4qxoupmk3gihtrk on instance (series_fk) ;
 create index FK_hjtlcwsvwihs4khh961d423e7 on location (instance_fk) ;
+create index FK_bfk5vl6eoxaf0hhwiu3rbgmkn on location (uidmap_fk) ;
 create index FK_nrigpgue611m33rao03nnfe5l on mpps (discreason_code_fk) ;
 create index FK_grl2idmms10qq4lhmh909jxtj on mpps (accno_issuer_fk) ;
 create index FK_ofg0lvfxad6r5oigw3y6da27u on mpps (patient_fk) ;

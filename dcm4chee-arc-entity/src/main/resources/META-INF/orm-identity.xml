@@ -53,6 +53,14 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.UIDMap">
+    <attributes>
+      <basic name="encodedMap" optional="false">
+        <column name="uidmap" column-definition="${blob}"/>
+      </basic>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.QueueMessage">
     <attributes>
       <basic name="messageBody" optional="false">

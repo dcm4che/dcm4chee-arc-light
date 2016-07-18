@@ -58,6 +58,19 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.UIDMap">
+    <sequence-generator name="uidmap_pk_seq" sequence-name="uidmap_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="uidmap_pk_seq"/>
+      </id>
+      <basic name="encodedMap" optional="false">
+        <column name="uidmap" column-definition="${blob}"/>
+      </basic>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.CodeEntity">
     <sequence-generator name="code_pk_seq" sequence-name="code_pk_seq" allocation-size="1"/>
     <attributes>

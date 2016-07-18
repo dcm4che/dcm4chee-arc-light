@@ -57,15 +57,15 @@ public class IDServiceEJB {
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
-    public int nextValue(IDGenerator generator) {
-        IDSequence idSeq = em.find(IDSequence.class, generator.getName());
+    public int nextValue(IDGenerator.Name name, int initialValue) {
+        IDSequence idSeq = em.find(IDSequence.class, name);
         if (idSeq != null)
             return idSeq.nextValue();
 
         idSeq = new IDSequence();
-        idSeq.setName(generator.getName());
-        idSeq.setNextValue(generator.getInitialValue() + 1);
+        idSeq.setName(name);
+        idSeq.setNextValue(initialValue + 1);
         em.persist(idSeq);
-        return generator.getInitialValue();
+        return initialValue;
     }
 }

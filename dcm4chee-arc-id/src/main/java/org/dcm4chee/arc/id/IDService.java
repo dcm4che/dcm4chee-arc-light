@@ -57,4 +57,6 @@ public interface IDService {
     void newRequestedProcedureID(Attributes attrs);
 
     void newScheduledProcedureStepID(Attributes attrs);
+
+    int newLocationMultiReference();
 }

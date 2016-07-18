@@ -72,7 +72,7 @@ public class IDServiceImpl implements IDService {
     @Override
     public String createID(IDGenerator.Name name) {
         IDGenerator generator = device.getDeviceExtension(ArchiveDeviceExtension.class).getIDGenerator(name);
-        return String.format(generator.getFormat(), nextValue(generator));
+        return String.format(generator.getFormat(), nextValue(generator.getName(), generator.getInitialValue()));
     }
 
     @Override
@@ -100,15 +100,19 @@ public class IDServiceImpl implements IDService {
     @Override
     public void newScheduledProcedureStepID(Attributes attrs) {
         attrs.setString(Tag.ScheduledProcedureStepID, VR.SH, createID(IDGenerator.Name.ScheduledProcedureStepID));
-
     }
 
-    private int nextValue(IDGenerator generator) {
+    @Override
+    public int newLocationMultiReference() {
+        return nextValue(IDGenerator.Name.LocationMultiReference, 0);
+    }
+
+    private int nextValue(IDGenerator.Name name, int initalValue) {
         try {
-            return ejb.nextValue(generator);
+            return ejb.nextValue(name, initalValue);
         } catch (RuntimeException e) {
-            LOG.info("Failed to create {} - retry\n", generator.getName(), e);
-            return ejb.nextValue(generator);
+            LOG.info("Failed to create {} - retry\n", name, e);
+            return ejb.nextValue(name, initalValue);
         }
     }
 }

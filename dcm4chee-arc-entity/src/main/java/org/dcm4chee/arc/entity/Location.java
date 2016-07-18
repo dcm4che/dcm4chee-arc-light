@@ -43,7 +43,6 @@ package org.dcm4chee.arc.entity;
 import org.dcm4che3.util.TagUtils;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -53,7 +52,10 @@ import java.util.Date;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
 @Entity
-@Table(name = "location", indexes = @Index(columnList = "storage_id,status"))
+@Table(name = "location", indexes = {
+    @Index(columnList = "storage_id,status"),
+    @Index(columnList = "multi_ref")
+})
 @NamedQueries({
         @NamedQuery(name = Location.FIND_BY_STORAGE_ID_AND_STATUS,
                 query = "select l from Location l where l.storageID=?1 and l.status=?2"),
@@ -72,7 +74,9 @@ import java.util.Date;
                 query = "select l from Location l join l.instance i " +
                         "where i.conceptNameCode=?1 and i.updatedTime<?2"),
         @NamedQuery(name = Location.FIND_BY_STUDY_UID,
-                query = "select l from Location l where l.instance.series.study.studyInstanceUID=?1")
+                query = "select l from Location l where l.instance.series.study.studyInstanceUID=?1"),
+        @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
+                query = "select count(l) from Location l where l.multiReference=?1")
 })
 public class Location {
 
@@ -83,6 +87,7 @@ public class Location {
     public static final String FIND_BY_REJECTION_CODE_BEFORE = "Location.FindByRejectionCodeBefore";
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
     public static final String FIND_BY_STUDY_UID = "Location.FindByStudyUID";
+    public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
 
     public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 
@@ -120,6 +125,13 @@ public class Location {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", updatable = true)
     private Status status;
+
+    @Column(name = "multi_ref", updatable = true)
+    private int multiReference;
+
+    @ManyToOne
+    @JoinColumn(name = "uidmap_fk", updatable = false)
+    private UIDMap uidMap;
 
     @ManyToOne
     @JoinColumn(name = "instance_fk", updatable = true)
@@ -229,6 +241,22 @@ public class Location {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public int getMultiReference() {
+        return multiReference;
+    }
+
+    public void setMultiReference(int multiReference) {
+        this.multiReference = multiReference;
+    }
+
+    public UIDMap getUidMap() {
+        return uidMap;
+    }
+
+    public void setUidMap(UIDMap uidMap) {
+        this.uidMap = uidMap;
     }
 
     public Instance getInstance() {

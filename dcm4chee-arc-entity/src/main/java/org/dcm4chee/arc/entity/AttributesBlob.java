@@ -78,7 +78,7 @@ public class AttributesBlob {
 
     @Override
     public String toString() {
-        return "BLOB[pk=" + pk + "]";
+        return "AttributesBlob[pk=" + pk + "]";
     }
 
     public long getPk() {
