@@ -53,6 +53,7 @@ import org.dcm4chee.arc.StorePermissionCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -812,10 +813,12 @@ public class StoreServiceEJB {
     }
 
     private Location createLocationClone(StoreContext ctx, Instance instance) {
-        Location location = ctx.getLocation();
-        location.setInstance(instance);
-        em.persist(em.contains(location) ? location : em.merge(location));
-        return location;
+        Location locationOld = ctx.getLocation();
+        Location locationNew = new Location(locationOld);
+        em.merge(locationOld);
+        locationNew.setInstance(instance);
+        em.persist(locationNew);
+        return locationOld;
     }
 
     private void setRequestAttributes(Series series, Attributes attrs, FuzzyStr fuzzyStr) {

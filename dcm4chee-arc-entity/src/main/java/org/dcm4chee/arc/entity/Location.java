@@ -127,7 +127,7 @@ public class Location {
     private Status status;
 
     @Column(name = "multi_ref", updatable = true)
-    private int multiReference;
+    private Integer multiReference;
 
     @ManyToOne
     @JoinColumn(name = "uidmap_fk", updatable = false)
@@ -202,6 +202,17 @@ public class Location {
         status = builder.status;
     }
 
+    public Location(Location locationOld) {
+        this.createdTime = locationOld.getCreatedTime();
+        this.storageID = locationOld.getStorageID();
+        this.storagePath = locationOld.getStoragePath();
+        this.transferSyntaxUID = locationOld.getTransferSyntaxUID();
+        this.size = locationOld.getSize();
+        this.digest = locationOld.getDigest() != null ? TagUtils.toHexString(locationOld.getDigest()) : null;
+        this.status = locationOld.getStatus();
+        this.multiReference = locationOld.getMultiReference();
+    }
+
     @PrePersist
     public void onPrePersist() {
         createdTime = new Date();
@@ -243,11 +254,11 @@ public class Location {
         this.status = status;
     }
 
-    public int getMultiReference() {
+    public Integer getMultiReference() {
         return multiReference;
     }
 
-    public void setMultiReference(int multiReference) {
+    public void setMultiReference(Integer multiReference) {
         this.multiReference = multiReference;
     }
 
