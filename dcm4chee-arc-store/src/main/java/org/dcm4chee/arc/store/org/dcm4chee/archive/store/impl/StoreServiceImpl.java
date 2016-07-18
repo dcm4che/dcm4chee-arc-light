@@ -244,6 +244,7 @@ class StoreServiceImpl implements StoreService {
                     locationOld.setMultiReference(locationMultiRef);
                 }
                 ctx.setLocation(locationOld);
+                ctx.setUidMap(map);
                 attr.setString(Tag.RetrieveAETitle, VR.AE, il.getRetrieveAETs());
                 attr.setString(Tag.InstanceAvailability, VR.CS, il.getAvailability().toString());
                 try {
