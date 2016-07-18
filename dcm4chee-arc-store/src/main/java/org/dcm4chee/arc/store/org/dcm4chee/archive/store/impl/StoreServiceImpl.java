@@ -16,7 +16,6 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -65,9 +64,6 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private RetrieveService retrieveService;
-
-    @Inject
-    private IDService idService;
 
     @Override
     public StoreSession newStoreSession(Association as) {
@@ -229,8 +225,7 @@ class StoreServiceImpl implements StoreService {
             StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
             throws IOException {
         Attributes result = new Attributes();
-        UIDMap map = new UIDMap();
-        map.setUIDMap(uidMap);
+        session.setUIDMap(uidMap);
         if (instances != null) {
             Sequence refSOPSeq = result.newSequence(Tag.ReferencedSOPSequence, 10);
             Sequence failedSOPSeq = result.newSequence(Tag.FailedSOPSequence, 10);
@@ -238,13 +233,8 @@ class StoreServiceImpl implements StoreService {
                 Attributes attr = il.getAttributes();
                 UIDUtils.remapUIDs(attr, uidMap);
                 StoreContext ctx = newStoreContext(session);
-                Location locationOld = il.getLocations().get(0);
-                if (locationOld.getMultiReference() != null) {
-                    Integer locationMultiRef = Integer.valueOf(idService.createID(IDGenerator.Name.LocationMultiReference));
-                    locationOld.setMultiReference(locationMultiRef);
-                }
-                ctx.setLocation(locationOld);
-                ctx.setUidMap(map);
+                Location prevLocation = il.getLocations().get(0);
+                ctx.setLocation(prevLocation);
                 attr.setString(Tag.RetrieveAETitle, VR.AE, il.getRetrieveAETs());
                 attr.setString(Tag.InstanceAvailability, VR.CS, il.getAvailability().toString());
                 try {

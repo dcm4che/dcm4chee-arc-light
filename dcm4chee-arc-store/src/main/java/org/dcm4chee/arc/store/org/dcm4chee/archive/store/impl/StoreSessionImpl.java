@@ -8,6 +8,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.OverwritePolicy;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.UIDMap;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.store.StoreSession;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 class StoreSessionImpl implements StoreSession {
@@ -30,6 +32,8 @@ class StoreSessionImpl implements StoreSession {
     private Storage storage;
     private Study cachedStudy;
     private final Map<String,Series> seriesCache = new HashMap<>();
+    private Map<Long,UIDMap> uidMapCache = new HashMap<>();
+    private Map<String, String> uidMap;
 
     StoreSessionImpl(HttpServletRequest httpRequest, Association as, ApplicationEntity ae,
                             Socket socket, HL7Segment msh) {
@@ -38,6 +42,7 @@ class StoreSessionImpl implements StoreSession {
         this.ae = ae;
         this.socket = socket;
         this.msh = msh;
+        this.uidMapCache = new HashMap<>();
     }
 
     @Override
@@ -124,6 +129,21 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public void close() throws IOException {
         SafeClose.close(storage);
+    }
+
+    @Override
+    public Map<Long, UIDMap> getUIDMapCache() {
+        return uidMapCache;
+    }
+
+    @Override
+    public Map<String, String> getUIDMap() {
+        return uidMap;
+    }
+
+    @Override
+    public void setUIDMap(Map<String, String> uidMap) {
+        this.uidMap = uidMap;
     }
 
     @Override

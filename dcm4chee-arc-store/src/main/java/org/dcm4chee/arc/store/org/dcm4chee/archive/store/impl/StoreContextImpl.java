@@ -6,7 +6,6 @@ import org.dcm4che3.data.UID;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.UIDMap;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -35,7 +34,6 @@ class StoreContextImpl implements StoreContext {
     private RejectionNote rejectionNote;
     private Instance previousInstance;
     private Exception exception;
-    private UIDMap uidMap;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -206,10 +204,4 @@ class StoreContextImpl implements StoreContext {
     public void setPreviousInstance(Instance previousInstance) {
         this.previousInstance = previousInstance;
     }
-
-    @Override
-    public UIDMap getUidMap() { return uidMap; }
-
-    @Override
-    public void setUidMap(UIDMap uidMap) { this.uidMap = uidMap; }
 }

@@ -1,11 +1,9 @@
 package org.dcm4chee.arc.store;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.UIDMap;
 import org.dcm4chee.arc.storage.WriteContext;
 
 /**
@@ -75,8 +73,4 @@ public interface StoreContext {
     Instance getPreviousInstance();
 
     void setPreviousInstance(Instance previousInstance);
-
-    UIDMap getUidMap();
-
-    void setUidMap(UIDMap uidMap);
 }

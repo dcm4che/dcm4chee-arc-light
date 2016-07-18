@@ -53,6 +53,7 @@ import org.dcm4chee.arc.StorePermissionCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -74,9 +75,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -116,6 +115,9 @@ public class StoreServiceEJB {
 
     @Inject
     private StorePermissionCache storePermissionCache;
+
+    @Inject
+    private IDService idService;
 
     public UpdateDBResult updateDB(StoreContext ctx, UpdateDBResult result)
             throws DicomServiceException {
@@ -803,13 +805,51 @@ public class StoreServiceEJB {
     }
 
     private Location createLocationClone(StoreContext ctx, Instance instance) {
-        Location locationOld = ctx.getLocation();
-        Location locationNew = new Location(locationOld);
-        em.merge(locationOld);
-        locationNew.setInstance(instance);
-        locationNew.setUidMap(ctx.getUidMap());
-        em.persist(locationNew);
-        return locationOld;
+        Location prevLocation = ctx.getLocation();
+        Location newLocation = new Location(prevLocation);
+        processUIDMapAndMultiReference(prevLocation, newLocation, ctx.getStoreSession());
+        em.merge(prevLocation);
+        newLocation.setInstance(instance);
+        em.persist(newLocation);
+        return prevLocation;
+    }
+
+    private void processUIDMapAndMultiReference(Location prevLocation, Location newLocation, StoreSession session) {
+        UIDMap prevUIDMap = null;
+        Map<Long, UIDMap> uidMapCache = session.getUIDMapCache();
+        Map<String, String> result = new HashMap<>();
+        if (prevLocation.getMultiReference() != null) {
+            prevUIDMap = prevLocation.getUidMap();
+            result = foldUIDMaps(prevUIDMap.getUIDMap(), session.getUIDMap(), result);
+            newLocation.setMultiReference(prevLocation.getMultiReference());
+        } else {
+            Integer locationMultiRef = Integer.valueOf(idService.createID(IDGenerator.Name.LocationMultiReference));
+            prevLocation.setMultiReference(locationMultiRef);
+            newLocation.setMultiReference(locationMultiRef);
+            result = session.getUIDMap();
+        }
+        Long key = prevUIDMap != null ? prevUIDMap.getPk() : null;
+        UIDMap uidMapEntity = uidMapCache.get(key);
+        if (uidMapEntity == null) {
+            uidMapEntity = new UIDMap();
+            uidMapEntity.setUIDMap(result);
+            em.persist(uidMapEntity);
+            uidMapCache.put(key, uidMapEntity);
+        }
+        newLocation.setUidMap(uidMapEntity);
+    }
+
+    private Map<String, String> foldUIDMaps(Map<String, String> prevUidMap, Map<String, String> uidMap,
+                                            Map<String, String> result) {
+        for (Map.Entry<String, String> entry  : prevUidMap.entrySet()) {
+            String value = uidMap.get(entry.getValue()) != null ? uidMap.get(entry.getValue()) : entry.getValue();
+            result.put(entry.getKey(), value);
+        }
+        for (Map.Entry<String, String> entry  : uidMap.entrySet()) {
+            if (!prevUidMap.values().contains(entry.getKey()))
+                result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
     }
 
     private void setRequestAttributes(Series series, Attributes attrs, FuzzyStr fuzzyStr) {
