@@ -282,9 +282,12 @@ class StoreServiceImpl implements StoreService {
         Iterator<InstanceLocations> matchesIter = matches.iterator();
         while (matchesIter.hasNext()) {
             InstanceLocations il = matchesIter.next();
-            if (contains(refIUIDsBySeriesIUID, il))
+            if (contains(refIUIDsBySeriesIUID, il)) {
                 uidMap.put(il.getSopInstanceUID(), UIDUtils.createUID());
-            else
+                if (refSeriesSeq == null)
+                    if (!uidMap.containsKey(il.getAttributes().getString(Tag.SeriesInstanceUID)))
+                        uidMap.put(il.getAttributes().getString(Tag.SeriesInstanceUID), UIDUtils.createUID());
+            } else
                 matchesIter.remove();
         }
         return matches;

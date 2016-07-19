@@ -805,13 +805,13 @@ public class StoreServiceEJB {
     }
 
     private Location createLocationClone(StoreContext ctx, Instance instance) {
-        Location prevLocation = ctx.getLocation();
+        Location prevLocation = em.find(Location.class, ctx.getLocation().getPk());
         Location newLocation = new Location(prevLocation);
         processUIDMapAndMultiReference(prevLocation, newLocation, ctx.getStoreSession());
         em.merge(prevLocation);
         newLocation.setInstance(instance);
         em.persist(newLocation);
-        return prevLocation;
+        return newLocation;
     }
 
     private void processUIDMapAndMultiReference(Location prevLocation, Location newLocation, StoreSession session) {
@@ -823,7 +823,7 @@ public class StoreServiceEJB {
             result = foldUIDMaps(prevUIDMap.getUIDMap(), session.getUIDMap(), result);
             newLocation.setMultiReference(prevLocation.getMultiReference());
         } else {
-            Integer locationMultiRef = Integer.valueOf(idService.createID(IDGenerator.Name.LocationMultiReference));
+            int locationMultiRef = idService.newLocationMultiReference();
             prevLocation.setMultiReference(locationMultiRef);
             newLocation.setMultiReference(locationMultiRef);
             result = session.getUIDMap();
