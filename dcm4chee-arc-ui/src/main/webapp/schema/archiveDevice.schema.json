@@ -26,6 +26,11 @@
       "description": "Storage ID",
       "type": "string"
     },
+    "dcmMetadataStorageID": {
+      "title": "Metadata Storage ID",
+      "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. If absent, metadata is not stored additionally",
+      "type": "string"
+    },
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
       "description": "Query/Retrieve View Identifier",

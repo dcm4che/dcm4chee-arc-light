@@ -46,10 +46,12 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.Storage;
 
@@ -85,6 +87,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private String[] studyInstanceUIDs = {};
     private String[] seriesInstanceUIDs = {};
     private String[] sopInstanceUIDs = {};
+    private Location.ObjectType objectType = Location.ObjectType.DICOM_FILE;
     private int numberOfMatches;
     private final Collection<InstanceLocations> matches = new ArrayList<>();
     private final Collection<StudyInfo> studyInfos = new ArrayList<>();
@@ -337,6 +340,16 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public Location.ObjectType getObjectType() {
+        return objectType;
+    }
+
+    @Override
+    public void setObjectType(Location.ObjectType objectType) {
+        this.objectType = objectType;
+    }
+
+    @Override
     public Collection<InstanceLocations> getMatches() {
         return matches;
     }
@@ -498,6 +511,6 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void close() throws IOException {
         for (Storage storage : storageMap.values())
-            storage.close();
+            SafeClose.close(storage);
     }
 }

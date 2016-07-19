@@ -158,7 +158,7 @@ public class IANScheduler extends Scheduler {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getLocation() == null)
+        if (ctx.getLocations().isEmpty())
             return;
 
         StoreSession session = ctx.getStoreSession();

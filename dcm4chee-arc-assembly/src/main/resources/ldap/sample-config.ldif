@@ -499,6 +499,7 @@ objectClass: pkiUser
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
+dcmMetadataStorageID: metadata
 dcmOverwritePolicy: SAME_SOURCE
 dcmSendPendingCGet: TRUE
 dcmQueryRetrieveViewID: hideRejected
@@ -524,7 +525,7 @@ dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
-dicomSoftwareVersion: 5.5.0
+dicomSoftwareVersion: 5.6.0
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
@@ -974,6 +975,13 @@ dcmTag: 00402017
 dcmTag: 00402400
 dcmEntity: MWL
 objectClass: dcmAttributeFilter
+
+dn: dcmStorageID=metadata,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json
+dcmProperty: checkMountFile=NO_MOUNT
+objectClass: dcmStorage
+dcmStorageID: metadata
+dcmURI: ${jboss.server.data.url}/metadata/
 
 dn: dcmStorageID=fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmInstanceAvailability: ONLINE

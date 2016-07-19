@@ -1,10 +1,14 @@
 package org.dcm4chee.arc.store;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.WriteContext;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -48,19 +52,17 @@ public interface StoreContext {
 
     void setAttributes(Attributes dataset);
 
+    Collection<WriteContext> getWriteContexts();
+
     Attributes getCoercedAttributes();
 
     String getStudyInstanceUID();
 
     String getSeriesInstanceUID();
 
-    WriteContext getWriteContext();
+    WriteContext getWriteContext(Location.ObjectType objectType);
 
-    void setWriteContext(WriteContext writeContext);
-
-    Location getLocation();
-
-    void setLocation(Location location);
+    void setWriteContext(Location.ObjectType objectType, WriteContext writeCtx);
 
     RejectionNote getRejectionNote();
 
@@ -73,4 +75,14 @@ public interface StoreContext {
     Instance getPreviousInstance();
 
     void setPreviousInstance(Instance previousInstance);
+
+    List<Location> getLocations();
+
+    String[] getRetrieveAETs();
+
+    void setRetrieveAETs(String... retrieveAETs);
+
+    Availability getAvailability();
+
+    void setAvailability(Availability availability);
 }

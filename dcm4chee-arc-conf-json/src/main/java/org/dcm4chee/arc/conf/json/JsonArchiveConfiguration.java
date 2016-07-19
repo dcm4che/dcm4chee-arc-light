@@ -76,6 +76,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartObject("dcmArchiveDevice");
         writer.writeNotNull("dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass());
         writer.writeNotNull("dcmStorageID", arcDev.getStorageID());
+        writer.writeNotNull("dcmMetadataStorageID", arcDev.getMetadataStorageID());
         writer.writeNotNull("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID());
         writer.writeNotNull("dcmOverwritePolicy", arcDev.getOverwritePolicy());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
@@ -351,6 +352,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
         writer.writeStartObject("dcmArchiveNetworkAE");
         writer.writeNotNull("dcmStorageID", arcAE.getStorageID());
+        writer.writeNotNull("dcmMetadataStorageID", arcAE.getMetadataStorageID());
         writer.writeNotNull("dcmStoreAccessControlID", arcAE.getStoreAccessControlID());
         writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
         writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy());
@@ -406,6 +408,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorageID":
                     arcDev.setStorageID(reader.stringValue());
+                    break;
+                case "dcmMetadataStorageID":
+                    arcDev.setMetadataStorageID(reader.stringValue());
                     break;
                 case "dcmOverwritePolicy":
                     arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
@@ -1071,6 +1076,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             switch (reader.getString()) {
                 case "dcmStorageID":
                     arcAE.setStorageID(reader.stringValue());
+                    break;
+                case "dcmMetadataStorageID":
+                    arcAE.setMetadataStorageID(reader.stringValue());
                     break;
                 case "dcmStoreAccessControlID":
                     arcAE.setStoreAccessControlID(reader.stringValue());

@@ -163,7 +163,7 @@ class AuditServiceUtils {
         }
 
         static EventType forInstanceStored(StoreContext ctx) {
-            return ctx.getLocation() != null
+            return !ctx.getLocations().isEmpty()
                     ? ctx.getPreviousInstance() != null ? STORE_UPDT : STORE_CREA
                     : null;
         }

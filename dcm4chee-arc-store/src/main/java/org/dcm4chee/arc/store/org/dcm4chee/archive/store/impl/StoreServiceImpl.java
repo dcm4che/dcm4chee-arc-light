@@ -10,6 +10,7 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
@@ -33,6 +34,8 @@ import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import java.io.IOException;
@@ -119,6 +122,7 @@ class StoreServiceImpl implements StoreService {
                         ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ctx.getAcceptedStudyInstanceUID());
                 throw new DicomServiceException(DIFF_STUDY_INSTANCE_UID);
             }
+            storeMetadata(ctx);
             coerceAttributes(ctx);
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
@@ -131,12 +135,13 @@ class StoreServiceImpl implements StoreService {
             throw dse;
         } finally {
             if (result != null) {
-                ctx.setLocation(result.getLocation());
+                ctx.getLocations().addAll(result.getLocations());
                 ctx.setRejectionNote(result.getRejectionNote());
                 ctx.setPreviousInstance(result.getPreviousInstance());
             }
             storeEvent.fire(ctx);
-            cleanup(ctx);
+            if (ctx.getLocations().isEmpty())
+                revokeStorage(ctx);
         }
     }
 
@@ -161,7 +166,8 @@ class StoreServiceImpl implements StoreService {
     }
 
     private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
-        if (result.getLocation() == null)
+        Instance instance = result.getCreatedInstance();
+        if (instance == null)
             return;
 
         if (result.getCreatedPatient() != null) {
@@ -175,28 +181,31 @@ class StoreServiceImpl implements StoreService {
             }
         }
 
-        Series series = result.getLocation().getInstance().getSeries();
-        if (ctx.getWriteContext() != null)
-            commitStorage(ctx);
+        commitStorage(ctx);
+        Series series = instance.getSeries();
         updateAttributes(ctx, series);
         ctx.getStoreSession().cacheSeries(series);
     }
 
     private void commitStorage(StoreContext ctx) throws IOException {
-        WriteContext writeContext = ctx.getWriteContext();
-        Storage storage = writeContext.getStorage();
-        storage.commitStorage(writeContext);
+        for (WriteContext writeContext : ctx.getWriteContexts()) {
+            Storage storage = writeContext.getStorage();
+            storage.commitStorage(writeContext);
+        }
     }
 
     @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
         ctx.setAttributes(attrs);
+        List<Location> locations = ctx.getLocations();
         UpdateDBResult result = null;
         try {
-            if (ctx.getLocation() == null) {
-                try (DicomOutputStream dos = new DicomOutputStream(openOutputStream(ctx), UID.ExplicitVRLittleEndian)) {
+            if (locations.isEmpty()) {
+                try (DicomOutputStream dos = new DicomOutputStream(
+                        openOutputStream(ctx, Location.ObjectType.DICOM_FILE), UID.ExplicitVRLittleEndian)) {
                     dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
                 }
+                storeMetadata(ctx);
                 coerceAttributes(ctx);
             }
             result = updateDB(ctx);
@@ -210,13 +219,14 @@ class StoreServiceImpl implements StoreService {
             throw dse;
         } finally {
             if (result != null) {
-                if (ctx.getLocation() == null)
-                    ctx.setLocation(result.getLocation());
+                locations.clear();
+                locations.addAll(result.getLocations());
                 ctx.setRejectionNote(result.getRejectionNote());
                 ctx.setPreviousInstance(result.getPreviousInstance());
             }
             storeEvent.fire(ctx);
-            cleanup(ctx);
+            if (locations.isEmpty())
+                revokeStorage(ctx);
         }
     }
 
@@ -234,9 +244,9 @@ class StoreServiceImpl implements StoreService {
                 UIDUtils.remapUIDs(attr, uidMap);
                 StoreContext ctx = newStoreContext(session);
                 Location prevLocation = il.getLocations().get(0);
-                ctx.setLocation(prevLocation);
-                attr.setString(Tag.RetrieveAETitle, VR.AE, il.getRetrieveAETs());
-                attr.setString(Tag.InstanceAvailability, VR.CS, il.getAvailability().toString());
+                ctx.getLocations().add(prevLocation);
+                ctx.setRetrieveAETs(il.getRetrieveAETs());
+                ctx.setAvailability(il.getAvailability());
                 try {
                     store(ctx, attr);
                     populateResult(refSOPSeq, attr);
@@ -293,6 +303,14 @@ class StoreServiceImpl implements StoreService {
         return matches;
     }
 
+    private void storeMetadata(StoreContext ctx) throws IOException {
+        OutputStream out = openOutputStream(ctx, Location.ObjectType.METADATA);
+        if (out != null)
+            try (JsonGenerator gen = Json.createGenerator(out)) {
+                new JSONWriter(gen).write(ctx.getAttributes());
+            }
+    }
+
     private Set<String> refIUIDs(Sequence refSOPSeq) {
         Set<String> iuids = new HashSet<>(refSOPSeq.size() * 4 / 3 + 1);
         for (Attributes refSOP : refSOPSeq)
@@ -305,10 +323,9 @@ class StoreServiceImpl implements StoreService {
         return iuids == null || iuids.contains(il.getSopInstanceUID());
     }
 
-    private static void cleanup(StoreContext ctx) {
-        if (ctx.getLocation() == null) {
-            WriteContext writeCtx = ctx.getWriteContext();
-            if (writeCtx != null && writeCtx.getStoragePath() != null) {
+    private static void revokeStorage(StoreContext ctx) {
+        for (WriteContext writeCtx : ctx.getWriteContexts()) {
+            if (writeCtx.getStoragePath() != null) {
                 Storage storage = writeCtx.getStorage();
                 try {
                     storage.revokeStorage(writeCtx);
@@ -353,13 +370,11 @@ class StoreServiceImpl implements StoreService {
         attrs.update(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified);
     }
 
-    private Storage getStorage(StoreContext ctx) {
-        // could be extended to support selection of Storage dependent on dataset
-        StoreSession session = ctx.getStoreSession();
-        Storage storage = session.getStorage();
+    private Storage getStorage(StoreSession session, StorageDescriptor descriptor) {
+        Storage storage = session.getStorage(descriptor.getStorageID());
         if (storage == null) {
-            storage = storageFactory.getStorage(session.getArchiveAEExtension().getStorageDescriptor());
-            session.setStorage(storage);
+            storage = storageFactory.getStorage(descriptor);
+            session.putStorage(descriptor.getStorageID(), storage);
         }
         return storage;
     }
@@ -380,18 +395,27 @@ class StoreServiceImpl implements StoreService {
                 transcoder.setCompressParams(compressionRule.getImageWriteParams());
                 storeContext.setStoreTranferSyntax(compressionRule.getTransferSyntax());
             }
-            return openOutputStream(storeContext);
+            return openOutputStream(storeContext, Location.ObjectType.DICOM_FILE);
         }
 
     }
 
-    private OutputStream openOutputStream(StoreContext storeContext) throws IOException {
-        Storage storage = getStorage(storeContext);
+    private OutputStream openOutputStream(StoreContext storeContext, Location.ObjectType objectType)
+            throws IOException {
+        StoreSession session = storeContext.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        StorageDescriptor descriptor = objectType == Location.ObjectType.DICOM_FILE
+                ? arcAE.getStorageDescriptor()
+                : arcAE.getMetadataStorageDescriptor();
+        if (descriptor == null)
+            return null;
+
+        Storage storage = getStorage(session, descriptor);
         WriteContext writeCtx = storage.createWriteContext();
         writeCtx.setAttributes(storeContext.getAttributes());
         writeCtx.setStudyInstanceUID(storeContext.getStudyInstanceUID());
         writeCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
-        storeContext.setWriteContext(writeCtx);
+        storeContext.setWriteContext(objectType, writeCtx);
         return storage.openOutputStream(writeCtx);
     }
 

@@ -832,7 +832,7 @@ class ArchiveDeviceFactory {
             "DSS"
     };
 
-    static final String DCM4CHEE_ARC_VERSION = "5.5.0";
+    static final String DCM4CHEE_ARC_VERSION = "5.6.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -848,6 +848,9 @@ class ArchiveDeviceFactory {
     static final String STORAGE_ID = "fs1";
     static final String STORAGE_URI = "${jboss.server.data.url}/fs1/";
     static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+    static final String METADATA_STORAGE_ID = "metadata";
+    static final String METADATA_STORAGE_URI = "${jboss.server.data.url}/metadata/";
+    static final String METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json";
     static final boolean SEND_PENDING_C_GET = true;
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
@@ -1207,6 +1210,13 @@ class ArchiveDeviceFactory {
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
 
         if (configType == configType.SAMPLE || configType == configType.TEST) {
+            ext.setMetadataStorageID(METADATA_STORAGE_ID);
+            StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
+            metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
+            metadataStorageDescriptor.setProperty("pathFormat", METADATA_PATH_FORMAT);
+            metadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            ext.addStorageDescriptor(metadataStorageDescriptor);
+
             ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
             exportDescriptor.setDescription(EXPORTER_DESC);
             exportDescriptor.setExportURI(EXPORT_URI);

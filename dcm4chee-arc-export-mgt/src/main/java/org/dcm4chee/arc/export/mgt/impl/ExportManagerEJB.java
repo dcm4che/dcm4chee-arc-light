@@ -44,7 +44,7 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getLocation() == null || ctx.getException() != null)
+        if (!ctx.getLocations().isEmpty() || ctx.getException() != null)
             return;
 
         StoreSession session = ctx.getStoreSession();

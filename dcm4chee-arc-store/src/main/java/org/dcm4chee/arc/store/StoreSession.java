@@ -72,9 +72,9 @@ public interface StoreSession extends Closeable {
 
     ArchiveAEExtension getArchiveAEExtension();
 
-    Storage getStorage();
+    Storage getStorage(String storageID);
 
-    void setStorage(Storage storage);
+    void putStorage(String storageID, Storage storage);
 
     String getCalledAET();
 

@@ -79,6 +79,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.get("objectclass").add("dcmArchiveDevice");
         LdapUtils.storeNotNull(attrs, "dcmFuzzyAlgorithmClass", ext.getFuzzyAlgorithmClass());
         LdapUtils.storeNotNull(attrs, "dcmStorageID", ext.getStorageID());
+        LdapUtils.storeNotNull(attrs, "dcmMetadataStorageID", ext.getMetadataStorageID());
         LdapUtils.storeNotNull(attrs, "dcmOverwritePolicy", ext.getOverwritePolicy());
         LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory());
         LdapUtils.storeNotNull(attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID());
@@ -151,6 +152,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass(LdapUtils.stringValue(attrs.get("dcmFuzzyAlgorithmClass"), null));
         ext.setStorageID(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
+        ext.setMetadataStorageID(LdapUtils.stringValue(attrs.get("dcmMetadataStorageID"), null));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
         ext.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
         ext.setQueryRetrieveViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
@@ -225,6 +227,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         LdapUtils.storeDiff(mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass());
         LdapUtils.storeDiff(mods, "dcmStorageID", aa.getStorageID(), bb.getStorageID());
+        LdapUtils.storeDiff(mods, "dcmMetadataStorageID", aa.getMetadataStorageID(), bb.getMetadataStorageID());
         LdapUtils.storeDiff(mods, "dcmOverwritePolicy", aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
         LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());
@@ -406,6 +409,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         attrs.get("objectclass").add("dcmArchiveNetworkAE");
         LdapUtils.storeNotNull(attrs, "dcmStorageID", ext.getStorageID());
+        LdapUtils.storeNotNull(attrs, "dcmMetadataStorageID", ext.getMetadataStorageID());
         LdapUtils.storeNotNull(attrs, "dcmStoreAccessControlID", ext.getStoreAccessControlID());
         LdapUtils.storeNotEmpty(attrs, "dcmAccessControlID", ext.getAccessControlIDs());
         LdapUtils.storeNotNull(attrs, "dcmOverwritePolicy", ext.getOverwritePolicy());
@@ -442,6 +446,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ArchiveAEExtension ext = new ArchiveAEExtension();
         ae.addAEExtension(ext);
         ext.setStorageID(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
+        ext.setMetadataStorageID(LdapUtils.stringValue(attrs.get("dcmMetadataStorageID"), null));
         ext.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
         ext.setAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmAccessControlID")));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
@@ -480,6 +485,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             return;
 
         LdapUtils.storeDiff(mods, "dcmStorageID", aa.getStorageID(), bb.getStorageID());
+        LdapUtils.storeDiff(mods, "dcmMetadataStorageID", aa.getMetadataStorageID(), bb.getMetadataStorageID());
         LdapUtils.storeDiff(mods, "dcmStoreAccessControlID", aa.getStoreAccessControlID(), bb.getStoreAccessControlID());
         LdapUtils.storeDiff(mods, "dcmAccessControlIDs", aa.getAccessControlIDs(), bb.getAccessControlIDs());
         LdapUtils.storeDiff(mods, "dcmOverwritePolicy", aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory());

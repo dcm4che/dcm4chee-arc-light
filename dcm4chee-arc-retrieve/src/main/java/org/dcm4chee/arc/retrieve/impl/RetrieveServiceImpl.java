@@ -395,6 +395,9 @@ public class RetrieveServiceImpl implements RetrieveService {
         predicate.and(QueryBuilder.hideRejectedInstance(ctx.getShowInstancesRejectedByCode(),
                 ctx.isHideNotRejectedInstances()));
         predicate.and(QueryBuilder.hideRejectionNode(ctx.getHideRejectionNotesWithCode()));
+        Location.ObjectType objectType = ctx.getObjectType();
+        if (objectType != null)
+            predicate.and(QLocation.location.objectType.eq(objectType));
         return query.where(predicate);
     }
 

@@ -536,6 +536,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.107 NAME 'dcmStoreUpdateDBMaxRetries
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.108 NAME 'dcmMetadataStorageID'
+  DESC 'ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. If absent, metadata is not stored additionally.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -544,6 +549,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorageID $
     dcmQueryRetrieveViewID )
   MAY (
+    dcmMetadataStorageID $
     dcmOverwritePolicy $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
@@ -609,6 +615,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   SUP top AUXILIARY
   MAY (
     dcmStorageID $
+    dcmMetadataStorageID $
     dcmStoreAccessControlID $
     dcmAccessControlID $
     dcmOverwritePolicy $

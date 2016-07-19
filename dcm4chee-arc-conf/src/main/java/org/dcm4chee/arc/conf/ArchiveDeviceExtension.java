@@ -58,6 +58,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private String fuzzyAlgorithmClass;
     private String storageID;
+    private String metadataStorageID;
     private OverwritePolicy overwritePolicy;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
@@ -182,6 +183,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setStorageID(String storageID) {
         this.storageID = storageID;
+    }
+
+    public String getMetadataStorageID() {
+        return metadataStorageID;
+    }
+
+    public void setMetadataStorageID(String metadataStorageID) {
+        this.metadataStorageID = metadataStorageID;
     }
 
     public String getQueryRetrieveViewID() {
@@ -900,6 +909,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
         storageID = arcdev.storageID;
+        metadataStorageID = arcdev.metadataStorageID;
         overwritePolicy = arcdev.overwritePolicy;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         queryRetrieveViewID = arcdev.queryRetrieveViewID;

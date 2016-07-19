@@ -29,7 +29,7 @@ class StoreSessionImpl implements StoreSession {
     private final ApplicationEntity ae;
     private final Socket socket;
     private final HL7Segment msh;
-    private Storage storage;
+    private final Map<String, Storage> storageMap = new HashMap<>();
     private Study cachedStudy;
     private final Map<String,Series> seriesCache = new HashMap<>();
     private Map<Long,UIDMap> uidMapCache = new HashMap<>();
@@ -76,13 +76,13 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public Storage getStorage() {
-        return storage;
+    public Storage getStorage(String storageID) {
+        return storageMap.get(storageID);
     }
 
     @Override
-    public void setStorage(Storage storage) {
-        this.storage = storage;
+    public void putStorage(String storageID, Storage storage) {
+        storageMap.put(storageID, storage);
     }
 
     @Override
@@ -128,7 +128,8 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public void close() throws IOException {
-        SafeClose.close(storage);
+        for (Storage storage : storageMap.values())
+            SafeClose.close(storage);
     }
 
     @Override

@@ -91,6 +91,8 @@ public class Location {
 
     public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 
+    public enum ObjectType { DICOM_FILE, METADATA }
+
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pk")
@@ -109,7 +111,7 @@ public class Location {
     @Column(name = "storage_path", updatable = false)
     private String storagePath;
 
-    @Basic(optional = false)
+    @Basic(optional = true)
     @Column(name = "tsuid", updatable = false)
     private String transferSyntaxUID;
 
@@ -125,6 +127,11 @@ public class Location {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", updatable = true)
     private Status status;
+
+    @Basic(optional = false)
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "object_type", updatable = false)
+    private ObjectType objectType;
 
     @Column(name = "multi_ref", updatable = true)
     private Integer multiReference;
@@ -145,6 +152,7 @@ public class Location {
         private long size;
         private String digest;
         private Status status = Status.OK;
+        private ObjectType objectType = ObjectType.DICOM_FILE;
 
         public Builder pk(long pk) {
             this.pk = pk;
@@ -185,6 +193,11 @@ public class Location {
             return this;
         }
 
+        public Builder objectType(ObjectType objectType) {
+            this.objectType = objectType;
+            return this;
+        }
+
         public Location build() {
             return new Location(this);
         }
@@ -200,17 +213,19 @@ public class Location {
         size = builder.size;
         digest = builder.digest;
         status = builder.status;
+        objectType = builder.objectType;
     }
 
-    public Location(Location locationOld) {
-        this.createdTime = locationOld.getCreatedTime();
-        this.storageID = locationOld.getStorageID();
-        this.storagePath = locationOld.getStoragePath();
-        this.transferSyntaxUID = locationOld.getTransferSyntaxUID();
-        this.size = locationOld.getSize();
-        this.digest = locationOld.getDigest() != null ? TagUtils.toHexString(locationOld.getDigest()) : null;
-        this.status = locationOld.getStatus();
-        this.multiReference = locationOld.getMultiReference();
+    public Location(Location other) {
+        this.createdTime = other.createdTime;
+        this.storageID = other.storageID;
+        this.storagePath = other.storagePath;
+        this.transferSyntaxUID = other.transferSyntaxUID;
+        this.size = other.size;
+        this.digest = other.digest;
+        this.status = other.status;
+        this.objectType = other.objectType;
+        this.multiReference = other.multiReference;
     }
 
     @PrePersist
@@ -254,6 +269,10 @@ public class Location {
         this.status = status;
     }
 
+    public ObjectType getObjectType() {
+        return objectType;
+    }
+
     public Integer getMultiReference() {
         return multiReference;
     }
@@ -286,6 +305,7 @@ public class Location {
                 + ", tsuid=" + transferSyntaxUID
                 + ", size=" + size
                 + ", status=" + status
+                + ", objectType=" + objectType
                 + "]";
     }
 

@@ -41,28 +41,25 @@
 package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
 
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 class UpdateDBResult {
-    private Location location;
+    private final List<Location> locations = new ArrayList<>();
     private RejectionNote rejectionNote;
     private Instance previousInstance;
+    private Instance createdInstance;
     private Patient createdPatient;
     private Study createdStudy;
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Location getLocation() {
-        return location;
+    public List<Location> getLocations() {
+        return locations;
     }
 
     public void setRejectionNote(RejectionNote rejectionNote) {
@@ -95,5 +92,13 @@ class UpdateDBResult {
 
     public void setCreatedStudy(Study createdStudy) {
         this.createdStudy = createdStudy;
+    }
+
+    public Instance getCreatedInstance() {
+        return createdInstance;
+    }
+
+    public void setCreatedInstance(Instance createdInstance) {
+        this.createdInstance = createdInstance;
     }
 }

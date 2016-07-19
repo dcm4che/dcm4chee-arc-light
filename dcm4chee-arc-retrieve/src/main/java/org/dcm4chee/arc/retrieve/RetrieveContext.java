@@ -47,6 +47,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
@@ -145,6 +146,10 @@ public interface RetrieveContext extends Closeable {
     String[] getSopInstanceUIDs();
 
     void setSopInstanceUIDs(String... sopInstanceUIDs);
+
+    Location.ObjectType getObjectType();
+
+    void setObjectType(Location.ObjectType objectType);
 
     Collection<InstanceLocations> getMatches();
 

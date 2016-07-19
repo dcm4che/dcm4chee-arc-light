@@ -160,7 +160,7 @@ public class StoreServiceEJB {
                         }
                 }
             }
-            if (containsWithEqualDigest(locations, ctx.getWriteContext().getDigest())) {
+            if (containsWithEqualDigest(locations, ctx.getWriteContext(Location.ObjectType.DICOM_FILE).getDigest())) {
                 logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
                 if (rjNote != null) {
                     prevInstance.setRejectionNoteCode(null);
@@ -187,9 +187,12 @@ public class StoreServiceEJB {
         }
 
         Instance instance = createInstance(ctx, conceptNameCode, result);
-        Location location = createLocation(ctx, instance);
+        if (ctx.getLocations().isEmpty())
+            createLocations(ctx, instance, result);
+        else
+            copyLocations(ctx, instance, result);
+
         deleteQueryAttributes(instance);
-        result.setLocation(location);
         return result;
     }
 
@@ -449,7 +452,9 @@ public class StoreServiceEJB {
             updateStudy(ctx, series.getStudy());
             updatePatient(ctx, series.getStudy().getPatient());
         }
-        return createInstance(ctx, series, conceptNameCode);
+        Instance instance = createInstance(ctx, series, conceptNameCode);
+        result.setCreatedInstance(instance);
+        return instance;
     }
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {
@@ -773,93 +778,85 @@ public class StoreServiceEJB {
         setVerifyingObservers(instance, attrs, fuzzyStr);
         instance.setConceptNameCode(conceptNameCode);
         setContentItems(instance, attrs);
-
-        if (ctx.getLocation() != null) {
-            instance.setRetrieveAETs(ctx.getAttributes().getString(Tag.RetrieveAETitle));
-            instance.setAvailability(Availability.valueOf(ctx.getAttributes().getString(Tag.InstanceAvailability)));
-        } else {
-            WriteContext storageContext = ctx.getWriteContext();
-            Storage storage = storageContext.getStorage();
-            StorageDescriptor descriptor = storage.getStorageDescriptor();
-            String[] retrieveAETs = descriptor.getRetrieveAETitles();
-            Availability availability = descriptor.getInstanceAvailability();
-            instance.setRetrieveAETs(
-                    retrieveAETs.length > 0
-                            ? retrieveAETs
-                            : new String[] { session.getLocalApplicationEntity().getAETitle() });
-            instance.setAvailability(availability != null ? availability : Availability.ONLINE);
-        }
-
+        instance.setRetrieveAETs(ctx.getRetrieveAETs());
+        instance.setAvailability(ctx.getAvailability());
         instance.setSeries(series);
         em.persist(instance);
         LOG.info("{}: Create {}", ctx.getStoreSession(), instance);
         return instance;
     }
 
-    private Location createLocation(StoreContext ctx, Instance instance) {
-        return ctx.getLocation() != null ? createLocationClone(ctx, instance) : createLocationNew(ctx, instance);
+    private void createLocations(StoreContext ctx, Instance instance, UpdateDBResult result) {
+        createLocation(ctx, instance, result, Location.ObjectType.DICOM_FILE);
+        createLocation(ctx, instance, result, Location.ObjectType.METADATA);
     }
 
-    private Location createLocationNew(StoreContext ctx, Instance instance) {
-        WriteContext writeContext = ctx.getWriteContext();
+    private void createLocation(StoreContext ctx, Instance instance, UpdateDBResult result,
+                                Location.ObjectType objectType) {
+        WriteContext writeContext = ctx.getWriteContext(objectType);
+        if (writeContext == null)
+            return;
+
         Storage storage = writeContext.getStorage();
         StorageDescriptor descriptor = storage.getStorageDescriptor();
         Location location = new Location.Builder()
                 .storageID(descriptor.getStorageID())
                 .storagePath(writeContext.getStoragePath())
-                .transferSyntaxUID(ctx.getStoreTranferSyntax())
+                .transferSyntaxUID(objectType == Location.ObjectType.DICOM_FILE ? ctx.getStoreTranferSyntax() : null)
                 .size(writeContext.getSize())
                 .digest(writeContext.getDigest())
                 .build();
         location.setInstance(instance);
         em.persist(location);
-        return location;
+        result.getLocations().add(location);
     }
 
-    private Location createLocationClone(StoreContext ctx, Instance instance) {
-        Location prevLocation = em.find(Location.class, ctx.getLocation().getPk());
+    private void copyLocations(StoreContext ctx, Instance instance, UpdateDBResult result) {
+        StoreSession session = ctx.getStoreSession();
+        Map<Long, UIDMap> uidMapCache = session.getUIDMapCache();
+        Map<String, String> uidMap = session.getUIDMap();
+        for (Location prevLocation : ctx.getLocations())
+            result.getLocations().add(copyLocation(prevLocation, instance, uidMap, uidMapCache));
+    }
+
+    private Location copyLocation(
+            Location prevLocation, Instance instance, Map<String, String> uidMap, Map<Long, UIDMap> uidMapCache) {
+        if (prevLocation.getMultiReference() == null) {
+            prevLocation = em.find(Location.class, prevLocation.getPk());
+            prevLocation.setMultiReference(idService.newLocationMultiReference());
+        }
         Location newLocation = new Location(prevLocation);
-        processUIDMapAndMultiReference(prevLocation, newLocation, ctx.getStoreSession());
-        em.merge(prevLocation);
+        newLocation.setUidMap(createUIDMap(uidMap, prevLocation.getUidMap(), uidMapCache));
         newLocation.setInstance(instance);
         em.persist(newLocation);
         return newLocation;
     }
 
-    private void processUIDMapAndMultiReference(Location prevLocation, Location newLocation, StoreSession session) {
-        UIDMap prevUIDMap = null;
-        Map<Long, UIDMap> uidMapCache = session.getUIDMapCache();
-        Map<String, String> result = new HashMap<>();
-        if (prevLocation.getMultiReference() != null) {
-            prevUIDMap = prevLocation.getUidMap();
-            result = foldUIDMaps(prevUIDMap.getUIDMap(), session.getUIDMap(), result);
-            newLocation.setMultiReference(prevLocation.getMultiReference());
-        } else {
-            int locationMultiRef = idService.newLocationMultiReference();
-            prevLocation.setMultiReference(locationMultiRef);
-            newLocation.setMultiReference(locationMultiRef);
-            result = session.getUIDMap();
-        }
+    private UIDMap createUIDMap(Map<String, String> uidMap, UIDMap prevUIDMap, Map<Long, UIDMap> uidMapCache) {
         Long key = prevUIDMap != null ? prevUIDMap.getPk() : null;
-        UIDMap uidMapEntity = uidMapCache.get(key);
-        if (uidMapEntity == null) {
-            uidMapEntity = new UIDMap();
-            uidMapEntity.setUIDMap(result);
-            em.persist(uidMapEntity);
-            uidMapCache.put(key, uidMapEntity);
-        }
-        newLocation.setUidMap(uidMapEntity);
+        UIDMap result = uidMapCache.get(key);
+        if (result != null)
+            return result;
+
+        uidMap = foldUIDMaps(uidMap, prevUIDMap);
+        UIDMap newUIDMap = new UIDMap();
+        newUIDMap.setUIDMap(uidMap);
+        em.persist(newUIDMap);
+        uidMapCache.put(key, newUIDMap);
+        return newUIDMap;
     }
 
-    private Map<String, String> foldUIDMaps(Map<String, String> prevUidMap, Map<String, String> uidMap,
-                                            Map<String, String> result) {
-        for (Map.Entry<String, String> entry  : prevUidMap.entrySet()) {
-            String value = uidMap.get(entry.getValue()) != null ? uidMap.get(entry.getValue()) : entry.getValue();
-            result.put(entry.getKey(), value);
-        }
-        for (Map.Entry<String, String> entry  : uidMap.entrySet()) {
-            if (!prevUidMap.values().contains(entry.getKey()))
-                result.put(entry.getKey(), entry.getValue());
+    private Map<String, String> foldUIDMaps(Map<String, String> uidMap, UIDMap prevUIDMap) {
+        if (prevUIDMap == null)
+            return uidMap;
+
+        Map<String, String> prevUidMap = prevUIDMap.getUIDMap();
+        Map<String, String> result = new HashMap<>(uidMap);
+        for (Map.Entry<String, String> entry : prevUidMap.entrySet()) {
+            String key = entry.getKey();
+            String prevValue = entry.getValue();
+            String value = uidMap.get(prevValue);
+            result.put(key, value != null ? value : prevValue);
         }
         return result;
     }

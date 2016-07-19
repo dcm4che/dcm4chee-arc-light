@@ -58,6 +58,7 @@ import java.util.regex.Pattern;
 public class ArchiveAEExtension extends AEExtension {
     private static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
     private String storageID;
+    private String metadataStorageID;
     private String storeAccessControlID;
     private String[] accessControlIDs = {};
     private OverwritePolicy overwritePolicy;
@@ -100,6 +101,20 @@ public class ArchiveAEExtension extends AEExtension {
         return storageID != null
                 ? storageID
                 : getArchiveDeviceExtension().getStorageID();
+    }
+
+    public String getMetadataStorageID() {
+        return metadataStorageID;
+    }
+
+    public void setMetadataStorageID(String metadataStorageID) {
+        this.metadataStorageID = metadataStorageID;
+    }
+
+    public String metadataStorageID() {
+        return metadataStorageID != null
+                ? metadataStorageID
+                : getArchiveDeviceExtension().getMetadataStorageID();
     }
 
     public String getStoreAccessControlID() {
@@ -518,9 +533,9 @@ public class ArchiveAEExtension extends AEExtension {
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         storageID = aeExt.storageID;
+        metadataStorageID = aeExt.metadataStorageID;
         storeAccessControlID = aeExt.storeAccessControlID;
         accessControlIDs = aeExt.accessControlIDs;
-        storageID = aeExt.storageID;
         overwritePolicy = aeExt.overwritePolicy;
         bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;
         queryRetrieveViewID = aeExt.queryRetrieveViewID;
@@ -560,6 +575,11 @@ public class ArchiveAEExtension extends AEExtension {
 
     public StorageDescriptor getStorageDescriptor() {
         return getArchiveDeviceExtension().getStorageDescriptorNotNull(storageID());
+    }
+
+    public StorageDescriptor getMetadataStorageDescriptor() {
+        String storageID = metadataStorageID();
+        return storageID != null ? getArchiveDeviceExtension().getStorageDescriptorNotNull(storageID) : null;
     }
 
     public Map<String, ExportRule> findExportRules(

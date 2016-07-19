@@ -53,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -135,7 +136,8 @@ class CStoreForwardTask implements Runnable {
     }
 
     private InstanceLocations createInstanceLocations(StoreContext storeCtx) {
-        Location location = storeCtx.getLocation();
+        List<Location> locations = storeCtx.getLocations();
+        Location location = !locations.isEmpty() ? locations.get(0) : null;
         Instance inst = location != null ? location.getInstance() : storeCtx.getPreviousInstance();
         Series series = inst.getSeries();
         Study study = series.getStudy();
