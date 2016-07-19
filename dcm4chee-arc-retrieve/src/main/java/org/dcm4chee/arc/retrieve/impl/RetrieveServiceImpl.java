@@ -109,6 +109,8 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.sopInstanceUID,
             QInstance.instance.retrieveAETs,
             QInstance.instance.availability,
+            QUIDMap.uIDMap.pk,
+            QUIDMap.uIDMap.encodedMap,
             QueryBuilder.instanceAttributesBlob.encodedAttributes
     };
 
@@ -313,7 +315,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private Location loadLocation(Tuple next) {
-        return new Location.Builder()
+        Location location = new Location.Builder()
                 .pk(next.get(QLocation.location.pk))
                 .storageID(next.get(QLocation.location.storageID))
                 .storagePath(next.get(QLocation.location.storagePath))
@@ -322,6 +324,9 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .size(next.get(QLocation.location.size))
                 .status(next.get(QLocation.location.status))
                 .build();
+        if (next.get(QUIDMap.uIDMap.pk) != null)
+            location.setUidMap(next.get(QUIDMap.uIDMap));
+        return location;
     }
 
     private static class SeriesAttributes {
@@ -378,7 +383,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .join(QLocation.location.instance, QInstance.instance)
                 .join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob)
                 .join(QInstance.instance.series, QSeries.series)
-                .join(QSeries.series.study, QStudy.study);
+                .join(QSeries.series.study, QStudy.study)
+                .leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
 
         IDWithIssuer[] pids = ctx.getPatientIDs();
         if (pids.length > 0) {
