@@ -51,6 +51,7 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl.StoreServiceEJB;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -80,6 +81,9 @@ public class DeletionServiceEJB {
 
     @Inject
     private PatientService patientService;
+
+    @Inject
+    private StoreServiceEJB storeEjb;
 
     public List<Location> findLocationsToDelete(String storageID, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
@@ -148,8 +152,7 @@ public class DeletionServiceEJB {
         for (Location location : locations) {
             Instance inst = location.getInstance();
             insts.put(inst.getPk(), inst);
-            location.setInstance(null);
-            location.setStatus(Location.Status.TO_DELETE);
+            storeEjb.processLocation(location);
         }
         HashMap<Long,Series> series = new HashMap<>();
         for (Instance inst : insts.values()) {

@@ -326,11 +326,23 @@ public class StoreServiceEJB {
                 arg);
     }
 
+    public Location processLocation(Location location) {
+        if (location.getMultiReference() != null) {
+            List<Location> loc = em.createNamedQuery(Location.COUNT_BY_MULTI_REF, Location.class)
+                    .setParameter(1, location.getMultiReference()).getResultList();
+            if (loc.size() > 1)
+                em.remove(location);
+        } else {
+            location.setInstance(null);
+            location.setStatus(Location.Status.TO_DELETE);
+        }
+        return location;
+    }
+
     private void deleteInstance(Instance instance, StoreContext ctx) {
         Collection<Location> locations = instance.getLocations();
         for (Location location : locations) {
-            location.setInstance(null);
-            location.setStatus(Location.Status.TO_DELETE);
+            processLocation(location);
         }
         locations.clear();
         Series series = instance.getSeries();
