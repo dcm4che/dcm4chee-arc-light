@@ -243,8 +243,9 @@ class StoreServiceImpl implements StoreService {
                 Attributes attr = il.getAttributes();
                 UIDUtils.remapUIDs(attr, uidMap);
                 StoreContext ctx = newStoreContext(session);
-                Location prevLocation = il.getLocations().get(0);
-                ctx.getLocations().add(prevLocation);
+                for (Location location : il.getLocations()) {
+                    ctx.getLocations().add(location);
+                }
                 ctx.setRetrieveAETs(il.getRetrieveAETs());
                 ctx.setAvailability(il.getAvailability());
                 try {
@@ -286,6 +287,7 @@ class StoreServiceImpl implements StoreService {
             ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
                     sourceStudyUID, refIUIDsBySeriesIUID.keySet().toArray(new String[refIUIDsBySeriesIUID.size()]));
         }
+        ctx.setObjectType(null);
         if (!retrieveService.calculateMatches(ctx))
             return null;
         Collection<InstanceLocations> matches = ctx.getMatches();
