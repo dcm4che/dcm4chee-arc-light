@@ -333,12 +333,20 @@ public class StoreServiceEJB {
         if (location.getMultiReference() != null) {
             List<Location> loc = em.createNamedQuery(Location.COUNT_BY_MULTI_REF, Location.class)
                     .setParameter(1, location.getMultiReference()).getResultList();
+            if (location.getUidMap() != null)
+                em.remove(location.getUidMap());
             if (loc.size() > 1)
                 em.remove(location);
-        } else {
-            location.setInstance(null);
-            location.setStatus(Location.Status.TO_DELETE);
-        }
+            else
+                markToDelete(location);
+        } else
+            markToDelete(location);
+        return location;
+    }
+
+    private Location markToDelete(Location location) {
+        location.setInstance(null);
+        location.setStatus(Location.Status.TO_DELETE);
         return location;
     }
 
