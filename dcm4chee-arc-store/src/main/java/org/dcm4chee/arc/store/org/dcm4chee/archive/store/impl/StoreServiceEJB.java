@@ -343,11 +343,10 @@ public class StoreServiceEJB {
     public Location processLocation(Location location, HashSet<UIDMap> uidMaps) {
         if (location.getMultiReference() != null) {
             UIDMap uidMap = location.getUidMap();
-            if (countLocationsByMultiRef(location.getMultiReference()) > 1) {
-                if (uidMap != null)
-                    uidMaps.add(uidMap);
+            if (uidMap != null)
+                uidMaps.add(uidMap);
+            if (countLocationsByMultiRef(location.getMultiReference()) > 1)
                 em.remove(location);
-            }
             else {
                 if (uidMap != null)
                     location.setUidMap(null);
