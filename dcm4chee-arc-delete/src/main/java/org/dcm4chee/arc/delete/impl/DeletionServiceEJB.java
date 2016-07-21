@@ -60,6 +60,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -149,11 +150,14 @@ public class DeletionServiceEJB {
             return 0;
 
         HashMap<Long,Instance> insts = new HashMap<>();
+        HashSet<UIDMap> uidMaps = new HashSet<>();
         for (Location location : locations) {
             Instance inst = location.getInstance();
             insts.put(inst.getPk(), inst);
-            storeEjb.processLocation(location);
+            storeEjb.processLocation(location, uidMaps);
         }
+        for (UIDMap uidMap : uidMaps)
+            storeEjb.removeOrphaned(uidMap);
         HashMap<Long,Series> series = new HashMap<>();
         for (Instance inst : insts.values()) {
             Series ser = inst.getSeries();

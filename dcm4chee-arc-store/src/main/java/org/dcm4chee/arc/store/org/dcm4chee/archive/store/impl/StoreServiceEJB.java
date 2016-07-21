@@ -329,19 +329,38 @@ public class StoreServiceEJB {
                 arg);
     }
 
-    public Location processLocation(Location location) {
+    private Long countLocationsByMultiRef(Integer multiRef) {
+        return em.createNamedQuery(Location.COUNT_BY_MULTI_REF, Long.class)
+                .setParameter(1, multiRef).getSingleResult();
+    }
+
+    private Long countLocationsByUIDMap(UIDMap uidMap) {
+        Long result = em.createNamedQuery(Location.COUNT_BY_UIDMAP, Long.class)
+                .setParameter(1, uidMap).getSingleResult();
+        return result;
+    }
+
+    public Location processLocation(Location location, HashSet<UIDMap> uidMaps) {
         if (location.getMultiReference() != null) {
-            List<Location> loc = em.createNamedQuery(Location.COUNT_BY_MULTI_REF, Location.class)
-                    .setParameter(1, location.getMultiReference()).getResultList();
-            if (location.getUidMap() != null)
-                em.remove(location.getUidMap());
-            if (loc.size() > 1)
+            UIDMap uidMap = location.getUidMap();
+            if (countLocationsByMultiRef(location.getMultiReference()) > 1) {
+                if (uidMap != null)
+                    uidMaps.add(uidMap);
                 em.remove(location);
-            else
+            }
+            else {
+                if (uidMap != null)
+                    location.setUidMap(null);
                 markToDelete(location);
+            }
         } else
             markToDelete(location);
         return location;
+    }
+
+    public void removeOrphaned(UIDMap uidMap) {
+        if (countLocationsByUIDMap(uidMap) == 0)
+            em.remove(uidMap);
     }
 
     private Location markToDelete(Location location) {
@@ -352,9 +371,12 @@ public class StoreServiceEJB {
 
     private void deleteInstance(Instance instance, StoreContext ctx) {
         Collection<Location> locations = instance.getLocations();
+        HashSet<UIDMap> uidMaps = new HashSet<>();
         for (Location location : locations) {
-            processLocation(location);
+            processLocation(location, uidMaps);
         }
+        for (UIDMap uidMap : uidMaps)
+            removeOrphaned(uidMap);
         locations.clear();
         Series series = instance.getSeries();
         Study study = series.getStudy();

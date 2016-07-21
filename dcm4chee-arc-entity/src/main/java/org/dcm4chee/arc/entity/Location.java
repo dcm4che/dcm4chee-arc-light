@@ -76,7 +76,9 @@ import java.util.Date;
         @NamedQuery(name = Location.FIND_BY_STUDY_UID,
                 query = "select l from Location l where l.instance.series.study.studyInstanceUID=?1"),
         @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
-                query = "select count(l) from Location l where l.multiReference=?1")
+                query = "select count(l) from Location l where l.multiReference=?1"),
+        @NamedQuery(name = Location.COUNT_BY_UIDMAP,
+                query = "select count(l) from Location l where l.uidMap=?1")
 })
 public class Location {
 
@@ -88,6 +90,7 @@ public class Location {
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
     public static final String FIND_BY_STUDY_UID = "Location.FindByStudyUID";
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
+    public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
 
     public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 
