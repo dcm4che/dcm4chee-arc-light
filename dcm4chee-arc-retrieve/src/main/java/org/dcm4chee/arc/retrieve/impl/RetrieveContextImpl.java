@@ -107,7 +107,7 @@ class RetrieveContextImpl implements RetrieveContext {
         this.retrieveService = retrieveService;
         this.arcAE = arcAE;
         this.localAETitle = localAETitle;
-        this.qrView = arcAE.getQueryRetrieveView();
+        this.qrView = qrView;
     }
 
     @Override
