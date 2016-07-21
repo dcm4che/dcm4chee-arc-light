@@ -832,6 +832,7 @@ public class StoreServiceEJB {
                 .storageID(descriptor.getStorageID())
                 .storagePath(writeContext.getStoragePath())
                 .transferSyntaxUID(objectType == Location.ObjectType.DICOM_FILE ? ctx.getStoreTranferSyntax() : null)
+                .objectType(objectType)
                 .size(writeContext.getSize())
                 .digest(writeContext.getDigest())
                 .build();
