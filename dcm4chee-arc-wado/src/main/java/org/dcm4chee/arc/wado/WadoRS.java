@@ -53,6 +53,7 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -335,6 +336,7 @@ public class WadoRS {
             // s. https://issues.jboss.org/browse/RESTEASY-903
             HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
+            ctx.setObjectType(output.getLocationObjectType());
             service.calculateMatches(ctx);
             LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
             if (ctx.getNumberOfMatches() == 0)
@@ -438,6 +440,10 @@ public class WadoRS {
                                    InstanceLocations inst, int[] frameList, int[] attributePath) {
                 wadoRS.writeMetadataXML(output, ctx, inst);
             }
+            @Override
+            public Location.ObjectType getLocationObjectType() {
+                return null;
+            }
         },
         METADATA_JSON {
             @Override
@@ -447,6 +453,10 @@ public class WadoRS {
             @Override
             public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
                 return wadoRS.writeMetadataJSON(ctx);
+            }
+            @Override
+            public Location.ObjectType getLocationObjectType() {
+                return null;
             }
         };
 
@@ -496,6 +506,9 @@ public class WadoRS {
              throw new WebApplicationException(name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE);
         }
 
+        public Location.ObjectType getLocationObjectType() {
+            return Location.ObjectType.DICOM_FILE;
+        }
     }
 
     private void writeBulkdata(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst) {

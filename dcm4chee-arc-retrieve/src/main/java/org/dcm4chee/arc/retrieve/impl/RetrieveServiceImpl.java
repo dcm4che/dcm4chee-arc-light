@@ -109,8 +109,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.sopInstanceUID,
             QInstance.instance.retrieveAETs,
             QInstance.instance.availability,
-            QUIDMap.uIDMap.pk,
-            QUIDMap.uIDMap.encodedMap,
+            QUIDMap.uIDMap,
             QueryBuilder.instanceAttributesBlob.encodedAttributes
     };
 
@@ -324,8 +323,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .size(next.get(QLocation.location.size))
                 .status(next.get(QLocation.location.status))
                 .build();
-        if (next.get(QUIDMap.uIDMap.pk) != null)
-            location.setUidMap(next.get(QUIDMap.uIDMap));
+        location.setUidMap(next.get(QUIDMap.uIDMap));
         return location;
     }
 
@@ -450,12 +448,17 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst) {
-        return new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst));
+        return uidRemap(inst, new MergeAttributesCoercion(inst.getAttributes(), coercion(ctx, inst)));
     }
 
     @Override
     public void updateFailedSOPInstanceUIDList(RetrieveContext ctx, String failedSOPInstanceUIDList) {
         ejb.updateFailedSOPInstanceUIDList(ctx, failedSOPInstanceUIDList);
+    }
+
+    private AttributesCoercion uidRemap(InstanceLocations inst, AttributesCoercion next) {
+        UIDMap uidMap = inst.getLocations().get(0).getUidMap();
+        return uidMap != null ? new RemapUIDsAttributesCoercion(uidMap.getUIDMap(), next) : next;
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {
