@@ -198,9 +198,8 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public RetrieveContext newRetrieveContextIOCM(
             HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs) {
-        RetrieveContext ctx = new RetrieveContextImpl(
-                this, device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class), localAET);
-        initCodes(ctx);
+        ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
+        RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, null);
         ctx.setHttpRequest(request);
         ctx.setStudyInstanceUIDs(studyUID);
         ctx.setSeriesInstanceUIDs(seriesUIDs);
@@ -208,8 +207,8 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
-        RetrieveContext ctx = new RetrieveContextImpl(this,
-                device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class), localAET);
+        ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
+        RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
         initCodes(ctx);
         if (studyUID != null)
             ctx.setStudyInstanceUIDs(studyUID);
@@ -221,8 +220,8 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private RetrieveContext newRetrieveContext(Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
-        RetrieveContext ctx = new RetrieveContextImpl(this,
-                as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class), as.getLocalAET());
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, as.getLocalAET(), arcAE.getQueryRetrieveView());
         ctx.setRequestAssociation(as);
         ctx.setQueryRetrieveLevel(qrLevel);
         initCodes(ctx);
@@ -396,9 +395,11 @@ public class RetrieveServiceImpl implements RetrieveService {
         predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs()));
         predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs()));
         predicate.and(QueryBuilder.uidsPredicate(QInstance.instance.sopInstanceUID, ctx.getSopInstanceUIDs()));
-        predicate.and(QueryBuilder.hideRejectedInstance(ctx.getShowInstancesRejectedByCode(),
-                ctx.isHideNotRejectedInstances()));
-        predicate.and(QueryBuilder.hideRejectionNote(ctx.getHideRejectionNotesWithCode()));
+        if (ctx.getQueryRetrieveView() != null) {
+            predicate.and(QueryBuilder.hideRejectedInstance(ctx.getShowInstancesRejectedByCode(),
+                    ctx.isHideNotRejectedInstances()));
+            predicate.and(QueryBuilder.hideRejectionNote(ctx.getHideRejectionNotesWithCode()));
+        }
         Location.ObjectType objectType = ctx.getObjectType();
         if (objectType != null)
             predicate.and(QLocation.location.objectType.eq(objectType));

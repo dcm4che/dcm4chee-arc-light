@@ -102,7 +102,8 @@ class RetrieveContextImpl implements RetrieveContext {
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
 
-    RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle) {
+    RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
+                        QueryRetrieveView qrView) {
         this.retrieveService = retrieveService;
         this.arcAE = arcAE;
         this.localAETitle = localAETitle;
