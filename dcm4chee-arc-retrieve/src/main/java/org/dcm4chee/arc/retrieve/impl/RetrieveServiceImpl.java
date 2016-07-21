@@ -398,7 +398,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         predicate.and(QueryBuilder.uidsPredicate(QInstance.instance.sopInstanceUID, ctx.getSopInstanceUIDs()));
         predicate.and(QueryBuilder.hideRejectedInstance(ctx.getShowInstancesRejectedByCode(),
                 ctx.isHideNotRejectedInstances()));
-        predicate.and(QueryBuilder.hideRejectionNode(ctx.getHideRejectionNotesWithCode()));
+        predicate.and(QueryBuilder.hideRejectionNote(ctx.getHideRejectionNotesWithCode()));
         Location.ObjectType objectType = ctx.getObjectType();
         if (objectType != null)
             predicate.and(QLocation.location.objectType.eq(objectType));

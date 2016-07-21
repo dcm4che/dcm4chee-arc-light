@@ -502,10 +502,10 @@ public class QueryBuilder {
     }
 
     public static Predicate hideRejectionNote(QueryParam queryParam) {
-        return hideRejectionNode(queryParam.getHideRejectionNotesWithCode());
+        return hideRejectionNote(queryParam.getHideRejectionNotesWithCode());
     }
 
-    public static Predicate hideRejectionNode(CodeEntity[] codes) {
+    public static Predicate hideRejectionNote(CodeEntity[] codes) {
         if (codes.length == 0)
             return null;
 
