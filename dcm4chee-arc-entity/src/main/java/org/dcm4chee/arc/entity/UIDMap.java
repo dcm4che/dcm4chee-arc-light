@@ -83,7 +83,7 @@ public class UIDMap {
         encodedMap = encodeUIDMap(cachedMap = uidmap);
     }
 
-    public byte[] getEncodedUIDMap() {
+    public byte[] getEncodedMap() {
         return encodedMap;
     }
 
