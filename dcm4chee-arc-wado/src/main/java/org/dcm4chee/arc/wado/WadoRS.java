@@ -45,15 +45,10 @@ import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.Dimse;
-import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -73,7 +68,6 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
-import javax.xml.transform.Templates;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -336,7 +330,8 @@ public class WadoRS {
             // s. https://issues.jboss.org/browse/RESTEASY-903
             HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
-            ctx.setObjectType(output.getLocationObjectType());
+            if (output.isMetadata())
+                ctx.setObjectType(null);
             service.calculateMatches(ctx);
             LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
             if (ctx.getNumberOfMatches() == 0)
@@ -441,8 +436,8 @@ public class WadoRS {
                 wadoRS.writeMetadataXML(output, ctx, inst);
             }
             @Override
-            public Location.ObjectType getLocationObjectType() {
-                return null;
+            public boolean isMetadata() {
+                return true;
             }
         },
         METADATA_JSON {
@@ -455,8 +450,8 @@ public class WadoRS {
                 return wadoRS.writeMetadataJSON(ctx);
             }
             @Override
-            public Location.ObjectType getLocationObjectType() {
-                return null;
+            public boolean isMetadata() {
+                return true;
             }
         };
 
@@ -506,8 +501,8 @@ public class WadoRS {
              throw new WebApplicationException(name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE);
         }
 
-        public Location.ObjectType getLocationObjectType() {
-            return Location.ObjectType.DICOM_FILE;
+        public boolean isMetadata() {
+            return false;
         }
     }
 
@@ -742,10 +737,66 @@ public class WadoRS {
 
     private Attributes loadAttrsWithBulkdataURI(RetrieveContext ctx, InstanceLocations inst) throws Exception {
         Attributes attrs;
-        final ArrayList<BulkData> bulkDataList = new ArrayList<>();
+        final List<BulkData> bulkDataList = new ArrayList<>();
         StringBuffer sb = request.getRequestURL();
         sb.setLength(sb.lastIndexOf("/metadata"));
         mkInstanceURL(sb, inst);
+        attrs = loadAttrsFromMetadata(ctx, inst, bulkDataList, sb);
+        if (attrs == null)
+            attrs = loadAttrsFromDicomFile(ctx, inst, bulkDataList, sb);
+        sb.append("/bulkdata");
+        int length = sb.length();
+        for (BulkData bulkData : bulkDataList) {
+            sb.append(bulkData.getURI());
+            bulkData.setURI(sb.toString());
+            sb.setLength(length);
+        }
+        service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
+        return attrs;
+    }
+
+    private Attributes loadAttrsFromMetadata(
+            RetrieveContext ctx, InstanceLocations inst, final List<BulkData> bulkDataList, final StringBuffer sb)
+            throws IOException {
+        Attributes attrs = service.loadMetadata(ctx, inst);
+        if (attrs != null)
+            try {
+                final List<ItemPointer> itemPointers = new ArrayList<>(4);
+                attrs.accept(new Attributes.SequenceVisitor() {
+                    @Override
+                    public void startItem(int sqTag, int itemIndex) {
+                        itemPointers.add(new ItemPointer(sqTag, itemIndex));
+                    }
+
+                    @Override
+                    public void endItem() {
+                        itemPointers.remove(itemPointers.size()-1);
+                    }
+
+                    @Override
+                    public boolean visit(Attributes attrs, int tag, VR vr, Object value) {
+                        if (value instanceof BulkData) {
+                            BulkData bulkData = (BulkData) value;
+                            if (tag == Tag.PixelData && itemPointers.isEmpty()) {
+                                bulkData.setURI(sb.toString());
+                            } else {
+                                bulkData.setURI(DicomInputStream.toAttributePath(itemPointers, tag));
+                                bulkDataList.add(bulkData);
+                            }
+                        }
+                        return true;
+                    }
+                }, true);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        return attrs;
+    }
+
+    private Attributes loadAttrsFromDicomFile(
+            RetrieveContext ctx, InstanceLocations inst, final List<BulkData> bulkDataList, StringBuffer sb)
+            throws IOException {
+        Attributes attrs;
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
             dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
             dis.setBulkDataCreator(new BulkDataCreator() {
@@ -762,14 +813,6 @@ public class WadoRS {
                 attrs.setValue(Tag.PixelData, dis.vr(), new BulkData(null, sb.toString(), dis.bigEndian()));
             }
         }
-        sb.append("/bulkdata");
-        int length = sb.length();
-        for (BulkData bulkData : bulkDataList) {
-            sb.append(bulkData.getURI());
-            bulkData.setURI(sb.toString());
-            sb.setLength(length);
-        }
-        service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
         return attrs;
     }
 

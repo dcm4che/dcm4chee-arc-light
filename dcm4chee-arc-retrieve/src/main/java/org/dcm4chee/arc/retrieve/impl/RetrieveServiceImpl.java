@@ -51,6 +51,7 @@ import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
+import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
@@ -76,6 +77,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonParser;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
@@ -83,6 +86,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -99,6 +103,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             QLocation.location.pk,
             QLocation.location.storageID,
             QLocation.location.storagePath,
+            QLocation.location.objectType,
             QLocation.location.transferSyntaxUID,
             QLocation.location.digest,
             QLocation.location.size,
@@ -317,6 +322,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .pk(next.get(QLocation.location.pk))
                 .storageID(next.get(QLocation.location.storageID))
                 .storagePath(next.get(QLocation.location.storagePath))
+                .objectType(next.get(QLocation.location.objectType))
                 .transferSyntaxUID(next.get(QLocation.location.transferSyntaxUID))
                 .digest(next.get(QLocation.location.digest))
                 .size(next.get(QLocation.location.size))
@@ -432,6 +438,23 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
+    public Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+        IOException ex = null;
+        String studyInstanceUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
+        for (Location location : inst.getLocations()) {
+            if (location.getObjectType() == Location.ObjectType.METADATA)
+                try (JsonParser parser = Json.createParser(
+                        new InputStreamReader(openInputStream(ctx, location, studyInstanceUID), "UTF-8"))) {
+                    return new JSONReader(parser).readDataset(null);
+                } catch (IOException e) {
+                    ex = e;
+                }
+        }
+        if (ex != null) throw ex;
+        return null;
+    }
+
+    @Override
     public Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx) {
         ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
         Collection<InstanceLocations> matches = ctx.getMatches();
@@ -500,13 +523,15 @@ public class RetrieveServiceImpl implements RetrieveService {
         IOException ex = null;
         String studyInstanceUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
         for (Location location : inst.getLocations()) {
-            try {
-                return openLocationInputStream(ctx, location, studyInstanceUID);
-            } catch (IOException e) {
-                ex = e;
-            }
+            if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
+                try {
+                    return openLocationInputStream(ctx, location, studyInstanceUID);
+                } catch (IOException e) {
+                    ex = e;
+                }
         }
-        throw ex;
+        if (ex != null) throw ex;
+        return null;
     }
 
     private LocationDicomInputStream openLocationInputStream(
@@ -525,6 +550,14 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
     }
 
+    private InputStream openInputStream(RetrieveContext ctx, Location location, String studyInstanceUID)
+            throws IOException {
+        Storage storage = getStorage(ctx, location.getStorageID());
+        ReadContext readContext = storage.createReadContext();
+        readContext.setStoragePath(location.getStoragePath());
+        readContext.setStudyInstanceUID(studyInstanceUID);
+        return storage.openInputStream(readContext);
+    }
 
     private Storage getStorage(RetrieveContext ctx, String storageID) {
         Storage storage = ctx.getStorage(storageID);

@@ -103,6 +103,7 @@ class StoreServiceImpl implements StoreService {
                     : new Transcoder(data)) {
                 ctx.setReceiveTransferSyntax(transcoder.getSourceTransferSyntax());
                 transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+                transcoder.setPixelDataBulkDataURI("");
                 transcoder.setConcatenateBulkDataFiles(true);
                 transcoder.setBulkDataDirectory(
                         ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
@@ -307,10 +308,27 @@ class StoreServiceImpl implements StoreService {
 
     private void storeMetadata(StoreContext ctx) throws IOException {
         OutputStream out = openOutputStream(ctx, Location.ObjectType.METADATA);
-        if (out != null)
+        if (out != null) {
+            Attributes attrs = ctx.getAttributes();
+            clearBulkDataURIs(attrs);
             try (JsonGenerator gen = Json.createGenerator(out)) {
-                new JSONWriter(gen).write(ctx.getAttributes());
+                new JSONWriter(gen).write(attrs);
             }
+        }
+    }
+
+    private void clearBulkDataURIs(Attributes attrs) {
+        try {
+            attrs.accept(new Attributes.Visitor() {
+                @Override
+                public boolean visit(Attributes attrs1, int tag, VR vr, Object value) throws Exception {
+                    if (value instanceof BulkData) ((BulkData) value).setURI("");
+                    return true;
+                }
+            }, true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Set<String> refIUIDs(Sequence refSOPSeq) {

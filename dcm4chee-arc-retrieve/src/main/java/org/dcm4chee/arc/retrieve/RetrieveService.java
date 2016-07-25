@@ -86,6 +86,8 @@ public interface RetrieveService {
 
     DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException;
 
+    Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException;
+
     Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx);
 
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst);
