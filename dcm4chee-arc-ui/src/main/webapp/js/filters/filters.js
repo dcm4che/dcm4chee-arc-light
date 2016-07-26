@@ -90,7 +90,7 @@ myApp.filter("formatAttributeValue", function() {
                     return el.Value.join();
             }
         }
-        return "";
+        return el.BulkDataURI || "";
     };
 });
 
