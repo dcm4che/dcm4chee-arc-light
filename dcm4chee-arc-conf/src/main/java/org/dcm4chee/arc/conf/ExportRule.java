@@ -11,13 +11,6 @@ import java.util.Calendar;
  */
 public class ExportRule {
 
-    public ExportRule() {
-    }
-
-//    private final String commonName;
-
-
-
     private String commonName;
 
     private ScheduleExpression[] schedules = {};
@@ -30,9 +23,8 @@ public class ExportRule {
 
     private Duration exportDelay;
 
-//    public ExportRule(String commonName) {
-//        this.commonName = commonName;
-//    }
+    public ExportRule() {
+    }
 
     public ExportRule(String commonName) {
         setCommonName(commonName);
