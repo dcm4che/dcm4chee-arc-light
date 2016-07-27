@@ -55,7 +55,7 @@ import java.util.List;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
-public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtension {
+public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
     @Override
     public void storeTo(HL7Application hl7App, String deviceDN, Attributes attrs) {
         ArchiveHL7ApplicationExtension ext =
