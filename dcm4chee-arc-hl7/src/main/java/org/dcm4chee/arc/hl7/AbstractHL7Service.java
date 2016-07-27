@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
 
@@ -51,7 +52,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import javax.inject.Inject;
 import java.io.*;
 import java.net.Socket;
 
@@ -60,6 +61,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 
 
@@ -74,12 +76,16 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         super(messageTypes);
     }
 
+    @Inject
+    HL7Sender hl7sender;
+
     @Override
     public byte[] onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
             throws HL7Exception {
         ArchiveHL7ApplicationExtension arcHl7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         log(msg, arcHl7App.hl7LogFilePattern());
+        forwardHL7(arcHl7App, s, msg);
         try {
             try {
                 process(hl7App, s, msg);
@@ -93,6 +99,16 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
             throw e;
         }
         return super.onMessage(hl7App, conn, s, msg);
+    }
+
+    private void forwardHL7(ArchiveHL7ApplicationExtension arcHL7App, Socket s, UnparsedHL7Message msg) {
+        String host = s.getLocalAddress().getHostName();
+        HL7Segment msh = msg.msh();
+        byte[] hl7msg = msg.data();
+        Collection<String> destinations = arcHL7App.forwardDestinations(host, msh);
+        if (!destinations.isEmpty())
+            hl7sender.forwardMessage(msh, hl7msg,
+                    destinations.toArray(new String[destinations.size()]));
     }
 
     private void log(UnparsedHL7Message msg, String dirpath) {
