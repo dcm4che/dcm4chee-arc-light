@@ -40,8 +40,6 @@
 
 package org.dcm4chee.arc.hl7;
 
-import org.apache.commons.io.FileUtils;
-import org.dcm4che3.data.UID;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
 

@@ -335,7 +335,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (HL7ForwardRule rule : rules) {
             writer.writeStartObject();
             writer.writeNotNull("cn", rule.getCommonName());
-            writer.writeNotNull("hl7FwdApplicationName", rule.getDestinations());
+            writer.writeNotEmpty("hl7FwdApplicationName", rule.getDestinations());
             writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
             writer.writeEnd();
         }
@@ -1058,7 +1058,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         rule.setCommonName(reader.stringValue());
                         break;
                     case "hl7FwdApplicationName":
-                        rule.setDestinations(reader.stringValue());
+                        rule.setDestinations(reader.stringArray());
                         break;
                     case "dcmProperty":
                         rule.setConditions(new HL7Conditions(reader.stringArray()));

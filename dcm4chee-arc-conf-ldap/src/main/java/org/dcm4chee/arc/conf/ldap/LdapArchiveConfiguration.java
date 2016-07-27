@@ -1072,7 +1072,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private static Attributes storeTo(HL7ForwardRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "hl7ForwardRule");
         attrs.put("cn", rule.getCommonName());
-        LdapUtils.storeNotNull(attrs, "hl7FwdApplicationName", rule.getDestinations());
+        LdapUtils.storeNotEmpty(attrs, "hl7FwdApplicationName", rule.getDestinations());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
         return attrs;
     }
