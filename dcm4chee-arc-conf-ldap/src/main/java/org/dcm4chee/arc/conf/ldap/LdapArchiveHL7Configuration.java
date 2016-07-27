@@ -73,6 +73,11 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
     }
 
     @Override
+    public void storeChilds(String appDN, HL7Application hl7App) throws NamingException {
+
+    }
+
+    @Override
     public void loadFrom(HL7Application hl7App, Attributes attrs)
             throws NamingException {
         if (!LdapUtils.hasObjectClass(attrs, "dcmArchiveHL7Application"))
@@ -86,6 +91,11 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         ext.setHl7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
         ext.setHl7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+    }
+
+    @Override
+    public void loadChilds(HL7Application hl7App, String appDN) throws NamingException {
+
     }
 
     @Override
@@ -108,5 +118,10 @@ public class LdapArchiveHL7Configuration implements LdapHL7ConfigurationExtensio
         LdapUtils.storeDiff(mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern());
         LdapUtils.storeDiff(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern());
         LdapUtils.storeDiff(mods, "dcmOtherAETitle", aa.getAETitle(), bb.getAETitle());
+    }
+
+    @Override
+    public void mergeChilds(HL7Application prev, HL7Application hl7App, String appDN) throws NamingException {
+
     }
 }
