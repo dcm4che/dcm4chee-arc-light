@@ -438,6 +438,12 @@
       "items" : {
         "$ref": "idGenerator.schema.json"
       }
+    },
+    "hl7ForwardRule": {
+      "type": "array",
+      "items" : {
+        "$ref": "hl7ForwardRule.schema.json"
+      }
     }
   }
 }

@@ -356,6 +356,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeRejectNotes(deviceDN, arcDev);
         storeStudyRetentionPolicies(arcDev.getStudyRetentionPolicies(), deviceDN);
         storeIDGenerators(deviceDN, arcDev);
+        storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN);
     }
 
     @Override
@@ -376,6 +377,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadRejectNotes(arcdev, deviceDN);
         loadStudyRetentionPolicies(arcdev.getStudyRetentionPolicies(), deviceDN);
         loadIDGenerators(arcdev, deviceDN);
+        loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN);
     }
 
     @Override
@@ -399,6 +401,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeRejectNotes(aa, bb, deviceDN);
         mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
         mergeIDGenerators(aa, bb, deviceDN);
+        mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN);
     }
 
     @Override
@@ -1034,6 +1037,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    public void storeHL7ForwardRules(Collection<HL7ForwardRule> rules, String parentDN)
+            throws NamingException{
+        for (HL7ForwardRule rule : rules) {
+            String cn = rule.getCommonName();
+            config.createSubcontext(
+                    LdapUtils.dnOf("cn", cn, parentDN),
+                    storeTo(rule, new BasicAttributes(true)));
+        }
+    }
+
     private Attributes storeTo(ArchiveCompressionRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmArchiveCompressionRule");
         attrs.put("cn", rule.getCommonName());
@@ -1051,6 +1064,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmRetentionPeriod", policy.getRetentionPeriod());
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", policy.getPriority(), 0);
         LdapUtils.storeNotDef(attrs, "dcmExpireSeriesIndividually", policy.isExpireSeriesIndividually(), false);
+        return attrs;
+    }
+
+    private Attributes storeTo(HL7ForwardRule rule, BasicAttributes attrs) {
+        attrs.put("objectclass", "hl7ForwardRule");
+        attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotNull(attrs, "hl7FwdApplicationName", rule.getDestinations());
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
         return attrs;
     }
 
@@ -1086,6 +1107,23 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 policy.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 policy.setExpireSeriesIndividually(LdapUtils.booleanValue(attrs.get("dcmExpireSeriesIndividually"), false));
                 policies.add(policy);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadHL7ForwardRules(Collection<HL7ForwardRule> rules, String parentDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7ForwardRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                HL7ForwardRule rule = new HL7ForwardRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setDestinations(LdapUtils.stringArray(attrs.get("hl7FwdApplicationName")));
+                rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                rules.add(rule);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -1130,6 +1168,25 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeHL7ForwardRules(
+            Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules, String parentDN)
+            throws NamingException {
+        for (HL7ForwardRule prevRule : prevRules) {
+            String cn = prevRule.getCommonName();
+            if (findHL7ForwardRuleByCN(rules, cn) == null)
+                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+        }
+        for (HL7ForwardRule rule : rules) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            HL7ForwardRule prevRule = findHL7ForwardRuleByCN(prevRules, cn);
+            if (prevRule == null)
+                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+        }
+    }
+
     private void mergeAttributeCoercions(
             Collection<ArchiveAttributeCoercion> prevCoercions,
             Collection<ArchiveAttributeCoercion> coercions,
@@ -1169,6 +1226,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private List<ModificationItem> storeDiffs(
+            HL7ForwardRule prev, HL7ForwardRule rule, ArrayList<ModificationItem> mods) {
+        storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
+        LdapUtils.storeDiff(mods, "hl7FwdApplicationName", prev.getDestinations(), rule.getDestinations());
+        return mods;
+    }
+
     private ArchiveCompressionRule findCompressionRuleByCN(Collection<ArchiveCompressionRule> rules, String cn) {
         for (ArchiveCompressionRule rule : rules)
             if (rule.getCommonName().equals(cn))
@@ -1180,6 +1244,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (StudyRetentionPolicy policy : policies)
             if (policy.getCommonName().equals(cn))
                 return policy;
+        return null;
+    }
+
+    private HL7ForwardRule findHL7ForwardRuleByCN(Collection<HL7ForwardRule> rules, String cn) {
+        for (HL7ForwardRule rule : rules)
+            if (rule.getCommonName().equals(cn))
+                return rule;
         return null;
     }
 

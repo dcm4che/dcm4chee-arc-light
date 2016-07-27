@@ -34,6 +34,12 @@
       "title": "AE Title",
       "description": "Associated AE Title.",
       "type": "string"
+    },
+    "hl7ForwardRule": {
+      "type": "array",
+      "items" : {
+        "$ref": "hl7ForwardRule.schema.json"
+      }
     }
   }
 }

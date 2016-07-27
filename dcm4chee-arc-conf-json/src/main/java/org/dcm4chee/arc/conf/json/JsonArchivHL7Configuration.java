@@ -28,6 +28,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNull("hl7LogFilePattern", ext.getHl7LogFilePattern());
         writer.writeNotNull("hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern());
         writer.writeNotNull("dicomAETitle", ext.getAETitle());
+        JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         writer.writeEnd();
     }
 
@@ -65,6 +66,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "dicomAETitle":
                     ext.setAETitle(reader.stringValue());
+                    break;
+                case "hl7ForwardRule":
+                    JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();

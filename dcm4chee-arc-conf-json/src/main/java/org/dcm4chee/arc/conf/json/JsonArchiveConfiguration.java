@@ -47,6 +47,7 @@ import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ValueSelector;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4che3.data.Code;
@@ -147,6 +148,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeRejectionNote(writer, arcDev.getRejectionNotes());
         writeStudyRetentionPolicy(writer, arcDev.getStudyRetentionPolicies());
         writeIDGenerators(writer, arcDev);
+        writeHL7ForwardRules(writer, arcDev.getHL7ForwardRules());
         writer.writeEnd();
     }
 
@@ -270,7 +272,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private String[] toStrings(Map<String, ?> props) {
+    private static String[] toStrings(Map<String, ?> props) {
         String[] ss = new String[props.size()];
         int i = 0;
         for (Map.Entry<String, ?> entry : props.entrySet())
@@ -323,6 +325,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeNotNull("dcmExpireSeriesIndividually", srp.isExpireSeriesIndividually());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected static void writeHL7ForwardRules(JsonWriter writer, Collection<HL7ForwardRule> rules) {
+        writer.writeStartArray("hl7ForwardRule");
+        for (HL7ForwardRule rule : rules) {
+            writer.writeStartObject();
+            writer.writeNotNull("cn", rule.getCommonName());
+            writer.writeNotNull("hl7FwdApplicationName", rule.getDestinations());
+            writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -622,6 +636,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIDGenerator":
                     loadIDGenerators(arcDev, reader);
+                    break;
+                case "hl7ForwardRule":
+                    loadHL7ForwardRules(arcDev.getHL7ForwardRules(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -1025,6 +1042,33 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             policies.add(srp);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    static void loadHL7ForwardRules(Collection<HL7ForwardRule> rules, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            HL7ForwardRule rule = new HL7ForwardRule();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        rule.setCommonName(reader.stringValue());
+                        break;
+                    case "hl7FwdApplicationName":
+                        rule.setDestinations(reader.stringValue());
+                        break;
+                    case "dcmProperty":
+                        rule.setConditions(new HL7Conditions(reader.stringArray()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            rules.add(rule);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
