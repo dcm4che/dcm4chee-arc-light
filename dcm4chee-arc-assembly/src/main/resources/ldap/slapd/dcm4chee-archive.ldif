@@ -541,6 +541,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.108 NAME 'dcmMetadataStorageID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.109 NAME 'hl7FwdApplicationName'
+  DESC 'HL7 Forward Destination Application and Facility name (Application^Facility)'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -771,7 +776,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
   MAY (
     dcmRulePriority $
     dcmProperty $
-    dcmExpireSeriesIndividually) )
+    dcmExpireSeriesIndividually ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
   DESC 'ID Generator'
   SUP top STRUCTURAL
@@ -780,3 +785,11 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
     dcmIDGeneratorFormat )
   MAY (
     dcmIDGeneratorInitialValue ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.22 NAME 'hl7ForwardRule'
+  DESC 'HL7 Forward Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    hl7FwdApplicationName )
+  MAY (
+    dcmProperty ) )

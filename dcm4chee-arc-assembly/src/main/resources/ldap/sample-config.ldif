@@ -994,6 +994,17 @@ objectClass: dcmStorage
 dcmStorageID: fs1
 dcmURI: ${jboss.server.data.url}/fs1/
 
+dn: dcmQueueName=HL7Send,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Forward HL7 Tasks
+dcmQueueName: HL7Send
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/HL7Send
+
 dn: dcmQueueName=IANSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: IAN Tasks
 dcmQueueName: IANSCU

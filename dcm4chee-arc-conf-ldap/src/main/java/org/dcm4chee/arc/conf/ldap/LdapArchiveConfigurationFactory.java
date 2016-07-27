@@ -44,6 +44,9 @@ import org.dcm4che3.conf.api.ApplicationEntityCache;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.conf.api.hl7.HL7ApplicationCache;
+import org.dcm4che3.conf.api.hl7.HL7Configuration;
+import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.conf.ldap.LdapDicomConfiguration;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.audit.LdapAuditLoggerConfiguration;
@@ -122,6 +125,12 @@ public class LdapArchiveConfigurationFactory {
     @ApplicationScoped
     public IApplicationEntityCache newApplicationEntityCache(DicomConfiguration conf) {
         return new ApplicationEntityCache(conf);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public IHL7ApplicationCache newHL7ApplicationCache(DicomConfiguration conf) {
+        return new HL7ApplicationCache(conf.getDicomConfigurationExtension(HL7Configuration.class));
     }
 
     private static Properties loadProperties(URL url) throws IOException {

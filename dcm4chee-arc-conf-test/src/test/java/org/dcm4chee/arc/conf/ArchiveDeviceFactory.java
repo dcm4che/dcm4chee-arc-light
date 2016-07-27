@@ -145,7 +145,8 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("StgCmtSCP", "Storage Commitment Tasks"),
         newQueueDescriptor("Export1", "Dicom Export Tasks (1)"),
         newQueueDescriptor("Export2", "Dicom Export Tasks (2)"),
-        newQueueDescriptor("Export3", "XDS-I Export Tasks")
+        newQueueDescriptor("Export3", "XDS-I Export Tasks"),
+        newQueueDescriptor("HL7Send", "Forward HL7 Tasks")
     };
 
     static QueueDescriptor newQueueDescriptor(String name, String description) {
@@ -1240,6 +1241,11 @@ class ArchiveDeviceFactory {
                 exportRule.setSchedules(ScheduleExpression.valueOf("hour=3 dayOfWeek=2"));
             }
             ext.addExportRule(exportRule);
+
+            HL7ForwardRule hl7ForwardRule = new HL7ForwardRule("Forward to HL7RCV|DCM4CHEE");
+            hl7ForwardRule.getConditions().setCondition("MSH-3", "FORWARD");
+            hl7ForwardRule.setDestinations(PIX_MANAGER);
+            ext.addHL7ForwardRule(hl7ForwardRule);
 
             ext.addCompressionRule(JPEG_BASELINE);
             ext.addCompressionRule(JPEG_EXTENDED);
