@@ -44,7 +44,6 @@ import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.conf.ldap.hl7.LdapHL7ConfigurationExtension;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
@@ -74,7 +73,12 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
 
     @Override
     public void storeChilds(String appDN, HL7Application hl7App) throws NamingException {
+        ArchiveHL7ApplicationExtension ext =
+                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        if (ext == null)
+            return;
 
+        LdapArchiveConfiguration.storeHL7ForwardRules(ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
     }
 
     @Override
@@ -95,7 +99,12 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
 
     @Override
     public void loadChilds(HL7Application hl7App, String appDN) throws NamingException {
+        ArchiveHL7ApplicationExtension ext =
+                hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        if (ext == null)
+            return;
 
+        LdapArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
     }
 
     @Override
@@ -122,6 +131,13 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
 
     @Override
     public void mergeChilds(HL7Application prev, HL7Application hl7App, String appDN) throws NamingException {
+        ArchiveHL7ApplicationExtension aa = prev.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        ArchiveHL7ApplicationExtension bb = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        if (aa == null || bb == null)
+            return;
 
+        LdapArchiveConfiguration.mergeHL7ForwardRules(
+                aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), appDN, getDicomConfiguration());
     }
+
 }

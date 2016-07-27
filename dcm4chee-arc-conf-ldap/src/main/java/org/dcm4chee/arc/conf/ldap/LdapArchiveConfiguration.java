@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf.ldap;
 
 import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.ldap.LdapDicomConfiguration;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
 import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.data.*;
@@ -356,7 +357,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeRejectNotes(deviceDN, arcDev);
         storeStudyRetentionPolicies(arcDev.getStudyRetentionPolicies(), deviceDN);
         storeIDGenerators(deviceDN, arcDev);
-        storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN);
+        storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN, config);
     }
 
     @Override
@@ -377,7 +378,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadRejectNotes(arcdev, deviceDN);
         loadStudyRetentionPolicies(arcdev.getStudyRetentionPolicies(), deviceDN);
         loadIDGenerators(arcdev, deviceDN);
-        loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN);
+        loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN, config);
     }
 
     @Override
@@ -401,7 +402,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeRejectNotes(aa, bb, deviceDN);
         mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
         mergeIDGenerators(aa, bb, deviceDN);
-        mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN);
+        mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
     }
 
     @Override
@@ -691,7 +692,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private String[] toStrings(Map<String, ?> props) {
+    private static String[] toStrings(Map<String, ?> props) {
         String[] ss = new String[props.size()];
         int i = 0;
         for (Map.Entry<String, ?> entry : props.entrySet())
@@ -755,7 +756,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private void storeDiffProperties(List<ModificationItem> mods, Map<String, ?> prev, Map<String, ?> props) {
+    private static void storeDiffProperties(List<ModificationItem> mods, Map<String, ?> prev, Map<String, ?> props) {
         if (!prev.equals(props)) {
             mods.add(props.size() == 0
                     ? new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
@@ -1037,7 +1038,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    public void storeHL7ForwardRules(Collection<HL7ForwardRule> rules, String parentDN)
+    protected static void storeHL7ForwardRules(
+            Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
             throws NamingException{
         for (HL7ForwardRule rule : rules) {
             String cn = rule.getCommonName();
@@ -1067,7 +1069,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private Attributes storeTo(HL7ForwardRule rule, BasicAttributes attrs) {
+    private static Attributes storeTo(HL7ForwardRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "hl7ForwardRule");
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotNull(attrs, "hl7FwdApplicationName", rule.getDestinations());
@@ -1113,7 +1115,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void loadHL7ForwardRules(Collection<HL7ForwardRule> rules, String parentDN)
+    protected static void loadHL7ForwardRules(
+            Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7ForwardRule)");
         try {
@@ -1168,8 +1171,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void mergeHL7ForwardRules(
-            Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules, String parentDN)
+    protected static void mergeHL7ForwardRules(Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules,
+               String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7ForwardRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
@@ -1226,7 +1229,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private List<ModificationItem> storeDiffs(
+    private static List<ModificationItem> storeDiffs(
             HL7ForwardRule prev, HL7ForwardRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(mods, "hl7FwdApplicationName", prev.getDestinations(), rule.getDestinations());
@@ -1247,7 +1250,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return null;
     }
 
-    private HL7ForwardRule findHL7ForwardRuleByCN(Collection<HL7ForwardRule> rules, String cn) {
+    private static HL7ForwardRule findHL7ForwardRuleByCN(Collection<HL7ForwardRule> rules, String cn) {
         for (HL7ForwardRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
