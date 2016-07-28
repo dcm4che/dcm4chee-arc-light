@@ -84,6 +84,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String storePermissionServiceURL;
     private Pattern storePermissionServiceResponsePattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
+    private AllowDeletePatient allowDeletePatient;
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -463,6 +464,21 @@ public class ArchiveAEExtension extends AEExtension {
                 ? allowRejectionForDataRetentionPolicyExpired
                 : StringUtils.maskNull(getArchiveDeviceExtension().getAllowRejectionForDataRetentionPolicyExpired(),
                     AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
+    }
+
+    public AllowDeletePatient getAllowDeletePatient() {
+        return allowDeletePatient;
+    }
+
+    public void setAllowDeletePatient(AllowDeletePatient allowDeletePatient) {
+        this.allowDeletePatient = allowDeletePatient;
+    }
+
+    public AllowDeletePatient allowDeletePatient() {
+        return allowDeletePatient != null
+                ? allowDeletePatient
+                : StringUtils.maskNull(
+                        getArchiveDeviceExtension().getAllowDeletePatient(), AllowDeletePatient.WITHOUT_STUDIES);
     }
 
     public void removeExportRule(ExportRule rule) {

@@ -117,6 +117,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int storePermissionCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
+    private AllowDeletePatient allowDeletePatient;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -673,6 +674,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setAllowRejectionForDataRetentionPolicyExpired(AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired) {
         this.allowRejectionForDataRetentionPolicyExpired = allowRejectionForDataRetentionPolicyExpired;
+    }
+
+    public AllowDeletePatient getAllowDeletePatient() {
+        return allowDeletePatient;
+    }
+
+    public void setAllowDeletePatient(AllowDeletePatient allowDeletePatient) {
+        this.allowDeletePatient = allowDeletePatient;
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {
