@@ -142,6 +142,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmStorePermissionCacheSize", ext.getStorePermissionCacheSize(), 10);
         LdapUtils.storeNotDef(attrs, "dcmStoreUpdateDBMaxRetries", ext.getStoreUpdateDBMaxRetries(), 1);
         LdapUtils.storeNotNull(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired());
+        LdapUtils.storeNotNull(attrs, "dcmAllowDeletePatient", ext.getAllowDeletePatient());
     }
 
     @Override
@@ -217,6 +218,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAllowRejectionForDataRetentionPolicyExpired(
                 LdapUtils.enumValue(AllowRejectionForDataRetentionPolicyExpired.class,
                         attrs.get("dcmAllowRejectionForDataRetentionPolicyExpired"), null));
+        ext.setAllowDeletePatient(LdapUtils.enumValue(AllowDeletePatient.class, attrs.get("dcmAllowDeletePatient"), null));
     }
 
     @Override
@@ -336,6 +338,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStoreUpdateDBMaxRetries(), bb.getStoreUpdateDBMaxRetries(), 1);
         LdapUtils.storeDiff(mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired());
+        LdapUtils.storeDiff(mods, "dcmAllowDeletePatient", aa.getAllowDeletePatient(), bb.getAllowDeletePatient());
     }
 
     @Override
@@ -440,6 +443,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern());
         LdapUtils.storeNotNull(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired());
+        LdapUtils.storeNotNull(attrs, "dcmAllowDeletePatient", ext.getAllowDeletePatient());
     }
 
     @Override
@@ -479,6 +483,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAllowRejectionForDataRetentionPolicyExpired(
                 LdapUtils.enumValue(AllowRejectionForDataRetentionPolicyExpired.class,
                         attrs.get("dcmAllowRejectionForDataRetentionPolicyExpired"), null));
+        ext.setAllowDeletePatient(LdapUtils.enumValue(AllowDeletePatient.class, attrs.get("dcmAllowDeletePatient"), null));
     }
 
     @Override
@@ -529,6 +534,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorePermissionServiceResponsePattern(), bb.getStorePermissionServiceResponsePattern());
         LdapUtils.storeDiff(mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired());
+        LdapUtils.storeDiff(mods, "dcmAllowDeletePatient", aa.getAllowDeletePatient(), bb.getAllowDeletePatient());
     }
 
     @Override
