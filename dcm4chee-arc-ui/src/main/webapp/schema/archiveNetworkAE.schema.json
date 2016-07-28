@@ -173,6 +173,14 @@
         "WITHOUT_STUDIES"
       ]
     },
+    "dcmAcceptedUserRole": {
+      "title": "Accepted User Role",
+      "description": "Roles of users from which web requests are accepted; any if absent.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
     "dcmExportRule": {
       "type": "array",
       "items" : {

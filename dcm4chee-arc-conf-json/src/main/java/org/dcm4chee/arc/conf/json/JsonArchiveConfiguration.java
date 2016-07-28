@@ -394,6 +394,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorePermissionServiceResponsePattern", arcAE.getStorePermissionServiceResponsePattern());
         writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired", arcAE.getAllowRejectionForDataRetentionPolicyExpired());
         writer.writeNotNull("dcmAllowDeletePatient", arcAE.getAllowDeletePatient());
+        writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -1207,6 +1208,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAllowDeletePatient":
                     arcAE.setAllowDeletePatient(AllowDeletePatient.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAcceptedUserRole":
+                    arcAE.setAcceptedUserRoles(reader.stringArray());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
