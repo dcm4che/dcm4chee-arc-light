@@ -103,7 +103,7 @@ public class QueryAETs {
                     if (ae.getAEExtension(ArchiveAEExtension.class)
                             .getQueryRetrieveView().isHideNotRejectedInstances())
                         w.write(",\"dcmHideNotRejectedInstances\":true");
-                    if (request.getAttribute(keycloakClassName) != null) {
+                    if (request.getAttribute(keycloakClassName) != null && arcAE.getAcceptedUserRoles().length != 0) {
                         w.write(",\"dcmAcceptedUserRole\":\"");
                         w.write(buildAcceptedUserRoles(arcAE.getAcceptedUserRoles()));
                         w.write('"');
