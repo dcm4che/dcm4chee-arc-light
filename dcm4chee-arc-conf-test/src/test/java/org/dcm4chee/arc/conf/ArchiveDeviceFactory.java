@@ -730,6 +730,9 @@ class ArchiveDeviceFactory {
             "*"
     };
 
+    static final String[] USER_ROLES = { "user" };
+    static final String[] ADMIN_ROLES = { "user", "admin" };
+
     static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
             "JPEG 8-bit Lossy",
             new Conditions(
@@ -989,11 +992,11 @@ class ArchiveDeviceFactory {
         device.setPrimaryDeviceTypes("ARCHIVE");
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
-                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType));
+                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType, USER_ROLES));
         device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", "Show instances rejected for Quality Reasons",
-                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType));
+                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType, ADMIN_ROLES));
         device.addApplicationEntity(createAE("DCM4CHEE_TRASH", "Show rejected instances only",
-                dicom, dicomTLS, TRASH_VIEW, false, false, false, configType));
+                dicom, dicomTLS, TRASH_VIEW, false, false, false, configType, ADMIN_ROLES));
 
         return device;
     }
@@ -1287,7 +1290,7 @@ class ArchiveDeviceFactory {
     private static ApplicationEntity createAE(String aet, String description,
                                               Connection dicom, Connection dicomTLS, QueryRetrieveView qrView,
                                               boolean storeSCP, boolean storeSCU, boolean mwlSCP,
-                                              ConfigType configType) {
+                                              ConfigType configType, String... acceptedUserRoles) {
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setDescription(description);
         ae.addConnection(dicom);
@@ -1318,6 +1321,7 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
+        aeExt.setAcceptedUserRoles(acceptedUserRoles);
         if (configType == configType.TEST) {
             aeExt.setStorageID(STORAGE_ID);
             aeExt.setStoreAccessControlID("*");

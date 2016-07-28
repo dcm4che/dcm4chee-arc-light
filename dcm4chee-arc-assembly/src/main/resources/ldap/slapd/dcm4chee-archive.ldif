@@ -551,6 +551,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.110 NAME 'dcmAllowDeletePatient'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.111 NAME 'dcmAcceptedUserRole'
+  DESC 'Roles of users from which web requests are accepted; any if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -654,7 +658,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorePermissionServiceURL $
     dcmStorePermissionServiceResponsePattern $
     dcmAllowRejectionForDataRetentionPolicyExpired $
-    dcmAllowDeletePatient ))
+    dcmAllowDeletePatient $
+    dcmAcceptedUserRole ))
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
   SUP top STRUCTURAL

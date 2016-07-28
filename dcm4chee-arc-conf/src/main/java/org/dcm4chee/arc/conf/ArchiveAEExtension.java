@@ -85,6 +85,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Pattern storePermissionServiceResponsePattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AllowDeletePatient allowDeletePatient;
+    private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -479,6 +480,28 @@ public class ArchiveAEExtension extends AEExtension {
                 ? allowDeletePatient
                 : StringUtils.maskNull(
                         getArchiveDeviceExtension().getAllowDeletePatient(), AllowDeletePatient.WITHOUT_STUDIES);
+    }
+
+    public String[] getAcceptedUserRoles() {
+        return acceptedUserRoles.toArray(
+                new String[acceptedUserRoles.size()]);
+    }
+
+    public void setAcceptedUserRoles(String... roles) {
+        acceptedUserRoles.clear();
+        for (String name : roles)
+            acceptedUserRoles.add(name);
+    }
+
+    public boolean isAcceptedUserRole(String... roles) {
+        if (acceptedUserRoles.isEmpty())
+            return true;
+
+        for (String role : roles)
+            if (acceptedUserRoles.contains(role))
+                return true;
+
+        return false;
     }
 
     public void removeExportRule(ExportRule rule) {
