@@ -61,6 +61,7 @@ import org.hibernate.StatelessSession;
 public class MWLQuery extends AbstractQuery {
 
     static final Expression<?>[] SELECT = {
+            QPatient.patient.numberOfStudies,
             QueryBuilder.mwlAttributesBlob.encodedAttributes,
             QueryBuilder.patientAttributesBlob.encodedAttributes
     };
@@ -98,9 +99,10 @@ public class MWLQuery extends AbstractQuery {
         Attributes patAttrs = AttributesBlob.decodeAttributes(
                 results.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         Attributes.unifyCharacterSets(patAttrs, mwlAttrs);
-        Attributes attrs = new Attributes(patAttrs.size() + mwlAttrs.size());
+        Attributes attrs = new Attributes(patAttrs.size() + mwlAttrs.size() + 1);
         attrs.addAll(patAttrs);
         attrs.addAll(mwlAttrs);
+        attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(QPatient.patient.numberOfStudies));
         return attrs;
     }
 
