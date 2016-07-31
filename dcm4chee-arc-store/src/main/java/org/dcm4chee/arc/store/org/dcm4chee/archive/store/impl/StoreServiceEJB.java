@@ -237,12 +237,19 @@ public class StoreServiceEJB {
             }
             if (series != null) {
                 Study study = series.getStudy();
-                RejectionState rejectionState = rjNote.isRevokeRejection()
-                        ? hasRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.NONE
-                        : hasNotRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
-                study.setRejectionState(rejectionState);
-                if (rejectionState == RejectionState.COMPLETE)
-                    study.setExpirationDate(null);
+                if (rjNote.isRevokeRejection()) {
+                    if (study.getRejectionState() == RejectionState.COMPLETE)
+                        study.getPatient().incrementNumberOfStudies();
+                    study.setRejectionState(hasRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.NONE);
+                } else {
+                    if (hasNotRejectedInstances(study))
+                        study.setRejectionState(RejectionState.PARTIAL);
+                    else {
+                        study.setRejectionState(RejectionState.COMPLETE);
+                        study.setExpirationDate(null);
+                        study.getPatient().decrementNumberOfStudies();
+                    }
+                }
                 deleteStudyQueryAttributes(study);
             }
         }
@@ -613,9 +620,16 @@ public class StoreServiceEJB {
     }
 
     private void updateStudyRejectionState(StoreContext ctx, Study study) {
-        if (study.getRejectionState() == RejectionState.COMPLETE) {
-            study.setRejectionState(RejectionState.PARTIAL);
-            setStudyAttributes(ctx, study);
+        switch (study.getRejectionState()) {
+            case COMPLETE:
+                study.setRejectionState(RejectionState.PARTIAL);
+                study.getPatient().incrementNumberOfStudies();
+                setStudyAttributes(ctx, study);
+                break;
+            case EMPTY:
+                study.setRejectionState(RejectionState.NONE);
+                study.getPatient().incrementNumberOfStudies();
+                break;
         }
     }
 
@@ -686,6 +700,7 @@ public class StoreServiceEJB {
         study.setRejectionState(RejectionState.NONE);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
+        patient.incrementNumberOfStudies();
         em.persist(study);
         LOG.info("{}: Create {}", session, study);
         return study;
@@ -991,6 +1006,7 @@ public class StoreServiceEJB {
             return;
         }
         LOG.info("{}: Delete duplicate created {}", ctx.getStoreSession(), createdPatient);
+        otherPatient.incrementNumberOfStudies();
         em.merge(result.getCreatedStudy()).setPatient(otherPatient);
         em.remove(createdPatient);
         result.setCreatedPatient(null);

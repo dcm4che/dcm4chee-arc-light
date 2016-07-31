@@ -49,10 +49,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.entity.AttributesBlob;
-import org.dcm4chee.arc.entity.QStudy;
-import org.dcm4chee.arc.entity.QStudyQueryAttributes;
-import org.dcm4chee.arc.entity.StudyQueryAttributes;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -66,6 +63,7 @@ class StudyQuery extends AbstractQuery {
 
     static final Expression<?>[] SELECT = {
             QStudy.study.pk,
+            QPatient.patient.numberOfStudies,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
             QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy,
@@ -149,6 +147,7 @@ class StudyQuery extends AbstractQuery {
                 StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
         attrs.setString(Tag.SOPClassesInStudy, VR.UI, sopClassesInStudy);
+        attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(QPatient.patient.numberOfStudies));
         attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
         attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
         return attrs;

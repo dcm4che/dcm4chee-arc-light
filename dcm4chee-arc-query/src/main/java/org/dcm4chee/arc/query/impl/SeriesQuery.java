@@ -64,6 +64,7 @@ class SeriesQuery extends AbstractQuery {
     private static final Expression<?>[] SELECT = {
             QStudy.study.pk,
             QSeries.series.pk,
+            QPatient.patient.numberOfStudies,
             QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -185,6 +186,7 @@ class SeriesQuery extends AbstractQuery {
         attrs.addAll(studyAttrs);
         attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
         attrs.setString(Tag.SOPClassesInStudy, VR.UI, sopClassesInStudy);
+        attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(QPatient.patient.numberOfStudies));
         attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
         attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
         return attrs;

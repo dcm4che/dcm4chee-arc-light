@@ -45,5 +45,5 @@ package org.dcm4chee.arc.entity;
  * @since Apr 2016
  */
 public enum RejectionState {
-    NONE, PARTIAL, COMPLETE
+    NONE, PARTIAL, COMPLETE, EMPTY
 }

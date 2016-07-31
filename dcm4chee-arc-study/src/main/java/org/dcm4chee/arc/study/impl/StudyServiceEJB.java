@@ -100,7 +100,7 @@ public class StudyServiceEJB {
             ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
             Study study = new Study();
             study.setStorageIDs(arcAE.storageID());
-            study.setRejectionState(RejectionState.NONE);
+            study.setRejectionState(RejectionState.EMPTY);
             study.setAccessControlID(arcAE.getStoreAccessControlID());
             study.setAttributes(attrs, filter, ctx.getFuzzyStr());
             study.setIssuerOfAccessionNumber(

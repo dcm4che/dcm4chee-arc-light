@@ -142,6 +142,9 @@ public class Patient {
     @Column(name = "pat_custom3")
     private String patientCustomAttribute3;
 
+    @Column(name = "num_studies")
+    private int numberOfStudies;
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
     private AttributesBlob attributesBlob;
@@ -212,6 +215,22 @@ public class Patient {
         return patientCustomAttribute3;
     }
 
+    public int getNumberOfStudies() {
+        return numberOfStudies;
+    }
+
+    public void setNumberOfStudies(int numberOfStudies) {
+        this.numberOfStudies = numberOfStudies;
+    }
+
+    public void incrementNumberOfStudies() {
+        numberOfStudies++;
+    }
+
+    public void decrementNumberOfStudies() {
+        numberOfStudies = Math.max(numberOfStudies-1, 0);
+    }
+
     public Patient getMergedWith() {
         return mergedWith;
     }
@@ -254,5 +273,4 @@ public class Patient {
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
     }
-
 }
