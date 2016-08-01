@@ -1,10 +1,8 @@
 <!-- <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-        filterMode:{{filterMode}}
-        orderby:{{orderby}}
-        filter.orderby:{{filter.orderby}}
-        
-    <button ng-click="queryMWL(0)">MWL</button>
-</pre> -->
+        isRole('admin'):{{isRole('admin')}}
+        trashaktive :{{trashaktive}}
+        studies :{{studies}}
+</pre>-->
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
 <div class="headerblock" ng-class="{modality:showModalitySelector}">
 <div class="row filter">
@@ -13,9 +11,19 @@
         <div class="row">
             <label for="aet" class="col-md-6 text-right control-label">AET:</label>
             <div class=" col-md-6">    
-                <select id="aet" ng-model="aet" class="col-md-12" ng-change="studies = {}">
-                    <option ng-repeat="ae in aes" title="{{ae.description}}" ng-click="setTrash(ae)">{{ae.title}}</option>
+                <select 
+                id="aet" 
+                ng-model="aetmodel" 
+                class="col-md-12" 
+                ng-change="setTrash()"
+                ng-options="ae.title for ae in aes"
+                >
+                    <!-- <option ng-repeat="ae in aes" title="{{ae.description}}" ng-click="setTrash(ae)">{{ae.title}}</option> -->
                 </select>
+                <!-- 
+                <select id="aet" ng-model="aet" class="col-md-12" ng-change="patients = {};setTrash(ae)">
+                    <option ng-repeat="ae in aes" title="{{ae.description}}" ng-click="setTrash(ae)">{{ae.title}}</option>
+                </select> -->
             </div>
         </div>
         <div class="row">

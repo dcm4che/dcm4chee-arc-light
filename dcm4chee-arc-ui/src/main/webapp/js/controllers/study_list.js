@@ -12,6 +12,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.moreStudies;
     $scope.limit = 20;
     $scope.aes;
+    $scope.aetmodel;
     $scope.trashaktive = false;
     $scope.aet = null;
     $scope.exporters;
@@ -132,8 +133,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             mode:"mwl"
         }
     ];
-    $scope.setTrash = function(ae){
-        if(ae.dcmHideNotRejectedInstances === true){
+    $scope.setTrash = function(){
+        // console.log("ae=",ae);
+        $scope.aet = $scope.aetmodel.title;
+        console.log("ae=",$scope.aet);
+        if($scope.aetmodel.dcmHideNotRejectedInstances === true){
             if($scope.rjcode === null){
                 $http.get("../reject?dcmRevokeRejection=true").then(function (res) {
                     $scope.rjcode = res.data[0];
@@ -2232,6 +2236,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             function (res) {
                 $scope.aes = res.data;
                 $scope.aet = res.data[0].title;
+                $scope.aetmodel = res.data[0];
             },
             function (res) {
                 if (retries)
@@ -2309,7 +2314,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 showAttributes: false
                             };
                             // $scope.$apply(function () {
-                                $scope.patients.push(pat);
+                                $scope.mwl.push(pat);
                             // });
                         }
                         mwl = {
