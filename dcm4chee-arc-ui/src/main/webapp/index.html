@@ -21,6 +21,7 @@
     </span>
     <ul ng-show="showUserMenu">
         <li ng-show="isOnPage('studies')"><a  ng-controller="StudyListCtrl" ng-click="createPatient()">Create new patient</a></li>
+        <li ng-show="username && username != 'anonymous'"><a ng-href="/auth/realms/dcm4che/account">Edit {{username}}</a></li>
         <li ng-show="username && username != 'anonymous'"><a ng-href="{{logoutUrl}}">Logout</a></li>
      </ul>
 </div>
