@@ -2,6 +2,9 @@
   .deviceedit_block .active_border.col-md-8 {
     width: 73%; }
   .deviceedit_block bootstrap-decorator > .schema-form-array > ol > li.list-group-item sf-decorator .schema-form-text .input {
-    width: 44%; } }
+    width: 44%; }
+
+  .row.filter label {
+    font-size: 12px; } }
 
 /*# sourceMappingURL=mobile.css.map */

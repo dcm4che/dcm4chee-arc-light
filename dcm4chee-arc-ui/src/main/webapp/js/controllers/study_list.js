@@ -523,6 +523,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         // console.log("patient",patient);
         // local["00100020"] = $scope.editstudy.attrs["00100020"];
         // 00200010
+        // patient.createButtons = false;
         var study = {
             "attrs":{
                 "00200010": { "vr": "SH", "Value":[""]},
@@ -576,7 +577,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
 
         cfpLoadingBar.start();
         var editmwl     = {};
-        console.log("patient",patient);
+        // console.log("patient",patient);
         console.log("mwlkey",mwlkey);
         console.log("mwl",mwl);
         angular.copy(mwl, editmwl);
@@ -985,6 +986,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         // console.log("patient",patient);
         // local["00100020"] = $scope.editstudy.attrs["00100020"];
         // 00200010
+        console.log("patient",patient);
+        // patient.createButtons = false;
+        console.log("patient2",angular.copy(patient));
         var mwl = {
             "attrs":{
                 "00400100": {
