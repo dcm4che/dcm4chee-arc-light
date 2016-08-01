@@ -105,6 +105,8 @@ public class AuditService {
 
     void aggregateAuditMessage(Path path) throws IOException {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
+        if (path.toFile().length() == 0)
+            throw new IOException("Attempt to read from an empty file. ");
         SpoolFileReader readerObj = eventType.eventClass != AuditServiceUtils.EventClass.QUERY
                 ? new SpoolFileReader(path) : null;
         Calendar eventTime = getEventTime(path, log());
@@ -786,6 +788,10 @@ public class AuditService {
     }
 
     private void writeSpoolFile(String eventType, LinkedHashSet<Object> obj) {
+        if (obj.isEmpty()) {
+            LOG.warn("Attempt to write empty file : " + eventType);
+            return;
+        }
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(StringUtils.replaceSystemProperties(
@@ -806,6 +812,10 @@ public class AuditService {
     }
 
     private void writeSpoolFileStoreOrWadoRetrieve(String fileName, Object patStudyInfo, Object instanceInfo) {
+        if (patStudyInfo == null && instanceInfo == null) {
+            LOG.warn("Attempt to write empty file : " + fileName);
+            return;
+        }
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(StringUtils.replaceSystemProperties(
