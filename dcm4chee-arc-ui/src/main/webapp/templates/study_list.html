@@ -390,7 +390,7 @@
     </div>
     <div class="col-md-3 block-2-1" ng-show="filterMode === 'study'">
             <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" ng-hide="trashaktive">
                 <label>
                     <input type="checkbox" ng-model="filter.returnempty"> Return empty studies
                 </label>

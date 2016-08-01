@@ -134,15 +134,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
     ];
     $scope.setTrash = function(){
-        // console.log("ae=",ae);
         $scope.aet = $scope.aetmodel.title;
-        console.log("ae=",$scope.aet);
         if($scope.aetmodel.dcmHideNotRejectedInstances === true){
             if($scope.rjcode === null){
                 $http.get("../reject?dcmRevokeRejection=true").then(function (res) {
                     $scope.rjcode = res.data[0];
                 });
             }
+            $scope.filter.returnempty = false;
             $scope.trashaktive = true;
         }else{
             $scope.trashaktive = false;
