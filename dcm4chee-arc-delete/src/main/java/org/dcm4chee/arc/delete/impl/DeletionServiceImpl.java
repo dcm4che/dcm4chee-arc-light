@@ -43,13 +43,10 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.delete.StudyRetentionPolicyNotExpiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +57,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -129,15 +125,7 @@ public class DeletionServiceImpl implements DeletionService {
             Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, studyUID).getSingleResult();
             if (study != null) {
-                ctx = createStudyDeleteContext(study.getStudyInstanceUID(), request);
-                ctx.setStudy(study);
-                ctx.setPatient(study.getPatient());
-                ctx.setDeletePatientOnDeleteLastStudy(false);
-                if (study.getRejectionState() == RejectionState.COMPLETE)
-                    ejb.removeStudyOnStorage(ctx);
-                else if (study.getRejectionState() == RejectionState.EMPTY)
-                    ejb.deleteEmptyStudy(ctx);
-                else
+                if (!studyDeleted(ctx, request, study))
                     throw new StudyNotEmptyException();
             }
             LOG.info("Successfully delete {} from database", ctx.getStudy());
@@ -155,61 +143,39 @@ public class DeletionServiceImpl implements DeletionService {
     }
 
     @Override
-    public void deletePatient(PatientMgtContext ctx) throws StudyRetentionPolicyNotExpiredException, StudyNotFoundException{
+    public void deletePatient(PatientMgtContext ctx) {
         List<Study> sList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
                 .setParameter(1, ctx.getPatient()).getResultList();
-        StudyDeleteContext studyDeleteCtx = null;
+        StudyDeleteContext sCtx = null;
         if (!sList.isEmpty()) {
-            try {
-                for (Study study : sList) {
-                    studyDeleteCtx = checkStudyRetentionPolicyNotExpired(study, ctx.getHttpRequest(), studyDeleteCtx, ctx);
-                    if (studyDeleteCtx != null && studyDeleteCtx.getException() != null) {
-                        throw new StudyRetentionPolicyNotExpiredException(studyDeleteCtx.getException().getMessage());
-                    }
+            for (Study study : sList) {
+                try {
+                    studyDeleted(sCtx, ctx.getHttpRequest(), study);
+                } catch (Exception e) {
+                    LOG.warn("Failed to delete {} on {}", study, e);
+                    ctx.setException(e);
+                    patientMgtEvent.fire(ctx);
                 }
-            } catch(StudyRetentionPolicyNotExpiredException e) {
-                studyDeletedEvent.fire(studyDeleteCtx);
-                patientMgtEvent.fire(ctx);
-                throw new StudyRetentionPolicyNotExpiredException(e.getMessage());
             }
-        }
-        boolean studiesRemoved;
-        for (Study s : sList) {
-            Long studyPk = s.getPk();
-            String studyUID = s.getStudyInstanceUID();
-            StudyDeleteContextImpl sCtx = new StudyDeleteContextImpl(studyPk, studyUID);
-            sCtx.setDeletePatientOnDeleteLastStudy(false);
-            sCtx.setHttpRequest(ctx.getHttpRequest());
-            studiesRemoved = ejb.removeStudyOnStorage(sCtx);
-            if(!studiesRemoved) {
-                sCtx.setStudy(s);
-                ejb.deleteEmptyStudy(sCtx);
-            }
-            else
-                studyDeletedEvent.fire(sCtx);
         }
         patientService.deletePatientFromUI(ctx);
         LOG.info("Successfully delete {} from database", ctx.getPatient());
     }
 
-    private StudyDeleteContext checkStudyRetentionPolicyNotExpired(
-            Study study, HttpServletRequest request, StudyDeleteContext ctx, PatientMgtContext pCtx)
-            throws StudyRetentionPolicyNotExpiredException {
-        if (studyNotExpired(study)) {
-            ctx = createStudyDeleteContext(study.getStudyInstanceUID(), request);
-            ctx.setStudy(study);
-            ctx.setPatient(study.getPatient());
-            ctx.setException(new StudyRetentionPolicyNotExpiredException("Study retention policy for study has not expired."));
-            if (pCtx != null)
-                pCtx.setException(new StudyRetentionPolicyNotExpiredException(
-                        "Study retention policy for study " + study.getStudyInstanceUID() + " of patient has not expired."));
+    private boolean studyDeleted(StudyDeleteContext ctx, HttpServletRequest request, Study study) {
+        ctx = createStudyDeleteContext(study.getStudyInstanceUID(), request);
+        ctx.setStudy(study);
+        ctx.setPatient(study.getPatient());
+        ctx.setDeletePatientOnDeleteLastStudy(false);
+        if (study.getRejectionState() == RejectionState.COMPLETE) {
+            ejb.removeStudyOnStorage(ctx);
+            return true;
         }
-        return ctx;
-    }
-
-    private boolean studyNotExpired(Study study) {
-        LocalDate now = LocalDate.now();
-        LocalDate studyExpirationDate = study.getExpirationDate();
-        return studyExpirationDate != null && studyExpirationDate.isAfter(now);
+        else if (study.getRejectionState() == RejectionState.EMPTY) {
+            ejb.deleteEmptyStudy(ctx);
+            return true;
+        }
+        else
+            return false;
     }
 }

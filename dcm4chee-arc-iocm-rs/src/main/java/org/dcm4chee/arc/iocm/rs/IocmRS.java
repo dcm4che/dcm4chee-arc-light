@@ -53,7 +53,6 @@ import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
-import org.dcm4chee.arc.delete.StudyRetentionPolicyNotExpiredException;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -183,19 +182,15 @@ public class IocmRS {
         if (patient == null)
             throw new WebApplicationException(
                     "Patient having patient ID : " + patientID + " not found.", Response.Status.NOT_FOUND);
-
+        if (patient.getNumberOfStudies() > 0)
+            throw new WebApplicationException(
+                    "Patient having patient ID : " + patientID + " has non empty studies.", Response.Status.FORBIDDEN);
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
         ctx.setPatientID(patientID);
         ctx.setAttributes(patient.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
         ctx.setPatient(patient);
-        try {
-            deletionService.deletePatient(ctx);
-        } catch (StudyNotFoundException e) {
-            throw new WebApplicationException(e.getMessage(), Response.Status.NOT_FOUND);
-        } catch (StudyRetentionPolicyNotExpiredException e) {
-            throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
-        }
+        deletionService.deletePatient(ctx);
     }
 
     @DELETE
