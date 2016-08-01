@@ -61,7 +61,7 @@ public interface QueueManager {
 
     void onProcessingSuccessful(String msgId, Outcome outcome);
 
-    void onProcessingFailed(String msgId, Exception e);
+    void onProcessingFailed(String msgId, Throwable e);
 
     void cancelProcessing(String msgId) throws MessageAlreadyDeletedException;
 

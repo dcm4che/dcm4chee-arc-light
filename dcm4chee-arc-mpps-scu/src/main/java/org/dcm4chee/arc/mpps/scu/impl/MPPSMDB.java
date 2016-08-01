@@ -97,7 +97,7 @@ public class MPPSMDB implements MessageListener {
                     msg.getStringProperty("SOPInstanceUID"),
                     attrs);
             queueManager.onProcessingSuccessful(msgID, outcome);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }

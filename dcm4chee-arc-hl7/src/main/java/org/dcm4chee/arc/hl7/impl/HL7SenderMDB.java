@@ -97,7 +97,7 @@ public class HL7SenderMDB implements MessageListener {
                     msg.getStringProperty("MessageControlID"),
                     hl7msg);
             queueManager.onProcessingSuccessful(msgID, outcome);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }

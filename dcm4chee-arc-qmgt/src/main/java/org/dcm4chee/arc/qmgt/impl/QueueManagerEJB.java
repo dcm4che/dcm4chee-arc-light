@@ -117,7 +117,7 @@ public class QueueManagerEJB implements QueueManager {
     public void onProcessingSuccessful(String msgId, Outcome outcome) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null) {
-            LOG.info("Finished processing of Task[id={}]", msgId);;
+            LOG.info("Finished processing of Task[id={}]", msgId);
             return;
         }
         QueueMessage.Status status = outcome.getStatus();
@@ -145,7 +145,7 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    public void onProcessingFailed(String msgId, Exception e) {
+    public void onProcessingFailed(String msgId, Throwable e) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null) {
             LOG.warn("Failed processing of Task[id={}]:\n", msgId, e);

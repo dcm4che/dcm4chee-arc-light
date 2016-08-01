@@ -102,7 +102,7 @@ public class StgCmtMDB implements MessageListener {
                     msg.getStringProperty("RemoteAET"),
                     eventInfo);
             queueManager.onProcessingSuccessful(msgID, outcome);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }
