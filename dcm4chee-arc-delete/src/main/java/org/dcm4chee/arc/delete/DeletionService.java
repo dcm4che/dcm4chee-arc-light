@@ -60,7 +60,7 @@ public interface DeletionService {
     StudyDeleteContext createStudyDeleteContext(String studyUID, HttpServletRequest httpRequest);
 
     void deleteStudy(String studyUID, HttpServletRequest request)
-            throws StudyNotFoundException, StudyRetentionPolicyNotExpiredException;
+            throws StudyNotFoundException, StudyNotEmptyException;
 
     void deletePatient(PatientMgtContext ctx) throws StudyRetentionPolicyNotExpiredException, StudyNotFoundException;
 }

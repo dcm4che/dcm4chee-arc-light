@@ -51,6 +51,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.delete.StudyRetentionPolicyNotExpiredException;
 import org.dcm4chee.arc.entity.Patient;
@@ -206,9 +207,8 @@ public class IocmRS {
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException("Study having study instance UID " + studyUID + " not found.",
                     Response.Status.NOT_FOUND);
-        } catch (StudyRetentionPolicyNotExpiredException e) {
-            throw new WebApplicationException("Study retention policy for study " + studyUID + " not expired.",
-                    Response.Status.FORBIDDEN);
+        } catch (StudyNotEmptyException e) {
+            throw new WebApplicationException(e.getMessage() + studyUID, Response.Status.FORBIDDEN);
         }
     }
 

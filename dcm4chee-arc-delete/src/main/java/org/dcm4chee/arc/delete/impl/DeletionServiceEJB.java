@@ -46,6 +46,8 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
@@ -111,21 +113,12 @@ public class DeletionServiceEJB {
     }
 
     public boolean removeStudyOnStorage(StudyDeleteContext ctx) {
-        Long studyPk = ctx.getStudyPk();
-        String studyUID = ctx.getStudyIUID();
-        List<Location> locations = studyUID != null
-                ? getLocations(Location.FIND_BY_STUDY_UID, studyUID) : getLocations(Location.FIND_BY_STUDY_PK, studyPk);
-        if (locations.isEmpty())
-            return false;
-        else
-            deleteInstances(locations, ctx);
+        Long studyPk = ctx.getStudyPk() != null ? ctx.getStudyPk() : ctx.getStudy().getPk();
+        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
+                                    .setParameter(1, studyPk)
+                                    .getResultList();
+        deleteInstances(locations, ctx);
         return true;
-    }
-
-    private List<Location> getLocations(String queryName, Object parameterValue) {
-        return em.createNamedQuery(queryName, Location.class)
-                .setParameter(1, parameterValue)
-                .getResultList();
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
@@ -139,7 +132,7 @@ public class DeletionServiceEJB {
         return deleteInstances(locations, null);
     }
 
-    public void deleteEmptyStudy(StudyDeleteContext ctx) throws StudyNotFoundException {
+    public void deleteEmptyStudy(StudyDeleteContext ctx) {
         Study study = ctx.getStudy();
         em.remove(em.contains(study) ? study : em.merge(study));
     }

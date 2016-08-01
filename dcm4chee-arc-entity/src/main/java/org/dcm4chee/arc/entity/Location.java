@@ -73,8 +73,6 @@ import java.util.Date;
         @NamedQuery(name = Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE,
                 query = "select l from Location l join l.instance i " +
                         "where i.conceptNameCode=?1 and i.updatedTime<?2"),
-        @NamedQuery(name = Location.FIND_BY_STUDY_UID,
-                query = "select l from Location l where l.instance.series.study.studyInstanceUID=?1"),
         @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
@@ -88,7 +86,6 @@ public class Location {
     public static final String FIND_BY_CONCEPT_NAME_CODE = "Location.FindByConceptNameCode";
     public static final String FIND_BY_REJECTION_CODE_BEFORE = "Location.FindByRejectionCodeBefore";
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
-    public static final String FIND_BY_STUDY_UID = "Location.FindByStudyUID";
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
     public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
 
