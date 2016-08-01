@@ -373,16 +373,6 @@
         "STUDY_RETENTION_POLICY"
       ]
     },
-    "dcmAllowDeletePatient": {
-      "title": "Allow Delete Patient",
-      "description": "Allow permanent deletion of Patients. Enumerated values: NEVER, ALWAYS, WITHOUT_STUDIES. If absent, WITHOUT_STUDIES will be applied.",
-      "type": "string",
-      "enum": [
-        "NEVER",
-        "ALWAYS",
-        "WITHOUT_STUDIES"
-      ]
-    },
     "dcmAttributeFilter": {
       "type": "array",
       "items" : {
