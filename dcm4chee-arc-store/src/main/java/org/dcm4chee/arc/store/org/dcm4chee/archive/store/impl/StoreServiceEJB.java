@@ -176,8 +176,8 @@ public class StoreServiceEJB {
         CodeEntity conceptNameCode = findOrCreateCode(ctx.getAttributes(), Tag.ConceptNameCodeSequence);
         if (conceptNameCode != null && ctx.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)) {
             RejectionNote rjNote = arcDev.getRejectionNote(conceptNameCode.getCode());
-            checkStudyRetentionPolicyNotExpired(policy, rjNote, result);
             if (rjNote != null) {
+                checkStudyRetentionPolicyNotExpired(policy, rjNote, result);
                 result.setRejectionNote(rjNote);
                 boolean revokeRejection = rjNote.isRevokeRejection();
                 rejectInstances(ctx, rjNote, conceptNameCode, policy);
