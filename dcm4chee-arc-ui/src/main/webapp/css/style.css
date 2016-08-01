@@ -562,6 +562,8 @@ table.subtable_1, table.subtable_2 {
   margin-top: 228px; }
   .div-table.extended {
     margin-top: 319px; }
+  .div-table.modality {
+    margin-top: 0; }
   .div-table .arrows {
     width: 100%;
     float: left;

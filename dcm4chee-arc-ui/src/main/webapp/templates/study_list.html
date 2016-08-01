@@ -559,7 +559,7 @@
 </div>
 
 <!-- Table -->
-<div class="div-table animated" ng-class="{extended:(advancedConfig && (filterMode === 'study' || filterMode === 'mwl'))}">
+<div class="div-table animated" ng-class="{extended:(advancedConfig && (filterMode === 'study' || filterMode === 'mwl')),modality:showModalitySelector}">
 
     <div class="repeat0" ng-repeat="(patientkey, patient) in patients" ng-init="patient.hide=false">
 <!--         <span ng-show="!patient.hide" class="glyphicon glyphicon-triangle-bottom close_patient" title="Hide this patient" ng-click="patient.hide=true"></span>        
@@ -575,7 +575,7 @@
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a> 
                     <div class="table_btn create" ng-init="patient.createButtons = false">
-                        <span class="glyphicon glyphicon-plus" ng-click="patient.createButtons = true"></span>
+                        <span class="glyphicon glyphicon-plus" ng-click="patient.createButtons = !patient.createButtons"></span>
                         <div class="createButtons" ng-show="patient.createButtons">
                             <a class="" ng-click="patient.createButtons = false;createStudy(patient)" href="" title="Create study">
                                 Create study
