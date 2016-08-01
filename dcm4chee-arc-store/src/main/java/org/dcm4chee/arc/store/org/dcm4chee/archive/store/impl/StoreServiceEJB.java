@@ -172,16 +172,20 @@ public class StoreServiceEJB {
             LOG.info("{}: Replace previous received {}", session, prevInstance);
             deleteInstance(prevInstance, ctx);
         }
-        AllowRejectionForDataRetentionPolicyExpired policy = arcAE.allowRejectionForDataRetentionPolicyExpired();
         CodeEntity conceptNameCode = findOrCreateCode(ctx.getAttributes(), Tag.ConceptNameCodeSequence);
         if (conceptNameCode != null && ctx.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)) {
             RejectionNote rjNote = arcDev.getRejectionNote(conceptNameCode.getCode());
             if (rjNote != null) {
-                checkStudyRetentionPolicyNotExpired(policy, rjNote, result);
                 result.setRejectionNote(rjNote);
-                boolean revokeRejection = rjNote.isRevokeRejection();
+                AllowRejectionForDataRetentionPolicyExpired policy =
+                        arcAE.allowRejectionForDataRetentionPolicyExpired();
+                if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
+                        && policy == AllowRejectionForDataRetentionPolicyExpired.NEVER) {
+                    throw new DicomServiceException(REJECTION_NOT_AUTHORIZED,
+                            "Rejection for Retentation Policy Expired not authorized");
+                }
                 rejectInstances(ctx, rjNote, conceptNameCode, policy);
-                if (revokeRejection)
+                if (rjNote.isRevokeRejection())
                     return result;
             }
         }
@@ -194,17 +198,6 @@ public class StoreServiceEJB {
 
         deleteQueryAttributes(instance);
         return result;
-    }
-
-    private void checkStudyRetentionPolicyNotExpired(AllowRejectionForDataRetentionPolicyExpired policy,
-                                                     RejectionNote rjNote, UpdateDBResult result)
-            throws DicomServiceException {
-        if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
-                && policy == AllowRejectionForDataRetentionPolicyExpired.NEVER) {
-            result.setRejectionNote(rjNote);
-            throw new DicomServiceException(REJECTION_NOT_AUTHORIZED, "Rejection for type "
-                    + rjNote.getRejectionNoteType() + " is not authorized");
-        }
     }
 
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode,
