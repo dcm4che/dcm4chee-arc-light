@@ -547,7 +547,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.109 NAME 'hl7FwdApplicationName'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-attributeTypes: ( 1.2.40.0.13.1.15.110.3.111 NAME 'dcmAcceptedUserRole'
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.110 NAME 'dcmAcceptedUserRole'
   DESC 'Roles of users from which web requests are accepted; any if absent.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
