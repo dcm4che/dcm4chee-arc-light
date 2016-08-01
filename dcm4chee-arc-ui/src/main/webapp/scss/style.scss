@@ -597,7 +597,12 @@ table{
 	    position: fixed;
     	top: 75px;
 	    //
-
+		&.modality{
+			position:static;
+			padding-left:0;
+			padding-right:0;
+			margin-top: 1px;
+		}
 	    &.fixed{
 			background: rgba(244,246,248,1);
 			background: -moz-linear-gradient(left, rgba(244,246,248,1) 0%, rgba(224,230,234,1) 100%);
@@ -827,6 +832,19 @@ table{
 						text-decoration: none;
 						color:white;
 					}
+					&.create{
+						position:relative;
+					}
+				}
+				.createButtons {
+					-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+					-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+					box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+				    background: white none repeat scroll 0 0;
+				    display: block;
+				    position: absolute;
+				    width: 100px;
+				    z-index: 99;
 				}
 				a{
 				    color: black;

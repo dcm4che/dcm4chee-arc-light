@@ -486,6 +486,11 @@ table.subtable_1, table.subtable_2 {
   padding-right: 28px;
   position: fixed;
   top: 75px; }
+  .headerblock.modality {
+    position: static;
+    padding-left: 0;
+    padding-right: 0;
+    margin-top: 1px; }
   .headerblock.fixed {
     background: #f4f6f8;
     background: -moz-linear-gradient(left, #f4f6f8 0%, #e0e6ea 100%);
@@ -644,6 +649,17 @@ table.subtable_1, table.subtable_2 {
             background: #C2C2C2;
             text-decoration: none;
             color: white; }
+          .repeat0 > .thead > .tr_row .th .table_btn.create {
+            position: relative; }
+        .repeat0 > .thead > .tr_row .th .createButtons {
+          -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+          -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+          background: white none repeat scroll 0 0;
+          display: block;
+          position: absolute;
+          width: 100px;
+          z-index: 99; }
         .repeat0 > .thead > .tr_row .th a {
           color: black; }
         .repeat0 > .thead > .tr_row .th:first-child {
