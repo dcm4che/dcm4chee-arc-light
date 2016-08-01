@@ -1294,6 +1294,8 @@ hl7ApplicationName: *
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Hide instances rejected for Quality Reasons
+dcmAcceptedUserRole: user
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: hideRejected
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
@@ -6330,6 +6332,7 @@ cn: Instance Availability Notification SOP Class SCU
 dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Show instances rejected for Quality Reasons
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: regularUse
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
@@ -8885,6 +8888,7 @@ cn: Private TomTec Annotation Storage SCU
 dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
 dicomDescription: Show rejected instances only
+dcmAcceptedUserRole: admin
 dcmQueryRetrieveViewID: trashView
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE

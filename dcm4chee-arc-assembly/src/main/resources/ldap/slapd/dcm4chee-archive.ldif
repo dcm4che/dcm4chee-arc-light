@@ -546,11 +546,6 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.109 NAME 'hl7FwdApplicationName'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.110 NAME 'dcmAllowDeletePatient'
-  DESC 'Allow permanent deletion of Patients. Enumerated values: NEVER, ALWAYS, WITHOUT_STUDIES. If absent, WITHOUT_STUDIES will be applied.'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.111 NAME 'dcmAcceptedUserRole'
   DESC 'Roles of users from which web requests are accepted; any if absent.'
   EQUALITY caseExactIA5Match
@@ -623,8 +618,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorePermissionCacheStaleTimeout $
     dcmStorePermissionCacheSize $
     dcmStoreUpdateDBMaxRetries $
-    dcmAllowRejectionForDataRetentionPolicyExpired $
-    dcmAllowDeletePatient ))
+    dcmAllowRejectionForDataRetentionPolicyExpired ))
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
@@ -658,7 +652,6 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorePermissionServiceURL $
     dcmStorePermissionServiceResponsePattern $
     dcmAllowRejectionForDataRetentionPolicyExpired $
-    dcmAllowDeletePatient $
     dcmAcceptedUserRole ))
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'

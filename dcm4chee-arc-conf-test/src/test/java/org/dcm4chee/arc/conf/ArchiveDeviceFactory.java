@@ -730,8 +730,8 @@ class ArchiveDeviceFactory {
             "*"
     };
 
-    static final String[] USER_ROLES = { "user" };
-    static final String[] ADMIN_ROLES = { "user", "admin" };
+    static final String[] USER_AND_ADMIN = { "user", "admin" };
+    static final String[] ONLY_ADMIN = { "admin" };
 
     static final ArchiveCompressionRule JPEG_BASELINE = createCompressionRule(
             "JPEG 8-bit Lossy",
@@ -992,11 +992,11 @@ class ArchiveDeviceFactory {
         device.setPrimaryDeviceTypes("ARCHIVE");
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
-                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType, USER_ROLES));
+                dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType, USER_AND_ADMIN));
         device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", "Show instances rejected for Quality Reasons",
-                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType, ADMIN_ROLES));
+                dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("DCM4CHEE_TRASH", "Show rejected instances only",
-                dicom, dicomTLS, TRASH_VIEW, false, false, false, configType, ADMIN_ROLES));
+                dicom, dicomTLS, TRASH_VIEW, false, false, false, configType, ONLY_ADMIN));
 
         return device;
     }
