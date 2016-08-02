@@ -172,7 +172,7 @@ public class Instance {
 
     @Basic(optional = false)
     @Column(name = "inst_no")
-    private String instanceNumber;
+    private Integer instanceNumber;
 
     @Basic(optional = false)
     @Column(name = "content_date")
@@ -277,7 +277,7 @@ public class Instance {
         return sopClassUID;
     }
 
-    public String getInstanceNumber() {
+    public Integer getInstanceNumber() {
         return instanceNumber;
     }
 
@@ -386,7 +386,7 @@ public class Instance {
     public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
         sopClassUID = attrs.getString(Tag.SOPClassUID);
-        instanceNumber = attrs.getString(Tag.InstanceNumber, "*");
+        instanceNumber = Integer.parseInt(attrs.getString(Tag.InstanceNumber, "0"));
         Date dt = attrs.getDate(Tag.ContentDateAndTime);
         if (dt != null) {
             contentDate = DateUtils.formatDA(null, dt);

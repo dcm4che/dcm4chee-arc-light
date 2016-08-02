@@ -193,6 +193,10 @@ public class QueryBuilder {
         return order == Order.ASC ? path.asc() : path.desc();
     }
 
+    private static OrderSpecifier orderSpecifierOf(NumberPath<Integer> path, Order order) {
+        return order == Order.ASC ? path.asc() : path.desc();
+    }
+
     public static HibernateQuery<Tuple> applyPatientLevelJoins(
             HibernateQuery<Tuple> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
             boolean orderByPatientName) {
@@ -335,7 +339,7 @@ public class QueryBuilder {
 
     public static void addSeriesLevelPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam) {
         builder.and(uidsPredicate(QSeries.series.seriesInstanceUID, keys.getStrings(Tag.SeriesInstanceUID)));
-        builder.and(wildCard(QSeries.series.seriesNumber, keys.getString(Tag.SeriesNumber, "*"), false));
+        builder.and(wildCard(QSeries.series.seriesNumber, Integer.parseInt(keys.getString(Tag.SeriesNumber, "0"))));
         builder.and(wildCard(QSeries.series.modality, keys.getString(Tag.Modality, "*").toUpperCase(),
                 false));
         builder.and(wildCard(QSeries.series.bodyPartExamined, keys.getString(Tag.BodyPartExamined, "*").toUpperCase(),
@@ -382,7 +386,7 @@ public class QueryBuilder {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         builder.and(uidsPredicate(QInstance.instance.sopInstanceUID, keys.getStrings(Tag.SOPInstanceUID)));
         builder.and(uidsPredicate(QInstance.instance.sopClassUID, keys.getStrings(Tag.SOPClassUID)));
-        builder.and(wildCard(QInstance.instance.instanceNumber, keys.getString(Tag.InstanceNumber, "*"), false));
+        builder.and(wildCard(QInstance.instance.instanceNumber, Integer.parseInt(keys.getString(Tag.InstanceNumber, "0"))));
         builder.and(wildCard(QInstance.instance.verificationFlag,
                 keys.getString(Tag.VerificationFlag, "*").toUpperCase(), false));
         builder.and(wildCard(QInstance.instance.completionFlag,
@@ -550,6 +554,10 @@ public class QueryBuilder {
         return value == null || value.equals("*");
     }
 
+    static boolean isUniversalMatching(Integer value) {
+        return value == null || value.equals(0);
+    }
+
     static Predicate wildCard(StringPath path, String value) {
         return wildCard(path, value, false);
     }
@@ -572,10 +580,26 @@ public class QueryBuilder {
         return predicate;
     }
 
+    static Predicate wildCard(NumberPath<Integer> path, Integer value) {
+        if (isUniversalMatching(value))
+            return null;
+
+        Predicate predicate;
+        NumberExpression expr = path;
+        if (containsWildcard(value))
+            predicate = expr.eq(0);
+        else
+            predicate = expr.eq(value);
+        return predicate;
+    }
+
     static boolean containsWildcard(String s) {
         return s.indexOf('*') >= 0 || s.indexOf('?') >= 0;
     }
 
+    static boolean containsWildcard(Integer i) {
+        return i == 0 || i == null;
+    }
 
     static String toLikePattern(String s) {
         StringBuilder like = new StringBuilder(s.length());

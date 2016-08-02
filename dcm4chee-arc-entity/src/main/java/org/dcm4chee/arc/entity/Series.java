@@ -182,7 +182,7 @@ public class Series {
 
     @Basic(optional = false)
     @Column(name = "series_no")
-    private String seriesNumber;
+    private Integer seriesNumber;
 
     @Basic(optional = false)
     @Column(name = "series_desc")
@@ -311,7 +311,7 @@ public class Series {
         return seriesInstanceUID;
     }
 
-    public String getSeriesNumber() {
+    public Integer getSeriesNumber() {
         return seriesNumber;
     }
 
@@ -436,7 +436,7 @@ public class Series {
 
     public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
-        seriesNumber = attrs.getString(Tag.SeriesNumber, "*");
+        seriesNumber = Integer.parseInt(attrs.getString(Tag.SeriesNumber, "0"));
         seriesDescription = attrs.getString(Tag.SeriesDescription, "*");
         institutionName = attrs.getString(Tag.InstitutionName, "*");
         institutionalDepartmentName = attrs.getString(Tag.InstitutionalDepartmentName, "*");
