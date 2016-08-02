@@ -7,16 +7,16 @@ alter table location alter object_type set not null;
 alter table location alter tsuid drop not null;
 create table uidmap (pk int8 not null, uidmap bytea not null, primary key (pk));
 
-alter table instance add tempInst_no int4;
-update instance set tempInst_no = inst_no::int4 WHERE inst_no != '*';
-update instance set tempInst_no = NULL where inst_no ='*';
-alter table instance DROP inst_no;
-alter table instance RENAME COLUMN tempInst_no to inst_no;
-alter table series add tempSeries_no int4;
-update series set tempSeries_no = series_no::int4 WHERE series_no != '*';
-update series set tempSeries_no = NULL where series_no ='*';
-alter table series DROP series_no;
-alter table series RENAME COLUMN tempSeries_no to series_no;
+alter table instance add inst_no_int int4;
+update instance set inst_no_int = inst_no::int4 where inst_no != '*';
+update instance set inst_no_int = null where inst_no = '*';
+alter table instance drop inst_no;
+alter table instance rename inst_no_int to inst_no;
+alter table series add series_no_int int4;
+update series set series_no_int = series_no::int4 where series_no != '*';
+update series set series_no_int = null where series_no = '*';
+alter table series drop series_no;
+alter table series rename series_no_int to series_no;
 
 create index UK_i1lnahmehau3r3j9pdyxg3p3y on location (multi_ref);
 alter table location add constraint FK_bfk5vl6eoxaf0hhwiu3rbgmkn foreign key (uidmap_fk) references uidmap;
