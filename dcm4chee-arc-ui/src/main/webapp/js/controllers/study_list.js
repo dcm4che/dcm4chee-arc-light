@@ -3,6 +3,7 @@
 myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService,  $filter, $templateRequest, $timeout) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.patients = [];
+    $scope.mwl = [];
 //   $scope.studies = [];
     // $scope.allhidden = false; 
     $scope.dateplaceholder = {};
@@ -1769,22 +1770,30 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             createQueryParams(offset, $scope.limit+1, { orderby: 'SeriesNumber'})
         ).then(function (res) {
             if(res.data){
+                if(res.data.length === 0){
+                    DeviceService.msg($scope, {
+                            "title": "Info",
+                            "text": "No matching series found!",
+                            "status": "info"
+                    });
+                }else{
 
-                study.series = res.data.map(function (attrs, index) {
-                    return {
-                            study: study,
-                            offset: offset + index,
-                            moreInstances: false,
-                            attrs: attrs,
-                            instances: null,
-                            showAttributes: false
-                    };
-                });
-                if (study.moreSeries = (study.series.length > $scope.limit)) {
-                    study.series.pop();
+                    study.series = res.data.map(function (attrs, index) {
+                        return {
+                                study: study,
+                                offset: offset + index,
+                                moreInstances: false,
+                                attrs: attrs,
+                                instances: null,
+                                showAttributes: false
+                        };
+                    });
+                    if (study.moreSeries = (study.series.length > $scope.limit)) {
+                        study.series.pop();
+                    }
+                    StudiesService.trim($scope);
                 }
                 cfpLoadingBar.complete();
-                StudiesService.trim($scope);
             }else{
                 DeviceService.msg($scope, {
                         "title": "Info",
@@ -1794,6 +1803,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         });
     };
+
     $scope.queryInstances = function (series, offset) {
          cfpLoadingBar.start();
         if (offset < 0) offset = 0;
@@ -1901,6 +1911,51 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               }
             });
 
+    };
+    $scope.deleteStudy = function(study){
+        cfpLoadingBar.start();
+        console.log("study",study);
+        if(study.attrs['00201208'].Value[0] === 0){
+            vex.dialog.confirm({
+              message: 'Are you sure you want to delete this study?',
+              callback: function(value) {
+                if(value){
+                    $http({
+                        method: 'DELETE',
+                        url:"../aets/"+$scope.aet+"/rs/studies/"+study.attrs["0020000D"].Value[0],
+                    }).then(
+                        function successCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Info",
+                                "text": "Study deleted successfully!",
+                                "status": "info"
+                            });
+                            console.log("response",response);
+                            cfpLoadingBar.complete();
+                        },
+                        function errorCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Error",
+                                "text": "Error deleting study!",
+                                "status": "error"
+                            });
+                            cfpLoadingBar.complete();
+                        }
+                    );
+                }else{
+                    $log.log("deleting canceled");
+                    cfpLoadingBar.complete();
+                }
+              }
+            });
+        }else{
+            DeviceService.msg($scope, {
+                "title": "Error",
+                "text": "Study not empty!",
+                "status": "error"
+            });
+            cfpLoadingBar.complete();
+        }
     };
     $scope.rejectStudy = function(study) {
         if($scope.trashaktive){
@@ -2303,7 +2358,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 showAttributes: false
                             };
                             // $scope.$apply(function () {
-                                $scope.mwl.push(pat);
+                                $scope.patients.push(pat);
+                                // $scope.mwl.push(pat);
                             // });
                         }
                         mwl = {
@@ -2330,7 +2386,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         "status": "info"
                     });
                 }
-                console.log("$scope.patients",$scope.patients);
+                // console.log("$scope.patients",$scope.patients);
                 cfpLoadingBar.complete();
             },
             function errorCallback(response) {
@@ -2342,6 +2398,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         );
     };
+
     $scope.conditionWarning = function($event, condition, msg){
         if(condition){
             $scope.disabled[$event.currentTarget.id] = true;

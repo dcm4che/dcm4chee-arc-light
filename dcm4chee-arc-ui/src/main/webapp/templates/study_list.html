@@ -659,6 +659,9 @@
                                 <a ng-show="trashaktive && isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
                                     <span class="glyphicon glyphicon-repeat"></span>
                                 </a>
+                                <a ng-show="isRole('admin') && study.attrs['00201208'].Value[0] === 0" ng-click="deleteStudy(study)" href="" title="Delete Study">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </a>
                                 <!--
                                 <a ng-href="{{study.attrs['00081190'].Value[0]}}" tooltip="Download Study">
                                     <span class="glyphicon glyphicon-save"></span>
