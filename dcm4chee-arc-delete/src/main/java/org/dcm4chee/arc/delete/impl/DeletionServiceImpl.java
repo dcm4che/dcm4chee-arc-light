@@ -125,7 +125,8 @@ public class DeletionServiceImpl implements DeletionService {
             Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, studyUID).getSingleResult();
             if (study != null) {
-                if (!studyDeleted(ctx, request, study))
+                ctx = createStudyDeleteContext(study.getStudyInstanceUID(), request);
+                if (!studyDeleted(ctx, study))
                     throw new StudyNotEmptyException();
             }
             LOG.info("Successfully delete {} from database", ctx.getStudy());
@@ -146,11 +147,12 @@ public class DeletionServiceImpl implements DeletionService {
     public void deletePatient(PatientMgtContext ctx) {
         List<Study> sList = em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
                 .setParameter(1, ctx.getPatient()).getResultList();
-        StudyDeleteContext sCtx = null;
+        StudyDeleteContext sCtx;
         if (!sList.isEmpty()) {
             for (Study study : sList) {
                 try {
-                    studyDeleted(sCtx, ctx.getHttpRequest(), study);
+                    sCtx = createStudyDeleteContext(study.getStudyInstanceUID(), ctx.getHttpRequest());
+                    studyDeleted(sCtx, study);
                 } catch (Exception e) {
                     LOG.warn("Failed to delete {} on {}", study, e);
                     ctx.setException(e);
@@ -162,8 +164,7 @@ public class DeletionServiceImpl implements DeletionService {
         LOG.info("Successfully delete {} from database", ctx.getPatient());
     }
 
-    private boolean studyDeleted(StudyDeleteContext ctx, HttpServletRequest request, Study study) {
-        ctx = createStudyDeleteContext(study.getStudyInstanceUID(), request);
+    private boolean studyDeleted(StudyDeleteContext ctx, Study study) {
         ctx.setStudy(study);
         ctx.setPatient(study.getPatient());
         ctx.setDeletePatientOnDeleteLastStudy(false);
