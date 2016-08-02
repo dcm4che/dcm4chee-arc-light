@@ -66,6 +66,8 @@ import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -81,9 +83,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -95,6 +95,7 @@ import java.util.Map;
 public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
+    private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
 
     @Inject
     private Device device;
@@ -344,7 +345,21 @@ public class IocmRS {
             throw new WebApplicationException(
                     "No such Application Entity: " + aet,
                     Response.Status.SERVICE_UNAVAILABLE);
+        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        if (request.getAttribute(keycloakClassName) != null)
+            if(!authenticatedUser(request, arcAE.getAcceptedUserRoles()))
+                throw new WebApplicationException(Response.Status.FORBIDDEN);
         return ae;
+    }
+
+    private boolean authenticatedUser(HttpServletRequest request, String[] acceptedUserRoles) {
+        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
+                request.getAttribute(KeycloakSecurityContext.class.getName());
+        Set<String> userRoles = securityContext.getToken().getRealmAccess().getRoles();
+        for (String s : userRoles)
+            if (Arrays.asList(acceptedUserRoles).contains(s))
+                return true;
+        return false;
     }
 
     private void reject(String method, String studyUID, String seriesUID, String objectUID,
