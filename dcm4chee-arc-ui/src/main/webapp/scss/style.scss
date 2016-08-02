@@ -2666,3 +2666,25 @@ table.j4care-table{
 	height:30px;
 	margin-top:5px;
 }
+.itemTree{
+	li{
+		list-style: none;
+	}
+	.form_name.sq {
+	    width: 86%;
+	}
+	.form_code {
+	    float: left;
+	    height: 30px;
+	    width: 13%;
+	}
+	.form_name {
+	    float: left;
+	    height: 30px;
+	    width: 27%;
+	}
+	.form_input {
+	    float: left;
+	    width: 59%;
+	}
+}

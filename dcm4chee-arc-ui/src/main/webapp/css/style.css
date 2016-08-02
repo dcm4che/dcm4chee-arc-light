@@ -1970,4 +1970,20 @@ table.j4care-table {
   height: 30px;
   margin-top: 5px; }
 
+.itemTree li {
+  list-style: none; }
+.itemTree .form_name.sq {
+  width: 86%; }
+.itemTree .form_code {
+  float: left;
+  height: 30px;
+  width: 13%; }
+.itemTree .form_name {
+  float: left;
+  height: 30px;
+  width: 27%; }
+.itemTree .form_input {
+  float: left;
+  width: 59%; }
+
 /*# sourceMappingURL=style.css.map */

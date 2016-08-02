@@ -626,14 +626,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         };
         // console.log("$scope.editmwl",$scope.editmwl);
         $http.get('iod/mwl.iod.json',{ cache: true}).then(function (res) {
-            $scope.items = res.data;
+            // $scope.items = res.data;
+            console.log("$scope.editmwl",$scope.editmwl);
+            $scope.items = $scope.editmwl.attrs;
+            console.log("$scope.items",$scope.items);
             // angular.forEach($scope.editmwl.attrs,function(m, i){
             //     if(!res.data[i] || res.data[i] === undefined){
             //         delete $scope.editmwl.attrs[i];
             //     }
             // });
             console.log("res",angular.copy(res));
-            var dropdown                = StudiesService.getArrayFromIod(res);
+            var dropdown                = StudiesService.getArrayFromIodExtended(res);
             console.log("before replace res.data",angular.copy(res.data));
             res.data = StudiesService.replaceKeyInJson(res.data, "items", "Value");
             console.log("after replace res.data",angular.copy(res.data));
@@ -721,7 +724,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             var codes = [];
                             if(attrcode.indexOf(':') >= 0){
                                 codes =  attrcode.split(":"); 
-                                if($scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
+                                console.log("codes",codes);
+                                console.log("$scope.editmwl",$scope.editmwl);
+                                if($scope.editmwl.attrs[codes[0]] && $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
                                     // if(!$scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
                                         // $timeout(function() {
                                         //     $scope.$apply(function(){
@@ -868,7 +873,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     cfpLoadingBar.start();
                     if (data === false) {
                         cfpLoadingBar.complete();
-
+                        console.log("$scope.editmwl",$scope.editmwl);
                         StudiesService.clearPatientObject($scope.editmwl.attrs);
                         return console.log('Cancelled');
                     }else{

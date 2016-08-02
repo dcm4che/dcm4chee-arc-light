@@ -2,7 +2,7 @@
 <div class="dropdown" ng-show="opendropdown">
 	<a class="dropdown_element" name="{{m.code}}" ng-repeat="(i,m) in dropdown | filter:addPatientAttribut" ng-click="addAttribute(m.code)">({{m.codeComma}}) {{m.name}}</a>
 </div>
-<table class="table">
+<!-- <table class="table">
   <iterative-iod object="{{editmwl.attrs}}" value="{{p}}" key="{{i}}"></iterative-iod>
    <tr ng-repeat="(i, p) in editmwl.attrs | mwl:iod track by $index ">
       <td ng-if="p.vr != 'SQ'" class="col-md-2 control-label first_td">{{i}}</td>
@@ -59,20 +59,22 @@
          </div>
       </td>
    </tr>
-</table>
+</table> -->
 
-<pre>
+<!-- <pre>
   testmodel:{{testmodel | json}}
-  testmodel:{{testm | json}}
+  testm:{{testm | json}}
   <span ng-init="path2 = []"></span>
-</pre>
+</pre> -->
     <script type="text/ng-template" id="itemTree">
 <!--         <span>path={{path | json}} :</span><br>
         <span>path2={{path2 | json}} :</span><br>
  -->        
         <!-- <span></span> -->
         <!-- <span>arr.length:{{arr.length}}</span><br> -->
-        <span ng-if="item.vr != 'SQ'">{{arrow}}</span><span> {{i}}</span><span ng-init="arr = path2.split(':');name = DCM4CHE.elementName.forTag(i)">{{DCM4CHE.elementName.forTag(i)}}</span>
+        <!-- <span class="form_arrow" ng-if="item.vr != 'SQ'">{{arrow}}</span> -->
+        <span class="form_code">{{arrow}} {{i}}</span>
+        <span class="form_name" ng-init="arr = path2.split(':');name = DCM4CHE.elementName.forTag(i)" ng-class="{sq:item.vr === 'SQ'}">{{DCM4CHE.elementName.forTag(i)}}</span>
 <!--         <span ng-if="arr.length === 1"  ng-init="testmodel[arr[0]].Value = testmodel[arr[0]].Value || []"></span>
         <span ng-if="arr.length === 2"  ng-init="testmodel[arr[0]].Value[0][arr[1]].Value = testmodel[arr[0]].Value[0][arr[1]].Value || []"></span>
         <span ng-if="arr.length === 3"  ng-init="testmodel[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value = testmodel[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value || []"></span>
@@ -84,7 +86,24 @@
         <span ng-if="arr.length === 9"  ng-init="testmodel[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value = testmodel[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value || []"></span>
         <span ng-if="arr.length === 10"  ng-init="testmodel[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value = testmodel[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value || []"></span>
          -->
-         <span ng-if="p.vr != 'PN'">
+
+         <span class="form_input" ng-if="i === '00100040' && item.vr != 'DA' && item.vr != 'PN'">
+            <select name="00100040"
+            ng-options="o as o.title for o in options.genders track by o.Value[0]"
+            ng-model="editmwl.attrs[i]"></select>
+         </span>
+         <span class="form_input" ng-if="item.vr === 'DA' && i != '00100040' && item.vr != 'PN'">
+            <input ng-init="dateOpen[i]=false" class="form-control no-close-button"
+              is-open="dateOpen[i]"
+              type="text" 
+              uib-datepicker-popup="{{format}}"
+              datepicker-options="dateOptions"
+              ng-click="opendateplaceholder(i,p.vr)" 
+              ng-model="dateplaceholder[i]"
+              close-text="Close"
+            />           
+         </span>
+         <span class="form_input" ng-if="item.vr != 'PN' && item.vr != 'DA' && i != '00100040'">
           <input ng-if="item.vr!='SQ' && arr.length === 1" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0]">
           <input ng-if="item.vr!='SQ' && arr.length === 2" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0]">
           <input ng-if="item.vr!='SQ' && arr.length === 3" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0]">
@@ -96,37 +115,38 @@
           <input ng-if="item.vr!='SQ' && arr.length === 9" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0]">
           <input ng-if="item.vr!='SQ' && arr.length === 10" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value[0]">
         </span>
-         <span ng-if="p.vr === 'PN'">
-          <input ng-if="item.vr!='SQ' && arr.length === 1"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 1"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 1"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 2"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 2"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 2"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 3"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 3"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 3"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 4"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 4"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 4"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 5"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 5"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 5"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 6"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 6"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 6"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 7"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 7"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 7"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 8"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 8"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 8"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 9"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 9"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 9"  type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0]['Phonetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 10" type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value[0]['Alphabetic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 10" type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value[0]['Ideographic']">
-          <input ng-if="item.vr!='SQ' && arr.length === 10" type="text" placeholder="{{name}}"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value[0]['Phonetic']">
+         <span class="form_input" ng-if="item.vr === 'PN' && item.vr != 'DA' && i != '00100040'">
+          <input ng-if="item.vr!='SQ' && arr.length === 1"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 1"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 1"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 2"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 2"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 2"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 3"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 3"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 3"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 4"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 4"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 4"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 5"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 5"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 5"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 6"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 6"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 6"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 7"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 7"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 7"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 8"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 8"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 8"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 9"  type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 9"  type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 9"  type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 10" type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value[0]['Alphabetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 10" type="text" placeholder="{{name}} Ideographic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value[0]['Ideographic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 10" type="text" placeholder="{{name}} Phonetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value[0]['Phonetic']">
+          <input ng-if="item.vr!='SQ' && arr.length === 10" type="text" placeholder="{{name}} Alphabetic"  ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[0][arr[4]].Value[0][arr[5]].Value[0][arr[6]].Value[0][arr[7]].Value[0][arr[8]].Value[0][arr[9]].Value[0]['Alphabetic']">
         </span>
 
         <ul ng-if="item.items">
@@ -138,7 +158,7 @@
             </li>
         </ul>
     </script>
-    <ul>
+    <ul class="itemTree">
         <li ng-repeat="(i, item) in items"  ng-include="'itemTree'" ng-init="index = 0;path[index] = i;path2 = i;arrow = ''"></li>
     </ul>    
 </div>
