@@ -8,6 +8,18 @@ update location set object_type = 0;
 alter table location alter object_type set not null;
 alter table location alter tsuid drop not null;
 create table uidmap (pk int8 not null, uidmap bytea not null, primary key (pk));
+
+alter table instance add inst_no_int int4;
+update instance set inst_no_int = inst_no::int4 where inst_no != '*';
+update instance set inst_no_int = null where inst_no = '*';
+alter table instance drop inst_no;
+alter table instance alter column inst_no_int rename to inst_no;
+alter table series add series_no_int int4;
+update series set series_no_int = series_no::int4 where series_no != '*';
+update series set series_no_int = null where series_no = '*';
+alter table series drop series_no;
+alter table series alter column series_no_int rename to series_no;
+
 create index UK_i1lnahmehau3r3j9pdyxg3p3y on location (multi_ref);
 alter table location add constraint FK_bfk5vl6eoxaf0hhwiu3rbgmkn foreign key (uidmap_fk) references uidmap;
 create index FK_bfk5vl6eoxaf0hhwiu3rbgmkn on location (uidmap_fk) ;
