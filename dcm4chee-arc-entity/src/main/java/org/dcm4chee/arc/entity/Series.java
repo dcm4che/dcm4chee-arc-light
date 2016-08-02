@@ -436,7 +436,7 @@ public class Series {
 
     public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
-        seriesNumber = Integer.parseInt(attrs.getString(Tag.SeriesNumber, "0"));
+        seriesNumber = getSeriesNumberAsInteger(attrs.getString(Tag.SeriesNumber));
         seriesDescription = attrs.getString(Tag.SeriesDescription, "*");
         institutionName = attrs.getString(Tag.InstitutionName, "*");
         institutionalDepartmentName = attrs.getString(Tag.InstitutionalDepartmentName, "*");
@@ -477,6 +477,16 @@ public class Series {
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+    }
+
+    private Integer getSeriesNumberAsInteger(String seriesNumber) {
+        if (seriesNumber == null)
+            return null;
+        try {
+            return Integer.parseInt(seriesNumber);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
 }

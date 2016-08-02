@@ -386,7 +386,7 @@ public class Instance {
     public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
         sopClassUID = attrs.getString(Tag.SOPClassUID);
-        instanceNumber = Integer.parseInt(attrs.getString(Tag.InstanceNumber, "0"));
+        instanceNumber = getInstanceNumberAsInteger(attrs.getString(Tag.InstanceNumber));
         Date dt = attrs.getDate(Tag.ContentDateAndTime);
         if (dt != null) {
             contentDate = DateUtils.formatDA(null, dt);
@@ -412,5 +412,15 @@ public class Instance {
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+    }
+
+    private Integer getInstanceNumberAsInteger(String instanceNumber) {
+        if (instanceNumber == null)
+            return null;
+        try {
+            return Integer.parseInt(instanceNumber);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }
