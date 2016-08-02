@@ -348,7 +348,7 @@ public class IocmRS {
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         if (request.getAttribute(keycloakClassName) != null)
             if(!authenticatedUser(request, arcAE.getAcceptedUserRoles()))
-                throw new WebApplicationException(Response.Status.FORBIDDEN);
+                throw new WebApplicationException("User not allowed to perform this service.", Response.Status.FORBIDDEN);
         return ae;
     }
 
