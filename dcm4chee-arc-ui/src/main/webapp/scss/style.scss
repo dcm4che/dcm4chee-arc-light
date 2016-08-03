@@ -2669,22 +2669,39 @@ table.j4care-table{
 .itemTree{
 	li{
 		list-style: none;
-	}
-	.form_name.sq {
-	    width: 86%;
-	}
-	.form_code {
+	    display: block;
 	    float: left;
-	    height: 30px;
-	    width: 13%;
-	}
-	.form_name {
-	    float: left;
-	    height: 30px;
-	    width: 27%;
-	}
-	.form_input {
-	    float: left;
-	    width: 59%;
+	    position: relative;
+	    width: 100%;
+	    padding:5px 8px;
+	    &:hover{
+	    	background:#ddd;
+	    }
+	    .glyphicon.glyphicon-remove {
+		    position: absolute;
+		    right: 1%;
+		    top: 9px;
+		}
+		.form_name.sq {
+		    width: 86%;
+		}
+		.form_code {
+		    float: left;
+		    height: 30px;
+		    width: 13%;
+		}
+		.form_name {
+		    float: left;
+		    height: 30px;
+		    width: 27%;
+		}
+		.form_input {
+		    float: left;
+		    width: 59%;
+	    	.input input, select{
+	    		width: 98% !important;
+	    	}
+
+		}
 	}
 }

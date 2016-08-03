@@ -103,8 +103,58 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                 //         "name":DCM4CHE.elementName.forTag(j)
                 //     });
                 // });
-
+                dropdown.push({
+                    "code":code+i,
+                    "codeComma": arrow+i.slice(0, 4)+","+i.slice(4),
+                    "name":DCM4CHE.elementName.forTag(i)
+                });
                 getArrayFromIodExtendedHelper(m.items, dropdown, arrow, code, level, i);
+            }else{
+                console.log("a2rrow",arrow);
+                dropdown.push({
+                    "code":code+i,
+                    "codeComma": arrow+i.slice(0, 4)+","+i.slice(4),
+                    "name":DCM4CHE.elementName.forTag(i)
+                });
+            }
+        });
+        return dropdown;
+    };
+    var getArrayFromIodMwlHelper = function(data, dropdown, arrow, code, level, index){
+        console.log("arrow",arrow);
+        console.log("code",code);
+        console.log("level",level);
+        if(level > 0){
+            arrow += "\>";
+            code  += index+":";
+        }
+        level = level+1;
+        angular.forEach(data, function(m, i){
+            console.log("i",i);
+            console.log("m",m);
+            if(i === '00400100'){
+                // console.log("in if m",m.items);
+                // angular.forEach(m.items, function(l, j){
+                //     // console.log("l",l);
+                //     // console.log("j",j);
+                //     dropdown.push({
+                //         "code":"00400100:"+j,
+                //         "codeComma": ">"+j.slice(0, 4)+","+j.slice(4),
+                //         "name":DCM4CHE.elementName.forTag(j)
+                //     });
+                // });
+                // arrow += "\>";
+                // code  += index+":";
+                angular.forEach(m.items, function(k, j){
+                    console.log("j",j);
+                    console.log("k",k);
+                    dropdown.push({
+                        "code":"00400100:"+j,
+                        "codeComma": arrow+j.slice(0, 4)+","+j.slice(4),
+                        "name":DCM4CHE.elementName.forTag(j)
+                    });
+                });
+                // getArrayFromIodExtendedHelper(m.items, dropdown, arrow, code, level, i);
             }else{
                 console.log("a2rrow",arrow);
                 dropdown.push({
@@ -355,6 +405,12 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         getArrayFromIodExtended :function(res){
             var dropdown = [];
             getArrayFromIodExtendedHelper(res.data, dropdown, "", "",0,"");
+            console.log("dropdown",dropdown);
+            return dropdown;
+        },
+        getArrayFromIodMwl :function(res){
+            var dropdown = [];
+            getArrayFromIodMwlHelper(res.data, dropdown, "", "",0,"");
             console.log("dropdown",dropdown);
             return dropdown;
         },

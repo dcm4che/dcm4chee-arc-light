@@ -636,7 +636,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             //     }
             // });
             console.log("res",angular.copy(res));
-            var dropdown                = StudiesService.getArrayFromIodExtended(res);
+            // var dropdown                = StudiesService.getArrayFromIodExtended(res);
+            var dropdown                = StudiesService.getArrayFromIodMwl(res);
+            console.log("dropdown",dropdown);
             console.log("before replace res.data",angular.copy(res.data));
             res.data = StudiesService.replaceKeyInJson(res.data, "items", "Value");
             console.log("after replace res.data",angular.copy(res.data));
@@ -651,6 +653,32 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             if(mode === "edit"){
                 header = 'Edit mwl of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
             }
+            $http.get('iod/patient.iod.json',{ cache: true}).then(function (patientres) {
+                // var patientCodes = StudiesService.getArrayFromIodExtended(patientres);
+                var patientCodes = dropdown;
+                var patientCodesStringify = JSON.stringify(patientCodes);
+                console.log("patientCodesStringify",patientCodesStringify);
+                console.log("patientcodes",patientCodes);
+                // $scope.isPatientAttr = function(code){
+                //     console.log("patientCodesStringify.indexOf(code)=",patientCodesStringify.indexOf(code));
+                //     console.log("is patientAttr code=",code);
+                //     console.log("typeof code",typeof code);
+                //     var codeJoined;
+                //     if(typeof code === "string"){
+                //         codeJoined = code;
+                //     }else{
+                //         codeJoined = code.join(':');
+                //     }
+                //     console.log("codeJoined",codeJoined);
+                //     if(patientCodesStringify.indexOf(codeJoined) !== -1){
+                //         console.log("return false");
+                //         return false;
+                //     }else{
+                //         console.log("return true");
+                //         return true;
+                //     }
+                // };
+            }); 
             var $vex = vex.dialog.open({
               message: header,
               input: html,
@@ -680,29 +708,67 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     });
                     //Click event handling
                     $scope.addAttribute = function(attrcode){
-                        if($scope.editmwl.attrs[attrcode] != undefined){
-                            if(res.data[attrcode].multi){
+                        console.log("attrcode",attrcode);
+                        if(attrcode.indexOf(':') > -1){
+                                var codes =  attrcode.split(":"); 
+                                console.log("codes",codes);
+                                console.log("$scope.editmwl",$scope.editmwl);
+                                console.log("res.data",res.data);
+                                if(codes[0] === "00400100"){
+                                    console.log("$scope.items",$scope.items);
+                                    console.log("$scope.editmwl.attrs",$scope.editmwl.attrs);
+                                    if($scope.editmwl.attrs[codes[0]].Value[0][codes[1]] != undefined){
+                                        if(res.data[codes[0]].Value[0][codes[1]].multi){
+                                            $timeout(function() {
+                                                $scope.$apply(function(){
+                                                    // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                                    $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
+                                                    $scope.addPatientAttribut           = "";
+                                                    $scope.opendropdown                 = false;
+                                                });
+                                            });
+                                        }else{
+                                            DeviceService.msg($scope, {
+                                                    "title": "Warning",
+                                                    "text": "Attribute already exists!",
+                                                    "status": "warning"
+                                            });
+                                        }
+                                    }else{
+                                        $timeout(function() {
+                                            $scope.$apply(function(){
+                                                $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]  = res.data[codes[0]].Value[0][codes[1]];
+                                            });
+                                        });
+                                    }
+                                }else{
+                                    $log.error("error, code 00400100 not found on the 0 position");
+                                }
+                        }else{
+                            if($scope.editmwl.attrs[attrcode] != undefined){
+                                if(res.data[attrcode].multi){
+                                    $timeout(function() {
+                                        $scope.$apply(function(){
+                                            // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                            $scope.editmwl.attrs[attrcode]["Value"].push("");
+                                            $scope.addPatientAttribut           = "";
+                                            $scope.opendropdown                 = false;
+                                        });
+                                    });
+                                }else{
+                                    DeviceService.msg($scope, {
+                                            "title": "Warning",
+                                            "text": "Attribute already exists!",
+                                            "status": "warning"
+                                    });
+                                }
+                            }else{
                                 $timeout(function() {
                                     $scope.$apply(function(){
-                                        // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
-                                        $scope.editmwl.attrs[attrcode]["Value"].push("");
-                                        $scope.addPatientAttribut           = "";
-                                        $scope.opendropdown                 = false;
+                                        $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
                                     });
                                 });
-                            }else{
-                                DeviceService.msg($scope, {
-                                        "title": "Warning",
-                                        "text": "Attribute already exists!",
-                                        "status": "warning"
-                                });
                             }
-                        }else{
-                            $timeout(function() {
-                                $scope.$apply(function(){
-                                    $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
-                                });
-                            });
                         }
                     };
                     $(".addPatientAttribut").bind("keydown",function(e){
@@ -721,89 +787,68 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 var attrcode = filtered[0].code;
                             }
                             // console.log("attrcode=",attrcode);
-                            var codes = [];
-                            if(attrcode.indexOf(':') >= 0){
-                                codes =  attrcode.split(":"); 
+                        console.log("attrcode",attrcode);
+                        if(attrcode.indexOf(':') > -1){
+                                var codes =  attrcode.split(":"); 
                                 console.log("codes",codes);
                                 console.log("$scope.editmwl",$scope.editmwl);
-                                if($scope.editmwl.attrs[codes[0]] && $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
-                                    // if(!$scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]){
-                                        // $timeout(function() {
-                                        //     $scope.$apply(function(){
-                                        //         console.log("codes[0]]",codes[0]);
-                                        //         console.log("codes[1]]",codes[1]);
-                                        //         console.log("$scope.editmwl.attrs[codes[0]]",$scope.editmwl.attrs[codes[0]]);
-                                        //         $scope.editmwl.attrs[codes[0]]["Value"] = $scope.editmwl.attrs[codes[0]]["Value"] || [];
-                                        //         $scope.editmwl.attrs[codes[0]]["Value"][0] = $scope.editmwl.attrs[codes[0]]["Value"][0] || [];
-                                        //         $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]] = $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]] || {};
-                                        //         $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"] = $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"] || [];
-                                        //         $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"].push("");
-                                        //         console.log("$scope.editmwl",$scope.editmwl);
-                                        //         $scope.addPatientAttribut           = "";
-                                        //         $scope.opendropdown                 = false;
-                                        //     });
-                                        // });
-                                    if(res.data[codes[0]]["Value"][0][codes[1]].multi){
+                                console.log("res.data",res.data);
+                                if(codes[0] === "00400100"){
+                                    console.log("$scope.items",$scope.items);
+                                    console.log("$scope.editmwl.attrs",$scope.editmwl.attrs);
+                                    if($scope.editmwl.attrs[codes[0]].Value[0][codes[1]] != undefined){
+                                        if(res.data[codes[0]].Value[0][codes[1]].multi){
+                                            $timeout(function() {
+                                                $scope.$apply(function(){
+                                                    // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                                    $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
+                                                    $scope.addPatientAttribut           = "";
+                                                    $scope.opendropdown                 = false;
+                                                });
+                                            });
+                                        }else{
+                                            DeviceService.msg($scope, {
+                                                    "title": "Warning",
+                                                    "text": "Attribute already exists!",
+                                                    "status": "warning"
+                                            });
+                                        }
+                                    }else{
                                         $timeout(function() {
                                             $scope.$apply(function(){
-                                                // console.log("$scope.editmwl.attrs[codes[0]]['Value'][0][codes[1]]['Value']",$scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"]);
-                                                $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]["Value"].push("");
-                                                $scope.addPatientAttribut           = "";
-                                                $scope.opendropdown                 = false;
+                                                $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]  = res.data[codes[0]].Value[0][codes[1]];
                                             });
                                         });
-                                    }else{
-                                        DeviceService.msg($scope, {
-                                            "title": "Warning",
-                                            "text": "Attribute already exists!",
-                                            "status": "warning"
-                                        });
                                     }
-                                    // }else{
-                                    //     DeviceService.msg($scope, {
-                                    //         "title": "Warning",
-                                    //         "text": "Attribute already exists!",
-                                    //         "status": "warning"
-                                    //     });
-                                    // }
                                 }else{
-                                    if($scope.editmwl.attrs[codes[0]]){
-                                        $timeout(function() {
-                                            $scope.$apply(function(){
-                                                console.log("res.data[codes[0]]",angular.copy(res.data));
-                                                $scope.editmwl.attrs[codes[0]]["Value"][0][codes[1]]  = res.data[codes[0]]["Value"][0][codes[1]];
-                                                console.log("res.data[codes[0]]",angular.copy($scope.editmwl.attrs));
-                                            });
-                                        });
-                                    }else{
-                                        
-                                    }
+                                    $log.error("error, code 00400100 not found on the 0 position");
                                 }
-                            }else{
-                                if($scope.editmwl.attrs[attrcode] != undefined){
-                                    if(res.data[attrcode].multi){
-                                        $timeout(function() {
-                                            $scope.$apply(function(){
-                                                $scope.editmwl.attrs[attrcode]["Value"].push("");
-                                                $scope.addPatientAttribut           = "";
-                                                $scope.opendropdown                 = false;
-                                            });
-                                        });
-                                    }else{
-                                        DeviceService.msg($scope, {
-                                            "title": "Warning",
-                                            "text": "Attribute already exists!",
-                                            "status": "warning"
-                                        });
-                                    }
-                                }else{
+                        }else{
+                            if($scope.editmwl.attrs[attrcode] != undefined){
+                                if(res.data[attrcode].multi){
                                     $timeout(function() {
                                         $scope.$apply(function(){
-                                            $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                            // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                            $scope.editmwl.attrs[attrcode]["Value"].push("");
+                                            $scope.addPatientAttribut           = "";
+                                            $scope.opendropdown                 = false;
                                         });
                                     });
+                                }else{
+                                    DeviceService.msg($scope, {
+                                            "title": "Warning",
+                                            "text": "Attribute already exists!",
+                                            "status": "warning"
+                                    });
                                 }
+                            }else{
+                                $timeout(function() {
+                                    $scope.$apply(function(){
+                                        $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                    });
+                                });
                             }
+                        }
                             setTimeout(function(){
                                 $scope.lastPressedCode = 0;
                             },1000);
