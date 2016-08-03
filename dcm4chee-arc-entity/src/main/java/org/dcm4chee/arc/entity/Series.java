@@ -115,7 +115,11 @@ import java.util.Date;
 @NamedQuery(
         name=Series.FIND_SERIES_OF_STUDY,
         query = "select se from Series se " +
-                "where se.study = ?1")
+                "where se.study = ?1"),
+@NamedQuery(
+        name=Series.COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE,
+        query="select count(se) from Series se " +
+                "where se.study = ?1 and se.rejectionState != ?2")
 })
 @Entity
 @Table(name = "series",
@@ -149,6 +153,7 @@ public class Series {
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.ClearFailedSOPInstanceUIDListOfStudy";
     public static final String GET_EXPIRED_SERIES = "Series.GetExpiredSeries";
     public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
+    public static final String COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE = "Series.countSeriesOfStudyWithOtherRejectionState";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

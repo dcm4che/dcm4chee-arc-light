@@ -233,9 +233,12 @@ public class StoreServiceEJB {
                 if (rjNote.isRevokeRejection()) {
                     if (study.getRejectionState() == RejectionState.COMPLETE)
                         study.getPatient().incrementNumberOfStudies();
-                    study.setRejectionState(hasRejectedInstances(study) ? RejectionState.PARTIAL : RejectionState.NONE);
+                    study.setRejectionState(
+                            hasSeriesWithOtherRejectionState(study, RejectionState.NONE)
+                                    ? RejectionState.PARTIAL
+                                    : RejectionState.NONE);
                 } else {
-                    if (hasNotRejectedInstances(study))
+                    if (hasSeriesWithOtherRejectionState(study, RejectionState.COMPLETE))
                         study.setRejectionState(RejectionState.PARTIAL);
                     else {
                         study.setRejectionState(RejectionState.COMPLETE);
@@ -272,15 +275,10 @@ public class StoreServiceEJB {
                 .getSingleResult() > 0;
     }
 
-    private boolean hasRejectedInstances(Study study) {
-        return em.createNamedQuery(Instance.COUNT_REJECTED_INSTANCES_OF_STUDY, Long.class)
+    private boolean hasSeriesWithOtherRejectionState(Study study, RejectionState rejectionState) {
+        return em.createNamedQuery(Series.COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE, Long.class)
                 .setParameter(1, study)
-                .getSingleResult() > 0;
-    }
-
-    private boolean hasNotRejectedInstances(Study study) {
-        return em.createNamedQuery(Instance.COUNT_NOT_REJECTED_INSTANCES_OF_STUDY, Long.class)
-                .setParameter(1, study)
+                .setParameter(2, rejectionState)
                 .getSingleResult() > 0;
     }
 

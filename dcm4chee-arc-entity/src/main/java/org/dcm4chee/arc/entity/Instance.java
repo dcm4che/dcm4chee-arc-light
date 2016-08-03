@@ -105,14 +105,6 @@ import java.util.Date;
     query="select count(i) from Instance i " +
             "where i.series = ?1 and i.rejectionNoteCode is null"),
 @NamedQuery(
-    name=Instance.COUNT_REJECTED_INSTANCES_OF_STUDY,
-    query="select count(i) from Instance i " +
-            "where i.series.study = ?1 and i.rejectionNoteCode is not null"),
-@NamedQuery(
-    name=Instance.COUNT_NOT_REJECTED_INSTANCES_OF_STUDY,
-    query="select count(i) from Instance i " +
-            "where i.series.study = ?1 and i.rejectionNoteCode is null"),
-@NamedQuery(
     name=Instance.COUNT_INSTANCES_OF_SERIES,
     query="select count(i) from Instance i " +
             "where i.series = ?1")
@@ -140,8 +132,6 @@ public class Instance {
     public static final String COUNT_INSTANCES_OF_SERIES = "Instance.countInstancesOfSeries";
     public static final String COUNT_REJECTED_INSTANCES_OF_SERIES = "Instance.countRejectedInstancesOfSeries";
     public static final String COUNT_NOT_REJECTED_INSTANCES_OF_SERIES = "Instance.countNotRejectedInstancesOfSeries";
-    public static final String COUNT_REJECTED_INSTANCES_OF_STUDY = "Instance.countRejectedInstancesOfStudy";
-    public static final String COUNT_NOT_REJECTED_INSTANCES_OF_STUDY = "Instance.countNotRejectedInstancesOfStudy";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
