@@ -177,6 +177,8 @@ public class DeletionServiceEJB {
                 em.remove(ser);
             } else {
                 studies.put(study.getPk(), null);
+                if (ser.getRejectionState() == RejectionState.PARTIAL && !hasRejectedInstances(ser))
+                    ser.setRejectionState(RejectionState.NONE);
             }
         }
         HashMap<Long,Patient> patients = new HashMap<>();
@@ -191,6 +193,9 @@ public class DeletionServiceEJB {
                     patients.put(patient.getPk(), patient);
             } else {
                 patients.put(patient.getPk(), null);
+                if (study.getRejectionState() == RejectionState.PARTIAL
+                        && !hasSeriesWithOtherRejectionState(study, RejectionState.NONE))
+                    study.setRejectionState(RejectionState.NONE);
             }
         }
         for (Patient patient : patients.values()) {
@@ -204,6 +209,19 @@ public class DeletionServiceEJB {
             }
         }
         return insts.size();
+    }
+
+    private boolean hasRejectedInstances(Series series) {
+        return em.createNamedQuery(Instance.COUNT_REJECTED_INSTANCES_OF_SERIES, Long.class)
+                .setParameter(1, series)
+                .getSingleResult() > 0;
+    }
+
+    private boolean hasSeriesWithOtherRejectionState(Study study, RejectionState rejectionState) {
+        return em.createNamedQuery(Series.COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE, Long.class)
+                .setParameter(1, study)
+                .setParameter(2, rejectionState)
+                .getSingleResult() > 0;
     }
 
     private long countStudiesOfPatient(Patient patient) {
