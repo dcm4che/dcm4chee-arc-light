@@ -46,6 +46,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -96,6 +97,8 @@ public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
     private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
+    private static final int REJECTION_FAILED_ALREADY_REJECTED  = 0xA774;
+    private static final int REJECTION_NOT_AUTHORIZED = 0x0124;
 
     @Inject
     private Device device;
@@ -382,7 +385,12 @@ public class IocmRS {
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-        storeService.store(ctx, attrs);
+        try {
+            storeService.store(ctx, attrs);
+        } catch (DicomServiceException e) {
+            if (e.getStatus() == REJECTION_FAILED_ALREADY_REJECTED || e.getStatus() == REJECTION_NOT_AUTHORIZED)
+                throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
+        }
     }
 
     private StreamingOutput copyOrMoveInstances(String studyUID, InputStream in, Code code) throws Exception {
