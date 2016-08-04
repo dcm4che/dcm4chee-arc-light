@@ -1662,6 +1662,9 @@ div[tooltip]{
 	position:relative;
 	// overflow:visible;
 }
+.vex.vex-theme-os .vex-content{
+	margin-bottom:40px !important;
+}
 .vex.vex-theme-os.edit-patient{
 	.vex-overlay{
 		right: 13px;
@@ -2667,23 +2670,46 @@ table.j4care-table{
 	margin-top:5px;
 }
 .itemTree{
-	li{
+	& > li.listblock{
+		border-bottom:1px solid #ddd;
+	}
+	.input{
+		span{
+			top: 10px;
+		}
+	}
+	li.listblock{
 		list-style: none;
 	    display: block;
 	    float: left;
 	    position: relative;
 	    width: 100%;
-	    padding:5px 8px;
+	    padding:3px 8px;
 	    &:hover{
 	    	background:#ddd;
 	    }
+	    & > .glyphicon.glyphicon-remove{
+	    	right: 25px;
+	    }
 	    .glyphicon.glyphicon-remove {
 		    position: absolute;
-		    right: 1%;
+		    right: 0;
 		    top: 9px;
+		    display: none;
+		    color: #CDCDCD;
+		    &:hover{
+				color: #7B7B7B;
+				cursor: pointer;
+		    }
+		    &.sq{
+		    	right: 23px;
+		    }
+		}
+		&:hover .glyphicon.glyphicon-remove {
+			display: inline-block;
 		}
 		.form_name.sq {
-		    width: 86%;
+		    width: 84%;
 		}
 		.form_code {
 		    float: left;
@@ -2698,10 +2724,20 @@ table.j4care-table{
 		.form_input {
 		    float: left;
 		    width: 59%;
-	    	.input input, select{
-	    		width: 98% !important;
+		    // height: 30px;
+	    	.input input, select,input{
+	    		// width: 98% !important;
+	    		min-height: 30px !important;
+	    		height: 30px;
+	    		margin: 1px 0 !important;
 	    	}
-
+			.multi_input{
+				position:relative;
+				.input,.no-close-button, select{
+					width: 97% !important;
+				}
+			}
 		}
+
 	}
 }

@@ -593,8 +593,11 @@
                             </a>
                         </div>            
                     </div >
-                    <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
-                    <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
+        
+                    <a class="table_btn" ng-hide="patient.studies || patient.mwls" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
+                    <a class="table_btn" ng-hide="patient.mwls" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
+                    <a ng-init="patient.showmwls = true" class="table_btn" ng-show="!patient.showmwls && patient.mwls" ng-click="patient.showmwls = true" href="" title="Show MWLs">&#9658;</a>
+                    <a class="table_btn" ng-show="patient.showmwls && patient.mwls" ng-click="patient.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
                 </div>
                 <div  style="width:14%" class="th txt hover_cell" tooltip="{{patient.attrs['00100010'].Value[0].Alphabetic}}">{{(patient.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'}}</div>
                 <div style="width:12%" class="th txt hover_cell" tooltip="{{patient.attrs['00100020'].Value[0]}}">{{(patient.attrs['00100020'].Value[0]) || '&nbsp;'}}</div>                
@@ -868,7 +871,7 @@
 
             </div>
         </div>
-        <div ng-show="patient.mwls" class="repeat1" ng-repeat="(mwlkey, mwl) in patient.mwls">
+        <div ng-show="patient.mwls && patient.showmwls" class="repeat1" ng-repeat="(mwlkey, mwl) in patient.mwls">
             <div class="tbody">
                 <div class="tr_row">
                     <div class="colcell" ng-bind="mwl.offset+1+'.'"> </div>

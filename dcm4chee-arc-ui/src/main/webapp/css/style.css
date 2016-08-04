@@ -1238,6 +1238,9 @@ table.subtable_1, table.subtable_2 {
 div[tooltip] {
   position: relative; }
 
+.vex.vex-theme-os .vex-content {
+  margin-bottom: 40px !important; }
+
 .vex.vex-theme-os.edit-patient .vex-overlay {
   right: 13px; }
 .vex.vex-theme-os.edit-patient .vex-content {
@@ -1970,33 +1973,54 @@ table.j4care-table {
   height: 30px;
   margin-top: 5px; }
 
-.itemTree li {
+.itemTree > li.listblock {
+  border-bottom: 1px solid #ddd; }
+.itemTree .input span {
+  top: 10px; }
+.itemTree li.listblock {
   list-style: none;
   display: block;
   float: left;
   position: relative;
   width: 100%;
-  padding: 5px 8px; }
-  .itemTree li:hover {
+  padding: 3px 8px; }
+  .itemTree li.listblock:hover {
     background: #ddd; }
-  .itemTree li .glyphicon.glyphicon-remove {
+  .itemTree li.listblock > .glyphicon.glyphicon-remove {
+    right: 25px; }
+  .itemTree li.listblock .glyphicon.glyphicon-remove {
     position: absolute;
-    right: 1%;
-    top: 9px; }
-  .itemTree li .form_name.sq {
-    width: 86%; }
-  .itemTree li .form_code {
+    right: 0;
+    top: 9px;
+    display: none;
+    color: #CDCDCD; }
+    .itemTree li.listblock .glyphicon.glyphicon-remove:hover {
+      color: #7B7B7B;
+      cursor: pointer; }
+    .itemTree li.listblock .glyphicon.glyphicon-remove.sq {
+      right: 23px; }
+  .itemTree li.listblock:hover .glyphicon.glyphicon-remove {
+    display: inline-block; }
+  .itemTree li.listblock .form_name.sq {
+    width: 84%; }
+  .itemTree li.listblock .form_code {
     float: left;
     height: 30px;
     width: 13%; }
-  .itemTree li .form_name {
+  .itemTree li.listblock .form_name {
     float: left;
     height: 30px;
     width: 27%; }
-  .itemTree li .form_input {
+  .itemTree li.listblock .form_input {
     float: left;
     width: 59%; }
-    .itemTree li .form_input .input input, .itemTree li .form_input select {
-      width: 98% !important; }
+    .itemTree li.listblock .form_input .input input, .itemTree li.listblock .form_input select, .itemTree li.listblock .form_input input {
+      min-height: 30px !important;
+      height: 30px;
+      margin: 1px 0 !important; }
+    .itemTree li.listblock .form_input .multi_input {
+      position: relative; }
+      .itemTree li.listblock .form_input .multi_input .input, .itemTree li.listblock .form_input .multi_input .no-close-button, .itemTree li.listblock .form_input .multi_input select {
+        width: 97% !important; }
 
 /*# sourceMappingURL=style.css.map */
