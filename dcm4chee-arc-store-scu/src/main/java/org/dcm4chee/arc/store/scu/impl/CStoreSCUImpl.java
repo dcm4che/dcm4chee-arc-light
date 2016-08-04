@@ -92,6 +92,9 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     private AAssociateRQ createAARQ(RetrieveContext ctx) {
         AAssociateRQ aarq = new AAssociateRQ();
+        ApplicationEntity localAE = ctx.getLocalApplicationEntity();
+        if (!localAE.isMasqueradeCallingAETitle(ctx.getDestinationAETitle()))
+            aarq.setCallingAET(ctx.getLocalAETitle());
         for (InstanceLocations inst : ctx.getMatches()) {
             String cuid = inst.getSopClassUID();
             if (!aarq.containsPresentationContextFor(cuid)) {
