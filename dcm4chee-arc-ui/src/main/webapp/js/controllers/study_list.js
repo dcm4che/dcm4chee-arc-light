@@ -239,15 +239,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.DCM4CHE              = DCM4CHE;
             $scope.addPatientAttribut   = "";
             $scope.opendropdown         = false;
-            console.log("tpl",tpl);
+            // console.log("tpl",tpl);
             var html                    = $compile(tpl)($scope);
             var header = "Create new Study";
             if(mode === "edit"){
                 header = 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
 
             }
-            console.log("$scope.editstudy",$scope.editstudy);
-            console.log("html",html);
+            // console.log("$scope.editstudy",$scope.editstudy);
+            // console.log("html",html);
             var $vex = vex.dialog.open({
               message: header,
               input: html,
@@ -492,11 +492,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
 
                                     url:"../aets/"+$scope.aet+"/rs/studies",
                                     // url: "../aets/"+$scope.aet+"/rs/patients/",
-                                    data:local,
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'text/plain'
-                                    }
+                                    data:local
                                 }).then(
                                     function successCallback(response) {
                                         console.log("response",response);
