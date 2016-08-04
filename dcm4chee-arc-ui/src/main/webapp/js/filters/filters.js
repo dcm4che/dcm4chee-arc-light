@@ -142,10 +142,23 @@ myApp.filter("study", function(){
     return function(object, iod){
         var localObject = {};
         angular.forEach(object, function(m, i){
-            if(iod.study[i]){
+            if(iod && iod.study && iod.study[i]){
                 localObject[i] = m;
             }
 
+        });
+        return localObject;
+    };
+});
+myApp.filter("mwl", function(){
+    return function(object, iod){
+        var localObject = {};
+        console.log("iod",iod);
+        // console.log("object",object);
+        angular.forEach(object, function(m, i){
+            if(iod && iod.mwl && iod.mwl[i]){
+                localObject[i] = m;
+            }
         });
         return localObject;
     };

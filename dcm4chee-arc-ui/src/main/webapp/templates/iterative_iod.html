@@ -1,0 +1,23 @@
+<!-- test2 = {{test2['00080005'] | json}}
+{{editmwl.attrs | json}}
+testdictionary: {{DCM4CHE.elementName.forTag("00000001")}} -->
+<!-- <iterative-iod obj="editmwl.attrs" value="p" key="i"></iterative-iod> -->
+<!-- obj: {{obj | json}} -->
+<div class="item1input" ng-if="obj" ng-repeat="(j,item) in obj track by $index">
+	<span ng-click="removeAttr(i)" ng-if="j != '00104000' && item.vr==='PN'" class="glyphicon glyphicon-remove"></span>
+	<input ng-if="j != '00104000' && item.vr != 'PN' && item.vr!='SQ'" class="form-control" placeholder="{{j}}" ng-model="editmwl.attrs[i].Value[0][j].Value[0]"/>
+	<textarea ng-if="j === '00104000'" class=" form-control" ng-model="editmwl.attrs[i].Value[0][j].Value[0]"></textarea>
+	<input ng-if="j != '00104000' && item.vr === 'PN' && item.vr!='SQ'" class=" form-control" placeholder="{{j}} Alphabetic" ng-model="editmwl.attrs[i].Value[0][j].Value[0]['Alphabetic']">
+	<input ng-if="j != '00104000' && item.vr === 'PN' && item.vr!='SQ'" class=" form-control" placeholder="{{j}} Ideographic" ng-model="editmwl.attrs[i].Value[0][j].Value[0]['Ideographic']">
+	<input ng-if="j != '00104000' && item.vr === 'PN' && item.vr!='SQ'" class=" form-control" placeholder="{{j}} Phonetic" ng-model="editmwl.attrs[i].Value[0][j].Value[0]['Phonetic']">
+<!-- 	<div class="item2input" ng-if="item.vr === 'SQ'" ng-repeat="(j2,item2) in editmwl.attrs[i].Value[0][j].Value[0] track by $index"><span ng-click="removeAttr(i)" ng-if="j != '00104000' && item.vr==='PN'" class="glyphicon glyphicon-remove"></span>
+	    <input ng-if="j2 != '00104000' && item2.vr != 'PN'" class="form-control" placeholder="{{j}}" ng-model="editmwl.attrs[i].Value[0][j].Value[0][j2].Value[0]"/>
+	    <textarea ng-if="j2 === '00104000'" class=" form-control" ng-model="editmwl.attrs[i].Value[0][j].Value[0][j2].Value[0]"></textarea>
+	    <input ng-if="j2 != '00104000' && item2.vr === 'PN'" class=" form-control" placeholder="{{j}} Alphabetic" ng-model="editmwl.attrs[i].Value[0][j].Value[0][j2].Value[0]['Alphabetic']">
+	    <input ng-if="j2 != '00104000' && item2.vr === 'PN'" class=" form-control" placeholder="{{j}} Ideographic" ng-model="editmwl.attrs[i].Value[0][j].Value[0][j2].Value[0]['Ideographic']">
+	    <input ng-if="j2 != '00104000' && item2.vr === 'PN'" class=" form-control" placeholder="{{j}} Phonetic" ng-model="editmwl.attrs[i].Value[0][j].Value[0][j2].Value[0]['Phonetic']">
+	</div> -->
+	<div ng-if="p.vr === 'SQ'" >
+		<iterative-iod object="{{item}}" value="p" key="i"></iterative-iod>
+	</div>
+</div>

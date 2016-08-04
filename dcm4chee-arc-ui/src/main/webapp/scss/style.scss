@@ -597,7 +597,12 @@ table{
 	    position: fixed;
     	top: 75px;
 	    //
-
+		&.modality{
+			position:static;
+			padding-left:0;
+			padding-right:0;
+			margin-top: 1px;
+		}
 	    &.fixed{
 			background: rgba(244,246,248,1);
 			background: -moz-linear-gradient(left, rgba(244,246,248,1) 0%, rgba(224,230,234,1) 100%);
@@ -664,7 +669,7 @@ table{
 					}
 				}
 			}
-			&.header2 {
+			&.header2, &.header5 {
 				& > .tr_row{
 					// top:29px;
 					// top:0px;/		
@@ -709,6 +714,9 @@ table{
 	margin-top: 228px;
 	&.extended {
 	    margin-top: 319px;
+	}
+	&.modality{
+		margin-top:0;
 	}
 	.arrows{
 		width: 100%;
@@ -827,6 +835,19 @@ table{
 						text-decoration: none;
 						color:white;
 					}
+					&.create{
+						position:relative;
+					}
+				}
+				.createButtons {
+					-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+					-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+					box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+				    background: white none repeat scroll 0 0;
+				    display: block;
+				    position: absolute;
+				    width: 100px;
+				    z-index: 99;
 				}
 				a{
 				    color: black;
@@ -1641,7 +1662,13 @@ div[tooltip]{
 	position:relative;
 	// overflow:visible;
 }
+.vex.vex-theme-os .vex-content{
+	margin-bottom:40px !important;
+}
 .vex.vex-theme-os.edit-patient{
+	.vex-overlay{
+		right: 13px;
+	}
 	.vex-content {
 	    width: 90%;
 	    padding:30px;
@@ -2641,4 +2668,76 @@ table.j4care-table{
 	display:block;
 	height:30px;
 	margin-top:5px;
+}
+.itemTree{
+	& > li.listblock{
+		border-bottom:1px solid #ddd;
+	}
+	.input{
+		span{
+			top: 10px;
+		}
+	}
+	li.listblock{
+		list-style: none;
+	    display: block;
+	    float: left;
+	    position: relative;
+	    width: 100%;
+	    padding:3px 8px;
+	    &:hover{
+	    	background:#ddd;
+	    }
+	    & > .glyphicon.glyphicon-remove{
+	    	right: 25px;
+	    }
+	    .glyphicon.glyphicon-remove {
+		    position: absolute;
+		    right: 0;
+		    top: 9px;
+		    display: none;
+		    color: #CDCDCD;
+		    &:hover{
+				color: #7B7B7B;
+				cursor: pointer;
+		    }
+		    &.sq{
+		    	right: 23px;
+		    }
+		}
+		&:hover .glyphicon.glyphicon-remove {
+			display: inline-block;
+		}
+		.form_name.sq {
+		    width: 84%;
+		}
+		.form_code {
+		    float: left;
+		    height: 30px;
+		    width: 13%;
+		}
+		.form_name {
+		    float: left;
+		    height: 30px;
+		    width: 27%;
+		}
+		.form_input {
+		    float: left;
+		    width: 59%;
+		    // height: 30px;
+	    	.input input, select,input{
+	    		// width: 98% !important;
+	    		min-height: 30px !important;
+	    		height: 30px;
+	    		margin: 1px 0 !important;
+	    	}
+			.multi_input{
+				position:relative;
+				.input,.no-close-button, select{
+					width: 97% !important;
+				}
+			}
+		}
+
+	}
 }

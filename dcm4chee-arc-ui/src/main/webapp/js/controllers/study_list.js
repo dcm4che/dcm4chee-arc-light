@@ -3,6 +3,8 @@
 myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService,  $filter, $templateRequest, $timeout) {
     $scope.logoutUrl = myApp.logoutUrl();
     $scope.patients = [];
+    $scope.mwl = [];
+    $scope.iod = {};
 //   $scope.studies = [];
     // $scope.allhidden = false; 
     $scope.dateplaceholder = {};
@@ -12,6 +14,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.moreStudies;
     $scope.limit = 20;
     $scope.aes;
+    $scope.aetmodel;
     $scope.trashaktive = false;
     $scope.aet = null;
     $scope.exporters;
@@ -24,7 +27,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.showModalitySelector = false;
     $scope.filter = { orderby: "StudyDate,StudyTime" };
     $scope.studyDate = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
+    $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"] = { from: StudiesService.getTodayDate(), to: StudiesService.getTodayDate(),toObject:new Date(),fromObject:new Date()};
     $scope.studyTime = { from: '', to: ''};
+    $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"] = { from: '', to: ''};
     $scope.format = "yyyyMMdd";
     $scope.format2 = "yyyy-MM-dd";
     $scope.modalities = $modalities;
@@ -49,8 +54,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
     ];
     $http.get('iod/study.iod.json',{ cache: true}).then(function (res) {
-        $scope.iod = {};
         $scope.iod["study"] = res.data;
+    });
+    $http.get('iod/mwl.iod.json',{ cache: true}).then(function (res) {
+        $scope.iod["mwl"] = res.data;
     });
     $scope.filterMode = "study";
     $scope.orderby = [
@@ -94,15 +101,47 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             value:"-PatientName,-StudyDate,-StudyTime",
             label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
             mode:"study"
+        },
+        {
+            value:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+            label:"<label title=\"Modality worklist\">MWL</label></span><span class=\"orderbydateasc\"></span>",
+            mode:"mwl"
+        },
+        {
+            value:"-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+            label:"<label title=\"Modality worklist\">MWL</label><span class=\"orderbydatedesc\"></span>",
+            mode:"mwl"
+        },
+        {
+            value:"PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+            label:"<label title=\"Modality worklist\">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>",
+            mode:"mwl"
+        },
+        {
+            value:"-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+            label:"<label title=\"Modality worklist\">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>",
+            mode:"mwl"
+        },
+        {
+            value:"PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+            label:"<label title=\"Modality worklist\">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>",
+            mode:"mwl"
+        },
+        {
+            value:"-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+            label:"<label title=\"Modality worklist\">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
+            mode:"mwl"
         }
     ];
-    $scope.setTrash = function(ae){
-        if(ae.dcmHideNotRejectedInstances === true){
+    $scope.setTrash = function(){
+        $scope.aet = $scope.aetmodel.title;
+        if($scope.aetmodel.dcmHideNotRejectedInstances === true){
             if($scope.rjcode === null){
                 $http.get("../reject?dcmRevokeRejection=true").then(function (res) {
                     $scope.rjcode = res.data[0];
                 });
             }
+            $scope.filter.returnempty = false;
             $scope.trashaktive = true;
         }else{
             $scope.trashaktive = false;
@@ -113,6 +152,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     });
     // $scope.trim = function(selector){
     //     StudiesService.trim(selector);
+    // };
+    // $scope.getLengthOfObject = function(obj){
+    //     if(obj){
+    //         console.log("obj",obj);
+    //         console.log("obj.length",obj.length);
+    //         // console.log("Object.keys(obj).length",Object.keys(obj).length);
+    //         return Object.keys(obj).length;
+    //     }else{
+    //         return 0;
+    //     }
     // };
     $scope.addFileAttribute = function(instance){
         var id      = '#file-attribute-list-'+(instance.attrs['00080018'].Value[0]).replace(/\./g, '');
@@ -126,7 +175,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             );
         }
     };
-
+    // $scope.getObjectFromString = function(string){
+    //     console.log("string",string);
+    //     console.log("string length=", string.lenght);
+    //     console.log("string[0]",string[0]);
+    //     return $scope.testmodel[string[0]];
+    // };
     var modifyStudy = function(patient, mode, patientkey, studykey, study){
         cfpLoadingBar.start();
         var editstudy     = {};
@@ -185,12 +239,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.DCM4CHE              = DCM4CHE;
             $scope.addPatientAttribut   = "";
             $scope.opendropdown         = false;
+            console.log("tpl",tpl);
             var html                    = $compile(tpl)($scope);
             var header = "Create new Study";
             if(mode === "edit"){
                 header = 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
 
             }
+            console.log("$scope.editstudy",$scope.editstudy);
+            console.log("html",html);
             var $vex = vex.dialog.open({
               message: header,
               input: html,
@@ -374,66 +431,66 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 local[i] = m;
                             }
                         });
-                        if($scope.editstudy.attrs["0020000D"].Value[0]){
-                            angular.forEach($scope.editstudy.attrs, function(m, i){
-                                // console.log("res.data",res.data);
-                                // console.log("i",i);
-                                if((res.data && res.data[i] &&res.data[i].vr != "SQ") && m.Value && m.Value.length === 1 && m.Value[0] === ""){
-                                    delete $scope.editstudy.attrs[i];
-                                }
-                            });
+                        // if($scope.editstudy.attrs["0020000D"].Value[0]){
+                        //     angular.forEach($scope.editstudy.attrs, function(m, i){
+                        //         // console.log("res.data",res.data);
+                        //         // console.log("i",i);
+                        //         if((res.data && res.data[i] &&res.data[i].vr != "SQ") && m.Value && m.Value.length === 1 && m.Value[0] === ""){
+                        //             delete $scope.editstudy.attrs[i];
+                        //         }
+                        //     });
 
 
-                            // local["00081030"] = { "vr": "SH", "Value":[""]};
-                            $http.put(
-                                "../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies/"+local["0020000D"].Value[0],
-                                local
-                            ).then(function successCallback(response) {
-                                if(mode === "edit"){
-                                    //Update changes on the patient list
-                                    // angular.forEach(study.attrs, function(m, i){
-                                    //     if($scope.editstudy.attrs[i]){
-                                    //         study.attrs[i] = $scope.editstudy.attrs[i];
-                                    //     }
-                                    // });
-                                    // study.attrs = $scope.editstudy.attrs;
-                                    $scope.patients[patientkey].studies[studykey].attrs = $scope.editstudy.attrs;
-                                    //Force rerendering the directive attribute-list
-                                    var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editstudy.attrs['0020000D'].Value[0];
-                                    id = id.replace(/\./g, '');
-                                    // var id = "#"+$scope.editstudy.attrs["0020000D"].Value;
-                                    var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studykey+'].attrs"></attribute-list>')($scope);
-                                    $(id).html(attribute);
-                                }else{
-                                    if($scope.patientmode){
-                                        $timeout(function() {
-                                            angular.element("#querypatients").trigger('click');
-                                        }, 0);
-                                        // $scope.queryPatients(0);
-                                    }else{
-                                        // $scope.queryStudies(0);
-                                        $timeout(function() {
-                                            angular.element("#querystudies").trigger('click');
-                                        }, 0);
-                                    }
-                                }
-                                DeviceService.msg($scope, {
-                                    "title": "Info",
-                                    "text": "Study saved successfully!",
-                                    "status": "info"
-                                });
-                            }, function errorCallback(response) {
-                                DeviceService.msg($scope, {
-                                    "title": "Error",
-                                    "text": "Error saving study!",
-                                    "status": "error"
-                                });
-                            });
-                        }else{
+                        //     // local["00081030"] = { "vr": "SH", "Value":[""]};
+                        //     $http.put(
+                        //         "../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies/"+local["0020000D"].Value[0],
+                        //         local
+                        //     ).then(function successCallback(response) {
+                        //         if(mode === "edit"){
+                        //             //Update changes on the patient list
+                        //             // angular.forEach(study.attrs, function(m, i){
+                        //             //     if($scope.editstudy.attrs[i]){
+                        //             //         study.attrs[i] = $scope.editstudy.attrs[i];
+                        //             //     }
+                        //             // });
+                        //             // study.attrs = $scope.editstudy.attrs;
+                        //             $scope.patients[patientkey].studies[studykey].attrs = $scope.editstudy.attrs;
+                        //             //Force rerendering the directive attribute-list
+                        //             var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editstudy.attrs['0020000D'].Value[0];
+                        //             id = id.replace(/\./g, '');
+                        //             // var id = "#"+$scope.editstudy.attrs["0020000D"].Value;
+                        //             var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studykey+'].attrs"></attribute-list>')($scope);
+                        //             $(id).html(attribute);
+                        //         }else{
+                        //             if($scope.patientmode){
+                        //                 $timeout(function() {
+                        //                     angular.element("#querypatients").trigger('click');
+                        //                 }, 0);
+                        //                 // $scope.queryPatients(0);
+                        //             }else{
+                        //                 // $scope.queryStudies(0);
+                        //                 $timeout(function() {
+                        //                     angular.element("#querystudies").trigger('click');
+                        //                 }, 0);
+                        //             }
+                        //         }
+                        //         DeviceService.msg($scope, {
+                        //             "title": "Info",
+                        //             "text": "Study saved successfully!",
+                        //             "status": "info"
+                        //         });
+                        //     }, function errorCallback(response) {
+                        //         DeviceService.msg($scope, {
+                        //             "title": "Error",
+                        //             "text": "Error saving study!",
+                        //             "status": "error"
+                        //         });
+                        //     });
+                        // }else{
                             $http({
                                     method: 'POST',
 
-                                    url:"../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies",
+                                    url:"../aets/"+$scope.aet+"/rs/studies",
                                     // url: "../aets/"+$scope.aet+"/rs/patients/",
                                     data:local,
                                     headers: {
@@ -457,7 +514,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             //     "text": "Study Instance UID is required!",
                             //     "status": "error"
                             // });
-                        }
+                        // }
                     }
                     vex.close($vex.data().vex.id);
                 }
@@ -472,6 +529,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         // console.log("patient",patient);
         // local["00100020"] = $scope.editstudy.attrs["00100020"];
         // 00200010
+        // patient.createButtons = false;
         var study = {
             "attrs":{
                 "00200010": { "vr": "SH", "Value":[""]},
@@ -481,6 +539,540 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         };
         // modifyStudy(patient, "create");
         modifyStudy(patient, "create", "", "", study);
+    };
+    var modifyMWL = function(patient, mode, patientkey, mwlkey, mwl){
+        $scope.testmodel = {};
+        // console.log("patient",patient);
+        // console.log("$scope.testmodel",$scope.testmodel);
+        // $scope.categories = [{ 
+        //                 title: 'Computers',
+        //                 categories: [
+        //                   {
+        //                     title: 'Laptops',
+        //                     categories: [
+        //                       {
+        //                         title: 'Ultrabooks'
+        //                       },
+        //                       {
+        //                         title: 'Macbooks'            
+        //                       }
+        //                     ]
+        //                   },
+
+        //                   {
+        //                     title: 'Desktops'
+        //                   },
+
+        //                   {
+        //                     title: 'Tablets',
+        //                     categories: [
+        //                       { 
+        //                         title: 'Apple'
+        //                       },
+        //                       {
+        //                         title: 'Android'
+        //                       }
+        //                     ]        
+        //                   }
+        //                 ]
+        //               },
+        //               {
+        //                 title: 'Printers'
+        //               }
+
+        //             ];
+
+        cfpLoadingBar.start();
+        var editmwl     = {};
+        // console.log("patient",patient);
+        // console.log("mwlkey",mwlkey);
+        // console.log("mwl",mwl);
+        angular.copy(mwl, editmwl);
+        if(mode === "edit"){
+            angular.forEach(editmwl.attrs,function(value, index) {
+                var checkValue = "";    
+                if(value.Value && value.Value.length){
+                    checkValue = value.Value.join("");
+                }
+                if(!(value.Value && checkValue != "")){
+                    delete editmwl.attrs[index];
+                }
+                if(value.vr === "DA" && value.Value && value.Value[0]){
+                    var string = value.Value[0];
+                    var yyyy = string.substring(0,4);
+                    var MM = string.substring(4,6);
+                    var dd = string.substring(6,8);
+                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                    var date          = new Date(timestampDate);
+                    $scope.dateplaceholder[index] = date;
+                }
+            });
+        }
+        $scope.editmwl  = editmwl;
+        editmwl         = {};
+        $scope.lastPressedCode = 0;
+        // console.log("$scope.editmwl",$scope.editmwl);
+
+        $scope.removeAttr = function(attrcode){
+            switch(arguments.length) {
+                case 2:
+                    if(arguments[0].length > 1){
+                        if($scope.editmwl.attrs[arguments[0][0]].Value[0][arguments[0][1]].Value.length === 1){
+                            delete  $scope.editmwl.attrs[arguments[0][0]].Value[0][arguments[0][1]];
+                        }else{
+                            $scope.editmwl.attrs[arguments[0][0]].Value[0][arguments[0][1]].Value.splice(arguments[1], 1);
+                        }
+                    }else{
+                        if($scope.editmwl.attrs[arguments[0]].Value.length === 1){
+                            delete  $scope.editmwl.attrs[arguments[0]];
+                        }else{
+                            $scope.editmwl.attrs[arguments[0]].Value.splice(arguments[1], 1);
+                        }
+                    }
+                break;
+                default:
+                    delete  $scope.editmwl.attrs[arguments[0]];
+                break;
+            }
+        };
+        // console.log("$scope.editmwl",$scope.editmwl);
+        $http.get('iod/mwl.iod.json',{ cache: true}).then(function (res) {
+            // $scope.items = res.data;
+            // console.log("$scope.editmwl",$scope.editmwl);
+            // $scope.items = $scope.editmwl.attrs;
+            $scope.items = $filter("mwl")($scope.editmwl.attrs,$scope.iod);
+            // console.log("$scope.items",$scope.items);
+            // console.log("$scope.items",$scope.items);
+            // angular.forEach($scope.editmwl.attrs,function(m, i){
+            //     if(!res.data[i] || res.data[i] === undefined){
+            //         delete $scope.editmwl.attrs[i];
+            //     }
+            // });
+            // console.log("res",angular.copy(res));
+            // var dropdown                = StudiesService.getArrayFromIodExtended(res);
+            var dropdown                = StudiesService.getArrayFromIodMwl(res);
+            // console.log("dropdown",dropdown);
+            // console.log("before replace res.data",angular.copy(res.data));
+            res.data = StudiesService.replaceKeyInJson(res.data, "items", "Value");
+            // console.log("after replace res.data",angular.copy(res.data));
+            $templateRequest('templates/edit_mwl.html').then(function(tpl) {
+            $scope.dropdown             = dropdown;
+            $scope.DCM4CHE              = DCM4CHE;
+            $scope.addPatientAttribut   = "";
+            $scope.opendropdown         = false;
+            // console.log("after replaceres",angular.copy(res));
+            var html                    = $compile(tpl)($scope);
+            var header = "Create new mwl";
+            if(mode === "edit"){
+                header = 'Edit mwl of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
+            }
+            // $http.get('iod/patient.iod.json',{ cache: true}).then(function (patientres) {
+            //     // var patientCodes = StudiesService.getArrayFromIodExtended(patientres);
+            //     var patientCodes = dropdown;
+            //     var patientCodesStringify = JSON.stringify(patientCodes);
+            //     console.log("patientCodesStringify",patientCodesStringify);
+            //     console.log("patientcodes",patientCodes);
+            //     // $scope.isPatientAttr = function(code){
+            //     //     console.log("patientCodesStringify.indexOf(code)=",patientCodesStringify.indexOf(code));
+            //     //     console.log("is patientAttr code=",code);
+            //     //     console.log("typeof code",typeof code);
+            //     //     var codeJoined;
+            //     //     if(typeof code === "string"){
+            //     //         codeJoined = code;
+            //     //     }else{
+            //     //         codeJoined = code.join(':');
+            //     //     }
+            //     //     console.log("codeJoined",codeJoined);
+            //     //     if(patientCodesStringify.indexOf(codeJoined) !== -1){
+            //     //         console.log("return false");
+            //     //         return false;
+            //     //     }else{
+            //     //         console.log("return true");
+            //     //         return true;
+            //     //     }
+            //     // };
+            // }); 
+            var $vex = vex.dialog.open({
+              message: header,
+              input: html,
+              className:"vex-theme-os edit-patient",
+              overlayClosesOnClick: false,
+              escapeButtonCloses: false,
+              afterOpen: function($vexContent) {
+                cfpLoadingBar.complete();
+                setTimeout(function(){
+                    if(mode === "create"){
+                        $(".edit-patient .0020000D").attr("title","To generate it automatically leave it blank");
+                        $(".edit-patient .0020000D").attr("placeholder","To generate it automatically leave it blank");
+                    }
+                    if(mode === "edit"){
+                        $(".edit-patient .0020000D").attr("disabled","disabled");
+                        $(".edit-patient span.0020000D").remove();
+                    }
+                    $(".editform .schema-form-fieldset > legend").append('<span class="glyphicon glyphicon-triangle-right"></span>');
+                    $(".editform .schema-form-fieldset > legend").bind("click",function(){
+                        $(this).siblings("sf-decorator").toggle();
+                        var icon = $(this).find(".glyphicon");
+                        if(icon.hasClass('glyphicon-triangle-right')){
+                            icon.removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
+                        }else{
+                            icon.removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+                        }
+                    });
+                    //Click event handling
+                    $scope.addAttribute = function(attrcode){
+                        if(attrcode.indexOf(':') > -1){
+                                var codes =  attrcode.split(":"); 
+                                if(codes[0] === "00400100"){
+                                    if($scope.editmwl.attrs[codes[0]].Value[0][codes[1]] != undefined){
+                                        if(res.data[codes[0]].Value[0][codes[1]].multi){
+                                            $timeout(function() {
+                                                $scope.$apply(function(){
+                                                    // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                                    $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || [];
+                                                    $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
+                                                    $scope.addPatientAttribut           = "";
+                                                    $scope.opendropdown                 = false;
+                                                });
+                                            });
+                                        }else{
+                                            DeviceService.msg($scope, {
+                                                    "title": "Warning",
+                                                    "text": "Attribute already exists!",
+                                                    "status": "warning"
+                                            });
+                                        }
+                                    }else{
+                                        $timeout(function() {
+                                            $scope.$apply(function(){
+                                                $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]  = res.data[codes[0]].Value[0][codes[1]];
+                                            });
+                                        });
+                                    }
+                                }else{
+                                    $log.error("error, code 00400100 not found on the 0 position");
+                                }
+                        }else{
+                            if($scope.editmwl.attrs[attrcode] != undefined){
+                                if(res.data[attrcode].multi){
+                                    $timeout(function() {
+                                        $scope.$apply(function(){
+                                            // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                            $scope.editmwl.attrs[attrcode]["Value"].push("");
+                                            $scope.addPatientAttribut           = "";
+                                            $scope.opendropdown                 = false;
+                                        });
+                                    });
+                                }else{
+                                    DeviceService.msg($scope, {
+                                            "title": "Warning",
+                                            "text": "Attribute already exists!",
+                                            "status": "warning"
+                                    });
+                                }
+                            }else{
+                                $timeout(function() {
+                                    $scope.$apply(function(){
+                                        $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                    });
+                                });
+                            }
+                        }
+                    };
+                    $(".addPatientAttribut").bind("keydown",function(e){
+                        $scope.opendropdown = true;
+                        var code = (e.keyCode ? e.keyCode : e.which);
+                        $scope.lastPressedCode = code;
+                        if(code === 13){
+                            var filter = $filter("filter");
+                            var filtered = filter($scope.dropdown, $scope.addPatientAttribut);
+                            if(filtered){
+                                $scope.opendropdown = true;
+                            }
+                            if($(".dropdown_element.selected").length){
+                                var attrcode = $(".dropdown_element.selected").attr("name"); 
+                            }else{
+                                var attrcode = filtered[0].code;
+                            }
+                            // console.log("attrcode=",attrcode);
+                            if(attrcode.indexOf(':') > -1){
+                                    var codes =  attrcode.split(":"); 
+                                    if(codes[0] === "00400100"){
+                                        if($scope.editmwl.attrs[codes[0]].Value[0][codes[1]] != undefined){
+                                            if(res.data[codes[0]].Value[0][codes[1]].multi){
+                                                $timeout(function() {
+                                                    $scope.$apply(function(){
+                                                        // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                                        $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
+                                                        $scope.addPatientAttribut           = "";
+                                                        $scope.opendropdown                 = false;
+                                                    });
+                                                });
+                                            }else{
+                                                DeviceService.msg($scope, {
+                                                        "title": "Warning",
+                                                        "text": "Attribute already exists!",
+                                                        "status": "warning"
+                                                });
+                                            }
+                                        }else{
+                                            $timeout(function() {
+                                                $scope.$apply(function(){
+                                                    $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]  = res.data[codes[0]].Value[0][codes[1]];
+                                                });
+                                            });
+                                        }
+                                    }else{
+                                        $log.error("error, code 00400100 not found on the 0 position");
+                                    }
+                            }else{
+                                if($scope.editmwl.attrs[attrcode] != undefined){
+                                    if(res.data[attrcode].multi){
+                                        $timeout(function() {
+                                            $scope.$apply(function(){
+                                                // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                                $scope.editmwl.attrs[attrcode]["Value"].push("");
+                                                $scope.addPatientAttribut           = "";
+                                                $scope.opendropdown                 = false;
+                                            });
+                                        });
+                                    }else{
+                                        DeviceService.msg($scope, {
+                                                "title": "Warning",
+                                                "text": "Attribute already exists!",
+                                                "status": "warning"
+                                        });
+                                    }
+                                }else{
+                                    $timeout(function() {
+                                        $scope.$apply(function(){
+                                            $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
+                                        });
+                                    });
+                                }
+                            }
+                            setTimeout(function(){
+                                $scope.lastPressedCode = 0;
+                            },1000);
+                        }
+                        //Arrow down pressed
+                        if(code === 40){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = true;
+                            });
+                            if(!$(".dropdown_element.selected").length){
+                                $(".dropdown_element").first().addClass('selected');
+                            }else{
+                                if($(".dropdown_element.selected").next().length){
+                                    $(".dropdown_element.selected").removeClass('selected').next().addClass('selected');
+                                }else{
+                                    $(".dropdown_element.selected").removeClass('selected');
+                                    $(".dropdown_element").first().addClass('selected');
+                                }
+                            }
+
+                                if($(".dropdown_element.selected").position()){
+                                    $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+                                }
+                        }
+                        //Arrow up pressed
+                        if(code === 38){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = true;
+                            });
+                            if(!$(".dropdown_element.selected").length){
+                                $(".dropdown_element").prev().addClass('selected');
+                            }else{
+                                if($(".dropdown_element.selected").index() === 0){
+                                    $(".dropdown_element.selected").removeClass('selected');
+                                    $(".dropdown_element").last().addClass('selected');
+                                }else{
+                                    $(".dropdown_element.selected").removeClass('selected').prev().addClass('selected');
+                                }
+                            }
+                            $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+                        }
+                        if(code === 27){
+                            $scope.$apply(function(){
+                                $scope.opendropdown = false;
+                            });
+                        }
+                    });
+                    $(".editform .schema-form-fieldset > sf-decorator").hide();
+                },1000);//TODO make it dynamic
+              },
+                onSubmit: function(e) {
+                    console.log("on submit");
+                    //Prevent submit/close if ENTER was clicked
+                    if($scope.lastPressedCode === 13){
+                        e.preventDefault();
+                    }else{
+                        e.preventDefault();
+                        // console.log("$vex.data called");
+                        $scope.callBackFree = true;
+                        $vex.data().vex.callback();
+                    }
+                  },
+                buttons: [
+                    $.extend({}, vex.dialog.buttons.YES, {
+                      text: 'Save'
+                    }), $.extend({}, vex.dialog.buttons.NO, {
+                      text: 'Cancel'
+                    })
+                ],
+                callback: function(data) {
+                    if($scope.callBackFree){
+                        $scope.callBackFree = false;
+                        cfpLoadingBar.start();
+                        console.log("1data",data);
+                        if (data != "undefined" && data === false) {
+                            cfpLoadingBar.complete();
+                            StudiesService.clearPatientObject($scope.editmwl.attrs);
+                            $scope.callBackFree = true;
+                            return console.log('Cancelled');
+                        }else{
+                            StudiesService.clearPatientObject($scope.editmwl.attrs);
+                            StudiesService.convertStringToNumber($scope.editmwl.attrs);
+                            StudiesService.convertDateToString($scope, "editmwl");
+
+                            //Add patient attributs again
+                            // angular.extend($scope.editmwl.attrs, patient.attrs);
+                            // $scope.editmwl.attrs.concat(patient.attrs); 
+                            var local = {};
+                            if($scope.editmwl.attrs["00100020"]){
+                                local["00100020"] = $scope.editmwl.attrs["00100020"];
+                            }else{
+                                local["00100020"] = patient.attrs["00100020"];
+                            }
+                            angular.forEach($scope.editmwl.attrs,function(m, i){
+                                if(res.data[i]){
+                                    local[i] = m;
+                                }
+                            });
+                            // if($scope.editmwl.attrs["0020000D"].Value[0]){
+                                angular.forEach($scope.editmwl.attrs, function(m, i){
+                                    // console.log("res.data",res.data);
+                                    // console.log("i",i);
+                                    if((res.data && res.data[i] &&res.data[i].vr != "SQ") && m.Value && m.Value.length === 1 && m.Value[0] === ""){
+                                        delete $scope.editmwl.attrs[i];
+                                    }
+                                });
+
+
+                                // local["00081030"] = { "vr": "SH", "Value":[""]};
+                                // local["local["00100020"].Value[0]"] = { "vr": "SH", "Value":[""]};
+                                // console.log("local",local);
+                                console.log("local",local);
+                                $http.post(
+                                    "../aets/"+$scope.aet+"/rs/mwlitems",
+                                    local
+                                ).then(function successCallback(response) {
+                                    console.log("in then function");
+                                    if(mode === "edit"){
+                                        //Update changes on the patient list
+                                        // angular.forEach(mwl.attrs, function(m, i){
+                                        //     if($scope.editmwl.attrs[i]){
+                                        //         mwl.attrs[i] = $scope.editmwl.attrs[i];
+                                        //     }
+                                        // });
+                                        // mwl.attrs = $scope.editmwl.attrs;
+                                        $scope.patients[patientkey].mwls[mwlkey].attrs = $scope.editmwl.attrs;
+                                        //Force rerendering the directive attribute-list
+                                        var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editmwl.attrs['0020000D'].Value[0];
+                                        id = id.replace(/\./g, '');
+                                        // var id = "#"+$scope.editmwl.attrs["0020000D"].Value;
+                                        var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].mwls['+mwlkey+'].attrs"></attribute-list>')($scope);
+                                        $(id).html(attribute);
+                                    }else{
+                                            $timeout(function() {
+                                                angular.element("#querymwl").trigger('click');
+                                            }, 0);
+                                        // if($scope.patientmode){
+                                        //     // $scope.queryPatients(0);
+                                        // }else{
+                                        //     // $scope.queryStudies(0);
+                                        //     $timeout(function() {
+                                        //         angular.element("#querymwl").trigger('click');
+                                        //     }, 0);
+                                        // }
+                                    }
+                                    DeviceService.msg($scope, {
+                                        "title": "Info",
+                                        "text": "MWL saved successfully!",
+                                        "status": "info"
+                                    });
+                                    $scope.callBackFree = true;
+                                }, function errorCallback(response) {
+                                    DeviceService.msg($scope, {
+                                        "title": "Error",
+                                        "text": "Error saving mwl!",
+                                        "status": "error"
+                                    });
+                                    $scope.callBackFree = true;
+                                });
+                            // }else{
+                            //     $http({
+                            //             method: 'POST',
+
+                            //             url:"../aets/"+$scope.aet+"/rs/patients/"+local["00100020"].Value[0] + "/studies",
+                            //             // url: "../aets/"+$scope.aet+"/rs/patients/",
+                            //             data:local,
+                            //             headers: {
+                            //                 'Content-Type': 'application/json',
+                            //                 'Accept': 'text/plain'
+                            //             }
+                            //         }).then(
+                            //             function successCallback(response) {
+                            //                 console.log("response",response);
+                            //             },
+                            //             function errorCallback(response) {
+                            //                 DeviceService.msg($scope, {
+                            //                     "title": "Error",
+                            //                     "text": "Error saving mwl!",
+                            //                     "status": "error"
+                            //                 });
+                            //             }
+                            //         );
+                            //     // DeviceService.msg($scope, {
+                            //     //     "title": "Error",
+                            //     //     "text": "mwl Instance UID is required!",
+                            //     //     "status": "error"
+                            //     // });
+                            // }
+                        }
+                        vex.close($vex.data().vex.id);
+                    }
+                }
+            });
+        });
+        });
+    };
+    $scope.editMWL = function(patient, patientkey, mwlkey, mwl){
+        modifyMWL(patient, "edit", patientkey, mwlkey, mwl);
+    };
+    $scope.createMWL = function(patient){
+        // console.log("patient",patient);
+        // local["00100020"] = $scope.editstudy.attrs["00100020"];
+        // 00200010
+        console.log("patient",patient);
+        // patient.createButtons = false;
+        console.log("patient2",angular.copy(patient));
+        var mwl = {
+            "attrs":{
+                "00400100": {
+                    "vr": "SQ",
+                    "Value": [{
+                      "00400001": { "vr": "AE","Value":[""]}
+                    }]
+                },
+                "0020000D": { "vr": "UI", "Value":[""]},
+                "00400009": { "vr": "SH", "Value":[""]},
+                "00080050": { "vr": "SH", "Value":[""]},
+                "00401001": { "vr": "SH", "Value":[""]}
+            }
+        };
+        // modifyStudy(patient, "create");
+        modifyMWL(patient, "create", "", "", mwl);
     };
     //Edit / Create Patient
     var modifyPatient = function(patient, mode, patientkey){
@@ -790,35 +1382,25 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             });
                             // $scope.editpatient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
                             oldPatientID = oldPatientID || $scope.editpatient.attrs["00100020"].Value[0];
-                            if($scope.editpatient.attrs["00100021"] && $scope.editpatient.attrs["00100021"].Value && $scope.editpatient.attrs["00100021"].Value[0]){
-                            if(!oldIssuer || oldIssuer === undefined){
-                                    oldIssuer = $scope.editpatient.attrs["00100021"].Value[0];
-                                }
-                            }
-                            var issuer =                ($scope.editpatient.attrs["00100021"] && 
-                                                        $scope.editpatient.attrs["00100021"].Value[0] && 
-                                                        $scope.editpatient.attrs["00100021"].Value[0] != "") || oldIssuer != undefined;
-                            var universalEntityId =     ($scope.editpatient.attrs["00100024"] && 
-                                                        $scope.editpatient.attrs["00100024"].Value[0] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0] != "") || universalEntityId != undefined;
-                            var universalEntityType =   ($scope.editpatient.attrs["00100024"] && 
-                                                        $scope.editpatient.attrs["00100024"].Value[0] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] &&
-                                                        $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0] != "") || universalEntityType != undefined;
+                            // if($scope.editpatient.attrs["00100021"] && $scope.editpatient.attrs["00100021"].Value && $scope.editpatient.attrs["00100021"].Value[0]){
+                            //     if(!oldIssuer || oldIssuer === undefined){
+                            //         oldIssuer = $scope.editpatient.attrs["00100021"].Value[0];
+                            //     }
+                            // }
+                            var issuer =                oldIssuer != undefined;
+                            var universalEntityId =     oldUniversalEntityId != undefined;
+                            var universalEntityType =   oldUniversalEntityType != undefined;
 
                             if(issuer){
                                 oldPatientID += "^^^"+oldIssuer;
                             }
                             if(universalEntityId || universalEntityType){
-                                if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
-                                    oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
-                                }
-                                if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
-                                    oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
-                                }
+                                // if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
+                                //     oldUniversalEntityId    = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                                // }
+                                // if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
+                                //     oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                                // }
                                 if(!issuer){
                                     oldPatientID += "^^^";
                                 }
@@ -939,7 +1521,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
 
     $scope.clearForm = function(){
         angular.forEach($scope.filter,function(m,i){
-            console.log("i",i);
             if(i != "orderby"){
                 $scope.filter[i] = "";
             }
@@ -953,9 +1534,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.studyTime.toObject = null;
         $scope.studyTime.from = "";
         $scope.studyTime.to = "";
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].fromObject = null;
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].toObject = null;
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].from = "";
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].to = "";
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].fromObject = null;
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].toObject = null;
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].from = "";
+        $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].to = "";
     };
     $scope.selectModality = function(key){
         $scope.filter.ModalitiesInStudy = key;
+        $scope.filter['ScheduledProcedureStepSequence.Modality'] = key;
         angular.element(".Modality").show();
         $scope.showModalitySelector=false;
     };
@@ -1029,7 +1619,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
                 clearInterval(watchPicker);
                 cfpLoadingBar.complete();
-
             }
         }, 10);
     };
@@ -1038,7 +1627,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         // console.log("t",t);
         // console.log("vr",vr);
         // console.log("$scope.dateOpen",$scope.dateOpen);
-        console.log("dateplaceholder[t]",$scope.dateplaceholder[t]);
+        // console.log("dateplaceholder[t]",$scope.dateplaceholder[t]);
         if(!$scope.dateOpen[t]){
             $scope.dateOpen[t] = true;
         }
@@ -1074,7 +1663,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
           nativeOnMobile: true,
           afterDone: function() {
                     cfpLoadingBar.start();
-                    StudiesService.updateTime($scope.studyTime);
+                    StudiesService.updateTime($scope.studyTime, $scope);
           }
     };
 
@@ -1086,7 +1675,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }else{
                 angular.element(".StudyDateFrom").hide();
             }
-            StudiesService.updateFromDate($scope.studyDate);
+            StudiesService.updateFromDate($scope.studyDate, $scope);
+            // StudiesService.updateFromDate($scope.ScheduledProcedureStepSequence);
         }
         if(newValue.toObject != oldValue.toObject){
             cfpLoadingBar.start();
@@ -1095,7 +1685,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }else{
                 angular.element(".StudyDateTo").hide();
             }
-            StudiesService.updateToDate($scope.studyDate);
+            StudiesService.updateToDate($scope.studyDate, $scope);
+            // StudiesService.updateToDate($scope.ScheduledProcedureStepSequence);
         }
         cfpLoadingBar.complete();
     });
@@ -1243,22 +1834,30 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             createQueryParams(offset, $scope.limit+1, { orderby: 'SeriesNumber'})
         ).then(function (res) {
             if(res.data){
+                if(res.data.length === 0){
+                    DeviceService.msg($scope, {
+                            "title": "Info",
+                            "text": "No matching series found!",
+                            "status": "info"
+                    });
+                }else{
 
-                study.series = res.data.map(function (attrs, index) {
-                    return {
-                            study: study,
-                            offset: offset + index,
-                            moreInstances: false,
-                            attrs: attrs,
-                            instances: null,
-                            showAttributes: false
-                    };
-                });
-                if (study.moreSeries = (study.series.length > $scope.limit)) {
-                    study.series.pop();
+                    study.series = res.data.map(function (attrs, index) {
+                        return {
+                                study: study,
+                                offset: offset + index,
+                                moreInstances: false,
+                                attrs: attrs,
+                                instances: null,
+                                showAttributes: false
+                        };
+                    });
+                    if (study.moreSeries = (study.series.length > $scope.limit)) {
+                        study.series.pop();
+                    }
+                    StudiesService.trim($scope);
                 }
                 cfpLoadingBar.complete();
-                StudiesService.trim($scope);
             }else{
                 DeviceService.msg($scope, {
                         "title": "Info",
@@ -1268,6 +1867,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         });
     };
+
     $scope.queryInstances = function (series, offset) {
          cfpLoadingBar.start();
         if (offset < 0) offset = 0;
@@ -1375,6 +1975,51 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               }
             });
 
+    };
+    $scope.deleteStudy = function(study){
+        cfpLoadingBar.start();
+        console.log("study",study);
+        if(study.attrs['00201208'].Value[0] === 0){
+            vex.dialog.confirm({
+              message: 'Are you sure you want to delete this study?',
+              callback: function(value) {
+                if(value){
+                    $http({
+                        method: 'DELETE',
+                        url:"../aets/"+$scope.aet+"/rs/studies/"+study.attrs["0020000D"].Value[0],
+                    }).then(
+                        function successCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Info",
+                                "text": "Study deleted successfully!",
+                                "status": "info"
+                            });
+                            console.log("response",response);
+                            cfpLoadingBar.complete();
+                        },
+                        function errorCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Error",
+                                "text": "Error deleting study!",
+                                "status": "error"
+                            });
+                            cfpLoadingBar.complete();
+                        }
+                    );
+                }else{
+                    $log.log("deleting canceled");
+                    cfpLoadingBar.complete();
+                }
+              }
+            });
+        }else{
+            DeviceService.msg($scope, {
+                "title": "Error",
+                "text": "Study not empty!",
+                "status": "error"
+            });
+            cfpLoadingBar.complete();
+        }
     };
     $scope.rejectStudy = function(study) {
         if($scope.trashaktive){
@@ -1577,7 +2222,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     function createStudyFilterParams() {
         var filter = angular.extend({}, $scope.filter);
         appendFilter(filter, "StudyDate", $scope.studyDate, /-/g);
+        appendFilter(filter, "ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate", $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"], /-/g);
         appendFilter(filter, "StudyTime", $scope.studyTime, /:/g);
+        appendFilter(filter, "ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime", $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"], /-/g);
+        // appendFilterMWL(filter, "ScheduledProcedureStepSequence", $scope.ScheduledProcedureStepSequence, /:/g);
         return filter;
     }
     function appendFilter(filter, key, range, regex) {
@@ -1587,6 +2235,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         if (value.length)
             filter[key] = value;
     }
+    // function appendFilterMWL(filter, key, range, regex) {
+    //     console.log("range",range);
+    //     var value = range["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].replace(regex, '');
+    //     // console.log("range.ScheduledProcedureStepEndDate",range.ScheduledProcedureStepEndDate);
+    //     // console.log("range.ScheduledProcedureStepStartDate",range.ScheduledProcedureStepStartDate);
+    //     if (range["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"] !== range["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"])
+    //         value += '-' + range["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].replace(regex, '');
+    //     if (value.length)
+    //         filter[key] = value;
+    // }
     function createQueryParams(offset, limit, filter) {
         var params = {
             includefield: 'all',
@@ -1686,6 +2344,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             function (res) {
                 $scope.aes = res.data;
                 $scope.aet = res.data[0].title;
+                $scope.aetmodel = res.data[0];
             },
             function (res) {
                 if (retries)
@@ -1741,7 +2400,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     //     });
     // });
     $scope.queryMWL = function(offset){
-        console.log("querymwl");
         if (offset < 0 || offset === undefined) offset = 0;
         cfpLoadingBar.start();
         QidoService.queryMwl(
@@ -1751,23 +2409,24 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $scope.patients = [];
      //           $scope.studies = [];
                 $scope.morePatients = undefined;
-                $scope.moreStudies = undefined;
+                $scope.moreMWL = undefined;
                 if(res.data != ""){
-                    var pat, study, patAttrs, tags = $scope.attributeFilters.Patient.dcmTag;
+                    var pat, mwl, patAttrs, tags = $scope.attributeFilters.Patient.dcmTag;
                     res.data.forEach(function (studyAttrs, index) {
                         patAttrs = {};
                         extractAttrs(studyAttrs, tags, patAttrs);
                         if (!(pat && angular.equals(pat.attrs, patAttrs))) {
                             pat = {
                                 attrs: patAttrs,
-                                studies: [],
+                                mwls: [],
                                 showAttributes: false
                             };
                             // $scope.$apply(function () {
                                 $scope.patients.push(pat);
+                                // $scope.mwl.push(pat);
                             // });
                         }
-                        study = {
+                        mwl = {
                             patient: pat,
                             offset: offset + index,
                             moreSeries: false,
@@ -1776,11 +2435,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             showAttributes: false,
                             fromAllStudies:false
                         };
-                        pat.studies.push(study);
+                        pat.mwls.push(mwl);
                     });
-                    if ($scope.moreStudies = (res.data.length > $scope.limit)) {
-                        pat.studies.pop();
-                        if (pat.studies.length === 0)
+                    if ($scope.moreMWL = (res.data.length > $scope.limit)) {
+                        pat.mwls.pop();
+                        if (pat.mwls.length === 0)
                             $scope.patients.pop();
                         // $scope.studies.pop();
                     }
@@ -1791,6 +2450,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         "status": "info"
                     });
                 }
+                // console.log("$scope.patients",$scope.patients);
                 cfpLoadingBar.complete();
             },
             function errorCallback(response) {
@@ -1802,6 +2462,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         );
     };
+
     $scope.conditionWarning = function($event, condition, msg){
         if(condition){
             $scope.disabled[$event.currentTarget.id] = true;

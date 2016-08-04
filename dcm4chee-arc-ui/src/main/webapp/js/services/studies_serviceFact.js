@@ -56,11 +56,111 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
 
     var getArrayFromIodHelper = function(data, dropdown){
         angular.forEach(data, function(m, i){
-            dropdown.push({
-                "code":i,
-                "codeComma": i.slice(0, 4)+","+i.slice(4),
-                "name":DCM4CHE.elementName.forTag(i)
-            });
+            // console.log("i",i);
+            // console.log("m",m);
+            if(i === "00400100"){
+                console.log("in if m",m.items);
+                angular.forEach(m.items, function(l, j){
+                    // console.log("l",l);
+                    // console.log("j",j);
+                    dropdown.push({
+                        "code":"00400100:"+j,
+                        "codeComma": ">"+j.slice(0, 4)+","+j.slice(4),
+                        "name":DCM4CHE.elementName.forTag(j)
+                    });
+                });
+            }else{
+                dropdown.push({
+                    "code":i,
+                    "codeComma": i.slice(0, 4)+","+i.slice(4),
+                    "name":DCM4CHE.elementName.forTag(i)
+                });
+            }
+        });
+        return dropdown;
+    };
+
+    var getArrayFromIodExtendedHelper = function(data, dropdown, arrow, code, level, index){
+        console.log("arrow",arrow);
+        console.log("code",code);
+        console.log("level",level);
+        if(level > 0){
+            arrow += "\>";
+            code  += index+":";
+        }
+        level = level+1;
+        angular.forEach(data, function(m, i){
+            console.log("i",i);
+            console.log("m",m);
+            if(m.vr === "SQ"){
+                // console.log("in if m",m.items);
+                // angular.forEach(m.items, function(l, j){
+                //     // console.log("l",l);
+                //     // console.log("j",j);
+                //     dropdown.push({
+                //         "code":"00400100:"+j,
+                //         "codeComma": ">"+j.slice(0, 4)+","+j.slice(4),
+                //         "name":DCM4CHE.elementName.forTag(j)
+                //     });
+                // });
+                dropdown.push({
+                    "code":code+i,
+                    "codeComma": arrow+i.slice(0, 4)+","+i.slice(4),
+                    "name":DCM4CHE.elementName.forTag(i)
+                });
+                getArrayFromIodExtendedHelper(m.items, dropdown, arrow, code, level, i);
+            }else{
+                console.log("a2rrow",arrow);
+                dropdown.push({
+                    "code":code+i,
+                    "codeComma": arrow+i.slice(0, 4)+","+i.slice(4),
+                    "name":DCM4CHE.elementName.forTag(i)
+                });
+            }
+        });
+        return dropdown;
+    };
+    var getArrayFromIodMwlHelper = function(data, dropdown, arrow, code, level, index){
+        // console.log("arrow",arrow);
+        // console.log("code",code);
+        // console.log("level",level);
+        if(level > 0){
+            arrow += "\>";
+            code  += index+":";
+        }
+        level = level+1;
+        angular.forEach(data, function(m, i){
+            if(i === '00400100'){
+                // console.log("in if m",m.items);
+                // angular.forEach(m.items, function(l, j){
+                //     // console.log("l",l);
+                //     // console.log("j",j);
+                //     dropdown.push({
+                //         "code":"00400100:"+j,
+                //         "codeComma": ">"+j.slice(0, 4)+","+j.slice(4),
+                //         "name":DCM4CHE.elementName.forTag(j)
+                //     });
+                // });
+                // arrow += "\>";
+                // code  += index+":";
+                angular.forEach(m.items, function(k, j){
+                    // console.log("j",j);
+                    // console.log("k",k);
+                    dropdown.push({
+                        "code":"00400100:"+j,
+                        "codeComma": arrow+j.slice(0, 4)+","+j.slice(4),
+                        "name":DCM4CHE.elementName.forTag(j)
+                    });
+                });
+                // getArrayFromIodExtendedHelper(m.items, dropdown, arrow, code, level, i);
+            }else{
+                // console.log("a2rrow",arrow);
+                dropdown.push({
+                    "code":code+i,
+                    "codeComma": arrow+i.slice(0, 4)+","+i.slice(4),
+                    "name":DCM4CHE.elementName.forTag(i)
+                });
+            }
         });
         return dropdown;
     };
@@ -128,7 +228,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
 		    }
 		   return yyyy+mm+dd;
         },
-        updateTime : function(studyTime){
+        updateTime : function(studyTime, scope){
             if(studyTime.fromObject){
                 var timestampFrom   = Date.parse(studyTime.fromObject);
                 var d1From          = new Date(timestampFrom);
@@ -141,6 +241,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     minuteFrom = '0'+minuteFrom;
                 }
                 studyTime.from      = hourFrom+":"+minuteFrom;
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].from = hourFrom+":"+minuteFrom;
             }
             if(studyTime.toObject){
                 var timestampTo = Date.parse(studyTime.toObject);
@@ -154,10 +255,12 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     minuteTo = '0'+minuteTo;
                 }
                 studyTime.to = hourTo+":"+minuteTo;
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime"].to = hourTo+":"+minuteTo;
+
             }
             cfpLoadingBar.complete();
         },
-        updateFromDate : function(studyDate){
+        updateFromDate : function(studyDate, scope){
 
             if(studyDate.fromObject){
                 var timestampFrom   = Date.parse(studyDate.fromObject);
@@ -172,12 +275,13 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     ddFrom = '0'+ddFrom;
                 }
                 studyDate.from      = yyyyFrom+MMFrom+ddFrom;
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].from = yyyyFrom+MMFrom+ddFrom;
             }else{
                 studyDate.from      = "";
             }
             cfpLoadingBar.complete();
         },
-        updateToDate : function(studyDate){
+        updateToDate : function(studyDate, scope){
         	if(studyDate.toObject){
                 var timestampTo   = Date.parse(studyDate.toObject);
                 var d1To          = new Date(timestampTo);
@@ -191,6 +295,9 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     ddTo = '0'+ddTo;
                 }
                 studyDate.to      = yyyyTo+MMTo+ddTo;
+                // console.log("in updateTo date studyDate.ScheduledProcedureStepEndDate",studyDate.ScheduledProcedureStepEndDate);
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].to     = yyyyTo+MMTo+ddTo;
+                // console.log("in updateTo date studyDate.ScheduledProcedureStepEndDate",ScheduledProcedureStepSequence.ScheduledProcedureStepEndDate);
             }else{
                 studyDate.to      = "";
             }
@@ -293,6 +400,18 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             getArrayFromIodHelper(res.data, dropdown);
             return dropdown;
         },
+        getArrayFromIodExtended :function(res){
+            var dropdown = [];
+            getArrayFromIodExtendedHelper(res.data, dropdown, "", "",0,"");
+            console.log("dropdown",dropdown);
+            return dropdown;
+        },
+        getArrayFromIodMwl :function(res){
+            var dropdown = [];
+            getArrayFromIodMwlHelper(res.data, dropdown, "", "",0,"");
+            // console.log("dropdown",dropdown);
+            return dropdown;
+        },
         clearPatientObject : function(patient){
             clearPatientObjectHelper(patient);
         },
@@ -305,11 +424,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             return object;
         },
         convertDateToString : function($scope, mode){
-            console.log("mode",mode);
             angular.forEach($scope[mode].attrs,function(m, i){
-                console.log("m",m);
-                console.log("i",i);
-                console.log("$scope[mode][i]",$scope[mode].attrs[i]);
                 if(m.vr === "DA"){
                     // var string = value.Value[0];
                     // var yyyy = string.substring(0,4);
@@ -321,7 +436,6 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
                     // console.log("testDate",testDate);
                     var d = new Date($scope.dateplaceholder[i]);
-                    console.log("d",d);
                     d.yyyymmdd();
                     // console.log("d",d.yyyymmdd());
                     // var timestampDate   = Date.parse(m.Value[0]);

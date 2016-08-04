@@ -109,7 +109,8 @@ myApp.controller('MainController', function ($scope, $location, $http) {
     ".repeat0 .thead .tr_row",
     ".repeat1_hover",
     ".repeat2_hover",
-    ".repeat3_hover"
+    ".repeat3_hover",
+    ".repeat4_hover"
   ]
   angular.forEach(hoverdic, function(m, i){
     $(document.body).on("mouseover mouseleave",m,function(e){
