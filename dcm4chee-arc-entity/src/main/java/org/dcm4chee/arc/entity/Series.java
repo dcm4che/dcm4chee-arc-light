@@ -67,6 +67,11 @@ import java.util.Date;
             "where st.studyInstanceUID = ?1 " +
             "and se.seriesInstanceUID = ?2 "),
 @NamedQuery(
+        name=Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID,
+        query="select se from Series se " +
+                "join se.study st " +
+                "where st.studyInstanceUID = ?1 "),
+@NamedQuery(
     name=Series.FIND_BY_SERIES_IUID_EAGER,
     query="select se from Series se " +
             "join fetch se.study st " +
@@ -144,6 +149,7 @@ import java.util.Date;
 public class Series {
 
     public static final java.lang.String FIND_BY_SERIES_IUID = "Series.findBySeriesIUID";
+    public static final java.lang.String FIND_SERIES_OF_STUDY_BY_STUDY_IUID = "Series.findSeriesOfStudyByStudyIUID";
     public static final java.lang.String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
     public static final java.lang.String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
     public static final String SET_FAILED_SOP_INSTANCE_UID_LIST = "Series.SetFailedSOPInstanceUIDList";
