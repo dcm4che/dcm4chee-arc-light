@@ -728,11 +728,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                             $timeout(function() {
                                                 $scope.$apply(function(){
                                                     // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
-                                                    console.log("res.data",res.data);
-                                                    console.log("$scope.editmwl",$scope.editmwl);
+                                                    // console.log("res.data",res.data);
+                                                    // console.log("$scope.editmwl",$scope.editmwl);
                                                     if(res.data[codes[0]].Value[0][codes[1]].vr === "SQ"){
                                                         // $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || res.data[codes[0]].Value[0][codes[1]].Value;
-                                                        console.log("res.data[codes[0]].Value[0][codes[1]].Value",res.data[codes[0]].Value[0][codes[1]].Value);
+                                                        // console.log("res.data[codes[0]].Value[0][codes[1]].Value",res.data[codes[0]].Value[0][codes[1]].Value);
                                                         $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push(res.data[codes[0]].Value[0][codes[1]].Value[0]);
                                                     }else{
                                                         $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || [];
