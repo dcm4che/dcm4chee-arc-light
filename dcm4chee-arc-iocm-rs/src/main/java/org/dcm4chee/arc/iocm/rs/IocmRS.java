@@ -97,8 +97,6 @@ public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
     private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
-    private static final int REJECTION_FAILED_ALREADY_REJECTED  = 0xA774;
-    private static final int REJECTION_NOT_AUTHORIZED = 0x0124;
 
     @Inject
     private Device device;
