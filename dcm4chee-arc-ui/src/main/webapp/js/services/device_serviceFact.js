@@ -999,6 +999,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                     angular.copy(schemas.device, localSchema);
                     traverse(localSchema, selectedElement, schemas[selectedElement]);
                     replaceRef(schemas[selectedElement], selectedElement, "", "");
+                    console.log("schemas",schemas);
                     return schemas[selectedElement];
                 } else {
                     return schemas[selectedElement];

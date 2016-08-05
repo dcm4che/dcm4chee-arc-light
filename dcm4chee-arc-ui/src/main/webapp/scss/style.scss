@@ -837,6 +837,9 @@ table{
 					}
 					&.create{
 						position:relative;
+						.glyphicon-plus:hover{
+							cursor: pointer;
+						}
 					}
 				}
 				.createButtons {

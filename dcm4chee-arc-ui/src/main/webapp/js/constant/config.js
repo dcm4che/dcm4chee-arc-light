@@ -213,7 +213,10 @@ myApp.constant("$select",
           "dcmExportRule",
           "dcmArchiveCompressionRule",
           "dcmArchiveAttributeCoercion",
-          "dcmRejectionNote"
+          "dcmRejectionNote",
+          "dcmStudyRetentionPolicy",
+          "dcmIDGenerator",
+          "hl7ForwardRule"
         ]
       
       },
@@ -314,6 +317,39 @@ myApp.constant("$select",
         "required":{
           "dcmRejectionNoteLabel": "Rejection Note Label",
           "dcmRejectionNoteCode": "Rejection Note Code"
+        }
+      
+      },
+      "dcmStudyRetentionPolicy":{
+        "title" : "Study Retention Policy",
+        "optionRef" : ["dcmArchiveDevice", "dcmStudyRetentionPolicy"],
+        "optionValue": "cn",
+        "type": "array",
+        "required":{
+          "cn": "Name",
+          "dcmRetentionPeriod": "Study Retention Period"
+        }
+      
+      },
+      "dcmIDGenerator":{
+        "title" : "ID Generator",
+        "optionRef" : ["dcmArchiveDevice", "dcmIDGenerator"],
+        "optionValue": "dcmIDGeneratorName",
+        "type": "array",
+        "required":{
+          "dcmIDGeneratorName": "ID Generator Name",
+          "dcmIDGeneratorFormat": "ID Generator Format"
+        }
+      
+      },
+      "hl7ForwardRule":{
+        "title" : "HL7 Forward Rule",
+        "optionRef" : ["dcmArchiveDevice", "hl7ForwardRule"],
+        "optionValue": "dcmRejectionNoteLabel",
+        "type": "array",
+        "required":{
+          "cn": "Name",
+          "hl7FwdApplicationName": "HL7 Forward Application Name"
         }
       
       }

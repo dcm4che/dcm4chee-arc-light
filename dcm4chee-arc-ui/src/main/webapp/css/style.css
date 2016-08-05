@@ -653,6 +653,8 @@ table.subtable_1, table.subtable_2 {
             color: white; }
           .repeat0 > .thead > .tr_row .th .table_btn.create {
             position: relative; }
+            .repeat0 > .thead > .tr_row .th .table_btn.create .glyphicon-plus:hover {
+              cursor: pointer; }
         .repeat0 > .thead > .tr_row .th .createButtons {
           -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
           -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);

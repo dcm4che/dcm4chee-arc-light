@@ -594,8 +594,8 @@
                         </div>            
                     </div >
         
-                    <a class="table_btn" ng-hide="patient.studies || patient.mwls" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
-                    <a class="table_btn" ng-hide="patient.mwls" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
+                    <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
+                    <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
                     <a ng-init="patient.showmwls = true" class="table_btn" ng-show="!patient.showmwls && patient.mwls" ng-click="patient.showmwls = true" href="" title="Show MWLs">&#9658;</a>
                     <a class="table_btn" ng-show="patient.showmwls && patient.mwls" ng-click="patient.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
                 </div>

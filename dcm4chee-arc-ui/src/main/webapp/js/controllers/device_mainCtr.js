@@ -137,6 +137,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             $scope.selectedElement  = element;
             if($scope.selectedElement === "device"){
                 $scope.dynamic_schema = DeviceService.getDeviceSchema();
+                console.log("$scope.dynamic_schema",$scope.dynamic_schema);
                 $scope.dynamic_model  = $scope.wholeDevice;
             }else{
                 if(!schemas[$scope.selectedElement] || !schemas[$scope.selectedElement][$scope.selectedElement]){
