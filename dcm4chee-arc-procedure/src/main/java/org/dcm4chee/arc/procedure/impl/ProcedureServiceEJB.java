@@ -57,6 +57,7 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.*;
 
@@ -164,29 +165,31 @@ public class ProcedureServiceEJB {
 
     private void updateStudyAndSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
         Attributes mwlAttr = ctx.getAttributes();
-        Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
-                .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
-        if (study != null) {
-            List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
-                                        .setParameter(1, study).getResultList();
-            Attributes studyAttr = study.getAttributes();
-            Attributes attr = new Attributes();
-            if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, mwlAttr, attr, ctx.getAttributeFilter().getSelection())) {
-                if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
-                    study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-                study.setAttributes(studyAttr, ctx.getAttributeFilter(), ctx.getFuzzyStr());
-                for (Series series : seriesList) {
-                    Attributes seriesAttr = series.getAttributes();
-                    Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
-                    Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
-                    for (Attributes item : spsSeq) {
-                        Attributes reqAttr = createRequestAttrs(mwlAttr, item);
-                        rqAttrsSeq.add(reqAttr);
+        try {
+            Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                    .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
+            if (study != null) {
+                List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
+                        .setParameter(1, study).getResultList();
+                Attributes studyAttr = study.getAttributes();
+                Attributes attr = new Attributes();
+                if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, mwlAttr, attr, ctx.getAttributeFilter().getSelection())) {
+                    if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
+                        study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+                    study.setAttributes(studyAttr, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+                    for (Series series : seriesList) {
+                        Attributes seriesAttr = series.getAttributes();
+                        Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
+                        Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
+                        for (Attributes item : spsSeq) {
+                            Attributes reqAttr = createRequestAttrs(mwlAttr, item);
+                            rqAttrsSeq.add(reqAttr);
+                        }
+                        setRequestAttributes(series, seriesAttr, ctx.getFuzzyStr(), issuerOfAccessionNumber);
                     }
-                    setRequestAttributes(series, seriesAttr, ctx.getFuzzyStr(), issuerOfAccessionNumber);
                 }
             }
-        }
+        } catch (NoResultException e) {}
     }
 
     private Attributes createRequestAttrs(Attributes mwlAttr, Attributes item) {
