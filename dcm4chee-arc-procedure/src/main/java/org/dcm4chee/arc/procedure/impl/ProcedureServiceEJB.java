@@ -166,11 +166,10 @@ public class ProcedureServiceEJB {
     private void updateStudyAndSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
         Attributes mwlAttr = ctx.getAttributes();
         try {
-            Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
-                    .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
-            if (study != null) {
-                List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
-                        .setParameter(1, study).getResultList();
+            List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID, Series.class)
+                    .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+            if (!seriesList.isEmpty()) {
+                Study study = seriesList.get(0).getStudy();
                 Attributes studyAttr = study.getAttributes();
                 Attributes attr = new Attributes();
                 if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, mwlAttr, attr, ctx.getAttributeFilter().getSelection())) {
