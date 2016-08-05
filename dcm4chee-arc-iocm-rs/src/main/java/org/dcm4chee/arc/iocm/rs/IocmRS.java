@@ -388,9 +388,22 @@ public class IocmRS {
         try {
             storeService.store(ctx, attrs);
         } catch (DicomServiceException e) {
-            if (e.getStatus() == REJECTION_FAILED_ALREADY_REJECTED || e.getStatus() == REJECTION_NOT_AUTHORIZED)
-                throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
+            throw new WebApplicationException(e.getMessage(), httpStatusOf(e.getStatus()));
         }
+    }
+
+    private static Response.Status httpStatusOf(int status) {
+        switch (status) {
+            case StoreService.DUPLICATE_REJECTION_NOTE:
+            case StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE:
+            case StoreService.REJECTION_FAILED_CLASS_INSTANCE_CONFLICT:
+            case StoreService.REJECTION_FAILED_ALREADY_REJECTED:
+                return Response.Status.CONFLICT;
+            case StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED:
+            case StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED:
+                return Response.Status.FORBIDDEN;
+        }
+        return Response.Status.INTERNAL_SERVER_ERROR;
     }
 
     private StreamingOutput copyOrMoveInstances(String studyUID, InputStream in, Code code) throws Exception {

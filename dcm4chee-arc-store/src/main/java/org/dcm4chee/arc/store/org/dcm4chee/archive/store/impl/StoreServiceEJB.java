@@ -60,6 +60,7 @@ import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,13 +94,6 @@ public class StoreServiceEJB {
     private static final String IGNORE_WITH_EQUAL_DIGEST = IGNORE + " with equal digest";
     private static final String REVOKE_REJECTION =
             "{}: Revoke rejection of Instance[studyUID={},seriesUID={},objectUID={}] by {}";
-    private static final int DUPLICATE_REJECTION_NOTE = 0xA770;
-    private static final int SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT = 0xA771;;
-    private static final int REJECTION_FAILED_NO_SUCH_INSTANCE = 0xA772;
-    private static final int REJECTION_FAILED_CLASS_INSTANCE_CONFLICT  = 0xA773;
-    private static final int REJECTION_FAILED_ALREADY_REJECTED  = 0xA774;
-    private static final int REJECTION_NOT_AUTHORIZED = 0x0124;
-    private static final int REJECTION_NOT_ALLOWED_INSTANCES_NOT_EXPIRED = 0xA775;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -131,7 +125,7 @@ public class StoreServiceEJB {
             LOG.info("{}: Found previous received {}", session, prevInstance);
             if (prevInstance.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
                     && getRejectionNote(arcDev, prevInstance.getConceptNameCode()) != null)
-                throw new DicomServiceException(DUPLICATE_REJECTION_NOTE,
+                throw new DicomServiceException(StoreService.DUPLICATE_REJECTION_NOTE,
                         "Rejection Note [uid=" + prevInstance.getSopInstanceUID() + "] already received");
             RejectionNote rjNote = getRejectionNote(arcDev, prevInstance.getRejectionNoteCode());
             if (rjNote != null) {
@@ -141,7 +135,7 @@ public class StoreServiceEJB {
                         logInfo(IGNORE_PREVIOUS_REJECTED, ctx, rjNote.getRejectionNoteCode());
                         return result;
                     case REJECT:
-                        throw new DicomServiceException(SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT,
+                        throw new DicomServiceException(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT,
                                 "Subsequent occurrence of rejected Object [uid=" + prevInstance.getSopInstanceUID()
                                         + ", rejection=" + rjNote.getRejectionNoteCode() + "]");
                     case RESTORE:
@@ -181,7 +175,7 @@ public class StoreServiceEJB {
                         arcAE.allowRejectionForDataRetentionPolicyExpired();
                 if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
                         && policy == AllowRejectionForDataRetentionPolicyExpired.NEVER) {
-                    throw new DicomServiceException(REJECTION_NOT_AUTHORIZED,
+                    throw new DicomServiceException(StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED,
                             "Rejection for Retentation Policy Expired not authorized");
                 }
                 rejectInstances(ctx, rjNote, conceptNameCode, policy);
@@ -218,7 +212,7 @@ public class StoreServiceEJB {
                     series = inst.getSeries();
                     if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
                             && policy == AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY)
-                        processExpirationDate(series, rjNote.getRejectionNoteType());
+                        checkExpirationDate(series);
                     RejectionState rejectionState = rjNote.isRevokeRejection()
                             ? hasRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.NONE
                             : hasNotRejectedInstances(series) ? RejectionState.PARTIAL : RejectionState.COMPLETE;
@@ -251,15 +245,16 @@ public class StoreServiceEJB {
         }
     }
 
-    private void processExpirationDate(Series series, RejectionNote.Type type)
+    private void checkExpirationDate(Series series)
             throws DicomServiceException {
-        LocalDate now = LocalDate.now();
-        LocalDate seriesExpirationDate = series.getExpirationDate();
         LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
-        if ((seriesExpirationDate != null && seriesExpirationDate.isAfter(now))
-                || (studyExpirationDate != null && studyExpirationDate.isAfter(now))) {
-            throw new DicomServiceException(REJECTION_NOT_ALLOWED_INSTANCES_NOT_EXPIRED, "Rejection for type "
-                    + type + " is not authorized as instances are not yet expired.");
+        if (studyExpirationDate == null)
+            return;
+
+        LocalDate seriesExpirationDate = series.getExpirationDate();
+        if ((seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isAfter(LocalDate.now())) {
+            throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
+                    "Retention Period of Study not yet expired");
         }
     }
 
@@ -287,17 +282,17 @@ public class StoreServiceEJB {
                                     CodeEntity rejectionCode) throws DicomServiceException {
         Instance inst = findInstance(studyUID, seriesUID, objectUID);
         if (inst == null)
-            throw new DicomServiceException(REJECTION_FAILED_NO_SUCH_INSTANCE,
+            throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
                     "Failed to reject Instance[uid=" + objectUID + "] - no such Instance");
         if (!inst.getSopClassUID().equals(classUID))
-            throw new DicomServiceException(REJECTION_FAILED_CLASS_INSTANCE_CONFLICT,
+            throw new DicomServiceException(StoreService.REJECTION_FAILED_CLASS_INSTANCE_CONFLICT,
                     "Failed to reject Instance[uid=" + objectUID + "] - class-instance conflict");
         CodeEntity prevRjNoteCode = inst.getRejectionNoteCode();
         if (prevRjNoteCode != null) {
             if (!rjNote.isRevokeRejection() && rejectionCode.getPk() == prevRjNoteCode.getPk())
                 return inst;
             if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
-                throw new DicomServiceException(REJECTION_FAILED_ALREADY_REJECTED,
+                throw new DicomServiceException(StoreService.REJECTION_FAILED_ALREADY_REJECTED,
                         "Failed to reject Instance[uid=" + objectUID + "] - already rejected");
         }
         inst.setRejectionNoteCode(rjNote.isRevokeRejection() ? null : rejectionCode);

@@ -20,6 +20,15 @@ import java.util.Map;
  * @since Jul 2015
  */
 public interface StoreService {
+
+    int DUPLICATE_REJECTION_NOTE = 0xA770;
+    int SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT = 0xA771;
+    int REJECTION_FAILED_NO_SUCH_INSTANCE = 0xA772;
+    int REJECTION_FAILED_CLASS_INSTANCE_CONFLICT  = 0xA773;
+    int REJECTION_FAILED_ALREADY_REJECTED  = 0xA774;
+    int REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED = 0xA775;
+    int RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED = 0xA776;
+
     StoreSession newStoreSession(Association as);
 
     StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae);
