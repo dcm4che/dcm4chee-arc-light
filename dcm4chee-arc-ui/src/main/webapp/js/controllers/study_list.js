@@ -717,6 +717,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     });
                     //Click event handling
                     $scope.addAttribute = function(attrcode){
+                        addAttribute(attrcode);
+                    }
+                    var addAttribute = function(attrcode){
                         if(attrcode.indexOf(':') > -1){
                                 var codes =  attrcode.split(":"); 
                                 if(codes[0] === "00400100"){
@@ -725,8 +728,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                             $timeout(function() {
                                                 $scope.$apply(function(){
                                                     // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
-                                                    $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || [];
-                                                    $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
+                                                    console.log("res.data",res.data);
+                                                    console.log("$scope.editmwl",$scope.editmwl);
+                                                    if(res.data[codes[0]].Value[0][codes[1]].vr === "SQ"){
+                                                        // $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || res.data[codes[0]].Value[0][codes[1]].Value;
+                                                        console.log("res.data[codes[0]].Value[0][codes[1]].Value",res.data[codes[0]].Value[0][codes[1]].Value);
+                                                        $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push(res.data[codes[0]].Value[0][codes[1]].Value[0]);
+                                                    }else{
+                                                        $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || [];
+                                                        $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
+                                                    }
                                                     $scope.addPatientAttribut           = "";
                                                     $scope.opendropdown                 = false;
                                                 });
@@ -774,6 +785,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 });
                             }
                         }
+                        $timeout(function() {
+                            $scope.$apply(function(){
+                                $scope.items = $filter("mwl")($scope.editmwl.attrs,$scope.iod);
+                            });
+                        });
+
                     };
                     $(".addPatientAttribut").bind("keydown",function(e){
                         $scope.opendropdown = true;
@@ -791,62 +808,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 var attrcode = filtered[0].code;
                             }
                             // console.log("attrcode=",attrcode);
-                            if(attrcode.indexOf(':') > -1){
-                                    var codes =  attrcode.split(":"); 
-                                    if(codes[0] === "00400100"){
-                                        if($scope.editmwl.attrs[codes[0]].Value[0][codes[1]] != undefined){
-                                            if(res.data[codes[0]].Value[0][codes[1]].multi){
-                                                $timeout(function() {
-                                                    $scope.$apply(function(){
-                                                        // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
-                                                        $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
-                                                        $scope.addPatientAttribut           = "";
-                                                        $scope.opendropdown                 = false;
-                                                    });
-                                                });
-                                            }else{
-                                                DeviceService.msg($scope, {
-                                                        "title": "Warning",
-                                                        "text": "Attribute already exists!",
-                                                        "status": "warning"
-                                                });
-                                            }
-                                        }else{
-                                            $timeout(function() {
-                                                $scope.$apply(function(){
-                                                    $scope.editmwl.attrs[codes[0]].Value[0][codes[1]]  = res.data[codes[0]].Value[0][codes[1]];
-                                                });
-                                            });
-                                        }
-                                    }else{
-                                        $log.error("error, code 00400100 not found on the 0 position");
-                                    }
-                            }else{
-                                if($scope.editmwl.attrs[attrcode] != undefined){
-                                    if(res.data[attrcode].multi){
-                                        $timeout(function() {
-                                            $scope.$apply(function(){
-                                                // $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
-                                                $scope.editmwl.attrs[attrcode]["Value"].push("");
-                                                $scope.addPatientAttribut           = "";
-                                                $scope.opendropdown                 = false;
-                                            });
-                                        });
-                                    }else{
-                                        DeviceService.msg($scope, {
-                                                "title": "Warning",
-                                                "text": "Attribute already exists!",
-                                                "status": "warning"
-                                        });
-                                    }
-                                }else{
-                                    $timeout(function() {
-                                        $scope.$apply(function(){
-                                            $scope.editmwl.attrs[attrcode]  = res.data[attrcode];
-                                        });
-                                    });
-                                }
-                            }
+                            addAttribute(attrcode);
                             setTimeout(function(){
                                 $scope.lastPressedCode = 0;
                             },1000);
