@@ -334,9 +334,8 @@
         "parameters": [
           {
             "name": "deviceName",
-            "in": "path",
+            "in": "query",
             "description": "Device Name",
-            "required": true,
             "type": "string"
           },
           {
