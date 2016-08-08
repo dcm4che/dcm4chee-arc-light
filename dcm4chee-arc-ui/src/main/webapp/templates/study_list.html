@@ -593,7 +593,9 @@
                             </a>
                         </div>            
                     </div >
-        
+                    <a class="table_btn"  ng-show="isRole('admin') && patient.attrs['00201200'].Value[0] === 0" ng-click="deletePatient(patient, patients, patientkey)" href="" title="Delete Patient">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </a>
                     <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
                     <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
                     <a ng-init="patient.showmwls = true" class="table_btn" ng-show="!patient.showmwls && patient.mwls" ng-click="patient.showmwls = true" href="" title="Show MWLs">&#9658;</a>

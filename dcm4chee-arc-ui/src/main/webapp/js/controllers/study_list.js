@@ -1979,6 +1979,59 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             cfpLoadingBar.complete();
         }
     };
+    $scope.deletePatient = function(patient,patients, patientkey){
+        cfpLoadingBar.start();
+        // console.log("study",study);
+        if(patient.attrs['00201200'].Value[0] === 0){
+            vex.dialog.confirm({
+              message: 'Are you sure you want to delete this patient?',
+              callback: function(value) {
+                if(value){
+                    $http({
+                        method: 'DELETE',
+                        url:"../aets/"+$scope.aet+"/rs/patients/"+patient.attrs["00100020"].Value[0],
+                    }).then(
+                        function successCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Info",
+                                "text": "Patient deleted successfully!",
+                                "status": "info"
+                            });
+                            console.log("patients",patients);
+                            console.log("patientkey",patientkey);
+                            $timeout(function() {
+                                    patients.splice(patientkey,1);
+                                    angular.element("#querypatients").trigger('click');
+                            });
+                            console.log("response",response);
+                            cfpLoadingBar.complete();
+                        },
+                        function errorCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Error",
+                                "text": "Error deleting patient!",
+                                "status": "error"
+                            });
+                            // angular.element("#querypatients").trigger('click');
+                            cfpLoadingBar.complete();
+                        }
+                    );
+                }else{
+                    console.log("deleting canceled");
+                    cfpLoadingBar.complete();
+                }
+              }
+            });
+        }else{
+            DeviceService.msg($scope, {
+                "title": "Error",
+                "text": "Patient not empty!",
+                "status": "error"
+            });
+            cfpLoadingBar.complete();
+        }
+        // angular.element("#querypatients").trigger('click');
+    };
     $scope.rejectStudy = function(study) {
         if($scope.trashaktive){
             $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
