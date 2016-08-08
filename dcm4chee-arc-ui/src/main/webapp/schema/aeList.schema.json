@@ -1,0 +1,55 @@
+{
+  "title": "AE List",
+  "type": "array",
+  "items": {
+    "required": [
+      "dicomDeviceName",
+      "dicomAETitle",
+      "dicomAssociationInitiator",
+      "dicomAssociationAcceptor"
+    ],
+    "properties": {
+      "dicomDeviceName": {
+        "title": "Device Name",
+        "description": "A unique name for the device which provides this AE",
+        "type": "string"
+      },
+      "dicomAETitle": {
+        "title": "AE Title",
+        "description": "Unique AE title for this Network AE",
+        "type": "string"
+      },
+      "dcmOtherAETitle": {
+        "title": "Other AE Title",
+        "description": "Additional AE Title of Network AE - will also accept Association RQs with such Called AE Title",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "dicomDescription": {
+        "title": "AE Description",
+        "description": "Unconstrained text description of the AE",
+        "type": "string"
+      },
+      "dicomAssociationInitiator": {
+        "title": "Association Initiator",
+        "description": "True if the Network AE can initiate associations, false otherwise",
+        "type": "boolean"
+      },
+      "dicomAssociationAcceptor": {
+        "title": "Association Acceptor",
+        "description": "True if the Network AE can accept associations, false otherwise",
+        "type": "boolean"
+      },
+      "dicomApplicationCluster": {
+        "title": "Application Cluster",
+        "description": "Locally defined names for a subset of related applications",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

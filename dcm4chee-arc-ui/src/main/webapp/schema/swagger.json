@@ -173,7 +173,7 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "list configured devices",
+        "summary": "List devices",
         "operationId": "listDevices",
         "produces": [
           "application/json"
@@ -186,7 +186,7 @@
             "type": "string"
           },
           {
-            "name": "dicomDeviceDescription",
+            "name": "dicomDescription",
             "in": "query",
             "description": "Device Description",
             "type": "string"
@@ -204,16 +204,6 @@
             "type": "string"
           },
           {
-            "name": "dicomSoftwareVersion",
-            "in": "query",
-            "description": "Software Version",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "dicomStationName",
             "in": "query",
             "description": "Station Name",
@@ -223,31 +213,19 @@
             "name": "dicomPrimaryDeviceType",
             "in": "query",
             "description": "Primary Device Type",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
+            "type": "string"
           },
           {
             "name": "dicomInstitutionName",
             "in": "query",
             "description": "Institution Name",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
+            "type": "string"
           },
           {
             "name": "dicomInstitutionDepartmentName",
             "in": "query",
             "description": "Institution Department Name",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
+            "type": "string"
           },
           {
             "name": "dicomInstalled",
@@ -274,7 +252,7 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "get device",
+        "summary": "Get Device",
         "operationId": "getDevice",
         "produces": [
           "application/json"
@@ -307,7 +285,7 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "create or update device",
+        "summary": "Create or Update Device",
         "operationId": "createOrUpdateDevice",
         "consumes": [
           "application/json"
@@ -336,6 +314,68 @@
           },
           "400": {
             "description": "deviceName in path does not match device name in body"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aes": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Application Entities",
+        "operationId": "listApplicationEntities",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "Device Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dicomAETitle",
+            "in": "query",
+            "description": "AE Title",
+            "type": "string"
+          },
+          {
+            "name": "dicomDescription",
+            "in": "query",
+            "description": "Device Description",
+            "type": "string"
+          },
+          {
+            "name": "dicomAssociationInitiator",
+            "in": "query",
+            "description": "True if the Network AE can initiate associations, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "dicomAssociationAcceptor",
+            "in": "query",
+            "description": "True if the Network AE can accept associations, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "dicomApplicationCluster",
+            "in": "query",
+            "description": "Application Cluster",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Entity list",
+            "schema": {
+              "$ref": "aeList.schema.json"
+            }
           },
           "default": {
             "description": "unexpected error"
