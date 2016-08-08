@@ -57,14 +57,16 @@ import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2015
  */
-@Path("/devices")
+@Path("/")
 @RequestScoped
 public class ConfigurationRS {
 
@@ -85,7 +87,7 @@ public class ConfigurationRS {
     };
 
     @GET
-    @Path("/{DeviceName}")
+    @Path("/devices/{DeviceName}")
     @Produces("application/json")
     public StreamingOutput getDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         final Device device;
@@ -105,7 +107,7 @@ public class ConfigurationRS {
     }
 
     @GET
-    @Path("/")
+    @Path("/devices")
     @Produces("application/json")
     public StreamingOutput listDevices() throws Exception {
         final DeviceInfo[] deviceInfos = conf.listDeviceInfos(new DeviceInfoBuilder(uriInfo).deviceInfo);
@@ -123,7 +125,7 @@ public class ConfigurationRS {
     }
 
     @PUT
-    @Path("/{DeviceName}")
+    @Path("/devices/{DeviceName}")
     @Consumes("application/json")
     public void createOrUpdateDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
         Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
@@ -138,8 +140,35 @@ public class ConfigurationRS {
         }
     }
 
+    @PUT
+    @Path("/unique/aets/{aet}")
+    @Consumes("application/json")
+    public void registerAET(@PathParam("aet") String aet) throws Exception {
+        try {
+            if (!conf.registerAETitle(aet))
+                throw new WebApplicationException(
+                        "Application Entity Title " + aet + " already registered.", Response.Status.CONFLICT);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @DELETE
-    @Path("/{DeviceName}")
+    @Path("/unique/aets/{aet}")
+    public void unregisterAET(@PathParam("aet") String aet) throws Exception {
+        List<String> aets = Arrays.asList(conf.listRegisteredAETitles());
+        if (!aets.contains(aet))
+            throw new WebApplicationException(
+                    "Application Entity Title " + aet + " not registered.", Response.Status.NOT_FOUND);
+        try {
+            conf.unregisterAETitle(aet);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DELETE
+    @Path("/devices/{DeviceName}")
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         try {
             conf.removeDevice(deviceName);
