@@ -465,6 +465,14 @@ dn: dicomAETitle=DCM4CHEE,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc
 objectClass: dicomUniqueAETitle
 dicomAETitle: DCM4CHEE
 
+dn: dicomAETitle=DCM4CHEE_ADMIN,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitle
+dicomAETitle: DCM4CHEE_ADMIN
+
+dn: dicomAETitle=DCM4CHEE_TRASH,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitle
+dicomAETitle: DCM4CHEE_TRASH
+
 dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSendPendingCMoveInterval: PT5S
 dcmQidoMaxNumberOfResults: 1000
