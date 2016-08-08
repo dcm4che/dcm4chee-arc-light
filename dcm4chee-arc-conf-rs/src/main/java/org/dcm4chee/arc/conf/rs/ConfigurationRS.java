@@ -43,6 +43,7 @@ package org.dcm4chee.arc.conf.rs;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
+import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
 import org.dcm4che3.net.Device;
@@ -162,6 +163,35 @@ public class ConfigurationRS {
                     "Application Entity Title " + aet + " not registered.", Response.Status.NOT_FOUND);
         try {
             conf.unregisterAETitle(aet);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
+    @Path("/unique/hl7apps/{appName}")
+    @Consumes("application/json")
+    public void registerHL7App(@PathParam("appName") String appName) throws Exception {
+        HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
+        try {
+            if (!hl7Conf.registerHL7Application(appName))
+                throw new WebApplicationException(
+                        "HL7 Application " + appName + " already registered.", Response.Status.CONFLICT);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DELETE
+    @Path("/unique/hl7apps/{appName}")
+    public void unregisterHL7App(@PathParam("appName") String appName) throws Exception {
+        HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
+        List<String> hl7apps = Arrays.asList(hl7Conf.listRegisteredHL7ApplicationNames());
+        if (!hl7apps.contains(appName))
+            throw new WebApplicationException(
+                    "HL7 Application " + appName + " not registered.", Response.Status.NOT_FOUND);
+        try {
+            hl7Conf.unregisterHL7Application(appName);
         } catch (ConfigurationException e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
