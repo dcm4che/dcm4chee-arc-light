@@ -6,7 +6,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.mwl = [];
     $scope.iod = {};
 //   $scope.studies = [];
-    // $scope.allhidden = false; 
+    // $scope.allhidden = false;
+    $scope.clipboard = {};
+    $scope.selected = {};
+    $scope.pressedKey;
+    $scope.keysdown = {};
     $scope.dateplaceholder = {};
     $scope.opendropdown = false;
     $scope.patientmode = true;
@@ -21,7 +25,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.exporterID = null;
     $scope.attributeFilters = {};
     $scope.rjnotes;
-    $scope.keepRejectionNote = false;
+    $scope.keepRejectionNote = false;2
     $scope.rjnote = null;
     $scope.advancedConfig = false;
     $scope.showModalitySelector = false;
@@ -2031,6 +2035,53 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             cfpLoadingBar.complete();
         }
         // angular.element("#querypatients").trigger('click');
+    };
+    $(document).keydown(function(e){
+        // console.log("e",e);
+        $scope.pressedKey = e.keyCode
+          // Do we already know it's down?
+        if ($scope.keysdown[e.keyCode]) {
+            // Ignore it
+            return;
+        }
+        console.log("e.keyCode",e.keyCode);
+         // Remember it's down
+        $timeout(function() {
+            $scope.$apply(function(){
+                $scope.keysdown[e.keyCode] = true;
+                console.log("$scope.keysdown",$scope.keysdown);
+                if($scope.keysdown[17]===true && $scope.keysdown[67]===true){
+                    console.log("ctrl c");
+                }
+                if($scope.keysdown[17]===true && $scope.keysdown[86]===true){
+                    console.log("ctrl v");
+                }
+            });
+        });
+        
+    
+    });
+    $(document).keyup(function(e){
+        $timeout(function() {
+            $scope.$apply(function(){
+                $scope.pressedKey = null;
+                delete $scope.keysdown[e.keyCode];
+            });
+        });
+    });
+    $scope.select = function(study){
+
+        console.log("study",study);
+        console.log("$scope.pressedKey",$scope.pressedKey);
+        console.log("$scope.keysdown",$scope.keysdown);
+        console.log("$scope.keysdown.length",Object.keys($scope.keysdown).length);
+        if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[17] === true){
+            console.log("alt pressed");
+            study.selected = !study.selected;
+            $scope.selected["studies"] = $scope.selected["studies"] || [];
+            $scope.selected["studies"].push(study);
+            console.log("$scope.selected",$scope.selected);
+        }
     };
     $scope.rejectStudy = function(study) {
         if($scope.trashaktive){

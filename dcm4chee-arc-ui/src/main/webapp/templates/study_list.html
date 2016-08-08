@@ -1,8 +1,8 @@
-<!-- <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
+<!--  <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
         isRole('admin'):{{isRole('admin')}}
         trashaktive :{{trashaktive}}
         studies :{{studies}}
-</pre>-->
+</pre> -->
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
 <div class="headerblock" ng-class="{modality:showModalitySelector}">
 <div class="row filter">
@@ -647,7 +647,8 @@
                 <div class="tr_row">
                     <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
                     <div class="subblock">
-                        <div class="td_row thead repeat1_hover">
+                        <div class="td_row thead repeat1_hover" ng-click="select(study)" ng-class="{selected: study.selected}" ng-init="study.selected = false">
+                            <input type="checkbox" ng-model="study.selected" class="selectcheckboxes" />
                             <div class="td_cell table_btn">
                                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                                     <span class="glyphicon glyphicon-th-list"></span>
@@ -716,8 +717,9 @@
                             <div class="repeat2" ng-repeat="(serieskey,series) in study.series">
                                     <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
                             <div class="subblock">
-                                <div class="tr_row repeat2_hover">
+                                <div class="tr_row repeat2_hover" ng-click="select(series)" ng-class="{selected: series.selected}" ng-init="series.selected = false">
                                     <div class="td_cell table_btn">
+                                        <input type="checkbox" ng-model="series.selected" class="selectcheckboxes" />
                                         <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                                             <span class="glyphicon glyphicon-th-list"></span>
                                         </a>
@@ -745,7 +747,7 @@
                                     <div class="td_cell txt hover_cell" tooltip="{{series.attrs['00180015'].Value[0]}}" >{{(series.attrs['00180015'].Value[0]) || '&nbsp;'}}</div>
                                     <div class="td_cell hover_cell" ng-bind="(series.attrs['00080060'].Value[0]) || '&nbsp;'" >&nbsp;</div>
                                     <div style="width:21.5%" class="td_cell txt hover_cell" tooltip="{{(series.attrs['0008103E'].Value[0]) || '&nbsp;'}}">{{(series.attrs['0008103E'].Value[0]) || '&nbsp;'}}</div>
-                                    <div style="width:2%" class="td_cell txt hover_cell" tooltip="{{series.attrs['00201209'].Value[0]}}">{{(series.attrs['00201209'].Value[0]) || '&nbsp;'}}</div>
+                                    <div style="width:2.1%" class="td_cell txt hover_cell" tooltip="{{series.attrs['00201209'].Value[0]}}">{{(series.attrs['00201209'].Value[0]) || '&nbsp;'}}</div>
                                 </div>
                                 <div class="tr_row"  ng-show="series.showAttributes">
                                     <div class="td_cell attribute_list">
@@ -777,8 +779,9 @@
                                 <div class="repeat3"  ng-repeat="(key,instance) in series.instances">
                                     <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
                                     <div class="subblock">
-                                        <div class="tr_row repeat3_hover">
+                                        <div class="tr_row repeat3_hover"ng-click="select(instance)" ng-class="{selected: instance.selected}" ng-init="instance.selected = false">
                                             <div class="td_cell table_btn">   
+                                                <input type="checkbox" ng-model="instance.selected" class="selectcheckboxes" />
                                                 <a ng-click="toggleAttributs(series.instances[key],'attributs')" href="" title="Show Attributes" ng-class="{active:instance.showAttributes}">
                                                     <span class="glyphicon glyphicon-th-list"></span>
                                                 </a>   
@@ -819,7 +822,7 @@
                                             <div class="td_cell hover_cell" >{{((instance.attrs['00080023'] || instance.attrs['00700082']).Value[0] | formatDA) || '&nbsp;'}}</div>
                                             <div class="td_cell hover_cell" >{{((instance.attrs['00080033'] || instance.attrs['00700083']).Value[0] | formatTM) || '&nbsp;'}}</div>
                                             <div style="width:28%" class="td_cell txt hover_cell" tooltip="{{(instance.attrs | contentDescription)}}">{{(instance.attrs | contentDescription) || '&nbsp;'}}</div>
-                                            <div style="width:2%" class="td_cell hover_cell" >{{(instance.attrs['00280008'].Value[0]) || '&nbsp;'}}</div>
+                                            <div style="width:2.7%" class="td_cell hover_cell" >{{(instance.attrs['00280008'].Value[0]) || '&nbsp;'}}</div>
                                         </div>
                                         <div class="tr_row"  ng-show="instance.showAttributes">
                                             <div class="td_cell attribute_list">
