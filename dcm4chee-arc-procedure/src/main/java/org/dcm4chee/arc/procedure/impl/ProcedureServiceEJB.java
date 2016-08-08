@@ -166,7 +166,7 @@ public class ProcedureServiceEJB {
     private void updateStudyAndSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
         Attributes mwlAttr = ctx.getAttributes();
         try {
-            List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID, Series.class)
+            List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
                     .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
             if (!seriesList.isEmpty()) {
                 Study study = seriesList.get(0).getStudy();

@@ -173,7 +173,7 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "list configured devices",
+        "summary": "List devices",
         "operationId": "listDevices",
         "produces": [
           "application/json"
@@ -186,7 +186,7 @@
             "type": "string"
           },
           {
-            "name": "dicomDeviceDescription",
+            "name": "dicomDescription",
             "in": "query",
             "description": "Device Description",
             "type": "string"
@@ -204,16 +204,6 @@
             "type": "string"
           },
           {
-            "name": "dicomSoftwareVersion",
-            "in": "query",
-            "description": "Software Version",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "dicomStationName",
             "in": "query",
             "description": "Station Name",
@@ -223,31 +213,19 @@
             "name": "dicomPrimaryDeviceType",
             "in": "query",
             "description": "Primary Device Type",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
+            "type": "string"
           },
           {
             "name": "dicomInstitutionName",
             "in": "query",
             "description": "Institution Name",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
+            "type": "string"
           },
           {
             "name": "dicomInstitutionDepartmentName",
             "in": "query",
             "description": "Institution Department Name",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
+            "type": "string"
           },
           {
             "name": "dicomInstalled",
@@ -274,7 +252,7 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "get device",
+        "summary": "Get Device",
         "operationId": "getDevice",
         "produces": [
           "application/json"
@@ -307,7 +285,7 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "create or update device",
+        "summary": "Create or Update Device",
         "operationId": "createOrUpdateDevice",
         "consumes": [
           "application/json"
@@ -336,6 +314,209 @@
           },
           "400": {
             "description": "deviceName in path does not match device name in body"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Delete Device",
+        "operationId": "deleteDevice",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "name of device to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aes": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Application Entities",
+        "operationId": "listApplicationEntities",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "query",
+            "description": "Device Name",
+            "type": "string"
+          },
+          {
+            "name": "dicomAETitle",
+            "in": "query",
+            "description": "AE Title",
+            "type": "string"
+          },
+          {
+            "name": "dicomDescription",
+            "in": "query",
+            "description": "Device Description",
+            "type": "string"
+          },
+          {
+            "name": "dicomAssociationInitiator",
+            "in": "query",
+            "description": "True if the Network AE can initiate associations, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "dicomAssociationAcceptor",
+            "in": "query",
+            "description": "True if the Network AE can accept associations, false otherwise",
+            "type": "boolean"
+          },
+          {
+            "name": "dicomApplicationCluster",
+            "in": "query",
+            "description": "Application Cluster",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Entity list",
+            "schema": {
+              "$ref": "aeList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/unique/aets/{aet}": {
+      "put": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Register Application Entity Title",
+        "operationId": "registerAET",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "AE Title to register",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "409": {
+            "description": "AE Title already registered"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Unregister Application Entity Title",
+        "operationId": "unregisterAET",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "AE Title to unregister",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/unique/hl7apps/{appName}": {
+      "put": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Register HL7 Application and Facility Name",
+        "operationId": "registerHL7App",
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "description": "HL7 Application and Facility Name (Application|Facility) to register",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "409": {
+            "description": "HL7 Application and Facility Name already registered"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Unregister HL7 Application and Facility Name",
+        "operationId": "unregisterHL7App",
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "description": "HL7 Application and Facility Name (Application|Facility) to unregister",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "HL7 Application and Facility Name not found"
           },
           "default": {
             "description": "unexpected error"
