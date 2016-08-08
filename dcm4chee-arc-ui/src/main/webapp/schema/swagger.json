@@ -412,6 +412,62 @@
         }
       }
     },
+    "/unique/aets/{aet}": {
+      "put": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Register Application Entity Title",
+        "operationId": "registerAET",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "AE Title to register",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "409": {
+            "description": "AE Title already registered"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Unregister Application Entity Title",
+        "operationId": "unregisterAET",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "AE Title to unregister",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/attribute-filter/{entity}": {
       "get": {
         "tags": [
