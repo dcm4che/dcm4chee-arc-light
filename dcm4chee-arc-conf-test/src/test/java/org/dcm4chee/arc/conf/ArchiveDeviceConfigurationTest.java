@@ -113,6 +113,8 @@ public class ArchiveDeviceConfigurationTest {
         Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514, configType);
         config.persist(arrDevice);
         config.registerAETitle("DCM4CHEE");
+        config.registerAETitle("DCM4CHEE_ADMIN");
+        config.registerAETitle("DCM4CHEE_TRASH");
 
         Device arc = setThisNodeCertificates(
                 ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, configType));
