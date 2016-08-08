@@ -319,6 +319,36 @@
             "description": "unexpected error"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Delete Device",
+        "operationId": "deleteDevice",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "name of device to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
       }
     },
     "/aes": {
