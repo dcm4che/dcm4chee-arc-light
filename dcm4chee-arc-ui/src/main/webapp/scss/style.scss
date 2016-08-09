@@ -2767,3 +2767,34 @@ table.j4care-table{
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#417091', endColorstr='#376e95',GradientType=0 );
     color: white !important;
 }
+
+.clipboard {
+    position: fixed;
+    right: 0;
+    top: 22%;
+    z-index: 999999;
+    .toggle_button {
+	    background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
+	    border-bottom-left-radius: 5px;
+	    border-top-left-radius: 5px;
+	    color: white;
+	    float: left;
+	    font-size: 35px;
+	    padding: 1px 5px;
+	    &:hover{
+	    	background:rgba(0, 0, 0, 0.8);
+	    	cursor: pointer;
+	    }
+	}
+	.content {
+	    background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
+	    color: white;
+	    float: left;
+	    max-height: 500px;
+	    min-height: 100px;
+	    // width: 231px;
+		&:hover{
+	    	background:rgba(0, 0, 0, 0.8);
+	    }
+	}
+}

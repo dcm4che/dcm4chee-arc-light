@@ -444,6 +444,26 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                     $scope[mode].attrs[i].Value[0] = d.yyyymmdd();
                 }
             });
+        },
+        clearSelection: function(patients){
+            angular.forEach(patients,function(patient, i){
+                patient.selected = false;
+                if(patient.studies){
+                    angular.forEach(patient.studies,function(study, j){
+                        study.selected = false;
+                        if(study.series){
+                            angular.forEach(study.series,function(serie, j){
+                                serie.selected = false;
+                                if(serie.instances){
+                                    angular.forEach(serie.instances,function(instance, j){
+                                        instance.selected = false;
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
         }
 
     };

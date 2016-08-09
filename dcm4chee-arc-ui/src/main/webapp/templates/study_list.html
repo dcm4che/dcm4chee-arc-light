@@ -1,9 +1,63 @@
 <!--  <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-        isRole('admin'):{{isRole('admin')}}
-        trashaktive :{{trashaktive}}
-        studies :{{studies}}
+        clipboard:{{clipboard|json}}
 </pre> -->
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
+<div class="clipboard" ng-init="showClipboardContent = false"  ng-show="clipboard.selected">
+    <div class="toggle_button" ng-click="showClipboardContent = !showClipboardContent">
+        <i class="glyphicon glyphicon-copy"></i>
+    </div>
+    <div class="content" ng-show="showClipboardContent">
+        <div class="header">
+            <div>Study Instance UID
+                <div>Series Instance UID
+                    <div>Referenced SOP Class UID</div>
+                    <div>Referenced SOP Instance UID</div>
+                </div>
+            </div>
+            
+            
+            
+        </div>
+        <div class="body">
+            <div ng-repeat="(key, value) in clipboard.selected">
+                <span>{{value.StudyInstanceUID}}</span>
+                <span ng-repeat="(key2, seriesequence) in value.ReferencedSeriesSequence">  {{seriesequence.SeriesInstanceUID}}
+                    <span ng-repeat="(key3, sopseq) in seriesequence.ReferencedSOPSequence">        
+                            {{sopseq.ReferencedSOPClassUID}}
+                            {{sopseq.ReferencedSOPInstanceUID}}
+                    </span>
+                </span>
+            </div>
+        </div>
+<!--         <table>
+            <tr>
+                <th>Study Instance UID</th>
+                <th>Series Instance UID</th>
+                <th>Referenced SOP Class UID</th>
+                <th>Referenced SOP Instance UID</th>
+            </tr>
+            <tr ng-repeat="(key, value) in clipboard.selected">
+                <td>
+                    {{value.StudyInstanceUID}}
+                    
+                </td>
+                <td>
+                    <span ng-repeat="(key2, seriesequence) in value.ReferencedSeriesSequence">{{seriesequence.SeriesInstanceUID}}</span>
+                </td>
+                <td>
+                    <div ng-repeat="(key2, seriesequence) in value.ReferencedSeriesSequence">
+                        <span ng-repeat="(key3, sopseq) in seriesequence.ReferencedSOPSequence">{{sopseq.ReferencedSOPClassUID}}</span>
+                    </div>
+                </td>
+                <td>
+                    <div ng-repeat="(key2, seriesequence) in value.ReferencedSeriesSequence">
+                        <span ng-repeat="(key3, sopseq) in seriesequence.ReferencedSOPSequence">{{sopseq.ReferencedSOPInstanceUID}}</span>
+                    </div>
+                </td>
+            </tr>
+        </table> -->
+    </div>
+</div>
 <div class="headerblock" ng-class="{modality:showModalitySelector}">
 <div class="row filter">
     <div class="main_filter_block">
@@ -647,8 +701,8 @@
                 <div class="tr_row">
                     <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
                     <div class="subblock">
-                        <div class="td_row thead repeat1_hover" ng-click="select(study)" ng-class="{selected: study.selected}" ng-init="study.selected = false">
-                            <input type="checkbox" ng-model="study.selected" class="selectcheckboxes" />
+                        <div class="td_row thead repeat1_hover" ng-click="select(study,'study')" ng-class="{selected: study.selected}" ng-init="study.selected = false">
+                            <!-- <input type="checkbox" ng-model="study.selected" class="selectcheckboxes" /> -->
                             <div class="td_cell table_btn">
                                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                                     <span class="glyphicon glyphicon-th-list"></span>
@@ -717,9 +771,9 @@
                             <div class="repeat2" ng-repeat="(serieskey,series) in study.series">
                                     <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
                             <div class="subblock">
-                                <div class="tr_row repeat2_hover" ng-click="select(series)" ng-class="{selected: series.selected}" ng-init="series.selected = false">
+                                <div class="tr_row repeat2_hover" ng-click="select(series,'series')" ng-class="{selected: series.selected}" ng-init="series.selected = false">
                                     <div class="td_cell table_btn">
-                                        <input type="checkbox" ng-model="series.selected" class="selectcheckboxes" />
+                                        <!-- <input type="checkbox" ng-model="series.selected" class="selectcheckboxes" /> -->
                                         <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                                             <span class="glyphicon glyphicon-th-list"></span>
                                         </a>
@@ -779,9 +833,9 @@
                                 <div class="repeat3"  ng-repeat="(key,instance) in series.instances">
                                     <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
                                     <div class="subblock">
-                                        <div class="tr_row repeat3_hover"ng-click="select(instance)" ng-class="{selected: instance.selected}" ng-init="instance.selected = false">
+                                        <div class="tr_row repeat3_hover"ng-click="select(instance,'instance')" ng-class="{selected: instance.selected}" ng-init="instance.selected = false">
                                             <div class="td_cell table_btn">   
-                                                <input type="checkbox" ng-model="instance.selected" class="selectcheckboxes" />
+                                                <!-- <input type="checkbox" ng-model="instance.selected" class="selectcheckboxes" /> -->
                                                 <a ng-click="toggleAttributs(series.instances[key],'attributs')" href="" title="Show Attributes" ng-class="{active:instance.showAttributes}">
                                                     <span class="glyphicon glyphicon-th-list"></span>
                                                 </a>   

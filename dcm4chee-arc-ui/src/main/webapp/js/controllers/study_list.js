@@ -1548,7 +1548,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $scope.opendropdown         = false;
             });
         }
-
+        // $scope.selected = {};
+        //clear selections on object
+        // console.log("$scope.keysdown",$scope.keysdown);
+        // console.log("$scope.keysdown",Object.keys($scope.keysdown).length);
+        // console.log("$scope.selected",$scope.selected);
+        // console.log("$scope.selected",Object.keys($scope.selected).length);
+        if(Object.keys($scope.keysdown).length === 0 && Object.keys($scope.selected).length > 0){
+            StudiesService.clearSelection($scope.patients);
+        }
     });
 
     $scope.addEffect = function(direction){
@@ -2052,9 +2060,20 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 console.log("$scope.keysdown",$scope.keysdown);
                 if($scope.keysdown[17]===true && $scope.keysdown[67]===true){
                     console.log("ctrl c");
+                    $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
+                    angular.copy($scope.selected, $scope.clipboard.selected);
+                    $scope.clipboard["action"] = "copy";
+                    console.log("$scope.clipboard",$scope.clipboard);
                 }
                 if($scope.keysdown[17]===true && $scope.keysdown[86]===true){
                     console.log("ctrl v");
+                }
+                if($scope.keysdown[17]===true && $scope.keysdown[88]===true){
+                    console.log("ctrl x");
+                    $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
+                    angular.copy($scope.selected, $scope.clipboard.selected);
+                    $scope.clipboard["action"] = "move";
+                    console.log("$scope.clipboard",$scope.clipboard);
                 }
             });
         });
@@ -2069,17 +2088,119 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             });
         });
     });
-    $scope.select = function(study){
-
-        console.log("study",study);
+    $scope.select = function(object, modus){
+        /*
+        {
+          "StudyInstanceUID": "string",
+          "ReferencedSeriesSequence": [
+            {
+              "SeriesInstanceUID": "string",
+              "ReferencedSOPSequence": [
+                {
+                  "ReferencedSOPClassUID": "string",
+                  "ReferencedSOPInstanceUID": "string"
+                },
+                                {
+                  "ReferencedSOPClassUID": "string",
+                  "ReferencedSOPInstanceUID": "string"
+                }
+              ]
+            }
+          ]
+        }
+*/
+        console.log("modus",modus);
+        console.log("object",object);
         console.log("$scope.pressedKey",$scope.pressedKey);
         console.log("$scope.keysdown",$scope.keysdown);
         console.log("$scope.keysdown.length",Object.keys($scope.keysdown).length);
+        //0020000D object Instance UID
         if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[17] === true){
             console.log("alt pressed");
-            study.selected = !study.selected;
-            $scope.selected["studies"] = $scope.selected["studies"] || [];
-            $scope.selected["studies"].push(study);
+            object.selected = !object.selected;
+            $scope.selected[object.attrs["0020000D"].Value[0]] = $scope.selected[object.attrs["0020000D"].Value[0]] || {};
+            // $scope.selected[object.attrs["0020000D"].Value[0]]["modus"] = $scope.selected[object.attrs["0020000D"].Value[0]]["modus"] || modus;
+            $scope.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] = $scope.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] || object.attrs["0020000D"].Value[0];
+            if(modus === "study"){
+                angular.forEach(object.series, function(m,k){
+                    if(m.selected != undefined){
+                        m.selected = !m.selected;
+                    }else{
+                        m.selected = object.selected;
+                    }
+                    angular.forEach(m.instances, function(j,i){
+                        if(j.selected != undefined){
+                            j.selected = !j.selected;
+                        }else{
+                            j.selected = object.selected;
+                        }
+                    });
+
+                });
+            }
+            if(modus === "series"){
+                angular.forEach(object.instances, function(j,i){
+                    if(j.selected != undefined){
+                        j.selected = !j.selected;
+                    }else{
+                        j.selected = object.selected;
+                    }
+                });
+                $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || []
+                var SeriesInstanceUIDInArray = false;
+                if($scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){
+
+                    angular.forEach($scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"], function(s,l){
+                        console.log("s",s);
+                        console.log("l",l);
+                        if(s.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
+                            SeriesInstanceUIDInArray = true;
+                        }
+                    });
+                }else{  
+                    SeriesInstanceUIDInArray = false; 
+                }
+                if(!SeriesInstanceUIDInArray){
+                    $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"].push({
+                                                                                                    "SeriesInstanceUID": object.attrs["0020000E"].Value[0]
+                                                                                                });
+
+                }
+            }
+            if(modus === "instance"){
+                $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || []
+                var SeriesInstanceUIDInArray = false;
+                if($scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){
+
+                    angular.forEach($scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"], function(s,l){
+                        console.log("s",s);
+                        console.log("l",l);
+                        if(s.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
+                            SeriesInstanceUIDInArray = true;
+                        }
+                    });
+                }else{  
+                    SeriesInstanceUIDInArray = false; 
+                }
+                if(!SeriesInstanceUIDInArray){
+                    $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"].push({
+                                                                                                    "SeriesInstanceUID": object.attrs["0020000E"].Value[0]
+                                                                                                });
+
+                }
+                angular.forEach($scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"],function(m,i){
+                    if(m.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
+
+                        $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] = $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] || [];
+                        $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"].push(                                                                                                                    {
+                                                                                                                      "ReferencedSOPClassUID": object.attrs["00080016"].Value[0],
+                                                                                                                      "ReferencedSOPInstanceUID": object.attrs["00080018"].Value[0]
+                                                                                                                    });
+                    }
+                });
+            }
+            // $scope.selected[modus] = $scope.selected[modus] || [];
+            // $scope.selected[modus].push(object);
             console.log("$scope.selected",$scope.selected);
         }
     };
