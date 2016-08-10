@@ -49,6 +49,11 @@
         "items": {
           "type": "string"
         }
+      },
+      "dicomInstalled": {
+        "title": "installed",
+        "description": "True if the AE is installed on network. If not present, information about the installed status of the AE is inherited from the device",
+        "type": "boolean"
       }
     }
   }
