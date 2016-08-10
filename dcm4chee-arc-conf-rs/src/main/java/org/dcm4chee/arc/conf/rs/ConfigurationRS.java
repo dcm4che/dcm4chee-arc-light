@@ -46,6 +46,7 @@ import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
+import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
 
@@ -119,6 +120,24 @@ public class ConfigurationRS {
                 gen.writeStartArray();
                 for (DeviceInfo deviceInfo : deviceInfos)
                     jsonConf.writeTo(deviceInfo, gen);
+                gen.writeEnd();
+                gen.flush();
+            }
+        };
+    }
+
+    @GET
+    @Path("/aes")
+    @Produces("application/json")
+    public StreamingOutput listAETs() throws Exception {
+        final ApplicationEntityInfo[] aetInfos = conf.listAETInfos(new ApplicationEntityInfoBuilder(uriInfo).aetInfo);
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                JsonGenerator gen = Json.createGenerator(out);
+                gen.writeStartArray();
+                for (ApplicationEntityInfo aetInfo : aetInfos)
+                    jsonConf.writeTo(aetInfo, gen);
                 gen.writeEnd();
                 gen.flush();
             }
@@ -243,6 +262,45 @@ public class ConfigurationRS {
                         break;
                     case "dicomInstalled":
                         deviceInfo.setInstalled(Boolean.parseBoolean(toString(entry)));
+                        break;
+                }
+            }
+        }
+
+        static String[] toStrings(Map.Entry<String, List<String>> entry) {
+            return entry.getValue().toArray(new String[entry.getValue().size()]);
+        }
+
+        static String toString(Map.Entry<String, List<String>> entry) {
+            return entry.getValue().get(0);
+        }
+    }
+
+
+    private static class ApplicationEntityInfoBuilder {
+        final ApplicationEntityInfo aetInfo = new ApplicationEntityInfo();
+
+        ApplicationEntityInfoBuilder(UriInfo info) {
+            MultivaluedMap<String, String> map = info.getQueryParameters();
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                switch(entry.getKey()) {
+                    case "dicomDeviceName":
+                        aetInfo.setDeviceName(toString(entry));
+                        break;
+                    case "dicomAETitle":
+                        aetInfo.setAeTitle(toString(entry));
+                        break;
+                    case "dicomAssociationInitiator":
+                        aetInfo.setAssociationInitiator(Boolean.parseBoolean(toString(entry)));
+                        break;
+                    case "dicomAssociationAcceptor":
+                        aetInfo.setAssociationAcceptor(Boolean.parseBoolean(toString(entry)));
+                        break;
+                    case "dicomDescription":
+                        aetInfo.setDescription(toString(entry));
+                        break;
+                    case "dicomApplicationCluster":
+                        aetInfo.setApplicationCluster(toStrings(entry));
                         break;
                 }
             }
