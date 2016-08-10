@@ -281,12 +281,12 @@
           }
         }
       },
-      "put": {
+      "post": {
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "Create or Update Device",
-        "operationId": "createOrUpdateDevice",
+        "summary": "Create Device",
+        "operationId": "createDevice",
         "consumes": [
           "application/json"
         ],
@@ -301,7 +301,46 @@
           {
             "name": "body",
             "in": "body",
-            "description": "new or updated device",
+            "description": "new device",
+            "required": true,
+            "schema": {
+              "$ref": "device.schema.json"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "409": {
+            "description": "Device with specified name already exists"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Create or Update Device",
+        "operationId": "createOrUpdateDevice",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "name of device to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "updated device",
             "required": true,
             "schema": {
               "$ref": "device.schema.json"
@@ -313,7 +352,7 @@
             "description": "successful operation"
           },
           "400": {
-            "description": "deviceName in path does not match device name in body"
+            "description": "Device with specified name does not exist"
           },
           "default": {
             "description": "unexpected error"
