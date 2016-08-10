@@ -363,7 +363,7 @@
         ],
         "parameters": [
           {
-            "name": "deviceName",
+            "name": "dicomDeviceName",
             "in": "query",
             "description": "Device Name",
             "type": "string"
