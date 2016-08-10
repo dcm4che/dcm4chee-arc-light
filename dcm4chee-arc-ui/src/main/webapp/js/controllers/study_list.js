@@ -5,6 +5,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.patients = [];
     $scope.mwl = [];
     $scope.iod = {};
+    $scope.showClipboardHeaders = {
+        "study":false,
+        "series":false,
+        "instance":false
+    };
 //   $scope.studies = [];
     // $scope.allhidden = false;
     $scope.clipboard = {};
@@ -1548,6 +1553,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $scope.opendropdown         = false;
             });
         }
+        if(e.target.id != "clipboard" && e.target.id != "clipboardtoggle" && e.target.id != "clipboard_content"){
+            $scope.$apply(function(){
+                $scope.showClipboardContent = false;
+            });
+        }
+        if(e.target.id != "showoptionlist" && e.target.id != "showoptionlistbutton"){
+            $scope.$apply(function(){
+                $scope.showoptionlist = false;
+            });
+        }
         // $scope.selected = {};
         //clear selections on object
         // console.log("$scope.keysdown",$scope.keysdown);
@@ -2062,7 +2077,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     console.log("ctrl c");
                     $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
                     angular.copy($scope.selected, $scope.clipboard.selected);
-                    $scope.clipboard["action"] = "copy";
+                    if($scope.clipboard.action && $scope.clipboard.action === "move"){
+                        vex.dialog.confirm({
+                            message: "Are you sure you want to change the action from move to copy?",
+                            callback: function(m) {
+                                if (m) {
+                                    $scope.clipboard["action"] = "copy";
+                                }
+                            }
+                        });
+                    }else{
+                        $scope.clipboard["action"] = "copy";
+                    }
                     console.log("$scope.clipboard",$scope.clipboard);
                 }
                 if($scope.keysdown[17]===true && $scope.keysdown[86]===true){
@@ -2072,7 +2098,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     console.log("ctrl x");
                     $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
                     angular.copy($scope.selected, $scope.clipboard.selected);
-                    $scope.clipboard["action"] = "move";
+                    if($scope.clipboard.action && $scope.clipboard.action === "copy"){
+                        vex.dialog.confirm({
+                            message: "Are you sure you want to change the action from copy to move?",
+                            callback: function(m) {
+                                if (m) {
+                                    $scope.clipboard["action"] = "move";
+                                }
+                            }
+                        });
+                    }else{
+                        $scope.clipboard["action"] = "move";
+                    }
                     console.log("$scope.clipboard",$scope.clipboard);
                 }
             });
@@ -2109,6 +2146,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
           ]
         }
 */
+        
         console.log("modus",modus);
         console.log("object",object);
         console.log("$scope.pressedKey",$scope.pressedKey);
@@ -2116,7 +2154,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         console.log("$scope.keysdown.length",Object.keys($scope.keysdown).length);
         //0020000D object Instance UID
         if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[17] === true){
-            console.log("alt pressed");
+            $scope.showClipboardHeaders[modus] = true;
             object.selected = !object.selected;
             $scope.selected[object.attrs["0020000D"].Value[0]] = $scope.selected[object.attrs["0020000D"].Value[0]] || {};
             // $scope.selected[object.attrs["0020000D"].Value[0]]["modus"] = $scope.selected[object.attrs["0020000D"].Value[0]]["modus"] || modus;
@@ -2168,6 +2206,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }
             }
             if(modus === "instance"){
+                
                 $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || []
                 var SeriesInstanceUIDInArray = false;
                 if($scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){

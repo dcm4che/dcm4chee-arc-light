@@ -2,16 +2,19 @@
         clipboard:{{clipboard|json}}
 </pre> -->
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
-<div class="clipboard" ng-init="showClipboardContent = false"  ng-show="clipboard.selected">
-    <div class="toggle_button" ng-click="showClipboardContent = !showClipboardContent">
+<div id="clipboard" class="clipboard" ng-init="showClipboardContent = false"  ng-show="clipboard.selected">
+    <div id="clipboardtoggle" class="toggle_button" ng-click="showClipboardContent = !showClipboardContent">
         <i class="glyphicon glyphicon-copy"></i>
     </div>
-    <div class="content" ng-show="showClipboardContent">
+    <div class="content" id="clipboard_content" ng-show="showClipboardContent">
+        <h5>Selected Objects to {{clipboard.action}}</h5>
         <div class="header">
             <div>Study Instance UID
-                <div>Series Instance UID
-                    <div>Referenced SOP Class UID</div>
-                    <div>Referenced SOP Instance UID</div>
+                <div ng-show="showClipboardHeaders.series || showClipboardHeaders.instance">Series Instance UID
+                    <div ng-show="showClipboardHeaders.instance">
+                        <span class="sopclass">Referenced SOP Class UID</span>
+                        <span class="sopinstance">Referenced SOP Instance UID</span>
+                    </div>
                 </div>
             </div>
             
@@ -19,14 +22,21 @@
             
         </div>
         <div class="body">
-            <div ng-repeat="(key, value) in clipboard.selected">
-                <span>{{value.StudyInstanceUID}}</span>
-                <span ng-repeat="(key2, seriesequence) in value.ReferencedSeriesSequence">  {{seriesequence.SeriesInstanceUID}}
-                    <span ng-repeat="(key3, sopseq) in seriesequence.ReferencedSOPSequence">        
-                            {{sopseq.ReferencedSOPClassUID}}
-                            {{sopseq.ReferencedSOPInstanceUID}}
-                    </span>
-                </span>
+            <div class="block" ng-repeat="(key, value) in clipboard.selected">
+                <div>
+                    {{value.StudyInstanceUID}}
+                    <div ng-repeat="(key2, seriesequence) in value.ReferencedSeriesSequence">  
+                        {{seriesequence.SeriesInstanceUID}}
+                        <div ng-repeat="(key3, sopseq) in seriesequence.ReferencedSOPSequence">        
+                                <span class="sopclass">
+                                    {{sopseq.ReferencedSOPClassUID}}
+                                </span>
+                                <span class="sopinstance">
+                                    {{sopseq.ReferencedSOPInstanceUID}}
+                                </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 <!--         <table>
@@ -308,11 +318,11 @@
         </select> -->
         <div class="orderbyblock">
             <div class="btn-group" role="group" >
-                <button type="button" class="btn btn-default selectedorderbutton" ng-click="showoptionlist = !showoptionlist" ng-init="showoptionlist = false">
+                <button id="showoptionlistbutton" type="button" class="btn btn-default selectedorderbutton" ng-click="showoptionlist = !showoptionlist" ng-init="showoptionlist = false">
                     <span class="selectedorder" ng-init="orderbytext = orderby[2].label" ng-bind-html="orderbytext"></span> 
                     <span class="caret"></span>
                 </button>
-                <div class="optionlist" ng-show="showoptionlist">
+                <div class="optionlist" id="showoptionlist" ng-show="showoptionlist">
                     <ul>
         <!--                 <li ng-class="{active:filter.orderby === ''}" ng-click="filter.orderby = '';showoptionlist=false;orderbytext = 'Order by ...'">Order by ...</li>
                         <li ng-class="{active:filter.orderby === 'PatientName'}" ng-click="filter.orderby = 'PatientName';showoptionlist=false;orderbytext = 'Patient patient name &darr;'">Patient patient name &darr; <span class="glyphicon glyphicon-sort-by-alphabet"></span> <span class="orderbydateasc"></span></li>
