@@ -383,11 +383,7 @@ public class IocmRS {
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-//        try {
-            storeService.store(ctx, attrs);
-//        } catch (DicomServiceException e) {
-////               throw new WebApplicationException(httpStatusOf(e.getStatus()));
-//        }
+        storeService.store(ctx, attrs);
     }
 
 
