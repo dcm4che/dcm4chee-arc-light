@@ -2810,6 +2810,7 @@ table.j4care-table{
 	 //    	// background:rgba(0, 0, 0, 0.8);
 	 //    	background:#f0f0f0;
 	 //    }
+		overflow: auto;
 		h5 {
 		    font-size: 18px;
 		    padding: 15px;
@@ -2837,6 +2838,10 @@ table.j4care-table{
 		.sopclass {
 		    display: inline-block;
 		    width: 230px;
+		    float: left;
+		}
+		.sopinstance {
+			margin-left: 20px;
 		}
 		span{
 

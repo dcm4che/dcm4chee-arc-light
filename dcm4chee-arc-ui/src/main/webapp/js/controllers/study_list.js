@@ -525,6 +525,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }
             });
         });
+        },
+        function errorCallback(response) {
+            DeviceService.msg($scope, {
+                "title": "Error "+response.status,
+                "text": response.statusText,
+                "status": "error"
+            });
+            console.log("response",response);
         });
     };
     $scope.editStudy = function(patient, patientkey, studykey, study){
@@ -1553,8 +1561,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $scope.opendropdown         = false;
             });
         }
-        console.log("e.target",e.target);
-        if(e.target.id != "clipboard" && e.target.id != "clipboardtoggle" && e.target.id != "clipboard_content" && e.target.id != "clipboardtoggle_icon"){
+        if($(e.target).parents('.clipboard').length === 0 && e.target.id != "clipboard" && e.target.id != "clipboardtoggle" && e.target.id != "clipboard_content" && e.target.id != "clipboardtoggle_icon"){
             $scope.$apply(function(){
                 $scope.showClipboardContent = false;
             });
@@ -1565,13 +1572,16 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             });
         }
         // $scope.selected = {};
-        //clear selections on object
+        // clear selections on object
         // console.log("$scope.keysdown",$scope.keysdown);
         // console.log("$scope.keysdown",Object.keys($scope.keysdown).length);
         // console.log("$scope.selected",$scope.selected);
         // console.log("$scope.selected",Object.keys($scope.selected).length);
         if(Object.keys($scope.keysdown).length === 0 && Object.keys($scope.selected).length > 0){
             StudiesService.clearSelection($scope.patients);
+            $scope.$apply(function(){
+                $scope.selected = {};
+            });
         }
     });
 
@@ -2068,6 +2078,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             // Ignore it
             return;
         }
+        var showClipboardForAMoment = function(){
+            $scope.showClipboardContent = true;
+            setTimeout(function() {
+                $scope.$apply(function(){
+                    $scope.showClipboardContent = false;
+                });
+            }, 1500);
+        }
         console.log("e.keyCode",e.keyCode);
          // Remember it's down
         $timeout(function() {
@@ -2077,53 +2095,59 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if($scope.keysdown[17]===true && $scope.keysdown[67]===true){
                     console.log("ctrl c");
                     $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
-                    angular.copy($scope.selected, $scope.clipboard.selected);
+                    console.log("$scope.selected",$scope.selected);
+                    // console.log("test",angular.merge({},$scope.clipboard.selected, $scope.selected));
+                    // $scope.clipboard.selected = angular.merge({},$scope.clipboard.selected, $scope.selected);
+                    StudiesService.MergeRecursive($scope.clipboard.selected,$scope.selected);
+                    console.log("$scope.clipboard",$scope.clipboard);
                     if($scope.clipboard.action && $scope.clipboard.action === "move"){
                         vex.dialog.confirm({
                             message: "Are you sure you want to change the action from move to copy?",
                             callback: function(m) {
-                                if (m) {
+                                $(".vex").hide();
+                                $("body").removeClass('vex-open');
+                                if(m){
                                     $scope.clipboard["action"] = "copy";
                                 }
+                                showClipboardForAMoment();
                             }
                         });
                     }else{
                         $scope.clipboard["action"] = "copy";
+                        showClipboardForAMoment();
                     }
                     console.log("$scope.clipboard",$scope.clipboard);
                     $scope.showClipboardContent = true;
-                    setTimeout(function() {
-                        $scope.showClipboardContent = false;
-                    }, 300);
                 }
                 if($scope.keysdown[17]===true && $scope.keysdown[86]===true){
                     console.log("ctrl v");
+                    console.log("$scope.selected",angular.copy($scope.selected));
+                    console.log("$scope.clipboard",$scope.clipboard);
                 }
                 if($scope.keysdown[17]===true && $scope.keysdown[88]===true){
                     console.log("ctrl x");
                     $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
-                    angular.copy($scope.selected, $scope.clipboard.selected);
+                    angular.merge($scope.clipboard.selected, $scope.selected);
                     if($scope.clipboard.action && $scope.clipboard.action === "copy"){
                         vex.dialog.confirm({
                             message: "Are you sure you want to change the action from copy to move?",
                             callback: function(m) {
+                                $(".vex").hide();
+                                $("body").removeClass('vex-open');
                                 if (m) {
                                     $scope.clipboard["action"] = "move";
                                 }
+                                showClipboardForAMoment();
                             }
                         });
                     }else{
                         $scope.clipboard["action"] = "move";
+                        showClipboardForAMoment();
                     }
                     console.log("$scope.clipboard",$scope.clipboard);
-                    $scope.showClipboardContent = true;
-                    setTimeout(function() {
-                        $scope.showClipboardContent = false;
-                    }, 300);
                 }
             });
         });
-        
     
     });
     $(document).keyup(function(e){
@@ -2182,10 +2206,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             j.selected = object.selected;
                         }
                     });
-
                 });
             }
             if(modus === "series"){
+                //Select childs
                 angular.forEach(object.instances, function(j,i){
                     if(j.selected != undefined){
                         j.selected = !j.selected;
@@ -2240,10 +2264,19 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     if(m.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
 
                         $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] = $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] || [];
-                        $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"].push(                                                                                                                    {
-                                                                                                                      "ReferencedSOPClassUID": object.attrs["00080016"].Value[0],
-                                                                                                                      "ReferencedSOPInstanceUID": object.attrs["00080018"].Value[0]
-                                                                                                                    });
+                        
+                        var sopClassInstanceUIDInArray = false;
+                        angular.forEach($scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"],function(m2, i2){
+                            if(m2.ReferencedSOPClassUID && m2.ReferencedSOPClassUID === object.attrs["00080016"].Value[0] && m2.ReferencedSOPInstanceUID && m2.ReferencedSOPInstanceUID === object.attrs["00080018"].Value[0]){
+                                sopClassInstanceUIDInArray = true;   
+                            }
+                        });
+                        if(!sopClassInstanceUIDInArray){
+                            $scope.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"].push(                                                                                                                    {
+                                                                                                                          "ReferencedSOPClassUID": object.attrs["00080016"].Value[0],
+                                                                                                                          "ReferencedSOPInstanceUID": object.attrs["00080018"].Value[0]
+                                                                                                                        });
+                        }
                     }
                 });
             }
@@ -2257,6 +2290,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
                 $scope.queryStudies($scope.patients[0].offset);
+            },
+            function errorCallback(response) {
+                DeviceService.msg($scope, {
+                    "title": "Error "+response.status,
+                    "text": response.statusText,
+                    "status": "error"
+                });
+                console.log("response",response);
             });
         }else{
             var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
@@ -2277,8 +2318,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }else{
                     $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
                         // $scope.queryStudies($scope.studies[0].offset);
+                        console.log("res=",res);
                         $scope.queryStudies($scope.patients[0].offset);
-                    });
+                    },
+                    function errorCallback(response) {
+                        DeviceService.msg($scope, {
+                            "title": "Error "+response.status,
+                            "text": response.statusText,
+                            "status": "error"
+                        });
+                        console.log("response",response);
+                    }
+                    );
                 }
               }
             });
@@ -2289,6 +2340,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $http.get(seriesURL(series.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
                 $scope.queryStudies($scope.patients[0].offset);
+            },
+            function errorCallback(response) {
+                DeviceService.msg($scope, {
+                    "title": "Error "+response.status,
+                    "text": response.statusText,
+                    "status": "error"
+                });
+                console.log("response",response);
             });
         }else{
             var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
@@ -2308,6 +2367,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }else{
                     $http.get(seriesURL(series.attrs) + '/reject/' + $scope.reject).then(function (res) {
                         $scope.querySeries(series.study, series.study.series[0].offset);
+                    },
+                    function errorCallback(response) {
+                        DeviceService.msg($scope, {
+                            "title": "Error "+response.status,
+                            "text": response.statusText,
+                            "status": "error"
+                        });
+                        console.log("response",response);
                     });
                 }
               }
@@ -2319,6 +2386,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
                 $scope.queryStudies($scope.patients[0].offset);
+            },
+            function errorCallback(response) {
+                DeviceService.msg($scope, {
+                    "title": "Error "+response.status,
+                    "text": response.statusText,
+                    "status": "error"
+                });
+                console.log("response",response);
             });
         }else{
             var html = $compile('<select id="reject" ng-model="reject" name="reject" class="col-md-9"><option ng-repeat="rjn in rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option></select>')($scope);
@@ -2338,6 +2413,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }else{
                     $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
                         $scope.queryInstances(instance.series, instance.series.instances[0].offset);
+                    },
+                    function errorCallback(response) {
+                        DeviceService.msg($scope, {
+                            "title": "Error "+response.status,
+                            "text": response.statusText,
+                            "status": "error"
+                        });
+                        console.log("response",response);
                     });
                 }
               }
@@ -2392,6 +2475,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }else{
                 $http.delete('../reject/' + $scope.reject,{params: StudiesService.getParams($scope)}).then(function (res) {
                     cfpLoadingBar.complete();
+                },
+                function errorCallback(response) {
+                    DeviceService.msg($scope, {
+                        "title": "Error "+response.status,
+                        "text": response.statusText,
+                        "status": "error"
+                    });
+                    console.log("response",response);
                 });
             }
           }

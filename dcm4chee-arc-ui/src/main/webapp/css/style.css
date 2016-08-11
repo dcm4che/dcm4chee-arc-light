@@ -2079,7 +2079,8 @@ table.j4care-table {
     border-top: 20px solid #bbb;
     -moz-box: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
     -webkit-box: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
-    box-shadow: 0px 2px 3px 3px rgba(0, 0, 0, 0.25); }
+    box-shadow: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
+    overflow: auto; }
     .clipboard .content h5 {
       font-size: 18px;
       padding: 15px;
@@ -2100,6 +2101,9 @@ table.j4care-table {
       margin-left: 200px; }
     .clipboard .content .sopclass {
       display: inline-block;
-      width: 230px; }
+      width: 230px;
+      float: left; }
+    .clipboard .content .sopinstance {
+      margin-left: 20px; }
 
 /*# sourceMappingURL=style.css.map */

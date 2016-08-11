@@ -53,7 +53,6 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
        var dd  = this.getDate().toString();
        return yyyy + (mm[1]?mm:"0"+mm[0]) + (dd[1]?dd:"0"+dd[0]); // padding
     };
-
     var getArrayFromIodHelper = function(data, dropdown){
         angular.forEach(data, function(m, i){
             // console.log("i",i);
@@ -462,6 +461,43 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
                             });
                         }
                     });
+                }
+            });
+        },
+        MergeRecursive: function(clipboard, selected) {
+            angular.forEach(selected, function(study, studykey){
+                clipboard[studykey] = clipboard[studykey] || selected[studykey];
+                if(clipboard[studykey]){
+                    if(study["ReferencedSeriesSequence"]){
+                        clipboard[studykey]["ReferencedSeriesSequence"] = clipboard[studykey]["ReferencedSeriesSequence"] || study["ReferencedSeriesSequence"]
+                        angular.forEach(study["ReferencedSeriesSequence"] ,function(selSeries,selSeriesKey){
+                            
+                            var SeriesInstanceUIDInArray = false;
+                            angular.forEach(clipboard[studykey]["ReferencedSeriesSequence"] ,function(clipSeries,clipSeriesKey){
+                                if(clipSeries.SeriesInstanceUID === selSeries.SeriesInstanceUID){
+                                    SeriesInstanceUIDInArray = true;
+                                    if(selSeries.ReferencedSOPSequence){
+                                        if(clipSeries.ReferencedSOPSequence){
+                                            angular.forEach(selSeries.ReferencedSOPSequence , function(selInstance, selSeriesKey){
+                                                var sopClassInstanceUIDInArray = false;
+                                                angular.forEach(clipSeries.ReferencedSOPSequence , function(clipInstance, clipInstanceKey){
+                                                    if(clipInstance.ReferencedSOPClassUID && clipInstance.ReferencedSOPClassUID === selInstance.ReferencedSOPClassUID && clipInstance.ReferencedSOPInstanceUID && clipInstance.ReferencedSOPInstanceUID === selInstance.ReferencedSOPInstanceUID){
+                                                        sopClassInstanceUIDInArray = true;
+                                                    }
+                                                });
+                                                if(!sopClassInstanceUIDInArray){
+                                                    clipSeries.ReferencedSOPSequence.push(selInstance);
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                            if(!SeriesInstanceUIDInArray){
+                                clipboard[studykey]["ReferencedSeriesSequence"].push(selSeries);
+                            }
+                        });
+                    }
                 }
             });
         }
