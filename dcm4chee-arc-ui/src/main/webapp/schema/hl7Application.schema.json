@@ -47,6 +47,8 @@
       "type": "boolean"
     },
     "dcmArchiveHL7Application": {
+      "title": "Archive HL7 Application",
+      "description": "DICOM Archive HL7 Application related information",
       "$ref": "archiveHL7Application.schema.json"
     }
   }
