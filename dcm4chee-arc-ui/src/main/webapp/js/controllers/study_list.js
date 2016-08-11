@@ -1553,7 +1553,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $scope.opendropdown         = false;
             });
         }
-        if(e.target.id != "clipboard" && e.target.id != "clipboardtoggle" && e.target.id != "clipboard_content"){
+        console.log("e.target",e.target);
+        if(e.target.id != "clipboard" && e.target.id != "clipboardtoggle" && e.target.id != "clipboard_content" && e.target.id != "clipboardtoggle_icon"){
             $scope.$apply(function(){
                 $scope.showClipboardContent = false;
             });
@@ -2090,6 +2091,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         $scope.clipboard["action"] = "copy";
                     }
                     console.log("$scope.clipboard",$scope.clipboard);
+                    $scope.showClipboardContent = true;
+                    setTimeout(function() {
+                        $scope.showClipboardContent = false;
+                    }, 300);
                 }
                 if($scope.keysdown[17]===true && $scope.keysdown[86]===true){
                     console.log("ctrl v");
@@ -2111,6 +2116,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         $scope.clipboard["action"] = "move";
                     }
                     console.log("$scope.clipboard",$scope.clipboard);
+                    $scope.showClipboardContent = true;
+                    setTimeout(function() {
+                        $scope.showClipboardContent = false;
+                    }, 300);
                 }
             });
         });

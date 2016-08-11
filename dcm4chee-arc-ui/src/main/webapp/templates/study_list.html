@@ -4,7 +4,7 @@
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
 <div id="clipboard" class="clipboard" ng-init="showClipboardContent = false"  ng-show="clipboard.selected">
     <div id="clipboardtoggle" class="toggle_button" ng-click="showClipboardContent = !showClipboardContent">
-        <i class="glyphicon glyphicon-copy"></i>
+        <i id="clipboardtoggle_icon" class="glyphicon glyphicon-copy"></i>
     </div>
     <div class="content" id="clipboard_content" ng-show="showClipboardContent">
         <h5>Selected Objects to {{clipboard.action}}</h5>

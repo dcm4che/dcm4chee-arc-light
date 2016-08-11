@@ -636,6 +636,39 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
         },
         save: function($scope) {
             if ($scope.wholeDevice.dicomDeviceName && $scope.wholeDevice.dicomDeviceName != undefined) {
+                if($scope.newDevice){
+
+                $http.post("../devices/" + $scope.wholeDevice.dicomDeviceName, $scope.wholeDevice)
+                    .success(function(data, status, headers, config) {
+                        $scope.saved = true;
+                        cfpLoadingBar.complete();
+                        $scope.showCancel = false;
+                        addEmptyArrayFieldsPrivate($scope); //Add empty array fileds becouse there were cleared before save, if we don't then the array fields will be missing
+                        msg($scope, {
+                            "title": "Info",
+                            "text": "Changes saved successfully!",
+                            "status": "info"
+                        });
+                        $http.get("../ctrl/reload").then(function (res) {
+                            msg($scope, {
+                                "title": "Info",
+                                "text": "Archive reloaded successfully!",
+                                "status": "info"
+                            });
+                        });
+                    })
+                    .error(function(data, status, headers, config) {
+                        $log.error("Error sending data on put!", status);
+                        addEmptyArrayFieldsPrivate($scope);
+                        msg($scope, {
+                            "title": "error",
+                            "text": "Error, changes could not be saved!",
+                            "status": "error"
+                        });
+                        cfpLoadingBar.complete();
+                    });
+                }else{
+
                 $http.put("../devices/" + $scope.wholeDevice.dicomDeviceName, $scope.wholeDevice)
                     .success(function(data, status, headers, config) {
                         $scope.saved = true;
@@ -665,6 +698,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                         });
                         cfpLoadingBar.complete();
                     });
+                }
             } else {
                 msg($scope, {
                     "title": "error",

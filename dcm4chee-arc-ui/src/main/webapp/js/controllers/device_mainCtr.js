@@ -437,6 +437,11 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         if ($scope.validForm) {
             $timeout(function() {
                 DeviceService.clearJson($scope);
+                if($scope.currentDevice === "CHANGE_ME" || $scope.devicename === "CHANGE_ME"){
+                    $scope.newDevice = true;
+                }else{
+                    $scope.newDevice = false;
+                }
                 if($scope.devicename === "CHANGE_ME"){
                   $scope.devicename = $scope.wholeDevice.dicomDeviceName;
                   $scope.devices.push({
