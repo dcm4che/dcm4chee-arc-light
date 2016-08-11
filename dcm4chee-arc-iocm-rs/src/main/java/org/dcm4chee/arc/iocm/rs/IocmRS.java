@@ -383,26 +383,10 @@ public class IocmRS {
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-        try {
-            storeService.store(ctx, attrs);
-        } catch (DicomServiceException e) {
-            throw new WebApplicationException(e.getMessage(), httpStatusOf(e.getStatus()));
-        }
+        storeService.store(ctx, attrs);
     }
 
-    private static Response.Status httpStatusOf(int status) {
-        switch (status) {
-            case StoreService.DUPLICATE_REJECTION_NOTE:
-            case StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE:
-            case StoreService.REJECTION_FAILED_CLASS_INSTANCE_CONFLICT:
-            case StoreService.REJECTION_FAILED_ALREADY_REJECTED:
-                return Response.Status.CONFLICT;
-            case StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED:
-            case StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED:
-                return Response.Status.FORBIDDEN;
-        }
-        return Response.Status.INTERNAL_SERVER_ERROR;
-    }
+
 
     private StreamingOutput copyOrMoveInstances(String studyUID, InputStream in, Code code) throws Exception {
         logRequest();

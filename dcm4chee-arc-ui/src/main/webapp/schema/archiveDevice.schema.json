@@ -374,66 +374,88 @@
       ]
     },
     "dcmAttributeFilter": {
+      "title": "Attribute Filter",
+      "description": "Specifies Attributes stored in the database",
       "type": "array",
       "items" : {
         "$ref": "attributeFilter.schema.json"
       }
     },
     "dcmStorage": {
+      "title": "Storage Descriptor",
+      "description": "Specifies Storage System",
       "type": "array",
       "items" : {
         "$ref": "storage.schema.json"
       }
     },
     "dcmQueryRetrieveView": {
+      "title": "Query Retrieve View",
+      "description": "Specifies behavior on Rejection Note Stored",
       "type": "array",
       "items" : {
         "$ref": "queryRetrieveView.schema.json"
       }
     },
     "dcmQueue": {
+      "title": "Queue",
+      "description": "Managed JMS Queue",
       "type": "array",
       "items" : {
         "$ref": "queue.schema.json"
       }
     },
     "dcmExporter": {
+      "title": "Exporter Descriptor",
+      "description": "Exporter Descriptor",
       "type": "array",
       "items" : {
         "$ref": "exporter.schema.json"
       }
     },
     "dcmExportRule": {
+      "title": "Export Rule",
+      "description": "Export Rule",
       "type": "array",
       "items" : {
         "$ref": "exportRule.schema.json"
       }
     },
     "dcmArchiveCompressionRule": {
+      "title": "Archive Compression rule",
+      "description": "Archive Compression rule",
       "type": "array",
       "items" : {
         "$ref": "archiveCompressionRule.schema.json"
       }
     },
     "dcmArchiveAttributeCoercion": {
+      "title": "Archive Attribute Coercion",
+      "description": "Archive Attribute Coercion of received/sent DIMSE",
       "type": "array",
       "items" : {
         "$ref": "archiveAttributeCoercion.schema.json"
       }
     },
     "dcmRejectionNote": {
+      "title": "Rejection Note",
+      "description": "Specifies behavior on Rejection Note Stored",
       "type": "array",
       "items" : {
         "$ref": "rejectionNote.schema.json"
       }
     },
     "dcmStudyRetentionPolicy": {
+      "title": "Study Retention Policy",
+      "description": "Study Retention Policy",
       "type": "array",
       "items" : {
         "$ref": "studyRetentionPolicy.schema.json"
       }
     },
     "dcmIDGenerator": {
+      "title": "ID Generator",
+      "description": "ID Generator",
       "type": "array",
       "items" : {
         "$ref": "idGenerator.schema.json"

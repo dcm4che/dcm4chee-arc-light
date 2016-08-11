@@ -172,24 +172,32 @@
       }
     },
     "dcmExportRule": {
+      "title": "Export Rule",
+      "description": "Export Rule",
       "type": "array",
       "items" : {
         "$ref": "exportRule.schema.json"
       }
     },
     "dcmArchiveCompressionRule": {
+      "title": "Archive Compression rule",
+      "description": "Archive Compression rule",
       "type": "array",
       "items" : {
         "$ref": "archiveCompressionRule.schema.json"
       }
     },
     "dcmArchiveAttributeCoercion": {
+      "title": "Archive Attribute Coercion",
+      "description": "Archive Attribute Coercion of received/sent DIMSE",
       "type": "array",
       "items" : {
         "$ref": "archiveAttributeCoercion.schema.json"
       }
     },
     "dcmStudyRetentionPolicy": {
+      "title": "Study Retention Policy",
+      "description": "Study Retention Policy",
       "type": "array",
       "items" : {
         "$ref": "studyRetentionPolicy.schema.json"

@@ -701,8 +701,10 @@ public class StoreServiceEJB {
 
         String urlspec = new AttributesFormat(serviceURL).format(ctx.getAttributes());
         Boolean result = storePermissionCache.get(urlspec);
-        if (result != null)
+        if (result != null) {
+            LOG.debug("URL already found in cache. " + result);
             return result;
+        }
 
         LOG.info("{}: Query Store Permission Service {}", session, urlspec);
         try {
@@ -718,12 +720,21 @@ public class StoreServiceEJB {
                     ? responseCode == HttpURLConnection.HTTP_OK
                         && responsePattern.matcher(new String(out.toByteArray(), charsetOf(httpConn))).matches()
                     : responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NO_CONTENT;
+            if (responseCode == HttpURLConnection.HTTP_OK)
+                LOG.debug(getLogMessage(out, responseCode));
+            else
+                LOG.info(getLogMessage(out, responseCode));
         } catch (Exception e) {
             LOG.warn("{}: Failed to query Store Permission Service {}:\n", session, urlspec, e);
             result = false;
         }
         storePermissionCache.put(urlspec, result);
         return result;
+    }
+
+    private String getLogMessage(ByteArrayOutputStream out, int responseCode) {
+        return "Store Permission Service Content : " + String.valueOf(out.toByteArray())
+            + "Response Status : " + Integer.toHexString(responseCode);
     }
 
     private String charsetOf(HttpURLConnection httpConn) {
