@@ -144,10 +144,26 @@ public class ConfigurationRS {
         };
     }
 
+    @POST
+    @Path("/devices/{DeviceName}")
+    @Consumes("application/json")
+    public void createDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
+        Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
+        if (!device.getDeviceName().equals(deviceName))
+            throw new WebApplicationException(
+                    "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
+                    Response.Status.BAD_REQUEST);
+        try {
+            conf.persist(device);
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException("Device with specified name already exists.", Response.Status.CONFLICT);
+        }
+    }
+
     @PUT
     @Path("/devices/{DeviceName}")
     @Consumes("application/json")
-    public void createOrUpdateDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
+    public void updateDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
         Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
         if (!device.getDeviceName().equals(deviceName))
             throw new WebApplicationException(
