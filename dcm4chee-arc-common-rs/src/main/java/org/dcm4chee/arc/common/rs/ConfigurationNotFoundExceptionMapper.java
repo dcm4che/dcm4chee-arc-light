@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.common.rs;
 
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4chee.arc.store.StoreService;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -54,28 +51,10 @@ import javax.ws.rs.ext.Provider;
  */
 
 @Provider
-public class DicomServiceExceptionMapper implements ExceptionMapper<DicomServiceException> {
+public class ConfigurationNotFoundExceptionMapper implements ExceptionMapper<ConfigurationNotFoundException> {
 
-    public Response toResponse(DicomServiceException e) {
-        return Response.status(httpStatusOf(e.getStatus())).entity(e.getMessage()).build();
-    }
-
-//    public Response toResponse(ConfigurationNotFoundException e) {
-//        return Response.status(e.getStatus()).entity(e.getMessage()).build();
-//    }
-
-    private static Response.Status httpStatusOf(int status) {
-        switch (status) {
-            case StoreService.DUPLICATE_REJECTION_NOTE:
-            case StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE:
-            case StoreService.REJECTION_FAILED_CLASS_INSTANCE_CONFLICT:
-            case StoreService.REJECTION_FAILED_ALREADY_REJECTED:
-                return Response.Status.CONFLICT;
-            case StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED:
-            case StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED:
-                return Response.Status.FORBIDDEN;
-        }
-        return Response.Status.INTERNAL_SERVER_ERROR;
+    public Response toResponse(ConfigurationNotFoundException e) {
+        return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
     }
 
 }
