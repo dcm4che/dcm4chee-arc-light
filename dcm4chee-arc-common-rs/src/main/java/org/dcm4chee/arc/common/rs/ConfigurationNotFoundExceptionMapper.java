@@ -54,7 +54,9 @@ import javax.ws.rs.ext.Provider;
 public class ConfigurationNotFoundExceptionMapper implements ExceptionMapper<ConfigurationNotFoundException> {
 
     public Response toResponse(ConfigurationNotFoundException e) {
-        return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        Response.Status statusCode = Response.Status.NOT_FOUND;
+        return Response.status(statusCode).entity(BuildHTTPResponseStatus.getStatus(
+                statusCode, e.getMessage())).build();
     }
 
 }

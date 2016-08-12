@@ -54,7 +54,7 @@ import javax.ws.rs.core.Response;
 public class BuildHTTPResponseStatus {
 
     public static Object getStatus(Response.Status status, String statusMsg) {
-        return "{\"status\":" + status + ", \"statusText\":\"" + statusMsg + "\"}";
+        return "{\"status\":" + status.getStatusCode() + ", \"statusText\":\"" + statusMsg + "\"}";
     }
 
 }

@@ -54,7 +54,9 @@ import javax.ws.rs.ext.Provider;
 public class ConfigurationAlreadyExistsExceptionMapper implements ExceptionMapper<ConfigurationAlreadyExistsException> {
 
     public Response toResponse(ConfigurationAlreadyExistsException e) {
-        return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        Response.Status statusCode = Response.Status.CONFLICT;
+        return Response.status(statusCode).entity(BuildHTTPResponseStatus.getStatus(
+                statusCode, e.getMessage())).build();
     }
 
 }
