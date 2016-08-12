@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.iocm.rs;
+package org.dcm4chee.arc.common.rs;
 
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.store.StoreService;
