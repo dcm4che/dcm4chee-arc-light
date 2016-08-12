@@ -40,12 +40,10 @@
 
 package org.dcm4chee.arc.common.rs;
 
-import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4chee.arc.store.StoreService;
+
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
