@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.conf.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
@@ -149,11 +148,7 @@ public class ConfigurationRS {
             throw new WebApplicationException(
                     "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                     Response.Status.BAD_REQUEST);
-        try {
-            conf.persist(device);
-        } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException("Device with specified name already exists.", Response.Status.CONFLICT);
-        }
+        conf.persist(device);
     }
 
     @PUT
