@@ -2036,6 +2036,7 @@ table.j4care-table {
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4f88b0', endColorstr='#376e95',GradientType=0 ) !important;
   color: white !important; }
 
+.repeat0 .thead .tr_row.selected,
 .repeat2 .subblock .tr_row.selected .td_cell,
 .repeat2 .subblock .tr_row.selected .td_cell.table_btn,
 .repeat3 .subblock .tr_row.selected .td_cell,
@@ -2105,5 +2106,33 @@ table.j4care-table {
       float: left; }
     .clipboard .content .sopinstance {
       margin-left: 20px; }
+
+#contextmenu {
+  background: white none repeat scroll 0 0;
+  box-shadow: 2px 1px 4px 0 #706e6e;
+  display: block;
+  position: fixed;
+  z-index: 5000;
+  width: 200px;
+  padding: 10px 0 0; }
+  #contextmenu ul {
+    padding-left: 0px; }
+    #contextmenu ul li {
+      list-style: none; }
+      #contextmenu ul li:first-child {
+        border-bottom: 1px solid #ddd; }
+      #contextmenu ul li a {
+        display: inline-block;
+        width: 100%;
+        text-indent: 10px;
+        color: #444; }
+        #contextmenu ul li a label {
+          float: left;
+          width: 48%; }
+        #contextmenu ul li a span {
+          float: left;
+          text-align: right;
+          width: 46%;
+          color: #777; }
 
 /*# sourceMappingURL=style.css.map */

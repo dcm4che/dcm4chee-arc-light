@@ -10,6 +10,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         "series":false,
         "instance":false
     };
+    $scope.showContextMenu = false;
+    $scope.cotextMenuEventActive = false;
+    $scope.anySelected = false;
 //   $scope.studies = [];
     // $scope.allhidden = false;
     $scope.clipboard = {};
@@ -504,8 +507,39 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     data:local
                                 }).then(
                                     function successCallback(response) {
-                                        console.log("response",response);
-                                    },
+                                    if(mode === "edit"){
+                                        //Update changes on the patient list
+                                        // angular.forEach(study.attrs, function(m, i){
+                                        //     if($scope.editstudy.attrs[i]){
+                                        //         study.attrs[i] = $scope.editstudy.attrs[i];
+                                        //     }
+                                        // });
+                                        // study.attrs = $scope.editstudy.attrs;
+                                        $scope.patients[patientkey].studies[studykey].attrs = $scope.editstudy.attrs;
+                                        //Force rerendering the directive attribute-list
+                                        var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editstudy.attrs['0020000D'].Value[0];
+                                        id = id.replace(/\./g, '');
+                                        // var id = "#"+$scope.editstudy.attrs["0020000D"].Value;
+                                        var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studykey+'].attrs"></attribute-list>')($scope);
+                                        $(id).html(attribute);
+                                    }else{
+                                        if($scope.patientmode){
+                                            $timeout(function() {
+                                                angular.element("#querypatients").trigger('click');
+                                            }, 0);
+                                            // $scope.queryPatients(0);
+                                        }else{
+                                            // $scope.queryStudies(0);
+                                            $timeout(function() {
+                                                angular.element("#querystudies").trigger('click');
+                                            }, 0);
+                                        }
+                                    }
+                                    DeviceService.msg($scope, {
+                                        "title": "Info",
+                                        "text": "Study saved successfully!",
+                                        "status": "info"
+                                    });                             },
                                     function errorCallback(response) {
                                         DeviceService.msg($scope, {
                                             "title": "Error",
@@ -529,7 +563,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         function errorCallback(response) {
             DeviceService.msg($scope, {
                 "title": "Error "+response.status,
-                "text": response.statusText,
+                "text": response.data.errorMessage,
                 "status": "error"
             });
             console.log("response",response);
@@ -1547,6 +1581,52 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             instance.showFileAttributes = false;
         }
     };
+     if (document.addEventListener) {
+        document.addEventListener('contextmenu', function(e) {
+            // alert("You've tried to open context menu1"); //here you draw your own menu
+            if(!$scope.cotextMenuEventActive){
+                $scope.$apply(function(){
+                    $scope.cotextMenuEventActive = true;
+                });
+                $scope.$apply(function(){
+                    $scope.showContextMenu = true;
+                });
+                console.log("e",e);
+                console.log("e.originalTarget",e.originalTarget);
+                console.log("e.target",$(e.originalTarget));
+                console.log("$(e.originalTarget).closest('.repeat0').attr('contextmenu-item')",$(e.originalTarget).closest(".repeat0").attr("contextmenu-item"));
+                var obj = JSON.parse($(e.originalTarget).closest(".repeat0").attr("contextmenu-item"));
+                console.log("obj.index",obj.index);
+                console.log("$scope.patients",$scope.patients)
+                var index = parseInt(obj.index);
+                console.log("index",index);
+                console.log("$scope.patients[index]",$scope.patients[index]);
+                try{
+                    $scope.patients[index]["selected"] = true;
+                }catch(cb){
+                    console.log("catch",cb);
+                }
+                if ($scope.patients[index] && $scope.patients[index]["selected"]) {
+                }
+                $scope.anySelected = true;
+                console.log("obj",obj);
+                console.log("e.attr",obj);
+                console.log("x",e.pageX);
+                console.log("y",e.pageY);
+                angular.element("#contextmenu").css({"left":e.pageX,"top":e.pageY});
+                e.preventDefault();
+                $scope.$apply(function(){
+                    $scope.cotextMenuEventActive = false;
+                });
+                return false;
+            }
+        }, false);
+    } else {
+        document.attachEvent('oncontextmenu', function() {
+            alert("You've tried to open context menu2");
+            window.event.returnValue = false;
+        });
+    }
     //Close modaity selctor when you click some where else but on the selector
     angular.element("html").bind("click",function(e){
         if(!(e.target.id === "Modality")){
@@ -1566,20 +1646,20 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $scope.showClipboardContent = false;
             });
         }
-        if(e.target.id != "showoptionlist" && e.target.id != "showoptionlistbutton"){
+        if($(e.target).parents('.orderbyblock').length === 0 && e.target.id != "showoptionlist" && e.target.id != "showoptionlistbutton" && e.target.id != "selectedorder"){
             $scope.$apply(function(){
                 $scope.showoptionlist = false;
             });
         }
-        // $scope.selected = {};
-        // clear selections on object
-        // console.log("$scope.keysdown",$scope.keysdown);
-        // console.log("$scope.keysdown",Object.keys($scope.keysdown).length);
-        // console.log("$scope.selected",$scope.selected);
-        // console.log("$scope.selected",Object.keys($scope.selected).length);
-        if(Object.keys($scope.keysdown).length === 0 && Object.keys($scope.selected).length > 0){
+        if(e.target.id != "contextmenu"){
+            $scope.$apply(function(){
+                $scope.showContextMenu = false;
+            });
+        }
+        if(Object.keys($scope.keysdown).length === 0 && $scope.anySelected){
             StudiesService.clearSelection($scope.patients);
             $scope.$apply(function(){
+                $scope.anySelected = false;
                 $scope.selected = {};
             });
         }
@@ -2159,27 +2239,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         });
     });
     $scope.select = function(object, modus){
-        /*
-        {
-          "StudyInstanceUID": "string",
-          "ReferencedSeriesSequence": [
-            {
-              "SeriesInstanceUID": "string",
-              "ReferencedSOPSequence": [
-                {
-                  "ReferencedSOPClassUID": "string",
-                  "ReferencedSOPInstanceUID": "string"
-                },
-                                {
-                  "ReferencedSOPClassUID": "string",
-                  "ReferencedSOPInstanceUID": "string"
-                }
-              ]
-            }
-          ]
-        }
-*/
-        
+        $scope.anySelected = true;
         console.log("modus",modus);
         console.log("object",object);
         console.log("$scope.pressedKey",$scope.pressedKey);
@@ -2294,7 +2354,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             function errorCallback(response) {
                 DeviceService.msg($scope, {
                     "title": "Error "+response.status,
-                    "text": response.statusText,
+                    "text": response.data.errorMessage,
                     "status": "error"
                 });
                 console.log("response",response);
@@ -2322,9 +2382,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         $scope.queryStudies($scope.patients[0].offset);
                     },
                     function errorCallback(response) {
+                        console.log("vor response");
+                        console.log("response",response);
                         DeviceService.msg($scope, {
                             "title": "Error "+response.status,
-                            "text": response.statusText,
+                            "text": response.data.errorMessage,
                             "status": "error"
                         });
                         console.log("response",response);
@@ -2344,7 +2406,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             function errorCallback(response) {
                 DeviceService.msg($scope, {
                     "title": "Error "+response.status,
-                    "text": response.statusText,
+                    "text": response.data.errorMessage,
                     "status": "error"
                 });
                 console.log("response",response);
@@ -2371,7 +2433,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     function errorCallback(response) {
                         DeviceService.msg($scope, {
                             "title": "Error "+response.status,
-                            "text": response.statusText,
+                            "text": response.data.errorMessage,
                             "status": "error"
                         });
                         console.log("response",response);
@@ -2390,7 +2452,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             function errorCallback(response) {
                 DeviceService.msg($scope, {
                     "title": "Error "+response.status,
-                    "text": response.statusText,
+                    "text": response.data.errorMessage,
                     "status": "error"
                 });
                 console.log("response",response);
@@ -2417,7 +2479,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     function errorCallback(response) {
                         DeviceService.msg($scope, {
                             "title": "Error "+response.status,
-                            "text": response.statusText,
+                            "text": response.data.errorMessage,
                             "status": "error"
                         });
                         console.log("response",response);
@@ -2479,7 +2541,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 function errorCallback(response) {
                     DeviceService.msg($scope, {
                         "title": "Error "+response.status,
-                        "text": response.statusText,
+                        "text": response.data.errorMessage,
                         "status": "error"
                     });
                     console.log("response",response);
