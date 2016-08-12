@@ -56,7 +56,9 @@ import javax.ws.rs.ext.Provider;
 public class DicomServiceExceptionMapper implements ExceptionMapper<DicomServiceException> {
 
     public Response toResponse(DicomServiceException e) {
-        return Response.status(httpStatusOf(e.getStatus())).entity(e.getMessage()).build();
+        Response.Status statusCode = httpStatusOf(e.getStatus());
+        return Response.status(statusCode).entity(BuildHTTPResponseStatus.getStatus(
+                statusCode, e.getMessage())).build();
     }
 
     private static Response.Status httpStatusOf(int status) {
