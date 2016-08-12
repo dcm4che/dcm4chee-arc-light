@@ -597,7 +597,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.editMode         = false;
     };
     /*
-    *Implementation of the cancle button
+    *Implementation of the cancel button
     */
     $scope.cancel = function(){
         cancel();
@@ -710,7 +710,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             'ng-options="obj.dicomDeviceName as obj.dicomDeviceName for obj in devices"'+
             'on-device-change required>'+
         '</select>'+
-        '<label>set the name for the new devace</label>'+
+        '<label>set the name for the new device</label>'+
         '<input type="text" ng-model="clonename" required/>'
       )($scope);
       vex.dialog.open({
@@ -720,7 +720,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
           $.extend({}, vex.dialog.buttons.YES, {
             text: 'Clone'
           }), $.extend({}, vex.dialog.buttons.NO, {
-            text: 'Cancle'
+            text: 'Cancel'
           })
         ],
         callback: function(data) {
@@ -813,7 +813,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             $.extend({}, vex.dialog.buttons.YES, {
               text: 'Clone'
             }), $.extend({}, vex.dialog.buttons.NO, {
-              text: 'Cancle'
+              text: 'Cancel'
             })
           ],
           callback: function(data) {
@@ -861,7 +861,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
       cfpLoadingBar.start();
         $scope.devicename = devicename;
       var html =$compile(
-        '<label>set the name for the new devace</label>'+
+        '<label>set the name for the new device</label>'+
         '<input type="text" ng-model="clonename" required/>'
       )($scope);
       vex.dialog.open({
@@ -871,7 +871,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
           $.extend({}, vex.dialog.buttons.YES, {
             text: 'Clone'
           }), $.extend({}, vex.dialog.buttons.NO, {
-            text: 'Cancle'
+            text: 'Cancel'
           })
         ],
         callback: function(data) {
