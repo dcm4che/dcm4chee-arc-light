@@ -53,8 +53,8 @@ import javax.ws.rs.core.Response;
 
 public class BuildHTTPResponseStatus {
 
-    public static Object getStatus(Response.Status status, String statusMsg) {
-        return "{\"status\":" + status.getStatusCode() + ", \"statusText\":\"" + statusMsg + "\"}";
+    public static Object getStatus(String errorMessage) {
+        return "{\"errorMessage\":\"" + errorMessage + "\"}";
     }
 
 }
