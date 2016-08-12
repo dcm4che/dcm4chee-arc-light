@@ -462,6 +462,8 @@
       }
     },
     "hl7ForwardRule": {
+      "title": "HL7 Forward Rule",
+      "description": "HL7 Forward Rule",
       "type": "array",
       "items" : {
         "$ref": "hl7ForwardRule.schema.json"
