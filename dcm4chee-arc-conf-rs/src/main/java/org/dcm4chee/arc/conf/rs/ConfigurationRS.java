@@ -93,11 +93,7 @@ public class ConfigurationRS {
     @Produces("application/json")
     public StreamingOutput getDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         final Device device;
-        try {
-            device = conf.findDevice(deviceName);
-        } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
+        device = conf.findDevice(deviceName);
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
@@ -231,11 +227,7 @@ public class ConfigurationRS {
     @DELETE
     @Path("/devices/{DeviceName}")
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
-        try {
-            conf.removeDevice(deviceName);
-        } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
+        conf.removeDevice(deviceName);
     }
 
     private static class DeviceInfoBuilder {

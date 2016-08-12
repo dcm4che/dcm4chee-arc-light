@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.common.rs;
 
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4chee.arc.store.StoreService;
 
 import javax.ws.rs.core.Response;
@@ -59,10 +58,6 @@ public class DicomServiceExceptionMapper implements ExceptionMapper<DicomService
     public Response toResponse(DicomServiceException e) {
         return Response.status(httpStatusOf(e.getStatus())).entity(e.getMessage()).build();
     }
-
-//    public Response toResponse(ConfigurationNotFoundException e) {
-//        return Response.status(e.getStatus()).entity(e.getMessage()).build();
-//    }
 
     private static Response.Status httpStatusOf(int status) {
         switch (status) {
