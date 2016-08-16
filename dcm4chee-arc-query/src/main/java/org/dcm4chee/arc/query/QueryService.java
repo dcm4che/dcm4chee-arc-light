@@ -63,8 +63,9 @@ public interface QueryService {
 
     QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts);
 
-    QueryContext newQueryContextQIDO(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-                                     boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries);
+    QueryContext newQueryContextQIDO(
+            HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
+            boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies);
 
     Query createQuery(QueryContext ctx, QueryRetrieveLevel2 qrLevel);
 

@@ -204,6 +204,10 @@ public class QidoRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
+    @QueryParam("withoutstudies")
+    @Pattern(regexp = "true|false")
+    private String withoutstudies;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -378,7 +382,7 @@ public class QidoRS {
                                          String seriesInstanceUID, int[] includetags, Model model) {
         QueryContext ctx = service.newQueryContextQIDO(request, method, getApplicationEntity(),
                 Boolean.parseBoolean(fuzzymatching), Boolean.parseBoolean(returnempty), Boolean.parseBoolean(expired),
-                model == Model.SERIES && Boolean.parseBoolean(expired));
+                model == Model.SERIES && Boolean.parseBoolean(expired), Boolean.parseBoolean(withoutstudies));
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)
@@ -431,7 +435,7 @@ public class QidoRS {
                     addIncludeTag(entry.getValue());
                 else if (key.equals("orderby"))
                     addOrderByTag(entry.getValue());
-                else if (!key.equals("offset") && !key.equals("limit")
+                else if (!key.equals("offset") && !key.equals("limit") && !key.equals("withoutstudies")
                         && !key.equals("fuzzymatching") && !key.equals("returnempty") && !key.equals("expired"))
                     addQueryKey(key, entry.getValue());
             }
