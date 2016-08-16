@@ -1,6 +1,8 @@
 alter table patient add num_studies int4;
 update patient set num_studies = (
   select count(*) from study where study.patient_fk=patient.pk and study.rejection_state in (0,1));
+create index UK_296rccryifu6d8byisl2f4dvq on patient (num_studies);
+
 alter table location add multi_ref int4, add uidmap_fk int8, add object_type int4;
 update location set object_type = 0;
 alter table location alter object_type set not null;

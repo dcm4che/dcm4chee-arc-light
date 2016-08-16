@@ -94,6 +94,13 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "withoutstudies",
+            "in": "query",
+            "description": "return Patient w/o Studies",
+            "type": "boolean",
+            "default": true
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
