@@ -47,6 +47,7 @@ import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 
 import java.io.File;
+import java.security.AccessControlContext;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -84,6 +85,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String storePermissionServiceURL;
     private Pattern storePermissionServiceResponsePattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
+    private AcceptMissingPatientID acceptMissingPatientID;
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -146,6 +148,20 @@ public class ArchiveAEExtension extends AEExtension {
         return overwritePolicy != null
                 ? overwritePolicy
                 : StringUtils.maskNull(getArchiveDeviceExtension().getOverwritePolicy(), OverwritePolicy.NEVER);
+    }
+
+    public AcceptMissingPatientID getAcceptMissingPatientID() {
+        return acceptMissingPatientID;
+    }
+
+    public void setAcceptMissingPatientID(AcceptMissingPatientID acceptMissingPatientID) {
+        this.acceptMissingPatientID = acceptMissingPatientID;
+    }
+
+    public AcceptMissingPatientID acceptMissingPatientID() {
+        return acceptMissingPatientID != null
+                ? acceptMissingPatientID
+                : StringUtils.maskNull(getArchiveDeviceExtension().getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
     }
 
     public String getBulkDataSpoolDirectory() {
@@ -582,6 +598,7 @@ public class ArchiveAEExtension extends AEExtension {
         storePermissionServiceURL = aeExt.storePermissionServiceURL;
         storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
+        acceptMissingPatientID = aeExt.acceptMissingPatientID;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

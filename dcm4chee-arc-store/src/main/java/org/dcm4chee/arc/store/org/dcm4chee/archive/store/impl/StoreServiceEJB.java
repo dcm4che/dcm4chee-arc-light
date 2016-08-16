@@ -183,8 +183,8 @@ public class StoreServiceEJB {
                     return result;
             }
         }
-
-        Instance instance = createInstance(ctx, conceptNameCode, result);
+        AcceptMissingPatientID acceptMissingPatientID = arcAE.acceptMissingPatientID();
+        Instance instance = createInstance(ctx, conceptNameCode, result, acceptMissingPatientID);
         if (ctx.getLocations().isEmpty())
             createLocations(ctx, instance, result);
         else
@@ -438,7 +438,8 @@ public class StoreServiceEJB {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
-    private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)
+    private Instance createInstance(
+            StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result, AcceptMissingPatientID acceptMissingPatientID)
             throws DicomServiceException {
         Series series = findSeries(ctx, result);
         if (series == null) {
@@ -446,6 +447,8 @@ public class StoreServiceEJB {
             if (study == null) {
                 if (!checkStorePermission(ctx))
                     throw new DicomServiceException(Status.NotAuthorized, "Storage denied");
+
+                acceptMissingPatientID(ctx.getAttributes(), acceptMissingPatientID);
 
                 StoreSession session = ctx.getStoreSession();
                 HttpServletRequest httpRequest = session.getHttpRequest();
@@ -477,6 +480,21 @@ public class StoreServiceEJB {
         Instance instance = createInstance(ctx, series, conceptNameCode);
         result.setCreatedInstance(instance);
         return instance;
+    }
+
+    private void acceptMissingPatientID(Attributes attrs, AcceptMissingPatientID acceptMissingPatientID)
+            throws DicomServiceException {
+        if (attrs.getString(Tag.PatientID) == null)
+            switch (acceptMissingPatientID) {
+                case NO:
+                    throw new DicomServiceException(
+                            StoreService.PATIENT_ID_MISSING_IN_OBJECT, "Storage denied as Patient ID missing in object");
+                case CREATE:
+                    idService.newPatientID(attrs);
+                    break;
+                case YES:
+                    break;
+            }
     }
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {

@@ -136,6 +136,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStorePermissionCacheSize", arcDev.getStorePermissionCacheSize(), 10);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 1);
         writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired", arcDev.getAllowRejectionForDataRetentionPolicyExpired());
+        writer.writeNotNull("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -392,6 +393,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorePermissionServiceResponsePattern", arcAE.getStorePermissionServiceResponsePattern());
         writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired", arcAE.getAllowRejectionForDataRetentionPolicyExpired());
         writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
+        writer.writeNotNull("dcmAcceptMissingPatientID", arcAE.getAcceptMissingPatientID());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -603,6 +605,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmAllowRejectionForDataRetentionPolicyExpired":
                     arcDev.setAllowRejectionForDataRetentionPolicyExpired(
                             AllowRejectionForDataRetentionPolicyExpired.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAcceptMissingPatientID":
+                    arcDev.setAcceptMissingPatientID(AcceptMissingPatientID.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1202,6 +1207,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAcceptedUserRole":
                     arcAE.setAcceptedUserRoles(reader.stringArray());
+                    break;
+                case "dcmAcceptMissingPatientID":
+                    arcAE.setAcceptMissingPatientID(AcceptMissingPatientID.valueOf(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
