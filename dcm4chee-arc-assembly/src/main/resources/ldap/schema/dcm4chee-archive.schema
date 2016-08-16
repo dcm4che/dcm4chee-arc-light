@@ -658,6 +658,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.110 NAME 'dcmAcceptedUserRole'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.111 NAME 'dcmAcceptMissingPatientID'
+  DESC 'Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. Enumerated values: YES, NO, CREATE. If absent, CREATE will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -668,6 +674,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   MAY (
     dcmMetadataStorageID $
     dcmOverwritePolicy $
+    dcmAcceptMissingPatientID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
     dcmHideSPSWithStatusFromMWL $
@@ -737,6 +744,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStoreAccessControlID $
     dcmAccessControlID $
     dcmOverwritePolicy $
+    dcmAcceptMissingPatientID $
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
