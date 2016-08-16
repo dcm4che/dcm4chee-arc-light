@@ -117,6 +117,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int storePermissionCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
+    private AcceptMissingPatientID acceptMissingPatientID;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -168,6 +169,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setOverwritePolicy(OverwritePolicy overwritePolicy) {
         this.overwritePolicy = overwritePolicy;
+    }
+
+    public AcceptMissingPatientID getAcceptMissingPatientID() {
+        return acceptMissingPatientID;
+    }
+
+    public void setAcceptMissingPatientID(AcceptMissingPatientID acceptMissingPatientID) {
+        this.acceptMissingPatientID = acceptMissingPatientID;
     }
 
     public String getBulkDataSpoolDirectory() {
@@ -987,6 +996,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
+        acceptMissingPatientID = arcdev.acceptMissingPatientID;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();

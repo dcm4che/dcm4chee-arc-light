@@ -88,6 +88,7 @@ import java.util.*;
 @Table(name = "patient",
     uniqueConstraints = @UniqueConstraint(columnNames = "patient_id_fk"),
     indexes = {
+        @Index(columnList = "num_studies"),
         @Index(columnList = "pat_birthdate"),
         @Index(columnList = "pat_sex"),
         @Index(columnList = "pat_custom1"),

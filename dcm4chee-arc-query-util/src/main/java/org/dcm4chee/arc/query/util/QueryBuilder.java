@@ -251,6 +251,8 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QPatient.patient.patientCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
+        if (!queryParam.isWithoutStudies())
+            builder.and(QPatient.patient.numberOfStudies.gt(0));
     }
 
     public static HibernateQuery<Tuple> applyStudyLevelJoins(

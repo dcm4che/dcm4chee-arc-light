@@ -28,6 +28,7 @@ public interface StoreService {
     int REJECTION_FAILED_ALREADY_REJECTED  = 0xA774;
     int REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED = 0xA775;
     int RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED = 0xA776;
+    int PATIENT_ID_MISSING_IN_OBJECT = 0xA777;
 
     StoreSession newStoreSession(Association as);
 
