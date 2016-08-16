@@ -1,6 +1,7 @@
 "use strict";
 
-var myApp = angular.module('myApp', ['ngRoute','schemaForm','angular-loading-bar', 'angular-clockpicker', 'ui.bootstrap']);
+var myApp = angular.module('myApp', ['ngRoute','schemaForm','angular-loading-bar', 'angular-clockpicker', 'ui.bootstrap',
+  'io.dennis.contextmenu']);
 
 myApp.config(function ($routeProvider) {
     $routeProvider.when('/studies', {

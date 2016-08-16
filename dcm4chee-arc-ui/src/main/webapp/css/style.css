@@ -2091,6 +2091,24 @@ table.j4care-table {
       padding: 10px 15px; }
       .clipboard .content .block:hover {
         background: #ddd; }
+      .clipboard .content .block .remove {
+        display: table-cell;
+        float: right;
+        height: 15px;
+        margin-left: 10px;
+        width: 15px;
+        color: transparent; }
+        .clipboard .content .block .remove:hover {
+          cursor: pointer; }
+          .clipboard .content .block .remove:hover.active {
+            color: #444; }
+        .clipboard .content .block .remove.active {
+          color: #999; }
+    .clipboard .content .series_block.no-series {
+      display: block !important;
+      margin-right: -8px !important; }
+    .clipboard .content .series_block > i {
+      margin-right: 8px !important; }
     .clipboard .content .header {
       background: #e7e7e7;
       padding-top: 10px;
@@ -2099,12 +2117,14 @@ table.j4care-table {
       .clipboard .content .header > div {
         padding: 1px 15px; }
     .clipboard .content .header div div, .clipboard .content .body div div div {
-      margin-left: 200px; }
+      display: table;
+      margin-left: 200px;
+      margin-right: 7px; }
     .clipboard .content .sopclass {
       display: inline-block;
-      width: 230px;
-      float: left; }
+      width: 230px; }
     .clipboard .content .sopinstance {
+      display: table-cell;
       margin-left: 20px; }
 
 #contextmenu {
