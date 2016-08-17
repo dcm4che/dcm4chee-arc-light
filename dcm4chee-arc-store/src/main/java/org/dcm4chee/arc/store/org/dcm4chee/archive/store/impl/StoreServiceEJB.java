@@ -1006,6 +1006,10 @@ public class StoreServiceEJB {
         if (patients.size() == 1)
             return;
 
+        if (patients.isEmpty()) {
+            LOG.warn("{}: Failed to find created {}", ctx.getStoreSession(), result.getCreatedPatient());
+            return;
+        }
         Patient createdPatient = null;
         Patient otherPatient = null;
         for (Patient patient : patients) {
