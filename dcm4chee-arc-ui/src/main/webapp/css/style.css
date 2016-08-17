@@ -2097,18 +2097,15 @@ table.j4care-table {
         height: 15px;
         margin-left: 10px;
         width: 15px;
-        color: transparent; }
+        color: #aaa; }
         .clipboard .content .block .remove:hover {
           cursor: pointer; }
           .clipboard .content .block .remove:hover.active {
             color: #444; }
-        .clipboard .content .block .remove.active {
-          color: #999; }
     .clipboard .content .series_block.no-series {
-      display: block !important;
-      margin-right: -8px !important; }
-    .clipboard .content .series_block > i {
-      margin-right: 8px !important; }
+      display: block !important; }
+    .clipboard .content .series_block.block_part.series.scroll-active {
+      margin-right: 13px; }
     .clipboard .content .header {
       background: #e7e7e7;
       padding-top: 10px;
@@ -2118,8 +2115,7 @@ table.j4care-table {
         padding: 1px 15px; }
     .clipboard .content .header div div, .clipboard .content .body div div div {
       display: table;
-      margin-left: 200px;
-      margin-right: 7px; }
+      margin-left: 200px; }
     .clipboard .content .sopclass {
       display: inline-block;
       width: 230px; }

@@ -2829,16 +2829,16 @@ table.j4care-table{
 			    height: 15px;
 			    margin-left: 10px;
 			    width: 15px;
-			    color: transparent;
+			    color: #aaa;
 			    &:hover{
 			    	cursor: pointer;
 				    &.active{
 			    		color: #444;
 				    }
 			    }
-			    &.active{
-			    	color: #999;
-			    }
+			    // &.active{
+			    // 	color: #999;
+			    // }
 			}
 		}
 		// .study_block:hover > i, .series_block > i, .sop_block > i{
@@ -2846,12 +2846,15 @@ table.j4care-table{
 		// }
 		.series_block.no-series {
 		    display: block !important;
-		    margin-right: -8px !important;
+		    // margin-right: -8px !important;
 		}
-		.series_block{
-			& > i {
-			    margin-right: 8px !important;
-			}
+		// .series_block.series{
+		// 	& > i {
+		// 	    // margin-right: 8px !important;
+		// 	}
+		// }
+		.series_block.block_part.series.scroll-active {
+		    margin-right: 13px;
 		}
 		.header{
 			background: #e7e7e7;
@@ -2865,7 +2868,7 @@ table.j4care-table{
 		.header div div, .body div div div{
 		    display: table;
 		    margin-left: 200px;
-		    margin-right: 7px;
+		    // margin-right: 7px;
 		}
 		.sopclass {
 		    display: inline-block;

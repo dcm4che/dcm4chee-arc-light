@@ -68,7 +68,11 @@ myApp.filter("formatTag", function() {
 });
 myApp.filter("removedots", function() {
     return function (string) {
-        return string.replace(/\./g, '');
+        if(string){
+            return string.replace(/\./g, '');
+        }else{
+            return "";
+        }
     };
 });
 

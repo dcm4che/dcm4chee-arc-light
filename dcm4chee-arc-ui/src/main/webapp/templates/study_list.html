@@ -36,7 +36,7 @@
   </ul>
 </div>
 <!-- /contextmenu -->
-<div id="clipboard" class="clipboard" ng-init="showClipboardContent = false"  ng-show="clipboard.selected">
+<div id="clipboard" class="clipboard" ng-init="showClipboardContent = false"  ng-show="clipBoardNotEmpty()">
     <div id="clipboardtoggle" class="toggle_button" ng-click="showClipboardContent = !showClipboardContent">
         <i id="clipboardtoggle_icon" class="glyphicon glyphicon-copy"></i>
     </div>
@@ -51,26 +51,23 @@
                     </div>
                 </div>
             </div>
-            
-            
-            
         </div>
         <div class="body">
-            <div class="block" ng-repeat="(key, value) in clipboard.selected">
+            <div class="block" ng-repeat="(key, value) in clipboard.selected track by $index">
                 <div class="study_block block_part">
                     {{value.StudyInstanceUID}}
-                    <i ng-click="remove(sopseq)" class="remove glyphicon glyphicon-remove"></i>
-                    <div class="series_block block_part" ng-repeat="(key2, seriesequence) in value.ReferencedSeriesSequence" ng-class="{'no-series':!seriesequence.ReferencedSOPSequence.length}">
+                    <i ng-click='removeClipboardElement("study",{"studykey":key})' class="remove glyphicon glyphicon-remove"></i>
+                    <div class="series_block block_part" ng-repeat="(key2, seriesequence) in value.ReferencedSeriesSequence track by $index" ng-class="{'no-series':!seriesequence.ReferencedSOPSequence.length,'series':seriesequence.ReferencedSOPSequence.length,'scroll-active':clipboardHasScrollbar()}">
                         {{seriesequence.SeriesInstanceUID}}
-                        <i ng-click="remove(sopseq)" class="remove glyphicon glyphicon-remove"></i>
-                        <div class="sop_block block_part" ng-repeat="(key3, sopseq) in seriesequence.ReferencedSOPSequence">        
+                        <i ng-click='removeClipboardElement("serie", {"studykey":key, "serieskey":key2})' class="remove glyphicon glyphicon-remove"></i>
+                        <div class="sop_block block_part" ng-repeat="(key3, sopseq) in seriesequence.ReferencedSOPSequence track by $index">        
                                 <span class="sopclass">
                                     {{sopseq.ReferencedSOPClassUID}}
                                 </span>
                                 <span class="sopinstance">
                                     {{sopseq.ReferencedSOPInstanceUID}}
                                 </span>
-                                <i ng-click="remove(sopseq)" class="remove glyphicon glyphicon-remove"></i>
+                                <i ng-click='removeClipboardElement("instance", {"studykey":key, "serieskey":key2, "instancekey":key3})' class="remove glyphicon glyphicon-remove"></i>
                         </div>
                     </div>
                 </div>
@@ -670,7 +667,7 @@
 <!-- Table -->
 <div id="tableblock" class="div-table animated" ng-class="{extended:(advancedConfig && (filterMode === 'study' || filterMode === 'mwl')),modality:showModalitySelector}" contextmenu-container="meta.contextmenu">
 
-    <div class="repeat0" contextmenu-item='patient' ng-repeat="(patientkey, patient) in patients" ng-init="patient.hide=false;patient.modus = 'patient'"  ng-click="select(patient,'patient')">
+    <div class="repeat0" contextmenu-item='patient' ng-repeat="(patientkey, patient) in patients" ng-init="patient.hide=false;patient.modus = 'patient'"  ng-click='select(patient,"patient",{"patientkey":patientkey})'>
 <!--         <span ng-show="!patient.hide" class="glyphicon glyphicon-triangle-bottom close_patient" title="Hide this patient" ng-click="patient.hide=true"></span>        
         <span ng-show="patient.hide" class="glyphicon glyphicon-triangle-right open_patient" title="Show {{patient.attrs['00100010'].Value[0].Alphabetic}}" ng-click="patient.hide=false"></span> -->
         <div class="thead" ng-class="{hide:patient.hide}">
@@ -748,7 +745,7 @@
                 <div class="tr_row">
                     <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
                     <div class="subblock">
-                        <div class="td_row thead repeat1_hover" ng-click="select(study,'study')" ng-class="{selected: study.selected}" ng-init="study.selected = false">
+                        <div class="td_row thead repeat1_hover" ng-click='select(study,"study", {"patientkey":patientkey,"studykey":studykey})' ng-class="{selected: study.selected}" ng-init="study.selected = false">
                             <!-- <input type="checkbox" ng-model="study.selected" class="selectcheckboxes" /> -->
                             <div class="td_cell table_btn">
                                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
@@ -818,7 +815,7 @@
                             <div class="repeat2" ng-repeat="(serieskey,series) in study.series" contextmenu-item="series" ng-init="series.modus = 'series'">
                                     <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
                             <div class="subblock">
-                                <div class="tr_row repeat2_hover" ng-click="select(series,'series')" ng-class="{selected: series.selected}" ng-init="series.selected = false">
+                                <div class="tr_row repeat2_hover" ng-click='select(series,"series", {"patientkey":patientkey,"studykey":studykey, "serieskey":serieskey})' ng-class="{selected: series.selected}" ng-init="series.selected = false">
                                     <div class="td_cell table_btn">
                                         <!-- <input type="checkbox" ng-model="series.selected" class="selectcheckboxes" /> -->
                                         <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
@@ -880,7 +877,7 @@
                                 <div class="repeat3"  ng-repeat="(key,instance) in series.instances" contextmenu-item="instance" ng-init="instance.modus='instance'">
                                     <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
                                     <div class="subblock">
-                                        <div class="tr_row repeat3_hover"ng-click="select(instance,'instance')" ng-class="{selected: instance.selected}" ng-init="instance.selected = false">
+                                        <div class="tr_row repeat3_hover" ng-click='select(instance,"instance", {"patientkey":patientkey,"studykey":studykey, "serieskey":serieskey, "instancekey":key})' ng-class="{selected: instance.selected}" ng-init="instance.selected = false">
                                             <div class="td_cell table_btn">   
                                                 <!-- <input type="checkbox" ng-model="instance.selected" class="selectcheckboxes" /> -->
                                                 <a ng-click="toggleAttributs(series.instances[key],'attributs')" href="" title="Show Attributes" ng-class="{active:instance.showAttributes}">
