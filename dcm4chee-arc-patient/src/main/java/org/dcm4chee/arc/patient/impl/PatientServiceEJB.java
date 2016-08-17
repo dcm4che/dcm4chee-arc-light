@@ -118,6 +118,7 @@ public class PatientServiceEJB {
         patient.setAttributes(attributes, ctx.getAttributeFilter(), ctx.getFuzzyStr());
         patient.setPatientID(createPatientID(patientID));
         em.persist(patient);
+        LOG.info("{}: Create {}", ctx, patient);
         return patient;
     }
 
