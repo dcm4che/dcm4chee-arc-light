@@ -10,6 +10,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         "series":false,
         "instance":false
     };
+    $scope.lastSelectedObject = null;
     $scope.showContextMenu = false;
     $scope.cotextMenuEventActive = false;
     $scope.anySelected = false;
@@ -1756,6 +1757,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $scope.showContextMenu = false;
             });
         }
+        if($(e.target).parents('.dropdown.contextmenu').length === 0){
+            $(".dropdown.contextmenu").addClass('ng-hide');
+        }
         if(Object.keys($scope.keysdown).length === 0 && $scope.anySelected){
             StudiesService.clearSelection($scope.patients);
             $scope.$apply(function(){
@@ -1786,6 +1790,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }
             },301);
     };
+    $scope.clearClipboard = function(){
+        $scope.clipboard = {};
+    }
     $scope.dateOpen = {};
     $scope.studyDateFromOpen = function() {
         cfpLoadingBar.start();
@@ -2250,6 +2257,149 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
         // angular.element("#querypatients").trigger('click');
     };
+    var showClipboardForAMoment = function(){
+        $scope.showClipboardContent = true;
+        setTimeout(function() {
+            $scope.$apply(function(){
+                $scope.showClipboardContent = false;
+            });
+        }, 1500);
+    };
+    var ctrlC = function(){
+        console.log("ctrl c");
+        $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
+        console.log("$scope.selected",$scope.selected);
+        // console.log("test",angular.merge({},$scope.clipboard.selected, $scope.selected));
+        // $scope.clipboard.selected = angular.merge({},$scope.clipboard.selected, $scope.selected);
+        StudiesService.MergeRecursive($scope.clipboard.selected,$scope.selected);
+        console.log("$scope.clipboard",$scope.clipboard);
+        if($scope.clipboard.action && $scope.clipboard.action === "move"){
+            vex.dialog.confirm({
+                message: "Are you sure you want to change the action from move to copy?",
+                callback: function(m) {
+                    $(".vex").hide();
+                    $("body").removeClass('vex-open');
+                    if(m){
+                        $scope.clipboard["action"] = "copy";
+                    }
+                    showClipboardForAMoment();
+                }
+            });
+        }else{
+            $scope.clipboard["action"] = "copy";
+            showClipboardForAMoment();
+        }
+        console.log("$scope.clipboard",$scope.clipboard);
+        StudiesService.clearSelection($scope.patients);
+        $scope.showClipboardContent = true;
+    };
+    var ctrlX = function(){
+        console.log("ctrl x");
+        $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
+        angular.merge($scope.clipboard.selected, $scope.selected);
+        if($scope.clipboard.action && $scope.clipboard.action === "copy"){
+            vex.dialog.confirm({
+                message: "Are you sure you want to change the action from copy to move?",
+                callback: function(m) {
+                    $(".vex").hide();
+                    $("body").removeClass('vex-open');
+                    if (m) {
+                        $scope.clipboard["action"] = "move";
+                    }
+                    showClipboardForAMoment();
+                }
+            });
+        }else{
+            $scope.clipboard["action"] = "move";
+            showClipboardForAMoment();
+        }
+        StudiesService.clearSelection($scope.patients);
+        console.log("$scope.clipboard",$scope.clipboard);
+    };
+    var ctrlV = function(item){
+        console.log("*****ctrl v");
+        console.log("$scope.selected",angular.copy($scope.selected));
+        console.log("$scope.clipboard",$scope.clipboard);
+        console.log("item",item);
+        $scope.target = item;
+        $templateRequest('templates/copyMoveProcess.html').then(function(tpl) {
+            // console.log("tpl",tpl);
+            var html = $compile(tpl)($scope);
+            // console.log("html",html);
+            vex.dialog.open({
+              message: '<h5>'+$scope.clipboard.action+' process</h5>',
+              input: html,
+              className:"vex-theme-os copymove",
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: $scope.clipboard.action
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancel'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                    console.log("$scope.reject",$scope.reject);
+                  return console.log('Cancelled');
+                }else{
+                    if($scope.clipboard.action = "copy"){
+                        if($scope.target.modus === "patient"){
+                            //TODO create new study first
+                        }else{
+                            angular.forEach($scope.clipboard.selected, function(m, i){
+                                console.log("m",m);
+                                $http.post(
+                                    "../aets/"+$scope.aet+"/rs/studies/"+$scope.target.attrs['0020000D'].Value[0]+"/copy",
+                                    m
+                                ).then(function successCallback(response) {
+                                    console.log("in then function");
+
+                                    DeviceService.msg($scope, {
+                                        "title": "Info",
+                                        "text": "Objects copied successfully!",
+                                        "status": "info"
+                                    });
+                                    $scope.callBackFree = true;
+                                }, function errorCallback(response) {
+                                    DeviceService.msg($scope, {
+                                        "title": "Error",
+                                        "text": "Error copyng objects!",
+                                        "status": "error"
+                                    });
+                                    $scope.callBackFree = true;
+                                });
+                            });
+                        }
+                    }
+                }
+              }
+            });
+        });
+    };
+    $scope.ctrlC = function(item){
+        console.log("ctrlC item",item);
+        if(item.selected){
+            ctrlC();
+        }else{
+            StudiesService.clearSelection($scope.patients);
+            selectObject(item, item.modus);
+            ctrlC();
+        }
+    };
+    $scope.ctrlX = function(item){
+        if(item.selected){
+            ctrlX();
+        }else{
+            StudiesService.clearSelection($scope.patients);
+            selectObject(item, item.modus);
+            ctrlX();
+        }
+    };
+    $scope.ctrlV = function(item){
+        // console.log("ctrlV item",item);
+        ctrlV(item);
+    };
+
     $(document).keydown(function(e){
         // console.log("e",e);
         setTimeout(function() {
@@ -2262,73 +2412,31 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             // Ignore it
             return;
         }
-        var showClipboardForAMoment = function(){
-            $scope.showClipboardContent = true;
-            setTimeout(function() {
-                $scope.$apply(function(){
-                    $scope.showClipboardContent = false;
-                });
-            }, 1500);
-        }
         console.log("e.keyCode",e.keyCode);
          // Remember it's down
         $timeout(function() {
             $scope.$apply(function(){
                 $scope.keysdown[e.keyCode] = true;
                 console.log("$scope.keysdown",$scope.keysdown);
+                //ctrl + c clicked
                 if($scope.keysdown[17]===true && $scope.keysdown[67]===true){
-                    console.log("ctrl c");
-                    $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
-                    console.log("$scope.selected",$scope.selected);
-                    // console.log("test",angular.merge({},$scope.clipboard.selected, $scope.selected));
-                    // $scope.clipboard.selected = angular.merge({},$scope.clipboard.selected, $scope.selected);
-                    StudiesService.MergeRecursive($scope.clipboard.selected,$scope.selected);
-                    console.log("$scope.clipboard",$scope.clipboard);
-                    if($scope.clipboard.action && $scope.clipboard.action === "move"){
-                        vex.dialog.confirm({
-                            message: "Are you sure you want to change the action from move to copy?",
-                            callback: function(m) {
-                                $(".vex").hide();
-                                $("body").removeClass('vex-open');
-                                if(m){
-                                    $scope.clipboard["action"] = "copy";
-                                }
-                                showClipboardForAMoment();
-                            }
-                        });
-                    }else{
-                        $scope.clipboard["action"] = "copy";
-                        showClipboardForAMoment();
-                    }
-                    console.log("$scope.clipboard",$scope.clipboard);
-                    $scope.showClipboardContent = true;
+                    console.log("ctrl + c");
+                    ctrlC();
                 }
+                //ctrl + v clicked
                 if($scope.keysdown[17]===true && $scope.keysdown[86]===true){
-                    console.log("ctrl v");
-                    console.log("$scope.selected",angular.copy($scope.selected));
-                    console.log("$scope.clipboard",$scope.clipboard);
-                }
-                if($scope.keysdown[17]===true && $scope.keysdown[88]===true){
-                    console.log("ctrl x");
-                    $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
-                    angular.merge($scope.clipboard.selected, $scope.selected);
-                    if($scope.clipboard.action && $scope.clipboard.action === "copy"){
-                        vex.dialog.confirm({
-                            message: "Are you sure you want to change the action from copy to move?",
-                            callback: function(m) {
-                                $(".vex").hide();
-                                $("body").removeClass('vex-open');
-                                if (m) {
-                                    $scope.clipboard["action"] = "move";
-                                }
-                                showClipboardForAMoment();
-                            }
-                        });
-                    }else{
-                        $scope.clipboard["action"] = "move";
-                        showClipboardForAMoment();
+                    console.log("ctrl + v");
+                    console.log("$scope.selected",$scope.selected);
+                    console.log("$scope.lastSelectedObject",$scope.lastSelectedObject);
+                    console.log("$('.vex.vex-theme-os.copymove').length",$('.vex.vex-theme-os.copymove').length);
+                    if($scope.lastSelectedObject){
+                        ctrlV($scope.lastSelectedObject);
                     }
-                    console.log("$scope.clipboard",$scope.clipboard);
+                }
+                //ctrl + x clicked
+                if($scope.keysdown[17]===true && $scope.keysdown[88]===true){
+                    console.log("ctrl + x");
+                    ctrlX();
                 }
             });
         });
@@ -2470,14 +2578,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             return this.get(0).scrollHeight > this.height();
     }
     $scope.clipboardHasScrollbar = function(){
-        console.log("$('#clipboard_content').height()",$("#clipboard_content").height());
-        console.log("$('#clipboard_content').hasScrollBar()",$("#clipboard_content").hasScrollBar());
         return $("#clipboard_content").hasScrollBar();
-
-/*        if($("#clipboard_content").height() > $(window).height()){
-            return true;
-        }
-        return Object.keys($scope.).length;*/
     }
     $scope.select = function(object, modus, keys){
         $scope.anySelected = true;
@@ -2488,11 +2589,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         console.log("$scope.pressedKey",$scope.pressedKey);
         console.log("$scope.keysdown",$scope.keysdown);
         console.log("$scope.keysdown.length",Object.keys($scope.keysdown).length);
+        console.log("$scope.lastSelect",$scope.lastSelect);
+        $scope.lastSelectedObject = object;
+        $scope.lastSelectedObject.modus = modus;
         //0020000D object Instance UID
         //ctrl + click
         if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[17] === true){
             selectObject(object, modus);
         }
+        //close contextmenu (That's a bug on contextmenu module. The bug has been reported)
+        $(".dropdown.contextmenu").addClass('ng-hide');
+
         //Shift + click
         if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[16] === true){
             StudiesService.clearSelection($scope.patients);
@@ -2503,6 +2610,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if(modus != $scope.lastSelect.modus){
                     StudiesService.clearSelection($scope.patients);
                     selectObject(object, modus);
+                    $scope.lastSelect = {"keys":keys, "modus":modus};
                 }else{
                     switch(modus) {
                         case "patient":
@@ -2513,6 +2621,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             if(keys.patientkey != $scope.lastSelect.keys.patientkey){
                                 StudiesService.clearSelection($scope.patients);
                                 selectObject(object, modus);
+                                $scope.lastSelect = {"keys":keys, "modus":modus};
                             }else{
                                 console.log("keys.studykey",keys.studykey);
                                 console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.studykey);
@@ -2539,6 +2648,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             if(keys.patientkey != $scope.lastSelect.keys.patientkey || keys.studykey != $scope.lastSelect.keys.studykey){
                                 StudiesService.clearSelection($scope.patients);
                                 selectObject(object, modus);
+                                $scope.lastSelect = {"keys":keys, "modus":modus};
                             }else{
                                 console.log("keys.studykey",keys.serieskey);
                                 console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.serieskey);
@@ -2566,6 +2676,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                             if(keys.patientkey != $scope.lastSelect.keys.patientkey || keys.studykey != $scope.lastSelect.keys.studykey || keys.serieskey != $scope.lastSelect.keys.serieskey){
                                 StudiesService.clearSelection($scope.patients);
                                 selectObject(object, modus);
+                                $scope.lastSelect = {"keys":keys, "modus":modus};
                             }else{
                                 console.log("keys.studykey",keys.instancekey);
                                 console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.instancekey);
@@ -2591,6 +2702,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     } 
                 }
             }
+        }
+        if(Object.keys($scope.keysdown).length === 0 && $scope.anySelected){
+            StudiesService.clearSelection($scope.patients);
+            $timeout(function() {
+                $scope.$apply(function(){
+                    $scope.anySelected = false;
+                    $scope.selected = {};
+                });
+            });
         }
     };
     $scope.rejectStudy = function(study) {

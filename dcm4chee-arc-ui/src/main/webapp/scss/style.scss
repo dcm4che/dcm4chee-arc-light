@@ -2768,12 +2768,78 @@ table.j4care-table{
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#417091', endColorstr='#376e95',GradientType=0 );
     color: white !important;
 }
+.vex.vex-theme-os.copymove{
+	.vex-content{
+		width:90%;
+	}
+	.targetobject {
+	    font-size: 18px;
+	    padding: 0 10px;
+	    h5{
+		   	font-size: 18px;
+		    padding: 10px 0;
+		    text-transform: uppercase;
+		}
+	}
+	.clear_clipboard{
+		color: #999;
+	    position: absolute;
+	    right: 26px;
+	    top: 45px;
+	}
+	.clipboard {
+	    border: 1px solid #aaa;
+	    margin-top: 20px;
+	    .content{
+	    	.series_block.block_part.series.scroll-active {
+			    margin-right: 0px;
+			}
+			.header div div, .body div div div{
+			    display: block;
+			    margin-left: 200px;
+			    // margin-right: 7px;
+			}
 
+			.sopclass {
+			    display: block;
+			    float: left;
+			    width: 41%;
+			}
+			.sopinstance {
+			    display: inline-block;
+			    margin-left: 20px;
+			    width: 55%;
+			}
+	    }
+	}
+	.vex-dialog-message > h5 {
+	    font-size: 25px;
+	    padding-bottom: 15px;
+	    padding-left: 10px;
+	    text-transform: uppercase;
+	}
+	h5{
+	   	font-size: 18px;
+	    padding: 10px;
+	    text-transform: uppercase;
+	}
+	hr{
+		border-color: #aaa;
+	}
+}
 .clipboard {
-    position: fixed;
-    right: 0;
-    top: 21%;
-    z-index: 999;
+	.clear_clipboard{
+		color: #999;
+	    position: absolute;
+	    right: 26px;
+	    top: 45px;
+	}
+	&.said{
+	    position: fixed;
+	    right: 0;
+	    top: 21%;
+	    z-index: 999;
+	}
     .toggle_button {
 	   background: #bbb none repeat scroll 0 0;
 	    border-bottom-left-radius: 5px;
@@ -2791,27 +2857,47 @@ table.j4care-table{
 	    	cursor: pointer;
 	    }
 	}
-	.content {
-	    // background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
+	&.said .content{
 	    background:#f0f0f0;
 	    color: #444;
 	    float: left;
 	    max-height: 500px;
 	    min-height: 100px;
-	    font-family: "Helvetica Neue",sans-serif;
-	    font-size: 1.1em;
-    	line-height: 1.5em;
-	       // border-radius: 5px;
     	border-top: 20px solid #bbb;
     	-moz-box:0px 2px 3px 3px  rgba(0, 0, 0, 0.25);
     	-webkit-box:0px 2px 3px 3px  rgba(0, 0, 0, 0.25);
     	box-shadow:0px 2px 3px 3px  rgba(0, 0, 0, 0.25);
+		overflow: auto;
+		.series_block.block_part.series.scroll-active {
+		    margin-right: 13px;
+		}
+		.header div div, .body div div div{
+		    display: table;
+		    margin-left: 200px;
+		    // margin-right: 7px;
+		}
+
+		.sopclass {
+		    display: inline-block;
+		    width: 230px;
+		}
+		.sopinstance {
+			display: table-cell;
+    		margin-left: 20px;
+		}
+
+	}
+	.content {
+	    // background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
+	    font-family: "Helvetica Neue",sans-serif;
+	    font-size: 1.1em;
+    	line-height: 1.5em;
+	       // border-radius: 5px;
 	    // width: 231px;
 		// &:hover{
 	 //    	// background:rgba(0, 0, 0, 0.8);
-	 //    	background:#f0f0f0;
+	 //    	background:#f0f0f0;cl
 	 //    }
-		overflow: auto;
 		h5 {
 		    font-size: 18px;
 		    padding: 15px;
@@ -2853,9 +2939,7 @@ table.j4care-table{
 		// 	    // margin-right: 8px !important;
 		// 	}
 		// }
-		.series_block.block_part.series.scroll-active {
-		    margin-right: 13px;
-		}
+
 		.header{
 			background: #e7e7e7;
     		padding-top: 10px;
@@ -2865,19 +2949,7 @@ table.j4care-table{
 			    padding: 1px 15px;
 			}
 		} 
-		.header div div, .body div div div{
-		    display: table;
-		    margin-left: 200px;
-		    // margin-right: 7px;
-		}
-		.sopclass {
-		    display: inline-block;
-		    width: 230px;
-		}
-		.sopinstance {
-			display: table-cell;
-    		margin-left: 20px;
-		}
+
 	}
 }
 #contextmenu{

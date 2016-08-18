@@ -2048,80 +2048,128 @@ table.j4care-table {
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#417091', endColorstr='#376e95',GradientType=0 );
   color: white !important; }
 
-.clipboard {
+.vex.vex-theme-os.copymove .vex-content {
+  width: 90%; }
+.vex.vex-theme-os.copymove .targetobject {
+  font-size: 18px;
+  padding: 0 10px; }
+  .vex.vex-theme-os.copymove .targetobject h5 {
+    font-size: 18px;
+    padding: 10px 0;
+    text-transform: uppercase; }
+.vex.vex-theme-os.copymove .clear_clipboard {
+  color: #999;
+  position: absolute;
+  right: 26px;
+  top: 45px; }
+.vex.vex-theme-os.copymove .clipboard {
+  border: 1px solid #aaa;
+  margin-top: 20px; }
+  .vex.vex-theme-os.copymove .clipboard .content .series_block.block_part.series.scroll-active {
+    margin-right: 0px; }
+  .vex.vex-theme-os.copymove .clipboard .content .header div div, .vex.vex-theme-os.copymove .clipboard .content .body div div div {
+    display: block;
+    margin-left: 200px; }
+  .vex.vex-theme-os.copymove .clipboard .content .sopclass {
+    display: block;
+    float: left;
+    width: 41%; }
+  .vex.vex-theme-os.copymove .clipboard .content .sopinstance {
+    display: inline-block;
+    margin-left: 20px;
+    width: 55%; }
+.vex.vex-theme-os.copymove .vex-dialog-message > h5 {
+  font-size: 25px;
+  padding-bottom: 15px;
+  padding-left: 10px;
+  text-transform: uppercase; }
+.vex.vex-theme-os.copymove h5 {
+  font-size: 18px;
+  padding: 10px;
+  text-transform: uppercase; }
+.vex.vex-theme-os.copymove hr {
+  border-color: #aaa; }
+
+.clipboard .clear_clipboard {
+  color: #999;
+  position: absolute;
+  right: 26px;
+  top: 45px; }
+.clipboard.said {
   position: fixed;
   right: 0;
   top: 21%;
   z-index: 999; }
-  .clipboard .toggle_button {
-    background: #bbb none repeat scroll 0 0;
-    border-bottom-left-radius: 5px;
-    border-top-left-radius: 5px;
-    -moz-box-shadow: -3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
-    -webkit-box-shadow: -3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
-    box-shadow: -3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
-    color: #545353;
-    float: left;
-    font-size: 35px;
-    padding: 1px 5px;
-    position: relative; }
-    .clipboard .toggle_button:hover {
-      color: white;
-      cursor: pointer; }
-  .clipboard .content {
-    background: #f0f0f0;
-    color: #444;
-    float: left;
-    max-height: 500px;
-    min-height: 100px;
-    font-family: "Helvetica Neue",sans-serif;
-    font-size: 1.1em;
-    line-height: 1.5em;
-    border-top: 20px solid #bbb;
-    -moz-box: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
-    -webkit-box: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
-    box-shadow: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
-    overflow: auto; }
-    .clipboard .content h5 {
-      font-size: 18px;
-      padding: 15px;
-      text-transform: uppercase; }
-    .clipboard .content .block {
-      border-top: 1px solid #ddd;
-      padding: 10px 15px; }
-      .clipboard .content .block:hover {
-        background: #ddd; }
-      .clipboard .content .block .remove {
-        display: table-cell;
-        float: right;
-        height: 15px;
-        margin-left: 10px;
-        width: 15px;
-        color: #aaa; }
-        .clipboard .content .block .remove:hover {
-          cursor: pointer; }
-          .clipboard .content .block .remove:hover.active {
-            color: #444; }
-    .clipboard .content .series_block.no-series {
-      display: block !important; }
-    .clipboard .content .series_block.block_part.series.scroll-active {
-      margin-right: 13px; }
-    .clipboard .content .header {
-      background: #e7e7e7;
-      padding-top: 10px;
-      font-weight: bold;
-      color: #6d6d6d; }
-      .clipboard .content .header > div {
-        padding: 1px 15px; }
-    .clipboard .content .header div div, .clipboard .content .body div div div {
-      display: table;
-      margin-left: 200px; }
-    .clipboard .content .sopclass {
-      display: inline-block;
-      width: 230px; }
-    .clipboard .content .sopinstance {
+.clipboard .toggle_button {
+  background: #bbb none repeat scroll 0 0;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  -moz-box-shadow: -3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: -3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
+  box-shadow: -3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
+  color: #545353;
+  float: left;
+  font-size: 35px;
+  padding: 1px 5px;
+  position: relative; }
+  .clipboard .toggle_button:hover {
+    color: white;
+    cursor: pointer; }
+.clipboard.said .content {
+  background: #f0f0f0;
+  color: #444;
+  float: left;
+  max-height: 500px;
+  min-height: 100px;
+  border-top: 20px solid #bbb;
+  -moz-box: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
+  -webkit-box: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 2px 3px 3px rgba(0, 0, 0, 0.25);
+  overflow: auto; }
+  .clipboard.said .content .series_block.block_part.series.scroll-active {
+    margin-right: 13px; }
+  .clipboard.said .content .header div div, .clipboard.said .content .body div div div {
+    display: table;
+    margin-left: 200px; }
+  .clipboard.said .content .sopclass {
+    display: inline-block;
+    width: 230px; }
+  .clipboard.said .content .sopinstance {
+    display: table-cell;
+    margin-left: 20px; }
+.clipboard .content {
+  font-family: "Helvetica Neue",sans-serif;
+  font-size: 1.1em;
+  line-height: 1.5em; }
+  .clipboard .content h5 {
+    font-size: 18px;
+    padding: 15px;
+    text-transform: uppercase; }
+  .clipboard .content .block {
+    border-top: 1px solid #ddd;
+    padding: 10px 15px; }
+    .clipboard .content .block:hover {
+      background: #ddd; }
+    .clipboard .content .block .remove {
       display: table-cell;
-      margin-left: 20px; }
+      float: right;
+      height: 15px;
+      margin-left: 10px;
+      width: 15px;
+      color: #aaa; }
+      .clipboard .content .block .remove:hover {
+        cursor: pointer; }
+        .clipboard .content .block .remove:hover.active {
+          color: #444; }
+  .clipboard .content .series_block.no-series {
+    display: block !important; }
+  .clipboard .content .header {
+    background: #e7e7e7;
+    padding-top: 10px;
+    font-weight: bold;
+    color: #6d6d6d; }
+    .clipboard .content .header > div {
+      padding: 1px 15px; }
 
 #contextmenu {
   background: white none repeat scroll 0 0;
