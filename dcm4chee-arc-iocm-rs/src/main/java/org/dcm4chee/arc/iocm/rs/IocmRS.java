@@ -255,7 +255,7 @@ public class IocmRS {
         final Attributes attrs = reader.readDataset(null);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID == null)
-            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
@@ -556,5 +556,10 @@ public class IocmRS {
             throw new WebApplicationException("Missing ReferencedSOPInstanceUID", Response.Status.BAD_REQUEST);
 
         return attrs;
+    }
+
+    private Response getResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 }
