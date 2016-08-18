@@ -157,6 +157,9 @@ public class ArchiveDeviceConfigurationTest {
             config.removeDevice("logstash");
         } catch (ConfigurationNotFoundException e) {}
         try {
+            config.removeDevice("keycloak");
+        } catch (ConfigurationNotFoundException e) {}
+        try {
             config.removeDevice("hl7rcv");
         } catch (ConfigurationNotFoundException e) {}
         for (String name : ArchiveDeviceFactory.OTHER_DEVICES)

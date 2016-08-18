@@ -8352,3 +8352,26 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Verification SOP Class SCU
 
+dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: TRUE
+dicomDeviceName: keycloak
+objectClass: dicomDevice
+objectClass: dcmDevice
+dicomPrimaryDeviceType: AUTH
+
+dn: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmProtocol: SYSLOG_UDP
+dcmClientBindAddress: 0.0.0.0
+cn: syslog
+
+dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAuditSourceTypeCode: 4
+dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmAuditLogger
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAuditMessageSchemaURI: http://www.dcm4che.org/DICOM/audit-message.rnc
+cn: Audit Logger
+
