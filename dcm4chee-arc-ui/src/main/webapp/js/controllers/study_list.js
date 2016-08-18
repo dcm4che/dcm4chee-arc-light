@@ -589,11 +589,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         "status": "info"
                                     });                             },
                                     function errorCallback(response) {
+                                        // DeviceService.msg($scope, {
+                                        //     "title": "Error",
+                                        //     "text": "Error saving study!",
+                                        //     "status": "error"
+                                        // });
                                         DeviceService.msg($scope, {
-                                            "title": "Error",
-                                            "text": "Error saving study!",
+                                            "title": "Error "+response.status,
+                                            "text": response.data.errorMessage,
                                             "status": "error"
                                         });
+                                        console.log("response",response);
                                     }
                                 );
                             // DeviceService.msg($scope, {

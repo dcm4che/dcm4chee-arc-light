@@ -61,6 +61,7 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 public class ArchiveDeviceConfigurationTest {
@@ -122,6 +123,8 @@ public class ArchiveDeviceConfigurationTest {
             setAuthorizedNodeCertificates(arc);
         }
         config.persist(arc);
+        Device keycloak = ArchiveDeviceFactory.createKeycloakDevice("keycloak", arrDevice, configType);
+        config.persist(keycloak);
         ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
         assertNotNull(ae);
         assertDeviceEquals(arc, ae.getDevice());
@@ -152,6 +155,9 @@ public class ArchiveDeviceConfigurationTest {
         } catch (ConfigurationNotFoundException e) {}
         try {
             config.removeDevice("logstash");
+        } catch (ConfigurationNotFoundException e) {}
+        try {
+            config.removeDevice("keycloak");
         } catch (ConfigurationNotFoundException e) {}
         try {
             config.removeDevice("hl7rcv");

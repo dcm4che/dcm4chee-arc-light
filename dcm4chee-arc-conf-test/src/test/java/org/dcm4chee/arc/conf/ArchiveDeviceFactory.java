@@ -954,6 +954,16 @@ class ArchiveDeviceFactory {
         device.setPrimaryDeviceTypes("DSS");
         return device;
     }
+
+    public static Device createKeycloakDevice(String name, Device arrDevice, ConfigType configType) {
+        Device device = new Device(name);
+        String keycloakHost = configType == ConfigType.DOCKER ? "keycloak-host" : "localhost";
+        device.setInstalled(true);
+        device.setPrimaryDeviceTypes("AUTH");
+        addAuditLogger(device, arrDevice, keycloakHost);
+        return device;
+    }
+
     public static Device createArchiveDevice(String name, Device arrDevice, ConfigType configType) throws Exception {
         Device device = new Device(name);
         String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
