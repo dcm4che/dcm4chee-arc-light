@@ -2199,4 +2199,17 @@ table.j4care-table {
           width: 46%;
           color: #777; }
 
+.dropdown.contextmenu ul li a {
+  display: inline-block;
+  width: 100%;
+  color: #444; }
+  .dropdown.contextmenu ul li a label {
+    float: left;
+    width: 48%; }
+  .dropdown.contextmenu ul li a span {
+    float: left;
+    text-align: right;
+    width: 46%;
+    color: #777; }
+
 /*# sourceMappingURL=style.css.map */

@@ -1,5 +1,5 @@
 <!--  <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-        clipboard:{{clipboard|json}}
+        lastSelectedObject:{{lastSelectedObject}}
 </pre> -->
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
 <div id="contextmenu" ng-show="showContextMenu">
@@ -13,18 +13,18 @@
 <!-- contextmenu -->
 <div contextmenu="meta.contextmenu" class="dropdown contextmenu">
   <ul class="dropdown-menu" role="menu">
-    <li class="dropdown-header">
-    <!-- Test header -->
+<!--     <li class="dropdown-header">
+    Test header
     {{meta.contextmenu.item.modus}}
-    </li>
+    </li> -->
     <li ng-hide="meta.contextmenu.item.modus === 'patient'" ><a role="menuitem" href="" ng-click="ctrlC(meta.contextmenu.item)"><label>Copy</label><span>Ctrl + c</span></a></li>
     <li><a role="menuitem" href="" ng-click="ctrlV(meta.contextmenu.item)"><label>Paste</label><span>Ctrl + v</span></a></li>
     <li ng-hide="meta.contextmenu.item.modus === 'patient'" ><a role="menuitem" href="" ng-click="ctrlX(meta.contextmenu.item)"><label>Cut</label><span>Ctrl + x</span></a></li>
     <li>
-      <a role="menuitem" tabindex="-1" href ng-click="editTest(meta.contextmenu.item)"
+<!--       <a role="menuitem" tabindex="-1" href ng-click="editTest(meta.contextmenu.item)"
       >
         <span>Edit</span>
-      </a>
+      </a> -->
     </li>
 <!--     <li>
       <a role="menuitem" href

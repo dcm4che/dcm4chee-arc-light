@@ -2328,15 +2328,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         console.log("$scope.clipboard",$scope.clipboard);
     };
     var ctrlV = function(item){
-        console.log("*****ctrl v");
-        console.log("$scope.selected",angular.copy($scope.selected));
-        console.log("$scope.clipboard",$scope.clipboard);
-        console.log("item",item);
         $scope.target = item;
         $templateRequest('templates/copyMoveProcess.html').then(function(tpl) {
-            // console.log("tpl",tpl);
             var html = $compile(tpl)($scope);
-            // console.log("html",html);
             vex.dialog.open({
               message: '<h5>'+$scope.clipboard.action+' process</h5>',
               input: html,
@@ -2402,6 +2396,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     }
                                 );
                         }else{
+                            console.log("$scope.target",$scope.target);
                             angular.forEach($scope.clipboard.selected, function(m, i){
                                 console.log("m",m);
                                 $http.post(
@@ -2507,6 +2502,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.ctrlC = function(item){
         console.log("ctrlC item",item);
+        $timeout(function() {
+            $scope.$apply(function(){
+                $scope.lastSelectedObject = item;
+            });
+        });
+        $scope.lastSelectedObject = item;
         if(item.selected){
             ctrlC();
         }else{
@@ -2516,6 +2517,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
     };
     $scope.ctrlX = function(item){
+        $scope.lastSelectedObject = item;
         if(item.selected){
             ctrlX();
         }else{
@@ -2525,8 +2527,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
     };
     $scope.ctrlV = function(item){
-        // console.log("ctrlV item",item);
-        ctrlV(item);
+        console.log("ctrlV item",item);
+        console.log("$scope.clipboard.selected",$scope.clipboard.selected);
+        console.log("$scope.clipboard.selected length",Object.keys($scope.clipboard.selected).length);
+        if($scope.clipboard && $scope.clipboard.selected && Object.keys($scope.clipboard.selected).length > 0){
+            ctrlV(item);
+        }else{
+            DeviceService.msg($scope, {
+                "title": "No source selected",
+                "text": "0Select something first as source object!<br>(With ctr + LEFT CLICK and ctrl + c or ctrl + x)",
+                "status": "warning"
+            });
+        }
     };
 
     $(document).keydown(function(e){
@@ -2558,7 +2570,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     console.log("$scope.selected",$scope.selected);
                     console.log("$scope.lastSelectedObject",$scope.lastSelectedObject);
                     console.log("$('.vex.vex-theme-os.copymove').length",$('.vex.vex-theme-os.copymove').length);
-                    if($scope.lastSelectedObject){
+                    if($scope.lastSelectedObject && $scope.clipboard && $scope.clipboard.selected && Object.keys($scope.clipboard.selected).length > 0){
                         ctrlV($scope.lastSelectedObject);
                     }
                 }
@@ -2711,6 +2723,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     }
     $scope.select = function(object, modus, keys){
         $scope.anySelected = true;
+        $timeout(function() {
+            $scope.$apply(function(){
+                $scope.lastSelectedObject = object;
+                $scope.lastSelectedObject.modus = modus;
+            });
+        });
         console.log("keys",keys);
         console.log("$scope.selected",$scope.selected);
         console.log("modus",modus);
@@ -2719,8 +2737,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         console.log("$scope.keysdown",$scope.keysdown);
         console.log("$scope.keysdown.length",Object.keys($scope.keysdown).length);
         console.log("$scope.lastSelect",$scope.lastSelect);
-        $scope.lastSelectedObject = object;
-        $scope.lastSelectedObject.modus = modus;
         //0020000D object Instance UID
         //ctrl + click
         if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[17] === true){

@@ -12,7 +12,7 @@
 	<b>{{target.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.attrs['00100020'].Value[0]}}</b><br>
 	(An emty study will be automatically created, so it can be used as target study!)
 </div>
-<div class="targetobject" ng-if="target.modus === 'study'">
+<div class="targetobject" ng-if="target.modus === 'study' || target.modus === 'series' || target.modus === 'instance'">
 	<h5>Selected target study</h5>
 	Study instance UID: <b>{{target.attrs['0020000D'].Value[0]}}</b> from the patient  <b>{{target.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.attrs['00100020'].Value[0]}}</b><br>
 </div>

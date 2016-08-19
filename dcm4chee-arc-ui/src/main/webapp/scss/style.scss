@@ -2986,3 +2986,25 @@ table.j4care-table{
 		}
 	}
 }
+.dropdown.contextmenu{
+	ul{
+		li{
+			a{
+				display: inline-block;
+				width: 100%;
+				// text-indent: 10px;
+				color: #444;
+				label{
+					float: left;
+    				width: 48%;
+				}
+				span{
+					float: left;
+				    text-align: right;
+				    width: 46%;
+				    color: #777;
+				}
+			}
+		}
+	}
+}

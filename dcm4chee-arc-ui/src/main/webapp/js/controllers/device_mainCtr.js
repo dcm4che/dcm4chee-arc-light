@@ -444,9 +444,17 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 }
                 if($scope.devicename === "CHANGE_ME"){
                   $scope.devicename = $scope.wholeDevice.dicomDeviceName;
-                  $scope.devices.push({
-                    "dicomDeviceName":$scope.wholeDevice.dicomDeviceName
-                  })
+                  var deviceIsInArray = false;
+                  angular.forEach($scope.devices, function(m, i){
+                    if(m.dicomDeviceName === $scope.wholeDevice.dicomDeviceName){
+                        deviceIsInArray = true;
+                    }
+                  });
+                  if(!deviceIsInArray){
+                      $scope.devices.push({
+                        "dicomDeviceName":$scope.wholeDevice.dicomDeviceName
+                      })
+                  }
                 }
                 if($scope.currentDevice != $scope.wholeDevice.dicomDeviceName && $scope.currentDevice != "CHANGE_ME"){
 
