@@ -43,20 +43,25 @@ package org.dcm4chee.arc.id.impl;
 import org.dcm4chee.arc.conf.IDGenerator;
 import org.dcm4chee.arc.entity.IDSequence;
 
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
-@Stateless
+@Singleton
 public class IDServiceEJB {
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
+    @Lock(LockType.WRITE)
     public int nextValue(IDGenerator.Name name, int initialValue) {
         IDSequence idSeq = em.find(IDSequence.class, name);
         if (idSeq != null)

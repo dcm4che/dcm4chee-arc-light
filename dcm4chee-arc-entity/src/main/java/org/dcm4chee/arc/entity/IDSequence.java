@@ -77,7 +77,7 @@ public class IDSequence {
         this.nextValue = nextValue;
     }
 
-    public synchronized int nextValue() {
+    public int nextValue() {
         return nextValue++;
     }
 }

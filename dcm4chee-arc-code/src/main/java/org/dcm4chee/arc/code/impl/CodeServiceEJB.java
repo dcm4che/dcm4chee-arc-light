@@ -53,6 +53,7 @@ import javax.persistence.TypedQuery;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 @Stateless
@@ -68,6 +69,7 @@ public class CodeServiceEJB implements CodeService {
         } catch (NoResultException e) {
             CodeEntity entity = new CodeEntity(code);
             em.persist(entity);
+            em.flush();
             return entity;
         }
     }
