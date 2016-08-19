@@ -46,6 +46,8 @@ import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.entity.CodeEntity;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -57,6 +59,7 @@ import javax.persistence.TypedQuery;
  * @since Jul 2015
  */
 @Stateless
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class CodeServiceEJB implements CodeService {
 
     @PersistenceContext(unitName="dcm4chee-arc")
