@@ -697,8 +697,8 @@
                     <a class="table_btn"  ng-show="isRole('admin') && patient.attrs['00201200'].Value[0] === 0" ng-click="deletePatient(patient, patients, patientkey)" href="" title="Delete Patient">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>
-                    <a class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
-                    <a class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
+                    <a ng-if="!(isRole('admin') && patient.attrs['00201200'].Value[0] === 0)" class="table_btn" ng-hide="patient.studies" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
+                    <a ng-if="!(isRole('admin') && patient.attrs['00201200'].Value[0] === 0)" class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
                     <a ng-init="patient.showmwls = true" class="table_btn" ng-show="!patient.showmwls && patient.mwls" ng-click="patient.showmwls = true" href="" title="Show MWLs">&#9658;</a>
                     <a class="table_btn" ng-show="patient.showmwls && patient.mwls" ng-click="patient.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
                 </div>
@@ -774,8 +774,8 @@
                                     <span class="glyphicon glyphicon-save"></span>
                                 </a>
                                 -->
-                                <a ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
-                                <a ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
+                                <a ng-if="!(isRole('admin') && study.attrs['00201208'].Value[0] === 0)" ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
+                                <a ng-if="!(isRole('admin') && study.attrs['00201208'].Value[0] === 0)" ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
                             </div>
                             <div style="width:10.4%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00200010'].Value[0]}}">{{(study.attrs['00200010'].Value[0]) || '&nbsp;'}}</div>
                             <div  style="width:17.3%" tooltip="{{study.attrs['0020000D'].Value[0]}}" test="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt hover_cell" tooltip="{{study.attrs['0020000D'].Value[0]}}">{{(study.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div>

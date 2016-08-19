@@ -1531,6 +1531,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 }).then(
                                     function successCallback(response) {
                                         console.log("response",response);
+                                        DeviceService.msg($scope, {
+                                            "title": "Info",
+                                            "text": "Patient created successfully!",
+                                            "status": "info"
+                                        });
                                     },
                                     function errorCallback(response) {
                                         DeviceService.msg($scope, {
@@ -2348,9 +2353,54 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     console.log("$scope.reject",$scope.reject);
                   return console.log('Cancelled');
                 }else{
-                    if($scope.clipboard.action = "copy"){
+                    if($scope.clipboard.action === "copy"){
                         if($scope.target.modus === "patient"){
-                            //TODO create new study first
+                                var study = {
+                                                "00100020": $scope.target.attrs['00100020'],
+                                                "00200010": { "vr": "SH", "Value":[""]},
+                                                "0020000D": { "vr": "UI", "Value":[""]},
+                                                "00080050": { "vr": "SH", "Value":[""]}
+                                            };
+                                $http({
+                                    method: 'POST',
+                                    url:"../aets/"+$scope.aet+"/rs/studies",
+                                    data:study
+                                }).then(
+                                    function successCallback(response) {
+                                        angular.forEach($scope.clipboard.selected, function(m, i){
+                                            console.log("m",m);
+                                            console.log("i",i);
+                                            $http.post(
+                                                "../aets/"+$scope.aet+"/rs/studies/"+response.data['0020000D'].Value[0]+"/copy",
+                                                m
+                                            ).then(function successCallback(response) {
+                                                console.log("in then function");
+                                                $scope.clipboard = {};
+                                                DeviceService.msg($scope, {
+                                                    "title": "Info",
+                                                    "text": "Object with the Study Instance UID "+m.StudyInstanceUID+" copied successfully!",
+                                                    "status": "info"
+                                                });
+                                                $scope.callBackFree = true;
+                                            }, function errorCallback(response) {
+                                                DeviceService.msg($scope, {
+                                                    "title": "Error",
+                                                    "text": "Error copyng object "+m.StudyInstanceUID,
+                                                    "status": "error"
+                                                });
+                                                $scope.callBackFree = true;
+                                            });
+                                        });                            
+                                    },
+                                    function errorCallback(response) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Error "+response.status,
+                                            "text": response.data.errorMessage,
+                                            "status": "error"
+                                        });
+                                        console.log("response",response);
+                                    }
+                                );
                         }else{
                             angular.forEach($scope.clipboard.selected, function(m, i){
                                 console.log("m",m);
@@ -2359,17 +2409,90 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     m
                                 ).then(function successCallback(response) {
                                     console.log("in then function");
-
+                                    $scope.clipboard = {};
                                     DeviceService.msg($scope, {
                                         "title": "Info",
-                                        "text": "Objects copied successfully!",
+                                        "text": "Object with the Study Instance UID "+$scope.target.attrs['0020000D'].Value[0]+" copied successfully!",
                                         "status": "info"
                                     });
                                     $scope.callBackFree = true;
                                 }, function errorCallback(response) {
                                     DeviceService.msg($scope, {
                                         "title": "Error",
-                                        "text": "Error copyng objects!",
+                                        "text": "Error copyng object "+$scope.target.attrs['0020000D'].Value[0],
+                                        "status": "error"
+                                    });
+                                    $scope.callBackFree = true;
+                                });
+                            });
+                        }
+                    }
+                    if($scope.clipboard.action === "move"){
+                        if($scope.target.modus === "patient"){
+                                var study = {
+                                    "00100020": $scope.target.attrs['00100020'],
+                                    "00200010": { "vr": "SH", "Value":[""]},
+                                    "0020000D": { "vr": "UI", "Value":[""]},
+                                    "00080050": { "vr": "SH", "Value":[""]}
+                                };
+                                $http({
+                                    method: 'POST',
+                                    url:"../aets/"+$scope.aet+"/rs/studies",
+                                    data:study
+                                }).then(
+                                    function successCallback(response) { 
+                                        angular.forEach($scope.clipboard.selected, function(m, i){
+                                            console.log("m",m);
+                                            $http.post(
+                                                "../aets/"+$scope.aet+"/rs/studies/"+response.data['0020000D'].Value[0]+"/move/"+$scope.reject,
+                                                m
+                                            ).then(function successCallback(response) {
+                                                console.log("in then function");
+                                                $scope.clipboard = {};
+                                                DeviceService.msg($scope, {
+                                                    "title": "Info",
+                                                    "text": "Object with the Study Instance UID "+m.StudyInstanceUID+" moved successfully!",
+                                                    "status": "info"
+                                                });
+                                                $scope.callBackFree = true;
+                                            }, function errorCallback(response) {
+                                                DeviceService.msg($scope, {
+                                                    "title": "Error",
+                                                    "text": "Error moving object "+m.StudyInstanceUID,
+                                                    "status": "error"
+                                                });
+                                                $scope.callBackFree = true;
+                                            });
+                                        });                          
+                                    },
+                                    function errorCallback(response) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Error "+response.status,
+                                            "text": response.data.errorMessage,
+                                            "status": "error"
+                                        });
+                                        console.log("response",response);
+                                    }
+                                );
+                        }else{
+                            angular.forEach($scope.clipboard.selected, function(m, i){
+                                console.log("m",m);
+                                $http.post(
+                                    "../aets/"+$scope.aet+"/rs/studies/"+$scope.target.attrs['0020000D'].Value[0]+"/move/"+$scope.reject,
+                                    m
+                                ).then(function successCallback(response) {
+                                    console.log("in then function");
+                                                $scope.clipboard = {};
+                                    DeviceService.msg($scope, {
+                                        "title": "Info",
+                                        "text": "Object with the Study Instance UID "+$scope.target.attrs['0020000D'].Value[0]+" moved successfully!",
+                                        "status": "info"
+                                    });
+                                    $scope.callBackFree = true;
+                                }, function errorCallback(response) {
+                                    DeviceService.msg($scope, {
+                                        "title": "Error",
+                                        "text": "Error moving object "+$scope.target.attrs['0020000D'].Value[0],
                                         "status": "error"
                                     });
                                     $scope.callBackFree = true;
