@@ -1,14 +1,14 @@
 <!--  <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-        lastSelectedObject:{{lastSelectedObject}}
+        filter:{{filter}}
 </pre> -->
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
-<div id="contextmenu" ng-show="showContextMenu">
+<!-- <div id="contextmenu" ng-show="showContextMenu">
     <ul>
         <li><a href=""><label>Copy</label><span>Ctrl + c</span></a></li>
         <li><a href=""><label>Paste</label><span>Ctrl + v</span></a></li>
         <li><a href=""><label>Cut</label><span>Ctrl + x</span></a></li>
     </ul>
-</div>
+</div> -->
 
 <!-- contextmenu -->
 <div contextmenu="meta.contextmenu" class="dropdown contextmenu">
@@ -394,12 +394,12 @@
         </a>
     </div>
 </div>
-<div class="placeholder-35" ng-show="filterMode != 'study' && filterMode != 'mwl'"></div>
-<a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig && (filterMode === 'study' || filterMode === 'mwl')" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig && (filterMode === 'study' || filterMode === 'mwl')" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
+<!-- <div class="placeholder-35"></div> -->
+<a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
 
 <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
-    <div class="col-md-3 block-2-1"  ng-show="filterMode === 'study' || filterMode === 'mwl'">
+    <div class="col-md-3 block-2-1">
 
 <!--         <div class="row">
             <label for="exporter" class="col-md-6 text-right">Export:</label>
@@ -415,6 +415,20 @@
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder="Study description" title="Study description" class="col-md-12" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'patient'">
+                <label title="Onliy patients with studies">
+                    <input type="checkbox" ng-model="filter.withoutstudies" ng-true-value="false" ng-false-value="true"> only with studies
+                </label>
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'patient'">
+                <label>
+                    Patient's Sex
+                    <select
+                        ng-options="o.Value[0] as o.title for o in options.genders track by o.Value[0]"
+                        ng-model="filter.PatientSex">
+                    </select>
+                </label>
             </div>
             <div class="col-md-6" ng-show="filterMode === 'mwl'">
                 <input id="ScheduledProcedureStepStatus" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStatus']" placeholder="SPS Status" title="Scheduled Procedure Step Status" class="col-md-12" />
@@ -491,11 +505,11 @@
     </div>
     <div class="col-md-3 block-2-1" ng-show="filterMode === 'study'">
             <div class="row">
-            <div class="col-md-6" ng-hide="trashaktive">
+<!--             <div class="col-md-6" ng-hide="trashaktive">
                 <label>
                     <input type="checkbox" ng-model="filter.returnempty"> Return empty studies
                 </label>
-            </div>
+            </div> -->
             <div class="col-md-6">
                 <label>
                     <input type="checkbox" ng-model="filter.expired"> Expired studies
@@ -668,7 +682,7 @@
 </div>
 
 <!-- Table -->
-<div id="tableblock" class="div-table animated" ng-class="{extended:(advancedConfig && (filterMode === 'study' || filterMode === 'mwl')),modality:showModalitySelector}" contextmenu-container="meta.contextmenu">
+<div id="tableblock" class="div-table animated" ng-class="{extended:(advancedConfig),modality:showModalitySelector}" contextmenu-container="meta.contextmenu">
 
     <div class="repeat0" contextmenu-item='patient' ng-repeat="(patientkey, patient) in patients" ng-init="patient.hide=false;patient.modus = 'patient'"  ng-click='select(patient,"patient",{"patientkey":patientkey})'>
 <!--         <span ng-show="!patient.hide" class="glyphicon glyphicon-triangle-bottom close_patient" title="Hide this patient" ng-click="patient.hide=true"></span>        

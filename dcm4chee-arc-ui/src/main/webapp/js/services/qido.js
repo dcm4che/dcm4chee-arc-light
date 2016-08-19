@@ -11,6 +11,7 @@ myApp.factory('QidoService', function($http) {
     };
 
     srv.queryPatients = function(url, params) {
+        console.log("srv._config(params)",srv._config(params));
         return $http.get(url + '/patients', srv._config(params));
     };
 

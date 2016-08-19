@@ -3108,13 +3108,21 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         return seriesURL(attrs) + "/instances/" + attrs['00080018'].Value[0];
     }
     function createPatientFilterParams() {
-        return {
-            PatientName: $scope.filter.PatientName,
-            PatientID: $scope.filter.PatientID,
-            IssuerOfPatientID: $scope.filter.IssuerOfPatientID,
-            fuzzymatching: $scope.filter.fuzzymatching,
-            orderby: $scope.filter.orderby !== "-PatientName" ? "PatientName" :  $scope.filter.orderby
-        };
+        var filter = angular.extend({}, $scope.filter);
+        // appendFilter(filter, "PatientName", $scope.filter.PatientName, "");
+        // appendFilter(filter, "PatientID", $scope.filter.PatientID, "");
+        // appendFilter(filter, "IssuerOfPatientID", $scope.filter.IssuerOfPatientID, "");
+        // appendFilter(filter, "fuzzymatching", $scope.filter.fuzzymatching, "");
+        // appendFilter(filter, "orderby", $scope.filter.orderby, /-/g);
+        // return {
+        //     PatientName: $scope.filter.PatientName,
+        //     PatientID: $scope.filter.PatientID,
+        //     IssuerOfPatientID: $scope.filter.IssuerOfPatientID,
+        //     fuzzymatching: $scope.filter.fuzzymatching,
+        //     orderby: $scope.filter.orderby !== "-PatientName" ? "PatientName" :  $scope.filter.orderby
+        // };
+        console.log("filter",filter);
+        return filter;
     }
     function createStudyFilterParams() {
         var filter = angular.extend({}, $scope.filter);
@@ -3149,7 +3157,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             limit: limit
         };
         angular.forEach(filter, function(value, key) {
-            if (value)
+            if (value || value===false)
                 params[key] = value;
         }, params);
         return params;
