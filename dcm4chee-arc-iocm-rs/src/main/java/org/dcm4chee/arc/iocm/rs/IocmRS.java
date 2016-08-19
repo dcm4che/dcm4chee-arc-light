@@ -216,7 +216,7 @@ public class IocmRS {
         JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         Attributes attrs = reader.readDataset(null);
         if (attrs.containsValue(Tag.PatientID))
-            throw new WebApplicationException("Patient ID in message body", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("Patient ID in message body", Response.Status.BAD_REQUEST));
         idService.newPatientID(attrs);
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
         ctx.setAttributes(attrs);
@@ -236,7 +236,7 @@ public class IocmRS {
         ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
         IDWithIssuer bodyPatientID = ctx.getPatientID();
         if (bodyPatientID == null)
-            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
         if (patientID.equals(bodyPatientID)) {
             patientService.updatePatient(ctx);
         } else {

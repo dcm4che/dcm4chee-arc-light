@@ -902,6 +902,8 @@ public class StoreServiceEJB {
         UIDMap newUIDMap = new UIDMap();
         newUIDMap.setUIDMap(uidMap);
         em.persist(newUIDMap);
+        LOG.debug("Persisted uid map is " + newUIDMap + "..." + newUIDMap.toString());
+        em.flush();
         uidMapCache.put(key, newUIDMap);
         return newUIDMap;
     }
