@@ -1,7 +1,7 @@
 "use strict";
 
 myApp.controller('MainController', function ($scope, $location, $http) {
-  $scope.logoutUrl              = myApp.logoutUrl();
+  // $scope.logoutUrl              = myApp.logoutUrl();
   $scope.showUserMenu           = false;
   $scope.msg                    = [];
   $scope.visibleHeaderIndex     = 0;
@@ -14,8 +14,28 @@ myApp.controller('MainController', function ($scope, $location, $http) {
 		}
 			  
 	};
+  // $scope.logoutUrl = function() {
+  //     // var host = location.protocol + "//" + location.host
+  //     var host = $scope.url;
+  //     return host + "/realms/dcm4che/protocol/openid-connect/logout?redirect_uri="
+  //         + encodeURIComponent(host + location.pathname);
+  // }
+  $http({
+      method: 'GET',
+      url: '../auth'
+  }).then(function successCallback(response) {
+    $scope.url  = response.data.url;
+    var host    = location.protocol + "//" + location.host
 
- 
+    $scope.logoutUrl = response.data.url + "/realms/dcm4che/protocol/openid-connect/logout?redirect_uri="
+          + encodeURIComponent(host + location.pathname);
+  }, function errorCallback(response) {
+      // vex.dialog.alert("Error loading device names, please reload the page and try again!");
+      $scope.url = "/auth";
+      var host = location.protocol + "//" + location.host
+      $scope.logoutUrl =  host + "/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri="
+          + encodeURIComponent(host + location.pathname);
+  });  
 
   $http({
       method: 'GET',

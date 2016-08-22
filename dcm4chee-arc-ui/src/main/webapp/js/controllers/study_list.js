@@ -1,7 +1,7 @@
 "use strict";
 
 myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService,  $filter, $templateRequest, $timeout) {
-    $scope.logoutUrl = myApp.logoutUrl();
+    // $scope.logoutUrl = myApp.logoutUrl();
     $scope.patients = [];
     $scope.mwl = [];
     $scope.iod = {};

@@ -3,7 +3,7 @@
 myApp.controller('ArchiveCtrl', function (cfpLoadingBar, $scope, $http, DeviceService) {
 
     $scope.updaterate = 3;
-    $scope.logoutUrl = myApp.logoutUrl();
+    // $scope.logoutUrl = myApp.logoutUrl();
     $scope.status = null;
     $scope.stopLoop = true;
     $scope.message = '';
