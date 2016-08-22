@@ -125,7 +125,8 @@ import java.util.Date;
         @Index(columnList = "study_custom1"),
         @Index(columnList = "study_custom2"),
         @Index(columnList = "study_custom3"),
-        @Index(columnList = "expiration_date")
+        @Index(columnList = "expiration_date"),
+        @Index(columnList = "failed_retrieves")
 })
 public class Study {
 

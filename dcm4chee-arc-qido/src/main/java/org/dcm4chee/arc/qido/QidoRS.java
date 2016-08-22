@@ -447,7 +447,8 @@ public class QidoRS {
                 else if (key.equals("orderby"))
                     addOrderByTag(entry.getValue());
                 else if (!key.equals("offset") && !key.equals("limit") && !key.equals("withoutstudies")
-                        && !key.equals("fuzzymatching") && !key.equals("returnempty") && !key.equals("expired"))
+                        && !key.equals("fuzzymatching") && !key.equals("returnempty") && !key.equals("expired")
+                        && !key.equals("retrievefailed"))
                     addQueryKey(key, entry.getValue());
             }
         }

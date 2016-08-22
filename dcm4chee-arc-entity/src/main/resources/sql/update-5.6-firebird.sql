@@ -30,3 +30,6 @@ create index FK_bfk5vl6eoxaf0hhwiu3rbgmkn on location (uidmap_fk) ;
 --to be checked--
 
 create generator uidmap_pk_seq;
+
+create index UK_j6aadbh7u93bpmv18s1inrl1r on series (failed_retrieves);
+create index UK_9qvng5j8xnli8yif7p0rjngb2 on study (failed_retrieves);
