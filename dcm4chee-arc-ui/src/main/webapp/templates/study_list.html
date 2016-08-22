@@ -396,8 +396,8 @@
     </div>
 </div>
 <!-- <div class="placeholder-35"></div> -->
-<a href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
+<a href="" ng-click="advancedConfig=true;extendedFilter(true)" ng-show="!advancedConfig" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+<a href="" ng-click="advancedConfig=false;extendedFilter(false)" ng-show="advancedConfig" class="more ng-hide">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
 
 <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
     <div class="col-md-3 block-2-1">

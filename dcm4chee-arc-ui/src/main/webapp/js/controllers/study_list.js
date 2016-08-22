@@ -2136,6 +2136,34 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             cfpLoadingBar.complete();
         });
     };
+    $scope.$watchCollection('filter.orderby', function(newValue, oldValue){
+        console.log("orderby changed");
+        $scope.extendedFilter(true);
+    }); 
+    $scope.extendedFilter = function(bool){
+        console.log("$('.headerblock')",$('.headerblock').height());
+        console.log("$('.headerblock')",$('.headerblock').outerHeight());
+        console.log("$('.div-table *').length",$('.div-table *').length);
+        if($('.div-table *').length > 0){
+            $('.div-table').removeAttr( 'style' );
+            setTimeout(function() {
+                $scope.$apply(function(){
+                    // $scope.advancedConfig = bool;
+                    setTimeout(function() {
+
+                        var marginTop = $('.div-table').css('margin-top');
+                        if(marginTop){
+                            marginTop = marginTop.replace(/[^0-9]/g, '');
+                            var outerHeight = $('.headerblock').outerHeight();
+                            if(marginTop && marginTop < outerHeight && $scope.advancedConfig === true){
+                                $('.div-table.extended').css('margin-top', outerHeight);
+                            }
+                        }
+                    }, 50);
+                });
+            });
+        }
+    }
     $scope.exportStudy = function(study) {
             var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
             vex.dialog.open({
