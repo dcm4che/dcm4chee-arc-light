@@ -99,7 +99,7 @@ class QueryServiceImpl implements QueryService {
                 newQueryParam(ae,
                         queryOpts.contains(QueryOption.DATETIME),
                         queryOpts.contains(QueryOption.FUZZY),
-                        false, false, false, true, false, false),
+                        false, false, false, true, false, false, false, false),
                 this);
     }
 
@@ -107,18 +107,19 @@ class QueryServiceImpl implements QueryService {
     public QueryContext newQueryContextQIDO(
             HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
             boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies,
-            boolean incomplete, boolean incompleteSeries) {
+            boolean incomplete, boolean incompleteSeries, boolean retrieveFailed, boolean retrieveFailedSeries) {
         return new QueryContextImpl(httpRequest, searchMethod, ae,
                 newQueryParam(ae, true, fuzzyMatching, returnEmpty, expired, expiredSeries, withoutStudies,
-                        incomplete, incompleteSeries),
+                        incomplete, incompleteSeries, retrieveFailed, retrieveFailedSeries),
                 this);
     }
 
     private QueryParam newQueryParam(
             ApplicationEntity ae, boolean datetimeMatching, boolean fuzzyMatching, boolean returnEmpty,
-            boolean expired, boolean expiredSeries, boolean withoutStudies, boolean incomplete, boolean incompleteSeries) {
+            boolean expired, boolean expiredSeries, boolean withoutStudies, boolean incomplete, boolean incompleteSeries,
+            boolean retrieveFailed, boolean retrieveFailedSeries) {
         QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching, returnEmpty, expired, expiredSeries,
-                                withoutStudies, incomplete, incompleteSeries);
+                                withoutStudies, incomplete, incompleteSeries, retrieveFailed, retrieveFailedSeries);
         QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
         queryParam.setHideRejectionNotesWithCode(
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
@@ -187,7 +188,7 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyUID, null, null, newQueryParam(ae, false, false, false, false, false, true, false, false),
+                studyUID, null, null, newQueryParam(ae, false, false, false, false, false, true, false, false, false, false),
                 seriesAttrs, false);
     }
 
@@ -195,7 +196,7 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false, false, false, true, false, false),
+                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false, false, false, true, false, false, false, false),
                 null, availability);
     }
 
