@@ -208,6 +208,10 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String withoutstudies;
 
+    @QueryParam("incomplete")
+    @Pattern(regexp = "true|false")
+    private String incomplete;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -383,7 +387,8 @@ public class QidoRS {
         QueryContext ctx = service.newQueryContextQIDO(request, method, getApplicationEntity(),
                 Boolean.parseBoolean(fuzzymatching), Boolean.parseBoolean(returnempty), Boolean.parseBoolean(expired),
                 model == Model.SERIES && Boolean.parseBoolean(expired),
-                withoutstudies == null || Boolean.parseBoolean(withoutstudies));
+                withoutstudies == null || Boolean.parseBoolean(withoutstudies),
+                Boolean.parseBoolean(incomplete), model == Model.SERIES && Boolean.parseBoolean(incomplete));
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)
