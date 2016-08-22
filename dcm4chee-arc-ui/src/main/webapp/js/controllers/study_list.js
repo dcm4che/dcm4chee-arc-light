@@ -1941,7 +1941,15 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.morePatients = undefined;
             $scope.moreStudies = undefined;
             if(res.data != ""){
+                //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
+                var index = 0;
+                while($scope.attributeFilters.Patient.dcmTag[index] < 2101760){
+                    index++;
+                }
+                $scope.attributeFilters.Patient.dcmTag.splice(index, 0, 2101760);
+
                 var pat, study, patAttrs, tags = $scope.attributeFilters.Patient.dcmTag;
+                
                 res.data.forEach(function (studyAttrs, index) {
                     patAttrs = {};
                     extractAttrs(studyAttrs, tags, patAttrs);
