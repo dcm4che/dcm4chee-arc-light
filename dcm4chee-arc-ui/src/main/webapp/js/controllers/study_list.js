@@ -14,6 +14,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.showContextMenu = false;
     $scope.cotextMenuEventActive = false;
     $scope.anySelected = false;
+    $scope.queryMode = "queryStudies";
 //   $scope.studies = [];
     // $scope.allhidden = false;
     $scope.clipboard = {};
@@ -571,17 +572,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studykey+'].attrs"></attribute-list>')($scope);
                                         $(id).html(attribute);
                                     }else{
-                                        if($scope.patientmode){
-                                            $timeout(function() {
-                                                angular.element("#querypatients").trigger('click');
-                                            }, 0);
-                                            // $scope.queryPatients(0);
-                                        }else{
-                                            // $scope.queryStudies(0);
-                                            $timeout(function() {
-                                                angular.element("#querystudies").trigger('click');
-                                            }, 0);
-                                        }
+                                        // if($scope.patientmode){
+                                        //     $timeout(function() {
+                                        //         angular.element("#querypatients").trigger('click');
+                                        //     }, 0);
+                                        //     // $scope.queryPatients(0);
+                                        // }else{
+                                        //     // $scope.queryStudies(0);
+                                        //     $timeout(function() {
+                                        //         angular.element("#querystudies").trigger('click');
+                                        //     }, 0);
+                                        // }
+                                        fireRightQuery();
                                     }
                                     DeviceService.msg($scope, {
                                         "title": "Info",
@@ -1048,9 +1050,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].mwls['+mwlkey+'].attrs"></attribute-list>')($scope);
                                         $(id).html(attribute);
                                     }else{
-                                            $timeout(function() {
-                                                angular.element("#querymwl").trigger('click');
-                                            }, 0);
+                                            // $timeout(function() {
+                                            //     angular.element("#querymwl").trigger('click');
+                                            // }, 0);
+                                            fireRightQuery();
                                         // if($scope.patientmode){
                                         //     // $scope.queryPatients(0);
                                         // }else{
@@ -1490,17 +1493,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
                                     $(id).html(attribute);
                                 }else{
-                                    if($scope.patientmode){
-                                        $timeout(function() {
-                                            angular.element("#querypatients").trigger('click');
-                                        }, 0);
-                                        // $scope.queryPatients(0);
-                                    }else{
-                                        // $scope.queryStudies(0);
-                                        $timeout(function() {
-                                            angular.element("#querystudies").trigger('click');
-                                        }, 0);
-                                    }
+                                    // if($scope.patientmode){
+                                    //     $timeout(function() {
+                                    //         angular.element("#querypatients").trigger('click');
+                                    //     }, 0);
+                                    //     // $scope.queryPatients(0);
+                                    // }else{
+                                    //     // $scope.queryStudies(0);
+                                    //     $timeout(function() {
+                                    //         angular.element("#querystudies").trigger('click');
+                                    //     }, 0);
+                                    // }
+                                    fireRightQuery();
                                 }
                                 // $scope.dateplaceholder = {};
                                 // console.log("data",data);
@@ -1890,8 +1894,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
         cfpLoadingBar.complete();
     });
-
+        
     $scope.queryPatients = function(offset) {
+        queryPatients(offset);
+    }
+    var queryPatients = function(offset){
+        $scope.queryMode = "queryPatients";
+        $scope.moreStudies = undefined;
+        $scope.moreMWL = undefined;
         cfpLoadingBar.start();
         if (offset < 0) offset = 0;
         QidoService.queryPatients(
@@ -1928,8 +1938,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             cfpLoadingBar.complete();
         });
     };
+        
     $scope.queryStudies = function(offset) {
-
+        queryStudies(offset);
+    };
+    var queryStudies = function(offset){
+        $scope.queryMode = "queryStudies";
+        $scope.moreMWL = undefined;
+        $scope.morePatients = undefined;
         cfpLoadingBar.start();
         if (offset < 0 || offset === undefined) offset = 0;
         QidoService.queryStudies(
@@ -2184,6 +2200,45 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             });
 
     };
+    $scope.deleteMWL = function(mwl){
+        // console.log("mwl",mwl);
+        // /00401001
+        cfpLoadingBar.start();
+        vex.dialog.confirm({
+          message: 'Are you sure you want to delete this MWL?',
+          callback: function(value) {
+            //DELETE /aets/{aet}/rs/mwlitems/{studyUID}/{spsID
+            if(value){
+                $http({
+                    method: 'DELETE',
+                    url:"../aets/"+$scope.aet+"/rs/mwlitems/" + mwl.attrs["0020000D"].Value[0] + "/" + mwl.attrs["00400100"].Value[0]["00400009"].Value[0],
+                }).then(
+                    function successCallback(response) {
+                        DeviceService.msg($scope, {
+                            "title": "Info",
+                            "text": "MWL deleted successfully!",
+                            "status": "info"
+                        });
+                        fireRightQuery();
+                        console.log("response",response);
+                        cfpLoadingBar.complete();
+                    },
+                    function errorCallback(response) {
+                        DeviceService.msg($scope, {
+                            "title": "Error",
+                            "text": "Error deleting study!",
+                            "status": "error"
+                        });
+                        cfpLoadingBar.complete();
+                    }
+                );
+            }else{
+                $log.log("deleting canceled");
+                cfpLoadingBar.complete();
+            }
+          }
+        });
+    }
     $scope.deleteStudy = function(study){
         cfpLoadingBar.start();
         console.log("study",study);
@@ -2203,6 +2258,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 "status": "info"
                             });
                             console.log("response",response);
+                            fireRightQuery();
                             cfpLoadingBar.complete();
                         },
                         function errorCallback(response) {
@@ -2253,6 +2309,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     patients.splice(patientkey,1);
                                     angular.element("#querypatients").trigger('click');
                             });
+                            fireRightQuery();
                             console.log("response",response);
                             cfpLoadingBar.complete();
                         },
@@ -2541,9 +2598,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
     };
     $scope.ctrlV = function(item){
-        console.log("ctrlV item",item);
-        console.log("$scope.clipboard.selected",$scope.clipboard.selected);
-        console.log("$scope.clipboard.selected length",Object.keys($scope.clipboard.selected).length);
+        // console.log("ctrlV item",item);
+        // console.log("$scope.clipboard.selected",$scope.clipboard.selected);
+        // console.log("$scope.clipboard.selected length",Object.keys($scope.clipboard.selected).length);
         if($scope.clipboard && $scope.clipboard.selected && Object.keys($scope.clipboard.selected).length > 0){
             ctrlV(item);
         }else{
@@ -2572,7 +2629,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $timeout(function() {
             $scope.$apply(function(){
                 $scope.keysdown[e.keyCode] = true;
-                console.log("$scope.keysdown",$scope.keysdown);
                 //ctrl + c clicked
                 if($scope.keysdown[17]===true && $scope.keysdown[67]===true){
                     console.log("ctrl + c");
@@ -2580,10 +2636,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }
                 //ctrl + v clicked
                 if($scope.keysdown[17]===true && $scope.keysdown[86]===true){
-                    console.log("ctrl + v");
-                    console.log("$scope.selected",$scope.selected);
-                    console.log("$scope.lastSelectedObject",$scope.lastSelectedObject);
-                    console.log("$('.vex.vex-theme-os.copymove').length",$('.vex.vex-theme-os.copymove').length);
                     if($scope.lastSelectedObject && $scope.clipboard && $scope.clipboard.selected && Object.keys($scope.clipboard.selected).length > 0){
                         ctrlV($scope.lastSelectedObject);
                     }
@@ -2743,14 +2795,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 $scope.lastSelectedObject.modus = modus;
             });
         });
-        console.log("keys",keys);
-        console.log("$scope.selected",$scope.selected);
-        console.log("modus",modus);
-        console.log("object",object);
-        console.log("$scope.pressedKey",$scope.pressedKey);
-        console.log("$scope.keysdown",$scope.keysdown);
-        console.log("$scope.keysdown.length",Object.keys($scope.keysdown).length);
-        console.log("$scope.lastSelect",$scope.lastSelect);
         //0020000D object Instance UID
         //ctrl + click
         if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[17] === true){
@@ -3064,6 +3108,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }else{
                 $http.delete('../reject/' + $scope.reject,{params: StudiesService.getParams($scope)}).then(function (res) {
                     cfpLoadingBar.complete();
+                    fireRightQuery();
                 },
                 function errorCallback(response) {
                     DeviceService.msg($scope, {
@@ -3319,6 +3364,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     //     });
     // });
     $scope.queryMWL = function(offset){
+        queryMWL(offset);
+    }
+    $scope.fireRightQuery = function(){
+        fireRightQuery();
+    }
+    var fireRightQuery = function(){
+        $scope[$scope.queryMode]();
+    }
+    var queryMWL = function(offset){
+        $scope.queryMode = "queryMWL";
+        $scope.moreStudies = undefined;
+        $scope.morePatients = undefined;
         if (offset < 0 || offset === undefined) offset = 0;
         cfpLoadingBar.start();
         QidoService.queryMwl(

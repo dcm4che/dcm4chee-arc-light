@@ -1,5 +1,6 @@
 <!--  <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-        filter:{{filter}}
+        queryMode:{{queryMode}}
+        <button ng-click="fireRightQuery()">{{queryMode}}</button>
 </pre> -->
 <!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
 <!-- <div id="contextmenu" ng-show="showContextMenu">
@@ -512,7 +513,17 @@
             </div> -->
             <div class="col-md-6">
                 <label>
-                    <input type="checkbox" ng-model="filter.expired"> Expired studies
+                    <input type="checkbox" ng-model="filter.expired"> Only expired studies
+                </label>
+            </div>
+            <div class="col-md-6">
+                <label title="Show only incomplete studies">
+                    <input type="checkbox" ng-model="filter.incomplete"> Only incomplete
+                </label>
+            </div>
+            <div class="col-md-6">
+                <label title="Show only incomplete studies">
+                    <input type="checkbox" ng-model="filter.retrievefailed"> Only faild to retrieved
                 </label>
             </div>
         </div>
@@ -1010,6 +1021,9 @@
                                 </a>
                                 <a ng-click="editMWL(patients[patientkey], patientkey, mwlkey, mwl)" href="" title="Edit MWL">
                                     <span class="glyphicon glyphicon-pencil"></span>
+                                </a>
+                                <a ng-click="deleteMWL(mwl)" href="" title="Delete MWL">
+                                    <span class="glyphicon glyphicon-remove"></span>
                                 </a>
 <!--                                 <a ng-click="exportStudy(mwl)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
                                     <span class="glyphicon glyphicon-export"></span>
