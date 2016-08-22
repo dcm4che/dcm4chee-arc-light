@@ -314,6 +314,10 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
         if (queryParam.isExpired() && !queryParam.isExpiredSeries())
             builder.and(QStudy.study.expirationDate.loe(LocalDate.now().toString()));
+        if (queryParam.isIncomplete() && !queryParam.isIncompleteSeries())
+            builder.and(QStudy.study.failedSOPInstanceUIDList.isNotNull());
+        if (queryParam.isRetrieveFailed() && !queryParam.isRetrieveFailedSeries())
+            builder.and(QStudy.study.failedRetrieves.gt(0));
     }
 
     public static Predicate accessControl(String[] accessControlIDs) {
@@ -375,6 +379,10 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
         if (queryParam.isExpiredSeries())
             builder.and(QSeries.series.expirationDate.loe(LocalDate.now().toString()));
+        if (queryParam.isIncompleteSeries())
+            builder.and(QSeries.series.failedSOPInstanceUIDList.isNotNull());
+        if (queryParam.isRetrieveFailedSeries())
+            builder.and(QSeries.series.failedRetrieves.gt(0));
     }
 
     public static HibernateQuery<Tuple> applyInstanceLevelJoins(

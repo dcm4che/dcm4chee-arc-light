@@ -65,7 +65,8 @@ public interface QueryService {
 
     QueryContext newQueryContextQIDO(
             HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-            boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies);
+            boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies,
+            boolean incomplete, boolean incompleteSeries, boolean retrieveFailed, boolean retrieveFailedSeries);
 
     Query createQuery(QueryContext ctx, QueryRetrieveLevel2 qrLevel);
 

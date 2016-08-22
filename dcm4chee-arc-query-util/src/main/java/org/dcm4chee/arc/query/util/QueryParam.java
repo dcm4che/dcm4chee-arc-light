@@ -63,9 +63,14 @@ public class QueryParam {
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
     private final boolean withoutStudies;
+    private final boolean incomplete;
+    private final boolean incompleteSeries;
+    private final boolean retrieveFailed;
+    private final boolean retrieveFailedSeries;
 
     public QueryParam(ApplicationEntity ae, boolean combinedDatetimeMatching, boolean fuzzySemanticMatching,
-                      boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies) {
+                      boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies,
+                      boolean incomplete, boolean incompleteSeries, boolean retrieveFailed, boolean retrieveFailedSeries) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
@@ -75,6 +80,10 @@ public class QueryParam {
         this.expired = expired;
         this.expiredSeries = expiredSeries;
         this.withoutStudies = withoutStudies;
+        this.incomplete = incomplete;
+        this.incompleteSeries = incompleteSeries;
+        this.retrieveFailed = retrieveFailed;
+        this.retrieveFailedSeries = retrieveFailedSeries;
     }
 
     public String getAETitle() {
@@ -155,5 +164,21 @@ public class QueryParam {
 
     public boolean isWithoutStudies() {
         return withoutStudies;
+    }
+
+    public boolean isIncomplete() {
+        return incomplete;
+    }
+
+    public boolean isIncompleteSeries() {
+        return incompleteSeries;
+    }
+
+    public boolean isRetrieveFailed() {
+        return retrieveFailed;
+    }
+
+    public boolean isRetrieveFailedSeries() {
+        return retrieveFailedSeries;
     }
 }
