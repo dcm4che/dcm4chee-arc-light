@@ -29,3 +29,9 @@ alter table location add constraint FK_bfk5vl6eoxaf0hhwiu3rbgmkn foreign key (ui
 create index FK_bfk5vl6eoxaf0hhwiu3rbgmkn on location (uidmap_fk) ;
 create sequence uidmap_pk_seq;
 --to be checked--
+
+create index UK_j6aadbh7u93bpmv18s1inrl1r on series (failed_retrieves);
+create index UK_9qvng5j8xnli8yif7p0rjngb2 on study (failed_retrieves);
+
+create index UK_twtj9t0jbl07buyisdtvqrpy on series (failed_iuids);
+create index UK_btfu9p1kwhrr444muytvxguci on study (failed_iuids);
