@@ -190,14 +190,28 @@
           {
             "name": "returnempty",
             "in": "query",
-            "description": "return empty Studies",
+            "description": "return also empty Studies",
             "type": "boolean",
             "default": false
           },
           {
             "name": "expired",
             "in": "query",
-            "description": "return expired Studies",
+            "description": "return only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "return only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "return only Studies which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
           },
@@ -337,7 +351,28 @@
           {
             "name": "returnempty",
             "in": "query",
-            "description": "return empty Series",
+            "description": "return also empty Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "return only expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "return only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "return only Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
           },
@@ -345,13 +380,6 @@
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "return expired Series",
             "type": "boolean",
             "default": false
           },
@@ -438,7 +466,28 @@
           {
             "name": "returnempty",
             "in": "query",
-            "description": "return empty Series",
+            "description": "return also empty Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "return only expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "return only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "return only Series which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
           },
@@ -446,13 +495,6 @@
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "return expired Series",
             "type": "boolean",
             "default": false
           },
