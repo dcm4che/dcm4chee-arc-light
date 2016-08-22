@@ -104,6 +104,13 @@ public class ConfigurationRS {
     }
 
     @GET
+    @Path("/auth")
+    @Produces("application/json")
+    public String getAuthServerURL() throws Exception {
+        return "{\"url\":\"" + System.getProperty("auth-server-url", "/auth") + "\"}";
+    }
+
+    @GET
     @Path("/devices")
     @Produces("application/json")
     public StreamingOutput listDevices() throws Exception {

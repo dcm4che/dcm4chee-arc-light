@@ -145,6 +145,29 @@
         }
       }
     },
+    "/auth": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Get Base URL of Auth Server",
+        "operationId": "getAuthServerURL",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Base URL of Auth Server",
+            "schema": {
+              "$ref": "#/definitions/URL"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/devicename": {
       "get": {
         "tags": [
@@ -1892,6 +1915,17 @@
             "STARTED",
             "STOPPED"
           ]
+        }
+      }
+    },
+    "URL": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string"
         }
       }
     },
