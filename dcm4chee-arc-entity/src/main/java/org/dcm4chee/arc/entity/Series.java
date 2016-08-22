@@ -147,7 +147,8 @@ import java.util.Date;
         @Index(columnList = "series_custom2"),
         @Index(columnList = "series_custom3"),
         @Index(columnList = "expiration_date"),
-        @Index(columnList = "failed_retrieves")
+        @Index(columnList = "failed_retrieves"),
+        @Index(columnList = "failed_iuids")
 })
 public class Series {
 
