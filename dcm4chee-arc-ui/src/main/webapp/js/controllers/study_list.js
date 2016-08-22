@@ -84,43 +84,43 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.orderby = [
         {
             value:"PatientName",
-            label:"<label>Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>",
+            label:"<label title=\"Patient\">Patient</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span>",
             mode:"patient"
         },
         {
             value:"-PatientName",
-            label:"<label>Patient</label><span class=\"orderbynamedesc\"></span>",
+            label:"<label title=\"Patient\">Patient</label><span class=\"orderbynamedesc\"></span>",
             mode:"patient"
         },
         {
 
             value:"StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"orderbydateasc\"></span>",
+            label:"<label title=\"Study\">Study</label><span class=\"orderbydateasc\"></span>",
             mode:"study"
         },
         {
             value:"-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"orderbydatedesc\"></span>",
+            label:"<label title=\"Study\">Study</label><span class=\"orderbydatedesc\"></span>",
             mode:"study"
         },
         {
             value:"PatientName,StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>",
+            label:"<label title=\"Study\">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>",
             mode:"study"
         },
         {
             value:"-PatientName,StudyDate,StudyTime",
-            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>",
+            label:"<label title=\"Study\">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>",
             mode:"study"
         },
         {
             value:"PatientName,-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>",
+            label:"<label title=\"Study\">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>",
             mode:"study"
         },
         {
             value:"-PatientName,-StudyDate,-StudyTime",
-            label:"<label>Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
+            label:"<label title=\"Study\">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
             mode:"study"
         },
         {
