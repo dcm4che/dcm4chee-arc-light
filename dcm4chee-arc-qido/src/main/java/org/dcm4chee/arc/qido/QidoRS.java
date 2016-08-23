@@ -442,14 +442,26 @@ public class QidoRS {
             MultivaluedMap<String, String> map = info.getQueryParameters();
             for (Map.Entry<String, List<String>> entry : map.entrySet()) {
                 String key = entry.getKey();
-                if (key.equals("includefield"))
-                    addIncludeTag(entry.getValue());
-                else if (key.equals("orderby"))
-                    addOrderByTag(entry.getValue());
-                else if (!key.equals("offset") && !key.equals("limit") && !key.equals("withoutstudies")
-                        && !key.equals("fuzzymatching") && !key.equals("returnempty") && !key.equals("expired")
-                        && !key.equals("retrievefailed") && !key.equals("incomplete"))
-                    addQueryKey(key, entry.getValue());
+                switch (key) {
+                    case "includefield":
+                        addIncludeTag(entry.getValue());
+                        break;
+                    case "orderby":
+                        addOrderByTag(entry.getValue());
+                        break;
+                    case "offset":
+                    case "limit":
+                    case "withoutstudies":
+                    case "fuzzymatching":
+                    case "returnempty":
+                    case "expired":
+                    case "retrievefailed":
+                    case "incomplete":
+                        break;
+                    default:
+                        addQueryKey(key, entry.getValue());
+                        break;
+                }
             }
         }
 
