@@ -280,6 +280,31 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             }
             cfpLoadingBar.complete();
         },
+        updateBirthDate : function(birthDate, scope){
+
+            if(birthDate.object){
+                var timestampFrom   = Date.parse(birthDate.object);
+                var d1From          = new Date(timestampFrom);
+                var yyyyFrom        = d1From.getFullYear();
+                var MMFrom          = d1From.getMonth()+1;
+                var ddFrom          = d1From.getDate();
+                if(MMFrom<10){
+                    MMFrom = '0'+MMFrom;
+                }
+                if(ddFrom<10){
+                    ddFrom = '0'+ddFrom;
+                }
+                // birthDate.filter      = yyyyFrom+MMFrom+ddFrom;
+                scope.filter.PatientBirthDate = yyyyFrom+MMFrom+ddFrom;
+                // scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].filter = yyyyFrom+MMFrom+ddFrom;
+            }else{
+                if(scope.filter.PatientBirthDate){
+                    delete scope.filter.PatientBirthDate;
+                }
+            }
+
+            cfpLoadingBar.complete();
+        },
         updateToDate : function(studyDate, scope){
         	if(studyDate.toObject){
                 var timestampTo   = Date.parse(studyDate.toObject);

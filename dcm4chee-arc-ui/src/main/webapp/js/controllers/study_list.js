@@ -186,9 +186,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     // });
     //Remove from clipboard
     $scope.removeClipboardElement = function(modus, keys){
-        console.log("$scope.clipboard",$scope.clipboard);
-        console.log("modus",modus);
-        console.log("keys",keys);
+        // console.log("$scope.clipboard",$scope.clipboard);
+        // console.log("modus",modus);
+        // console.log("keys",keys);
         switch(modus) {
             case "study":
                 delete $scope.clipboard.selected[keys.studykey];
@@ -1616,6 +1616,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $scope.studyTime.toObject = null;
         $scope.studyTime.from = "";
         $scope.studyTime.to = "";
+        $scope.birthDate = {};
+        $scope.birthDate.object = null;
+        $scope.birthDate.opened = false;
         $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].fromObject = null;
         $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].toObject = null;
         $scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].from = "";
@@ -1732,6 +1735,17 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         }, 10);
     };
+    $scope.birthDateOpen = function() {
+        cfpLoadingBar.start();
+        $scope.birthDate.opened = true;
+        var watchPicker = setInterval(function(){ 
+                                //uib-datepicker-popup uib-close
+            if(angular.element(".uib-datepicker-popup .uib-close").length > 0){
+                clearInterval(watchPicker);
+                cfpLoadingBar.complete();
+            }
+        }, 10);
+    };
 
     $scope.opendateplaceholder = function(t, vr) {
         // console.log("t",t);
@@ -1777,6 +1791,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
           }
     };
 
+    $scope.$watchCollection('birthDate', function(newValue, oldValue){
+        if(newValue && oldValue &&  newValue.object != oldValue.object){
+            StudiesService.updateBirthDate($scope.birthDate, $scope);  
+        }
+    })
     $scope.$watchCollection('studyDate', function(newValue, oldValue){
         cfpLoadingBar.start();
         if(newValue.fromObject != oldValue.fromObject){
@@ -3116,6 +3135,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     }
     function createPatientFilterParams() {
         var filter = angular.extend({}, $scope.filter);
+
         // appendFilter(filter, "PatientName", $scope.filter.PatientName, "");
         // appendFilter(filter, "PatientID", $scope.filter.PatientID, "");
         // appendFilter(filter, "IssuerOfPatientID", $scope.filter.IssuerOfPatientID, "");

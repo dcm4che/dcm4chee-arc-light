@@ -430,6 +430,7 @@
                 <input id="ScheduledProcedureStepSequence" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledProcedureStepDescription']" placeholder="SPS Description" title="Scheduled Procedure Step Description" class="col-md-12" />
             </div>
         </div>    
+
 <!--         <div class="row">
             <div class="col-md-6 col-md-offset-6">
                 <input id="SeriesDescription" type="text" ng-model="filter.SeriesDescription" placeholder=" Series Description" class="col-md-12" />
@@ -460,7 +461,7 @@
         </div> -->
 
     </div>
-    <div class="col-md-3 block-2-1" ng-show="filterMode === 'study'|| filterMode === 'mwl'">
+    <div class="col-md-3 block-2-1">
         <!-- <div class="row" ng-show="user.isRole('admin')"> -->
 <!--             <label for="reject" class="block_seid text-right">Reject:</label>
             <div class="block_seid"> -->
@@ -482,6 +483,20 @@
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'|| filterMode === 'mwl'">
                 <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12 clearable" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'patient'">
+<!--                 <input id="PatientBirthDate" ng-model="birthDate.filter" type="hiden" ng-model="filter.PatientBirthDate" />
+ -->                <input 
+                        class="col-md-12"
+                        placeholder="Patient's Birth Date" 
+                        ng-click="birthDateOpen()" 
+                        id="birthDate" 
+                        type="text" 
+                        uib-datepicker-popup="{{format}}" 
+                        ng-model="birthDate.object" 
+                        is-open="birthDate.opened" 
+                        datepicker-options="dateOptions"
+                        close-text="Close"/>
             </div>
         </div>
 <!--         <div class="row">
