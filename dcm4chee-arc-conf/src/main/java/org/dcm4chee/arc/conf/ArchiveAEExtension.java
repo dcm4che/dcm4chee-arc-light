@@ -47,7 +47,6 @@ import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 
 import java.io.File;
-import java.security.AccessControlContext;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -86,7 +85,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Pattern storePermissionServiceResponsePattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
-    private AllowDeleteStudy allowDeleteStudy;
+    private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -569,19 +568,19 @@ public class ArchiveAEExtension extends AEExtension {
         return attributeCoercions;
     }
 
-    public AllowDeleteStudy getAllowDeleteStudy() {
-        return allowDeleteStudy;
+    public AllowDeleteStudyPermanently getAllowDeleteStudyPermanently() {
+        return allowDeleteStudyPermanently;
     }
 
-    public void setAllowDeleteStudy(AllowDeleteStudy allowDeleteStudy) {
-        this.allowDeleteStudy = allowDeleteStudy;
+    public void setAllowDeleteStudyPermanently(AllowDeleteStudyPermanently allowDeleteStudyPermanently) {
+        this.allowDeleteStudyPermanently = allowDeleteStudyPermanently;
     }
 
-    public AllowDeleteStudy allowDeleteStudy() {
-        return allowDeleteStudy != null
-                ? allowDeleteStudy
-                : StringUtils.maskNull(getArchiveDeviceExtension().getAllowDeleteStudy(),
-                AllowDeleteStudy.EMPTY_OR_ALL_INSTANCES_REJECTED);
+    public AllowDeleteStudyPermanently allowDeleteStudy() {
+        return allowDeleteStudyPermanently != null
+                ? allowDeleteStudyPermanently
+                : StringUtils.maskNull(getArchiveDeviceExtension().getAllowDeleteStudyPermanently(),
+                AllowDeleteStudyPermanently.REJECTED);
     }
 
 
@@ -616,7 +615,7 @@ public class ArchiveAEExtension extends AEExtension {
         storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
-        allowDeleteStudy = aeExt.allowDeleteStudy;
+        allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

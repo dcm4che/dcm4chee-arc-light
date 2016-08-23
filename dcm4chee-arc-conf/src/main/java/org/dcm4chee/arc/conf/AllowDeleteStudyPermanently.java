@@ -44,6 +44,6 @@ package org.dcm4chee.arc.conf;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2016
  */
-public enum AllowDeleteStudy {
-    YES, EMPTY_OR_ALL_INSTANCES_REJECTED
+public enum AllowDeleteStudyPermanently {
+    ALWAYS, REJECTED
 }

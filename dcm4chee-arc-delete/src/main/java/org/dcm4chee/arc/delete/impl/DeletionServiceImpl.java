@@ -44,7 +44,7 @@ package org.dcm4chee.arc.delete.impl;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.AllowDeleteStudy;
+import org.dcm4chee.arc.conf.AllowDeleteStudyPermanently;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.delete.*;
 import org.dcm4chee.arc.entity.*;
@@ -128,13 +128,13 @@ public class DeletionServiceImpl implements DeletionService {
             Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                     .setParameter(1, studyUID).getSingleResult();
             ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-            AllowDeleteStudy allowDeleteStudy = arcAE.allowDeleteStudy();
+            AllowDeleteStudyPermanently allowDeleteStudy = arcAE.allowDeleteStudy();
             if (study != null) {
                 ctx = createStudyDeleteContext(study.getPk(), request);
                 boolean studyDeleted = studyDeleted(ctx, study, allowDeleteStudy);
                 if (!studyDeleted)
                     throw new StudyNotEmptyException("Study is not empty. - ");
-                if (allowDeleteStudy == AllowDeleteStudy.YES && studyDeleted
+                if (allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS && studyDeleted
                         && (study.getRejectionState() == RejectionState.NONE || study.getRejectionState() == RejectionState.PARTIAL))
                     studyDeletedEvent.fire(ctx);
             }
@@ -161,7 +161,7 @@ public class DeletionServiceImpl implements DeletionService {
             for (Study study : sList) {
                 try {
                     sCtx = createStudyDeleteContext(study.getPk(), ctx.getHttpRequest());
-                    studyDeleted(sCtx, study, AllowDeleteStudy.EMPTY_OR_ALL_INSTANCES_REJECTED);
+                    studyDeleted(sCtx, study, AllowDeleteStudyPermanently.REJECTED);
                 } catch (Exception e) {
                     LOG.warn("Failed to delete {} on {}", study, e);
                     ctx.setException(e);
@@ -173,11 +173,11 @@ public class DeletionServiceImpl implements DeletionService {
         LOG.info("Successfully delete {} from database", ctx.getPatient());
     }
 
-    private boolean studyDeleted(StudyDeleteContext ctx, Study study, AllowDeleteStudy allowDeleteStudy) {
+    private boolean studyDeleted(StudyDeleteContext ctx, Study study, AllowDeleteStudyPermanently allowDeleteStudy) {
         ctx.setStudy(study);
         ctx.setPatient(study.getPatient());
         ctx.setDeletePatientOnDeleteLastStudy(false);
-        if (study.getRejectionState() == RejectionState.COMPLETE || allowDeleteStudy == AllowDeleteStudy.YES) {
+        if (study.getRejectionState() == RejectionState.COMPLETE || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
             ejb.removeStudyOnStorage(ctx);
             return true;
         }

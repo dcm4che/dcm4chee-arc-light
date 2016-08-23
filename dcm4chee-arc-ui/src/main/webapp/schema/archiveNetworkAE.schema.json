@@ -181,13 +181,13 @@
         "type": "string"
       }
     },
-    "dcmAllowDeleteStudy": {
-      "title": "Allow Delete Study",
-      "description": "Indicates if a non empty study shall be deleted. Enumerated values: YES, EMPTY_OR_ALL_INSTANCES_REJECTED. If absent, EMPTY_OR_ALL_INSTANCES_REJECTED will be applied.",
+    "dcmAllowDeleteStudyPermanently": {
+      "title": "Allow Delete Study permanently",
+      "description": "Allow to delete Study permanently. Enumerated values: ALWAYS, REJECTED (= only already rejected Studies). If absent, REJECTED will be applied.",
       "type": "string",
       "enum": [
-        "YES",
-        "EMPTY_OR_ALL_INSTANCES_REJECTED"
+        "ALWAYS",
+        "REJECTED"
       ]
     },
     "dcmExportRule": {

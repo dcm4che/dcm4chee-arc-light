@@ -118,7 +118,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int storeUpdateDBMaxRetries = 1;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
-    private AllowDeleteStudy allowDeleteStudy;
+    private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -930,12 +930,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return rejectionNoteMap.values();
     }
 
-    public AllowDeleteStudy getAllowDeleteStudy() {
-        return allowDeleteStudy;
+    public AllowDeleteStudyPermanently getAllowDeleteStudyPermanently() {
+        return allowDeleteStudyPermanently;
     }
 
-    public void setAllowDeleteStudy(AllowDeleteStudy allowDeleteStudy) {
-        this.allowDeleteStudy = allowDeleteStudy;
+    public void setAllowDeleteStudyPermanently(AllowDeleteStudyPermanently allowDeleteStudyPermanently) {
+        this.allowDeleteStudyPermanently = allowDeleteStudyPermanently;
     }
 
     @Override
@@ -1006,7 +1006,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
-        allowDeleteStudy = arcdev.allowDeleteStudy;
+        allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();
