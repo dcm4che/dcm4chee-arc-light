@@ -383,6 +383,15 @@
         "STUDY_RETENTION_POLICY"
       ]
     },
+    "dcmAllowDeleteStudy": {
+      "title": "Allow Delete Study",
+      "description": "Indicates if a non empty study shall be deleted. Enumerated values: YES, EMPTY_OR_ALL_INSTANCES_REJECTED. If absent, EMPTY_OR_ALL_INSTANCES_REJECTED will be applied.",
+      "type": "string",
+      "enum": [
+        "YES",
+        "EMPTY_OR_ALL_INSTANCES_REJECTED"
+      ]
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",

@@ -113,7 +113,7 @@ public class DeletionServiceEJB {
     }
 
     public boolean removeStudyOnStorage(StudyDeleteContext ctx) {
-        Long studyPk = ctx.getStudyPk() != null ? ctx.getStudyPk() : ctx.getStudy().getPk();
+        Long studyPk = ctx.getStudyPk();
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                                     .setParameter(1, studyPk)
                                     .getResultList();

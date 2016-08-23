@@ -166,7 +166,7 @@ public class PurgeStorageScheduler extends Scheduler {
                 }
             }
             Long studyPk = studyPks.remove(0);
-            StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk, null);
+            StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
             ctx.setDeletePatientOnDeleteLastStudy(deletePatient);
             try {
                 studyRemoved = ejb.removeStudyOnStorage(ctx);

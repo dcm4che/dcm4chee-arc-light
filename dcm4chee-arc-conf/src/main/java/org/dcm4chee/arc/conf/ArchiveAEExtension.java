@@ -86,6 +86,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Pattern storePermissionServiceResponsePattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
+    private AllowDeleteStudy allowDeleteStudy;
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -568,6 +569,22 @@ public class ArchiveAEExtension extends AEExtension {
         return attributeCoercions;
     }
 
+    public AllowDeleteStudy getAllowDeleteStudy() {
+        return allowDeleteStudy;
+    }
+
+    public void setAllowDeleteStudy(AllowDeleteStudy allowDeleteStudy) {
+        this.allowDeleteStudy = allowDeleteStudy;
+    }
+
+    public AllowDeleteStudy allowDeleteStudy() {
+        return allowDeleteStudy != null
+                ? allowDeleteStudy
+                : StringUtils.maskNull(getArchiveDeviceExtension().getAllowDeleteStudy(),
+                AllowDeleteStudy.EMPTY_OR_ALL_INSTANCES_REJECTED);
+    }
+
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -599,6 +616,7 @@ public class ArchiveAEExtension extends AEExtension {
         storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
+        allowDeleteStudy = aeExt.allowDeleteStudy;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();
