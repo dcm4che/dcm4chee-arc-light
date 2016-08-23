@@ -47,7 +47,16 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $log.error("Error loading device names", response);
         vex.dialog.alert("Error loading device names, please reload the page and try again!");
     }); 
-
+    $http({
+        method: 'GET',
+        // url: 'json/devices.json'
+        url: '../aes'
+    }).then(function successCallback(response) {
+        $scope.aes = response.data;
+    }, function errorCallback(response) {
+        $log.error("Error loading device names", response);
+        vex.dialog.alert("Error loading device names, please reload the page and try again!");
+    });    
     //Warn if the user want to leav the page without saving the changes
     $scope.$on('$locationChangeStart', function(event) {
         if ($scope.saved === false) {

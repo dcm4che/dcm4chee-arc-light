@@ -69,7 +69,7 @@ body{
 	    }
 	}
 }
-ul.nav {
+ul.nav#mainmenu {
     background: rgba(0, 0, 0, 0.74) none repeat scroll 0 0;
     -moz-box-shadow: 10px 10px 10px #959292;
     -webkit-box-shadow: 10px 10px 10px #959292;
@@ -2143,6 +2143,16 @@ table.j4care-table{
 	}
 }
 .devicelist_block{
+	.nav-tabs{
+		li{
+			a{
+				color: #444;
+				&:hover{
+					cursor: pointer;
+				}
+			}
+		}
+	}
 	.filter{
 		position:relative;
 		float: left;

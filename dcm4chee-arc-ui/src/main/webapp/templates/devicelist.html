@@ -1,108 +1,224 @@
 <div class="devicelist_block">
-    <h2>Device list</h2>
-    <input autocomplete="off" id="devicefilter" class="devicefilter" ng-model="devicefilter" placeholder="Search device"/>
-    <button class="adddevice" ng-click="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>
-<!--     <button class="adddevice" ng-click="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
-<a  ng-init="advancedConfig=false" href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-<a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
-<div ng-show="advancedConfig" class="ng-hide">
-    <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
-        <div class="col-md-3 block-2-1" >
-            <div class="row">
-                <div class="col-md-6">
-                    <input id="dDeviceName" type="text" ng-model="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
-                </div>
-                <div class="col-md-6">
-                    <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomDeviceDescription" placeholder="Device description" title="Device description" class="col-md-12" />
-                </div>
-                <div class="col-md-6">
-                    <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomManufacturer" placeholder="Manufacturer" title="Manufacturer" class="col-md-12" />
-                </div>
-                <div class="col-md-6">
-                    <input id="dicomManufacturerModelName" type="text" ng-model="filter.dicomManufacturerModelName" placeholder="Manufacturer model name" title="Manufacturer model name" class="col-md-12" />
+    <ul class="nav nav-tabs" role="tablist" ng-init="showDeviceList=true;showAetList=false;">
+        <li role="presentation" ng-class="{'active':showDeviceList}"><a aria-controls="device_modus" ng-click="showAetList = false;showDeviceList = true"role="tab" data-toggle="tab">Device list</a></li>
+        <li role="presentation" ng-class="{'active':showAetList}"><a aria-controls="aet_modus" ng-click="showDeviceList = false;showAetList = true" role="tab" data-toggle="tab">AET list</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel"  class="device_modus" id="device_modus" ng-if="showDeviceList" >
+            <h2>Device list</h2>
+            <input autocomplete="off" id="devicefilter" class="devicefilter" ng-model="devicefilter" placeholder="Search device"/>
+            <button class="adddevice" ng-click="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>
+            <!--     <button class="adddevice" ng-click="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
+            <a  ng-init="advancedConfig=false" href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+            <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
+            <div ng-show="advancedConfig" class="ng-hide">
+                <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
+                    <div class="col-md-3 block-2-1" >
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input id="dDeviceName" type="text" ng-model="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomDeviceDescription" placeholder="Device description" title="Device description" class="col-md-12" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomManufacturer" placeholder="Manufacturer" title="Manufacturer" class="col-md-12" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomManufacturerModelName" type="text" ng-model="filter.dicomManufacturerModelName" placeholder="Manufacturer model name" title="Manufacturer model name" class="col-md-12" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 block-2-1">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input id="dicomSoftwareVersion" type="text" ng-model="filter.dicomSoftwareVersion" placeholder="Software version" title="Software version" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomStationName" type="text" ng-model="filter.dicomStationName" placeholder="Station name" title="Station name" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomPrimaryDeviceType" type="text" ng-model="filter.dicomPrimaryDeviceType" placeholder="Primary device type" title="Primary device type" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomInstitutionName" type="text" ng-model="filter.dicomInstitutionName" placeholder="Institution name" title="Institution name" class="col-md-12 clearable" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 block-2-1">
+                            <div class="row">
+                            <div class="col-md-6">
+                                <input id="dicomInstitutionDepartmentName" type="text" ng-model="filter.dicomInstitutionDepartmentName" placeholder="Institution department name" title="Institution department name" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="dummyinput"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <select id="dicomInstalled" ng-model="filter.dicomInstalled" class="col-md-12" title="Installed" ng-class="{empty:filter.dicomInstall === ''}">
+                                    <option value="">-- Installed --</option>
+                                    <option value="true">True</option>
+                                    <option value="false">False</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="col-md-12" ng-click="searchDevices()">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="clearform_button" title="Clear all filters" href="" ng-click="clearForm()">
+                        Clear <span class="glyphicon glyphicon-remove"></span>
+                    </a>
                 </div>
             </div>
+            <table class="j4care-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Device Name</th>
+                        <th>Department Name</th>
+                        <th>Device Description</th>
+                        <th>Manufacturer</th>
+                        <th>Model Name</th>
+                        <th>Primary device type</th>
+                        <th>Station Name</th>
+                        <th>Installed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(key, value) in devices | filter:devicefilter">
+                        <td class="buttons_td">
+                            <span class="numbers">{{key+1}}.</span>
+                            <a class="table_btn" title="Edit device" href="" ng-click="editDeviceList(value.dicomDeviceName)">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </a>
+                            <a class="table_btn" title="Delete device" href="" ng-click="deleteDeviceList(value.dicomDeviceName)">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                            <a class="table_btn" title="Clone device" href="" ng-click="cloneDeviceDeviceList(value.dicomDeviceName)">
+                                <span class="glyphicon glyphicon-duplicate"></span>
+                            </a>
+                        </td>
+                        <td><a class="listlink" ng-click="editDeviceList(value.dicomDeviceName)"  title="Edit device">{{value.dicomDeviceName}}</a></td>
+                        <td>{{value.dicomInstitutionDepartmentName[0]}}</td>
+                        <td>{{value.dicomDescription}}</td>
+                        <td>{{value.dicomManufacturer}}</td>
+                        <td>{{value.dicomManufacturerModelName}}</td>
+                        <td>{{value.dicomPrimaryDeviceType[0]}}</td>
+                        <td>{{value.dicomStationName}}</td>
+                        <td>{{value.dicomInstalled}}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div class="col-md-3 block-2-1">
-            <div class="row">
-                <div class="col-md-6">
-                    <input id="dicomSoftwareVersion" type="text" ng-model="filter.dicomSoftwareVersion" placeholder="Software version" title="Software version" class="col-md-12 clearable" />
-                </div>
-                <div class="col-md-6">
-                    <input id="dicomStationName" type="text" ng-model="filter.dicomStationName" placeholder="Station name" title="Station name" class="col-md-12 clearable" />
-                </div>
-                <div class="col-md-6">
-                    <input id="dicomPrimaryDeviceType" type="text" ng-model="filter.dicomPrimaryDeviceType" placeholder="Primary device type" title="Primary device type" class="col-md-12 clearable" />
-                </div>
-                <div class="col-md-6">
-                    <input id="dicomInstitutionName" type="text" ng-model="filter.dicomInstitutionName" placeholder="Institution name" title="Institution name" class="col-md-12 clearable" />
+        <div role="tabpanel" class="aet_modus" id="aet_modus" ng-if="showAetList">
+            <h2>Application Entitie list</h2>
+            <input autocomplete="off" id="aesfilter" class="aesfilter" ng-model="aesfilter" placeholder="Search AEs"/>
+            <button class="adddevice" ng-click="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>
+            <!--     <button class="adddevice" ng-click="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
+            <a  ng-init="advancedConfig=false" href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+            <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
+            <div ng-show="advancedConfig" class="ng-hide">
+                <div class="row ng-hide filter hidden_filters" ng-show="advancedConfig">
+                    <div class="col-md-3 block-2-1" >
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input id="dDeviceName" type="text" ng-model="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomDeviceDescription" placeholder="Device description" title="Device description" class="col-md-12" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomManufacturer" placeholder="Manufacturer" title="Manufacturer" class="col-md-12" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomManufacturerModelName" type="text" ng-model="filter.dicomManufacturerModelName" placeholder="Manufacturer model name" title="Manufacturer model name" class="col-md-12" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 block-2-1">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input id="dicomSoftwareVersion" type="text" ng-model="filter.dicomSoftwareVersion" placeholder="Software version" title="Software version" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomStationName" type="text" ng-model="filter.dicomStationName" placeholder="Station name" title="Station name" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomPrimaryDeviceType" type="text" ng-model="filter.dicomPrimaryDeviceType" placeholder="Primary device type" title="Primary device type" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomInstitutionName" type="text" ng-model="filter.dicomInstitutionName" placeholder="Institution name" title="Institution name" class="col-md-12 clearable" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 block-2-1">
+                            <div class="row">
+                            <div class="col-md-6">
+                                <input id="dicomInstitutionDepartmentName" type="text" ng-model="filter.dicomInstitutionDepartmentName" placeholder="Institution department name" title="Institution department name" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="dummyinput"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <select id="dicomInstalled" ng-model="filter.dicomInstalled" class="col-md-12" title="Installed" ng-class="{empty:filter.dicomInstall === ''}">
+                                    <option value="">-- Installed --</option>
+                                    <option value="true">True</option>
+                                    <option value="false">False</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="col-md-12" ng-click="searchDevices()">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="clearform_button" title="Clear all filters" href="" ng-click="clearForm()">
+                        Clear <span class="glyphicon glyphicon-remove"></span>
+                    </a>
                 </div>
             </div>
+            <table class="j4care-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>AETitle</th>
+                        <th>Device Name</th>
+                        <th>Other AETitle</th>
+                        <th>Description</th>
+                        <th>Association Initiator</th>
+                        <th>Association Acceptor</th>
+                        <th>Application Cluster</th>
+                        <th>Installed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(key, value) in aes | filter:aesfilter">
+                        <td class="buttons_td">
+                            <span class="numbers">{{key+1}}.</span>
+                            <a class="table_btn" title="Edit device" href="" ng-click="editDeviceList(value.dicomDeviceName)">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </a>
+                            <a class="table_btn" title="Delete device" href="" ng-click="deleteDeviceList(value.dicomDeviceName)">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                        </td>
+                        <!-- <td><a class="listlink" ng-click="editDeviceList(value.dicomDeviceName)"  title="Edit device">{{value.dicomDeviceName}}</a></td> -->
+                        <td>{{value.dicomAETitle}}</td>
+                        <td>{{value.dicomDeviceName}}</td>
+                        <td>
+                            <span ng-repeat="(otheraekey, otherae) in value.dcmOtherAETitle">{{otherae}}<br></span>
+                        </td>
+                        <td>{{value.dicomDescription}}</td>
+                        <td>{{value.dicomAssociationInitiator}}</td>
+                        <td>{{value.dicomAssociationAcceptor}}</td>
+                        <td>
+                            <span ng-repeat="(clusterkey, cluster) in value.dicomApplicationCluster">{{cluster}}<br></span>
+                        </td>
+                        <td>{{value.dicomInstalled}}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div class="col-md-3 block-2-1">
-                <div class="row">
-                <div class="col-md-6">
-                    <input id="dicomInstitutionDepartmentName" type="text" ng-model="filter.dicomInstitutionDepartmentName" placeholder="Institution department name" title="Institution department name" class="col-md-12 clearable" />
-                </div>
-                <div class="col-md-6">
-                    <div class="dummyinput"></div>
-                </div>
-                <div class="col-md-6">
-                    <select id="dicomInstalled" ng-model="filter.dicomInstalled" class="col-md-12" title="Installed" ng-class="{empty:filter.dicomInstall === ''}">
-                        <option value="">-- Installed --</option>
-                        <option value="true">True</option>
-                        <option value="false">False</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <button class="col-md-12" ng-click="searchDevices()">Search</button>
-                </div>
-            </div>
-        </div>
-        <a class="clearform_button" title="Clear all filters" href="" ng-click="clearForm()">
-            Clear <span class="glyphicon glyphicon-remove"></span>
-        </a>
     </div>
-</div>
-    <table class="j4care-table">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Device Name</th>
-                <th>Department Name</th>
-                <th>Device Description</th>
-                <th>Manufacturer</th>
-                <th>Model Name</th>
-                <th>Primary device type</th>
-                <th>Station Name</th>
-                <th>Installed</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="(key, value) in devices | filter:devicefilter">
-                <td class="buttons_td">
-                    <span class="numbers">{{key+1}}.</span>
-                    <a class="table_btn" title="Edit device" href="" ng-click="editDeviceList(value.dicomDeviceName)">
-                        <span class="glyphicon glyphicon-pencil"></span>
-                    </a>
-                    <a class="table_btn" title="Delete device" href="" ng-click="deleteDeviceList(value.dicomDeviceName)">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </a>
-                    <a class="table_btn" title="Clone device" href="" ng-click="cloneDeviceDeviceList(value.dicomDeviceName)">
-                        <span class="glyphicon glyphicon-duplicate"></span>
-                    </a>
-                </td>
-                <td><a class="listlink" ng-click="editDeviceList(value.dicomDeviceName)"  title="Edit device">{{value.dicomDeviceName}}</a></td>
-                <td>{{value.dicomInstitutionDepartmentName[0]}}</td>
-                <td>{{value.dicomDescription}}</td>
-                <td>{{value.dicomManufacturer}}</td>
-                <td>{{value.dicomManufacturerModelName}}</td>
-                <td>{{value.dicomPrimaryDeviceType[0]}}</td>
-                <td>{{value.dicomStationName}}</td>
-                <td>{{value.dicomInstalled}}</td>
-            </tr>
-        </tbody>
-    </table>
 </div>
 <div class="deviceedit_block">
     <button class="btn btn-link btn-xs back" ng-click="goBackToDeviceList()">

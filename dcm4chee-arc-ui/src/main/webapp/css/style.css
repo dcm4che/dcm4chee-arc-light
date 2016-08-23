@@ -51,7 +51,7 @@ body {
     body .logo:hover {
       cursor: pointer; }
 
-ul.nav {
+ul.nav#mainmenu {
   background: rgba(0, 0, 0, 0.74) none repeat scroll 0 0;
   -moz-box-shadow: 10px 10px 10px #959292;
   -webkit-box-shadow: 10px 10px 10px #959292;
@@ -63,31 +63,31 @@ ul.nav {
   top: 0;
   width: 150px;
   z-index: 999; }
-  ul.nav li {
+  ul.nav#mainmenu li {
     background: transparent none repeat scroll 0 0;
     color: white;
     width: 100%; }
-    ul.nav li a {
+    ul.nav#mainmenu li a {
       background: transparent;
       color: white;
       text-align: right; }
-    ul.nav li a:hover {
+    ul.nav#mainmenu li a:hover {
       background: transparent;
       font-weight: bold; }
-    ul.nav li a:active {
+    ul.nav#mainmenu li a:active {
       background: transparent;
       outline: none; }
-  ul.nav li.active a {
+  ul.nav#mainmenu li.active a {
     background: transparent;
     text-decoration: underline;
     outline: none; }
-  ul.nav li.active a:hover {
+  ul.nav#mainmenu li.active a:hover {
     outline: none;
     font-weight: normal; }
-  ul.nav li.active a:active {
+  ul.nav#mainmenu li.active a:active {
     outline: none;
     background: transparent; }
-  ul.nav .glyphicon.glyphicon-align-justify {
+  ul.nav#mainmenu .glyphicon.glyphicon-align-justify {
     background-position: right center;
     left: 80%;
     padding-top: 30px; }
@@ -1573,6 +1573,10 @@ table.j4care-table {
         background: #ddd;
         color: black; }
 
+.devicelist_block .nav-tabs li a {
+  color: #444; }
+  .devicelist_block .nav-tabs li a:hover {
+    cursor: pointer; }
 .devicelist_block .filter {
   position: relative;
   float: left;
