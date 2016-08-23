@@ -389,6 +389,7 @@ public class QueryBuilder {
             HibernateQuery<Tuple> query, Attributes keys, QueryParam queryParam) {
         query = query.innerJoin(QInstance.instance.series, QSeries.series);
         query = query.join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob);
+        query = query.leftJoin(QInstance.instance.rejectionNoteCode, QCodeEntity.codeEntity);
         return query;
     }
 

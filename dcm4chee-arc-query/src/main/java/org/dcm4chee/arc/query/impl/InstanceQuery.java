@@ -45,18 +45,19 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.entity.AttributesBlob;
-import org.dcm4chee.arc.entity.QInstance;
-import org.dcm4chee.arc.entity.QSeries;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.QueryContext;
 import org.hibernate.StatelessSession;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 class InstanceQuery extends AbstractQuery {
@@ -65,6 +66,11 @@ class InstanceQuery extends AbstractQuery {
             QSeries.series.pk,
             QInstance.instance.retrieveAETs,
             QInstance.instance.availability,
+            QInstance.instance.createdTime,
+            QInstance.instance.updatedTime,
+            QCodeEntity.codeEntity.codeValue,
+            QCodeEntity.codeEntity.codingSchemeDesignator,
+            QCodeEntity.codeEntity.codeMeaning,
             QInstance.instance.attributesBlob.encodedAttributes
     };
 
@@ -127,6 +133,18 @@ class InstanceQuery extends AbstractQuery {
         attrs.addAll(instAtts);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
         attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime, VR.DT,
+                results.get(QInstance.instance.createdTime));
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime, VR.DT,
+                results.get(QInstance.instance.updatedTime));
+        if (results.get(QCodeEntity.codeEntity.codeValue) != null) {
+            Sequence rejectionCodeSeq = attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 10);
+            Attributes item = new Attributes();
+            item.setString(Tag.CodeValue, VR.SH, results.get(QCodeEntity.codeEntity.codeValue));
+            item.setString(Tag.CodeMeaning, VR.LO, results.get(QCodeEntity.codeEntity.codeMeaning));
+            item.setString(Tag.CodingSchemeDesignator, VR.SH, results.get(QCodeEntity.codeEntity.codingSchemeDesignator));
+            rejectionCodeSeq.add(item);
+        }
         return attrs;
     }
 

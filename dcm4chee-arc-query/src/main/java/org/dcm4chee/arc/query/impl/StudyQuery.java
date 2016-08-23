@@ -56,8 +56,11 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.StatelessSession;
 
+import java.time.LocalDate;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 class StudyQuery extends AbstractQuery {
@@ -67,6 +70,15 @@ class StudyQuery extends AbstractQuery {
             QPatient.patient.numberOfStudies,
             QPatient.patient.createdTime,
             QPatient.patient.updatedTime,
+            QStudy.study.createdTime,
+            QStudy.study.updatedTime,
+            QStudy.study.accessTime,
+            QStudy.study.expirationDate,
+            QStudy.study.rejectionState,
+            QStudy.study.failedSOPInstanceUIDList,
+            QStudy.study.failedRetrieves,
+            QStudy.study.accessControlID,
+            QStudy.study.storageIDs,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
             QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy,
@@ -157,6 +169,26 @@ class StudyQuery extends AbstractQuery {
                 results.get(QPatient.patient.createdTime));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientUpdateDateTime, VR.DT,
                 results.get(QPatient.patient.updatedTime));
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
+                results.get(QStudy.study.createdTime));
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyUpdateDateTime, VR.DT,
+                results.get(QStudy.study.updatedTime));
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessDateTime, VR.DT,
+                results.get(QStudy.study.accessTime));
+        if (results.get(QStudy.study.expirationDate) != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
+                    results.get(QStudy.study.expirationDate));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyRejectionState, VR.CS,
+                results.get(QStudy.study.rejectionState).toString());
+        if (results.get(QStudy.study.failedSOPInstanceUIDList) != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfStudy, VR.UI,
+                    results.get(QStudy.study.failedSOPInstanceUIDList));
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
+                results.get(QStudy.study.failedRetrieves));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
+                results.get(QStudy.study.accessControlID));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
+                results.get(QStudy.study.storageIDs));
         return attrs;
     }
 
