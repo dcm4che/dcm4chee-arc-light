@@ -1,7 +1,9 @@
 "use strict";
 
-myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService,  $filter, $templateRequest, $timeout) {
+myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService, StudiesService, cfpLoadingBar, $modalities, $compile, DeviceService,  $filter, $templateRequest, $timeout, MainService, user) {
     // $scope.logoutUrl = myApp.logoutUrl();
+    // MainService.user();
+    $scope.user = user;
     $scope.patients = [];
     $scope.mwl = [];
     $scope.iod = {};
@@ -1653,102 +1655,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
     };
 
-// $('body').on('contextmenu', '#tableblock', function(e){ return false; });
-//     $(function(){ 
-//          // if (document.addEventListener) {
-//             $("#tableblock").bind('contextmenu', function(e) {
-//                 // alert("You've tried to open context menu1"); //here you draw your own menu
-//                 console.log("on contextmenu");
-//                 if(!$scope.cotextMenuEventActive){
-//                     $scope.$apply(function(){
-//                         $scope.cotextMenuEventActive = true;
-//                     });
-//                     $scope.$apply(function(){
-//                         $scope.showContextMenu = true;
-//                     });
-//                     console.log("e",e);
-//                     console.log("e.originalTarget",e.originalTarget);
-//                     console.log("e.target",$(e.originalTarget));
-//                     console.log("$(e.originalTarget).closest('.repeat0').attr('contextmenu-item')",$(e.originalTarget).closest(".repeat0").attr("contextmenu-item"));
-//                     try{
-//                         var obj = JSON.parse($(e.originalTarget).closest(".repeat0").attr("contextmenu-item"));
-//                         var study = JSON.parse($(e.originalTarget).closest(".repeat1").attr("contextmenu-item"));
-
-//                         console.log("study",study);
-//                         console.log("obj.index",obj.index);
-//                         console.log("$scope.patients",$scope.patients)
-//                         // var index = parseInt(obj.index);
-//                         // console.log("index",index);
-//                         console.log("$scope.patients[index]",$scope.patients[obj.index]);
-//                         console.log("study",$scope.patients[obj.index].studies[study.index]);
-//                         $scope.patients[index]["selected"] = true;
-//                     }catch(cb){
-//                         console.log("catch",cb);
-//                     }
-//                     $scope.anySelected = true;
-//                     console.log("obj",obj);
-//                     console.log("e.attr",obj);
-//                     console.log("x",e.pageX);
-//                     console.log("y",e.pageY);
-//                     angular.element("#contextmenu").css({"left":e.pageX,"top":e.pageY});
-//                     e.preventDefault();
-//                     $scope.$apply(function(){
-//                         $scope.cotextMenuEventActive = false;
-//                     });
-//                     return false;
-//                 }
-//             }, false);
-//                 $("#tableblock").on("mousedown",function(e){
-//         if( e.button == 2 ) { 
-//             if(!$scope.cotextMenuEventActive){
-//                 $scope.$apply(function(){
-//                     $scope.cotextMenuEventActive = true;
-//                 });
-//                 $scope.$apply(function(){
-//                     $scope.showContextMenu = true;
-//                 });
-//                 console.log("e",e);
-//                 console.log("e.originalTarget",e.originalTarget);
-//                 console.log("e.target",$(e.originalTarget));
-//                 console.log("$(e.originalTarget).closest('.repeat0').attr('contextmenu-item')",$(e.originalTarget).closest(".repeat0").attr("contextmenu-item"));
-//                 try{
-//                     var obj = JSON.parse($(e.originalTarget).closest(".repeat0").attr("contextmenu-item"));
-//                     var study = JSON.parse($(e.originalTarget).closest(".repeat1").attr("contextmenu-item"));
-
-//                     console.log("study",study);
-//                     console.log("obj.index",obj.index);
-//                     console.log("$scope.patients",$scope.patients)
-//                     // var index = parseInt(obj.index);
-//                     // console.log("index",index);
-//                     console.log("$scope.patients[index]",$scope.patients[obj.index]);
-//                     console.log("study",$scope.patients[obj.index].studies[study.index]);
-//                     $scope.patients[index]["selected"] = true;
-//                 }catch(cb){
-//                     console.log("catch",cb);
-//                 }
-//                 $scope.anySelected = true;
-//                 console.log("obj",obj);
-//                 console.log("e.attr",obj);
-//                 console.log("x",e.pageX);
-//                 console.log("y",e.pageY);
-//                 angular.element("#contextmenu").css({"left":e.pageX,"top":e.pageY});
-                
-//                 $scope.$apply(function(){
-//                     $scope.cotextMenuEventActive = false;
-//                 });
-//                 // return false;
-//             }
-//           return false; 
-//         } 
-//     return true; 
-//     }); 
-//         // } else {
-//         //     document.attachEvent('oncontextmenu', function() {
-//         //         alert("You've tried to open context menu2");
-//         //         window.event.returnValue = false;
-//         //     });
-//         // }
-//     });
     //Close modaity selctor when you click some where else but on the selector
     angular.element("html").bind("click",function(e){
         if(!(e.target.id === "Modality")){
@@ -1989,6 +1895,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         fromAllStudies:false
                     };
                     pat.studies.push(study);
+                    $scope.extendedFilter(true);
  //                   $scope.studies.push(study); //sollte weg kommen
                 });
                 if ($scope.moreStudies = (res.data.length > $scope.limit)) {
@@ -2137,13 +2044,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         });
     };
     $scope.$watchCollection('filter.orderby', function(newValue, oldValue){
-        console.log("orderby changed");
         $scope.extendedFilter(true);
     }); 
     $scope.extendedFilter = function(bool){
-        console.log("$('.headerblock')",$('.headerblock').height());
-        console.log("$('.headerblock')",$('.headerblock').outerHeight());
-        console.log("$('.div-table *').length",$('.div-table *').length);
+        // console.log("$('.headerblock')",$('.headerblock').height());
+        // console.log("$('.headerblock')",$('.headerblock').outerHeight());
+        // console.log("$('.div-table *').length",$('.div-table *').length);
         if($('.div-table *').length > 0){
             $('.div-table').removeAttr( 'style' );
             setTimeout(function() {
@@ -2376,267 +2282,279 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }, 1500);
     };
     var ctrlC = function(){
-        console.log("ctrl c");
-        $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
-        console.log("$scope.selected",$scope.selected);
-        // console.log("test",angular.merge({},$scope.clipboard.selected, $scope.selected));
-        // $scope.clipboard.selected = angular.merge({},$scope.clipboard.selected, $scope.selected);
-        StudiesService.MergeRecursive($scope.clipboard.selected,$scope.selected);
-        console.log("$scope.clipboard",$scope.clipboard);
-        if($scope.clipboard.action && $scope.clipboard.action === "move"){
-            vex.dialog.confirm({
-                message: "Are you sure you want to change the action from move to copy?",
-                callback: function(m) {
-                    $(".vex").hide();
-                    $("body").removeClass('vex-open');
-                    if(m){
-                        $scope.clipboard["action"] = "copy";
+        if(user.isRole("admin")){
+            console.log("ctrl c");
+            $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
+            console.log("$scope.selected",$scope.selected);
+            // console.log("test",angular.merge({},$scope.clipboard.selected, $scope.selected));
+            // $scope.clipboard.selected = angular.merge({},$scope.clipboard.selected, $scope.selected);
+            StudiesService.MergeRecursive($scope.clipboard.selected,$scope.selected);
+            console.log("$scope.clipboard",$scope.clipboard);
+            if($scope.clipboard.action && $scope.clipboard.action === "move"){
+                vex.dialog.confirm({
+                    message: "Are you sure you want to change the action from move to copy?",
+                    callback: function(m) {
+                        $(".vex").hide();
+                        $("body").removeClass('vex-open');
+                        if(m){
+                            $scope.clipboard["action"] = "copy";
+                        }
+                        showClipboardForAMoment();
                     }
-                    showClipboardForAMoment();
-                }
-            });
-        }else{
-            $scope.clipboard["action"] = "copy";
-            showClipboardForAMoment();
+                });
+            }else{
+                $scope.clipboard["action"] = "copy";
+                showClipboardForAMoment();
+            }
+            console.log("$scope.clipboard",$scope.clipboard);
+            StudiesService.clearSelection($scope.patients);
+            $scope.showClipboardContent = true;
         }
-        console.log("$scope.clipboard",$scope.clipboard);
-        StudiesService.clearSelection($scope.patients);
-        $scope.showClipboardContent = true;
     };
     var ctrlX = function(){
-        console.log("ctrl x");
-        $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
-        angular.merge($scope.clipboard.selected, $scope.selected);
-        if($scope.clipboard.action && $scope.clipboard.action === "copy"){
-            vex.dialog.confirm({
-                message: "Are you sure you want to change the action from copy to move?",
-                callback: function(m) {
-                    $(".vex").hide();
-                    $("body").removeClass('vex-open');
-                    if (m) {
-                        $scope.clipboard["action"] = "move";
+        if(user.isRole("admin")){
+            console.log("ctrl x");
+            $scope.clipboard["selected"] = $scope.clipboard["selected"] || {};
+            angular.merge($scope.clipboard.selected, $scope.selected);
+            if($scope.clipboard.action && $scope.clipboard.action === "copy"){
+                vex.dialog.confirm({
+                    message: "Are you sure you want to change the action from copy to move?",
+                    callback: function(m) {
+                        $(".vex").hide();
+                        $("body").removeClass('vex-open');
+                        if (m) {
+                            $scope.clipboard["action"] = "move";
+                        }
+                        showClipboardForAMoment();
                     }
-                    showClipboardForAMoment();
-                }
-            });
-        }else{
-            $scope.clipboard["action"] = "move";
-            showClipboardForAMoment();
-        }
-        StudiesService.clearSelection($scope.patients);
-        console.log("$scope.clipboard",$scope.clipboard);
+                });
+            }else{
+                $scope.clipboard["action"] = "move";
+                showClipboardForAMoment();
+            }
+            StudiesService.clearSelection($scope.patients);
+            console.log("$scope.clipboard",$scope.clipboard);
+            }
     };
     var ctrlV = function(item){
-        $scope.target = item;
-        $templateRequest('templates/copyMoveProcess.html').then(function(tpl) {
-            var html = $compile(tpl)($scope);
-            vex.dialog.open({
-              message: '<h5>'+$scope.clipboard.action+' process</h5>',
-              input: html,
-              className:"vex-theme-os copymove",
-              buttons: [
-                $.extend({}, vex.dialog.buttons.YES, {
-                  text: $scope.clipboard.action
-                }), $.extend({}, vex.dialog.buttons.NO, {
-                  text: 'Cancel'
-                })
-              ],
-              callback: function(data) {
-                if (data === false) {
-                    console.log("$scope.reject",$scope.reject);
-                  return console.log('Cancelled');
-                }else{
-                    if($scope.clipboard.action === "copy"){
-                        if($scope.target.modus === "patient"){
-                                var study = {
-                                                "00100020": $scope.target.attrs['00100020'],
-                                                "00200010": { "vr": "SH", "Value":[""]},
-                                                "0020000D": { "vr": "UI", "Value":[""]},
-                                                "00080050": { "vr": "SH", "Value":[""]}
-                                            };
-                                $http({
-                                    method: 'POST',
-                                    url:"../aets/"+$scope.aet+"/rs/studies",
-                                    data:study
-                                }).then(
-                                    function successCallback(response) {
-                                        angular.forEach($scope.clipboard.selected, function(m, i){
-                                            console.log("m",m);
-                                            console.log("i",i);
-                                            $http.post(
-                                                "../aets/"+$scope.aet+"/rs/studies/"+response.data['0020000D'].Value[0]+"/copy",
-                                                m
-                                            ).then(function successCallback(response) {
-                                                console.log("in then function");
-                                                $scope.clipboard = {};
-                                                DeviceService.msg($scope, {
-                                                    "title": "Info",
-                                                    "text": "Object with the Study Instance UID "+m.StudyInstanceUID+" copied successfully!",
-                                                    "status": "info"
+        if(user.isRole("admin")){
+            $scope.target = item;
+            $templateRequest('templates/copyMoveProcess.html').then(function(tpl) {
+                var html = $compile(tpl)($scope);
+                vex.dialog.open({
+                  message: '<h5>'+$scope.clipboard.action+' process</h5>',
+                  input: html,
+                  className:"vex-theme-os copymove",
+                  buttons: [
+                    $.extend({}, vex.dialog.buttons.YES, {
+                      text: $scope.clipboard.action
+                    }), $.extend({}, vex.dialog.buttons.NO, {
+                      text: 'Cancel'
+                    })
+                  ],
+                  callback: function(data) {
+                    if (data === false) {
+                        console.log("$scope.reject",$scope.reject);
+                      return console.log('Cancelled');
+                    }else{
+                        if($scope.clipboard.action === "copy"){
+                            if($scope.target.modus === "patient"){
+                                    var study = {
+                                                    "00100020": $scope.target.attrs['00100020'],
+                                                    "00200010": { "vr": "SH", "Value":[""]},
+                                                    "0020000D": { "vr": "UI", "Value":[""]},
+                                                    "00080050": { "vr": "SH", "Value":[""]}
+                                                };
+                                    $http({
+                                        method: 'POST',
+                                        url:"../aets/"+$scope.aet+"/rs/studies",
+                                        data:study
+                                    }).then(
+                                        function successCallback(response) {
+                                            angular.forEach($scope.clipboard.selected, function(m, i){
+                                                console.log("m",m);
+                                                console.log("i",i);
+                                                $http.post(
+                                                    "../aets/"+$scope.aet+"/rs/studies/"+response.data['0020000D'].Value[0]+"/copy",
+                                                    m
+                                                ).then(function successCallback(response) {
+                                                    console.log("in then function");
+                                                    $scope.clipboard = {};
+                                                    DeviceService.msg($scope, {
+                                                        "title": "Info",
+                                                        "text": "Object with the Study Instance UID "+m.StudyInstanceUID+" copied successfully!",
+                                                        "status": "info"
+                                                    });
+                                                    $scope.callBackFree = true;
+                                                }, function errorCallback(response) {
+                                                    DeviceService.msg($scope, {
+                                                        "title": "Error",
+                                                        "text": "Error copying object "+m.StudyInstanceUID,
+                                                        "status": "error"
+                                                    });
+                                                    $scope.callBackFree = true;
                                                 });
-                                                $scope.callBackFree = true;
-                                            }, function errorCallback(response) {
-                                                DeviceService.msg($scope, {
-                                                    "title": "Error",
-                                                    "text": "Error copying object "+m.StudyInstanceUID,
-                                                    "status": "error"
-                                                });
-                                                $scope.callBackFree = true;
+                                            });                            
+                                        },
+                                        function errorCallback(response) {
+                                            DeviceService.msg($scope, {
+                                                "title": "Error "+response.status,
+                                                "text": response.data.errorMessage,
+                                                "status": "error"
                                             });
-                                        });                            
-                                    },
-                                    function errorCallback(response) {
+                                            console.log("response",response);
+                                        }
+                                    );
+                            }else{
+                                console.log("$scope.target",$scope.target);
+                                angular.forEach($scope.clipboard.selected, function(m, i){
+                                    console.log("m",m);
+                                    $http.post(
+                                        "../aets/"+$scope.aet+"/rs/studies/"+$scope.target.attrs['0020000D'].Value[0]+"/copy",
+                                        m
+                                    ).then(function successCallback(response) {
+                                        console.log("in then function");
+                                        $scope.clipboard = {};
                                         DeviceService.msg($scope, {
-                                            "title": "Error "+response.status,
-                                            "text": response.data.errorMessage,
+                                            "title": "Info",
+                                            "text": "Object with the Study Instance UID "+$scope.target.attrs['0020000D'].Value[0]+" copied successfully!",
+                                            "status": "info"
+                                        });
+                                        $scope.callBackFree = true;
+                                    }, function errorCallback(response) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Error",
+                                            "text": "Error copying object "+$scope.target.attrs['0020000D'].Value[0],
                                             "status": "error"
                                         });
-                                        console.log("response",response);
-                                    }
-                                );
-                        }else{
-                            console.log("$scope.target",$scope.target);
-                            angular.forEach($scope.clipboard.selected, function(m, i){
-                                console.log("m",m);
-                                $http.post(
-                                    "../aets/"+$scope.aet+"/rs/studies/"+$scope.target.attrs['0020000D'].Value[0]+"/copy",
-                                    m
-                                ).then(function successCallback(response) {
-                                    console.log("in then function");
-                                    $scope.clipboard = {};
-                                    DeviceService.msg($scope, {
-                                        "title": "Info",
-                                        "text": "Object with the Study Instance UID "+$scope.target.attrs['0020000D'].Value[0]+" copied successfully!",
-                                        "status": "info"
+                                        $scope.callBackFree = true;
                                     });
-                                    $scope.callBackFree = true;
-                                }, function errorCallback(response) {
-                                    DeviceService.msg($scope, {
-                                        "title": "Error",
-                                        "text": "Error copying object "+$scope.target.attrs['0020000D'].Value[0],
-                                        "status": "error"
-                                    });
-                                    $scope.callBackFree = true;
                                 });
-                            });
+                            }
                         }
-                    }
-                    if($scope.clipboard.action === "move"){
-                        if($scope.target.modus === "patient"){
-                                var study = {
-                                    "00100020": $scope.target.attrs['00100020'],
-                                    "00200010": { "vr": "SH", "Value":[""]},
-                                    "0020000D": { "vr": "UI", "Value":[""]},
-                                    "00080050": { "vr": "SH", "Value":[""]}
-                                };
-                                $http({
-                                    method: 'POST',
-                                    url:"../aets/"+$scope.aet+"/rs/studies",
-                                    data:study
-                                }).then(
-                                    function successCallback(response) { 
-                                        angular.forEach($scope.clipboard.selected, function(m, i){
-                                            console.log("m",m);
-                                            $http.post(
-                                                "../aets/"+$scope.aet+"/rs/studies/"+response.data['0020000D'].Value[0]+"/move/"+$scope.reject,
-                                                m
-                                            ).then(function successCallback(response) {
-                                                console.log("in then function");
-                                                $scope.clipboard = {};
-                                                DeviceService.msg($scope, {
-                                                    "title": "Info",
-                                                    "text": "Object with the Study Instance UID "+m.StudyInstanceUID+" moved successfully!",
-                                                    "status": "info"
+                        if($scope.clipboard.action === "move"){
+                            if($scope.target.modus === "patient"){
+                                    var study = {
+                                        "00100020": $scope.target.attrs['00100020'],
+                                        "00200010": { "vr": "SH", "Value":[""]},
+                                        "0020000D": { "vr": "UI", "Value":[""]},
+                                        "00080050": { "vr": "SH", "Value":[""]}
+                                    };
+                                    $http({
+                                        method: 'POST',
+                                        url:"../aets/"+$scope.aet+"/rs/studies",
+                                        data:study
+                                    }).then(
+                                        function successCallback(response) { 
+                                            angular.forEach($scope.clipboard.selected, function(m, i){
+                                                console.log("m",m);
+                                                $http.post(
+                                                    "../aets/"+$scope.aet+"/rs/studies/"+response.data['0020000D'].Value[0]+"/move/"+$scope.reject,
+                                                    m
+                                                ).then(function successCallback(response) {
+                                                    console.log("in then function");
+                                                    $scope.clipboard = {};
+                                                    DeviceService.msg($scope, {
+                                                        "title": "Info",
+                                                        "text": "Object with the Study Instance UID "+m.StudyInstanceUID+" moved successfully!",
+                                                        "status": "info"
+                                                    });
+                                                    $scope.callBackFree = true;
+                                                }, function errorCallback(response) {
+                                                    DeviceService.msg($scope, {
+                                                        "title": "Error",
+                                                        "text": "Error moving object "+m.StudyInstanceUID,
+                                                        "status": "error"
+                                                    });
+                                                    $scope.callBackFree = true;
                                                 });
-                                                $scope.callBackFree = true;
-                                            }, function errorCallback(response) {
-                                                DeviceService.msg($scope, {
-                                                    "title": "Error",
-                                                    "text": "Error moving object "+m.StudyInstanceUID,
-                                                    "status": "error"
-                                                });
-                                                $scope.callBackFree = true;
+                                            });                          
+                                        },
+                                        function errorCallback(response) {
+                                            DeviceService.msg($scope, {
+                                                "title": "Error "+response.status,
+                                                "text": response.data.errorMessage,
+                                                "status": "error"
                                             });
-                                        });                          
-                                    },
-                                    function errorCallback(response) {
+                                            console.log("response",response);
+                                        }
+                                    );
+                            }else{
+                                angular.forEach($scope.clipboard.selected, function(m, i){
+                                    console.log("m",m);
+                                    $http.post(
+                                        "../aets/"+$scope.aet+"/rs/studies/"+$scope.target.attrs['0020000D'].Value[0]+"/move/"+$scope.reject,
+                                        m
+                                    ).then(function successCallback(response) {
+                                        console.log("in then function");
+                                                    $scope.clipboard = {};
                                         DeviceService.msg($scope, {
-                                            "title": "Error "+response.status,
-                                            "text": response.data.errorMessage,
+                                            "title": "Info",
+                                            "text": "Object with the Study Instance UID "+$scope.target.attrs['0020000D'].Value[0]+" moved successfully!",
+                                            "status": "info"
+                                        });
+                                        $scope.callBackFree = true;
+                                    }, function errorCallback(response) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Error",
+                                            "text": "Error moving object "+$scope.target.attrs['0020000D'].Value[0],
                                             "status": "error"
                                         });
-                                        console.log("response",response);
-                                    }
-                                );
-                        }else{
-                            angular.forEach($scope.clipboard.selected, function(m, i){
-                                console.log("m",m);
-                                $http.post(
-                                    "../aets/"+$scope.aet+"/rs/studies/"+$scope.target.attrs['0020000D'].Value[0]+"/move/"+$scope.reject,
-                                    m
-                                ).then(function successCallback(response) {
-                                    console.log("in then function");
-                                                $scope.clipboard = {};
-                                    DeviceService.msg($scope, {
-                                        "title": "Info",
-                                        "text": "Object with the Study Instance UID "+$scope.target.attrs['0020000D'].Value[0]+" moved successfully!",
-                                        "status": "info"
+                                        $scope.callBackFree = true;
                                     });
-                                    $scope.callBackFree = true;
-                                }, function errorCallback(response) {
-                                    DeviceService.msg($scope, {
-                                        "title": "Error",
-                                        "text": "Error moving object "+$scope.target.attrs['0020000D'].Value[0],
-                                        "status": "error"
-                                    });
-                                    $scope.callBackFree = true;
                                 });
-                            });
+                            }
                         }
                     }
-                }
-              }
+                  }
+                });
             });
-        });
+        }
     };
     $scope.ctrlC = function(item){
-        console.log("ctrlC item",item);
-        $timeout(function() {
-            $scope.$apply(function(){
-                $scope.lastSelectedObject = item;
+        if(user.isRole("admin")){
+            console.log("ctrlC item",item);
+            $timeout(function() {
+                $scope.$apply(function(){
+                    $scope.lastSelectedObject = item;
+                });
             });
-        });
-        $scope.lastSelectedObject = item;
-        if(item.selected){
-            ctrlC();
-        }else{
-            StudiesService.clearSelection($scope.patients);
-            selectObject(item, item.modus);
-            ctrlC();
+            $scope.lastSelectedObject = item;
+            if(item.selected){
+                ctrlC();
+            }else{
+                StudiesService.clearSelection($scope.patients);
+                selectObject(item, item.modus);
+                ctrlC();
+            }
         }
     };
     $scope.ctrlX = function(item){
-        $scope.lastSelectedObject = item;
-        if(item.selected){
-            ctrlX();
-        }else{
-            StudiesService.clearSelection($scope.patients);
-            selectObject(item, item.modus);
-            ctrlX();
+        if(user.isRole("admin")){
+            $scope.lastSelectedObject = item;
+            if(item.selected){
+                ctrlX();
+            }else{
+                StudiesService.clearSelection($scope.patients);
+                selectObject(item, item.modus);
+                ctrlX();
+            }
         }
     };
     $scope.ctrlV = function(item){
-        // console.log("ctrlV item",item);
-        // console.log("$scope.clipboard.selected",$scope.clipboard.selected);
-        // console.log("$scope.clipboard.selected length",Object.keys($scope.clipboard.selected).length);
-        if($scope.clipboard && $scope.clipboard.selected && Object.keys($scope.clipboard.selected).length > 0){
-            ctrlV(item);
-        }else{
-            DeviceService.msg($scope, {
-                "title": "No source selected",
-                "text": "0Select something first as source object!<br>(With ctr + LEFT CLICK and ctrl + c or ctrl + x)",
-                "status": "warning"
-            });
+        if(user.isRole("admin")){
+            // console.log("ctrlV item",item);
+            // console.log("$scope.clipboard.selected",$scope.clipboard.selected);
+            // console.log("$scope.clipboard.selected length",Object.keys($scope.clipboard.selected).length);
+            if($scope.clipboard && $scope.clipboard.selected && Object.keys($scope.clipboard.selected).length > 0){
+                ctrlV(item);
+            }else{
+                DeviceService.msg($scope, {
+                    "title": "No source selected",
+                    "text": "0Select something first as source object!<br>(With ctr + LEFT CLICK and ctrl + c or ctrl + x)",
+                    "status": "warning"
+                });
+            }
         }
     };
 
@@ -2658,18 +2576,18 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             $scope.$apply(function(){
                 $scope.keysdown[e.keyCode] = true;
                 //ctrl + c clicked
-                if($scope.keysdown[17]===true && $scope.keysdown[67]===true){
+                if($scope.keysdown[17]===true && $scope.keysdown[67]===true && user.isRole("admin")){
                     console.log("ctrl + c");
                     ctrlC();
                 }
                 //ctrl + v clicked
-                if($scope.keysdown[17]===true && $scope.keysdown[86]===true){
+                if($scope.keysdown[17]===true && $scope.keysdown[86]===true && user.isRole("admin")){
                     if($scope.lastSelectedObject && $scope.clipboard && $scope.clipboard.selected && Object.keys($scope.clipboard.selected).length > 0){
                         ctrlV($scope.lastSelectedObject);
                     }
                 }
                 //ctrl + x clicked
-                if($scope.keysdown[17]===true && $scope.keysdown[88]===true){
+                if($scope.keysdown[17]===true && $scope.keysdown[88]===true && user.isRole("admin")){
                     console.log("ctrl + x");
                     ctrlX();
                 }
@@ -2816,132 +2734,134 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         return $("#clipboard_content").hasScrollBar();
     }
     $scope.select = function(object, modus, keys){
-        $scope.anySelected = true;
-        $timeout(function() {
-            $scope.$apply(function(){
-                $scope.lastSelectedObject = object;
-                $scope.lastSelectedObject.modus = modus;
+        if(user.isRole("admin")){
+            $scope.anySelected = true;
+            $timeout(function() {
+                $scope.$apply(function(){
+                    $scope.lastSelectedObject = object;
+                    $scope.lastSelectedObject.modus = modus;
+                });
             });
-        });
-        //0020000D object Instance UID
-        //ctrl + click
-        if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[17] === true){
-            selectObject(object, modus);
-        }
-        //close contextmenu (That's a bug on contextmenu module. The bug has been reported)
-        $(".dropdown.contextmenu").addClass('ng-hide');
-
-        //Shift + click
-        if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[16] === true){
-            StudiesService.clearSelection($scope.patients);
-            if(!$scope.lastSelect){
+            //0020000D object Instance UID
+            //ctrl + click
+            if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[17] === true){
                 selectObject(object, modus);
-                $scope.lastSelect = {"keys":keys, "modus":modus};
-            }else{
-                if(modus != $scope.lastSelect.modus){
-                    StudiesService.clearSelection($scope.patients);
+            }
+            //close contextmenu (That's a bug on contextmenu module. The bug has been reported)
+            $(".dropdown.contextmenu").addClass('ng-hide');
+
+            //Shift + click
+            if(Object.keys($scope.keysdown).length === 1 && $scope.keysdown[16] === true){
+                StudiesService.clearSelection($scope.patients);
+                if(!$scope.lastSelect){
                     selectObject(object, modus);
                     $scope.lastSelect = {"keys":keys, "modus":modus};
                 }else{
-                    switch(modus) {
-                        case "patient":
-                            selectObject(object, modus);
-                            break;
-                        case "study":
-                            // {"patientkey":patientkey,"studykey":studykey}
-                            if(keys.patientkey != $scope.lastSelect.keys.patientkey){
-                                StudiesService.clearSelection($scope.patients);
+                    if(modus != $scope.lastSelect.modus){
+                        StudiesService.clearSelection($scope.patients);
+                        selectObject(object, modus);
+                        $scope.lastSelect = {"keys":keys, "modus":modus};
+                    }else{
+                        switch(modus) {
+                            case "patient":
                                 selectObject(object, modus);
-                                $scope.lastSelect = {"keys":keys, "modus":modus};
-                            }else{
-                                console.log("keys.studykey",keys.studykey);
-                                console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.studykey);
-                                if(keys.studykey > $scope.lastSelect.keys.studykey){
-                                    for (var i = keys.studykey; i >= $scope.lastSelect.keys.studykey; i--) {
-                                        console.log("i",i);
-                                        console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[i]);
-                                        // $scope.patients[keys.patientkey].studies[i].selected = true;
-                                        selectObject($scope.patients[keys.patientkey].studies[i], modus);
-                                    }
+                                break;
+                            case "study":
+                                // {"patientkey":patientkey,"studykey":studykey}
+                                if(keys.patientkey != $scope.lastSelect.keys.patientkey){
+                                    StudiesService.clearSelection($scope.patients);
+                                    selectObject(object, modus);
+                                    $scope.lastSelect = {"keys":keys, "modus":modus};
                                 }else{
-                                    for (var i = $scope.lastSelect.keys.studykey; i >= keys.studykey; i--) {
-                                        console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[i]);
-                                        // $scope.patients[keys.patientkey].studies[i].selected = true;
-                                        selectObject($scope.patients[keys.patientkey].studies[i], modus);
+                                    console.log("keys.studykey",keys.studykey);
+                                    console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.studykey);
+                                    if(keys.studykey > $scope.lastSelect.keys.studykey){
+                                        for (var i = keys.studykey; i >= $scope.lastSelect.keys.studykey; i--) {
+                                            console.log("i",i);
+                                            console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[i]);
+                                            // $scope.patients[keys.patientkey].studies[i].selected = true;
+                                            selectObject($scope.patients[keys.patientkey].studies[i], modus);
+                                        }
+                                    }else{
+                                        for (var i = $scope.lastSelect.keys.studykey; i >= keys.studykey; i--) {
+                                            console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[i]);
+                                            // $scope.patients[keys.patientkey].studies[i].selected = true;
+                                            selectObject($scope.patients[keys.patientkey].studies[i], modus);
+                                        }
                                     }
+                                    $scope.lastSelect = {};
                                 }
-                                $scope.lastSelect = {};
-                            }
-                            break;
-                        case "series":
-                            console.log("series");
-                            console.log("keys",keys);
-                            if(keys.patientkey != $scope.lastSelect.keys.patientkey || keys.studykey != $scope.lastSelect.keys.studykey){
-                                StudiesService.clearSelection($scope.patients);
-                                selectObject(object, modus);
-                                $scope.lastSelect = {"keys":keys, "modus":modus};
-                            }else{
-                                console.log("keys.studykey",keys.serieskey);
-                                console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.serieskey);
-                                if(keys.serieskey > $scope.lastSelect.keys.serieskey){
-                                    for (var i = keys.serieskey; i >= $scope.lastSelect.keys.serieskey; i--) {
-                                        console.log("i",i);
-                                        console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[keys.studykey].series[i]);
-                                        // $scope.patients[keys.patientkey].studies[i].selected = true;
-                                        selectObject($scope.patients[keys.patientkey].studies[keys.studykey].series[i], modus);
-                                    }
+                                break;
+                            case "series":
+                                console.log("series");
+                                console.log("keys",keys);
+                                if(keys.patientkey != $scope.lastSelect.keys.patientkey || keys.studykey != $scope.lastSelect.keys.studykey){
+                                    StudiesService.clearSelection($scope.patients);
+                                    selectObject(object, modus);
+                                    $scope.lastSelect = {"keys":keys, "modus":modus};
                                 }else{
-                                    for (var i = $scope.lastSelect.keys.serieskey; i >= keys.serieskey; i--) {
-                                        console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[keys.studykey].series[i]);
-                                        // $scope.patients[keys.patientkey].studies[i].selected = true;
-                                        selectObject($scope.patients[keys.patientkey].studies[keys.studykey].series[i], modus);
+                                    console.log("keys.studykey",keys.serieskey);
+                                    console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.serieskey);
+                                    if(keys.serieskey > $scope.lastSelect.keys.serieskey){
+                                        for (var i = keys.serieskey; i >= $scope.lastSelect.keys.serieskey; i--) {
+                                            console.log("i",i);
+                                            console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[keys.studykey].series[i]);
+                                            // $scope.patients[keys.patientkey].studies[i].selected = true;
+                                            selectObject($scope.patients[keys.patientkey].studies[keys.studykey].series[i], modus);
+                                        }
+                                    }else{
+                                        for (var i = $scope.lastSelect.keys.serieskey; i >= keys.serieskey; i--) {
+                                            console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[keys.studykey].series[i]);
+                                            // $scope.patients[keys.patientkey].studies[i].selected = true;
+                                            selectObject($scope.patients[keys.patientkey].studies[keys.studykey].series[i], modus);
+                                        }
                                     }
+                                    $scope.lastSelect = {};
                                 }
-                                $scope.lastSelect = {};
-                            }
-                            break;
-                        case "instance":
-                            console.log("series");
-                            console.log("keys",keys);
-                            console.log("$scope.patients",$scope.patients[keys.patientkey]);
-                            if(keys.patientkey != $scope.lastSelect.keys.patientkey || keys.studykey != $scope.lastSelect.keys.studykey || keys.serieskey != $scope.lastSelect.keys.serieskey){
-                                StudiesService.clearSelection($scope.patients);
-                                selectObject(object, modus);
-                                $scope.lastSelect = {"keys":keys, "modus":modus};
-                            }else{
-                                console.log("keys.studykey",keys.instancekey);
-                                console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.instancekey);
-                                if(keys.instancekey > $scope.lastSelect.keys.instancekey){
-                                    for (var i = keys.instancekey; i >= $scope.lastSelect.keys.instancekey; i--) {
-                                        console.log("i",i);
-                                        // console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]);
-                                        // $scope.patients[keys.patientkey].studies[i].selected = true;
-                                        selectObject($scope.patients[keys.patientkey].studies[keys.studykey].series[keys.serieskey].instances[i], modus);
-                                    }
+                                break;
+                            case "instance":
+                                console.log("series");
+                                console.log("keys",keys);
+                                console.log("$scope.patients",$scope.patients[keys.patientkey]);
+                                if(keys.patientkey != $scope.lastSelect.keys.patientkey || keys.studykey != $scope.lastSelect.keys.studykey || keys.serieskey != $scope.lastSelect.keys.serieskey){
+                                    StudiesService.clearSelection($scope.patients);
+                                    selectObject(object, modus);
+                                    $scope.lastSelect = {"keys":keys, "modus":modus};
                                 }else{
-                                    for (var i = $scope.lastSelect.keys.instancekey; i >= keys.instancekey; i--) {
-                                        // console.log("$scope.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]=",$scope.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]);
-                                        // $scope.patients[keys.patientkey].studies[i].selected = true;
-                                        selectObject($scope.patients[keys.patientkey].studies[keys.studykey].series[keys.serieskey].instances[i], modus);
+                                    console.log("keys.studykey",keys.instancekey);
+                                    console.log("$scope.lastSelect.keys.studykey",$scope.lastSelect.keys.instancekey);
+                                    if(keys.instancekey > $scope.lastSelect.keys.instancekey){
+                                        for (var i = keys.instancekey; i >= $scope.lastSelect.keys.instancekey; i--) {
+                                            console.log("i",i);
+                                            // console.log("$scope.patients[keys.patientkey].studies[i]=",$scope.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]);
+                                            // $scope.patients[keys.patientkey].studies[i].selected = true;
+                                            selectObject($scope.patients[keys.patientkey].studies[keys.studykey].series[keys.serieskey].instances[i], modus);
+                                        }
+                                    }else{
+                                        for (var i = $scope.lastSelect.keys.instancekey; i >= keys.instancekey; i--) {
+                                            // console.log("$scope.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]=",$scope.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]);
+                                            // $scope.patients[keys.patientkey].studies[i].selected = true;
+                                            selectObject($scope.patients[keys.patientkey].studies[keys.studykey].series[keys.serieskey].instances[i], modus);
+                                        }
                                     }
+                                    $scope.lastSelect = {};
                                 }
-                                $scope.lastSelect = {};
-                            }
-                            break;
-                        default:
-                            //
-                    } 
+                                break;
+                            default:
+                                //
+                        } 
+                    }
                 }
             }
-        }
-        if(Object.keys($scope.keysdown).length === 0 && $scope.anySelected){
-            StudiesService.clearSelection($scope.patients);
-            $timeout(function() {
-                $scope.$apply(function(){
-                    $scope.anySelected = false;
-                    $scope.selected = {};
+            if(Object.keys($scope.keysdown).length === 0 && $scope.anySelected){
+                StudiesService.clearSelection($scope.patients);
+                $timeout(function() {
+                    $scope.$apply(function(){
+                        $scope.anySelected = false;
+                        $scope.selected = {};
+                    });
                 });
-            });
+            }
         }
     };
     $scope.rejectStudy = function(study) {

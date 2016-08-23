@@ -1,7 +1,9 @@
 "use strict";
 
-myApp.controller('MainController', function ($scope, $location, $http) {
+myApp.controller('MainController', function ($scope, $location, $http, MainService, user) {
   // $scope.logoutUrl              = myApp.logoutUrl();
+  MainService.user();
+  $scope.user = user;
   $scope.showUserMenu           = false;
   $scope.msg                    = [];
   $scope.visibleHeaderIndex     = 0;
@@ -37,28 +39,7 @@ myApp.controller('MainController', function ($scope, $location, $http) {
           + encodeURIComponent(host + location.pathname);
   });  
 
-  $http({
-      method: 'GET',
-      url: 'rs/realm'
-  }).then(function successCallback(response) {
-    // console.log("response. user=",JSON.parse(response.data));
-    // $scope.user           = {};
-    $scope.username  = response.data.user;
-
-    $scope.isRole = function(role){
-        if(response.data.user === null && response.data.roles.length === 0){
-          return true;
-        }else{ 
-          if(response.data.roles && response.data.roles.indexOf(role) > -1){
-            return true;
-          }else{
-            return false;
-          }
-        }
-    };
-  }, function errorCallback(response) {
-      // vex.dialog.alert("Error loading device names, please reload the page and try again!");
-  }); 
+ 
   $scope.toggleMenu = function(){
     if($scope.showMenu){
       	$scope.showMenu = false;

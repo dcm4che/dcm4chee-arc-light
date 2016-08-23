@@ -2,18 +2,10 @@
         queryMode:{{queryMode}}
         <button ng-click="fireRightQuery()">{{queryMode}}</button>
 </pre> -->
-<!-- <md-datepicker ng-model="myDate" md-placeholder="Enter date"></md-datepicker> -->
-<!-- <div id="contextmenu" ng-show="showContextMenu">
-    <ul>
-        <li><a href=""><label>Copy</label><span>Ctrl + c</span></a></li>
-        <li><a href=""><label>Paste</label><span>Ctrl + v</span></a></li>
-        <li><a href=""><label>Cut</label><span>Ctrl + x</span></a></li>
-    </ul>
-</div> -->
 
 <!-- contextmenu -->
-<div contextmenu="meta.contextmenu" class="dropdown contextmenu">
-  <ul class="dropdown-menu" role="menu">
+<div contextmenu="meta.contextmenu" class="dropdown contextmenu" >
+  <ul ng-if="user.isRole('admin')" class="dropdown-menu" role="menu">
 <!--     <li class="dropdown-header">
     Test header
     {{meta.contextmenu.item.modus}}
@@ -390,7 +382,7 @@
             </div>
         </div>
 
-        <a ng-show="isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="btn-danger btn">Delete Instances 
+        <a ng-show="user.isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="btn-danger btn">Delete Instances 
             <span class="glyphicon glyphicon-trash"></span> 
         </a>
     </div>
@@ -469,7 +461,7 @@
 
     </div>
     <div class="col-md-3 block-2-1" ng-show="filterMode === 'study'|| filterMode === 'mwl'">
-        <!-- <div class="row" ng-show="isRole('admin')"> -->
+        <!-- <div class="row" ng-show="user.isRole('admin')"> -->
 <!--             <label for="reject" class="block_seid text-right">Reject:</label>
             <div class="block_seid"> -->
 <!--                 <select id="reject" ng-model="reject" class="col-md-9">
@@ -541,7 +533,7 @@
                     <button class="execute btn btn-link btn-xs" ng-click="queryStudies(0);patientmode=false" title="Query Studies">
                         <span class="glyphicon glyphicon-refresh"></span>
                     </button>
-                    <a ng-show="isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="deleteRejctedI">
+                    <a ng-show="user.isRole('admin')" ng-click="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="deleteRejctedI">
                         <span class="glyphicon glyphicon-trash"></span>
                     </a> -->
     <!--                 <button class="btn btn-link btn-xs"
@@ -708,7 +700,7 @@
                     <a class="table_btn" ng-click="patient.showAttributes = !patient.showAttributes" href="" title="Show Attributes">
                         <span class="glyphicon glyphicon-th-list"></span>
                     </a>               
-                    <a class="table_btn" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
+                    <a class="table_btn" ng-show="user.isRole('admin')" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a> 
 <!--                     <div class="table_btn create" ng-init="patient.createButtons = false">
@@ -722,14 +714,14 @@
                             </a>
                         </div>            
                     </div > -->
-                    <a class="table_btn" ng-click="patient.createButtons = false;createMWL(patient)" href="" title="Create MWL">
+                    <a class="table_btn" ng-show="user.isRole('admin')" ng-click="patient.createButtons = false;createMWL(patient)" href="" title="Create MWL">
                         <span class="glyphicon glyphicon-plus" ></span>
                     </a>   
-                    <a class="table_btn"  ng-show="isRole('admin') && patient.attrs['00201200'].Value[0] === 0" ng-click="deletePatient(patient, patients, patientkey)" href="" title="Delete Patient">
+                    <a class="table_btn"  ng-show="user.isRole('admin') && patient.attrs['00201200'].Value[0] === 0" ng-click="deletePatient(patient, patients, patientkey)" href="" title="Delete Patient">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>
-                    <a ng-if="!(isRole('admin') && patient.attrs['00201200'].Value[0] === 0)" class="table_btn" ng-hide="patient.studies || patient.mwls" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
-                    <a ng-if="!(isRole('admin') && patient.attrs['00201200'].Value[0] === 0)" class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
+                    <a ng-if="!(user.isRole('admin') && patient.attrs['00201200'].Value[0] === 0)" class="table_btn" ng-hide="patient.studies || patient.mwls" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
+                    <a ng-if="!(user.isRole('admin') && patient.attrs['00201200'].Value[0] === 0)" class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
                     <a ng-init="patient.showmwls = true" class="table_btn" ng-show="!patient.showmwls && patient.mwls" ng-click="patient.showmwls = true" href="" title="Show MWLs">&#9658;</a>
                     <a class="table_btn" ng-show="patient.showmwls && patient.mwls" ng-click="patient.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
                 </div>
@@ -786,19 +778,19 @@
                                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                                     <span class="glyphicon glyphicon-th-list"></span>
                                 </a>
-                                <a ng-click="editStudy(patients[patientkey], patientkey, studykey, study)" href="" title="Edit Study">
+                                <a ng-show="user.isRole('admin')" ng-click="editStudy(patients[patientkey], patientkey, studykey, study)" href="" title="Edit Study">
                                     <span class="glyphicon glyphicon-pencil"></span>
                                 </a>
-                                <a ng-click="exportStudy(study)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
+                                <a ng-click="exportStudy(study)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Study">
                                     <span class="glyphicon glyphicon-export"></span>
                                 </a>
-                                <a ng-hide="trashaktive || !isRole('admin') || study.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(study)" href="" title="Reject Study">
+                                <a ng-hide="trashaktive || !user.isRole('admin') || study.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(study)" href="" title="Reject Study">
                                     <span class="glyphicon glyphicon-trash"></span>
                                 </a>
-                                <a ng-show="trashaktive && isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
+                                <a ng-show="trashaktive && user.isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
                                     <span class="glyphicon glyphicon-repeat"></span>
                                 </a>
-                                <a ng-show="isRole('admin') && study.attrs['00201208'].Value[0] === 0" ng-click="deleteStudy(study)" href="" title="Delete Study">
+                                <a ng-show="user.isRole('admin') && study.attrs['00201208'].Value[0] === 0" ng-click="deleteStudy(study)" href="" title="Delete Study">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </a>
                                 <!--
@@ -806,8 +798,8 @@
                                     <span class="glyphicon glyphicon-save"></span>
                                 </a>
                                 -->
-                                <a ng-if="!(isRole('admin') && study.attrs['00201208'].Value[0] === 0)" ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
-                                <a ng-if="!(isRole('admin') && study.attrs['00201208'].Value[0] === 0)" ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
+                                <a ng-if="!(user.isRole('admin') && study.attrs['00201208'].Value[0] === 0)" ng-hide="study.series" ng-click="querySeries(study,0)" href="" title="Show Series">&#9658;</a>
+                                <a ng-if="!(user.isRole('admin') && study.attrs['00201208'].Value[0] === 0)" ng-show="study.series" ng-click="study.series = null" href="" title="Hide Series">&#9660;</a>
                             </div>
                             <div style="width:10.4%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00200010'].Value[0]}}">{{(study.attrs['00200010'].Value[0]) || '&nbsp;'}}</div>
                             <div  style="width:17.3%" tooltip="{{study.attrs['0020000D'].Value[0]}}" test="{{study.attrs['0020000D'].Value[0]}}" class="td_cell txt hover_cell" tooltip="{{study.attrs['0020000D'].Value[0]}}">{{(study.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div>
@@ -856,13 +848,13 @@
                                         <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                                             <span class="glyphicon glyphicon-th-list"></span>
                                         </a>
-                                        <a ng-click="exportSeries(series)" ng-show="exporterID && isRole('admin')" href="" title="Export Series">
+                                        <a ng-click="exportSeries(series)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Series">
                                             <span class="glyphicon glyphicon-export"></span>
                                         </a>
-                                        <a ng-hide="trashaktive || !isRole('admin') ||  series.attrs['00201209'].Value[0] === 0" ng-click="rejectSeries(series)" href="" title="Reject Series">
+                                        <a ng-hide="trashaktive || !user.isRole('admin') ||  series.attrs['00201209'].Value[0] === 0" ng-click="rejectSeries(series)" href="" title="Reject Series">
                                             <span  class="glyphicon glyphicon-trash"></span>
                                         </a>
-                                        <a ng-show="trashaktive && isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
+                                        <a ng-show="trashaktive && user.isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
                                             <span class="glyphicon glyphicon-repeat"></span>
                                         </a>
                                         <!--
@@ -921,13 +913,13 @@
                                                 <a ng-click="toggleAttributs(series.instances[key],'fileattributs');addFileAttribute(instance)" href="" title="Show Attributes from file" ng-class="{active:instance.showFileAttributes}">
                                                     <span class="glyphicon glyphicon-list"></span>
                                                 </a>
-                                                <a ng-click="exportInstance(instance)" ng-show="exporterID && isRole('admin')" href="" title="Export Instance">
+                                                <a ng-click="exportInstance(instance)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Instance">
                                                     <span class="glyphicon glyphicon-export"></span>
                                                 </a>
-                                                <a ng-hide="trashaktive || !isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
+                                                <a ng-hide="trashaktive || !user.isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
                                                     <span  class="glyphicon glyphicon-trash"></span>
                                                 </a>
-                                                <a ng-show="trashaktive && isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
+                                                <a ng-show="trashaktive && user.isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
                                                     <span class="glyphicon glyphicon-repeat"></span>
                                                 </a>
                                                 <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
@@ -1019,19 +1011,19 @@
                                 <a ng-click="mwl.showAttributes = !mwl.showAttributes" href="" title="Show Attributes">
                                     <span class="glyphicon glyphicon-th-list"></span>
                                 </a>
-                                <a ng-click="editMWL(patients[patientkey], patientkey, mwlkey, mwl)" href="" title="Edit MWL">
+                                <a ng-show="user.isRole('admin')" ng-click="editMWL(patients[patientkey], patientkey, mwlkey, mwl)" href="" title="Edit MWL">
                                     <span class="glyphicon glyphicon-pencil"></span>
                                 </a>
-                                <a ng-click="deleteMWL(mwl)" href="" title="Delete MWL">
+                                <a ng-show="user.isRole('admin')" ng-click="deleteMWL(mwl)" href="" title="Delete MWL">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </a>
-<!--                                 <a ng-click="exportStudy(mwl)" ng-show="exporterID && isRole('admin')" href="" title="Export Study">
+<!--                                 <a ng-click="exportStudy(mwl)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Study">
                                     <span class="glyphicon glyphicon-export"></span>
                                 </a>
-                                <a ng-hide="trashaktive || !isRole('admin') || mwl.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(mwl)" href="" title="Reject Study">
+                                <a ng-hide="trashaktive || !user.isRole('admin') || mwl.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(mwl)" href="" title="Reject Study">
                                     <span class="glyphicon glyphicon-trash"></span>
                                 </a>
-                                <a ng-show="trashaktive && isRole('admin')" ng-click="rejectStudy(mwl)" href="" title="Restore Study">
+                                <a ng-show="trashaktive && user.isRole('admin')" ng-click="rejectStudy(mwl)" href="" title="Restore Study">
                                     <span class="glyphicon glyphicon-repeat"></span>
                                 </a> -->
                                 <!--

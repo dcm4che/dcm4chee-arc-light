@@ -16,13 +16,13 @@
 <body ng-controller="MainController" scroll>
 <div class="user">
     <span ng-click="showUserMenu = !showUserMenu" id="usermenu">
-        <div class="username" ng-show="username && username != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{username}}</div>
+        <div class="username" ng-show="user.username && user.username != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.username}}</div>
         <i class="config glyphicon glyphicon-cog"></i>
     </span>
     <ul ng-show="showUserMenu">
-        <li ng-show="isOnPage('studies')"><a  ng-controller="StudyListCtrl" ng-click="createPatient()">Create new patient</a></li>
-        <li ng-show="username && username != 'anonymous'"><a ng-href="{{url}}/realms/dcm4che/account" target="_blank">Edit {{username}}</a></li>
-        <li ng-show="username && username != 'anonymous'"><a ng-href="{{logoutUrl}}">Logout</a></li>
+        <li ng-show="isOnPage('studies') && user.isRole('admin')"><a  ng-controller="StudyListCtrl" ng-click="createPatient()">Create new patient</a></li>
+        <li ng-show="user.username && user.username != 'anonymous'"><a ng-href="{{url}}/realms/dcm4che/account" target="_blank">Edit {{user.username}}</a></li>
+        <li ng-show="user.username && user.username != 'anonymous'"><a ng-href="{{logoutUrl}}">Logout</a></li>
      </ul>
 </div>
 <div class="background"></div>
@@ -31,9 +31,9 @@
     <div class="glyphicon glyphicon-align-justify toggle-button" ng-click="toggleMenu()"></div>
     <li role="presentation" ng-class="getClass('/studies')" ng-click="toggleMenu()"><a href="#studies">Studies</a></li>
     <li role="presentation" ng-class="getClass('/queues')" ng-click="toggleMenu()"><a href="#/queues">Queues</a></li>
-    <li ng-show="isRole('admin')" role="presentation" ng-class="getClass('/ctrl')" ng-click="toggleMenu()"><a href="#/ctrl">Control</a></li>
-<!--     <li ng-show="isRole('admin')" role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li> -->
-    <li ng-show="isRole('admin')" role="presentation" ng-class="getClass('/devicelist')" ng-click="toggleMenu()"><a href="#/devicelist">Device list</a></li>
+    <li ng-show="user.isRole('admin')" role="presentation" ng-class="getClass('/ctrl')" ng-click="toggleMenu()"><a href="#/ctrl">Control</a></li>
+<!--     <li ng-show="user.isRole('admin')" role="presentation" ng-class="getClass('/devices')" ng-click="toggleMenu()"><a href="#/devices">Devices</a></li> -->
+    <li ng-show="user.isRole('admin')" role="presentation" ng-class="getClass('/devicelist')" ng-click="toggleMenu()"><a href="#/devicelist">Device list</a></li>
     <!-- <li><a><strike>devices</strike></a></li> -->
     <!-- <li><a>-</a></li> -->
     <!-- <li role="presentation"><a ng-href="{{logoutUrl}}">Logout</a></li> -->
@@ -152,6 +152,7 @@
 <script src="js/directives/inputDir.js"></script>
 <script src="js/directives/tooltipDir.js"></script>
 <!-- Services -->
+<script src="js/services/main_serviceFact.js"></script>
 <script src="js/services/device_serviceFact.js"></script>
 <script src="js/services/studies_serviceFact.js"></script>
 <script src="js/services/qido.js"></script>
