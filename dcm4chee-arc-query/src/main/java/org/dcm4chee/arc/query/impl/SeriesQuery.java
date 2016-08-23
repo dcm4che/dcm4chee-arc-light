@@ -47,6 +47,7 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
@@ -65,6 +66,8 @@ class SeriesQuery extends AbstractQuery {
             QStudy.study.pk,
             QSeries.series.pk,
             QPatient.patient.numberOfStudies,
+            QPatient.patient.createdTime,
+            QPatient.patient.updatedTime,
             QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -189,6 +192,10 @@ class SeriesQuery extends AbstractQuery {
         attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(QPatient.patient.numberOfStudies));
         attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
         attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientCreateDateTime, VR.DT,
+                results.get(QPatient.patient.createdTime));
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientUpdateDateTime, VR.DT,
+                results.get(QPatient.patient.updatedTime));
         return attrs;
     }
 

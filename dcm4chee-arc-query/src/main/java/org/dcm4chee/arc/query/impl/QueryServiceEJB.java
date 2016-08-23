@@ -52,6 +52,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
@@ -74,6 +75,8 @@ public class QueryServiceEJB {
     static final Expression<?>[] PATIENT_STUDY_SERIES_ATTRS = {
         QStudy.study.pk,
         QPatient.patient.numberOfStudies,
+        QPatient.patient.createdTime,
+        QPatient.patient.updatedTime,
         QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -176,6 +179,10 @@ public class QueryServiceEJB {
         attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
         attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientCreateDateTime, VR.DT,
+                result.get(QPatient.patient.createdTime));
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.PatientUpdateDateTime, VR.DT,
+                result.get(QPatient.patient.updatedTime));
         return attrs;
     }
 
