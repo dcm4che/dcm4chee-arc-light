@@ -99,7 +99,8 @@
     "dcmQidoMaxNumberOfResults": {
       "title": "Qido Max Number Of Results",
       "description": "Maximal number of return results by QIDO-RS Service. 0 (=unlimited) if absent",
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0
     },
     "dcmFwdMppsDestination": {
       "title": "Mpps Forward Destination",
@@ -144,7 +145,7 @@
       "type": "integer"
     },
     "dcmAltCMoveSCP": {
-      "title": "AltCMoveSCP",
+      "title": "Alternative C-Move SCP",
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
       "type": "string"
     },
