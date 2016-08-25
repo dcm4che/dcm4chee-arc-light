@@ -305,8 +305,7 @@ myApp.constant("$select",
         "required":{
           "cn": "Name",
           "dcmDIMSE": "DIMSE",
-          "dicomTransferRole": "DICOM Transfer Role",
-          "dcmURI": "dcmURI"
+          "dicomTransferRole": "DICOM Transfer Role"
         }
       },
       "dcmRejectionNote":{
