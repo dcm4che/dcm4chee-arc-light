@@ -113,7 +113,7 @@
         <div role="tabpanel" class="aet_modus" id="aet_modus" ng-if="showAetList">
             <h2>Application Entitie list</h2>
             <input autocomplete="off" id="aesfilter" class="aesfilter" ng-model="aesfilter" placeholder="Search AEs"/>
-            <button class="adddevice" ng-click="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>
+            <button class="adddevice" ng-click="createAe()" title="Register new Application Entitie"><span class="glyphicon glyphicon-plus"></span></button>
             <!--     <button class="adddevice" ng-click="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
             <a  ng-init="advancedConfig=false" href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
             <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>

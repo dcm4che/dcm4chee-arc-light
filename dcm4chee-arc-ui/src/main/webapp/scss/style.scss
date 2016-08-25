@@ -3018,3 +3018,66 @@ table.j4care-table{
 		}
 	}
 }
+.vex.vex-theme-os.registernewaet{
+	.vex-content{
+		width: 80%;
+		.tabcontain {
+		    border-bottom: 1px solid #ddd;
+		    border-left: 1px solid #ddd;
+		    border-right: 1px solid #ddd;
+		    padding: 15px;
+		    float: left;
+		    width:100%;
+		}
+		.block{
+			float: left;
+    		width: 100%;
+    		border:1px solid #ddd;
+    		padding:2px 0;
+			.label_part{
+			  	color: black;
+			    float: left;
+			    margin: 6px 10px;
+			    text-align: right;
+			    width: 23%;
+			    height:26px;
+			}
+			.input_part{
+			   	float: left;
+			    margin-bottom: 0;
+			    width: 25.2%;
+			    margin-top:3px;
+			    input{
+			    	border-color: #ccc;
+				    border-radius: 0;
+				    border-style: solid;
+				    border-width: 1px;
+				    height: 26px;
+				    min-height: 26px;
+				    margin-top: 3px;
+				    padding: 3px 12px;
+				    float: left;
+			    }
+			}
+			.description{
+				color: #777;
+			    float: right;
+			    margin-right: 1%;
+			    margin-top: 7px;
+			    width: 49%;
+			    height:26px;
+			}
+			.radiobuttons_part{
+			    label{
+				    float: left;
+				    height: 26px;
+				    width: 100%;
+			    	span{
+			    		float: left;
+    					margin: 4px 10px;
+			    	}
+			    }
+			}
+		}
+	}
+}

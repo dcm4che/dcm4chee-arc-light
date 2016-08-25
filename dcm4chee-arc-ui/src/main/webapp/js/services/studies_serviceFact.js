@@ -53,6 +53,30 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
        var dd  = this.getDate().toString();
        return yyyy + (mm[1]?mm:"0"+mm[0]) + (dd[1]?dd:"0"+dd[0]); // padding
     };
+    var convertDateToStringHelper = function(object, index, path, pathlength, date){
+        // console.log("path",path);
+        // console.log("date",date);
+        for (var i in object) {
+            if (i != path[index]) {
+                if (object[i] !== null && typeof(object[i]) === "object") {
+                    convertDateToStringHelper(object[i], index, path, pathlength, date);
+                }
+            } else {
+                // console.log("pathlength",pathlength);
+                // console.log("index",index);
+                // console.log("i",i);
+                // console.log("object",object);
+                if(pathlength === index){
+                    // console.log("object[i]",object[i]);
+                    object[i].Value[0] = date;
+                }else{
+                    if (object[i] !== null && typeof(object[i]) === "object") {
+                        convertDateToStringHelper(object[i], index+1, path, pathlength, date);
+                    }
+                }
+            }
+        }
+    }
     var getArrayFromIodHelper = function(data, dropdown){
         angular.forEach(data, function(m, i){
             // console.log("i",i);
@@ -448,26 +472,38 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
             return object;
         },
         convertDateToString : function($scope, mode){
-            angular.forEach($scope[mode].attrs,function(m, i){
-                if(m.vr === "DA"){
-                    // var string = value.Value[0];
-                    // var yyyy = string.substring(0,4);
-                    // var MM = string.substring(4,6);
-                    // var dd = string.substring(6,8);
-                    // console.log("yyyy",yyyy);
-                    // console.log("MM",MM);
-                    // console.log("dd",dd);
-                    // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
-                    // console.log("testDate",testDate);
-                    var d = new Date($scope.dateplaceholder[i]);
-                    d.yyyymmdd();
-                    // console.log("d",d.yyyymmdd());
-                    // var timestampDate   = Date.parse(m.Value[0]);
-                    // var date          = new Date(timestampDate);
-                    // console.log("date",date);
-                    $scope[mode].attrs[i].Value[0] = d.yyyymmdd();
-                }
+            console.log("mode",mode);
+            console.log("$scope.dateplaceholder",$scope.dateplaceholder);
+            // if(str.split(" "); )
+            angular.forEach($scope.dateplaceholder, function(m, i){
+                console.log("m",m);
+                console.log("i",i);
+                console.log("i",i);
+                var d = new Date(m);
+                var path = i.split(':');
+                var date = d.yyyymmdd();
+                convertDateToStringHelper($scope[mode].attrs, 0, path, path.length-1, date);
             });
+            // angular.forEach($scope[mode].attrs,function(m, i){
+            //     if(m.vr === "DA"){
+            //         // var string = value.Value[0];
+            //         // var yyyy = string.substring(0,4);
+            //         // var MM = string.substring(4,6);
+            //         // var dd = string.substring(6,8);
+            //         // console.log("yyyy",yyyy);
+            //         // console.log("MM",MM);
+            //         // console.log("dd",dd);
+            //         // var testDate = new Date(yyyy+"-"+MM+"-"+dd);
+            //         // console.log("testDate",testDate);
+            //         var d = new Date($scope.dateplaceholder[i]);
+            //         d.yyyymmdd();
+            //         // console.log("d",d.yyyymmdd());
+            //         // var timestampDate   = Date.parse(m.Value[0]);
+            //         // var date          = new Date(timestampDate);
+            //         // console.log("date",date);
+            //         $scope[mode].attrs[i].Value[0] = d.yyyymmdd();
+            //     }
+            // });
         },
         clearSelection: function(patients){
             angular.forEach(patients,function(patient, i){

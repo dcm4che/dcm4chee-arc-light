@@ -181,6 +181,7 @@ myApp.constant("$select",
         "title" : "Archive HL7 Application",
         "optionRef" : ["hl7Application","dcmArchiveHL7Application"],
         "optionValue": "hl7ApplicationName",
+        "parentOf" : ["hl7ForwardRule"],
         "type": "object"
       
       },

@@ -646,6 +646,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         modifyStudy(patient, "create", "", "", study);
     };
     var modifyMWL = function(patient, mode, patientkey, mwlkey, mwl){
+        $scope.dateplaceholder = {};
         $scope.testmodel = {};
         // console.log("patient",patient);
         // console.log("$scope.testmodel",$scope.testmodel);
@@ -711,12 +712,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
                     var date          = new Date(timestampDate);
                     $scope.dateplaceholder[index] = date;
+
                 }
             });
         }
         $scope.editmwl  = editmwl;
         editmwl         = {};
         $scope.lastPressedCode = 0;
+        console.log("$scope.editmwl",$scope.editmwl);
         // console.log("$scope.editmwl",$scope.editmwl);
 
         $scope.removeAttr = function(attrcode){
@@ -1030,7 +1033,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 // local["00081030"] = { "vr": "SH", "Value":[""]};
                                 // local["local["00100020"].Value[0]"] = { "vr": "SH", "Value":[""]};
                                 // console.log("local",local);
-                                console.log("local",local);
+                                // console.log("local",angular.copy(local));
+                                // var test = angular.copy(local);
+                                // console.log("test",test);
+                                console.log("$scope.editmwl",$scope.editmwl);
                                 $http.post(
                                     "../aets/"+$scope.aet+"/rs/mwlitems",
                                     local

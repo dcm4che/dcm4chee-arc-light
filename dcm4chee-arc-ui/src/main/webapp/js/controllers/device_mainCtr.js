@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, schemas, $select) {
+myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, schemas, $select, $templateRequest) {
 
     $scope.activeMenu             = "device_menu";
     $scope.showSave               = false;
@@ -219,6 +219,49 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
           vex.dialog.alert('Please select device first!');
         }
     };
+
+    $scope.createAe = function(){
+        $templateRequest('templates/device_aet.html').then(function(tpl) {
+            var html = $compile(tpl)($scope);
+            // var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
+            vex.dialog.open({
+              message: 'Register new Application Entity',
+              input: html,
+              className:"vex-theme-os registernewaet",
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Register'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancel'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    $http.put(
+                        "../unique/aets/"+$scope.newAet
+                    ).then(function successCallback(response) {
+                        console.log("succes response",response);
+                        DeviceService.msg($scope, {
+                            "title": "Info",
+                            "text": "Aet registerd successfully!",
+                            "status": "info"
+                        });
+                    }, function errorCallback(response) {
+                        console.log("errorcallback response",response);
+                        DeviceService.msg($scope, {
+                            "title": "Error "+response.status,
+                            "text": response.data.errorMessage,
+                            "status": "error"
+                        });
+                    });
+                }
+              }
+            });
+        });
+    }
+
     /*
     *Create new Device
     */
