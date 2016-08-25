@@ -126,7 +126,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 bb.getScheduleProcedureTemplateURI());
         LdapUtils.storeDiff(mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern());
         LdapUtils.storeDiff(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern());
-        LdapUtils.storeDiff(mods, "dcmOtherAETitle", aa.getAETitle(), bb.getAETitle());
+        LdapUtils.storeDiff(mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle());
     }
 
     @Override
