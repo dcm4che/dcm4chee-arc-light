@@ -115,17 +115,17 @@ public class MwlRS {
         final Attributes attrs = reader.readDataset(null);
         IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
         if (patientID == null)
-            throw new WebApplicationException("missing Patient ID in message body", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
 
         Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
         if (spsItem == null)
-            throw new WebApplicationException(
-                    "Missing or empty (0040,0100) Scheduled Procedure Step Sequence", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse(
+                    "Missing or empty (0040,0100) Scheduled Procedure Step Sequence", Response.Status.BAD_REQUEST));
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
-                    Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND));
 
         if (!attrs.containsValue(Tag.AccessionNumber))
             idService.newAccessionNumber(attrs);
@@ -163,7 +163,8 @@ public class MwlRS {
         ctx.setSpsID(spsID);
         procedureService.deleteProcedure(ctx);
         if (ctx.getEventActionCode() == null)
-            throw new NotFoundException("MWLItem with study instance UID {} and SPS ID {} not found." + studyIUID + spsID);
+            throw new WebApplicationException(getResponse("MWLItem with study instance UID {} and SPS ID {} not found."
+                    + studyIUID + spsID, Response.Status.NOT_FOUND));
     }
 
     private ApplicationEntity getApplicationEntity() {
@@ -177,5 +178,10 @@ public class MwlRS {
             this.ae = ae;
         }
         return ae;
+    }
+
+    private Response getResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 }
