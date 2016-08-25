@@ -67,6 +67,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }
     });
     $scope.changeElement = function(element){
+            console.log("on changelement element",element);
             var checkDevice = element === "device";
             angular.forEach($select, function(m, j){
               if(element === j && $scope.selectedPart[j]  != undefined ){
@@ -113,6 +114,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             cfpLoadingBar.complete();
     };
     $scope.selectElement = function(element) {
+        console.log("on selectelement element",element);
         var checkDevice = element === "device";
         angular.forEach($select, function(m, j){
             //Differentiate between array elements and not array elements becouse just the array elements (Select element) has selectedPart model
