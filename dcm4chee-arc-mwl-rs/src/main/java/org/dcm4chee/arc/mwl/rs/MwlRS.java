@@ -131,11 +131,11 @@ public class MwlRS {
             idService.newAccessionNumber(attrs);
         if (!attrs.containsValue(Tag.RequestedProcedureID))
             idService.newRequestedProcedureID(attrs);
-        if (!spsItem.containsValue(Tag.ScheduledProcedureStepSequence))
+        if (!spsItem.containsValue(Tag.ScheduledProcedureStepID))
             idService.newScheduledProcedureStepID(spsItem);
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
-        if (!spsItem.containsValue(Tag.ScheduledProcedureStepSequence))
+        if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate) && !spsItem.containsValue(Tag.ScheduledProcedureStepStartTime))
             spsItem.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
         if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
             spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
@@ -163,8 +163,8 @@ public class MwlRS {
         ctx.setSpsID(spsID);
         procedureService.deleteProcedure(ctx);
         if (ctx.getEventActionCode() == null)
-            throw new WebApplicationException(getResponse("MWLItem with study instance UID {} and SPS ID {} not found."
-                    + studyIUID + spsID, Response.Status.NOT_FOUND));
+            throw new WebApplicationException(getResponse("MWLItem with study instance UID : " + studyIUID +
+                    " and SPS ID : " + spsID + " not found.", Response.Status.NOT_FOUND));
     }
 
     private ApplicationEntity getApplicationEntity() {
