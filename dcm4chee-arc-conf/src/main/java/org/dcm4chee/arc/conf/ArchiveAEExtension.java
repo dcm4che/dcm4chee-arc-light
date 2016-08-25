@@ -47,7 +47,6 @@ import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 
 import java.io.File;
-import java.security.AccessControlContext;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -86,6 +85,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Pattern storePermissionServiceResponsePattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
+    private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -568,6 +568,22 @@ public class ArchiveAEExtension extends AEExtension {
         return attributeCoercions;
     }
 
+    public AllowDeleteStudyPermanently getAllowDeleteStudyPermanently() {
+        return allowDeleteStudyPermanently;
+    }
+
+    public void setAllowDeleteStudyPermanently(AllowDeleteStudyPermanently allowDeleteStudyPermanently) {
+        this.allowDeleteStudyPermanently = allowDeleteStudyPermanently;
+    }
+
+    public AllowDeleteStudyPermanently allowDeleteStudy() {
+        return allowDeleteStudyPermanently != null
+                ? allowDeleteStudyPermanently
+                : StringUtils.maskNull(getArchiveDeviceExtension().getAllowDeleteStudyPermanently(),
+                AllowDeleteStudyPermanently.REJECTED);
+    }
+
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -599,6 +615,7 @@ public class ArchiveAEExtension extends AEExtension {
         storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
+        allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

@@ -199,7 +199,7 @@ public class IocmRS {
     public void deleteStudy(@PathParam("StudyUID") String studyUID) throws Exception {
         logRequest();
         try {
-            deletionService.deleteStudy(studyUID, request);
+            deletionService.deleteStudy(studyUID, request, getApplicationEntity());
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException("Study having study instance UID " + studyUID + " not found.",
                     Response.Status.NOT_FOUND);

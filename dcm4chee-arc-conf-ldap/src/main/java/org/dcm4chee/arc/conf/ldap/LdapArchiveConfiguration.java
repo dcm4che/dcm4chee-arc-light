@@ -143,6 +143,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "dcmStoreUpdateDBMaxRetries", ext.getStoreUpdateDBMaxRetries(), 1);
         LdapUtils.storeNotNull(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired());
         LdapUtils.storeNotNull(attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID());
+        LdapUtils.storeNotNull(attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently());
     }
 
     @Override
@@ -220,6 +221,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         attrs.get("dcmAllowRejectionForDataRetentionPolicyExpired"), null));
         ext.setAcceptMissingPatientID(
                 LdapUtils.enumValue(AcceptMissingPatientID.class, attrs.get("dcmAcceptMissingPatientID"), null));
+        ext.setAllowDeleteStudyPermanently(LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
     }
 
     @Override
@@ -340,6 +342,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired());
         LdapUtils.storeDiff(mods, "dcmAcceptMissingPatientID", aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID());
+        LdapUtils.storeDiff(mods, "dcmAllowDeleteStudyPermanently", aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently());
     }
 
     @Override
@@ -446,6 +449,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired());
         LdapUtils.storeNotEmpty(attrs, "dcmAcceptedUserRole", ext.getAcceptedUserRoles());
         LdapUtils.storeNotNull(attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID());
+        LdapUtils.storeNotNull(attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently());
     }
 
     @Override
@@ -488,6 +492,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAcceptedUserRoles(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
         ext.setAcceptMissingPatientID(
                 LdapUtils.enumValue(AcceptMissingPatientID.class, attrs.get("dcmAcceptMissingPatientID"), null));
+        ext.setAllowDeleteStudyPermanently(LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
     }
 
     @Override
@@ -540,6 +545,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired());
         LdapUtils.storeDiff(mods, "dcmAcceptedUserRole", aa.getAcceptedUserRoles(), bb.getAcceptedUserRoles());
         LdapUtils.storeDiff(mods, "dcmAcceptMissingPatientID", aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID());
+        LdapUtils.storeDiff(mods, "dcmAllowDeleteStudyPermanently", aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently());
     }
 
     @Override
@@ -812,7 +818,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setMaxRetries(LdapUtils.intValue(attrs.get("dcmMaxRetries"), 0));
                 desc.setRetryDelay(toDuration(attrs.get("dcmRetryDelay")));
                 desc.setMaxRetryDelay(toDuration(attrs.get("dcmMaxRetryDelay")));
-                desc.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 0));
+                desc.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 100));
                 desc.setRetryOnWarning(LdapUtils.booleanValue(attrs.get("dcmRetryOnWarning"), false));
                 desc.setPurgeQueueMessageCompletedDelay(toDuration(attrs.get("dcmPurgeQueueMessageCompletedDelay")));
                 arcdev.addQueueDescriptor(desc);
@@ -850,7 +856,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmRetryDelay", prev.getRetryDelay(), desc.getRetryDelay());
         LdapUtils.storeDiff(mods, "dcmMaxRetryDelay", prev.getMaxRetryDelay(), desc.getMaxRetryDelay());
         LdapUtils.storeDiff(mods, "dcmRetryDelayMultiplier",
-                prev.getRetryDelayMultiplier(), desc.getRetryDelayMultiplier(), 0);
+                prev.getRetryDelayMultiplier(), desc.getRetryDelayMultiplier(), 100);
         LdapUtils.storeDiff(mods, "dcmRetryOnWarning", prev.isRetryOnWarning(), desc.isRetryOnWarning(), false);
         LdapUtils.storeDiff(mods, "dcmPurgeQueueMessageCompletedDelay",
                 prev.getPurgeQueueMessageCompletedDelay(), desc.getPurgeQueueMessageCompletedDelay());

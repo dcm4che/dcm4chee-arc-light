@@ -555,6 +555,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.111 NAME 'dcmAcceptMissingPatientID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.112 NAME 'dcmAllowDeleteStudyPermanently'
+  DESC 'Allow to delete Study permanently. Enumerated values: ALWAYS, REJECTED (= only already rejected Studies). If absent, REJECTED will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -624,7 +629,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorePermissionCacheStaleTimeout $
     dcmStorePermissionCacheSize $
     dcmStoreUpdateDBMaxRetries $
-    dcmAllowRejectionForDataRetentionPolicyExpired ))
+    dcmAllowRejectionForDataRetentionPolicyExpired $
+    dcmAllowDeleteStudyPermanently ))
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
@@ -659,7 +665,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorePermissionServiceURL $
     dcmStorePermissionServiceResponsePattern $
     dcmAllowRejectionForDataRetentionPolicyExpired $
-    dcmAcceptedUserRole ))
+    dcmAcceptedUserRole $
+    dcmAllowDeleteStudyPermanently ))
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'
   SUP top STRUCTURAL
