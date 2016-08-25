@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,44 +38,12 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.delete;
-
-import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Study;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+package org.dcm4chee.arc.conf;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Mar 2016
+ * @since Aug 2016
  */
-public interface StudyDeleteContext {
-    Long getStudyPk();
-
-    Study getStudy();
-
-    void setStudy(Study study);
-
-    List<Instance> getInstances();
-
-    void addInstance(Instance inst);
-
-    Exception getException();
-
-    void setException(Exception exception);
-
-    Patient getPatient();
-
-    void setPatient(Patient patient);
-
-    HttpServletRequest getHttpRequest();
-
-    void setHttpRequest(HttpServletRequest request);
-
-    boolean isDeletePatientOnDeleteLastStudy();
-
-    void setDeletePatientOnDeleteLastStudy(boolean deletePatientOnDeleteLastStudy);
+public enum AllowDeleteStudyPermanently {
+    ALWAYS, REJECTED
 }

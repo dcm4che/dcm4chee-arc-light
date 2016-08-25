@@ -57,7 +57,6 @@ import java.util.List;
 public class StudyDeleteContextImpl implements StudyDeleteContext {
 
     private final Long studyPk;
-    private final String studyIUID;
     private final List<Instance> instances = new ArrayList<>();
     private Patient patient;
     private Study study;
@@ -65,19 +64,13 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     private HttpServletRequest request;
     private boolean deletePatientOnDeleteLastStudy;
 
-    public StudyDeleteContextImpl(Long studyPk, String studyIUID) {
+    public StudyDeleteContextImpl(Long studyPk) {
         this.studyPk = studyPk;
-        this.studyIUID = studyIUID;
     }
 
     @Override
     public Long getStudyPk() {
         return studyPk;
-    }
-
-    @Override
-    public String getStudyIUID() {
-        return studyIUID;
     }
 
     @Override

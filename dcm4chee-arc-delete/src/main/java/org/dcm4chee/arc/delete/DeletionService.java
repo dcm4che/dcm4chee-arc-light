@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.delete;
 
 import org.dcm4che3.data.Code;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,9 +58,9 @@ public interface DeletionService {
 
     int deleteRejectionNotesBefore(Code rjCode, Date before, int fetchSize);
 
-    StudyDeleteContext createStudyDeleteContext(String studyUID, HttpServletRequest httpRequest);
+    StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequest httpRequest);
 
-    void deleteStudy(String studyUID, HttpServletRequest request)
+    void deleteStudy(String studyUID, HttpServletRequest request, ApplicationEntity ae)
             throws StudyNotFoundException, StudyNotEmptyException;
 
     void deletePatient(PatientMgtContext ctx);
