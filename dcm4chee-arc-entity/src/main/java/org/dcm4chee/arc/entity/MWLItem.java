@@ -65,7 +65,12 @@ import java.util.Date;
 @NamedQuery(
         name = MWLItem.FIND_BY_PATIENT,
         query = "select mwl from MWLItem mwl " +
-                "where mwl.patient = ?1")
+                "where mwl.patient = ?1"),
+@NamedQuery(
+        name = MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID,
+        query = "select mwl from MWLItem mwl " +
+                "where mwl.studyInstanceUID = ?1 " +
+                "and mwl.scheduledProcedureStepID = ?2")
 })
 @Entity
 @Table(name = "mwl_item",
@@ -85,7 +90,7 @@ public class MWLItem {
 
     public static final String FIND_BY_STUDY_IUID = "MWLItem.findByStudyIUID";
     public static final String FIND_BY_PATIENT = "MWLItem.findByPatient";
-
+    public static final String FIND_BY_STUDY_UID_AND_SPS_ID = "MWLItem.findByStudyUIDAndSPSID";
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")
