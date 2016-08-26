@@ -54,6 +54,7 @@ import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @NamedQueries({
@@ -61,10 +62,10 @@ import java.util.Date;
         name = MWLItem.FIND_BY_STUDY_IUID,
         query = "select mwl from MWLItem mwl " +
                 "where mwl.studyInstanceUID = ?1"),
-        @NamedQuery(
-                name = MWLItem.FIND_BY_STUDY_IUID_AND_SPS_ID,
-                query = "select mwl from MWLItem mwl " +
-                        "where mwl.studyInstanceUID = ?1 and mwl.scheduledProcedureStepID = ?2")
+@NamedQuery(
+        name = MWLItem.FIND_BY_PATIENT,
+        query = "select mwl from MWLItem mwl " +
+                "where mwl.patient = ?1")
 })
 @Entity
 @Table(name = "mwl_item",
@@ -83,7 +84,7 @@ import java.util.Date;
 public class MWLItem {
 
     public static final String FIND_BY_STUDY_IUID = "MWLItem.findByStudyIUID";
-    public static final String FIND_BY_STUDY_IUID_AND_SPS_ID = "MWLItem.findByStudyIUIDAndSPSID";
+    public static final String FIND_BY_PATIENT = "MWLItem.findByPatient";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

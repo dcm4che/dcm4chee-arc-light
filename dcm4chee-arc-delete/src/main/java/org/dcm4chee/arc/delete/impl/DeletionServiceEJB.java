@@ -137,6 +137,13 @@ public class DeletionServiceEJB {
         em.remove(em.contains(study) ? study : em.merge(study));
     }
 
+    public void deleteMWLItemsOfPatient(PatientMgtContext ctx) {
+        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_PATIENT, MWLItem.class)
+                .setParameter(1, ctx.getPatient()).getResultList();
+        for (MWLItem mwlItem : mwlItems)
+            em.remove(mwlItem);
+    }
+
     private int deleteInstances(List<Location> locations, StudyDeleteContext studyDeleteContext) {
         boolean deletePatient = studyDeleteContext != null && studyDeleteContext.isDeletePatientOnDeleteLastStudy();
         if (locations.isEmpty())
@@ -255,4 +262,6 @@ public class DeletionServiceEJB {
             b.append(';').append(aets[i]);
         return device.getApplicationEntity(b.toString(), true);
     }
+
+
 }
