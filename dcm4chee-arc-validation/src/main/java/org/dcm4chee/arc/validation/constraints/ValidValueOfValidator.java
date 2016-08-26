@@ -74,7 +74,7 @@ class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, String>
         try {
             valueOf = type.getMethod("valueOf", paramType);
         } catch (NoSuchMethodException e1) {
-            log.warn("class {} neither provides constructor nor {} method with {} parameter",
+            log.warn("{} neither provides constructor nor {} method with {} parameter",
                     type, methodName, paramType.getName());
         }
 }
