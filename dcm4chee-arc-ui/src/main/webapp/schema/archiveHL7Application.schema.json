@@ -2,8 +2,6 @@
   "title": "Archive HL7 Application",
   "description": "DICOM Archive HL7 Application related information",
   "type": "object",
-  "required": [
-  ],
   "properties": {
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",

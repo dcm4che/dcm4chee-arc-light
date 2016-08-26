@@ -134,12 +134,13 @@ public class ProcedureServiceEJB {
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
         if (mwlItems.isEmpty())
             return;
-        if(mwlItems.size() > 1)
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        else
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+        int mwlSize = mwlItems.size();
         for (MWLItem mwl : mwlItems)
             if (mwl.getScheduledProcedureStepID().equals(ctx.getSpsID())) {
+                if(mwlSize > 1)
+                    ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+                else
+                    ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
                 ctx.setAttributes(mwl.getAttributes());
                 ctx.setPatient(mwl.getPatient());
                 em.remove(mwl);

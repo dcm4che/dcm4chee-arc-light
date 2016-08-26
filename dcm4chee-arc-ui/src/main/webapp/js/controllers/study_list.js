@@ -2184,10 +2184,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     },
                     function errorCallback(response) {
                         DeviceService.msg($scope, {
-                            "title": "Error",
-                            "text": "Error deleting study!",
+                            // "title": "Error",
+                            // "text": "Error deleting study!",
+                            // "status": "error"
+                            "title": "Error "+response.status,
+                            "text": response.data.errorMessage,
                             "status": "error"
                         });
+                        console.log("response",response);
                         cfpLoadingBar.complete();
                     }
                 );

@@ -236,6 +236,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmExporterID", ed.getExporterID());
             writer.writeNotNull("dcmURI", ed.getExportURI());
             writer.writeNotNull("dcmQueueName", ed.getQueueName());
+            writer.writeNotNull("dicomDescription", ed.getDescription());
             writer.writeNotNull("dicomAETitle", ed.getAETitle());
             writer.writeNotEmpty("dcmSchedule", ed.getSchedules());
             writer.writeNotEmpty("dcmProperty", descriptorProperties(ed.getProperties()));
@@ -292,7 +293,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
             writer.writeNotEmpty("dcmHostname", aac.getHostNames());
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
-            writer.writeNotNull("dcmNoKeywords", aac.isNoKeywords());
+            writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
             writer.writeNotNull("dcmURI", aac.getXSLTStylesheetURI());
             writer.writeNotNull("dcmLeadingCFindSCP", aac.getLeadingCFindSCP());
             writer.writeNotNull("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy());
@@ -325,7 +326,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmRetentionPeriod", srp.getRetentionPeriod());
             writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
-            writer.writeNotNull("dcmExpireSeriesIndividually", srp.isExpireSeriesIndividually());
+            writer.writeNotDef("dcmExpireSeriesIndividually", srp.isExpireSeriesIndividually(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -353,7 +354,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
     private void writeIDGenerator(JsonWriter writer, IDGenerator generator) {
         writer.writeStartObject();
-        writer.writeNotNull("dcmIDGeneratorName", generator.getName().toString());
+        writer.writeNotNull("dcmIDGeneratorName", generator.getName());
         writer.writeNotNull("dcmIDGeneratorFormat", generator.getFormat());
         writer.writeNotDef("dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         writer.writeEnd();
@@ -828,6 +829,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmQueueName":
                         ed.setQueueName(reader.stringValue());
+                        break;
+                    case "dicomDescription":
+                        ed.setDescription(reader.stringValue());
                         break;
                     case "dicomAETitle":
                         ed.setAETitle(reader.stringValue());

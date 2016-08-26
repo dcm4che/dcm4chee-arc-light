@@ -344,8 +344,7 @@ myApp.constant("$select",
         "required":{
           "cn": "Name",
           "dcmDIMSE": "DIMSE",
-          "dicomTransferRole": "DICOM Transfer Role",
-          "dcmURI": "dcmURI"
+          "dicomTransferRole": "DICOM Transfer Role"
         }
       },
       "dcmRejectionNote":{
@@ -384,7 +383,7 @@ myApp.constant("$select",
       "hl7ForwardRule":{
         "title" : "HL7 Forward Rule",
         "optionRef" : ["dcmArchiveDevice", "hl7ForwardRule"],
-        "optionValue": "dcmRejectionNoteLabel",
+        "optionValue": "cn",
         "type": "array",
         "required":{
           "cn": "Name",

@@ -311,7 +311,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmStowSpoolDirectory",
                 aa.getStowSpoolDirectory(), bb.getStowSpoolDirectory());
         LdapUtils.storeDiff(mods, "dcmPurgeQueueMessageFetchSize", aa.getPurgeQueueMessageFetchSize(),
-                bb.getPurgeQueueMessageFetchSize());
+                bb.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeDiff(mods, "dcmPurgeQueueMessagePollingInterval", aa.getPurgeQueueMessagePollingInterval(),
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",
