@@ -1,7 +1,7 @@
 <table class="table table-bordered table-condensed attribute_list">
     <tr ng-repeat="row in rows">
         <td ng-bind="row.level"></td>
-        <td ng-if="row.el" ng-bind="row.tag | attributeNameOf"></td>
+        <td ng-if="row.el" ng-bind="row.name"></td>
         <td ng-if="row.el" ng-bind="row.tag | formatTag"></td>
         <td ng-if="row.el" ng-bind="row.el.vr"></td>
         <td ng-if="row.el" ng-bind="row.el | formatAttributeValue"></td>
