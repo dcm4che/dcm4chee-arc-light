@@ -63,7 +63,7 @@ class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, String>
         Class<?> type = constraint.type();
         String methodName = constraint.methodName();
         Class<?> paramType = constraint.methodParameterType();
-        if (methodName == null) {
+        if (methodName.isEmpty()) {
             try {
                 init = type.getConstructor(paramType);
                 return;
