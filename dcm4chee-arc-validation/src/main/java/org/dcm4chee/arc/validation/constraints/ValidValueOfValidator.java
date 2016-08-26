@@ -76,7 +76,7 @@ class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, String>
         } catch (NoSuchMethodException e) {
             log.warn("Failed to initialize validator: ", e);
         }
-}
+    }
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
