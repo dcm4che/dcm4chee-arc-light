@@ -1769,6 +1769,99 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{studyUID}/expire/{expirationDate}": {
+      "put": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Update Study Expiration Date",
+        "operationId": "updateStudyExpirationDate",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "expirationDate",
+            "in": "path",
+            "description": "ExpirationDate",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "study not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}": {
+      "put": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Update Series Expiration Date",
+        "operationId": "updateSeriesExpirationDate",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "seriesUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "expirationDate",
+            "in": "path",
+            "description": "ExpirationDate",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "series not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/export": {
       "get": {
         "tags": [
