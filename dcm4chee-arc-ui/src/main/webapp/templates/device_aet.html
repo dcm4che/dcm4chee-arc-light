@@ -1,107 +1,79 @@
+<pre>
+	newAetModel:{{newAetModel}}
+	netConnModel:{{netConnModel}}
+</pre>
 <div class="device">
 	<ul class="nav nav-tabs" ng-init="activetab='createdevice'">
 	  <li role="presentation" ng-class="{'active':activetab==='createdevice'}" ng-click="activetab='createdevice'"><a>Create new device</a></li>
 	  <li role="presentation" ng-class="{'active':activetab==='selectdevice'}" ng-click="activetab='selectdevice'"><a>Select existing device</a></li>
 	</ul>
-	<div class="createdevice tabcontain" ng-show="activetab==='createdevice'">
-		<h4>New Device</h4>
-		<hr>
-		<div class="block">
-			<div class="label_part">
-				Device name:
+	<div class="createdevice tabcontain">
+		<div class="tab_body" ng-show="activetab==='createdevice'" ng-init="showdevice=false">
+			<h4 ng-click="showdevice=!showdevice;showconn=false">New Device</h4>
+			<div class="content" ng-show="showdevice===true">
+				<div class="block">
+					<div class="label_part">
+						Device name:
+					</div>
+					<div class="input_part">
+						<input class="no-close-button" type="text" ng-model="newAetModel.dicomDeviceName"/>
+					</div>
+					<span class="description">A unique name for this device</span>
+				</div>
+				<div class="block">
+					<div class="label_part">
+						Installed:
+					</div>
+					<div class="radiobuttons_part input_part">
+						<label>
+							<input class="no-close-button" type="radio" name="dicomInstalled" ng-model="newAetModel.dicomInstalled" value="true"/>
+							<span>True</span>
+						</label>
+						<label>
+							<input class="no-close-button" type="radio" name="dicomInstalled"  ng-model="newAetModel.dicomInstalled" value="false"/>
+							<span>False</span>
+						</label>
+					</div>
+					<span class="description">Boolean to indicate whether this device is presently installed on the network</span>
+				</div>
 			</div>
-			<div class="input_part">
-				<input class="no-close-button" type="text" ng-model="newAetModel.dicomDeviceName"/>
+			<h4 ng-click="showconn=!showconn;showdevice=false" ng-init="showconn=false">New Network Connection</h4>
+			<div class="content"  ng-show="showconn===true">
+			    <div sf-schema="netConnSchema" sf-form="netConnForm" sf-model="netConnModel"></div>
 			</div>
-			<span class="description">A unique name for this device</span>
+	<!-- 		<h4 ng-click="showcontent='networkconn'">Network AE</h4>
+			<div class="content"  ng-show="showcontent==='networkconn'">
+			    <div sf-schema="netConnAE" sf-form="netConnForm" sf-model="netConnModel"></div>
+			</div> -->
 		</div>
-		<div class="block">
-			<div class="label_part">
-				Installed:
+		<div class="tab_body" ng-show="activetab==='selectdevice'">
+			<h4 ng-click="showselectdevice=!showselectdevice" ng-init="showselectdevice=false">Select existing device</h4>
+			<div class="content" ng-show="showselectdevice===true">
+				<div class="block">
+					<div class="label_part">
+						Select device to connect the AE to:
+					</div>
+					<div class="input_part">
+						<select tabindex="1"
+					    		id="init_select" 
+					    		class="form-control" 
+					    		name="device" 
+					    		ng-change="getDevice()"
+					    		ng-model="selectedDevice" 
+					    		ng-class="activeMenu == 'device_menu' ? 'active_menu': ''" 
+					    		ng-options="obj.dicomDeviceName as obj.dicomDeviceName for obj in devices" 
+					    		>
+					    </select>
+					</div>
+					<span class="description">Already existing devices</span>
+				</div>
 			</div>
-			<div class="radiobuttons_part input_part">
-				<label>
-					<input class="no-close-button" type="radio" name="dicomInstalled" ng-model="newAetModel.dicomInstalled" value="true"/>
-					<span>True</span>
-				</label>
-				<label>
-					<input class="no-close-button" type="radio" name="dicomInstalled"  ng-model="newAetModel.dicomInstalled" value="false"/>
-					<span>False</span>
-				</label>
-			</div>
-			<span class="description">Boolean to indicate whether this device is presently installed on the network</span>
 		</div>
-		<h4>Network Connection</h4>
-		<hr>
-		<div class="block">
-			<div class="label_part">
-				Name:
-			</div>
-			<div class="input_part">
-				<input class="no-close-button" type="text" ng-model="newAetModel.dicomNetworkConnection[0].cn"/>
-			</div>
-			<span class="description">Arbitrary/Meaningful name for the Network Connection object</span>
-		</div>
-		<div class="block">
-			<div class="label_part">
-				Hostname:
-			</div>
-			<div class="input_part">
-				<input class="no-close-button" type="text" ng-model="newAetModel.dicomNetworkConnection[0].dicomHostname" value="localhost"/>
-			</div>
-			<span class="description">DNS name for this particular connection</span>
-		</div>
-		<div class="block">
-			<div class="label_part">
-				Port:
-			</div>
-			<div class="input_part">
-				<input class="no-close-button" type="number" ng-model="newAetModel.dicomNetworkConnection[0].dicomPort"/>
-			</div>
-			<span class="description">TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections</span>
-		</div>
-
-		<div class="block">
-			<div class="label_part">
-				TLS CipherSuites:
-			</div>
-			<div class="radiobuttons_part input_part">
-				<label>
-					<input class="no-close-button" type="checkbox" ng-model="newAetModel.dicomNetworkConnection[0].dicomTLSCipherSuite" value="SSL_RSA_WITH_NULL_SHA"/>
-					<span>SSL_RSA_WITH_NULL_SHA</span>
-				</label>
-				<label>
-					<input class="no-close-button" type="checkbox" ng-model="newAetModel.dicomNetworkConnection[0].dicomTLSCipherSuite" value="TLS_RSA_WITH_AES_128_CBC_SHA"/>
-					<span>TLS_RSA_WITH_AES_128_CBC_SHA</span>
-				</label>
-				<label>
-					<input class="no-close-button" type="checkbox" ng-model="newAetModel.dicomNetworkConnection[0].dicomTLSCipherSuite" value="SSL_RSA_WITH_3DES_EDE_CBC_SHA"/>
-					<span>SSL_RSA_WITH_3DES_EDE_CBC_SHA</span>
-				</label>
-			</div>
-			<span class="description">Boolean to indicate whether this device is presently installed on the network</span>
-		</div>
-		<div class="block">
-			<div class="label_part">
-				Installed:
-			</div>
-			<div class="radiobuttons_part input_part">
-				<label>
-					<input class="no-close-button" type="radio" name="dicomInstalled" ng-model="newAetModel.dicomNetworkConnection[0].dicomInstalled" value="true"/>
-					<span>True</span>
-				</label>
-				<label>
-					<input class="no-close-button" type="radio" name="dicomInstalled"  ng-model="newAetModel.dicomNetworkConnection[0].dicomInstalled" value="false"/>
-					<span>False</span>
-				</label>
-			</div>
-			<span class="description">Boolean to indicate whether this device is presently installed on the network</span>
+		<div class="aet" ng-init="showae=true">
+				<h4 ng-click="showae=!showae">Network AE</h4>
+				<div  id="networkae" class="content"  ng-show="showae===true" ng-if="netAESchema">
+				    <div sf-schema="netAESchema" sf-form="netAEForm" sf-model="netAEModel"></div>
+				</div>
 		</div>
 	</div>
-	<div class="selectdevice tabcontain" ng-show="activetab==='selectdevice'">
-		<h4>Select existing device</h4>
-	</div>
-</div>
-<div class="aet">
-	<input type="text" class="no-close-button" ng-model="newAet">
 </div>

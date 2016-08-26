@@ -2202,6 +2202,427 @@ table.j4care-table{
  	    }
 	}
 }
+.vex.vex-theme-os.registernewaet .vex-content bootstrap-decorator > .schema-form-array > label{
+	width:23.4% !important;
+}
+.vex.vex-theme-os.registernewaet .vex-content bootstrap-decorator > .schema-form-array > ol > li.list-group-item{
+	width: 97.3% !important;
+}
+.deviceedit_block, .vex.vex-theme-os.registernewaet .vex-content{
+			bootstrap-decorator {
+		    border-color: #ddd;
+		    border-image: none;
+		    border-style: solid;
+		    border-width: 1px 1px 0;
+		    color: black;
+		    float: left;
+		    width: 100%;
+		    &:last-child{
+		    	border-bottom:1px solid #ddd;
+		    }
+			.form-control-feedback.glyphicon-ok,span.sr-only{
+				display: none;
+			}
+		    & > .schema-form-text{
+		    	float: left;
+			    margin: 0;
+			    // padding: 10px 0;
+			    width: 100%;
+		    	.control-label {
+				    color: black !important;
+				    float: left;
+				    padding-bottom: 0;
+				    padding-right: 15px;
+				    text-align: right;
+				    height: 32px;
+				    line-height: 32px;
+	    			// line-height: 30px;
+	    			// margin-top: 4px;
+	    			width: 25%;
+	    			margin-bottom: 0;
+	    			padding-bottom:0;
+				}
+				.input {
+				    float: left;
+				    width: 24.2%;
+				    input{
+				    	border-color: #ccc;
+					    border-style: solid;
+					    border-width: 1px;
+					    border-radius:0;
+					    padding: 3px 12px;
+					    height: 26px;
+					    min-height: 26px;
+	    				margin-top: 3px;
+				    }
+				}
+				.help-block {
+			   		float: right;
+				    margin-right: 1%;
+				    width: 49%;
+				    margin-top: 0px;
+				    color: #777;
+				}
+		    }
+		    & > .schema-form-radios {
+		    	position:relative;
+		    	& > label{
+				    float: left;
+				    text-align: right;
+				    width: 23.1%;
+		    	}
+		    	& > .help-block{
+		    		margin-left: 0;
+				    position: absolute;
+				    right: 0%;
+				    top: 2px;
+				    width: 50%;
+		    	}
+		    	.radio {
+			    	margin-left: 24.3%;
+			    	margin-top: 0;
+	    			width: 25%;
+				}
+			}
+		    & > .schema-form-checkboxes {
+		    	position:relative;
+		    	& > label{
+				    float: left;
+				    text-align: right;
+				    width: 23.1%;
+		    	}
+		    	& > .help-block{
+		    		margin-left: 0;
+				    position: absolute;
+				    right: 0%;
+				    top: 2px;
+				    width: 50%;
+		    	}
+		    	.checkbox {
+			    	margin-left: 24.3%;
+			    	margin-top: 0;
+	    			width: 25%;
+				}
+			}
+		    & > .schema-form-select{
+		    	label{
+		    					    color: black !important;
+				    float: left;
+				    padding-bottom: 0;
+				    padding-right: 15px;
+				    text-align: right;
+				    height: 32px;
+				    line-height: 32px;
+	    			// line-height: 30px;
+	    			// margin-top: 4px;
+	    			width: 25%;
+	    			margin-bottom: 0;
+	    			padding-bottom:0;
+		    	}
+		    	select{
+		    		float: left;
+				    width: 24.2%;
+			    	border-color: #ccc;
+				    border-style: solid;
+				    border-width: 1px;
+				    border-radius:0;
+				    padding: 3px 12px;
+				    height: 26px;
+					margin-top: 3px;
+		    	}
+				.help-block {
+			   		float: right;
+				    margin-right: 1%;
+				    width: 49%;
+				    margin-top: 0px;
+				    color: #777;
+				}
+		    }
+		    .schema-form-number{
+				float: left;
+			    margin: 0;
+			    // padding: 10px 0;
+			    width: 100%;
+		    	.control-label {
+				    color: black !important;
+				    float: left;
+				    padding-bottom: 0;
+				    padding-right: 15px;
+				    text-align: right;
+				    height: 32px;
+				    line-height: 32px;
+	    			// line-height: 30px;
+	    			// margin-top: 4px;
+	    			width: 25%;
+	    			margin-bottom: 0;
+	    			padding-bottom:0;
+				}
+			    input{
+				    float: left;
+				    width: 24.2%;
+			    	border-color: #ccc;
+				    border-style: solid;
+				    border-width: 1px;
+				    border-radius:0;
+				    padding: 3px 0 3px 12px;
+				    height: 26px;
+				    min-height: 26px;
+					margin-top: 3px;
+			    }
+				.help-block {
+			   		float: right;
+				    margin-right: 1%;
+				    width: 49%;
+				    margin-top: 0px;
+				    color: #777;
+				}
+			}
+		    & > .schema-form-array{
+		    	& > ol{
+					float:left;
+					width: 25.2%;
+					margin-bottom: 0;
+					& > li.list-group-item{
+						float:left;
+					    margin: 0 1%;
+					    width: 98%;
+					    // padding-top:0;
+					    // padding-bottom:0;
+					    // padding-right: 5px;
+					    padding:0 5px 0 0;
+					    border:none;
+					    .close{
+						    border: 1px solid;
+						    display: block;
+						    height: 26px;
+						    padding-bottom: 3px;
+						    top: 3px;
+						    width: 26px;
+					    }
+					    sf-decorator{
+					    	.schema-form-text{
+					    		margin: 0;
+					    		label {
+					    			display: none;
+								    // color: black !important;
+								    // float: left;
+								    // padding-bottom: 0;
+								    // padding-right: 15px;
+								    // text-align: right;
+								    // width: 49.4%;
+								    // height: 32px;
+	    							// line-height: 32px;
+	    							// margin-bottom: 0;
+								}
+								.input {
+								    float: left;
+								    width: 90.7%;
+								    input{
+								    	border-color: #ccc;
+									    border-style: solid;
+									    border-width: 1px;
+									    border-radius:0;
+									    padding: 3px 12px;
+									    height: 26px;
+									    min-height: 26px;
+					    				margin-top: 3px;
+								    }
+								}
+								.help-block {
+									display: none;
+									float: right;
+	    							width: 32.5%;
+	    							color: #777;
+
+								}
+					    	}
+					    }
+					    .help-block{
+					    	float: left;
+						    margin: 10px 11px 16px;
+						    width: 100%;
+					    }
+					}
+		    	}
+		    	&> label {
+				  	// border-bottom: 1px solid #ddd;
+				    color: black;
+				    float: left;
+				    // font-size: 17px;
+				    margin: 6px 10px;
+				    width: 23%;
+				    text-align: right;
+				}
+				& > .clearfix{
+					padding:0 !important;
+					float: left;
+					button{
+					    background: #3b6b8c none repeat scroll 0 0;
+					    border-radius: 0;
+					    color: white;
+					    height: 26px;
+					    margin: 3px 15px 0 0 !important;
+					    padding: 2px 7px;
+					    width: 70px;
+					}
+				}
+				& > .help-block{
+					margin-bottom: 0px;
+					margin-top: 0px;
+				}
+		    }
+		    & > .schema-form-radios , & > .schema-form-checkboxes{
+			    padding: 10px 20px 0px 20px;
+			    label, label span{
+			    	color: black;
+			    }
+			    .help-block{
+			    	color: #777;
+			    }
+			}
+			& > fieldset{
+	 			margin-left: 30px;
+	 			& > .help-block{
+				    color: black;
+				    float: left;
+				    font-weight: bold;
+				    text-align: right;
+				    width: 24%;
+	 			}
+				sf-decorator{
+					.schema-form-number{
+						float: left;
+					    margin: 0;
+					    // padding: 10px 0;
+					    width: 100%;
+				    	.control-label {
+						    color: black !important;
+						    float: left;
+						    padding-bottom: 0;
+						    padding-right: 15px;
+						    text-align: right;
+						    height: 32px;
+						    line-height: 32px;
+			    			// line-height: 30px;
+			    			// margin-top: 4px;
+			    			width: 25%;
+			    			margin-bottom: 0;
+			    			padding-bottom:0;
+						}
+					    input{
+						    float: left;
+						    width: 24.2%;
+					    	border-color: #ccc;
+						    border-style: solid;
+						    border-width: 1px;
+						    border-radius:0;
+						    padding: 3px 0 3px 12px;
+						    height: 26px;
+							margin-top: 3px;
+					    }
+						.help-block {
+					   		float: right;
+						    margin-right: 1%;
+						    width: 49%;
+						    margin-top: 0px;
+						    color: #777;
+						}
+					}
+					.schema-form-text{
+				    	float: left;
+					    margin: 0;
+					    // padding: 10px 0;
+					    width: 100%;
+				    	.control-label {
+						    color: black !important;
+						    float: left;
+						    padding-bottom: 0;
+						    padding-right: 15px;
+						    text-align: right;
+						    height: 32px;
+						    line-height: 32px;
+			    			// line-height: 30px;
+			    			// margin-top: 4px;
+			    			width: 25%;
+			    			margin-bottom: 0;
+			    			padding-bottom:0;
+						}
+						.input {
+						    float: left;
+						    width: 24.2%;
+						    input{
+						    	border-color: #ccc;
+							    border-style: solid;
+							    border-width: 1px;
+							    border-radius:0;
+							    padding: 3px 12px;
+							    height: 26px;
+			    				margin-top: 3px;
+						    }
+						}
+						.help-block {
+					   		float: right;
+						    margin-right: 1%;
+						    width: 49%;
+						    margin-top: 0px;
+						    color: #777;
+						}
+				    }
+				    .schema-form-select{
+				    	label{
+				    					    color: black !important;
+						    float: left;
+						    padding-bottom: 0;
+						    padding-right: 15px;
+						    text-align: right;
+						    height: 32px;
+						    line-height: 32px;
+			    			// line-height: 30px;
+			    			// margin-top: 4px;
+			    			width: 25%;
+			    			margin-bottom: 0;
+			    			padding-bottom:0;
+				    	}
+				    	select{
+				    		float: left;
+						    width: 24%;
+					    	border-color: #ccc;
+						    border-style: solid;
+						    border-width: 1px;
+						    border-radius:0;
+						    padding: 3px 12px;
+						    height: 26px;
+							margin-top: 3px;
+				    	}
+						.help-block {
+					   		float: right;
+						    margin-right: 1%;
+						    width: 49%;
+						    margin-top: 0px;
+						    color: #777;
+						}
+				    }
+				    .schema-form-checkbox{
+				    	margin-left: 25%;
+				    	& > label{
+							float: left;
+							width: 33.3%;
+							span{
+								color:#777;
+							}
+				    	}
+				    	& > .help-block{
+				    		float: left;
+				    		width: 66%;
+							color:#777;
+							// margin: 0;
+				    	}
+				    }
+				} 
+			}
+
+		}
+}
 .deviceedit_block{
 	display:none;
 	//.device .active_border .btn-primary:hover, .device .active_border .save:hover, .device .active_border .btn:hover
@@ -2227,416 +2648,7 @@ table.j4care-table{
 			top: 10px;
 		}
 	}
-	bootstrap-decorator {
-	    border-color: #ddd;
-	    border-image: none;
-	    border-style: solid;
-	    border-width: 1px 1px 0;
-	    color: black;
-	    float: left;
-	    width: 100%;
-	    &:last-child{
-	    	border-bottom:1px solid #ddd;
-	    }
-		.form-control-feedback.glyphicon-ok,span.sr-only{
-			display: none;
-		}
-	    & > .schema-form-text{
-	    	float: left;
-		    margin: 0;
-		    // padding: 10px 0;
-		    width: 100%;
-	    	.control-label {
-			    color: black !important;
-			    float: left;
-			    padding-bottom: 0;
-			    padding-right: 15px;
-			    text-align: right;
-			    height: 32px;
-			    line-height: 32px;
-    			// line-height: 30px;
-    			// margin-top: 4px;
-    			width: 25%;
-    			margin-bottom: 0;
-    			padding-bottom:0;
-			}
-			.input {
-			    float: left;
-			    width: 24.2%;
-			    input{
-			    	border-color: #ccc;
-				    border-style: solid;
-				    border-width: 1px;
-				    border-radius:0;
-				    padding: 3px 12px;
-				    height: 26px;
-    				margin-top: 3px;
-			    }
-			}
-			.help-block {
-		   		float: right;
-			    margin-right: 1%;
-			    width: 49%;
-			    margin-top: 0px;
-			    color: #777;
-			}
-	    }
-	    & > .schema-form-radios {
-	    	position:relative;
-	    	& > label{
-			    float: left;
-			    text-align: right;
-			    width: 23.1%;
-	    	}
-	    	& > .help-block{
-	    		margin-left: 0;
-			    position: absolute;
-			    right: 0%;
-			    top: 2px;
-			    width: 50%;
-	    	}
-	    	.radio {
-		    	margin-left: 24.3%;
-		    	margin-top: 0;
-    			width: 25%;
-			}
-		}
-	    & > .schema-form-checkboxes {
-	    	position:relative;
-	    	& > label{
-			    float: left;
-			    text-align: right;
-			    width: 23.1%;
-	    	}
-	    	& > .help-block{
-	    		margin-left: 0;
-			    position: absolute;
-			    right: 0%;
-			    top: 2px;
-			    width: 50%;
-	    	}
-	    	.checkbox {
-		    	margin-left: 24.3%;
-		    	margin-top: 0;
-    			width: 25%;
-			}
-		}
-	    & > .schema-form-select{
-	    	label{
-	    					    color: black !important;
-			    float: left;
-			    padding-bottom: 0;
-			    padding-right: 15px;
-			    text-align: right;
-			    height: 32px;
-			    line-height: 32px;
-    			// line-height: 30px;
-    			// margin-top: 4px;
-    			width: 25%;
-    			margin-bottom: 0;
-    			padding-bottom:0;
-	    	}
-	    	select{
-	    		float: left;
-			    width: 24.2%;
-		    	border-color: #ccc;
-			    border-style: solid;
-			    border-width: 1px;
-			    border-radius:0;
-			    padding: 3px 12px;
-			    height: 26px;
-				margin-top: 3px;
-	    	}
-			.help-block {
-		   		float: right;
-			    margin-right: 1%;
-			    width: 49%;
-			    margin-top: 0px;
-			    color: #777;
-			}
-	    }
-	    .schema-form-number{
-			float: left;
-		    margin: 0;
-		    // padding: 10px 0;
-		    width: 100%;
-	    	.control-label {
-			    color: black !important;
-			    float: left;
-			    padding-bottom: 0;
-			    padding-right: 15px;
-			    text-align: right;
-			    height: 32px;
-			    line-height: 32px;
-    			// line-height: 30px;
-    			// margin-top: 4px;
-    			width: 25%;
-    			margin-bottom: 0;
-    			padding-bottom:0;
-			}
-		    input{
-			    float: left;
-			    width: 24.2%;
-		    	border-color: #ccc;
-			    border-style: solid;
-			    border-width: 1px;
-			    border-radius:0;
-			    padding: 3px 0 3px 12px;
-			    height: 26px;
-				margin-top: 3px;
-		    }
-			.help-block {
-		   		float: right;
-			    margin-right: 1%;
-			    width: 49%;
-			    margin-top: 0px;
-			    color: #777;
-			}
-		}
-	    & > .schema-form-array{
-	    	& > ol{
-				float:left;
-				width: 25.2%;
-				margin-bottom: 0;
-				& > li.list-group-item{
-					float:left;
-				    margin: 0 1%;
-				    width: 98%;
-				    // padding-top:0;
-				    // padding-bottom:0;
-				    // padding-right: 5px;
-				    padding:0 5px 0 0;
-				    border:none;
-				    .close{
-					    border: 1px solid;
-					    display: block;
-					    height: 26px;
-					    padding-bottom: 3px;
-					    top: 3px;
-					    width: 26px;
-				    }
-				    sf-decorator{
-				    	.schema-form-text{
-				    		margin: 0;
-				    		label {
-				    			display: none;
-							    // color: black !important;
-							    // float: left;
-							    // padding-bottom: 0;
-							    // padding-right: 15px;
-							    // text-align: right;
-							    // width: 49.4%;
-							    // height: 32px;
-    							// line-height: 32px;
-    							// margin-bottom: 0;
-							}
-							.input {
-							    float: left;
-							    width: 90.7%;
-							    input{
-							    	border-color: #ccc;
-								    border-style: solid;
-								    border-width: 1px;
-								    border-radius:0;
-								    padding: 3px 12px;
-								    height: 26px;
-				    				margin-top: 3px;
-							    }
-							}
-							.help-block {
-								display: none;
-								float: right;
-    							width: 32.5%;
-    							color: #777;
 
-							}
-				    	}
-				    }
-				    .help-block{
-				    	float: left;
-					    margin: 10px 11px 16px;
-					    width: 100%;
-				    }
-				}
-	    	}
-	    	&> label {
-			  	// border-bottom: 1px solid #ddd;
-			    color: black;
-			    float: left;
-			    // font-size: 17px;
-			    margin: 6px 10px;
-			    width: 23%;
-			    text-align: right;
-			}
-			& > .clearfix{
-				padding:0 !important;
-				float: left;
-				button{
-				    background: #3b6b8c none repeat scroll 0 0;
-				    border-radius: 0;
-				    color: white;
-				    height: 26px;
-				    margin: 3px 15px 0 0 !important;
-				    padding: 2px 7px;
-				    width: 70px;
-				}
-			}
-			& > .help-block{
-				margin-bottom: 0px;
-				margin-top: 0px;
-			}
-	    }
-	    & > .schema-form-radios , & > .schema-form-checkboxes{
-		    padding: 10px 20px 0px 20px;
-		    label, label span{
-		    	color: black;
-		    }
-		    .help-block{
-		    	color: #777;
-		    }
-		}
-		& > fieldset{
- 			margin-left: 30px;
- 			& > .help-block{
-			    color: black;
-			    float: left;
-			    font-weight: bold;
-			    text-align: right;
-			    width: 24%;
- 			}
-			sf-decorator{
-				.schema-form-number{
-					float: left;
-				    margin: 0;
-				    // padding: 10px 0;
-				    width: 100%;
-			    	.control-label {
-					    color: black !important;
-					    float: left;
-					    padding-bottom: 0;
-					    padding-right: 15px;
-					    text-align: right;
-					    height: 32px;
-					    line-height: 32px;
-		    			// line-height: 30px;
-		    			// margin-top: 4px;
-		    			width: 25%;
-		    			margin-bottom: 0;
-		    			padding-bottom:0;
-					}
-				    input{
-					    float: left;
-					    width: 24.2%;
-				    	border-color: #ccc;
-					    border-style: solid;
-					    border-width: 1px;
-					    border-radius:0;
-					    padding: 3px 0 3px 12px;
-					    height: 26px;
-						margin-top: 3px;
-				    }
-					.help-block {
-				   		float: right;
-					    margin-right: 1%;
-					    width: 49%;
-					    margin-top: 0px;
-					    color: #777;
-					}
-				}
-				.schema-form-text{
-			    	float: left;
-				    margin: 0;
-				    // padding: 10px 0;
-				    width: 100%;
-			    	.control-label {
-					    color: black !important;
-					    float: left;
-					    padding-bottom: 0;
-					    padding-right: 15px;
-					    text-align: right;
-					    height: 32px;
-					    line-height: 32px;
-		    			// line-height: 30px;
-		    			// margin-top: 4px;
-		    			width: 25%;
-		    			margin-bottom: 0;
-		    			padding-bottom:0;
-					}
-					.input {
-					    float: left;
-					    width: 24.2%;
-					    input{
-					    	border-color: #ccc;
-						    border-style: solid;
-						    border-width: 1px;
-						    border-radius:0;
-						    padding: 3px 12px;
-						    height: 26px;
-		    				margin-top: 3px;
-					    }
-					}
-					.help-block {
-				   		float: right;
-					    margin-right: 1%;
-					    width: 49%;
-					    margin-top: 0px;
-					    color: #777;
-					}
-			    }
-			    .schema-form-select{
-			    	label{
-			    					    color: black !important;
-					    float: left;
-					    padding-bottom: 0;
-					    padding-right: 15px;
-					    text-align: right;
-					    height: 32px;
-					    line-height: 32px;
-		    			// line-height: 30px;
-		    			// margin-top: 4px;
-		    			width: 25%;
-		    			margin-bottom: 0;
-		    			padding-bottom:0;
-			    	}
-			    	select{
-			    		float: left;
-					    width: 24%;
-				    	border-color: #ccc;
-					    border-style: solid;
-					    border-width: 1px;
-					    border-radius:0;
-					    padding: 3px 12px;
-					    height: 26px;
-						margin-top: 3px;
-			    	}
-					.help-block {
-				   		float: right;
-					    margin-right: 1%;
-					    width: 49%;
-					    margin-top: 0px;
-					    color: #777;
-					}
-			    }
-			    .schema-form-checkbox{
-			    	margin-left: 25%;
-			    	& > label{
-						float: left;
-						width: 33.3%;
-						span{
-							color:#777;
-						}
-			    	}
-			    	& > .help-block{
-			    		float: left;
-			    		width: 66%;
-						color:#777;
-						// margin: 0;
-			    	}
-			    }
-			} 
-		}
-
-	}
 	.active_border.col-md-8 {
 	    background: rgba(255, 255, 255, 0.63) none repeat scroll 0 0;
 	    border: 1px solid #dddddd;
@@ -3020,7 +3032,37 @@ table.j4care-table{
 }
 .vex.vex-theme-os.registernewaet{
 	.vex-content{
+		.vex-dialog-button-primary.vex-dialog-button.vex-first{
+			background: #3b6b8c none repeat scroll 0 0;
+		    border-radius: 0;
+		    color: white;
+		    // height: 26px;
+		    // margin: 3px 15px 0 0 !important;
+		    // padding: 2px 7px;
+		}
+		.vex-dialog-button-secondary.vex-dialog-button.vex-last{
+		    border-radius: 0;
+		}
 		width: 80%;
+		.content {
+		    float: left;
+		    width: 100%;
+		}
+		.nav-tabs {
+			li {
+				a {
+			    	color: #444;
+			    	&:hover{
+			    		cursor:pointer;
+			    	}
+				}
+			}
+			li.active{
+				a{
+					background:#eee;
+				}
+			}
+		}
 		.tabcontain {
 		    border-bottom: 1px solid #ddd;
 		    border-left: 1px solid #ddd;
@@ -3028,6 +3070,22 @@ table.j4care-table{
 		    padding: 15px;
 		    float: left;
 		    width:100%;
+		    h4 {
+			    background: #666 none repeat scroll 0 0;
+			    -moz-box-shadow: 1px 6px 6px -3px #a3a1a1;
+			    -webkit-box-shadow: 1px 6px 6px -3px #a3a1a1;
+			    box-shadow: 1px 6px 6px -3px #a3a1a1;
+			    color: white !important;
+			    display: block;
+			    float: left;
+			    margin-bottom: 0;
+			    margin-top:2px;
+			    padding: 5px 10px;
+			    width: 100%;
+			    &:hover{
+			    	cursor:block !important;
+			    }
+			}
 		}
 		.block{
 			float: left;
@@ -3054,9 +3112,16 @@ table.j4care-table{
 				    border-width: 1px;
 				    height: 26px;
 				    min-height: 26px;
-				    margin-top: 3px;
+				    margin-top: 1px;
 				    padding: 3px 12px;
 				    float: left;
+			    }
+			    select{
+			    	border-radius: 0;
+				    height: 26px;
+				    margin-left: 10px;
+				    padding: 0 7px;
+				    width: 96%;
 			    }
 			}
 			.description{
@@ -3065,7 +3130,6 @@ table.j4care-table{
 			    margin-right: 1%;
 			    margin-top: 7px;
 			    width: 49%;
-			    height:26px;
 			}
 			.radiobuttons_part{
 			    label{

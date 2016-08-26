@@ -219,9 +219,268 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
           vex.dialog.alert('Please select device first!');
         }
     };
+    $scope.toggleValue = function(array, string){
+        for (var i = array.length - 1; i >= 0; i--) {
+            console.log("array[i]",array[i]);
+            // array[i]
+            if(array[i] === "" || array[i] === undefined || array[i] === null){
+                array.splice(i,1);
+            }
+        }
+    };
+    $scope.getDevice = function(){
+        $http({
+            method: 'GET',
+            url: '../devices/'+$scope.selectedDevice
+        }).then(function successCallback(response) {
+            console.log("response",response);
+            $scope.selctedDeviceObject = response.data;
+            $scope.selctedDeviceObject.dicomNetworkConnection;
+            var dicomconn = [];
+            angular.forEach($scope.selctedDeviceObject.dicomNetworkConnection, function(l, i) {
+                console.log("l",l);
+                console.log("l.cn",l.cn);
+                // var exploded = l.split("/");
+                // if (exploded[exploded.length - 1] > key) {
+                    // object.dicomNetworkAE[k].dicomNetworkConnectionReference[i] = "/dicomNetworkConnection/" + (exploded[exploded.length - 1] - 1);
+                    dicomconn.push({
+                        "value":"/dicomNetworkConnection/" + i,
+                        "name":l.cn
+                    });
+                // }
+            });
+            // console.log("dicomconn",dicomconn);
+            // $scope.dicomNetworkConnectionReference = {
+            //     "key": "dicomNetworkConnectionReference",
+            //     // "key": i,
+            //     "type": "checkboxes",
+            //     "titleMap": [
+            //         dicomconn
+            //     ]
+            // }
+            // angular.forEach($scope.netAEForm, function(m, j){
+            //     console.log("m",m);
+            //     console.log("j",j);
+            //     if(m === "dicomNetworkConnectionReference" || m.key === "dicomNetworkConnectionReference"){
+            //         console.log("in if",$scope.netAEForm[j]);
 
+            //         $scope.netAEForm[j] = $scope.dicomNetworkConnectionReference;
+            //     }
+            // });
+            // var netAEForm = $scope.netAEForm;
+            // var netAESchema = $scope.netAESchema;
+            $timeout(function() {
+                $scope.$apply(function(){
+                    $scope.netAESchema = {            
+                        type: "object",
+                            properties: {
+                                "dicomAETitle": {
+                                    "title": "AE Title",
+                                    "description": "Unique AE title for this Network AE",
+                                    "type": "string"
+                                },    
+                                "dicomNetworkConnectionReference": {
+                                  "title": "Network Connection Reference",
+                                  "description": "JSON Pointers to the Network Connection objects for this AE",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },               
+                                "dicomAssociationInitiator": {
+                                    "title": "Association Initiator",
+                                    "description": "True if the Network AE can initiate associations, false otherwise",
+                                    "type": "boolean"
+                                },
+                                "dicomAssociationAcceptor": {
+                                    "title": "Association Acceptor",
+                                    "description": "True if the Network AE can accept associations, false otherwise",
+                                    "type": "boolean"
+                                }
+                            }
+                    };
+                    $scope.netAEForm = [
+                    "dicomAETitle", 
+                    {
+                        "key": "dicomNetworkConnectionReference",
+                        // "key": i,
+                        "type": "checkboxes",
+                        "titleMap": dicomconn
+                    },               
+                    {
+                        "key": "dicomAssociationInitiator",
+                        // "key": i,
+                        "type": "radios",
+                        "titleMap": [{
+                            "value": true,
+                            "name": "True"
+                        }, {
+                            "value": false,
+                            "name": "False"
+                        }]
+                    },
+                    {
+                        "key": "dicomAssociationAcceptor",
+                        // "key": i,
+                        "type": "radios",
+                        "titleMap": [{
+                            "value": true,
+                            "name": "True"
+                        }, {
+                            "value": false,
+                            "name": "False"
+                        }]
+                    }];
+                });
+            });
+            // $timeout(function() {
+            //     $scope.$apply(function(){
+            //         console.log("netAEForm",netAEForm);
+            //         console.log("netAESchema",netAESchema);
+            //         $scope.netAESchema = netAEForm;
+            //         $scope.netAEForm = netAESchema;
+            //     });
+            // },3000);
+            // $scope.netAESchema = schemaPlaceholder;
+            // console.log("$('#networkae')",$('#networkae').length);
+            // $('#networkae').html('<div sf-schema="netAESchema" sf-form="netAEForm" sf-model="netAEModel"></div>');
+
+            console.log("dicomconn",dicomconn);
+            console.log("$scope.netAEForm",$scope.netAEForm);
+            console.log("$scope.dicomNetworkConnectionReference",$scope.dicomNetworkConnectionReference);
+        }, function errorCallback(response) {
+          DeviceService.msg($scope, {
+              "title": "Error",
+              "text": response.status+":"+response.statusText,
+              "status": "error"
+          });
+        });
+    };
     $scope.createAe = function(){
+        $scope.newAetModel = {};
+        $scope.newAetModel.dicomNetworkConnection = {};
+        $scope.newAetModel.dicomNetworkAE = [];
+        $scope.newAetModel.dicomNetworkAE[0] = {};
         $templateRequest('templates/device_aet.html').then(function(tpl) {
+           $scope.netConnSchema = {
+            type: "object",
+            properties: {
+                "cn": {
+                  "title": "Name",
+                  "description": "Arbitrary/Meaningful name for the Network Connection object",
+                  "type": "string"
+                },    
+                "dicomHostname": {
+                  "title": "Hostname",
+                  "description": "DNS name for this particular connection",
+                  "type": "string"
+                },   
+                "dicomPort": {
+                  "title": "Port",
+                  "description": "TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum":99999,
+                  "exclusiveMinimum": true
+                },
+                "dicomTLSCipherSuite": {
+                  "title": "TLS CipherSuites",
+                  "description": "The TLS CipherSuites that are supported on this particular connection. If not present TLS is disabled",
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "SSL_RSA_WITH_NULL_SHA",
+                      "TLS_RSA_WITH_AES_128_CBC_SHA",
+                      "SSL_RSA_WITH_3DES_EDE_CBC_SHA"
+                    ]
+                  }
+                },
+                "dicomInstalled": {
+                  "title": "installed",
+                  "description": "True if the Network Connection is installed on the network. If not present, information about the installed status of the Network Connection is inherited from the device",
+                  "type": "boolean"
+                },
+            }
+            };
+
+            $scope.netConnForm = [
+                "cn",
+                "dicomHostname",
+                "dicomPort",
+                "dicomTLSCipherSuite",
+                {
+                    "key": "dicomInstalled",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                }
+            ];
+            $scope.netAESchema = {
+                type: "object",
+                properties: {
+                    "dicomAETitle": {
+                      "title": "AE Title",
+                      "description": "Unique AE title for this Network AE",
+                      "type": "string"
+                    },
+                    "dicomNetworkConnectionReference": {
+                      "title": "Network Connection Reference",
+                      "description": "JSON Pointers to the Network Connection objects for this AE",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "dicomAssociationInitiator": {
+                      "title": "Association Initiator",
+                      "description": "True if the Network AE can initiate associations, false otherwise",
+                      "type": "boolean"
+                    },
+                    "dicomAssociationAcceptor": {
+                      "title": "Association Acceptor",
+                      "description": "True if the Network AE can accept associations, false otherwise",
+                      "type": "boolean"
+                    }
+                }
+            };
+            $scope.dicomNetworkConnectionReference = "dicomNetworkConnectionReference";
+            $scope.netAEForm = [
+                "dicomAETitle",
+                $scope.dicomNetworkConnectionReference,                
+                "dicomTLSCipherSuite",
+                {
+                    "key": "dicomAssociationInitiator",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                },
+                {
+                    "key": "dicomAssociationAcceptor",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                }
+            ];
+            $scope.netAEModel = $scope.newAetModel.dicomNetworkAE[0];
+            $scope.netConnModel = $scope.newAetModel.dicomNetworkConnection;
             var html = $compile(tpl)($scope);
             // var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
             vex.dialog.open({
