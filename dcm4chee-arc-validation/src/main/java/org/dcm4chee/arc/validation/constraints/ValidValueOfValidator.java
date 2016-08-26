@@ -72,7 +72,7 @@ class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, String>
         }
         Class<?> paramType = constraint.methodParameterType();
         try {
-            valueOf = type.getMethod("valueOf", paramType);
+            valueOf = type.getMethod(methodName, paramType);
         } catch (NoSuchMethodException e) {
             log.warn("Failed to initialize validator: ", e);
         }
