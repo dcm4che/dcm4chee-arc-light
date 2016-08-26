@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.study;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -50,9 +49,11 @@ import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 public interface StudyMgtContext {
@@ -76,6 +77,8 @@ public interface StudyMgtContext {
 
     String getStudyInstanceUID();
 
+    void setStudyInstanceUID(String studyUID);
+
     Study getStudy();
 
     void setStudy(Study study);
@@ -87,4 +90,12 @@ public interface StudyMgtContext {
     Exception getException();
 
     void setException(Exception exception);
+
+    LocalDate getExpirationDate();
+
+    void setExpirationDate(LocalDate expirationDate);
+
+    String getSeriesInstanceUID();
+
+    void setSeriesInstanceUID(String seriesUID);
 }

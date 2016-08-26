@@ -48,10 +48,12 @@ import org.dcm4chee.arc.study.StudyService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @ApplicationScoped
@@ -80,6 +82,18 @@ public class StudyServiceImpl implements StudyService {
         } finally {
             if (ctx.getEventActionCode() != null)
                 updateStudyEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public void updateExpirationDate(StudyMgtContext ctx) throws NoResultException {
+        try {
+            if (ctx.getSeriesInstanceUID() != null)
+                ejb.updateSeriesExpirationDate(ctx);
+            else
+                ejb.updateStudyExpirationDate(ctx);
+        } catch (NoResultException e) {
+            throw e;
         }
     }
 

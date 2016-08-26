@@ -64,6 +64,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.keycloak.KeycloakSecurityContext;
@@ -74,6 +75,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -83,6 +85,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -332,6 +337,50 @@ public class IocmRS {
         ctx.setPatient(patient);
 
         studyService.updateStudy(ctx);
+    }
+
+
+    @PUT
+    @Path("/studies/{studyUID}/expire/{expirationDate}")
+    public void updateStudyExpirationDate(@PathParam("studyUID") String studyUID,
+            @PathParam("expirationDate")
+            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
+            String expirationDate) throws Exception {
+        updateExpirationDate(studyUID, null, expirationDate);
+    }
+
+    @PUT
+    @Path("/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}")
+    public void updateSeriesExpirationDate(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+            @PathParam("expirationDate")
+            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
+            String expirationDate) throws Exception {
+        updateExpirationDate(studyUID, seriesUID, expirationDate);
+    }
+
+    private void updateExpirationDate(String studyUID, String seriesUID, String expirationDate) throws Exception {
+        logRequest();
+        try {
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            if (seriesUID != null)
+                ctx.setSeriesInstanceUID(seriesUID);
+            ctx.setExpirationDate(LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE));
+            studyService.updateExpirationDate(ctx);
+        } catch (NoResultException e) {
+            String message;
+            if (seriesUID != null)
+                message = "Series not found. " + seriesUID;
+            else
+                message = "Study not found. " + studyUID;
+            throw new WebApplicationException(message, Response.Status.NOT_FOUND);
+        }
+    }
+
+    public static final class ExpireDate {
+        public ExpireDate(String date) {
+            LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE);
+        }
     }
 
     private void logRequest() {

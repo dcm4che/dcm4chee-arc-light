@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.study.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -55,9 +54,11 @@ import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.study.StudyMgtContext;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 public class StudyMgtContextImpl implements StudyMgtContext {
@@ -71,6 +72,8 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private String studyInstanceUID;
     private String eventActionCode;
     private Exception exception;
+    private LocalDate expirationDate;
+    private String seriesInstanceUID;
 
     StudyMgtContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -131,6 +134,11 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     }
 
     @Override
+    public void setStudyInstanceUID(String studyUID) {
+        this.studyInstanceUID = studyUID;
+    }
+
+    @Override
     public Study getStudy() {
         return study;
     }
@@ -158,5 +166,25 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     @Override
     public void setException(Exception exception) {
         this.exception = exception;
+    }
+
+    @Override
+    public LocalDate getExpirationDate() {
+        return expirationDate;
+    }
+
+    @Override
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    @Override
+    public String getSeriesInstanceUID() {
+        return seriesInstanceUID;
+    }
+
+    @Override
+    public void setSeriesInstanceUID(String studyUID) {
+        this.seriesInstanceUID = studyUID;
     }
 }
