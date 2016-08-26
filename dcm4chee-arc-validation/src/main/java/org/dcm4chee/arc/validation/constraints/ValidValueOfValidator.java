@@ -53,7 +53,7 @@ import java.lang.reflect.Method;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, String> {
+class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, CharSequence> {
     private final static Logger log = LoggerFactory.getLogger(ValidValueOfValidator.class);
     private Constructor<?> init;
     private Method valueOf;
@@ -79,7 +79,7 @@ class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, String>
     }
 
     @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
+    public boolean isValid(CharSequence value, ConstraintValidatorContext context) {
         if (value == null)
             return true;
         try {
