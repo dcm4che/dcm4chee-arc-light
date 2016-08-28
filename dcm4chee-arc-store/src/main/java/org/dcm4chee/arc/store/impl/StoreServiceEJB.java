@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
+package org.dcm4chee.arc.store.impl;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
@@ -720,7 +720,7 @@ public class StoreServiceEJB {
         String urlspec = new AttributesFormat(serviceURL).format(ctx.getAttributes());
         Boolean result = storePermissionCache.get(urlspec);
         if (result != null) {
-            LOG.debug("URL already found in cache. " + result);
+            LOG.debug("{}: Use cached result of Query Store Permission Service {} - {}", session, urlspec, result);
             return result;
         }
 
@@ -733,26 +733,33 @@ public class StoreServiceEJB {
                 StreamUtils.copy(in, out);
             }
             int responseCode = httpConn.getResponseCode();
+            String responseContent = null;
             Pattern responsePattern = arcAE.storePermissionServiceResponsePattern();
-            result = responsePattern != null
-                    ? responseCode == HttpURLConnection.HTTP_OK
-                        && responsePattern.matcher(new String(out.toByteArray(), charsetOf(httpConn))).matches()
-                    : responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NO_CONTENT;
-            if (responseCode == HttpURLConnection.HTTP_OK)
-                LOG.debug(getLogMessage(out, responseCode));
-            else
-                LOG.info(getLogMessage(out, responseCode));
+            if (responsePattern == null) {
+                result = responseCode == HttpURLConnection.HTTP_OK
+                        || responseCode == HttpURLConnection.HTTP_NO_CONTENT;
+            } else {
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    responseContent = new String(out.toByteArray(), charsetOf(httpConn));
+                    result = responsePattern.matcher(responseContent).find();
+                } else {
+                    result = false;
+                }
+            }
+            if (result == false) {
+                if (responseContent == null)
+                    LOG.info("{}: Store Permission Service {} returns HTTP Status: {} - storage denied",
+                            session, urlspec, responseCode);
+                else
+                    LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not match {} - storage denied",
+                            session, urlspec, responseContent, responsePattern);
+            }
         } catch (Exception e) {
             LOG.warn("{}: Failed to query Store Permission Service {}:\n", session, urlspec, e);
             result = false;
         }
         storePermissionCache.put(urlspec, result);
         return result;
-    }
-
-    private String getLogMessage(ByteArrayOutputStream out, int responseCode) {
-        return "Store Permission Service Content : " + String.valueOf(out.toByteArray())
-            + "Response Status : " + Integer.toHexString(responseCode);
     }
 
     private String charsetOf(HttpURLConnection httpConn) {
