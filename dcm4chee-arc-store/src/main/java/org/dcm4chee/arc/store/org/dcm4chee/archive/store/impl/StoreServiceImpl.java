@@ -38,6 +38,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -96,6 +97,7 @@ class StoreServiceImpl implements StoreService {
     @Override
     public void store(StoreContext ctx, InputStream data) throws IOException {
         UpdateDBResult result = null;
+        List<File> bulkDataFiles = Collections.emptyList();
         try {
             String receiveTranferSyntax = ctx.getReceiveTranferSyntax();
             try (Transcoder transcoder = receiveTranferSyntax != null
@@ -108,7 +110,9 @@ class StoreServiceImpl implements StoreService {
                 transcoder.setBulkDataDirectory(
                         ctx.getStoreSession().getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
                 transcoder.setIncludeFileMetaInformation(true);
+                transcoder.setDeleteBulkDataFiles(false);
                 transcoder.transcode(new TranscoderHandler(ctx));
+                bulkDataFiles = transcoder.getBulkDataFiles();
             } catch (StorageException e) {
                 LOG.warn("{}: Failed to store received object:", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.OutOfResources, e);
@@ -135,6 +139,9 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(dse);
             throw dse;
         } finally {
+            for (File tmpFile : bulkDataFiles)
+                tmpFile.delete();
+
             if (result != null) {
                 ctx.getLocations().addAll(result.getLocations());
                 ctx.setRejectionNote(result.getRejectionNote());
@@ -309,25 +316,11 @@ class StoreServiceImpl implements StoreService {
     private void storeMetadata(StoreContext ctx) throws IOException {
         OutputStream out = openOutputStream(ctx, Location.ObjectType.METADATA);
         if (out != null) {
-            Attributes attrs = ctx.getAttributes();
-            clearBulkDataURIs(attrs);
             try (JsonGenerator gen = Json.createGenerator(out)) {
-                new JSONWriter(gen).write(attrs);
+                JSONWriter jsonWriter = new JSONWriter(gen);
+                jsonWriter.setReplaceBulkDataURI("");
+                jsonWriter.write(ctx.getAttributes());
             }
-        }
-    }
-
-    private void clearBulkDataURIs(Attributes attrs) {
-        try {
-            attrs.accept(new Attributes.Visitor() {
-                @Override
-                public boolean visit(Attributes attrs1, int tag, VR vr, Object value) throws Exception {
-                    if (value instanceof BulkData) ((BulkData) value).setURI("");
-                    return true;
-                }
-            }, true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
