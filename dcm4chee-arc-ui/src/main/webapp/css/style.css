@@ -1623,6 +1623,16 @@ table.j4care-table {
 .vex.vex-theme-os.registernewaet .vex-content bootstrap-decorator > .schema-form-array > ol > li.list-group-item {
   width: 97.3% !important; }
 
+input.ng-invalid, .has-error .form-control {
+  border-color: #a94442 !important; }
+
+.aet_buttons {
+  float: right;
+  margin-top: 20px; }
+
+.vex.vex-theme-os.registernewaet .defaultbutton {
+  display: none; }
+
 .deviceedit_block bootstrap-decorator, .vex.vex-theme-os.registernewaet .vex-content bootstrap-decorator {
   border-color: #ddd;
   border-image: none;
@@ -2236,7 +2246,8 @@ table.j4care-table {
     border-radius: 0; }
   .vex.vex-theme-os.registernewaet .vex-content .content {
     float: left;
-    width: 100%; }
+    width: 100%;
+    padding: 30px 0 20px; }
   .vex.vex-theme-os.registernewaet .vex-content .nav-tabs li a {
     color: #444; }
     .vex.vex-theme-os.registernewaet .vex-content .nav-tabs li a:hover {
@@ -2263,7 +2274,7 @@ table.j4care-table {
       padding: 5px 10px;
       width: 100%; }
       .vex.vex-theme-os.registernewaet .vex-content .tabcontain h4:hover {
-        cursor: block !important; }
+        cursor: pointer; }
   .vex.vex-theme-os.registernewaet .vex-content .block {
     float: left;
     width: 100%;

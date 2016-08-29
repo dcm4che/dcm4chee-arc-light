@@ -2208,6 +2208,18 @@ table.j4care-table{
 .vex.vex-theme-os.registernewaet .vex-content bootstrap-decorator > .schema-form-array > ol > li.list-group-item{
 	width: 97.3% !important;
 }
+input.ng-invalid, .has-error .form-control{
+	border-color: #a94442 !important;
+}
+.aet_buttons {
+    float: right;
+    margin-top: 20px;
+}
+.vex.vex-theme-os.registernewaet{
+	.defaultbutton{
+		display:none;
+	}
+}
 .deviceedit_block, .vex.vex-theme-os.registernewaet .vex-content{
 			bootstrap-decorator {
 		    border-color: #ddd;
@@ -3047,6 +3059,7 @@ table.j4care-table{
 		.content {
 		    float: left;
 		    width: 100%;
+		    padding: 30px 0 20px;
 		}
 		.nav-tabs {
 			li {
@@ -3083,7 +3096,7 @@ table.j4care-table{
 			    padding: 5px 10px;
 			    width: 100%;
 			    &:hover{
-			    	cursor:block !important;
+			    	cursor:pointer;
 			    }
 			}
 		}

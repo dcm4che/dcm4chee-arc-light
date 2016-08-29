@@ -4,12 +4,12 @@
 </pre>
 <div class="device">
 	<ul class="nav nav-tabs" ng-init="activetab='createdevice'">
-	  <li role="presentation" ng-class="{'active':activetab==='createdevice'}" ng-click="activetab='createdevice'"><a>Create new device</a></li>
-	  <li role="presentation" ng-class="{'active':activetab==='selectdevice'}" ng-click="activetab='selectdevice'"><a>Select existing device</a></li>
+	  <li role="presentation" ng-class="{'active':activetab==='createdevice'}" ng-click="changeTabAERegister('createdevice')"><a>Create new device</a></li>
+	  <li role="presentation" ng-class="{'active':activetab==='selectdevice'}" ng-click="changeTabAERegister('selectdevice')"><a>Select existing device</a></li>
 	</ul>
 	<div class="createdevice tabcontain">
 		<div class="tab_body" ng-show="activetab==='createdevice'" ng-init="showdevice=false">
-			<h4 ng-click="showdevice=!showdevice;showconn=false">New Device</h4>
+			<h4 ng-click="showdevice=!showdevice;showconn=false">New Device <span ng-if="newAetModel.dicomDeviceName && !showdevice"> <b>{{newAetModel.dicomDeviceName}}</b></span></h4>
 			<div class="content" ng-show="showdevice===true">
 				<div class="block">
 					<div class="label_part">
@@ -37,7 +37,7 @@
 					<span class="description">Boolean to indicate whether this device is presently installed on the network</span>
 				</div>
 			</div>
-			<h4 ng-click="showconn=!showconn;showdevice=false" ng-init="showconn=false">New Network Connection</h4>
+			<h4 ng-click="showconn=!showconn;showdevice=false" ng-init="showconn=false">New Network Connection  <span ng-if="newAetModel.dicomNetworkConnection.cn && !showconn"> <b>{{newAetModel.dicomNetworkConnection.cn}}</b></span></h4>
 			<div class="content"  ng-show="showconn===true">
 			    <div sf-schema="netConnSchema" sf-form="netConnForm" sf-model="netConnModel"></div>
 			</div>
@@ -76,4 +76,8 @@
 				</div>
 		</div>
 	</div>
+</div>
+<div class="vex-dialog-buttons aet_buttons">
+	<button type="submit" class="vex-dialog-button-primary vex-dialog-button vex-first" ng-disabled="">Register</button>
+	<button type="button" class="vex-dialog-button-secondary vex-dialog-button vex-last">Cancel</button>
 </div>
