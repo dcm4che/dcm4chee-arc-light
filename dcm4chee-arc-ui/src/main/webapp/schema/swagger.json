@@ -53,7 +53,7 @@
         "tags": [
           "REALM-RS"
         ],
-        "summary": "Show realm of logged-in user",
+        "summary": "Show Realm of Logged-in User",
         "operationId": "realm",
         "produces": [
           "application/json"
@@ -72,7 +72,7 @@
       }
     },
     "/ctrl/start": {
-      "get": {
+      "post": {
         "tags": [
           "CTRL-RS"
         ],
@@ -89,7 +89,7 @@
       }
     },
     "/ctrl/stop": {
-      "get": {
+      "post": {
         "tags": [
           "CTRL-RS"
         ],
@@ -106,7 +106,7 @@
       }
     },
     "/ctrl/reload": {
-      "get": {
+      "post": {
         "tags": [
           "CTRL-RS"
         ],
@@ -591,7 +591,7 @@
         "tags": [
           "CONFIG-RS"
         ],
-        "summary": "get Attribute Filter",
+        "summary": "Get Attribute Filter",
         "operationId": "getAttributeFilter",
         "produces": [
           "application/json"
@@ -626,7 +626,7 @@
         "tags": [
           "MONITOR-RS"
         ],
-        "summary": "list open Associations",
+        "summary": "List Open Associations",
         "operationId": "listOpenAssociations",
         "produces": [
           "application/json"
@@ -649,7 +649,7 @@
         "tags": [
           "MONITOR-RS"
         ],
-        "summary": "abort Association",
+        "summary": "Abort Association",
         "operationId": "abortAssociation",
         "parameters": [
           {
@@ -678,7 +678,7 @@
         "tags": [
           "QUEUE-RS"
         ],
-        "summary": "list configured queues",
+        "summary": "List Configured Queues",
         "operationId": "listQueues",
         "produces": [
           "application/json"
@@ -701,8 +701,8 @@
         "tags": [
           "QUEUE-RS"
         ],
-        "summary": "list messages in queue",
-        "operationId": "listMessages",
+        "summary": "List Tasks in Queue",
+        "operationId": "listTasks",
         "produces": [
           "application/json"
         ],
@@ -717,7 +717,7 @@
           {
             "name": "status",
             "in": "query",
-            "description": "status of messages to filter by",
+            "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
               "SCHEDULED",
@@ -731,20 +731,20 @@
           {
             "name": "updatedBefore",
             "in": "query",
-            "description": "maximum update date of messages to filter by. Format: YYYY-MM-DD",
+            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
             "type": "string",
             "format": "date"
           },
           {
             "name": "offset",
             "in": "query",
-            "description": "number of skipped messages before first message in returned list",
+            "description": "number of skipped tasks before first task in returned list",
             "type": "integer"
           },
           {
             "name": "limit",
             "in": "query",
-            "description": "maximal number of messages in returned list",
+            "description": "maximal number of tasks in returned list",
             "type": "integer"
           }
         ],
@@ -767,8 +767,8 @@
         "tags": [
           "QUEUE-RS"
         ],
-        "summary": "delete messages in queue",
-        "operationId": "deleteMessages",
+        "summary": "Delete Tasks in Queue",
+        "operationId": "deleteTasks",
         "produces": [
           "application/json"
         ],
@@ -783,7 +783,7 @@
           {
             "name": "status",
             "in": "query",
-            "description": "status of messages to filter by",
+            "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
               "SCHEDULED",
@@ -797,7 +797,7 @@
           {
             "name": "updatedBefore",
             "in": "query",
-            "description": "maximum update date of messages to filter by. Format: YYYY-MM-DD",
+            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
             "type": "string",
             "format": "date"
           }
@@ -818,13 +818,13 @@
         }
       }
     },
-    "/queue/{queueName}/{messageID}": {
+    "/queue/{queueName}/{taskID}": {
       "delete": {
         "tags": [
           "QUEUE-RS"
         ],
-        "summary": "delete message",
-        "operationId": "deleteMessage",
+        "summary": "Delete Task",
+        "operationId": "deleteTask",
         "parameters": [
           {
             "name": "queueName",
@@ -834,9 +834,9 @@
             "type": "string"
           },
           {
-            "name": "messageID",
+            "name": "taskID",
             "in": "path",
-            "description": "id of message",
+            "description": "id of task",
             "required": true,
             "type": "string"
           }
@@ -846,7 +846,7 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "message not found"
+            "description": "task not found"
           },
           "default": {
             "description": "unexpected error"
@@ -854,13 +854,13 @@
         }
       }
     },
-    "/queue/{queueName}/{messageID}/cancel": {
-      "get": {
+    "/queue/{queueName}/{taskID}/cancel": {
+      "post": {
         "tags": [
           "QUEUE-RS"
         ],
-        "summary": "cancel message",
-        "operationId": "cancelMessage",
+        "summary": "Cancel Task",
+        "operationId": "cancelTask",
         "parameters": [
           {
             "name": "queueName",
@@ -870,9 +870,9 @@
             "type": "string"
           },
           {
-            "name": "messageID",
+            "name": "taskID",
             "in": "path",
-            "description": "id of message",
+            "description": "id of task",
             "required": true,
             "type": "string"
           }
@@ -882,7 +882,7 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "message not found"
+            "description": "task not found"
           },
           "default": {
             "description": "unexpected error"
@@ -890,13 +890,13 @@
         }
       }
     },
-    "/queue/{queueName}/{messageID}/reschedule": {
-      "get": {
+    "/queue/{queueName}/{taskID}/reschedule": {
+      "post": {
         "tags": [
           "QUEUE-RS"
         ],
-        "summary": "reschedule message",
-        "operationId": "rescheduleMessage",
+        "summary": "Reschedule Task",
+        "operationId": "rescheduleTask",
         "parameters": [
           {
             "name": "queueName",
@@ -906,9 +906,9 @@
             "type": "string"
           },
           {
-            "name": "messageID",
+            "name": "taskID",
             "in": "path",
-            "description": "id of message",
+            "description": "id of task",
             "required": true,
             "type": "string"
           }
@@ -918,7 +918,7 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "message not found"
+            "description": "task not found"
           },
           "default": {
             "description": "unexpected error"
@@ -934,7 +934,7 @@
           "ECHO-RS",
           "EXPORT-RS"
         ],
-        "summary": "list Archive AE Titles",
+        "summary": "List Archive AE Titles",
         "operationId": "listArchiveAETs",
         "produces": [
           "application/json"
@@ -953,12 +953,12 @@
       }
     },
     "/aets/{aet}/echo/{remoteAET}": {
-      "get": {
+      "post": {
         "tags": [
           "ECHO-RS"
         ],
-        "summary": "verify",
-        "operationId": "verify",
+        "summary": "Verify DICOM Connection",
+        "operationId": "verifyConnection",
         "parameters": [
           {
             "name": "aet",
@@ -996,7 +996,7 @@
         "tags": [
           "IOCM-RS"
         ],
-        "summary": "create patient",
+        "summary": "Create Patient",
         "operationId": "createPatient",
         "consumes": [
           "application/json"
@@ -1031,7 +1031,7 @@
         "tags": [
           "IOCM-RS"
         ],
-        "summary": "update or create patient",
+        "summary": "Update or Create patient",
         "operationId": "updatePatient",
         "consumes": [
           "application/json"
@@ -1449,11 +1449,11 @@
       }
     },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
-      "get": {
+      "post": {
         "tags": [
           "EXPORT-RS"
         ],
-        "summary": "export study",
+        "summary": "Export Study",
         "operationId": "exportStudy",
         "parameters": [
           {
@@ -1492,11 +1492,11 @@
       }
     },
     "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/export/{exporterID}": {
-      "get": {
+      "post": {
         "tags": [
           "EXPORT-RS"
         ],
-        "summary": "export series",
+        "summary": "Export Series",
         "operationId": "exportSeries",
         "parameters": [
           {
@@ -1542,11 +1542,11 @@
       }
     },
     "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/export/{exporterID}": {
-      "get": {
+      "post": {
         "tags": [
           "EXPORT-RS"
         ],
-        "summary": "export instance",
+        "summary": "Export Instance",
         "operationId": "exportInstance",
         "parameters": [
           {
@@ -1599,11 +1599,11 @@
       }
     },
     "/aets/{aet}/rs/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "get": {
+      "post": {
         "tags": [
           "IOCM-RS"
         ],
-        "summary": "reject study",
+        "summary": "Reject Study",
         "operationId": "rejectStudy",
         "parameters": [
           {
@@ -1649,11 +1649,11 @@
       }
     },
     "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "get": {
+      "post": {
         "tags": [
           "IOCM-RS"
         ],
-        "summary": "reject series",
+        "summary": "Reject Series",
         "operationId": "rejectSeries",
         "parameters": [
           {
@@ -1706,11 +1706,11 @@
       }
     },
     "/aets/{aet}/rs/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
-      "get": {
+      "post": {
         "tags": [
           "IOCM-RS"
         ],
-        "summary": "reject instance",
+        "summary": "Reject Instance",
         "operationId": "rejectInstance",
         "parameters": [
           {
@@ -1868,7 +1868,7 @@
           "CONFIG-RS",
           "EXPORT-RS"
         ],
-        "summary": "list Exporters",
+        "summary": "List Exporters",
         "operationId": "listExporters",
         "produces": [
           "application/json"
@@ -1892,7 +1892,7 @@
           "CONFIG-RS",
           "IOCM-RS"
         ],
-        "summary": "list Rejection Notes",
+        "summary": "List Rejection Notes",
         "operationId": "listRejectionNotes",
         "produces": [
           "application/json"
@@ -1923,7 +1923,7 @@
         "tags": [
           "IOCM-RS"
         ],
-        "summary": "delete rejected instances permanently",
+        "summary": "Delete Rejected Instances Permanently",
         "operationId": "deleteRejectedInstancesPermanently",
         "parameters": [
           {
@@ -2041,7 +2041,7 @@
       "properties": {
         "deleted": {
           "title": "deleted",
-          "description": "number of deleted messages",
+          "description": "number of deleted tasks",
           "type": "integer"
         }
       }
