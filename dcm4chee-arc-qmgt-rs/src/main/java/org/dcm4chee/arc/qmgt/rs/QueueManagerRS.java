@@ -60,6 +60,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 @RequestScoped
@@ -95,13 +96,13 @@ public class QueueManagerRS {
                 .build();
     }
 
-    @GET
+    @POST
     @Path("{msgId}/cancel")
     public void cancelProcessing(@PathParam("msgId") String msgId) throws Exception {
         mgr.cancelProcessing(msgId);
     }
 
-    @GET
+    @POST
     @Path("{msgId}/reschedule")
     public void rescheduleMessage(@PathParam("msgId") String msgId) throws Exception {
         mgr.rescheduleMessage(msgId);

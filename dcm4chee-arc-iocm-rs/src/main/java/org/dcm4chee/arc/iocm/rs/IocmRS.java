@@ -130,7 +130,7 @@ public class IocmRS {
     private HttpServletRequest request;
 
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     public void rejectStudy(
             @PathParam("StudyUID") String studyUID,
@@ -139,7 +139,7 @@ public class IocmRS {
         reject("rejectStudy", studyUID, null, null, codeValue, designator);
     }
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     public void rejectSeries(
             @PathParam("StudyUID") String studyUID,
@@ -149,7 +149,7 @@ public class IocmRS {
         reject("rejectSeries", studyUID, seriesUID, null, codeValue, designator);
     }
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     public void rejectInstance(
             @PathParam("StudyUID") String studyUID,
