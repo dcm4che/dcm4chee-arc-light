@@ -64,13 +64,13 @@
             <a ng-click="match.showProperties = !match.showProperties" href="" title="Show Properties">
                 <span class="glyphicon glyphicon-list"></span>
             </a>
-            <a ng-show="isRole('admin')" ng-click="cancel(match)" href="" title="Cancel">
+            <a ng-show="user.isRole('admin')" ng-click="cancel(match)" href="" title="Cancel">
                 <span class="glyphicon glyphicon-ban-circle"></span>
             </a>
-            <a ng-show="isRole('admin')" ng-click="reschedule(match)" href="" title="Reschedule">
+            <a ng-show="user.isRole('admin')" ng-click="reschedule(match)" href="" title="Reschedule">
                 <span class="glyphicon glyphicon-repeat"></span>
             </a>
-            <a ng-show="isRole('admin')" ng-click="delete(match)" href="" title="Delete">
+            <a ng-show="user.isRole('admin')" ng-click="delete(match)" href="" title="Delete">
                 <span class="glyphicon glyphicon-remove-circle"></span>
             </a>
         </td>
