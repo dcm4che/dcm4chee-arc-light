@@ -407,12 +407,12 @@ public class Series {
         this.rejectionState = rejectionState;
     }
 
-    public LocalDate getExpirationDate() {
-        return expirationDate != null ? LocalDate.parse(expirationDate) : null;
+    public LocalDate getExpirationDateAsLocalDate() {
+        return expirationDate != null ? LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE) : null;
     }
 
-    public void setExpirationDate(LocalDate expirationDate) {
-        this.expirationDate = expirationDate != null ? expirationDate.toString() : null;
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public String getFailedSOPInstanceUIDList() {

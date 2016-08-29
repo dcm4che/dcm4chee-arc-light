@@ -76,6 +76,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -247,11 +248,11 @@ public class StoreServiceEJB {
 
     private void checkExpirationDate(Series series)
             throws DicomServiceException {
-        LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
+        LocalDate studyExpirationDate = series.getStudy().getExpirationDateAsLocalDate();
         if (studyExpirationDate == null)
             return;
 
-        LocalDate seriesExpirationDate = series.getExpirationDate();
+        LocalDate seriesExpirationDate = series.getExpirationDateAsLocalDate();
         if ((seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isAfter(LocalDate.now())) {
             throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
                     "Retention Period of Study not yet expired");
@@ -815,12 +816,12 @@ public class StoreServiceEJB {
 
         Study study = series.getStudy();
         LocalDate expirationDate = LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
-        LocalDate studyExpirationDate = study.getExpirationDate();
+        LocalDate studyExpirationDate = study.getExpirationDateAsLocalDate();
         if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
-            study.setExpirationDate(expirationDate);
+            study.setExpirationDate(DateTimeFormatter.BASIC_ISO_DATE.format(expirationDate));
 
         if (retentionPolicy.isExpireSeriesIndividually())
-            series.setExpirationDate(expirationDate);
+            series.setExpirationDate(DateTimeFormatter.BASIC_ISO_DATE.format(expirationDate));
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {

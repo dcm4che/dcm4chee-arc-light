@@ -54,7 +54,6 @@ import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.study.StudyMgtContext;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -72,7 +71,7 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     private String studyInstanceUID;
     private String eventActionCode;
     private Exception exception;
-    private LocalDate expirationDate;
+    private String expirationDate;
     private String seriesInstanceUID;
 
     StudyMgtContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae) {
@@ -169,12 +168,12 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     }
 
     @Override
-    public LocalDate getExpirationDate() {
+    public String getExpirationDate() {
         return expirationDate;
     }
 
     @Override
-    public void setExpirationDate(LocalDate expirationDate) {
+    public void setExpirationDate(String expirationDate) {
         this.expirationDate = expirationDate;
     }
 

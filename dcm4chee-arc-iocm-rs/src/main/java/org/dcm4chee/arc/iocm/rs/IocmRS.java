@@ -365,7 +365,8 @@ public class IocmRS {
             ctx.setStudyInstanceUID(studyUID);
             if (seriesUID != null)
                 ctx.setSeriesInstanceUID(seriesUID);
-            ctx.setExpirationDate(LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE));
+            LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
+            ctx.setExpirationDate(DateTimeFormatter.BASIC_ISO_DATE.format(expireDate));
             studyService.updateExpirationDate(ctx);
         } catch (NoResultException e) {
             String message;
