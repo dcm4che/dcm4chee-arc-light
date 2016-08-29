@@ -1073,8 +1073,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     $scope.callBackFree = true;
                                 }, function errorCallback(response) {
                                     DeviceService.msg($scope, {
-                                        "title": "Error",
-                                        "text": "Error saving mwl!",
+                                        // "title": "Error",
+                                        // "text": "Error saving mwl!",
+                                        // "status": "error"
+                                        "title": "Error "+response.status,
+                                        "text": response.data.errorMessage,
                                         "status": "error"
                                     });
                                     $scope.callBackFree = true;
@@ -2220,8 +2223,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         },
                         function errorCallback(response) {
                             DeviceService.msg($scope, {
-                                "title": "Error",
-                                "text": "Error deleting study!",
+                                // "title": "Error",
+                                // "text": "Error deleting study!",
+                                // "status": "error"
+                                "title": "Error "+response.status,
+                                "text": response.data.errorMessage,
                                 "status": "error"
                             });
                             cfpLoadingBar.complete();
@@ -2272,8 +2278,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         },
                         function errorCallback(response) {
                             DeviceService.msg($scope, {
-                                "title": "Error",
-                                "text": "Error deleting patient!",
+                                // "title": "Error",
+                                // "text": "Error deleting patient!",
+                                // "status": "error"
+                                "title": "Error "+response.status,
+                                "text": response.data.errorMessage,
                                 "status": "error"
                             });
                             // angular.element("#querypatients").trigger('click');
@@ -2411,8 +2420,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                                     $scope.callBackFree = true;
                                                 }, function errorCallback(response) {
                                                     DeviceService.msg($scope, {
-                                                        "title": "Error",
-                                                        "text": "Error copying object "+m.StudyInstanceUID,
+                                                        // "title": "Error",
+                                                        // "text": "Error copying object "+m.StudyInstanceUID,
+                                                        // "status": "error"
+                                                        "title": "Error "+response.status,
+                                                        "text": response.data.errorMessage,
                                                         "status": "error"
                                                     });
                                                     $scope.callBackFree = true;
@@ -2446,8 +2458,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         $scope.callBackFree = true;
                                     }, function errorCallback(response) {
                                         DeviceService.msg($scope, {
-                                            "title": "Error",
-                                            "text": "Error copying object "+$scope.target.attrs['0020000D'].Value[0],
+                                            // "title": "Error",
+                                            // "text": "Error copying object "+$scope.target.attrs['0020000D'].Value[0],
+                                            // "status": "error"
+                                            "title": "Error "+response.status,
+                                            "text": response.data.errorMessage,
                                             "status": "error"
                                         });
                                         $scope.callBackFree = true;
@@ -2485,8 +2500,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                                     $scope.callBackFree = true;
                                                 }, function errorCallback(response) {
                                                     DeviceService.msg($scope, {
-                                                        "title": "Error",
-                                                        "text": "Error moving object "+m.StudyInstanceUID,
+                                                        // "title": "Error",
+                                                        // "text": "Error moving object "+m.StudyInstanceUID,
+                                                        // "status": "error"
+                                                        "title": "Error "+response.status,
+                                                        "text": response.data.errorMessage,
                                                         "status": "error"
                                                     });
                                                     $scope.callBackFree = true;
@@ -2519,8 +2537,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         $scope.callBackFree = true;
                                     }, function errorCallback(response) {
                                         DeviceService.msg($scope, {
-                                            "title": "Error",
-                                            "text": "Error moving object "+$scope.target.attrs['0020000D'].Value[0],
+                                            // "title": "Error",
+                                            // "text": "Error moving object "+$scope.target.attrs['0020000D'].Value[0],
+                                            // "status": "error"
+                                            "title": "Error "+response.status,
+                                            "text": response.data.errorMessage,
                                             "status": "error"
                                         });
                                         $scope.callBackFree = true;
