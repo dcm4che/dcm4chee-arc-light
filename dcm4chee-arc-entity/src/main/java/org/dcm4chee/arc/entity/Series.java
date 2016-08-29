@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -122,7 +123,7 @@ import java.util.Date;
 @NamedQuery(
         name=Series.FIND_SERIES_OF_STUDY,
         query = "select se from Series se " +
-                "where se.study = ?1"),
+                "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
         name=Series.COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE,
         query="select count(se) from Series se " +
@@ -406,12 +407,12 @@ public class Series {
         this.rejectionState = rejectionState;
     }
 
-    public LocalDate getExpirationDate() {
-        return expirationDate != null ? LocalDate.parse(expirationDate) : null;
+    public LocalDate getExpirationDateAsLocalDate() {
+        return expirationDate != null ? LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE) : null;
     }
 
-    public void setExpirationDate(LocalDate expirationDate) {
-        this.expirationDate = expirationDate != null ? expirationDate.toString() : null;
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public String getFailedSOPInstanceUIDList() {

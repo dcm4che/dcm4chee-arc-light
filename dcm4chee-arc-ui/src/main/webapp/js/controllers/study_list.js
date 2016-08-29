@@ -1079,8 +1079,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                     $scope.callBackFree = true;
                                 }, function errorCallback(response) {
                                     DeviceService.msg($scope, {
-                                        "title": "Error",
-                                        "text": "Error saving mwl!",
+                                        // "title": "Error",
+                                        // "text": "Error saving mwl!",
+                                        // "status": "error"
+                                        "title": "Error "+response.status,
+                                        "text": response.data.errorMessage,
                                         "status": "error"
                                     });
                                     $scope.callBackFree = true;
@@ -2111,7 +2114,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (data === false) {
                   return console.log('Cancelled');
                 }else{
-                    $http.get(studyURL(study.attrs) + '/export/' + $scope.exporterID);
+                    $http.post(studyURL(study.attrs) + '/export/' + $scope.exporterID);
                 }
               }
             });
@@ -2132,7 +2135,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (data === false) {
                   return console.log('Cancelled');
                 }else{
-                    $http.get(seriesURL(series.attrs) + '/export/' + $scope.exporterID);
+                    $http.post(seriesURL(series.attrs) + '/export/' + $scope.exporterID);
                 }
               }
             });
@@ -2153,7 +2156,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (data === false) {
                   return console.log('Cancelled');
                 }else{
-                    $http.get(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
+                    $http.post(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
                 }
               }
             });
@@ -2196,7 +2199,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     }
                 );
             }else{
-                $log.log("deleting canceled");
+                // $log.log("deleting canceled");
+                console.log("deleting canceled");
                 cfpLoadingBar.complete();
             }
           }
@@ -2226,8 +2230,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         },
                         function errorCallback(response) {
                             DeviceService.msg($scope, {
-                                "title": "Error",
-                                "text": "Error deleting study!",
+                                // "title": "Error",
+                                // "text": "Error deleting study!",
+                                // "status": "error"
+                                "title": "Error "+response.status,
+                                "text": response.data.errorMessage,
                                 "status": "error"
                             });
                             cfpLoadingBar.complete();
@@ -2278,8 +2285,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                         },
                         function errorCallback(response) {
                             DeviceService.msg($scope, {
-                                "title": "Error",
-                                "text": "Error deleting patient!",
+                                // "title": "Error",
+                                // "text": "Error deleting patient!",
+                                // "status": "error"
+                                "title": "Error "+response.status,
+                                "text": response.data.errorMessage,
                                 "status": "error"
                             });
                             // angular.element("#querypatients").trigger('click');
@@ -2417,8 +2427,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                                     $scope.callBackFree = true;
                                                 }, function errorCallback(response) {
                                                     DeviceService.msg($scope, {
-                                                        "title": "Error",
-                                                        "text": "Error copying object "+m.StudyInstanceUID,
+                                                        // "title": "Error",
+                                                        // "text": "Error copying object "+m.StudyInstanceUID,
+                                                        // "status": "error"
+                                                        "title": "Error "+response.status,
+                                                        "text": response.data.errorMessage,
                                                         "status": "error"
                                                     });
                                                     $scope.callBackFree = true;
@@ -2452,8 +2465,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         $scope.callBackFree = true;
                                     }, function errorCallback(response) {
                                         DeviceService.msg($scope, {
-                                            "title": "Error",
-                                            "text": "Error copying object "+$scope.target.attrs['0020000D'].Value[0],
+                                            // "title": "Error",
+                                            // "text": "Error copying object "+$scope.target.attrs['0020000D'].Value[0],
+                                            // "status": "error"
+                                            "title": "Error "+response.status,
+                                            "text": response.data.errorMessage,
                                             "status": "error"
                                         });
                                         $scope.callBackFree = true;
@@ -2491,8 +2507,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                                     $scope.callBackFree = true;
                                                 }, function errorCallback(response) {
                                                     DeviceService.msg($scope, {
-                                                        "title": "Error",
-                                                        "text": "Error moving object "+m.StudyInstanceUID,
+                                                        // "title": "Error",
+                                                        // "text": "Error moving object "+m.StudyInstanceUID,
+                                                        // "status": "error"
+                                                        "title": "Error "+response.status,
+                                                        "text": response.data.errorMessage,
                                                         "status": "error"
                                                     });
                                                     $scope.callBackFree = true;
@@ -2525,8 +2544,11 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                         $scope.callBackFree = true;
                                     }, function errorCallback(response) {
                                         DeviceService.msg($scope, {
-                                            "title": "Error",
-                                            "text": "Error moving object "+$scope.target.attrs['0020000D'].Value[0],
+                                            // "title": "Error",
+                                            // "text": "Error moving object "+$scope.target.attrs['0020000D'].Value[0],
+                                            // "status": "error"
+                                            "title": "Error "+response.status,
+                                            "text": response.data.errorMessage,
                                             "status": "error"
                                         });
                                         $scope.callBackFree = true;
@@ -2895,7 +2917,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.rejectStudy = function(study) {
         if($scope.trashaktive){
-            $http.get(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
+            $http.post(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
                 $scope.queryStudies($scope.patients[0].offset);
             },
@@ -2947,7 +2969,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.rejectSeries = function(series) {
         if($scope.trashaktive){
-            $http.get(seriesURL(series.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
+            $http.post(seriesURL(series.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
                 $scope.queryStudies($scope.patients[0].offset);
             },
@@ -2993,7 +3015,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.rejectInstance = function(instance) {
         if($scope.trashaktive){
-            $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
+            $http.post(instanceURL(instance.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
                 $scope.queryStudies($scope.patients[0].offset);
             },

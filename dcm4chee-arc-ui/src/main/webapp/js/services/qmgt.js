@@ -8,11 +8,11 @@ myApp.factory('QmgtService', function($http, $filter) {
     };
 
     srv.cancel = function(queueName, msgId) {
-        return $http.get(url3(queueName, msgId, 'cancel'));
+        return $http.post(url3(queueName, msgId, 'cancel'));
     };
 
     srv.reschedule = function(queueName, msgId) {
-        return $http.get(url3(queueName, msgId, 'reschedule'));
+        return $http.post(url3(queueName, msgId, 'reschedule'));
     };
 
     srv.delete = function(queueName, msgId) {

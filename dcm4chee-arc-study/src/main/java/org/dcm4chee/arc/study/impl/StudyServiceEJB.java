@@ -45,10 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.entity.CodeEntity;
-import org.dcm4chee.arc.entity.IssuerEntity;
-import org.dcm4chee.arc.entity.RejectionState;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMismatchException;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -58,10 +55,14 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @Stateless
@@ -109,6 +110,44 @@ public class StudyServiceEJB {
             study.setPatient(ctx.getPatient());
             ctx.setStudy(study);
             em.persist(study);
+        }
+    }
+
+    public void updateStudyExpirationDate(StudyMgtContext ctx) throws NoResultException {
+        try {
+            List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
+                    .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+            String studyExpireDate = ctx.getExpirationDate();
+            if (!seriesOfStudy.isEmpty()) {
+                seriesOfStudy.get(0).getStudy().setExpirationDate(studyExpireDate);
+                for (Series series : seriesOfStudy) {
+                    LocalDate seriesExpirationDate = series.getExpirationDateAsLocalDate();
+                    if (seriesExpirationDate != null && seriesExpirationDate.isAfter(
+                            LocalDate.parse(studyExpireDate, DateTimeFormatter.BASIC_ISO_DATE)))
+                        series.setExpirationDate(studyExpireDate);
+                }
+            } else {
+                Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                        .setParameter(1, ctx.getStudyInstanceUID()).getSingleResult();
+                study.setExpirationDate(studyExpireDate);
+            }
+        } catch (NoResultException e) {
+            throw e;
+        }
+    }
+
+    public void updateSeriesExpirationDate(StudyMgtContext ctx) throws NoResultException {
+        try {
+            Series series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
+                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .setParameter(2, ctx.getSeriesInstanceUID()).getSingleResult();
+            LocalDate studyExpirationDate = series.getStudy().getExpirationDateAsLocalDate();
+            series.setExpirationDate(ctx.getExpirationDate());
+            if (studyExpirationDate == null || studyExpirationDate.isBefore(
+                    LocalDate.parse(ctx.getExpirationDate(), DateTimeFormatter.BASIC_ISO_DATE)))
+                series.getStudy().setExpirationDate(ctx.getExpirationDate());
+        } catch (NoResultException e) {
+            throw e;
         }
     }
 

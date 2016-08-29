@@ -172,9 +172,9 @@ public class MwlRS {
         if (ae == null) {
             ae = device.getApplicationEntity(aet, true);
             if (ae == null || !ae.isInstalled())
-                throw new WebApplicationException(
+                throw new WebApplicationException(getResponse(
                         "No such Application Entity: " + aet,
-                        Response.Status.SERVICE_UNAVAILABLE);
+                        Response.Status.SERVICE_UNAVAILABLE));
             this.ae = ae;
         }
         return ae;

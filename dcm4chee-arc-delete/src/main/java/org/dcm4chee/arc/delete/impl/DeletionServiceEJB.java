@@ -46,14 +46,11 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl.StoreServiceEJB;
+import org.dcm4chee.arc.store.impl.StoreServiceEJB;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -135,6 +132,13 @@ public class DeletionServiceEJB {
     public void deleteEmptyStudy(StudyDeleteContext ctx) {
         Study study = ctx.getStudy();
         em.remove(em.contains(study) ? study : em.merge(study));
+    }
+
+    public void deleteMWLItemsOfPatient(PatientMgtContext ctx) {
+        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_PATIENT, MWLItem.class)
+                .setParameter(1, ctx.getPatient()).getResultList();
+        for (MWLItem mwlItem : mwlItems)
+            em.remove(mwlItem);
     }
 
     private int deleteInstances(List<Location> locations, StudyDeleteContext studyDeleteContext) {
@@ -255,4 +259,6 @@ public class DeletionServiceEJB {
             b.append(';').append(aets[i]);
         return device.getApplicationEntity(b.toString(), true);
     }
+
+
 }

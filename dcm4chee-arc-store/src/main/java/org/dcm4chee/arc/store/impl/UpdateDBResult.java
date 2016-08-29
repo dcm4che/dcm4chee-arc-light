@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.store.org.dcm4chee.archive.store.impl;
+package org.dcm4chee.arc.store.impl;
 
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;

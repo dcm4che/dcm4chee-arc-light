@@ -46,10 +46,13 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 public interface StudyService {
     StudyMgtContext createStudyMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
 
     void updateStudy(StudyMgtContext ctx);
+
+    void updateExpirationDate(StudyMgtContext ctx) throws Exception;
 }

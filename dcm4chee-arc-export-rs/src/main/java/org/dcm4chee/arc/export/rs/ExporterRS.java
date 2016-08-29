@@ -51,15 +51,13 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2016
  */
 @RequestScoped
@@ -80,7 +78,7 @@ public class ExporterRS {
     @Context
     private HttpServletRequest request;
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/export/{ExporterID}")
     public void exportStudy(
             @PathParam("StudyUID") String studyUID,
@@ -88,7 +86,7 @@ public class ExporterRS {
         export(studyUID, "*", "*", exporterID);
     }
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/export/{ExporterID}")
     public void exportSeries(
             @PathParam("StudyUID") String studyUID,
@@ -97,7 +95,7 @@ public class ExporterRS {
         export(studyUID, seriesUID, "*", exporterID);
     }
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/export/{ExporterID}")
     public void exportInstance(
             @PathParam("StudyUID") String studyUID,

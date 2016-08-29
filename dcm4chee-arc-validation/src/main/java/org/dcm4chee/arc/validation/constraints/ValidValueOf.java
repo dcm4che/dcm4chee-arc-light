@@ -57,6 +57,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = ValidValueOfValidator.class)
 public @interface ValidValueOf {
     Class<?> type();
+    String methodName() default "";
+    Class<?> methodParameterType() default String.class;
     String message() default "{ValidValueOf.message}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

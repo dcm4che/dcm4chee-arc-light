@@ -53,7 +53,7 @@ import java.lang.reflect.Method;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, String> {
+class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, CharSequence> {
     private final static Logger log = LoggerFactory.getLogger(ValidValueOfValidator.class);
     private Constructor<?> init;
     private Method valueOf;
@@ -61,19 +61,25 @@ class ValidValueOfValidator implements ConstraintValidator<ValidValueOf, String>
     @Override
     public void initialize(ValidValueOf constraint) {
         Class<?> type = constraint.type();
-        try {
-            init = type.getConstructor(String.class);
-        } catch (NoSuchMethodException e) {
+        String methodName = constraint.methodName();
+        Class<?> paramType = constraint.methodParameterType();
+        if (methodName.isEmpty()) {
             try {
-                valueOf = type.getMethod("valueOf", String.class);
-            } catch (NoSuchMethodException e1) {
-                log.warn("class {} neither provides constructor nor valueOf method with String parameter", type);
+                init = type.getConstructor(paramType);
+                return;
+            } catch (NoSuchMethodException e) {
+                methodName = "valueOf";
             }
+        }
+        try {
+            valueOf = type.getMethod(methodName, paramType);
+        } catch (NoSuchMethodException e) {
+            log.warn("Failed to initialize validator: ", e);
         }
     }
 
     @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
+    public boolean isValid(CharSequence value, ConstraintValidatorContext context) {
         if (value == null)
             return true;
         try {

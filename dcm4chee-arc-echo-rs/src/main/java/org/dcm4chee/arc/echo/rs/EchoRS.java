@@ -63,6 +63,7 @@ import java.io.Writer;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2016
  */
 @RequestScoped
@@ -114,7 +115,7 @@ public class EchoRS {
         return aarq;
     }
 
-    @GET
+    @POST
     @Produces("application/json")
     public StreamingOutput echo() throws Exception {
         ApplicationEntity ae = getApplicationEntity();

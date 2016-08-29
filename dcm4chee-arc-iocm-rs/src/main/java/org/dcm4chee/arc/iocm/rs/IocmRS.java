@@ -64,6 +64,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.keycloak.KeycloakSecurityContext;
@@ -74,6 +75,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -83,6 +85,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -125,7 +130,7 @@ public class IocmRS {
     private HttpServletRequest request;
 
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     public void rejectStudy(
             @PathParam("StudyUID") String studyUID,
@@ -134,7 +139,7 @@ public class IocmRS {
         reject("rejectStudy", studyUID, null, null, codeValue, designator);
     }
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     public void rejectSeries(
             @PathParam("StudyUID") String studyUID,
@@ -144,7 +149,7 @@ public class IocmRS {
         reject("rejectSeries", studyUID, seriesUID, null, codeValue, designator);
     }
 
-    @GET
+    @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/reject/{CodeValue}^{CodingSchemeDesignator}")
     public void rejectInstance(
             @PathParam("StudyUID") String studyUID,
@@ -181,11 +186,11 @@ public class IocmRS {
         logRequest();
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException(
-                    "Patient having patient ID : " + patientID + " not found.", Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse(
+                    "Patient having patient ID : " + patientID + " not found.", Response.Status.NOT_FOUND));
         if (patient.getNumberOfStudies() > 0)
-            throw new WebApplicationException(
-                    "Patient having patient ID : " + patientID + " has non empty studies.", Response.Status.FORBIDDEN);
+            throw new WebApplicationException(getResponse(
+                    "Patient having patient ID : " + patientID + " has non empty studies.", Response.Status.FORBIDDEN));
         PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
         ctx.setPatientID(patientID);
         ctx.setAttributes(patient.getAttributes());
@@ -201,10 +206,10 @@ public class IocmRS {
         try {
             deletionService.deleteStudy(studyUID, request, getApplicationEntity());
         } catch (StudyNotFoundException e) {
-            throw new WebApplicationException("Study having study instance UID " + studyUID + " not found.",
-                    Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("Study having study instance UID " + studyUID + " not found.",
+                    Response.Status.NOT_FOUND));
         } catch (StudyNotEmptyException e) {
-            throw new WebApplicationException(e.getMessage() + studyUID, Response.Status.FORBIDDEN);
+            throw new WebApplicationException(getResponse(e.getMessage() + studyUID, Response.Status.FORBIDDEN));
         }
     }
 
@@ -259,8 +264,8 @@ public class IocmRS {
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
-                    Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND));
 
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
@@ -289,12 +294,12 @@ public class IocmRS {
         Attributes attrs = reader.readDataset(null);
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         if (studyIUID != null)
-            throw new WebApplicationException("Study Instance UID in message body", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("Study Instance UID in message body", Response.Status.BAD_REQUEST));
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
-                    Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND));
 
         attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
 
@@ -318,20 +323,65 @@ public class IocmRS {
         ctx.setAttributes(reader.readDataset(null));
         String studyIUIDBody = ctx.getStudyInstanceUID();
         if (studyIUIDBody == null)
-            throw new WebApplicationException("missing Study Instance UID in message body", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("missing Study Instance UID in message body", Response.Status.BAD_REQUEST));
         if (!studyIUIDBody.equals(studyUID))
-            throw new WebApplicationException("Study Instance UID[" + studyIUIDBody +
+            throw new WebApplicationException(getResponse("Study Instance UID[" + studyIUIDBody +
                     "] in message body does not match Study Instance UID[" + studyUID + "] in path",
-                    Response.Status.BAD_REQUEST);
+                    Response.Status.BAD_REQUEST));
 
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
-            throw new WebApplicationException("Patient[id=" + patientID + "] does not exists",
-                    Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                    Response.Status.NOT_FOUND));
 
         ctx.setPatient(patient);
 
         studyService.updateStudy(ctx);
+    }
+
+
+    @PUT
+    @Path("/studies/{studyUID}/expire/{expirationDate}")
+    public void updateStudyExpirationDate(@PathParam("studyUID") String studyUID,
+            @PathParam("expirationDate")
+            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
+            String expirationDate) throws Exception {
+        updateExpirationDate(studyUID, null, expirationDate);
+    }
+
+    @PUT
+    @Path("/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}")
+    public void updateSeriesExpirationDate(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+            @PathParam("expirationDate")
+            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
+            String expirationDate) throws Exception {
+        updateExpirationDate(studyUID, seriesUID, expirationDate);
+    }
+
+    private void updateExpirationDate(String studyUID, String seriesUID, String expirationDate) throws Exception {
+        logRequest();
+        try {
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
+            ctx.setStudyInstanceUID(studyUID);
+            if (seriesUID != null)
+                ctx.setSeriesInstanceUID(seriesUID);
+            LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
+            ctx.setExpirationDate(DateTimeFormatter.BASIC_ISO_DATE.format(expireDate));
+            studyService.updateExpirationDate(ctx);
+        } catch (NoResultException e) {
+            String message;
+            if (seriesUID != null)
+                message = "Series not found. " + seriesUID;
+            else
+                message = "Study not found. " + studyUID;
+            throw new WebApplicationException(getResponse(message, Response.Status.NOT_FOUND));
+        }
+    }
+
+    public static final class ExpireDate {
+        public ExpireDate(String date) {
+            LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE);
+        }
     }
 
     private void logRequest() {
@@ -342,13 +392,13 @@ public class IocmRS {
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
+            throw new WebApplicationException(getResponse(
                     "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
+                    Response.Status.SERVICE_UNAVAILABLE));
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         if (request.getAttribute(keycloakClassName) != null)
             if(!authenticatedUser(request, arcAE.getAcceptedUserRoles()))
-                throw new WebApplicationException("User not allowed to perform this service.", Response.Status.FORBIDDEN);
+                throw new WebApplicationException(getResponse("User not allowed to perform this service.", Response.Status.FORBIDDEN));
         return ae;
     }
 
@@ -371,11 +421,11 @@ public class IocmRS {
         Code code = new Code(codeValue, designator, null, "?");
         RejectionNote rjNote = arcDev.getRejectionNote(code);
         if (rjNote == null)
-            throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
 
         Attributes attrs = queryService.createRejectionNote(ae, studyUID, seriesUID, objectUID, rjNote);
         if (attrs == null)
-            throw new WebApplicationException("No Study with UID: " + studyUID, Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("No Study with UID: " + studyUID, Response.Status.NOT_FOUND));
 
         StoreSession session = storeService.newStoreSession(request, ae);
         StoreContext ctx = storeService.newStoreContext(session);
@@ -398,7 +448,7 @@ public class IocmRS {
         StoreSession session = storeService.newStoreSession(request, ae);
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
         if (instances.isEmpty())
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, ae, false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
         rejectInstanceRefs(code, instanceRefs, session, arcDev);
@@ -457,7 +507,7 @@ public class IocmRS {
         if (code != null) {
             rjNote = arcDev.getRejectionNote(code);
             if (rjNote == null)
-                throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
+                throw new WebApplicationException(getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
         }
         if (rjNote != null) {
             Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
@@ -472,7 +522,7 @@ public class IocmRS {
     private void expect(JsonParser parser, JsonParser.Event expected) {
         JsonParser.Event next = parser.next();
         if (next != expected)
-            throw new WebApplicationException("Unexpected " + next, Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("Unexpected " + next, Response.Status.BAD_REQUEST));
     }
 
     private Attributes parseSOPInstanceReferences(InputStream in) throws IOException {
@@ -490,11 +540,11 @@ public class IocmRS {
                             attrs.newSequence(Tag.ReferencedSeriesSequence, 10));
                     break;
                 default:
-                    throw new WebApplicationException("Unexpected Key name", Response.Status.BAD_REQUEST);
+                    throw new WebApplicationException(getResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
             }
         }
         if (!attrs.contains(Tag.StudyInstanceUID))
-            throw new WebApplicationException("Missing StudyInstanceUID", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("Missing StudyInstanceUID", Response.Status.BAD_REQUEST));
 
         return attrs;
     }
@@ -518,11 +568,11 @@ public class IocmRS {
                             attrs.newSequence(Tag.ReferencedSOPSequence, 10));
                     break;
                 default:
-                    throw new WebApplicationException("Unexpected Key name", Response.Status.BAD_REQUEST);
+                    throw new WebApplicationException(getResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
             }
         }
         if (!attrs.contains(Tag.SeriesInstanceUID))
-            throw new WebApplicationException("Missing SeriesInstanceUID", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("Missing SeriesInstanceUID", Response.Status.BAD_REQUEST));
 
         return attrs;
     }
@@ -546,14 +596,14 @@ public class IocmRS {
                     attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, parser.getString());
                     break;
                 default:
-                    throw new WebApplicationException("Unexpected Key name", Response.Status.BAD_REQUEST);
+                    throw new WebApplicationException(getResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
             }
         }
         if (!attrs.contains(Tag.ReferencedSOPClassUID))
-            throw new WebApplicationException("Missing ReferencedSOPClassUID", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("Missing ReferencedSOPClassUID", Response.Status.BAD_REQUEST));
 
         if (!attrs.contains(Tag.ReferencedSOPInstanceUID))
-            throw new WebApplicationException("Missing ReferencedSOPInstanceUID", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("Missing ReferencedSOPInstanceUID", Response.Status.BAD_REQUEST));
 
         return attrs;
     }

@@ -214,8 +214,9 @@ public class QueryServiceEJB {
         if (result.get(QStudy.study.failedSOPInstanceUIDList) != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfStudy, VR.UI,
                     result.get(QStudy.study.failedSOPInstanceUIDList));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
-                result.get(QStudy.study.failedRetrieves));
+        if (result.get(QStudy.study.failedRetrieves) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
+                    result.get(QStudy.study.failedRetrieves));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
                 result.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
@@ -232,8 +233,9 @@ public class QueryServiceEJB {
         if (result.get(QSeries.series.failedSOPInstanceUIDList) != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
                     result.get(QSeries.series.failedSOPInstanceUIDList));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
-                result.get(QSeries.series.failedRetrieves));
+        if (result.get(QSeries.series.failedRetrieves) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
+                    result.get(QSeries.series.failedRetrieves));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityOfSeries, VR.AE,
                 result.get(QSeries.series.sourceAET));
         return attrs;

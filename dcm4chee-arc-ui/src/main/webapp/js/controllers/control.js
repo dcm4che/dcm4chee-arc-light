@@ -15,19 +15,19 @@ myApp.controller('ArchiveCtrl', function (cfpLoadingBar, $scope, $http, DeviceSe
         })
     };
     $scope.start = function() {
-        $http.get("../ctrl/start").then(function (res) {
+        $http.post("../ctrl/start").then(function (res) {
             $scope.status = 'STARTED';
             $scope.message = '';
         })
     };
     $scope.stop = function() {
-        $http.get("../ctrl/stop").then(function (res) {
+        $http.post("../ctrl/stop").then(function (res) {
             $scope.status = 'STOPPED';
             $scope.message = '';
         })
     };
     $scope.reload = function() {
-        $http.get("../ctrl/reload").then(function (res) {
+        $http.post("../ctrl/reload").then(function (res) {
             $scope.message = 'Reload successful';
         })
     };

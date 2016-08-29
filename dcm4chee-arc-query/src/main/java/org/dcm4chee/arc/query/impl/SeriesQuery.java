@@ -227,8 +227,9 @@ class SeriesQuery extends AbstractQuery {
         if (results.get(QStudy.study.failedSOPInstanceUIDList) != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfStudy, VR.UI,
                     results.get(QStudy.study.failedSOPInstanceUIDList));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
-                results.get(QStudy.study.failedRetrieves));
+        if (results.get(QStudy.study.failedRetrieves) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
+                    results.get(QStudy.study.failedRetrieves));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
                 results.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
@@ -245,8 +246,9 @@ class SeriesQuery extends AbstractQuery {
         if (results.get(QSeries.series.failedSOPInstanceUIDList) != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
                     results.get(QSeries.series.failedSOPInstanceUIDList));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
-                results.get(QSeries.series.failedRetrieves));
+        if (results.get(QSeries.series.failedRetrieves) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
+                    results.get(QSeries.series.failedRetrieves));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityOfSeries, VR.AE,
                 results.get(QSeries.series.sourceAET));
         return attrs;

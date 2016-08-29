@@ -1026,7 +1026,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
       if($scope.selectedAet && $scope.selectedPart.dicomNetworkAE){
 
         $http({
-            method: 'GET',
+            method: 'POST',
             // url: 'json/devices.json'
             url: '../aets/'+$scope.selectedAet+'/echo/'+$scope.selectedPart.dicomNetworkAE
         }).then(function successCallback(response) {
