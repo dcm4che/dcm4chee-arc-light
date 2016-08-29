@@ -1,8 +1,8 @@
-<div class="devicelist_block">
-    <ul class="nav nav-tabs" role="tablist" ng-init="showDeviceList=true;showAetList=false;">
+<div class="devicelist_block" ng-init="showDeviceList=true;showAetList=false;">
+<!--     <ul class="nav nav-tabs" role="tablist" ng-init="showDeviceList=true;showAetList=false;">
         <li role="presentation" ng-class="{'active':showDeviceList}"><a aria-controls="device_modus" ng-click="showAetList = false;showDeviceList = true"role="tab" data-toggle="tab">Device list</a></li>
         <li role="presentation" ng-class="{'active':showAetList}"><a aria-controls="aet_modus" ng-click="showDeviceList = false;showAetList = true" role="tab" data-toggle="tab">AET list</a></li>
-    </ul>
+    </ul> -->
     <div class="tab-content">
         <div role="tabpanel"  class="device_modus" id="device_modus" ng-if="showDeviceList" >
             <h2>Device list</h2>
@@ -110,11 +110,10 @@
                 </tbody>
             </table>
         </div>
-        <div role="tabpanel" class="aet_modus" id="aet_modus" ng-if="showAetList">
+  <!--       <div role="tabpanel" class="aet_modus" id="aet_modus" ng-if="showAetList">
             <h2>Application Entitie list</h2>
             <input autocomplete="off" id="aesfilter" class="aesfilter" ng-model="aesfilter" placeholder="Search AEs"/>
             <button class="adddevice" ng-click="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>
-            <!--     <button class="adddevice" ng-click="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
             <a  ng-init="advancedConfig=false" href="" ng-click="advancedConfig=true" ng-show="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
             <a href="" ng-click="advancedConfig=false" ng-show="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
             <div ng-show="advancedConfig" class="ng-hide">
@@ -201,7 +200,6 @@
                                 <span class="glyphicon glyphicon-remove"></span>
                             </a>
                         </td>
-                        <!-- <td><a class="listlink" ng-click="editDeviceList(value.dicomDeviceName)"  title="Edit device">{{value.dicomDeviceName}}</a></td> -->
                         <td>{{value.dicomAETitle}}</td>
                         <td>{{value.dicomDeviceName}}</td>
                         <td>
@@ -217,7 +215,7 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </div> -->
     </div>
 </div>
 <div class="deviceedit_block">
