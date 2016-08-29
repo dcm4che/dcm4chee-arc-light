@@ -291,7 +291,6 @@ class ArchiveDeviceFactory {
             Tag.PresentationCreationDate,
             Tag.PresentationCreationTime,
             Tag.ContentCreatorName,
-            Tag.OriginalAttributesSequence,
             Tag.IdenticalDocumentsSequence,
             Tag.CurrentRequestedProcedureEvidenceSequence
     };

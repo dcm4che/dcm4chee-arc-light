@@ -859,7 +859,6 @@ dcmTag: 00700081
 dcmTag: 00700082
 dcmTag: 00700083
 dcmTag: 00700084
-dcmTag: 04000561
 dcmEntity: Instance
 objectClass: dcmAttributeFilter
 
