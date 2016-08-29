@@ -2193,7 +2193,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     }
                 );
             }else{
-                $log.log("deleting canceled");
+                // $log.log("deleting canceled");
+                console.log("deleting canceled");
                 cfpLoadingBar.complete();
             }
           }
