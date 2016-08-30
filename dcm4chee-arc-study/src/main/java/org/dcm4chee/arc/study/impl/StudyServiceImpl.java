@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.study.impl;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -92,8 +93,13 @@ public class StudyServiceImpl implements StudyService {
                 ejb.updateSeriesExpirationDate(ctx);
             else
                 ejb.updateStudyExpirationDate(ctx);
-        } catch (NoResultException e) {
+        } catch (Exception e) {
+            if (ctx.getEventActionCode() != null)
+                ctx.setException(new Exception(e.getMessage() + " : " + ctx.getStudyInstanceUID()));
             throw e;
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                updateStudyEvent.fire(ctx);
         }
     }
 
