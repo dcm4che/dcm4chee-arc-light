@@ -1632,6 +1632,10 @@ input.ng-invalid, .has-error .form-control {
 
 .vex.vex-theme-os.registernewaet .defaultbutton {
   display: none; }
+.vex.vex-theme-os.registernewaet .vex-dialog-message {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 15px 0 30px 0 !important; }
 
 .deviceedit_block bootstrap-decorator, .vex.vex-theme-os.registernewaet .vex-content bootstrap-decorator {
   border-color: #ddd;

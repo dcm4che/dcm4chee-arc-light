@@ -1,6 +1,7 @@
 <pre>
-	newAetModel:{{newAetModel}}
-	netConnModel:{{netConnModel}}
+<!-- 	newAetModel:{{newAetModel}}
+	netConnModel:{{netConnModel}} -->
+	<div ng-click="validate()">validate</div>
 </pre>
 <div class="device">
 	<ul class="nav nav-tabs" ng-init="activetab='createdevice'">
@@ -11,7 +12,8 @@
 		<div class="tab_body" ng-show="activetab==='createdevice'" ng-init="showdevice=false">
 			<h4 ng-click="showdevice=!showdevice;showconn=false">New Device <span ng-if="newAetModel.dicomDeviceName && !showdevice"> <b>{{newAetModel.dicomDeviceName}}</b></span></h4>
 			<div class="content" ng-show="showdevice===true">
-				<div class="block">
+				<div sf-schema='newDeviceAESchema' sf-form='newDeviceAEForm' sf-model="newAetModel"></div>
+	<!-- 			<div class="block">
 					<div class="label_part">
 						Device name:
 					</div>
@@ -26,16 +28,16 @@
 					</div>
 					<div class="radiobuttons_part input_part">
 						<label>
-							<input class="no-close-button" type="radio" name="dicomInstalled" ng-model="newAetModel.dicomInstalled" value="true"/>
+							<input class="no-close-button" type="radio" name="dicomInstalled" ng-model="newAetModel.dicomInstalled" ng-true-value="true" ng-false-value="false"/>
 							<span>True</span>
 						</label>
 						<label>
-							<input class="no-close-button" type="radio" name="dicomInstalled"  ng-model="newAetModel.dicomInstalled" value="false"/>
+							<input class="no-close-button" type="radio" name="dicomInstalled"  ng-model="newAetModel.dicomInstalled" ng-true-value="true" ng-false-value="false"/>
 							<span>False</span>
 						</label>
 					</div>
 					<span class="description">Boolean to indicate whether this device is presently installed on the network</span>
-				</div>
+				</div> -->
 			</div>
 			<h4 ng-click="showconn=!showconn;showdevice=false" ng-init="showconn=false">New Network Connection  <span ng-if="newAetModel.dicomNetworkConnection.cn && !showconn"> <b>{{newAetModel.dicomNetworkConnection.cn}}</b></span></h4>
 			<div class="content"  ng-show="showconn===true">
@@ -47,7 +49,7 @@
 			</div> -->
 		</div>
 		<div class="tab_body" ng-show="activetab==='selectdevice'">
-			<h4 ng-click="showselectdevice=!showselectdevice" ng-init="showselectdevice=false">Select existing device</h4>
+			<h4 ng-click="showselectdevice=!showselectdevice;showconnselecteddevice=false" ng-init="showselectdevice=true;showconnselecteddevice=false">Select existing device</h4>
 			<div class="content" ng-show="showselectdevice===true">
 				<div class="block">
 					<div class="label_part">
@@ -68,16 +70,28 @@
 					<span class="description">Already existing devices</span>
 				</div>
 			</div>
+			<h4 ng-click="showconnselecteddevice=!showconnselecteddevice;showselectdevice=false;">New Network Connection  to selected device<span ng-if="netConnModelDevice.dicomNetworkConnection.cn && !showconnselecteddevice"> <b>{{netConnModelDevice.dicomNetworkConnection.cn}}</b></span></h4>
+			<div class="content"  ng-show="showconnselecteddevice===true" ng-if="selectedDevice">
+			    <div sf-schema="netConnSchema" sf-form="netConnForm" sf-model="netConnModelDevice"></div>
+			    <!-- <div ng-click="addNewConnectionToDevice()" title="Add the new connection to the selected device">Add connection</div> -->
+			    <div class="vex-dialog-buttons aet_buttons">
+					<button type="button" class="vex-dialog-button-primary vex-dialog-button vex-first"  ng-click="addNewConnectionToDevice()" title="Add the new connection to the selected device" ng-disabled="!netConnModelDevice.cn">Add connection</button>
+					<button type="button" class="vex-dialog-button-secondary vex-dialog-button vex-last" ng-click="removeNewConnectionFromDevice()">Remove connection</button>
+				</div>
+			</div>
+			<div class="content" ng-if="!selectedDevice" ng-show="showconnselecteddevice===true">
+				Select first a device!
+			</div>
 		</div>
 		<div class="aet" ng-init="showae=true">
 				<h4 ng-click="showae=!showae">Network AE</h4>
 				<div  id="networkae" class="content"  ng-show="showae===true" ng-if="netAESchema">
-				    <div sf-schema="netAESchema" sf-form="netAEForm" sf-model="netAEModel"></div>
+				    <div sf-schema="netAESchema" sf-form="netAEForm" sf-model="netAEModel"  sf-options="{ validationMessage: { 302: 'Do not forget me!' },validateOnRender:true}"></div>
 				</div>
 		</div>
 	</div>
 </div>
 <div class="vex-dialog-buttons aet_buttons">
-	<button type="submit" class="vex-dialog-button-primary vex-dialog-button vex-first" ng-disabled="">Register</button>
-	<button type="button" class="vex-dialog-button-secondary vex-dialog-button vex-last">Cancel</button>
+	<button type="submit" class="vex-dialog-button-primary vex-dialog-button vex-first" ng-disabled="">Apply</button>
+	<button type="button" class="vex-dialog-button-secondary vex-dialog-button vex-last" ng-click="cancleForm()">Cancel</button>
 </div>

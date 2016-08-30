@@ -2219,6 +2219,11 @@ input.ng-invalid, .has-error .form-control{
 	.defaultbutton{
 		display:none;
 	}
+	.vex-dialog-message {
+	    font-size: 20px;
+	    font-weight: bold;
+	    margin: 15px 0 30px 0 !important;
+	}
 }
 .deviceedit_block, .vex.vex-theme-os.registernewaet .vex-content{
 			bootstrap-decorator {
