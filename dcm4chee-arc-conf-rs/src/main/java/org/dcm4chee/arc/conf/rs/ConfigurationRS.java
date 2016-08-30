@@ -170,7 +170,7 @@ public class ConfigurationRS {
         conf.merge(device);
     }
 
-    @PUT
+    @POST
     @Path("/unique/aets/{aet}")
     @Consumes("application/json")
     public void registerAET(@PathParam("aet") String aet) throws Exception {
@@ -197,7 +197,7 @@ public class ConfigurationRS {
         }
     }
 
-    @PUT
+    @POST
     @Path("/unique/hl7apps/{appName}")
     @Consumes("application/json")
     public void registerHL7App(@PathParam("appName") String appName) throws Exception {

@@ -475,7 +475,7 @@
       }
     },
     "/unique/aets/{aet}": {
-      "put": {
+      "post": {
         "tags": [
           "CONFIG-RS"
         ],
@@ -531,7 +531,7 @@
       }
     },
     "/unique/hl7apps/{appName}": {
-      "put": {
+      "post": {
         "tags": [
           "CONFIG-RS"
         ],
