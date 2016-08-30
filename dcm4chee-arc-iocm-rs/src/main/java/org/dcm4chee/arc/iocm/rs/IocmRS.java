@@ -75,6 +75,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
+import javax.json.stream.JsonParsingException;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -218,16 +219,21 @@ public class IocmRS {
     @Consumes("application/json")
     public String createPatient(InputStream in) throws Exception {
         logRequest();
-        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        Attributes attrs = reader.readDataset(null);
-        if (attrs.containsValue(Tag.PatientID))
-            throw new WebApplicationException(getResponse("Patient ID in message body", Response.Status.BAD_REQUEST));
-        idService.newPatientID(attrs);
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
-        ctx.setAttributes(attrs);
-        ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-        patientService.updatePatient(ctx);
-        return IDWithIssuer.pidOf(attrs).toString();
+        try {
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+            Attributes attrs = reader.readDataset(null);
+            if (attrs.containsValue(Tag.PatientID))
+                throw new WebApplicationException(getResponse("Patient ID in message body", Response.Status.BAD_REQUEST));
+            idService.newPatientID(attrs);
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+            ctx.setAttributes(attrs);
+            ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+            patientService.updatePatient(ctx);
+            return IDWithIssuer.pidOf(attrs).toString();
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
     }
 
     @PUT
@@ -235,18 +241,23 @@ public class IocmRS {
     @Consumes("application/json")
     public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
-        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        ctx.setAttributes(reader.readDataset(null));
-        ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
-        IDWithIssuer bodyPatientID = ctx.getPatientID();
-        if (bodyPatientID == null)
-            throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
-        if (patientID.equals(bodyPatientID)) {
-            patientService.updatePatient(ctx);
-        } else {
-            ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
-            patientService.changePatientID(ctx);
+        try {
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+            ctx.setAttributes(reader.readDataset(null));
+            ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+            IDWithIssuer bodyPatientID = ctx.getPatientID();
+            if (bodyPatientID == null)
+                throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+            if (patientID.equals(bodyPatientID)) {
+                patientService.updatePatient(ctx);
+            } else {
+                ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
+                patientService.changePatientID(ctx);
+            }
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -256,32 +267,37 @@ public class IocmRS {
     @Produces("application/json")
     public StreamingOutput updateStudy(InputStream in) throws Exception {
         logRequest();
-        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        final Attributes attrs = reader.readDataset(null);
-        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null)
-            throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+        try {
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+            final Attributes attrs = reader.readDataset(null);
+            IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
+            if (patientID == null)
+                throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
 
-        Patient patient = patientService.findPatient(patientID);
-        if (patient == null)
-            throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
-                    Response.Status.NOT_FOUND));
+            Patient patient = patientService.findPatient(patientID);
+            if (patient == null)
+                throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                        Response.Status.NOT_FOUND));
 
-        if (!attrs.containsValue(Tag.StudyInstanceUID))
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+            if (!attrs.containsValue(Tag.StudyInstanceUID))
+                attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
 
-        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
-        ctx.setPatient(patient);
-        ctx.setAttributes(attrs);
-        studyService.updateStudy(ctx);
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    new JSONWriter(gen).write(attrs);
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
+            ctx.setPatient(patient);
+            ctx.setAttributes(attrs);
+            studyService.updateStudy(ctx);
+            return new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws IOException {
+                    try (JsonGenerator gen = Json.createGenerator(out)) {
+                        new JSONWriter(gen).write(attrs);
+                    }
                 }
-            }
-        };
+            };
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
     }
 
     @POST
@@ -290,24 +306,29 @@ public class IocmRS {
     public String updateStudy(@PathParam("PatientID") IDWithIssuer patientID,
                               InputStream in) throws Exception {
         logRequest();
-        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        Attributes attrs = reader.readDataset(null);
-        String studyIUID = attrs.getString(Tag.StudyInstanceUID);
-        if (studyIUID != null)
-            throw new WebApplicationException(getResponse("Study Instance UID in message body", Response.Status.BAD_REQUEST));
+        try {
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+            Attributes attrs = reader.readDataset(null);
+            String studyIUID = attrs.getString(Tag.StudyInstanceUID);
+            if (studyIUID != null)
+                throw new WebApplicationException(getResponse("Study Instance UID in message body", Response.Status.BAD_REQUEST));
 
-        Patient patient = patientService.findPatient(patientID);
-        if (patient == null)
-            throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
-                    Response.Status.NOT_FOUND));
+            Patient patient = patientService.findPatient(patientID);
+            if (patient == null)
+                throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                        Response.Status.NOT_FOUND));
 
-        attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
 
-        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
-        ctx.setPatient(patient);
-        ctx.setAttributes(attrs);
-        studyService.updateStudy(ctx);
-        return studyIUID;
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
+            ctx.setPatient(patient);
+            ctx.setAttributes(attrs);
+            studyService.updateStudy(ctx);
+            return studyIUID;
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
     }
 
     @PUT
@@ -317,26 +338,31 @@ public class IocmRS {
                             @PathParam("StudyUID") String studyUID,
                             InputStream in) throws Exception {
         logRequest();
-        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        try {
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
 
-        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
-        ctx.setAttributes(reader.readDataset(null));
-        String studyIUIDBody = ctx.getStudyInstanceUID();
-        if (studyIUIDBody == null)
-            throw new WebApplicationException(getResponse("missing Study Instance UID in message body", Response.Status.BAD_REQUEST));
-        if (!studyIUIDBody.equals(studyUID))
-            throw new WebApplicationException(getResponse("Study Instance UID[" + studyIUIDBody +
-                    "] in message body does not match Study Instance UID[" + studyUID + "] in path",
-                    Response.Status.BAD_REQUEST));
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
+            ctx.setAttributes(reader.readDataset(null));
+            String studyIUIDBody = ctx.getStudyInstanceUID();
+            if (studyIUIDBody == null)
+                throw new WebApplicationException(getResponse("missing Study Instance UID in message body", Response.Status.BAD_REQUEST));
+            if (!studyIUIDBody.equals(studyUID))
+                throw new WebApplicationException(getResponse("Study Instance UID[" + studyIUIDBody +
+                        "] in message body does not match Study Instance UID[" + studyUID + "] in path",
+                        Response.Status.BAD_REQUEST));
 
-        Patient patient = patientService.findPatient(patientID);
-        if (patient == null)
-            throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
-                    Response.Status.NOT_FOUND));
+            Patient patient = patientService.findPatient(patientID);
+            if (patient == null)
+                throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                        Response.Status.NOT_FOUND));
 
-        ctx.setPatient(patient);
+            ctx.setPatient(patient);
 
-        studyService.updateStudy(ctx);
+            studyService.updateStudy(ctx);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
     }
 
 
