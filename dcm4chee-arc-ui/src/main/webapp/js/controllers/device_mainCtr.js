@@ -389,15 +389,15 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         console.log("getconn called");
         console.log("1$scope.newAetModel.dicomNetworkConnection",$scope.newAetModel.dicomNetworkConnection);
 
-        if($scope.newAetModel.dicomNetworkConnection && $scope.newAetModel.dicomNetworkConnection.cn && $scope.newAetModel.dicomNetworkConnection.cn != ""){
+        if($scope.newAetModel && $scope.newAetModel.dicomNetworkConnection && $scope.newAetModel.dicomNetworkConnection[0] && $scope.newAetModel.dicomNetworkConnection[0].cn && $scope.newAetModel.dicomNetworkConnection[0].cn != ""){
             console.log("if");
             var dicomconn = [];
-            if($scope.newAetModel && $scope.newAetModel.dicomNetworkConnection){
-                dicomconn.push({
-                    "value":"/dicomNetworkConnection/" + 0,
-                    "name":$scope.newAetModel.dicomNetworkConnection.cn
-                });
-            }
+            // if($scope.newAetModel && $scope.newAetModel.dicomNetworkConnection){
+            dicomconn.push({
+                "value":"/dicomNetworkConnection/" + 0,
+                "name":$scope.newAetModel.dicomNetworkConnection[0].cn
+            });
+            // }
             $scope.netAEForm = [
                 "dicomAETitle",
                 {
@@ -438,6 +438,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         "name": "False"
                     }]
                 }];
+        }else{
+
         }
     }
     $scope.changeTabAERegister = function(tabname){
