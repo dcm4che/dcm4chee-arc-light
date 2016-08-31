@@ -45,11 +45,9 @@ import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
-import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
-import org.dcm4che3.net.hl7.HL7Application;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -153,12 +151,25 @@ public class ConfigurationRS {
     @Produces("application/json")
     public StreamingOutput listRegisteredAETS() throws Exception {
         String[] registeredAETs = conf.listRegisteredAETitles();
+        return getStreamingOutput(registeredAETs);
+    }
+
+    @GET
+    @Path("/unique/hl7apps")
+    @Produces("application/json")
+    public StreamingOutput listRegisteredHL7Apps() throws Exception {
+        HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
+        String[] registeredHL7Apps = hl7Conf.listRegisteredHL7ApplicationNames();
+        return getStreamingOutput(registeredHL7Apps);
+    }
+
+    private StreamingOutput getStreamingOutput(String[] registered) {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
                 JsonGenerator gen = Json.createGenerator(out);
-                if (registeredAETs.length != 0)
-                    jsonConf.writeTo(registeredAETs, gen);
+                if (registered.length != 0)
+                    jsonConf.writeTo(registered, gen);
                 gen.flush();
             }
         };
