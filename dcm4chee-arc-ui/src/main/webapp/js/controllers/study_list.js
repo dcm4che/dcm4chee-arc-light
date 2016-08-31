@@ -2917,6 +2917,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     };
     $scope.rejectStudy = function(study) {
         if($scope.trashaktive){
+            console.log("studyURL(study.attrs)",studyURL(study.attrs));
+            console.log("$scope.rjcode.codeValue",$scope.rjcode.codeValue);
+            console.log("$scope.rjcode.codingSchemeDesignator",$scope.rjcode.codingSchemeDesignator);
             $http.post(studyURL(study.attrs) + '/reject/' + $scope.rjcode.codeValue + "^"+ $scope.rjcode.codingSchemeDesignator).then(function (res) {
                 // $scope.queryStudies($scope.studies[0].offset);
                 $scope.queryStudies($scope.patients[0].offset);
@@ -2946,7 +2949,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     console.log("$scope.patients",$scope.patients);
                   return console.log('Cancelled');
                 }else{
-                    $http.get(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
+                    $http.post(studyURL(study.attrs) + '/reject/' + $scope.reject).then(function (res) {
                         // $scope.queryStudies($scope.studies[0].offset);
                         console.log("res=",res);
                         $scope.queryStudies($scope.patients[0].offset);
@@ -2997,7 +3000,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (data === false) {
                   return console.log('Cancelled');
                 }else{
-                    $http.get(seriesURL(series.attrs) + '/reject/' + $scope.reject).then(function (res) {
+                    $http.post(seriesURL(series.attrs) + '/reject/' + $scope.reject).then(function (res) {
                         $scope.querySeries(series.study, series.study.series[0].offset);
                     },
                     function errorCallback(response) {
@@ -3043,7 +3046,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 if (data === false) {
                   return console.log('Cancelled');
                 }else{
-                    $http.get(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
+                    $http.post(instanceURL(instance.attrs) + '/reject/' + $scope.reject).then(function (res) {
                         $scope.queryInstances(instance.series, instance.series.instances[0].offset);
                     },
                     function errorCallback(response) {

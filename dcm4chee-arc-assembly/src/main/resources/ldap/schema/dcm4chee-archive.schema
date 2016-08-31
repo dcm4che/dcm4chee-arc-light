@@ -30,7 +30,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.5 NAME 'dcmCustomAttribute3'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.6 NAME 'dcmEntity'
-  DESC 'Entity of the Attribute Filter or Export Rule ("Patient", "Study", "Series", "Instance", "MPPS").'
+  DESC 'Entity of the Attribute Filter or Export Rule ("Patient", "Study", "Series", "Instance", "MPPS", "MWL").'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

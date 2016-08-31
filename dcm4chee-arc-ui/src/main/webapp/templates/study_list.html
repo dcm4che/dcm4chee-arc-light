@@ -410,7 +410,7 @@
                 <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder="Study description" title="Study description" class="col-md-12" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'patient'">
-                <label title="Onliy patients with studies">
+                <label title="Only patients with studies">
                     <input type="checkbox" ng-model="filter.withoutstudies" ng-true-value="false" ng-false-value="true"> only with studies
                 </label>
             </div>
@@ -519,18 +519,18 @@
                 </label>
             </div> -->
             <div class="col-md-6">
-                <label>
+                <label title="Show only expired studies">
                     <input type="checkbox" ng-model="filter.expired"> Only expired studies
                 </label>
             </div>
             <div class="col-md-6">
                 <label title="Show only incomplete studies">
-                    <input type="checkbox" ng-model="filter.incomplete"> Only incomplete
+                    <input type="checkbox" ng-model="filter.incomplete"> Only incomplete studies
                 </label>
             </div>
             <div class="col-md-6">
-                <label title="Show only incomplete studies">
-                    <input type="checkbox" ng-model="filter.retrievefailed"> Only faild to retrieved
+                <label title="Show only studies failed to be retrieved">
+                    <input type="checkbox" ng-model="filter.retrievefailed"> Only failed to be retrieved
                 </label>
             </div>
         </div>

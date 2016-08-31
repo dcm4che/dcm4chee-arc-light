@@ -644,7 +644,7 @@ public class AuditService {
             String callingAET = ctx.getHttpRequest().getAttribute(keycloakClassName) != null
                     ? getPreferredUsername(ctx.getHttpRequest()) : ctx.getHttpRequest().getRemoteAddr();
             Attributes sAttr = ctx.getAttributes();
-            Attributes pAttr = ctx.getStudy().getPatient().getAttributes();
+            Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
                         .calledAET(ctx.getApplicationEntity().getAETitle()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(sAttr))
                         .pID(getPID(pAttr)).pName(pName(pAttr)).outcome(getOD(ctx.getException())).studyDate(getSD(sAttr)).build();
@@ -709,15 +709,15 @@ public class AuditService {
     }
 
     private String getSD(Attributes attr) {
-        return attr.getString(Tag.StudyDate);
+        return attr != null ? attr.getString(Tag.StudyDate) : null;
     }
 
     private String getAcc(Attributes attr) {
-        return attr.getString(Tag.AccessionNumber);
+        return attr != null ? attr.getString(Tag.AccessionNumber) : null;
     }
 
     private String sopCUID(Attributes attrs) {
-        return attrs.getString(Tag.SOPClassUID);
+        return attrs != null ? attrs.getString(Tag.SOPClassUID) : null;
     }
 
     private String getPreferredUsername(HttpServletRequest req) {
@@ -727,11 +727,14 @@ public class AuditService {
     }
 
     private String getPID(Attributes attrs) {
-        return attrs.getString(Tag.PatientID) != null ? IDWithIssuer.pidOf(attrs).toString() : noValue;
+        return attrs != null
+                ? attrs.getString(Tag.PatientID) != null
+                ? IDWithIssuer.pidOf(attrs).toString() : noValue
+                : null;
     }
 
     private String pName(Attributes attr) {
-        return attr.getString(Tag.PatientName);
+        return attr != null ? attr.getString(Tag.PatientName) : null;
     }
 
     private String getOD(Exception e) {

@@ -88,6 +88,7 @@ public class ProcedureServiceEJB {
             updateProcedureForHL7(ctx, patient, attrs, issuerOfAccessionNumber);
     }
 
+
     private void updateProcedureForHL7(ProcedureContext ctx, Patient patient, Attributes attrs,
                                        IssuerEntity issuerOfAccessionNumber) {
         Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(attrs);
@@ -142,7 +143,7 @@ public class ProcedureServiceEJB {
     }
 
     private IssuerEntity findOrCreateIssuer(Attributes item) {
-        return item != null ? issuerService.mergeOrCreate(new Issuer(item)) : null;
+        return item != null && !item.isEmpty() ? issuerService.mergeOrCreate(new Issuer(item)) : null;
     }
 
     private Map<String, Attributes> createMWLAttrsMap(Attributes attrs) {

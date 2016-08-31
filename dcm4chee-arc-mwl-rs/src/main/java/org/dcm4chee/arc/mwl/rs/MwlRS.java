@@ -63,6 +63,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonParsingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -111,46 +112,51 @@ public class MwlRS {
     @Produces("application/json")
     public StreamingOutput updateSPS(InputStream in) throws Exception {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
-        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        final Attributes attrs = reader.readDataset(null);
-        IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
-        if (patientID == null)
-            throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+        try {
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+            final Attributes attrs = reader.readDataset(null);
+            IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
+            if (patientID == null)
+                throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
 
-        Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
-        if (spsItem == null)
-            throw new WebApplicationException(getResponse(
-                    "Missing or empty (0040,0100) Scheduled Procedure Step Sequence", Response.Status.BAD_REQUEST));
+            Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+            if (spsItem == null)
+                throw new WebApplicationException(getResponse(
+                        "Missing or empty (0040,0100) Scheduled Procedure Step Sequence", Response.Status.BAD_REQUEST));
 
-        Patient patient = patientService.findPatient(patientID);
-        if (patient == null)
-            throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
-                    Response.Status.NOT_FOUND));
+            Patient patient = patientService.findPatient(patientID);
+            if (patient == null)
+                throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                        Response.Status.NOT_FOUND));
 
-        if (!attrs.containsValue(Tag.AccessionNumber))
-            idService.newAccessionNumber(attrs);
-        if (!attrs.containsValue(Tag.RequestedProcedureID))
-            idService.newRequestedProcedureID(attrs);
-        if (!spsItem.containsValue(Tag.ScheduledProcedureStepID))
-            idService.newScheduledProcedureStepID(spsItem);
-        if (!attrs.containsValue(Tag.StudyInstanceUID))
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
-        if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate) && !spsItem.containsValue(Tag.ScheduledProcedureStepStartTime))
-            spsItem.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
-        if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
-            spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
-        ProcedureContext ctx = procedureService.createProcedureContextWEB(request, getApplicationEntity());
-        ctx.setPatient(patient);
-        ctx.setAttributes(attrs);
-        procedureService.updateProcedure(ctx);
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    new JSONWriter(gen).write(attrs);
+            if (!attrs.containsValue(Tag.AccessionNumber))
+                idService.newAccessionNumber(attrs);
+            if (!attrs.containsValue(Tag.RequestedProcedureID))
+                idService.newRequestedProcedureID(attrs);
+            if (!spsItem.containsValue(Tag.ScheduledProcedureStepID))
+                idService.newScheduledProcedureStepID(spsItem);
+            if (!attrs.containsValue(Tag.StudyInstanceUID))
+                attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+            if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate) && !spsItem.containsValue(Tag.ScheduledProcedureStepStartTime))
+                spsItem.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
+            if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
+                spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
+            ProcedureContext ctx = procedureService.createProcedureContextWEB(request, getApplicationEntity());
+            ctx.setPatient(patient);
+            ctx.setAttributes(attrs);
+            procedureService.updateProcedure(ctx);
+            return new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws IOException {
+                    try (JsonGenerator gen = Json.createGenerator(out)) {
+                        new JSONWriter(gen).write(attrs);
+                    }
                 }
-            }
-        };
+            };
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
     }
 
     @DELETE

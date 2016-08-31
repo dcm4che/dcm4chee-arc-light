@@ -1395,7 +1395,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     
                       DeviceService.msg($scope, {
                           "title": "Error",
-                          "text": "Error, fealds required",
+                          "text": "Error, fields required",
                           "status": "error"
                       });
                   }
@@ -1546,7 +1546,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     
                       DeviceService.msg($scope, {
                           "title": "Error",
-                          "text": "Error, fealds required",
+                          "text": "Error, fields required",
                           "status": "error"
                       });
                   }
