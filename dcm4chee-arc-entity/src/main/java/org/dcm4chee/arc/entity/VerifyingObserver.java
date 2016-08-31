@@ -77,7 +77,7 @@ public class VerifyingObserver {
 
     public VerifyingObserver(Attributes attrs, FuzzyStr fuzzyStr) {
         Date dt = attrs.getDate(Tag.VerificationDateTime);
-        verificationDateTime = DateUtils.formatDT(null, dt);
+        verificationDateTime = dt != null ? DateUtils.formatDT(null, dt) : "*";
         verifyingObserverName = PersonName.valueOf(
                 attrs.getString(Tag.VerifyingObserverName), fuzzyStr, null);
     }
