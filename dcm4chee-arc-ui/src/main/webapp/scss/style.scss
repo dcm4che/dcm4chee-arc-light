@@ -2242,6 +2242,17 @@ input.ng-invalid, .has-error .form-control{
 		}
 	}
 }
+#aet_modus{
+	.filter.hidden_filters{
+		width: 53%;
+	}
+	.block-1-1, .block-1-2, .block-2-1, .block-2-2{
+		width: 47%;
+	}
+	table.j4care-table tbody tr td .table_btn{
+		width: 27px;
+	}
+}
 .deviceedit_block, .vex.vex-theme-os.registernewaet .vex-content{
 			bootstrap-decorator {
 		    border-color: #ddd;

@@ -125,17 +125,21 @@
                                 <input id="dDeviceName" type="text" ng-model="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
                             </div>
                             <div class="col-md-6">
-                                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomDeviceDescription" placeholder="Device description" title="Device description" class="col-md-12" />
+                                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomAETitle" placeholder="AE Title" title="AE Title" class="col-md-12" />
                             </div>
                             <div class="col-md-6">
-                                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomManufacturer" placeholder="Manufacturer" title="Manufacturer" class="col-md-12" />
+                                <input id="dicomDeviceDescription" type="text" ng-model="filter.dicomDescription" placeholder="Description" title="Description" class="col-md-12" />
                             </div>
                             <div class="col-md-6">
-                                <input id="dicomManufacturerModelName" type="text" ng-model="filter.dicomManufacturerModelName" placeholder="Manufacturer model name" title="Manufacturer model name" class="col-md-12" />
+                                <select id="dicomAssociationInitiator" ng-model="filter.dicomAssociationInitiator" class="col-md-12" title="Association Initiator" ng-class="{empty:filter.dicomAssociationInitiator === ''}">
+                                    <option value="">-- AssociationInitiator --</option>
+                                    <option value="true">True</option>
+                                    <option value="false">False</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 block-2-1">
+<!--                     <div class="col-md-3 block-2-1">
                         <div class="row">
                             <div class="col-md-6">
                                 <input id="dicomSoftwareVersion" type="text" ng-model="filter.dicomSoftwareVersion" placeholder="Software version" title="Software version" class="col-md-12 clearable" />
@@ -150,24 +154,24 @@
                                 <input id="dicomInstitutionName" type="text" ng-model="filter.dicomInstitutionName" placeholder="Institution name" title="Institution name" class="col-md-12 clearable" />
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="col-md-3 block-2-1">
                             <div class="row">
                             <div class="col-md-6">
-                                <input id="dicomInstitutionDepartmentName" type="text" ng-model="filter.dicomInstitutionDepartmentName" placeholder="Institution department name" title="Institution department name" class="col-md-12 clearable" />
-                            </div>
-                            <div class="col-md-6">
-                                <div class="dummyinput"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <select id="dicomInstalled" ng-model="filter.dicomInstalled" class="col-md-12" title="Installed" ng-class="{empty:filter.dicomInstall === ''}">
-                                    <option value="">-- Installed --</option>
+                                <select id="dicomAssociationAcceptor" ng-model="filter.dicomAssociationAcceptor" class="col-md-12" title="Association Acceptor" ng-class="{empty:filter.dicomAssociationAcceptor === ''}">
+                                    <option value="">-- AssociationAcceptor --</option>
                                     <option value="true">True</option>
                                     <option value="false">False</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <button class="col-md-12" ng-click="searchDevices()">Search</button>
+                                <div class="dummyinput"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <input id="dicomApplicationCluster" type="text" ng-model="filter.dicomApplicationCluster" placeholder="Application Cluster" title="Application Cluster" class="col-md-12" />
+                            </div>
+                            <div class="col-md-6">
+                                <button class="col-md-12" ng-click="searchAes()">Search</button>
                             </div>
                         </div>
                     </div>
@@ -213,7 +217,7 @@
                         <td>
                             <span ng-repeat="(clusterkey, cluster) in value.dicomApplicationCluster">{{cluster}}<br></span>
                         </td>
-                        <td>{{value.dicomInstalled}}</td>
+                        <td ng-bind="value.dicomInstalled || 'inherent'"></td>
                     </tr>
                 </tbody>
             </table>
