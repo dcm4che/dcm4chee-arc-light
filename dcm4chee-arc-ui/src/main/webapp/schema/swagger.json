@@ -474,6 +474,27 @@
         }
       }
     },
+    "/unique/aets": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Registered Application Entity Titles",
+        "operationId": "listRegisteredAETs",
+        "responses": {
+          "200": {
+            "description": "Application Entity Titles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/unique/aets/{aet}": {
       "post": {
         "tags": [
@@ -523,6 +544,27 @@
           },
           "404": {
             "description": "AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/unique/hl7apps": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Registered HL7 Application and Facility Names",
+        "operationId": "listRegisteredHL7Apps",
+        "responses": {
+          "200": {
+            "description": "Registered HL7 Application and Facility Names (Application|Facility)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "default": {
             "description": "unexpected error"
