@@ -1636,6 +1636,18 @@ input.ng-invalid, .has-error .form-control {
   font-size: 20px;
   font-weight: bold;
   margin: 15px 0 30px 0 !important; }
+.vex.vex-theme-os.registernewaet .helpvalue {
+  color: #6d0000;
+  font-weight: bold;
+  margin-bottom: 6px;
+  margin-right: 10px;
+  margin-top: 6px;
+  text-align: right;
+  width: 24%; }
+.vex.vex-theme-os.registernewaet .form-control-feedback.ng-scope.glyphicon.glyphicon-remove {
+  display: none; }
+.vex.vex-theme-os.registernewaet .has-error .help-block {
+  color: #6d0000 !important; }
 
 .deviceedit_block bootstrap-decorator, .vex.vex-theme-os.registernewaet .vex-content bootstrap-decorator {
   border-color: #ddd;
