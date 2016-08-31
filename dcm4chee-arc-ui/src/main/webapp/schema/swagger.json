@@ -484,9 +484,11 @@
         "responses": {
           "200": {
             "description": "Application Entity Titles",
-            "type": "array",
-            "items": {
-              "type": "string"
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           },
           "default": {
@@ -561,9 +563,11 @@
         "responses": {
           "200": {
             "description": "Registered HL7 Application and Facility Names (Application|Facility)",
-            "type": "array",
-            "items": {
-              "type": "string"
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           },
           "default": {
