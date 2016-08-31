@@ -45,9 +45,11 @@ import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
+import org.dcm4che3.net.hl7.HL7Application;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -141,6 +143,22 @@ public class ConfigurationRS {
                 for (ApplicationEntityInfo aetInfo : aetInfos)
                     jsonConf.writeTo(aetInfo, gen);
                 gen.writeEnd();
+                gen.flush();
+            }
+        };
+    }
+
+    @GET
+    @Path("/unique/aets")
+    @Produces("application/json")
+    public StreamingOutput listRegisteredAETS() throws Exception {
+        String[] registeredAETs = conf.listRegisteredAETitles();
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                JsonGenerator gen = Json.createGenerator(out);
+                if (registeredAETs.length != 0)
+                    jsonConf.writeTo(registeredAETs, gen);
                 gen.flush();
             }
         };
