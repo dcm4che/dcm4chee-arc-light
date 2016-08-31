@@ -19,3 +19,13 @@
 		}
 	}
 }
+@media screen and (max-width: 1600px) {
+	.block-1-1, .block-1-2, .block-2-1, .block-2-2{
+		width:31%;		
+	}
+}
+@media screen and (max-width: 1300px) {
+	.filter .main_filter_block{
+		width:79%;
+	}
+}

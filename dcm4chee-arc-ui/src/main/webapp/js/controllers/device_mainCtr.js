@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, schemas, $select) {
+myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, schemas, $select, $templateRequest) {
 
     $scope.activeMenu             = "device_menu";
     $scope.showSave               = false;
@@ -15,6 +15,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.selectedPart           = {};
     $scope.selectObject           = $select;
     $scope.schemas                = schemas;
+    $scope.dicomconn              = [];
     setTimeout(function(){
       $scope.$apply(function(){
         $scope.activeMenu         = "";
@@ -67,6 +68,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }
     });
     $scope.changeElement = function(element){
+            console.log("on changelement element",element);
             var checkDevice = element === "device";
             angular.forEach($select, function(m, j){
               if(element === j && $scope.selectedPart[j]  != undefined ){
@@ -113,6 +115,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             cfpLoadingBar.complete();
     };
     $scope.selectElement = function(element) {
+        console.log("on selectelement element",element);
         var checkDevice = element === "device";
         angular.forEach($select, function(m, j){
             //Differentiate between array elements and not array elements becouse just the array elements (Select element) has selectedPart model
@@ -217,6 +220,657 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
           vex.dialog.alert('Please select device first!');
         }
     };
+    $scope.toggleValue = function(array, string){
+        for (var i = array.length - 1; i >= 0; i--) {
+            console.log("array[i]",array[i]);
+            // array[i]
+            if(array[i] === "" || array[i] === undefined || array[i] === null){
+                array.splice(i,1);
+            }
+        }
+    };
+    var setReferencesFromDevice = function(){
+
+        var dicomconn = [];
+        angular.forEach($scope.selctedDeviceObject.dicomNetworkConnection, function(l, i) {
+            console.log("l",l);
+            dicomconn.push({
+                "value":"/dicomNetworkConnection/" + i,
+                "name":l.cn
+            });
+        });
+        $timeout(function() {
+            $scope.$apply(function(){
+                $scope.netAESchema = {            
+                    type: "object",
+                      "required": [
+                        "dicomAETitle",
+                        "dicomNetworkConnectionReference",
+                        "dicomAssociationInitiator",
+                        "dicomAssociationAcceptor"
+                      ],
+                        properties: {
+                            "dicomAETitle": {
+                                "title": "AE Title",
+                                "description": "Unique AE title for this Network AE",
+                                "type": "string"
+                            },    
+                            "dicomNetworkConnectionReference": {
+                              "title": "Network Connection Reference",
+                              "description": "JSON Pointers to the Network Connection objects for this AE",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },               
+                            "dicomAssociationInitiator": {
+                                "title": "Association Initiator",
+                                "description": "True if the Network AE can initiate associations, false otherwise",
+                                "type": "boolean"
+                            },
+                            "dicomAssociationAcceptor": {
+                                "title": "Association Acceptor",
+                                "description": "True if the Network AE can accept associations, false otherwise",
+                                "type": "boolean"
+                            }
+                        }
+                };
+                $scope.netAEForm = [
+                "dicomAETitle",
+
+                {
+                "type": "conditional",
+                "condition": "selctedDeviceObject.dicomNetworkConnection",
+                "key":"dicomNetworkConnectionReference",
+                "type": "checkboxes",
+                "titleMap": dicomconn,
+                "required": true
+                },
+                {
+                "type": "help",
+                "condition": "!selctedDeviceObject.dicomNetworkConnection",
+                "helpvalue": "To be able to select the reference create first a network connection, the selected device doesn't have any connections!",
+                "required": true
+                },        
+                {
+                    "key": "dicomAssociationInitiator",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                },
+                {
+                    "key": "dicomAssociationAcceptor",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                }];
+            });
+        });
+        $scope.newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference = [];
+    }
+    $scope.getDevice = function(){
+        console.log("$scope.selectedDevice",$scope.selectedDevice);
+
+        if($scope.selectedDevice){
+            if($scope.selctedDeviceObject && $scope.selctedDeviceObject.dicomDeviceName === $scope.selectedDevice){
+                console.log("$scope.selctedDeviceObject",$scope.selctedDeviceObject);
+                setReferencesFromDevice();
+            }else{
+                $http({
+                    method: 'GET',
+                    url: '../devices/'+$scope.selectedDevice
+                }).then(function successCallback(response) {
+                    console.log("response",response);
+                    $scope.selctedDeviceObject = response.data;
+                    // $scope.selctedDeviceObject.dicomNetworkConnection;
+                    // $scope.selctedDeviceObject.dicomNetworkConnection.push($scope.netConnModelDevice);
+                    console.log("$scope.selctedDeviceObject",$scope.selctedDeviceObject);
+                    setReferencesFromDevice();
+
+                }, function errorCallback(response) {
+                  DeviceService.msg($scope, {
+                      "title": "Error",
+                      "text": response.status+":"+response.statusText,
+                      "status": "error"
+                  });
+                });
+            }
+        }
+    };
+    $scope.addNewConnectionToDevice = function(){
+        console.log("in addNewConnectionToDevice");
+        console.log("$scope.selctedDeviceObject",$scope.selctedDeviceObject);
+        console.log("$scope.netConnModelDevice",$scope.netConnModelDevice);
+        // $scope.netConnModelDevice = {};
+        var inModel = false;
+        angular.forEach($scope.selctedDeviceObject.dicomNetworkConnection, function(m, i){
+            if(m.cn === $scope.netConnModelDevice.cn){
+                inModel = true;
+            }
+        });
+        if(!inModel){
+            $scope.selctedDeviceObject.dicomNetworkConnection = $scope.selctedDeviceObject.dicomNetworkConnection || [];
+            $scope.selctedDeviceObject.dicomNetworkConnection.push($scope.netConnModelDevice);
+            console.log("$scope.selctedDeviceObject.dicomNetworkConnection",$scope.selctedDeviceObject.dicomNetworkConnection);
+        }else{
+            vex.dialog.alert("Network connection  with that name already exists!");
+        }
+        $scope.getDevice();
+    };
+    $scope.removeNewConnectionFromDevice = function(){
+        var inModel = false;
+        var index;
+        angular.forEach($scope.selctedDeviceObject.dicomNetworkConnection, function(m, i){
+            if(m.cn === $scope.netConnModelDevice.cn){
+                index = i;
+                inModel = true;
+            }
+        });
+        if(inModel){
+            console.log("$scope.selctedDeviceObject.dicomNetworkConnection",$scope.selctedDeviceObject.dicomNetworkConnection);
+            $scope.selctedDeviceObject.dicomNetworkConnection.splice(index, 1);
+            console.log("$scope.selctedDeviceObject.dicomNetworkConnection",$scope.selctedDeviceObject.dicomNetworkConnection);
+        }
+        $scope.getDevice(); // Refresh the references
+    };
+    $scope.getConn = function(){
+        console.log("getconn called");
+        console.log("1$scope.newAetModel.dicomNetworkConnection",$scope.newAetModel.dicomNetworkConnection);
+
+        if($scope.newAetModel && $scope.newAetModel.dicomNetworkConnection && $scope.newAetModel.dicomNetworkConnection[0] && $scope.newAetModel.dicomNetworkConnection[0].cn && $scope.newAetModel.dicomNetworkConnection[0].cn != ""){
+            console.log("if");
+            var dicomconn = [];
+            // if($scope.newAetModel && $scope.newAetModel.dicomNetworkConnection){
+            dicomconn.push({
+                "value":"/dicomNetworkConnection/" + 0,
+                "name":$scope.newAetModel.dicomNetworkConnection[0].cn
+            });
+            // }
+            $scope.netAEForm = [
+                "dicomAETitle",
+                {
+                "type": "conditional",
+                "condition": "newAetModel.dicomNetworkConnection[0].cn",
+                "key":"dicomNetworkConnectionReference",
+                "type": "checkboxes",
+                "titleMap": dicomconn,
+                "required": true
+                },
+                {
+                "type": "help",
+                "condition": "!newAetModel.dicomNetworkConnection[0].cn",
+                "helpvalue": "To be able to select the reference create or select first a network connection!",
+                "required": true
+                },             
+                {
+                    "key": "dicomAssociationInitiator",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                },
+                {
+                    "key": "dicomAssociationAcceptor",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                }];
+        }else{
+
+        }
+    }
+    $scope.changeTabAERegister = function(tabname){
+        $scope.activetab = tabname;
+        if(tabname==='createdevice'){
+            $scope.getConn();
+        }else{
+            $scope.getDevice(); 
+        }
+    };
+    var validateAeRegisterForms = function(){
+        
+        console.log("$scope.activetab",$scope.activetab);
+        $scope.$broadcast('schemaFormValidate');
+        console.log("$scopenetAEForm.$valid", $scope.netAEForm);
+        var valid = true;
+        var msg = "";
+
+        if($scope.activetab === "createdevice"){
+            console.log("$scope.newAetModel",$scope.newAetModel);
+            //net connection
+            console.log("$scope.netConnModel",$scope.netConnModel);
+            //Netaemodel
+            console.log("$scope.netAEModel",$scope.netAEModel);
+            if(!$scope.newAetModel.dicomDeviceName || $scope.newAetModel.dicomDeviceName === ""){
+                valid = false;
+                msg += "Device name is required!<br>";
+            }
+        }
+        if($scope.activetab === "selectdevice"){
+
+            // selected device  name
+            console.log("$scope.selectedDevice",$scope.selectedDevice);
+            //selected device
+            console.log("$scope.selctedDeviceObject",$scope.selctedDeviceObject);
+            //new net connet with selected device
+            console.log("$scope.netConnModelDevice",$scope.netConnModelDevice);
+            //Netaemodel
+            console.log("$scope.netAEModel",$scope.netAEModel);
+            if(!$scope.selectedDevice ||  $scope.selectedDevice === ""){
+                valid = false;
+                msg += "Selecting one device is required!<br>";
+            }else{
+                if(!$scope.selctedDeviceObject || $scope.selctedDeviceObject.dicomNetworkConnection.length === 0){
+                    valid = false;
+                    msg += "Seleted device doesn't have any network connections!<br>";
+                }
+            }
+
+        }
+        if(!$scope.newAetModel.dicomNetworkAE[0] || !$scope.newAetModel.dicomNetworkAE[0].dicomAETitle || $scope.newAetModel.dicomNetworkAE[0].dicomAETitle === ""){
+            valid = false;
+            msg += "Ae Title is required!<br>";
+        }
+        if(!$scope.newAetModel.dicomNetworkAE[0] || $scope.newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference.length === 0){
+            valid = false;
+            msg += "Reference is required!<br>";
+        }
+        if(valid === false){
+            $scope.$apply(function(){
+                DeviceService.msg($scope, {
+                    "title": "Error",
+                    "text": msg,
+                    "status": "error"
+                });
+            });
+        }
+        return valid;
+    }
+    // $scope.validate = function(){
+    //     console.log("validate");
+    //      $scope.$broadcast('schemaFormValidate');
+    //      // console.log("$scope.testname2.$valid",$scope.testname2.$valid);
+    // }
+    $scope.cancleForm = function(){
+        return vex.close($scope.$vexAe.id);
+    };
+    $scope.setNamesOfDevice = function(){
+       if($scope.activetab === "createdevice"){
+            console.log("dicomAETitle=",$scope.newAetModel.dicomNetworkAE[0].dicomAETitle);
+            console.log("devicename=",$scope.newAetModel.dicomDeviceName);
+            if( 
+                $scope.newAetModel.dicomNetworkAE[0] && 
+                $scope.newAetModel.dicomNetworkAE[0].dicomAETitle &&
+                (   $scope.newAetModel.dicomDeviceName === undefined || 
+                    $scope.newAetModel.dicomDeviceName === "" || 
+                    $scope.newAetModel.dicomNetworkAE[0].dicomAETitle.slice(0, -1).toLowerCase() === $scope.newAetModel.dicomDeviceName.toLowerCase() || 
+                    $scope.newAetModel.dicomNetworkAE[0].dicomAETitle.toLowerCase() === $scope.newAetModel.dicomDeviceName.slice(0, -1).toLowerCase()
+                )
+            ){
+                $scope.newAetModel.dicomDeviceName = $scope.newAetModel.dicomNetworkAE[0].dicomAETitle.toLowerCase();
+            }
+       }
+    };
+    $scope.createAe = function(){
+        $scope.newAetModel = {};
+        $scope.newAetModel.dicomNetworkConnection = [];
+        $scope.newAetModel.dicomNetworkConnection[0] = {};
+        $scope.newAetModel.dicomNetworkAE = [];
+        $scope.newAetModel.dicomNetworkAE[0] = {};
+        $templateRequest('templates/device_aet.html').then(function(tpl) {
+            $scope.newDeviceAESchema = {
+                "title": "Device",
+                "description": "DICOM Device related information",
+                "type": "object",
+                "required": ["dicomDeviceName", "dicomInstalled"],
+                "properties": {
+                    "dicomDeviceName": {
+                      "title": "Device Name",
+                      "description": "A unique name for this device",
+                      "type": "string"
+                    },    
+                    "dicomInstalled": {
+                      "title": "installed",
+                      "description": "Boolean to indicate whether this device is presently installed on the network",
+                      "type": "boolean",
+                      "default": true
+                    },
+                } 
+            }
+            $scope.newDeviceAEForm = [
+                "dicomDeviceName",
+                {
+                    "key": "dicomInstalled",
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                }
+            ]
+            // $scope.newAetModel.devicemodel = {};
+           $scope.netConnSchema = {
+            type: "object",
+            properties: {
+                "cn": {
+                  "title": "Name",
+                  "description": "Arbitrary/Meaningful name for the Network Connection object",
+                  "type": "string",
+                  "default":"dicom"
+                },    
+                "dicomHostname": {
+                  "title": "Hostname",
+                  "description": "DNS name for this particular connection",
+                  "type": "string",
+                  "default":"localhost"
+                },   
+                "dicomPort": {
+                  "title": "Port",
+                  "description": "TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum":99999,
+                  "exclusiveMinimum": true,
+                  "default":11112
+                },
+                "dicomTLSCipherSuite": {
+                  "title": "TLS CipherSuites",
+                  "description": "The TLS CipherSuites that are supported on this particular connection. If not present TLS is disabled",
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "SSL_RSA_WITH_NULL_SHA",
+                      "TLS_RSA_WITH_AES_128_CBC_SHA",
+                      "SSL_RSA_WITH_3DES_EDE_CBC_SHA"
+                    ]
+                  }
+                },
+                "dicomInstalled": {
+                  "title": "installed",
+                  "description": "True if the Network Connection is installed on the network. If not present, information about the installed status of the Network Connection is inherited from the device",
+                  "type": "boolean",
+                  "default": true
+                },
+            }
+            };
+            $scope.sfOptions = { validationMessage: { 302: 'Required field!' }};
+            $scope.netConnForm = [
+                {
+                    "key":"cn",
+                    "onChange":"getConn()"
+                },
+                "dicomHostname",
+                "dicomPort",
+                "dicomTLSCipherSuite",
+                {
+                    "key": "dicomInstalled",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                }
+            ];
+            $scope.netAESchema = {
+                type: "object",
+                "required": [
+                        "dicomAETitle",
+                        "dicomNetworkConnectionReference",
+                        "dicomAssociationInitiator",
+                        "dicomAssociationAcceptor"
+                ],
+                properties: {
+                    "dicomAETitle": {
+                      "title": "AE Title",
+                      "description": "Unique AE title for this Network AE",
+                      "type": "string"
+                    },
+                    "dicomNetworkConnectionReference": {
+                      "title": "Network Connection Reference",
+                      "description": "JSON Pointers to the Network Connection objects for this AE",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }                    },
+                    "dicomAssociationInitiator": {
+                      "title": "Association Initiator",
+                      "description": "True if the Network AE can initiate associations, false otherwise",
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "dicomAssociationAcceptor": {
+                      "title": "Association Acceptor",
+                      "description": "True if the Network AE can accept associations, false otherwise",
+                      "type": "boolean",
+                      "default": false
+                    }
+                }
+            };
+            
+            $scope.dicomNetworkConnectionReference = "dicomNetworkConnectionReference";
+            // console.log("$scope.dicomconn",$scope.dicomconn);
+            $scope.dicomconn = [];
+            $scope.dicomconn.push({
+                "value":"/dicomNetworkConnection/" + 0,
+                "name":"dicom"
+            });
+            $scope.netAEForm = [
+                {
+                    "key":"dicomAETitle",
+                    "onChange":"setNamesOfDevice()"
+                },
+                {
+                "type": "conditional",
+                "condition": "newAetModel.dicomNetworkConnection[0].cn",
+                "key":"dicomNetworkConnectionReference",
+                "type": "checkboxes",
+                "titleMap": $scope.dicomconn,
+                "required": true
+                },
+                {
+                "type": "help",
+                "condition": "!newAetModel.dicomNetworkConnection[0].cn",
+                "helpvalue": "To be able to select the reference create or select first a network connection!",
+                "required": true
+                }, 
+                "dicomTLSCipherSuite",
+                {
+                    "key": "dicomAssociationInitiator",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                },
+                {
+                    "key": "dicomAssociationAcceptor",
+                    // "key": i,
+                    "type": "radios",
+                    "titleMap": [{
+                        "value": true,
+                        "name": "True"
+                    }, {
+                        "value": false,
+                        "name": "False"
+                    }]
+                }
+            ];
+            $scope.netAEModel = $scope.newAetModel.dicomNetworkAE[0];
+            $scope.netConnModel = $scope.newAetModel.dicomNetworkConnection[0];
+            if($scope.selectedDevice && $scope.selectedDevice.dicomNetworkConnection){
+                $scope.netConnModelDevice = $scope.selectedDevice.dicomNetworkConnection.push({});
+            }else{
+                $scope.netConnModelDevice = {};
+            }
+            var html = $compile(tpl)($scope);
+            // var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
+            $scope.$vexAe = vex.dialog.open({
+                message: 'Register new Application Entity',
+                input: html,
+                form:"testname",
+                className:"vex-theme-os registernewaet",
+                buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                    text: 'Register',
+                    className: "defaultbutton"
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                    text: 'Cancel',
+                    className: "defaultbutton"
+                })
+                ],
+                afterOpen: function($vexContent) {
+                    console.log("$vexContent",$vexContent);
+                    console.log("$($vexContent).find('form')",$($vexContent).find('form'));
+
+                    // $(".vex-dialog-form").attr("name","testname2");
+                },
+                onSubmit: function(e) {
+
+                    console.log("onsubmit");
+                    if(validateAeRegisterForms()){
+                        console.log("validation");
+                        $scope.$vexAe.data().vex.callback();
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+                },
+                callback: function(data) {
+                    console.log("callback");
+
+                    if (data === false) {
+                      console.log('1Cancelled');
+                      return false;
+                    }else{
+                        console.log("not cacelled +$scope.newAet=",$scope.newAet);
+                        $http.post(
+                            "../unique/aets/"+$scope.netAEModel.dicomAETitle
+                        ).then(function successCallback(response) {
+                            console.log("succes response",response);
+                            if($scope.activetab === "createdevice"){
+                                $http.post("../devices/" + $scope.newAetModel.dicomDeviceName, $scope.newAetModel)
+                                .success(function(data, status, headers, config) {
+                                    DeviceService.msg($scope, {
+                                        "title": "Info",
+                                        "text": "Aet registerd successfully!<br>Device created successfully!",
+                                        "status": "info"
+                                    });
+                                    $http.post("../ctrl/reload").then(function (res) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Info",
+                                            "text": "Archive reloaded successfully!",
+                                            "status": "info"
+                                        });
+                                    });
+                                })
+                                .error(function(data, status, headers, config) {
+                                    cfpLoadingBar.complete();
+                                    $http.delete(
+                                        "../unique/aets/"+$scope.netAEModel.dicomAETitle
+                                    ).then(function successCallback(response) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Error",
+                                            "text": "Aet couldn't be regestered!",
+                                            "status": "error"
+                                        });
+                                    });
+                                });
+                            }else{
+                                console.log("in else post");
+                                $scope.selctedDeviceObject.dicomNetworkAE =  $scope.selctedDeviceObject.dicomNetworkAE || [];
+                                $scope.selctedDeviceObject.dicomNetworkAE.push($scope.netAEModel);
+                                $http.put("../devices/" + $scope.selctedDeviceObject.dicomDeviceName, $scope.selctedDeviceObject)
+                                .success(function(data, status, headers, config) {
+                                    DeviceService.msg($scope, {
+                                        "title": "Info",
+                                        "text": "Aet registerd successfully!<br>Device created successfully!",
+                                        "status": "info"
+                                    });
+                                    $http.post("../ctrl/reload").then(function (res) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Info",
+                                            "text": "Archive reloaded successfully!",
+                                            "status": "info"
+                                        });
+                                    });
+                                })
+                                .error(function(data, status, headers, config) {
+                                    cfpLoadingBar.complete();
+                                    $http.delete(
+                                        "../unique/aets/"+$scope.netAEModel.dicomAETitle
+                                    ).then(function successCallback(response) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Error",
+                                            "text": "Aet couldn't be regestered!",
+                                            "status": "error"
+                                        });
+                                    });
+                                });
+                            }
+                            // DeviceService.msg($scope, {
+                            //     "title": "Info",
+                            //     "text": "Aet registerd successfully!",
+                            //     "status": "info"
+                            // });
+                            vex.close($scope.$vexAe.id);
+                        }, function errorCallback(response) {
+                            console.log("errorcallback response",response);
+                            if(response.status === 409){
+                                DeviceService.msg($scope, {
+                                    "title": "Error "+response.status,
+                                    "text": "AET already exists, try with an other name",
+                                    "status": "error"
+                                });
+                            }else{
+                                DeviceService.msg($scope, {
+                                    "title": "Error"+ response.status,
+                                    "text": "Something went wrong please try again later",
+                                    "status": "error"
+                                });
+                                vex.close($scope.$vexAe.id);
+                            }
+                        });
+                        return true;
+                    }
+                
+                }
+            });
+        });
+    }
+
     /*
     *Create new Device
     */
@@ -1073,6 +1727,27 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         }, function errorCallback(response) {
             $log.error("Error loading device names", response);
             vex.dialog.alert("Error loading device names, please reload the page and try again!");
+        });   
+    };
+    $scope.searchAes = function(){
+         cfpLoadingBar.start();
+        var urlParam = Object.keys($scope.filter).map(function(key){
+            if($scope.filter[key]){
+                return encodeURIComponent(key) + '=' + encodeURIComponent($scope.filter[key]); 
+            }
+        }).join('&');
+        if(urlParam){
+            urlParam = "?"+urlParam;
+        }
+        $http({
+                method: 'GET',
+                // url: 'json/devices.json'
+                url: '../aes'+urlParam
+            }).then(function successCallback(response) {
+            $scope.aes = response.data;
+            cfpLoadingBar.complete();
+        }, function errorCallback(response) {
+            vex.dialog.alert("Error loading aes, please reload the page and try again!");
         });   
     };
     $scope.clearForm = function(){

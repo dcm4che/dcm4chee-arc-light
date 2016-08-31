@@ -7,6 +7,17 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
      */
     var msgTimeout = 10000;
 
+    var getModelTestHelper = function(wholeDevice, selectedElement){
+        for (var i in wholeDevice) {
+            if (i != selectedElement) {
+                if (wholeDevice[i] !== null && typeof(wholeDevice[i]) === "object") {
+                    getModelTestHelper(wholeDevice[i], selectedElement);
+                }
+            } else {
+                return wholeDevice[i];
+            }
+        }
+    };
     /*
      *Renders an unique random integer between 1 and 100 for the msg class
      *@m (array of Objects) array of the current messages
@@ -295,7 +306,13 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
     var removeChilde = function(selectedElement){
 		if($select[selectedElement].parentOf){
 		  angular.forEach($select[selectedElement].parentOf,function(m,i){
-		      delete schemas[selectedElement][selectedElement][selectedElement].properties[$select[selectedElement].parentOf[i]];
+            try{
+                if(schemas[selectedElement][selectedElement][selectedElement] && schemas[selectedElement][selectedElement][selectedElement].properties[$select[selectedElement].parentOf[i]] != undefined){
+                    delete schemas[selectedElement][selectedElement][selectedElement].properties[$select[selectedElement].parentOf[i]];
+                }
+            }catch(e){
+                console.log("catch e",e);
+            }
 		  });
 		}
     };
@@ -649,7 +666,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                             "text": "Changes saved successfully!",
                             "status": "info"
                         });
-                        $http.get("../ctrl/reload").then(function (res) {
+                        $http.post("../ctrl/reload").then(function (res) {
                             msg($scope, {
                                 "title": "Info",
                                 "text": "Archive reloaded successfully!",
@@ -740,7 +757,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                     "text": "Old device deleted successfully!",
                                     "status": "info"
                                 });
-                                $http.get("../ctrl/reload").then(function (res) {
+                                $http.post("../ctrl/reload").then(function (res) {
                                     msg($scope, {
                                         "title": "Info",
                                         "text": "Archive reloaded successfully!",
@@ -846,6 +863,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
             addEmptyArrayFieldsPrivate($scope);
         },
         getObjectFromString: function($scope, value, key) {
+            // console.log("key",key);
             var partsArray = value.optionRef;
             if (partsArray.length === 2) {
 
@@ -861,7 +879,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                     }
                 }
             } else {
-                $log.warn("In TODO");
+                $log.warn("In TODO",partsArray);
                 //TODO I don't know if we need it, we will see
             }
         },
@@ -979,6 +997,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                         });
                         scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
                         scope.form[scope.selectedElement]["form"] = endArray;
+                        console.log("scope.form[scope.selectedElement]['form']",scope.form[scope.selectedElement]['form']);
                     }
                     if (timeout > 0) {
                         timeout--;
@@ -1041,8 +1060,18 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
 
             }
         },
-
+        getModelTest: function(scope){
+            return getModelTestHelper(scope.wholeDevice, scope.selectedElement);
+        },
         setFormModel: function(scope) {
+            // console.log("angular.copy(getModelTest(scope))",angular.copy(getModelTestHelper(scope.wholeDevice, scope.selectedElement)));
+            // scope.dynamic_model = 
+            // console.log("scope.dynamic_model",scope.dynamic_model);
+            // scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
+            // scope.form[scope.selectedElement]["model"] = scope.form[scope.selectedElement]["model"] || {};
+            // scope.form[scope.selectedElement]["model"] = getModelTestHelper(scope.wholeDevice, scope.selectedElement);
+            // console.log("scope.wholeDevice",scope.wholeDevice);
+            // console.log("scope.form",scope.form);
             if(scope.selectedElement){
                 if ($select[scope.selectedElement] && $select[scope.selectedElement].type === "array") {
                     if ($select[scope.selectedElement].optionRef.length > 1) {
@@ -1086,6 +1115,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                     }
                 } else {
                     if ($select[scope.selectedElement] && $select[scope.selectedElement].optionRef.length > 1) {
+                        console.log("in if 2");
                         if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
                             if ($select[$select[scope.selectedElement].optionRef[0]].type === "object") {
                                 angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]], function(k, j) {
@@ -1125,7 +1155,17 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                             scope.form[scope.selectedElement] = {};
                         }
                         if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
-                            scope.dynamic_model = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
+
+                                    console.log("scope.wholeDevice",scope.wholeDevice);
+                                    console.log("scope.selectedElement",scope.selectedElement);
+                                    console.log("$select",$select);
+                                    console.log("$select[scope.selectedElement].optionRef[0]",$select[scope.selectedElement].optionRef[0]);
+                                    // scope.dynamic_model = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
+                                    scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
+                                    // console.log("scope.dynamic_model",scope.dynamic_model);
+                                    console.log("angular.copy(getModelTestHelper(scope.wholeDevice, scope.selectedElement))",angular.copy(getModelTestHelper(scope.wholeDevice, scope.selectedElement)));
+                                    // scope.dynamic_model = angular.copy(getModelTestHelper(scope.wholeDevice, scope.selectedElement));
+                                    console.log("1scope.dynamic_model",scope.dynamic_model);
                         }else{
                         	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]] = {};
                             scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
@@ -1133,6 +1173,9 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                     }
                 }
             }
+            // console.log("scope.wholeDevice",scope.wholeDevice);
+            // console.log("scope.dynamic_model",scope.dynamic_model);
+            // console.log("scope.form",scope.form);
         },
         createPart: function($scope) {
             if ($select[$scope.selectedElement].optionRef.length > 1) {
