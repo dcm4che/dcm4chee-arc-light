@@ -9,18 +9,16 @@ alter table location modify object_type not null;
 alter table location modify tsuid null;
 create table uidmap (pk number(19,0) not null, uidmap blob not null, primary key (pk));
 
---to be checked---
 alter table instance add inst_no_int number(10,0);
-update instance set inst_no_int = inst_no::number(10,0) where inst_no != '*';
+update instance set inst_no_int = inst_no where inst_no != '*';
 update instance set inst_no_int = null where inst_no = '*';
-alter table instance drop inst_no;
+alter table instance drop column inst_no;
 alter table instance rename column inst_no_int to inst_no;
 alter table series add series_no_int number(10,0);
-update series set series_no_int = series_no::number(10,0) where series_no != '*';
+update series set series_no_int = series_no where series_no != '*';
 update series set series_no_int = null where series_no = '*';
-alter table series drop series_no;
+alter table series drop column series_no;
 alter table series rename column series_no_int to series_no;
---to be checked---
 
 create index UK_i1lnahmehau3r3j9pdyxg3p3y on location (multi_ref);
 alter table location add constraint FK_bfk5vl6eoxaf0hhwiu3rbgmkn foreign key (uidmap_fk) references uidmap;
