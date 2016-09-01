@@ -103,10 +103,15 @@ public class QueryAETs {
                     if (ae.getAEExtension(ArchiveAEExtension.class)
                             .getQueryRetrieveView().isHideNotRejectedInstances())
                         w.write(",\"dcmHideNotRejectedInstances\":true");
-                    if (request.getAttribute(keycloakClassName) != null && arcAE.getAcceptedUserRoles().length != 0) {
-                        w.write(",\"dcmAcceptedUserRole\":\"");
-                        w.write(buildAcceptedUserRoles(arcAE.getAcceptedUserRoles()));
-                        w.write('"');
+                    String[] acceptedUserRoles = arcAE.getAcceptedUserRoles();
+                    if (acceptedUserRoles.length != 0) {
+                        w.write(",\"dcmAcceptedUserRole\":[\"");
+                        for (int i = 0; i < acceptedUserRoles.length; i++) {
+                            if (i > 0)
+                                w.write("\",\"");
+                            w.write(acceptedUserRoles[i]);
+                        }
+                        w.write("\"]");
                     }
                     w.write('}');
                 }
@@ -114,13 +119,5 @@ public class QueryAETs {
                 w.flush();
             }
         };
-    }
-
-    private String buildAcceptedUserRoles(String[] acceptedUserRoles) {
-        StringBuilder b = new StringBuilder();
-        b.append(acceptedUserRoles[0]);
-        for (int i = 1; i < acceptedUserRoles.length; i++)
-            b.append(',').append(acceptedUserRoles[i]);
-        return b.toString();
     }
 }
