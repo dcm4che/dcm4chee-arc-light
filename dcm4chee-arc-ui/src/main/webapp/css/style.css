@@ -2374,4 +2374,8 @@ input.ng-invalid, .has-error .form-control {
         float: left;
         margin: 4px 10px; }
 
+input.disabled {
+  cursor: not-allowed !important;
+  background: #eee !important; }
+
 /*# sourceMappingURL=style.css.map */

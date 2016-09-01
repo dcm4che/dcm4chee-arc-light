@@ -648,51 +648,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     var modifyMWL = function(patient, mode, patientkey, mwlkey, mwl){
         $scope.dateplaceholder = {};
         $scope.testmodel = {};
-        // console.log("patient",patient);
-        // console.log("$scope.testmodel",$scope.testmodel);
-        // $scope.categories = [{ 
-        //                 title: 'Computers',
-        //                 categories: [
-        //                   {
-        //                     title: 'Laptops',
-        //                     categories: [
-        //                       {
-        //                         title: 'Ultrabooks'
-        //                       },
-        //                       {
-        //                         title: 'Macbooks'            
-        //                       }
-        //                     ]
-        //                   },
-
-        //                   {
-        //                     title: 'Desktops'
-        //                   },
-
-        //                   {
-        //                     title: 'Tablets',
-        //                     categories: [
-        //                       { 
-        //                         title: 'Apple'
-        //                       },
-        //                       {
-        //                         title: 'Android'
-        //                       }
-        //                     ]        
-        //                   }
-        //                 ]
-        //               },
-        //               {
-        //                 title: 'Printers'
-        //               }
-
-        //             ];
-
         cfpLoadingBar.start();
         var editmwl     = {};
-        // console.log("patient",patient);
-        // console.log("mwlkey",mwlkey);
-        // console.log("mwl",mwl);
         angular.copy(mwl, editmwl);
         if(mode === "edit"){
             angular.forEach(editmwl.attrs,function(value, index) {
@@ -817,6 +774,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     if(mode === "edit"){
                         $(".edit-patient .0020000D").attr("disabled","disabled");
                         $(".edit-patient span.0020000D").remove();
+                        $(".edit-patient .00400100.00400009").attr("disabled","disabled").addClass('disabled');
+                        $(".edit-patient span.00400100.00400009").remove();
                     }
                     $(".editform .schema-form-fieldset > legend").append('<span class="glyphicon glyphicon-triangle-right"></span>');
                     $(".editform .schema-form-fieldset > legend").bind("click",function(){

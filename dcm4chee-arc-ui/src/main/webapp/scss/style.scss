@@ -3228,3 +3228,7 @@ input.ng-invalid, .has-error .form-control{
 		}
 	}
 }
+input.disabled{
+	cursor:not-allowed !important;
+	background:#eee !important;
+}

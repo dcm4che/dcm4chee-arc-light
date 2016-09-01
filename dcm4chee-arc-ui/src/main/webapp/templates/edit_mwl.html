@@ -105,8 +105,8 @@
             <input name="{{arr}}" ng-disabled="isPatientAttr(arr)" ng-if="item.vr!='SQ' && arr.length === 1" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[key]">
           </div>
           <div class="multi_input" ng-repeat="(key, value) in editmwl.attrs[arr[0]].Value[0][arr[1]].Value track by $index">
-            <span ng-click="removeAttr(arr,key)" class="glyphicon glyphicon-remove" ng-if="arr.length === 2 && arr[0] === '00400100'"></span>
-            <input  name="{{arr}}" ng-disabled="isPatientAttr(arr)" ng-if="item.vr!='SQ' && arr.length === 2" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[key]">
+            <span ng-click="removeAttr(arr,key)" class="glyphicon glyphicon-remove {{arr[0]}} {{arr[1]}}" ng-if="arr.length === 2 && arr[0] === '00400100'"></span>
+            <input  name="{{arr}}" ng-disabled="isPatientAttr(arr)" ng-if="item.vr!='SQ' && arr.length === 2" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[key]" class="{{arr[0]}} {{arr[1]}}">
           </div>
           <input ng-repeat="(key, value) in editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value track by $index" name="{{arr}}" ng-disabled="isPatientAttr(arr)" ng-if="item.vr!='SQ' && arr.length === 3" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[key]">
           <input ng-repeat="(key, value) in editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value track by $index" name="{{arr}}" ng-disabled="isPatientAttr(arr)" ng-if="item.vr!='SQ' && arr.length === 4" type="text" placeholder="{{name}}" ng-model="editmwl.attrs[arr[0]].Value[0][arr[1]].Value[0][arr[2]].Value[0][arr[3]].Value[key]">
