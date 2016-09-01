@@ -16,6 +16,9 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.selectObject           = $select;
     $scope.schemas                = schemas;
     $scope.dicomconn              = [];
+    $scope.aeSelected             = {};
+    $scope.aeSelected.mode        = "new";
+    $scope.saved                  = true;
     setTimeout(function(){
       $scope.$apply(function(){
         $scope.activeMenu         = "";
@@ -112,6 +115,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       "<div edit-area></div>"
                   );
             }
+                        console.log("$scope.selectedPart",$scope.selectedPart);
+
             cfpLoadingBar.complete();
     };
     $scope.selectElement = function(element) {
@@ -459,26 +464,12 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         var msg = "";
 
         if($scope.activetab === "createdevice"){
-            console.log("$scope.newAetModel",$scope.newAetModel);
-            //net connection
-            console.log("$scope.netConnModel",$scope.netConnModel);
-            //Netaemodel
-            console.log("$scope.netAEModel",$scope.netAEModel);
             if(!$scope.newAetModel.dicomDeviceName || $scope.newAetModel.dicomDeviceName === ""){
                 valid = false;
                 msg += "Device name is required!<br>";
             }
         }
         if($scope.activetab === "selectdevice"){
-
-            // selected device  name
-            console.log("$scope.selectedDevice",$scope.selectedDevice);
-            //selected device
-            console.log("$scope.selctedDeviceObject",$scope.selctedDeviceObject);
-            //new net connet with selected device
-            console.log("$scope.netConnModelDevice",$scope.netConnModelDevice);
-            //Netaemodel
-            console.log("$scope.netAEModel",$scope.netAEModel);
             if(!$scope.selectedDevice ||  $scope.selectedDevice === ""){
                 valid = false;
                 msg += "Selecting one device is required!<br>";
@@ -534,12 +525,204 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             }
        }
     };
+    $scope.deleteAE = function(device, ae){
+        console.log("device",device);
+        console.log("ae",ae);
+        $scope.deleteDeviceTo = false;
+            var html = $compile('<label><input type="checkbox" ng-model="deleteDeviceTo" /> Delete device '+device+' to</label>')($scope);
+            vex.dialog.open({
+              message: 'Are you sure you want to unregister and delete from device the AE <b>'+ae+'</b>',
+              input: html,
+              buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                  text: 'Yes'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                  text: 'Cancel'
+                })
+              ],
+              callback: function(data) {
+                if (data === false) {
+                  return console.log('Cancelled');
+                }else{
+                    console.log("$scope.deleteDeviceTo",$scope.deleteDeviceTo);
+                    console.log("data",data);
+                    // console.log("in else deleteDeviceto=",deleteDeviceTo);
+                    // $http.post(studyURL(study.attrs) + '/export/' + $scope.exporterID);
+                    $http.delete(
+                        "../unique/aets/"+ae
+                    ).then(function successCallback(response) {
+                        if($scope.deleteDeviceTo === true){
+                            $http
+                            .delete("../devices/" + device)
+                                .success(function(data, status, headers, config) {
+                                    DeviceService.msg($scope, {
+                                        "title": "Info",
+                                        "text": "Device deleted successfully!",
+                                        "status": "info"
+                                    });
+                                    $http.post("../ctrl/reload").then(function (res) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Info",
+                                            "text": "Archive reloaded successfully!",
+                                            "status": "info"
+                                        });
+                                    });
+                                    $scope.searchAes();
+                                })
+                                .error(function(data, status, headers, config) {
+                                    $log.error("Error deleting device", status);
+                                    DeviceService.msg($scope, {
+                                        "title": "Error",
+                                        "text": "Error deleting the device!",
+                                        "status": "error"
+                                    });
+                                    cfpLoadingBar.complete();
+                                    return false;
+                                });
+                        }else{
+
+                            $http({
+                                method: 'GET',
+                                url: '../devices/'+device
+                            }).then(function successCallback(response) {
+                                console.log("response",response);
+                                var deviceObject = response.data;
+                                //Remove ae from device and save it back
+                                angular.forEach(deviceObject.dicomNetworkAE ,function(m, i){
+                                    if(m.dicomAETitle === ae){
+                                        deviceObject.dicomNetworkAE.splice(i, 1);
+                                    }
+                                });
+                                $http.put("../devices/" + device, deviceObject)
+                                    .success(function(data, status, headers, config) {
+                                        DeviceService.msg($scope, {
+                                            "title": "Info",
+                                            "text": "Ae removed from device successfully!",
+                                            "status": "info"
+                                        });
+                                        $http.post("../ctrl/reload").then(function (res) {
+                                            DeviceService.msg($scope, {
+                                                "title": "Info",
+                                                "text": "Archive reloaded successfully!",
+                                                "status": "info"
+                                            });
+                                        });
+                                        $scope.searchAes();
+                                    })
+                                    .error(function(data, status, headers, config) {
+                                        $log.error("Error sending data on put!", status);
+                                        addEmptyArrayFieldsPrivate($scope);
+                                        DeviceService.msg($scope, {
+                                            "title": "error",
+                                            "text": "Error, the AE was not removed from device!",
+                                            "status": "error"
+                                        });
+                                        cfpLoadingBar.complete();
+                                    });
+                            }, function errorCallback(response) {
+                              DeviceService.msg($scope, {
+                                  "title": "Error",
+                                  "text": response.status+":"+response.statusText,
+                                  "status": "error"
+                              });
+                            });
+                        }
+                        DeviceService.msg($scope, {
+                            "title": "Info",
+                            "text": "Aet unregestered succsesfully!",
+                            "status": "info"
+                        });
+                    // });
+                    },function errorCallback(response) {
+                        DeviceService.msg($scope, {
+                            "title": "Error",
+                            "text": "Aet couldn't be unregestered!",
+                            "status": "error"
+                        });
+                    });
+                }
+                $scope.searchAes();
+              }
+            });
+    }
+    $scope.editAe = function(device, ae){
+        console.log("editae");
+        $scope.selectedElement = "dicomNetworkAE";
+        $scope.selectedPart["dicomNetworkAE"] = ae.toString();
+
+            $scope.devicename       = device;
+            $scope.currentDevice    = $scope.devicename;
+            $scope.form             = {};
+            cfpLoadingBar.start();
+            if($scope.devicename){
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                setTimeout(function(){ 
+                    $scope.showDropdownLoader = true;
+                    $scope.showFormLoader   = true;
+                });
+                // $scope.selectedElement = "device";
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                DeviceService
+                .addDirectiveToDom(
+                    $scope, 
+                    "add_dropdowns",
+                    "<div select-device-part></div>"
+                );
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
+                //Wait a little bit so the angularjs has time to render the first directive otherwise some input fields are not showing
+                window.setTimeout(function() {
+                DeviceService
+                .addDirectiveToDom(
+                  $scope, 
+                  "add_edit_area",
+                  "<div edit-area></div>"
+                );
+                cfpLoadingBar.set(cfpLoadingBar.status()+(0.1));
+                }, 100);
+            }else{
+                cfpLoadingBar.complete();
+                vex.dialog.alert("Select device");
+            }
+            setTimeout(function(){
+                DeviceService.warnEvent($scope);
+                addEffect("right",".devicelist_block", "hide");
+                setTimeout(function(){
+                    addEffect("left",".deviceedit_block", "show");
+                    $scope.changeElement(ae);
+                    console.log("$scope.selectedPart",$scope.selectedPart);
+                    console.log("$('#dicomNetworkAE option[value='+ae+']')",$('#dicomNetworkAE option[value='+ae+']'));
+                    $('#dicomNetworkAE option[value='+ae+']').prop('selected', true);
+                    // $scope.selectModel["dicomNetworkAE"] = ae.toString();
+                },301);
+            },1000);
+
+    };
     $scope.createAe = function(){
-        $scope.newAetModel = {};
-        $scope.newAetModel.dicomNetworkConnection = [];
-        $scope.newAetModel.dicomNetworkConnection[0] = {};
-        $scope.newAetModel.dicomNetworkAE = [];
-        $scope.newAetModel.dicomNetworkAE[0] = {};
+        $scope.dicomconn = [];
+        if($scope.aeSelected.mode === "edit" && $scope.newAetModel.dicomNetworkConnection){
+            angular.forEach($scope.newAetModel.dicomNetworkConnection, function(l, i) {
+                $scope.dicomconn.push({
+                    "value":"/dicomNetworkConnection/" + i,
+                    "name":l.cn
+                });
+            });
+            angular.forEach($scope.newAetModel.dicomNetworkAE, function(m, j) {
+                if(m.dicomAETitle === $scope.aeSelected.ae){
+                    $scope.netAEModel = $scope.newAetModel.dicomNetworkAE[j];
+                }
+            });
+        }else{
+            $scope.newAetModel = {};
+            $scope.newAetModel.dicomNetworkConnection = [];
+            $scope.newAetModel.dicomNetworkConnection[0] = {};
+            $scope.newAetModel.dicomNetworkAE = [];
+            $scope.newAetModel.dicomNetworkAE[0] = {};
+            $scope.netAEModel = $scope.newAetModel.dicomNetworkAE[0];
+            $scope.dicomconn.push({
+                "value":"/dicomNetworkConnection/" + 0,
+                "name":"dicom"
+            });
+        }
         $templateRequest('templates/device_aet.html').then(function(tpl) {
             $scope.newDeviceAESchema = {
                 "title": "Device",
@@ -679,11 +862,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             
             $scope.dicomNetworkConnectionReference = "dicomNetworkConnectionReference";
             // console.log("$scope.dicomconn",$scope.dicomconn);
-            $scope.dicomconn = [];
-            $scope.dicomconn.push({
-                "value":"/dicomNetworkConnection/" + 0,
-                "name":"dicom"
-            });
+
             $scope.netAEForm = [
                 {
                     "key":"dicomAETitle",
@@ -729,7 +908,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     }]
                 }
             ];
-            $scope.netAEModel = $scope.newAetModel.dicomNetworkAE[0];
+           
+
             $scope.netConnModel = $scope.newAetModel.dicomNetworkConnection[0];
             if($scope.selectedDevice && $scope.selectedDevice.dicomNetworkConnection){
                 $scope.netConnModelDevice = $scope.selectedDevice.dicomNetworkConnection.push({});
@@ -752,12 +932,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     className: "defaultbutton"
                 })
                 ],
-                afterOpen: function($vexContent) {
-                    console.log("$vexContent",$vexContent);
-                    console.log("$($vexContent).find('form')",$($vexContent).find('form'));
-
-                    // $(".vex-dialog-form").attr("name","testname2");
-                },
                 onSubmit: function(e) {
 
                     console.log("onsubmit");
@@ -795,6 +969,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                             "status": "info"
                                         });
                                     });
+                                    $scope.searchAes();
                                 })
                                 .error(function(data, status, headers, config) {
                                     cfpLoadingBar.complete();
@@ -816,7 +991,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                 .success(function(data, status, headers, config) {
                                     DeviceService.msg($scope, {
                                         "title": "Info",
-                                        "text": "Aet registerd successfully!<br>Device created successfully!",
+                                        "text": "Aet registerd and added to device successfully!",
                                         "status": "info"
                                     });
                                     $http.post("../ctrl/reload").then(function (res) {
@@ -826,6 +1001,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                             "status": "info"
                                         });
                                     });
+                                    $scope.searchAes();
                                 })
                                 .error(function(data, status, headers, config) {
                                     cfpLoadingBar.complete();
@@ -865,7 +1041,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         });
                         return true;
                     }
-                
+                    
                 }
             });
         });

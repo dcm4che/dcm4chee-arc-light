@@ -198,16 +198,20 @@
                     <tr ng-repeat="(key, value) in aes | filter:aesfilter">
                         <td class="buttons_td">
                             <span class="numbers">{{key+1}}.</span>
-                            <a class="table_btn" title="Edit device" href="" ng-click="editDeviceList(value.dicomDeviceName)">
+                            <a class="table_btn" title="Edit AE" href="" ng-click="editAe(value.dicomDeviceName, value.dicomAETitle)">
                                 <span class="glyphicon glyphicon-pencil"></span>
                             </a>
-                            <a class="table_btn" title="Delete device" href="" ng-click="deleteDeviceList(value.dicomDeviceName)">
+                            <a class="table_btn" title="Unregister and delete from device the AE" href="" ng-click="deleteAE(value.dicomDeviceName, value.dicomAETitle)">
                                 <span class="glyphicon glyphicon-remove"></span>
                             </a>
                         </td>
                         <!-- <td><a class="listlink" ng-click="editDeviceList(value.dicomDeviceName)"  title="Edit device">{{value.dicomDeviceName}}</a></td> -->
                         <td>{{value.dicomAETitle}}</td>
-                        <td>{{value.dicomDeviceName}}</td>
+                        <td>
+                            <a title="Edit device" href="" ng-click="editDeviceList(value.dicomDeviceName)">
+                                {{value.dicomDeviceName}}
+                            </a>   
+                        </td>
                         <td>
                             <span ng-repeat="(otheraekey, otherae) in value.dcmOtherAETitle">{{otherae}}<br></span>
                         </td>
@@ -226,7 +230,7 @@
 </div>
 <div class="deviceedit_block">
     <button class="btn btn-link btn-xs back" ng-click="goBackToDeviceList()">
-        <span class="glyphicon glyphicon glyphicon-chevron-left"></span> go back to the device list
+        <span class="glyphicon glyphicon glyphicon-chevron-left"></span> go back to list
     </button>
     <div class="row device" ng-click="savedCheck($event)">
         <div class="block_layer" ng-show="showBlockLayer()"></div>
