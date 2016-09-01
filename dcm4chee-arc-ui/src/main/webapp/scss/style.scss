@@ -2249,8 +2249,13 @@ input.ng-invalid, .has-error .form-control{
 	.block-1-1, .block-1-2, .block-2-1, .block-2-2{
 		width: 47%;
 	}
-	table.j4care-table tbody tr td .table_btn{
-		width: 27px;
+	table.j4care-table tbody tr td {
+		a{
+			color:#444;
+		}
+		.table_btn{
+			width: 27px;
+		}
 	}
 }
 .deviceedit_block, .vex.vex-theme-os.registernewaet .vex-content{

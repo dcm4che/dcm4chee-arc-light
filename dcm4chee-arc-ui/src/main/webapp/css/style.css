@@ -1653,6 +1653,8 @@ input.ng-invalid, .has-error .form-control {
   width: 53%; }
 #aet_modus .block-1-1, #aet_modus .block-1-2, #aet_modus .block-2-1, #aet_modus .block-2-2 {
   width: 47%; }
+#aet_modus table.j4care-table tbody tr td a {
+  color: #444; }
 #aet_modus table.j4care-table tbody tr td .table_btn {
   width: 27px; }
 

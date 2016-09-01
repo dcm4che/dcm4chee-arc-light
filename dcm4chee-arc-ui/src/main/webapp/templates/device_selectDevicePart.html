@@ -12,7 +12,9 @@
 		{{splitStringToObject(value,key)}}
 		<select 
 			ng-if="value.type==='array'"
-			class="form-control" 
+			id="{{key}}"
+			title="{{selectedPart[key]}}" 
+			class="form-control {{key}}" 
 			ng-class="{active_dropbox:selectedElement === '{{key}}',active_menu:activeMenu === '{{key}}'}" 
 			ng-click='selectElement(key)' 
 			name="{{key}}"
