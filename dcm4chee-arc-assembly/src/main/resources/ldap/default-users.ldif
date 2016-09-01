@@ -1,0 +1,33 @@
+version: 1
+
+dn: ou=users,dc=dcm4che,dc=org
+ou: users
+objectClass: organizationalUnit
+objectClass: top
+
+dn: uid=admin,ou=users,dc=dcm4che,dc=org
+uid: admin
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+sn:: IA==
+cn:: IA==
+userPassword:: YWRtaW4=
+
+dn: uid=user,ou=users,dc=dcm4che,dc=org
+uid: user
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+sn:: IA==
+cn:: IA==
+userPassword:: dXNlcg==
+
+dn: cn=admin,ou=users,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: admin
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=user,ou=users,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: user
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+member: uid=user,ou=users,dc=dcm4che,dc=org
