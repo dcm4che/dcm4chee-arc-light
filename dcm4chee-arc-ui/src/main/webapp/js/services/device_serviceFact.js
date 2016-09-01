@@ -997,7 +997,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                         });
                         scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
                         scope.form[scope.selectedElement]["form"] = endArray;
-                        console.log("scope.form[scope.selectedElement]['form']",scope.form[scope.selectedElement]['form']);
+                        // console.log("scope.form[scope.selectedElement]['form']",scope.form[scope.selectedElement]['form']);
                     }
                     if (timeout > 0) {
                         timeout--;

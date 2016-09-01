@@ -198,6 +198,9 @@
                     <tr ng-repeat="(key, value) in aes | filter:aesfilter">
                         <td class="buttons_td">
                             <span class="numbers">{{key+1}}.</span>
+                            <a class="table_btn" title="Echo" href="" ng-click="echoAe(value.dicomAETitle)">
+                                <span class="echo_icon"></span>
+                            </a>
                             <a class="table_btn" title="Edit AE" href="" ng-click="editAe(value.dicomDeviceName, value.dicomAETitle)">
                                 <span class="glyphicon glyphicon-pencil"></span>
                             </a>

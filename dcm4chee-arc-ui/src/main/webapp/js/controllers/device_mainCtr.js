@@ -1456,10 +1456,41 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     $scope.showBlockLayer = function(){
       return ($scope.editMode && !$scope.validForm);
     };
+    $scope.echoAe = function(ae){
 
+        var html =  '<div class="col-md-6">'+
+                        '<span>Select one AET:</span>'+
+                        '<select ng-options="obj.title as obj.title for obj in aets track by obj.title" ng-model="selectedAet" name="aet"></select>'+
+                    '</div>'+ 
+                    '<div class="col-md-6">'+
+                        '<span>remote AET:<br>'+ae+'</span>'+
+                    '</div>';
+        html = $compile(html)($scope);
+        $scope.selectedPart.dicomNetworkAE = ae;
+        $scope.$vexAe = vex.dialog.open({
+            message: 'Send echo to Network AE',
+            input: html,
+            className:"vex-theme-os echoae",
+            buttons: [
+              $.extend({}, vex.dialog.buttons.YES, {
+                text: 'Echo'
+              }), $.extend({}, vex.dialog.buttons.NO, {
+                text: 'Close'
+              })
+            ],
+            callback: function(data) {
+              cfpLoadingBar.start();
+              if (data === false) {
+                cfpLoadingBar.complete();
+                return console.log('Cancelled');
+              }else{
+                $scope.echo();
+              }
+            }
+        });
+    };
     $scope.echo = function(){
       if($scope.selectedAet && $scope.selectedPart.dicomNetworkAE){
-
         $http({
             method: 'POST',
             // url: 'json/devices.json'
@@ -1493,6 +1524,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                     });
                   }
               }
+              $scope.selectedPart =  {};
             }catch(e){
               // $log.error("e=",e);
               DeviceService.msg($scope, {
@@ -1501,6 +1533,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                   "status": "error"
               });
             }
+            $scope.selectedAet = "";
         }, function errorCallback(response) {
             $log.error("Error loading aets ", response);
             DeviceService.msg($scope, {
@@ -1525,6 +1558,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             });
         }
       }
+      cfpLoadingBar.complete();
     };
 
     $scope.showEcho = function(){
