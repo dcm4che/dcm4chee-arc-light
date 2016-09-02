@@ -787,7 +787,7 @@
                 <div class="tr_row">
                     <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
                     <div class="subblock">
-                        <div class="td_row thead repeat1_hover" ng-click='select(study,"study", {"patientkey":patientkey,"studykey":studykey})' ng-class="{selected: study.selected}" ng-init="study.selected = false">
+                        <div class="td_row thead repeat1_hover" ng-click='select(study,"study", {"patientkey":patientkey,"studykey":studykey})' ng-class="{selected: study.selected, trash:trashaktive}" ng-init="study.selected = false">
                             <!-- <input type="checkbox" ng-model="study.selected" class="selectcheckboxes" /> -->
                             <div class="td_cell table_btn">
                                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
@@ -802,12 +802,15 @@
                                 <a ng-hide="trashaktive || !user.isRole('admin') || study.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(study)" href="" title="Reject Study">
                                     <span class="glyphicon glyphicon-trash"></span>
                                 </a>
+                                <a ng-show="trashaktive && user.isRole('admin')" ng-click="deleteStudy(study)" href="" title="Delete Study permanently">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </a>
                                 <a ng-show="trashaktive && user.isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
                                     <span class="glyphicon glyphicon-repeat"></span>
                                 </a>
-                                <a ng-show="user.isRole('admin') && study.attrs['00201208'].Value[0] === 0" ng-click="deleteStudy(study)" href="" title="Delete Study">
+<!--                                 <a ng-show="user.isRole('admin') && study.attrs['00201208'].Value[0] === 0" ng-click="deleteStudy(study)" href="" title="Delete Study">
                                     <span class="glyphicon glyphicon-remove"></span>
-                                </a>
+                                </a> -->
                                 <!--
                                 <a ng-href="{{study.attrs['00081190'].Value[0]}}" tooltip="Download Study">
                                     <span class="glyphicon glyphicon-save"></span>

@@ -169,6 +169,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }else{
             $scope.trashaktive = false;
         }
+        fireRightQuery();
     };
     // $(".block_part").bind("hover",function() {
     //     console.log("hover this=",this);
@@ -2168,7 +2169,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.deleteStudy = function(study){
         cfpLoadingBar.start();
         console.log("study",study);
-        if(study.attrs['00201208'].Value[0] === 0){
+        // if(study.attrs['00201208'].Value[0] === 0){
             vex.dialog.confirm({
               message: 'Are you sure you want to delete this study?',
               callback: function(value) {
@@ -2205,14 +2206,14 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 }
               }
             });
-        }else{
-            DeviceService.msg($scope, {
-                "title": "Error",
-                "text": "Study not empty!",
-                "status": "error"
-            });
-            cfpLoadingBar.complete();
-        }
+        // }else{
+        //     DeviceService.msg($scope, {
+        //         "title": "Error",
+        //         "text": "Study not empty!",
+        //         "status": "error"
+        //     });
+        //     cfpLoadingBar.complete();
+        // }
     };
     $scope.deletePatient = function(patient,patients, patientkey){
         cfpLoadingBar.start();
@@ -3143,7 +3144,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         //     fuzzymatching: $scope.filter.fuzzymatching,
         //     orderby: $scope.filter.orderby !== "-PatientName" ? "PatientName" :  $scope.filter.orderby
         // };
-        console.log("filter",filter);
         return filter;
     }
     function createStudyFilterParams() {

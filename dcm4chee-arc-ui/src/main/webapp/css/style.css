@@ -748,6 +748,8 @@ table.subtable_1, table.subtable_2 {
         .repeat0 .repeat1 .subblock .td_cell.table_btn > a:hover {
           background: #C2C2C2;
           text-decoration: none; }
+      .repeat0 .repeat1 .subblock .trash .td_cell.table_btn > a {
+        width: 16%; }
       .repeat0 .repeat1 .subblock .td_row .tr_row .td_cell.attribute_list {
         width: 100%; }
         .repeat0 .repeat1 .subblock .td_row .tr_row .td_cell.attribute_list table {
