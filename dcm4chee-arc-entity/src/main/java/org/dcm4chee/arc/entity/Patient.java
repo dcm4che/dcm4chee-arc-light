@@ -43,6 +43,7 @@ package org.dcm4chee.arc.entity;
 import org.dcm4che3.data.*;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.conf.ShowPatientInfo;
 
 import javax.persistence.*;
 import java.util.*;
@@ -163,14 +164,24 @@ public class Patient {
 
     @Override
     public String toString() {
-        return "Patient[pk=" + pk
-                + ", id=" + patientID
-                + ", name=" + patientName
-                + ", dob=" + patientBirthDate
-                + ", sex=" + patientSex
-                + "]";
+        return toString(ShowPatientInfo.PLAIN_TEXT);
     }
-    
+
+    public String toString(ShowPatientInfo hashPatientInfo) {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append("Patient[pk=").append(pk);
+        if (hashPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID && patientID != null)
+            sb.append(", #id=").append(patientID.toString().hashCode());
+        else
+            sb.append(", id=").append(patientID);
+        if (hashPatientInfo != ShowPatientInfo.PLAIN_TEXT && patientName != null)
+            sb.append(", #name=").append(patientName.toString().hashCode());
+        else
+            sb.append(", name=").append(patientName);
+        sb.append(']');
+        return sb.toString();
+    }
+
     @PrePersist
     public void onPrePersist() {
         Date now = new Date();

@@ -565,6 +565,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.113 NAME 'dcmStorePermissionServiceE
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.114 NAME 'dcmShowPatientInfoInSystemLog'
+  DESC 'Specifies if Patient Information is shown as plain text or hashed in system logs. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.115 NAME 'dcmShowPatientInfoInAuditLog'
+  DESC 'Specifies if Patient Information is shown as plain text or hashed in emitted audit messages. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -614,6 +624,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAuditSpoolDirectory $
     dcmAuditPollingInterval $
     dcmAuditAggregateDuration $
+    dcmShowPatientInfoInSystemLog $
+    dcmShowPatientInfoInAuditLog $
     dcmStowSpoolDirectory $
     dcmWadoSpoolDirectory $
     hl7PatientUpdateTemplateURI $
