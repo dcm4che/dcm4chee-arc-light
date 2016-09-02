@@ -3116,6 +3116,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         return instance.showAttributes ? 2 : 1;
     };
     function rsURL() {
+        console.log("$scope.aet",$scope.aet);
         return "../aets/" + $scope.aet + "/rs";
     }
     function studyURL(attrs) {
@@ -3269,8 +3270,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         $http.get("../aets").then(
             function (res) {
                 $scope.aes = MainService.getAes(user, res.data);
-                // console.log("$scope.aes",$scope.aes);
-                $scope.aet = $scope.aes[0].title;
+                console.log("$scope.aes",$scope.aes);
+                console.log("$scope.aes[0].title",$scope.aes[0].title);
+                console.log("$scope.aes[0]",$scope.aes[0]);
+                $scope.aet = $scope.aes[0].title.toString();
                 $scope.aetmodel = $scope.aes[0];
             },
             function (res) {

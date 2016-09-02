@@ -110,7 +110,7 @@
                 ng-model="aetmodel" 
                 class="col-md-12" 
                 ng-change="setTrash()"
-                ng-options="ae.title as ae.title for ae in aes"
+                ng-options="ae.title for ae in aes"
                 >
                     <!-- <option ng-repeat="ae in aes" title="{{ae.description}}" ng-click="setTrash(ae)">{{ae.title}}</option> -->
                 </select>

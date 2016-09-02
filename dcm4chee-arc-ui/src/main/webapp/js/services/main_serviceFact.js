@@ -40,6 +40,9 @@ myApp.factory('MainService', function( cfpLoadingBar, $http, user)   {
 	  	getAes: function(user, aes){
 	  		var endAes = [];
 	  		var valid;
+
+	  		console.log("user",user);
+	  		console.log("aes",aes);
 	        angular.forEach(aes, function(ae, i){
 	  			valid = false;
 		        angular.forEach(user.roles, function(user, i){
@@ -53,6 +56,7 @@ myApp.factory('MainService', function( cfpLoadingBar, $http, user)   {
 		        	endAes.push(ae);
 		        }
 	        });
+	        console.log("endAes",endAes);
 	        return endAes;
 	  	}
 	  }
