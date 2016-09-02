@@ -117,15 +117,14 @@ public class StudyServiceEJB {
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         List<Series> seriesOfStudy = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
-        String studyExpireDate = ctx.getExpirationDate();
+        LocalDate studyExpireDate = ctx.getExpirationDate();
         Study study;
         if (!seriesOfStudy.isEmpty()) {
             study = seriesOfStudy.get(0).getStudy();
             study.setExpirationDate(studyExpireDate);
             for (Series series : seriesOfStudy) {
-                LocalDate seriesExpirationDate = series.getExpirationDateAsLocalDate();
-                if (seriesExpirationDate != null && seriesExpirationDate.isAfter(
-                        LocalDate.parse(studyExpireDate, DateTimeFormatter.BASIC_ISO_DATE)))
+                LocalDate seriesExpirationDate = series.getExpirationDate();
+                if (seriesExpirationDate != null && seriesExpirationDate.isAfter(studyExpireDate))
                     series.setExpirationDate(studyExpireDate);
             }
         } else {
@@ -141,10 +140,9 @@ public class StudyServiceEJB {
         Series series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID, Series.class)
                 .setParameter(1, ctx.getStudyInstanceUID())
                 .setParameter(2, ctx.getSeriesInstanceUID()).getSingleResult();
-        LocalDate studyExpirationDate = series.getStudy().getExpirationDateAsLocalDate();
+        LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
         series.setExpirationDate(ctx.getExpirationDate());
-        if (studyExpirationDate == null || studyExpirationDate.isBefore(
-                LocalDate.parse(ctx.getExpirationDate(), DateTimeFormatter.BASIC_ISO_DATE))) {
+        if (studyExpirationDate == null || studyExpirationDate.isBefore(ctx.getExpirationDate())) {
             Study study = series.getStudy();
             study.setExpirationDate(ctx.getExpirationDate());
             ctx.setStudy(study);

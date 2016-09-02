@@ -7,6 +7,7 @@ import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.storage.WriteContext;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -87,7 +88,7 @@ public interface StoreContext {
 
     void setAvailability(Availability availability);
 
-    String getExpirationDate();
+    LocalDate getExpirationDate();
 
-    void setExpirationDate(String expirationDate);
+    void setExpirationDate(LocalDate expirationDate);
 }

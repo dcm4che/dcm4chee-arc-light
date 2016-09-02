@@ -65,6 +65,7 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -249,11 +250,11 @@ public class StoreServiceEJB {
 
     private void checkExpirationDate(Series series)
             throws DicomServiceException {
-        LocalDate studyExpirationDate = series.getStudy().getExpirationDateAsLocalDate();
+        LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
         if (studyExpirationDate == null)
             return;
 
-        LocalDate seriesExpirationDate = series.getExpirationDateAsLocalDate();
+        LocalDate seriesExpirationDate = series.getExpirationDate();
         if ((seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isAfter(LocalDate.now())) {
             throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
                     "Retention Period of Study not yet expired");
@@ -746,11 +747,8 @@ public class StoreServiceEJB {
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     responseContent = new String(out.toByteArray(), charsetOf(httpConn));
                     result = responsePattern.matcher(responseContent).find();
-                    if (result) {
-                        Pattern expirationDatePattern = arcAE.storePermissionServiceExpirationDatePattern();
-                        Matcher m = expirationDatePattern.matcher(responseContent);
-                        ctx.setExpirationDate(m.find() ? m.group(1) : null);
-                    }
+                    if (result)
+                        checkStorePermissionServiceExpirationDate(arcAE, ctx, responseContent);
                 } else {
                     result = false;
                 }
@@ -769,6 +767,17 @@ public class StoreServiceEJB {
         }
         storePermissionCache.put(urlspec, result);
         return result;
+    }
+
+    private void checkStorePermissionServiceExpirationDate(ArchiveAEExtension arcAE, StoreContext ctx, String responseContent) {
+        Pattern expirationDatePattern = arcAE.storePermissionServiceExpirationDatePattern();
+        Matcher m = expirationDatePattern.matcher(responseContent);
+        String dt = m.find() ? m.group(1) : null;
+        if (dt != null) {
+            try {
+                ctx.setExpirationDate(LocalDate.parse(dt, DateTimeFormatter.BASIC_ISO_DATE));
+            } catch (Exception e) {throw e;}
+        }
     }
 
     private String charsetOf(HttpURLConnection httpConn) {
@@ -825,12 +834,12 @@ public class StoreServiceEJB {
 
         Study study = series.getStudy();
         LocalDate expirationDate = LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
-        LocalDate studyExpirationDate = study.getExpirationDateAsLocalDate();
+        LocalDate studyExpirationDate = study.getExpirationDate();
         if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
-            study.setExpirationDate(DateTimeFormatter.BASIC_ISO_DATE.format(expirationDate));
+            study.setExpirationDate(expirationDate);
 
         if (retentionPolicy.isExpireSeriesIndividually())
-            series.setExpirationDate(DateTimeFormatter.BASIC_ISO_DATE.format(expirationDate));
+            series.setExpirationDate(expirationDate);
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
