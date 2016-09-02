@@ -27,7 +27,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.5 NAME 'dcmCustomAttribute3'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.6 NAME 'dcmEntity'
-  DESC 'Entity of the Attribute Filter or Export Rule ("Patient", "Study", "Series", "Instance", "MPPS").'
+  DESC 'Entity of the Attribute Filter or Export Rule ("Patient", "Study", "Series", "Instance", "MPPS", "MWL").'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -239,7 +239,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.47 NAME 'dcmOverwritePreviousRejecti
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.48 NAME 'dcmRevokeRejection'
-  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLATE IN FUTURE VERSION'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -279,7 +279,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.55 NAME 'dcmFallbackCMoveSCPDestinat
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.56 NAME 'dcmFallbackCMoveSCPLevel'
-  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLATE IN FUTURE VERSION'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -507,7 +507,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.101 NAME 'dcmStorePermissionServiceU
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.102 NAME 'dcmStorePermissionServiceResponsePattern'
-  DESC 'Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. (?s).*"validation"\s*:\s*"true".* . If absent, every success response will be treated as agreement for storage.'
+  DESC 'Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. "validation"\s*:\s*"true" . If absent, every success response will be treated as agreement for storage.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

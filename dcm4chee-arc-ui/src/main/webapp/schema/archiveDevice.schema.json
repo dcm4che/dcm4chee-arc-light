@@ -355,7 +355,7 @@
     },
     "dcmStorePermissionServiceResponsePattern": {
       "title": "Store Permission Service Response Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. (?s).*\"validation\"\\s*:\\s*\"true\".* . If absent, every success response will be treated as agreement for storage.",
+      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. \"validation\"\\s*:\\s*\"true\" . If absent, every success response will be treated as agreement for storage.",
       "type": "string"
     },
     "dcmStorePermissionCacheStaleTimeout": {
