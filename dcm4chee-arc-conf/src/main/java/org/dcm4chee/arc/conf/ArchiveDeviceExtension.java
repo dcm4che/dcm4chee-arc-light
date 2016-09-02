@@ -119,6 +119,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
+    private Pattern storePermissionServiceExpirationDatePattern;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -649,6 +650,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storePermissionServiceResponsePattern = storePermissionServiceResponsePattern;
     }
 
+    public Pattern getStorePermissionServiceExpirationDatePattern() {
+        return storePermissionServiceExpirationDatePattern;
+    }
+
+    public void setStorePermissionServiceExpirationDatePattern(Pattern storePermissionServiceExpirationDatePattern) {
+        this.storePermissionServiceExpirationDatePattern = storePermissionServiceExpirationDatePattern;
+    }
+
     public Duration getStorePermissionCacheStaleTimeout() {
         return storePermissionCacheStaleTimeout;
     }
@@ -1007,6 +1016,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
+        storePermissionServiceExpirationDatePattern = arcdev.storePermissionServiceExpirationDatePattern;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();
