@@ -12,12 +12,10 @@ create table uidmap (pk numeric(18,0) not null, uidmap blob not null, primary ke
 --to be checked---
 alter table instance add inst_no_int integer;
 update instance set inst_no_int = inst_no::integer where inst_no != '*';
-update instance set inst_no_int = null where inst_no = '*';
 alter table instance drop inst_no;
 alter table instance rename column inst_no_int to inst_no;
 alter table series add series_no_int integer;
 update series set series_no_int = series_no::integer where series_no != '*';
-update series set series_no_int = null where series_no = '*';
 alter table series drop series_no;
 alter table series rename column series_no_int to series_no;
 --to be checked---
