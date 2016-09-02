@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, schemas, $select, $templateRequest) {
+myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, schemas, $select, $templateRequest, MainService, user) {
 
     $scope.activeMenu             = "device_menu";
     $scope.showSave               = false;
@@ -529,7 +529,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         console.log("device",device);
         console.log("ae",ae);
         $scope.deleteDeviceTo = false;
-            var html = $compile('<label><input type="checkbox" ng-model="deleteDeviceTo" /> Delete device '+device+' to</label>')($scope);
+            var html = $compile('<label><input type="checkbox" ng-model="deleteDeviceTo" /> Delete also the device : '+device+'</label>')($scope);
             vex.dialog.open({
               message: 'Are you sure you want to unregister and delete from device the AE <b>'+ae+'</b>',
               input: html,

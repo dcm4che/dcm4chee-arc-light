@@ -3268,9 +3268,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     function initAETs(retries) {
         $http.get("../aets").then(
             function (res) {
-                $scope.aes = res.data;
-                $scope.aet = res.data[0].title;
-                $scope.aetmodel = res.data[0];
+                $scope.aes = MainService.getAes(user, res.data);
+                // console.log("$scope.aes",$scope.aes);
+                $scope.aet = $scope.aes[0].title;
+                $scope.aetmodel = $scope.aes[0];
             },
             function (res) {
                 if (retries)

@@ -12,6 +12,7 @@ myApp.factory('MainService', function( cfpLoadingBar, $http, user)   {
 				// console.log("response. user=",JSON.parse(response.data));
 				// $scope.user           = {};
 				user.username  = response.data.user;
+				user.roles = response.data.roles;
 
 				user.isRole = function(role){
 				    if(response.data.user === null && response.data.roles.length === 0){
@@ -35,6 +36,24 @@ myApp.factory('MainService', function( cfpLoadingBar, $http, user)   {
 				    };
 				}); 
 	  		}
+	  	},
+	  	getAes: function(user, aes){
+	  		var endAes = [];
+	  		var valid;
+	        angular.forEach(aes, function(ae, i){
+	  			valid = false;
+		        angular.forEach(user.roles, function(user, i){
+		            angular.forEach(ae.dcmAcceptedUserRole, function(aet, j){
+		                if(user === aet){
+		                    valid = true;
+		                }
+		            })
+		        });
+		        if(valid){
+		        	endAes.push(ae);
+		        }
+	        });
+	        return endAes;
 	  	}
 	  }
   }); 
