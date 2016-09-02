@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 public interface StoreContext {
@@ -85,4 +86,8 @@ public interface StoreContext {
     Availability getAvailability();
 
     void setAvailability(Availability availability);
+
+    String getExpirationDate();
+
+    void setExpirationDate(String expirationDate);
 }

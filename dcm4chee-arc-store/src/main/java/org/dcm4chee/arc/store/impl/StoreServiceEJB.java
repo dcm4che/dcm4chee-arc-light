@@ -78,6 +78,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -467,6 +468,8 @@ public class StoreServiceEJB {
                     pat = updatePatient(ctx, pat);
                 }
                 study = createStudy(ctx, pat);
+                if (ctx.getExpirationDate() != null)
+                    study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
             } else {
                 study = updateStudy(ctx, study);
@@ -743,6 +746,11 @@ public class StoreServiceEJB {
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     responseContent = new String(out.toByteArray(), charsetOf(httpConn));
                     result = responsePattern.matcher(responseContent).find();
+                    if (result) {
+                        Pattern expirationDatePattern = arcAE.storePermissionServiceExpirationDatePattern();
+                        Matcher m = expirationDatePattern.matcher(responseContent);
+                        ctx.setExpirationDate(m.find() ? m.group(1) : null);
+                    }
                 } else {
                     result = false;
                 }
@@ -784,7 +792,8 @@ public class StoreServiceEJB {
         series.setStudy(study);
         if (result.getRejectionNote() == null) {
             markOldStudiesAsIncomplete(ctx, series);
-            applyStudyRetentionPolicy(ctx, series);
+            if (ctx.getExpirationDate() == null)
+                applyStudyRetentionPolicy(ctx, series);
             series.setRejectionState(RejectionState.NONE);
         } else {
             series.setRejectionState(RejectionState.COMPLETE);

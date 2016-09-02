@@ -59,6 +59,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 class StoreContextImpl implements StoreContext {
@@ -84,6 +85,7 @@ class StoreContextImpl implements StoreContext {
     private final List<Location> locations = new ArrayList<>();
     private String[] retrieveAETs;
     private Availability availability;
+    private String expirationDate;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -286,5 +288,15 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setAvailability(Availability availability) {
         this.availability = availability;
+    }
+
+    @Override
+    public String getExpirationDate() {
+        return expirationDate;
+    }
+
+    @Override
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }
