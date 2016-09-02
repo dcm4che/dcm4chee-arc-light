@@ -670,6 +670,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.112 NAME 'dcmAllowDeleteStudyPermanently'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.113 NAME 'dcmStorePermissionServiceExpirationDatePattern'
+  DESC 'Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. "expirationdate"\s*:\s*"(\d[8])". If absent, locally configured Study Retention Policy Rules will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -736,6 +742,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRejectExpiredStudiesAETitle $
     dcmStorePermissionServiceURL $
     dcmStorePermissionServiceResponsePattern $
+    dcmStorePermissionServiceExpirationDatePattern $
     dcmStorePermissionCacheStaleTimeout $
     dcmStorePermissionCacheSize $
     dcmStoreUpdateDBMaxRetries $
@@ -775,6 +782,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmAltCMoveSCP $
     dcmStorePermissionServiceURL $
     dcmStorePermissionServiceResponsePattern $
+    dcmStorePermissionServiceExpirationDatePattern $
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAcceptedUserRole $
     dcmAllowDeleteStudyPermanently ))
