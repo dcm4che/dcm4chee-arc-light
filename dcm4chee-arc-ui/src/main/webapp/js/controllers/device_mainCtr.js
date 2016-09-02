@@ -281,23 +281,25 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         }
                 };
                 $scope.netAEForm = [
-                "dicomAETitle",
-
-                {
-                "type": "conditional",
-                "condition": "selctedDeviceObject.dicomNetworkConnection",
-                "key":"dicomNetworkConnectionReference",
-                "type": "checkboxes",
-                "titleMap": dicomconn,
-                "required": true
-                },
-                {
-                "type": "help",
-                "condition": "!selctedDeviceObject.dicomNetworkConnection",
-                "helpvalue": "To be able to select the reference create first a network connection, the selected device doesn't have any connections!",
-                "required": true
-                },        
-                {
+                    {
+                        "key":"dicomAETitle",
+                        "onChange":"setNamesOfDevice()"
+                    },
+                    {
+                        "type": "conditional",
+                        "condition": "selctedDeviceObject.dicomNetworkConnection",
+                        "key":"dicomNetworkConnectionReference",
+                        "type": "checkboxes",
+                        "titleMap": dicomconn,
+                        "required": true
+                    },
+                    {
+                    "type": "help",
+                    "condition": "!selctedDeviceObject.dicomNetworkConnection",
+                    "helpvalue": "To be able to select the reference create first a network connection, the selected device doesn't have any connections!",
+                    "required": true
+                    },        
+                    {
                     "key": "dicomAssociationInitiator",
                     // "key": i,
                     "type": "radios",
@@ -391,10 +393,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
         $scope.getDevice(); // Refresh the references
     };
     $scope.getConn = function(){
-        console.log("getconn called");
+        console.log("getconn called",$scope.activetab);
         console.log("1$scope.newAetModel.dicomNetworkConnection",$scope.newAetModel.dicomNetworkConnection);
 
-        if($scope.newAetModel && $scope.newAetModel.dicomNetworkConnection && $scope.newAetModel.dicomNetworkConnection[0] && $scope.newAetModel.dicomNetworkConnection[0].cn && $scope.newAetModel.dicomNetworkConnection[0].cn != ""){
+        if($scope.newAetModel && $scope.activetab === "createdevice" && $scope.newAetModel.dicomNetworkConnection && $scope.newAetModel.dicomNetworkConnection[0] && $scope.newAetModel.dicomNetworkConnection[0].cn && $scope.newAetModel.dicomNetworkConnection[0].cn != ""){
             console.log("if");
             var dicomconn = [];
             // if($scope.newAetModel && $scope.newAetModel.dicomNetworkConnection){
@@ -404,7 +406,10 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
             });
             // }
             $scope.netAEForm = [
-                "dicomAETitle",
+                {
+                    "key":"dicomAETitle",
+                    "onChange":"setNamesOfDevice()"
+                },
                 {
                 "type": "conditional",
                 "condition": "newAetModel.dicomNetworkConnection[0].cn",
@@ -443,8 +448,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         "name": "False"
                     }]
                 }];
-        }else{
-
         }
     }
     $scope.changeTabAERegister = function(tabname){
@@ -510,8 +513,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
     };
     $scope.setNamesOfDevice = function(){
        if($scope.activetab === "createdevice"){
-            console.log("dicomAETitle=",$scope.newAetModel.dicomNetworkAE[0].dicomAETitle);
-            console.log("devicename=",$scope.newAetModel.dicomDeviceName);
+            // console.log("dicomAETitle=",$scope.newAetModel.dicomNetworkAE[0].dicomAETitle);
+            // console.log("devicename=",$scope.newAetModel.dicomDeviceName);
             if( 
                 $scope.newAetModel.dicomNetworkAE[0] && 
                 $scope.newAetModel.dicomNetworkAE[0].dicomAETitle &&
@@ -526,8 +529,6 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
        }
     };
     $scope.deleteAE = function(device, ae){
-        console.log("device",device);
-        console.log("ae",ae);
         $scope.deleteDeviceTo = false;
             var html = $compile('<label><input type="checkbox" ng-model="deleteDeviceTo" /> Delete also the device : '+device+'</label>')($scope);
             vex.dialog.open({
@@ -544,8 +545,8 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                 if (data === false) {
                   return console.log('Cancelled');
                 }else{
-                    console.log("$scope.deleteDeviceTo",$scope.deleteDeviceTo);
-                    console.log("data",data);
+                    // console.log("$scope.deleteDeviceTo",$scope.deleteDeviceTo);
+                    // console.log("data",data);
                     // console.log("in else deleteDeviceto=",deleteDeviceTo);
                     // $http.post(studyURL(study.attrs) + '/export/' + $scope.exporterID);
                     $http.delete(
