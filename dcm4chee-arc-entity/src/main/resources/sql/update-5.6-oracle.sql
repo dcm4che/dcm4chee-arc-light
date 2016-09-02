@@ -11,12 +11,10 @@ create table uidmap (pk number(19,0) not null, uidmap blob not null, primary key
 
 alter table instance add inst_no_int number(10,0);
 update instance set inst_no_int = inst_no where inst_no != '*';
-update instance set inst_no_int = null where inst_no = '*';
 alter table instance drop column inst_no;
 alter table instance rename column inst_no_int to inst_no;
 alter table series add series_no_int number(10,0);
 update series set series_no_int = series_no where series_no != '*';
-update series set series_no_int = null where series_no = '*';
 alter table series drop column series_no;
 alter table series rename column series_no_int to series_no;
 

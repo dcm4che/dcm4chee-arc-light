@@ -11,12 +11,10 @@ create table uidmap (pk int8 not null, uidmap bytea not null, primary key (pk));
 
 alter table instance add inst_no_int int4;
 update instance set inst_no_int = inst_no::int4 where inst_no != '*';
-update instance set inst_no_int = null where inst_no = '*';
 alter table instance drop inst_no;
 alter table instance rename inst_no_int to inst_no;
 alter table series add series_no_int int4;
 update series set series_no_int = series_no::int4 where series_no != '*';
-update series set series_no_int = null where series_no = '*';
 alter table series drop series_no;
 alter table series rename series_no_int to series_no;
 
