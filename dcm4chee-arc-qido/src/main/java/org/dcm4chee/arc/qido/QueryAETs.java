@@ -86,7 +86,6 @@ public class QueryAETs {
                 w.write('[');
                 for (String aet : device.getApplicationAETitles()) {
                     ApplicationEntity ae = device.getApplicationEntity(aet);
-                    ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
                     if (!ae.isInstalled())
                         continue;
                     if (count++ > 0)
@@ -103,7 +102,7 @@ public class QueryAETs {
                     if (ae.getAEExtension(ArchiveAEExtension.class)
                             .getQueryRetrieveView().isHideNotRejectedInstances())
                         w.write(",\"dcmHideNotRejectedInstances\":true");
-                    String[] acceptedUserRoles = arcAE.getAcceptedUserRoles();
+                    String[] acceptedUserRoles = ae.getAEExtension(ArchiveAEExtension.class).getAcceptedUserRoles();
                     if (acceptedUserRoles.length != 0) {
                         w.write(",\"dcmAcceptedUserRole\":[\"");
                         for (int i = 0; i < acceptedUserRoles.length; i++) {
