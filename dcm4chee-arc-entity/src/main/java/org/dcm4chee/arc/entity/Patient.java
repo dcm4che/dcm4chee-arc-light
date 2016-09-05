@@ -143,6 +143,7 @@ public class Patient {
     @Column(name = "pat_custom3")
     private String patientCustomAttribute3;
 
+    @Basic(optional = false)
     @Column(name = "num_studies")
     private int numberOfStudies;
 
