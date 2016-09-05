@@ -204,7 +204,7 @@ public class ArchiveServiceImpl implements ArchiveService {
         storePermissionCache.setStaleTimeout(
                 arcdev.getStorePermissionCacheStaleTimeoutSeconds() * 1000L);
         storePermissionCache.setMaxSize(arcdev.getStorePermissionCacheSize());
-        Patient.setShowPatientInfo(arcdev.showPatientInfo());
+        Patient.setShowPatientInfo(arcdev.showPatientInfoInSystemLog());
     }
 
 }
