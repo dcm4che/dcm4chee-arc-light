@@ -630,14 +630,14 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         }
                         DeviceService.msg($scope, {
                             "title": "Info",
-                            "text": "Aet unregestered succsesfully!",
+                            "text": "Aet unregistered successfully!",
                             "status": "info"
                         });
                     // });
                     },function errorCallback(response) {
                         DeviceService.msg($scope, {
                             "title": "Error",
-                            "text": "Aet couldn't be unregestered!",
+                            "text": "Aet couldn't be unregistered!",
                             "status": "error"
                         });
                     });
@@ -950,17 +950,17 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                       console.log('1Cancelled');
                       return false;
                     }else{
-                        console.log("not cacelled +$scope.newAet=",$scope.newAet);
+                        console.log("not cancelled +$scope.newAet=",$scope.newAet);
                         $http.post(
                             "../unique/aets/"+$scope.netAEModel.dicomAETitle
                         ).then(function successCallback(response) {
-                            console.log("succes response",response);
+                            console.log("success response",response);
                             if($scope.activetab === "createdevice"){
                                 $http.post("../devices/" + $scope.newAetModel.dicomDeviceName, $scope.newAetModel)
                                 .success(function(data, status, headers, config) {
                                     DeviceService.msg($scope, {
                                         "title": "Info",
-                                        "text": "Aet registerd successfully!<br>Device created successfully!",
+                                        "text": "Aet registered successfully!<br>Device created successfully!",
                                         "status": "info"
                                     });
                                     $http.post("../ctrl/reload").then(function (res) {
@@ -979,7 +979,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                     ).then(function successCallback(response) {
                                         DeviceService.msg($scope, {
                                             "title": "Error",
-                                            "text": "Aet couldn't be regestered!",
+                                            "text": "Aet couldn't be registered!",
                                             "status": "error"
                                         });
                                     });
@@ -992,7 +992,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                 .success(function(data, status, headers, config) {
                                     DeviceService.msg($scope, {
                                         "title": "Info",
-                                        "text": "Aet registerd and added to device successfully!",
+                                        "text": "Aet registered and added to device successfully!",
                                         "status": "info"
                                     });
                                     $http.post("../ctrl/reload").then(function (res) {
@@ -1011,7 +1011,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                     ).then(function successCallback(response) {
                                         DeviceService.msg($scope, {
                                             "title": "Error",
-                                            "text": "Aet couldn't be regestered!",
+                                            "text": "Aet couldn't be registered!",
                                             "status": "error"
                                         });
                                     });
@@ -1019,7 +1019,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                             }
                             // DeviceService.msg($scope, {
                             //     "title": "Info",
-                            //     "text": "Aet registerd successfully!",
+                            //     "text": "Aet registered successfully!",
                             //     "status": "info"
                             // });
                             vex.close($scope.$vexAe.id);
