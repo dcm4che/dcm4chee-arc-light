@@ -60,7 +60,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String storageID;
     private String metadataStorageID;
     private OverwritePolicy overwritePolicy;
-    private ShowPatientInfo showPatientInfo;
+    private ShowPatientInfo showPatientInfoInSystemLog;
+    private ShowPatientInfo showPatientInfoInAuditLog;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
     private boolean sendPendingCGet = false;
@@ -174,16 +175,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.overwritePolicy = overwritePolicy;
     }
 
-    public ShowPatientInfo getShowPatientInfo() {
-        return showPatientInfo;
+    public ShowPatientInfo getShowPatientInfoInSystemLog() {
+        return showPatientInfoInSystemLog;
     }
 
-    public ShowPatientInfo showPatientInfo() {
-        return showPatientInfo != null ? showPatientInfo : ShowPatientInfo.PLAIN_TEXT;
+    public ShowPatientInfo showPatientInfoInSystemLog() {
+        return showPatientInfoInSystemLog != null ? showPatientInfoInSystemLog : ShowPatientInfo.PLAIN_TEXT;
     }
 
-    public void setShowPatientInfo(ShowPatientInfo showPatientInfo) {
-        this.showPatientInfo = showPatientInfo;
+    public void setShowPatientInfoInSystemLog(ShowPatientInfo showPatientInfoInSystemLog) {
+        this.showPatientInfoInSystemLog = showPatientInfoInSystemLog;
+    }
+
+    public ShowPatientInfo getShowPatientInfoInAuditLog() {
+        return showPatientInfoInAuditLog;
+    }
+
+    public void setShowPatientInfoInAuditLog(ShowPatientInfo showPatientInfoInAuditLog) {
+        this.showPatientInfoInAuditLog = showPatientInfoInAuditLog;
+    }
+
+    public ShowPatientInfo showPatientInfoInAuditLog() {
+        return showPatientInfoInAuditLog != null ? showPatientInfoInAuditLog : ShowPatientInfo.PLAIN_TEXT;
     }
 
     public AcceptMissingPatientID getAcceptMissingPatientID() {
@@ -968,7 +981,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageID = arcdev.storageID;
         metadataStorageID = arcdev.metadataStorageID;
         overwritePolicy = arcdev.overwritePolicy;
-        showPatientInfo = arcdev.showPatientInfo;
+        showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
+        showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         queryRetrieveViewID = arcdev.queryRetrieveViewID;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
