@@ -145,6 +145,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID());
         LdapUtils.storeNotNull(attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceExpirationDatePattern", ext.getStorePermissionServiceExpirationDatePattern());
+        LdapUtils.storeNotNull(attrs, "dcmShowPatientInfoInSystemLog", ext.getShowPatientInfoInSystemLog());
+        LdapUtils.storeNotNull(attrs, "dcmShowPatientInfoInAuditLog", ext.getShowPatientInfoInAuditLog());
     }
 
     @Override
@@ -224,6 +226,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.enumValue(AcceptMissingPatientID.class, attrs.get("dcmAcceptMissingPatientID"), null));
         ext.setAllowDeleteStudyPermanently(LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
+        ext.setShowPatientInfoInSystemLog(LdapUtils.enumValue(ShowPatientInfo.class, attrs.get("dcmShowPatientInfoInSystemLog"), null));
+        ext.setShowPatientInfoInAuditLog(LdapUtils.enumValue(ShowPatientInfo.class, attrs.get("dcmShowPatientInfoInAuditLog"), null));
     }
 
     @Override
@@ -347,6 +351,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmAllowDeleteStudyPermanently", aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently());
         LdapUtils.storeDiff(mods, "dcmStorePermissionServiceExpirationDatePattern",
                 aa.getStorePermissionServiceExpirationDatePattern(), bb.getStorePermissionServiceExpirationDatePattern());
+        LdapUtils.storeDiff(mods, "dcmShowPatientInfoInSystemLog", aa.getShowPatientInfoInSystemLog(), bb.getShowPatientInfoInSystemLog());
+        LdapUtils.storeDiff(mods, "dcmShowPatientInfoInAuditLog", aa.getShowPatientInfoInAuditLog(), bb.getShowPatientInfoInAuditLog());
     }
 
     @Override

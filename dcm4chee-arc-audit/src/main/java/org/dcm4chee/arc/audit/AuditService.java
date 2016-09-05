@@ -52,6 +52,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ShowPatientInfo;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
@@ -196,13 +197,13 @@ public class AuditService {
         return new BuildAuditInfo.Builder().callingAET(callingAET).callingHost(req.getRemoteHost()).calledAET(req.getRequestURI())
                 .studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
                 .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
-                .pName(null != p.getPatientName().toString() ? p.getPatientName().toString() : null).build();
+                .pName(null != p.getPatientName().toString() ? getPlainOrHashedPatientName(p.getPatientName().toString()) : null).build();
     }
 
     private BuildAuditInfo buildPermDeletionAuditInfoForScheduler(StudyDeleteContext ctx, Study s, Patient p) {
         return new BuildAuditInfo.Builder().studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
                 .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
-                .pName(null != p.getPatientName().toString() ? p.getPatientName().toString() : null).build();
+                .pName(null != p.getPatientName().toString() ? getPlainOrHashedPatientName(p.getPatientName().toString()) : null).build();
     }
 
     private void auditDeletion(SpoolFileReader readerObj, AuditServiceUtils.EventType eventType) {
@@ -562,8 +563,8 @@ public class AuditService {
                 dest = ctx.getAssociation().getCalledAET();
             }
             String pID = eventType == AuditServiceUtils.EventType.PAT_DELETE && ctx.getPreviousPatientID() != null
-                    ? ctx.getPreviousPatientID().toString()
-                    : ctx.getPatientID() != null ? ctx.getPatientID().toString() : noValue;
+                    ? getPlainOrHashedPatientID(ctx.getPreviousPatientID().toString())
+                    : ctx.getPatientID() != null ? getPlainOrHashedPatientID(ctx.getPatientID().toString()) : noValue;
             String pName = eventType == AuditServiceUtils.EventType.PAT_DELETE && ctx.getPreviousAttributes() != null
                     ? StringUtils.maskEmpty(pName(ctx.getPreviousAttributes()), null)
                     : StringUtils.maskEmpty(pName(ctx.getAttributes()), null);
@@ -729,12 +730,38 @@ public class AuditService {
     private String getPID(Attributes attrs) {
         return attrs != null
                 ? attrs.getString(Tag.PatientID) != null
-                ? IDWithIssuer.pidOf(attrs).toString() : noValue
+                ? getPlainOrHashedPatientID(IDWithIssuer.pidOf(attrs).toString()) : noValue
                 : null;
     }
 
     private String pName(Attributes attr) {
-        return attr != null ? attr.getString(Tag.PatientName) : null;
+        return attr != null
+                ? attr.getString(Tag.PatientName) != null
+                ? getPlainOrHashedPatientName(attr.getString(Tag.PatientName))
+                : null
+                : null;
+    }
+
+    private String getPlainOrHashedPatientName(String pName) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ShowPatientInfo showPatientInfo = arcDev.showPatientInfoInAuditLog();
+        StringBuilder sb = new StringBuilder(256);
+        if (showPatientInfo != ShowPatientInfo.PLAIN_TEXT)
+            sb.append(pName.hashCode());
+        else
+            sb.append(pName);
+        return sb.toString();
+    }
+
+    private String getPlainOrHashedPatientID(String pID) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ShowPatientInfo showPatientInfo = arcDev.showPatientInfoInAuditLog();
+        StringBuilder sb = new StringBuilder(256);
+        if (showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID)
+            sb.append(pID.hashCode());
+        else
+            sb.append(pID);
+        return sb.toString();
     }
 
     private String getOD(Exception e) {

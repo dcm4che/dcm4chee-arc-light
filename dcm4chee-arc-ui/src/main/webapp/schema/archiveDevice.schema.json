@@ -400,6 +400,26 @@
       "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"(\\d[8])\". If absent, locally configured Study Retention Policy Rules will be applied.",
       "type": "string"
     },
+    "dcmShowPatientInfoInSystemLog": {
+      "title": "Show Patient Info In System Log",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in system logs. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
+      "type": "string",
+      "enum": [
+        "PLAIN_TEXT",
+        "HASH_NAME",
+        "HASH_NAME_AND_ID"
+      ]
+    },
+    "dcmShowPatientInfoInAuditLog": {
+      "title": "Show Patient Info In Audit Log",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in emitted audit messages. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
+      "type": "string",
+      "enum": [
+        "PLAIN_TEXT",
+        "HASH_NAME",
+        "HASH_NAME_AND_ID"
+      ]
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",

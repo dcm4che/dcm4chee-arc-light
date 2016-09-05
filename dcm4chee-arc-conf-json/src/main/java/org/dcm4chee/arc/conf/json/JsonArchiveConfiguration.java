@@ -139,6 +139,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID());
         writer.writeNotNull("dcmAllowDeleteStudyPermanently", arcDev.getAllowDeleteStudyPermanently());
         writer.writeNotNull("dcmStorePermissionServiceExpirationDatePattern", arcDev.getStorePermissionServiceExpirationDatePattern());
+        writer.writeNotNull("dcmShowPatientInfoInSystemLog", arcDev.getShowPatientInfoInSystemLog());
+        writer.writeNotNull("dcmShowPatientInfoInAuditLog", arcDev.getShowPatientInfoInAuditLog());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -619,6 +621,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionServiceExpirationDatePattern":
                     arcDev.setStorePermissionServiceExpirationDatePattern(Pattern.compile(reader.stringValue()));
+                    break;
+                case "dcmShowPatientInfoInSystemLog":
+                    arcDev.setShowPatientInfoInSystemLog(ShowPatientInfo.valueOf(reader.stringValue()));
+                    break;
+                case "dcmShowPatientInfoInAuditLog":
+                    arcDev.setShowPatientInfoInAuditLog(ShowPatientInfo.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
