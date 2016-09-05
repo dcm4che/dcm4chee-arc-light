@@ -49,6 +49,7 @@ import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.StorePermission;
 import org.dcm4chee.arc.StorePermissionCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
@@ -65,7 +66,6 @@ import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -78,6 +78,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -186,8 +187,7 @@ public class StoreServiceEJB {
                     return result;
             }
         }
-        AcceptMissingPatientID acceptMissingPatientID = arcAE.acceptMissingPatientID();
-        Instance instance = createInstance(ctx, conceptNameCode, result, acceptMissingPatientID);
+        Instance instance = createInstance(ctx, conceptNameCode, result);
         if (ctx.getLocations().isEmpty())
             createLocations(ctx, instance, result);
         else
@@ -441,17 +441,15 @@ public class StoreServiceEJB {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
-    private Instance createInstance(
-            StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result, AcceptMissingPatientID acceptMissingPatientID)
+    private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)
             throws DicomServiceException {
         Series series = findSeries(ctx, result);
         if (series == null) {
             Study study = findStudy(ctx, result);
             if (study == null) {
-                if (!checkStorePermission(ctx))
-                    throw new DicomServiceException(Status.NotAuthorized, "Storage denied");
-
-                acceptMissingPatientID(ctx.getAttributes(), acceptMissingPatientID);
+                if (!checkMissingPatientID(ctx))
+                    throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
+                            "Storage denied as Patient ID missing in object");
 
                 StoreSession session = ctx.getStoreSession();
                 HttpServletRequest httpRequest = session.getHttpRequest();
@@ -462,6 +460,9 @@ public class StoreServiceEJB {
                         : patientService.createPatientMgtContextHL7(session.getSocket(), session.getHL7MessageHeader());
                 patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);
+                if (!checkStorePermission(ctx, pat))
+                    throw new DicomServiceException(Status.NotAuthorized, "Storage denied");
+
                 if (pat == null) {
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
@@ -472,12 +473,12 @@ public class StoreServiceEJB {
                 if (ctx.getExpirationDate() != null)
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
-            } else {
+            } else if (checkStorePermission(ctx, study.getPatient())) {
                 study = updateStudy(ctx, study);
                 updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study, result);
-        } else {
+        } else if (checkStorePermission(ctx, series.getStudy().getPatient())) {
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
             updatePatient(ctx, series.getStudy().getPatient());
@@ -487,19 +488,19 @@ public class StoreServiceEJB {
         return instance;
     }
 
-    private void acceptMissingPatientID(Attributes attrs, AcceptMissingPatientID acceptMissingPatientID)
-            throws DicomServiceException {
-        if (attrs.getString(Tag.PatientID) == null)
-            switch (acceptMissingPatientID) {
-                case NO:
-                    throw new DicomServiceException(
-                            StoreService.PATIENT_ID_MISSING_IN_OBJECT, "Storage denied as Patient ID missing in object");
-                case CREATE:
-                    idService.newPatientID(attrs);
-                    break;
-                case YES:
-                    break;
-            }
+    private boolean checkMissingPatientID(StoreContext ctx) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        AcceptMissingPatientID acceptMissingPatientID = arcAE.acceptMissingPatientID();
+        if (acceptMissingPatientID == AcceptMissingPatientID.YES
+                || ctx.getAttributes().containsValue(Tag.PatientID))
+            return true;
+
+        if (acceptMissingPatientID == AcceptMissingPatientID.NO)
+            return false;
+
+        idService.newPatientID(ctx.getAttributes());
+        return true;
     }
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {
@@ -715,21 +716,27 @@ public class StoreServiceEJB {
         return study;
     }
 
-    private boolean checkStorePermission(StoreContext ctx) {
+    private boolean checkStorePermission(StoreContext ctx, Patient pat) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         String serviceURL = arcAE.storePermissionServiceURL();
         if (serviceURL == null)
             return true;
 
-        String urlspec = new AttributesFormat(serviceURL).format(ctx.getAttributes());
-        Boolean result = storePermissionCache.get(urlspec);
-        if (result != null) {
-            LOG.debug("{}: Use cached result of Query Store Permission Service {} - {}", session, urlspec, result);
-            return result;
+        Attributes attrs = ctx.getAttributes();
+        if (pat != null)
+            attrs.addAll(pat.getAttributes());
+        String urlspec = new AttributesFormat(serviceURL).format(attrs);
+        StorePermission storePermission = storePermissionCache.get(urlspec);
+        if (storePermission != null) {
+            LOG.debug("{}: Use cached result of Query Store Permission Service {} - {}", session, urlspec, storePermission);
+            ctx.setExpirationDate(storePermission.expirationDate);
+            return storePermission.granted;
         }
 
         LOG.info("{}: Query Store Permission Service {}", session, urlspec);
+        boolean granted = false;
+        LocalDate expirationDate = null;
         try {
             URL url = new URL(urlspec);
             HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
@@ -740,44 +747,45 @@ public class StoreServiceEJB {
             int responseCode = httpConn.getResponseCode();
             String responseContent = null;
             Pattern responsePattern = arcAE.storePermissionServiceResponsePattern();
-            if (responsePattern == null) {
-                result = responseCode == HttpURLConnection.HTTP_OK
+            Pattern expirationDatePattern = arcAE.storePermissionServiceExpirationDatePattern();
+            if (responsePattern == null && expirationDatePattern == null) {
+                granted = responseCode == HttpURLConnection.HTTP_OK
                         || responseCode == HttpURLConnection.HTTP_NO_CONTENT;
             } else {
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     responseContent = new String(out.toByteArray(), charsetOf(httpConn));
-                    result = responsePattern.matcher(responseContent).find();
-                    if (result)
-                        checkStorePermissionServiceExpirationDate(arcAE, ctx, responseContent);
-                } else {
-                    result = false;
+                    granted = responsePattern == null || responsePattern.matcher(responseContent).find();
+                    if (granted && expirationDatePattern != null) {
+                        Matcher matcher = expirationDatePattern.matcher(responseContent);
+                        if (matcher.find()) {
+                            String s = matcher.group(1);
+                            try {
+                                expirationDate = LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
+                            } catch (DateTimeParseException e) {
+                                LOG.warn("{}: Store Permission Service {} returns invalid Expiration Date: {} - ignored",
+                                        session, urlspec, s);
+                            }
+                        } else {
+                            LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not contains expiration date {}",
+                            session, urlspec, responseContent, expirationDatePattern);
+                        }
+                    }
                 }
             }
-            if (result == false) {
-                if (responseContent == null)
-                    LOG.info("{}: Store Permission Service {} returns HTTP Status: {} - storage denied",
+            if (!granted) {
+                if (responseContent == null || responsePattern == null)
+                    LOG.info("{}: Store Permission Service {} returns HTTP Status: {}",
                             session, urlspec, responseCode);
                 else
-                    LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not match {} - storage denied",
+                    LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not match {}",
                             session, urlspec, responseContent, responsePattern);
             }
         } catch (Exception e) {
             LOG.warn("{}: Failed to query Store Permission Service {}:\n", session, urlspec, e);
-            result = false;
         }
-        storePermissionCache.put(urlspec, result);
-        return result;
-    }
-
-    private void checkStorePermissionServiceExpirationDate(ArchiveAEExtension arcAE, StoreContext ctx, String responseContent) {
-        Pattern expirationDatePattern = arcAE.storePermissionServiceExpirationDatePattern();
-        Matcher m = expirationDatePattern.matcher(responseContent);
-        String dt = m.find() ? m.group(1) : null;
-        if (dt != null) {
-            try {
-                ctx.setExpirationDate(LocalDate.parse(dt, DateTimeFormatter.BASIC_ISO_DATE));
-            } catch (Exception e) {throw e;}
-        }
+        storePermissionCache.put(urlspec, new StorePermission(granted, expirationDate));
+        ctx.setExpirationDate(expirationDate);
+        return granted;
     }
 
     private String charsetOf(HttpURLConnection httpConn) {

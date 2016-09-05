@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,12 +40,24 @@
 
 package org.dcm4chee.arc;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.time.LocalDate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2016
+ * @since Sep 2016
  */
-@ApplicationScoped
-public class StorePermissionCache extends Cache<String,StorePermission> {
+public class StorePermission {
+
+    public final boolean granted;
+    public final LocalDate expirationDate;
+
+    public StorePermission(boolean granted, LocalDate expirationDate) {
+        this.granted = granted;
+        this.expirationDate = expirationDate;
+    }
+
+    @Override
+    public String toString() {
+        return "StorePermission[granted=" + granted + ", expirationDate=" + expirationDate + ']';
+    }
 }
