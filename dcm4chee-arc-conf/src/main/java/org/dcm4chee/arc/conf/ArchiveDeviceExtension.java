@@ -60,6 +60,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String storageID;
     private String metadataStorageID;
     private OverwritePolicy overwritePolicy;
+    private ShowPatientInfo showPatientInfo;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
     private boolean sendPendingCGet = false;
@@ -171,6 +172,18 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setOverwritePolicy(OverwritePolicy overwritePolicy) {
         this.overwritePolicy = overwritePolicy;
+    }
+
+    public ShowPatientInfo getShowPatientInfo() {
+        return showPatientInfo;
+    }
+
+    public ShowPatientInfo showPatientInfo() {
+        return showPatientInfo != null ? showPatientInfo : ShowPatientInfo.PLAIN_TEXT;
+    }
+
+    public void setShowPatientInfo(ShowPatientInfo showPatientInfo) {
+        this.showPatientInfo = showPatientInfo;
     }
 
     public AcceptMissingPatientID getAcceptMissingPatientID() {
@@ -955,6 +968,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageID = arcdev.storageID;
         metadataStorageID = arcdev.metadataStorageID;
         overwritePolicy = arcdev.overwritePolicy;
+        showPatientInfo = arcdev.showPatientInfo;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         queryRetrieveViewID = arcdev.queryRetrieveViewID;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;

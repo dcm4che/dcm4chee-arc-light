@@ -162,20 +162,26 @@ public class Patient {
     @JoinColumn(name = "patient_id_fk")
     private PatientID patientID;
 
-    @Override
-    public String toString() {
-        return toString(ShowPatientInfo.PLAIN_TEXT);
+    private static ShowPatientInfo showPatientInfo = ShowPatientInfo.PLAIN_TEXT;
+
+    public static ShowPatientInfo getShowPatientInfo() {
+        return showPatientInfo;
     }
 
-    public String toString(ShowPatientInfo hashPatientInfo) {
+    public static void setShowPatientInfo(ShowPatientInfo showPatientInfo) {
+        Patient.showPatientInfo = showPatientInfo;
+    }
+
+    @Override
+    public String toString() {
         StringBuilder sb = new StringBuilder(256);
         sb.append("Patient[pk=").append(pk);
-        if (hashPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID && patientID != null)
-            sb.append(", #id=").append(patientID.toString().hashCode());
+        if (showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID && patientID != null)
+            sb.append(", id=#").append(patientID.toString().hashCode());
         else
             sb.append(", id=").append(patientID);
-        if (hashPatientInfo != ShowPatientInfo.PLAIN_TEXT && patientName != null)
-            sb.append(", #name=").append(patientName.toString().hashCode());
+        if (showPatientInfo != ShowPatientInfo.PLAIN_TEXT && patientName != null)
+            sb.append(", name=#").append(patientName.toString().hashCode());
         else
             sb.append(", name=").append(patientName);
         sb.append(']');
