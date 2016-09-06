@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,14 +38,14 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc;
-
-import javax.enterprise.context.ApplicationScoped;
+package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2016
+ * @since Sep 2016
  */
-@ApplicationScoped
-public class StorePermissionCache extends Cache<String,StorePermission> {
+public enum ShowPatientInfo {
+    PLAIN_TEXT,
+    HASH_NAME,
+    HASH_NAME_AND_ID
 }

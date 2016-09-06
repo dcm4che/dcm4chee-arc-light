@@ -91,9 +91,9 @@ public interface StudyMgtContext {
 
     void setException(Exception exception);
 
-    String getExpirationDate();
+    LocalDate getExpirationDate();
 
-    void setExpirationDate(String expirationDate);
+    void setExpirationDate(LocalDate expirationDate);
 
     String getSeriesInstanceUID();
 

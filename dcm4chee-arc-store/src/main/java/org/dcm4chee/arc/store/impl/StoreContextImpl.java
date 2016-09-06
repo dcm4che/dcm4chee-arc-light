@@ -52,6 +52,7 @@ import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -59,6 +60,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 class StoreContextImpl implements StoreContext {
@@ -84,6 +86,7 @@ class StoreContextImpl implements StoreContext {
     private final List<Location> locations = new ArrayList<>();
     private String[] retrieveAETs;
     private Availability availability;
+    private LocalDate expirationDate;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -286,5 +289,15 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setAvailability(Availability availability) {
         this.availability = availability;
+    }
+
+    @Override
+    public LocalDate getExpirationDate() {
+        return expirationDate;
+    }
+
+    @Override
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }

@@ -86,6 +86,7 @@ public class ArchiveAEExtension extends AEExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
+    private Pattern storePermissionServiceExpirationDatePattern;
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -463,6 +464,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getStorePermissionServiceResponsePattern();
     }
 
+    public Pattern getStorePermissionServiceExpirationDatePattern() {
+        return storePermissionServiceExpirationDatePattern;
+    }
+
+    public void setStorePermissionServiceExpirationDatePattern(Pattern storePermissionServiceExpirationDatePattern) {
+        this.storePermissionServiceExpirationDatePattern = storePermissionServiceExpirationDatePattern;
+    }
+
+    public Pattern storePermissionServiceExpirationDatePattern() {
+        return storePermissionServiceExpirationDatePattern != null
+                ? storePermissionServiceExpirationDatePattern
+                : getArchiveDeviceExtension().getStorePermissionServiceExpirationDatePattern();
+    }
+
     public QueryRetrieveView getQueryRetrieveView() {
         return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
     }
@@ -616,6 +631,7 @@ public class ArchiveAEExtension extends AEExtension {
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
+        storePermissionServiceExpirationDatePattern = aeExt.storePermissionServiceExpirationDatePattern;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

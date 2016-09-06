@@ -194,6 +194,11 @@
         "REJECTED"
       ]
     },
+    "dcmStorePermissionServiceExpirationDatePattern": {
+      "title": "Store Permission Service Expiration Date Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"(\\d[8])\". If absent, locally configured Study Retention Policy Rules will be applied.",
+      "type": "string"
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rule",

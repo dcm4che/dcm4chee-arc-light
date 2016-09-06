@@ -375,12 +375,19 @@ public class Study {
         this.rejectionState = rejectionState;
     }
 
-    public LocalDate getExpirationDateAsLocalDate() {
+    public LocalDate getExpirationDate() {
         return expirationDate != null ? LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE) : null;
     }
 
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
+    public void setExpirationDate(LocalDate expirationDate) {
+        if (expirationDate != null) {
+            try {
+                this.expirationDate = DateTimeFormatter.BASIC_ISO_DATE.format(expirationDate);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else
+            this.expirationDate = null;
     }
 
     public String getFailedSOPInstanceUIDList() {

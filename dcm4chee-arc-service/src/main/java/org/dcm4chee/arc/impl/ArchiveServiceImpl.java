@@ -51,6 +51,7 @@ import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceRegistry;
 import org.dcm4chee.arc.*;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.Patient;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -203,6 +204,7 @@ public class ArchiveServiceImpl implements ArchiveService {
         storePermissionCache.setStaleTimeout(
                 arcdev.getStorePermissionCacheStaleTimeoutSeconds() * 1000L);
         storePermissionCache.setMaxSize(arcdev.getStorePermissionCacheSize());
+        Patient.setShowPatientInfo(arcdev.showPatientInfoInSystemLog());
     }
 
 }

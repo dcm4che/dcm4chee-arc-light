@@ -60,6 +60,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String storageID;
     private String metadataStorageID;
     private OverwritePolicy overwritePolicy;
+    private ShowPatientInfo showPatientInfoInSystemLog;
+    private ShowPatientInfo showPatientInfoInAuditLog;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
     private boolean sendPendingCGet = false;
@@ -119,6 +121,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
+    private Pattern storePermissionServiceExpirationDatePattern;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -170,6 +173,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setOverwritePolicy(OverwritePolicy overwritePolicy) {
         this.overwritePolicy = overwritePolicy;
+    }
+
+    public ShowPatientInfo getShowPatientInfoInSystemLog() {
+        return showPatientInfoInSystemLog;
+    }
+
+    public ShowPatientInfo showPatientInfoInSystemLog() {
+        return showPatientInfoInSystemLog != null ? showPatientInfoInSystemLog : ShowPatientInfo.PLAIN_TEXT;
+    }
+
+    public void setShowPatientInfoInSystemLog(ShowPatientInfo showPatientInfoInSystemLog) {
+        this.showPatientInfoInSystemLog = showPatientInfoInSystemLog;
+    }
+
+    public ShowPatientInfo getShowPatientInfoInAuditLog() {
+        return showPatientInfoInAuditLog;
+    }
+
+    public void setShowPatientInfoInAuditLog(ShowPatientInfo showPatientInfoInAuditLog) {
+        this.showPatientInfoInAuditLog = showPatientInfoInAuditLog;
+    }
+
+    public ShowPatientInfo showPatientInfoInAuditLog() {
+        return showPatientInfoInAuditLog != null ? showPatientInfoInAuditLog : ShowPatientInfo.PLAIN_TEXT;
     }
 
     public AcceptMissingPatientID getAcceptMissingPatientID() {
@@ -649,6 +676,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storePermissionServiceResponsePattern = storePermissionServiceResponsePattern;
     }
 
+    public Pattern getStorePermissionServiceExpirationDatePattern() {
+        return storePermissionServiceExpirationDatePattern;
+    }
+
+    public void setStorePermissionServiceExpirationDatePattern(Pattern storePermissionServiceExpirationDatePattern) {
+        this.storePermissionServiceExpirationDatePattern = storePermissionServiceExpirationDatePattern;
+    }
+
     public Duration getStorePermissionCacheStaleTimeout() {
         return storePermissionCacheStaleTimeout;
     }
@@ -946,6 +981,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storageID = arcdev.storageID;
         metadataStorageID = arcdev.metadataStorageID;
         overwritePolicy = arcdev.overwritePolicy;
+        showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
+        showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         queryRetrieveViewID = arcdev.queryRetrieveViewID;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
@@ -1007,6 +1044,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
+        storePermissionServiceExpirationDatePattern = arcdev.storePermissionServiceExpirationDatePattern;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();
