@@ -1,6 +1,7 @@
 package org.dcm4chee.arc.exporter;
 
 import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -14,6 +15,7 @@ public class DefaultExportContext implements ExportContext {
     private String seriesInstanceUID;
     private String sopInstanceUID;
     private String aeTitle;
+    private Outcome outcome;
 
     public DefaultExportContext(Exporter exporter) {
         this.exporter = exporter;
@@ -72,5 +74,15 @@ public class DefaultExportContext implements ExportContext {
     @Override
     public void setAETitle(String aeTitle) {
         this.aeTitle = aeTitle;
+    }
+
+    @Override
+    public Outcome getOutcome() {
+        return outcome;
+    }
+
+    @Override
+    public void setOutcome(Outcome outcome) {
+        this.outcome = outcome;
     }
 }

@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.IanTask;
 import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -187,7 +188,8 @@ public class IANScheduler extends Scheduler {
 
     public void onExport(@Observes ExportContext ctx) {
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
-        if (descriptor.getIanDestinations().length == 0)
+        if (ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED
+                && descriptor.getIanDestinations().length == 0)
             return;
 
         //TODO
