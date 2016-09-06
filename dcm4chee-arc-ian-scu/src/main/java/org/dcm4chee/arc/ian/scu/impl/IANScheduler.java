@@ -191,8 +191,8 @@ public class IANScheduler extends Scheduler {
         if (ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED
                 && descriptor.getIanDestinations().length == 0)
             return;
-
-        //TODO
+        for (String remoteAET : descriptor.getIanDestinations())
+//            ejb.scheduleMessage(callingAET, attrs, remoteAET);
     }
 
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {

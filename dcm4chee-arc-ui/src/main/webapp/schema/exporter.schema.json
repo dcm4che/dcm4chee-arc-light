@@ -33,6 +33,25 @@
       "description": "Application Entity (AE) title",
       "type": "string"
     },
+    "dcmIanDestination": {
+      "title": "Ian Destination",
+      "description": "Destination to send IAN N-CREATE RQ",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmRetrieveAET": {
+      "title": "Retrieve AE Title",
+      "description": "AE Title associated with Storage System",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmInstanceAvailability": {
+      "title": "Instance Availability",
+      "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",
+      "type": "string"
+    },
     "dcmSchedule": {
       "title": "Schedule",
       "description": "Schedule Expression in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",

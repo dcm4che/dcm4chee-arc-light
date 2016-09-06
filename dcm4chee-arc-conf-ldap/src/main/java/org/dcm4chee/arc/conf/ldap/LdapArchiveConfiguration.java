@@ -893,6 +893,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dicomDescription", descriptor.getDescription());
         LdapUtils.storeNotNull(attrs, "dcmQueueName", descriptor.getQueueName());
         LdapUtils.storeNotNull(attrs, "dicomAETitle", descriptor.getAETitle());
+        LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", descriptor.getIanDestinations());
+        LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
+        LdapUtils.storeNotNull(attrs, "dcmInstanceAvailability", descriptor.getInstanceAvailability());
         LdapUtils.storeNotEmpty(attrs, "dcmSchedule", descriptor.getSchedules());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         return attrs;
@@ -909,6 +912,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
                 desc.setQueueName(LdapUtils.stringValue(attrs.get("dcmQueueName"), null));
                 desc.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
+                desc.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
+                desc.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
+                desc.setInstanceAvailability(
+                        LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
                 desc.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 arcdev.addExporterDescriptor(desc);
@@ -951,6 +958,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dicomDescription", prev.getDescription(), desc.getDescription());
         LdapUtils.storeDiff(mods, "dcmQueueName", prev.getQueueName(), desc.getQueueName());
         LdapUtils.storeDiff(mods, "dicomAETitle", prev.getAETitle(), desc.getAETitle());
+        LdapUtils.storeDiff(mods, "dcmIanDestination", prev.getIanDestinations(), desc.getIanDestinations());
+        LdapUtils.storeDiff(mods, "dcmRetrieveAET", prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
+        LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
+                prev.getInstanceAvailability(), desc.getInstanceAvailability());
         LdapUtils.storeDiff(mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         return mods;
