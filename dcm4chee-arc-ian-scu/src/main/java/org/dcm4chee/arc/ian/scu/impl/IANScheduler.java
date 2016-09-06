@@ -66,6 +66,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2016
  */
 @ApplicationScoped
@@ -188,11 +189,13 @@ public class IANScheduler extends Scheduler {
 
     public void onExport(@Observes ExportContext ctx) {
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
-        if (ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED
-                && descriptor.getIanDestinations().length == 0)
+        if (ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED
+                || descriptor.getIanDestinations().length == 0)
             return;
+        ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
+        Attributes attrs = createIANForStudy(ae, ctx.getStudyInstanceUID());
         for (String remoteAET : descriptor.getIanDestinations())
-//            ejb.scheduleMessage(callingAET, attrs, remoteAET);
+            ejb.scheduleMessage(ctx.getAETitle(), attrs, remoteAET);
     }
 
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {
