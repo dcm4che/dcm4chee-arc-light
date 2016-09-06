@@ -1624,7 +1624,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                           cfpLoadingBar.set(cfpLoadingBar.status()+(0.5));
                           var device = response.data;
                           device.dicomDeviceName = $scope.clonename;
-                          $http.put("../devices/" + $scope.clonename, device)
+                          $http.post("../devices/" + $scope.clonename, device)
                               .success(function(data, status, headers, config) {
                                   DeviceService.msg($scope, {
                                       "title": "Info",
@@ -1775,7 +1775,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                           cfpLoadingBar.set(cfpLoadingBar.status()+(0.5));
                           var device = response.data;
                           device.dicomDeviceName = $scope.clonename;
-                          $http.put("../devices/" + $scope.clonename, device)
+                          $http.post("../devices/" + $scope.clonename, device)
                               .success(function(data, status, headers, config) {
                                   DeviceService.msg($scope, {
                                       "title": "Info",
