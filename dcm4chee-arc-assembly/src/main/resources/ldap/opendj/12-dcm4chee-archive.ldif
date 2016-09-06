@@ -761,6 +761,9 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   MAY (
     dicomDescription $
     dicomAETitle $
+    dcmIanDestination $
+    dcmRetrieveAET $
+    dcmInstanceAvailability $
     dcmSchedule $
     dcmProperty ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.16 NAME 'dcmExportRule'
