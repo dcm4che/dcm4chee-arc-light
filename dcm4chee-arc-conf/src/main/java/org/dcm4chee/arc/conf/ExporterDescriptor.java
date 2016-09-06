@@ -17,6 +17,9 @@ public class ExporterDescriptor {
     private URI exportURI;
     private String queueName;
     private String aeTitle;
+    private String[] ianDestinations = {};
+    private String[] retrieveAETitles = {};
+    private Availability instanceAvailability;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
@@ -72,6 +75,30 @@ public class ExporterDescriptor {
         this.aeTitle = aeTitle;
     }
 
+    public String[] getIanDestinations() {
+        return ianDestinations;
+    }
+
+    public void setIanDestinations(String... ianDestinations) {
+        this.ianDestinations = ianDestinations;
+    }
+
+    public String[] getRetrieveAETitles() {
+        return retrieveAETitles;
+    }
+
+    public void setRetrieveAETitles(String... retrieveAETitles) {
+        this.retrieveAETitles = retrieveAETitles;
+    }
+
+    public Availability getInstanceAvailability() {
+        return instanceAvailability;
+    }
+
+    public void setInstanceAvailability(Availability instanceAvailability) {
+        this.instanceAvailability = instanceAvailability;
+    }
+
     public ScheduleExpression[] getSchedules() {
         return schedules;
     }
@@ -109,6 +136,9 @@ public class ExporterDescriptor {
                 "exporterID=" + exporterID +
                 ", exportURI=" + exportURI +
                 ", queueName=" + queueName +
+                ", ianDests=" + Arrays.toString(ianDestinations) +
+                ", retrieveAETs=" + Arrays.toString(retrieveAETitles) +
+                ", availability=" + instanceAvailability +
                 ", schedules=" + Arrays.toString(schedules) +
                 ", properties=" + properties +
                 '}';

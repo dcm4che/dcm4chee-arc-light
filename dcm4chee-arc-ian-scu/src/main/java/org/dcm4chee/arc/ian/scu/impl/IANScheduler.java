@@ -47,8 +47,10 @@ import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.IanTask;
 import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
@@ -181,6 +183,14 @@ public class IANScheduler extends Scheduler {
                 LOG.warn("{}: Failed to create or update IanTask", ctx, e);
             }
         }
+    }
+
+    public void onExport(@Observes ExportContext ctx) {
+        ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
+        if (descriptor.getIanDestinations().length == 0)
+            return;
+
+        //TODO
     }
 
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {
