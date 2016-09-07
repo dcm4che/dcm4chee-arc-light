@@ -44,10 +44,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.IanTask;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -193,7 +190,8 @@ public class IANScheduler extends Scheduler {
                 || descriptor.getIanDestinations().length == 0)
             return;
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
-        Attributes attrs = createIANForStudy(ae, ctx.getStudyInstanceUID());
+        Attributes attrs = createIANForExport(descriptor.getRetrieveAETitles(), descriptor.getInstanceAvailability(),
+                ae, ctx.getStudyInstanceUID());
         for (String remoteAET : descriptor.getIanDestinations())
             ejb.scheduleMessage(ctx.getAETitle(), attrs, remoteAET);
     }
@@ -258,6 +256,15 @@ public class IANScheduler extends Scheduler {
         Attributes refStudy = result.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
         refStudy.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
         return refStudy;
+    }
+
+    private Attributes createIANForExport(String[] retrieveAETs, Availability instanceAvailability,
+                                          ApplicationEntity ae, String studyInstanceUID) {
+        Attributes result = queryService.getStudyAttributesWithSOPInstanceRefs(studyInstanceUID, retrieveAETs,
+                instanceAvailability, ae);
+        if (result == null)
+            return null;
+        return result;
     }
 
 }
