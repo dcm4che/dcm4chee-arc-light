@@ -73,6 +73,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -740,37 +741,20 @@ public class StoreServiceEJB {
         try {
             URL url = new URL(urlspec);
             HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-            ByteArrayOutputStream out = new ByteArrayOutputStream(512);
-            try (InputStream in = httpConn.getInputStream()) {
-                StreamUtils.copy(in, out);
-            }
             int responseCode = httpConn.getResponseCode();
             String responseContent = null;
             Pattern responsePattern = arcAE.storePermissionServiceResponsePattern();
             Pattern expirationDatePattern = arcAE.storePermissionServiceExpirationDatePattern();
-            if (responsePattern == null && expirationDatePattern == null) {
-                granted = responseCode == HttpURLConnection.HTTP_OK
-                        || responseCode == HttpURLConnection.HTTP_NO_CONTENT;
-            } else {
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    responseContent = new String(out.toByteArray(), charsetOf(httpConn));
+            switch (responseCode) {
+                case HttpURLConnection.HTTP_OK:
+                    responseContent = readContent(httpConn);
                     granted = responsePattern == null || responsePattern.matcher(responseContent).find();
-                    if (granted && expirationDatePattern != null) {
-                        Matcher matcher = expirationDatePattern.matcher(responseContent);
-                        if (matcher.find()) {
-                            String s = matcher.group(1);
-                            try {
-                                expirationDate = LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
-                            } catch (DateTimeParseException e) {
-                                LOG.warn("{}: Store Permission Service {} returns invalid Expiration Date: {} - ignored",
-                                        session, urlspec, s);
-                            }
-                        } else {
-                            LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not contains expiration date {}",
-                            session, urlspec, responseContent, expirationDatePattern);
-                        }
-                    }
-                }
+                    if (granted && expirationDatePattern != null)
+                        expirationDate = selectExpirationDate(session, urlspec, responseContent, expirationDatePattern);
+                    break;
+                case HttpURLConnection.HTTP_NO_CONTENT:
+                    granted = responsePattern == null;
+                    break;
             }
             if (!granted) {
                 if (responseContent == null || responsePattern == null)
@@ -788,7 +772,32 @@ public class StoreServiceEJB {
         return granted;
     }
 
-    private String charsetOf(HttpURLConnection httpConn) {
+    private static LocalDate selectExpirationDate(StoreSession session, String url, String response, Pattern pattern) {
+        Matcher matcher = pattern.matcher(response);
+        if (matcher.find()) {
+            String s = matcher.group(1);
+            try {
+                return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
+            } catch (DateTimeParseException e) {
+                LOG.warn("{}: Store Permission Service {} returns invalid Expiration Date: {} - ignored",
+                        session, url, s);
+            }
+        } else {
+            LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not contains expiration date {}",
+                    session, url, response, pattern);
+        }
+        return null;
+    }
+
+    private static String readContent(HttpURLConnection httpConn) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(512);
+        try (InputStream in = httpConn.getInputStream()) {
+            StreamUtils.copy(in, out);
+        }
+        return new String(out.toByteArray(), charsetOf(httpConn));
+    }
+
+    private static String charsetOf(HttpURLConnection httpConn) {
         String contentType = httpConn.getContentType().toUpperCase();
         int index = contentType.lastIndexOf("CHARSET=");
         return index >= 0 ? contentType.substring(index + 8) : "UTF-8";

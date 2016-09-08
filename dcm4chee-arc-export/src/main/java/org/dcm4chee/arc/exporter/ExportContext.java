@@ -1,5 +1,7 @@
 package org.dcm4chee.arc.exporter;
 
+import org.dcm4chee.arc.qmgt.Outcome;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
@@ -26,4 +28,8 @@ public interface ExportContext {
     String getAETitle();
 
     void setAETitle(String aeTitle);
+
+    Outcome getOutcome();
+
+    void setOutcome(Outcome outcome);
 }

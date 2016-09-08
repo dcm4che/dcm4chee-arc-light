@@ -688,6 +688,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.115 NAME 'dcmShowPatientInfoInAuditLog'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.116 NAME 'dcmFallbackCMoveSCPLeadingCFindSCP'
+  DESC 'AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -718,6 +724,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmIanTaskFetchSize $
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
+    dcmFallbackCMoveSCPLeadingCFindSCP $
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
@@ -790,6 +797,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmIanOnTimeout $
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
+    dcmFallbackCMoveSCPLeadingCFindSCP $
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
@@ -873,6 +881,9 @@ objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   MAY (
     dicomDescription $
     dicomAETitle $
+    dcmIanDestination $
+    dcmRetrieveAET $
+    dcmInstanceAvailability $
     dcmSchedule $
     dcmProperty ) )
 

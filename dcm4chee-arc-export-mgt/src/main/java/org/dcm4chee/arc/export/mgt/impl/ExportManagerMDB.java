@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -31,6 +32,9 @@ public class ExportManagerMDB implements MessageListener {
 
     @Inject
     private ExporterFactory exporterFactory;
+
+    @Inject
+    private Event<ExportContext> exportEvent;
 
     @Inject
     private Device device;
@@ -56,6 +60,8 @@ public class ExportManagerMDB implements MessageListener {
             exportContext.setSopInstanceUID(msg.getStringProperty("SopInstanceUID"));
             exportContext.setAETitle(msg.getStringProperty("AETitle"));
             outcome = exporter.export(exportContext);
+            exportContext.setOutcome(outcome);
+            exportEvent.fire(exportContext);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);

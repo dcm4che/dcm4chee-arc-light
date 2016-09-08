@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -187,7 +188,7 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
-        return ejb.getStudyAttributesWithSOPInstanceRefs(
+        return ejb.getStudyAttributesWithSOPInstanceRefs(null, null,
                 studyUID, null, null, newQueryParam(ae, false, false, false, false, false, true, false, false, false, false),
                 seriesAttrs, false);
     }
@@ -195,9 +196,17 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability) {
-        return ejb.getStudyAttributesWithSOPInstanceRefs(
+        return ejb.getStudyAttributesWithSOPInstanceRefs(null, null,
                 studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false, false, false, true, false, false, false, false),
                 null, availability);
+    }
+
+    @Override
+    public Attributes getStudyAttributesWithSOPInstanceRefs(String studyUID, String[] retrieveAETs,
+                Availability instanceAvailability, ApplicationEntity ae) {
+        return ejb.getStudyAttributesWithSOPInstanceRefs(retrieveAETs, instanceAvailability,
+                studyUID, null, null, newQueryParam(ae, false, false, false, false, false, true, false, false, false, false),
+                null, instanceAvailability == null);
     }
 
     @Override

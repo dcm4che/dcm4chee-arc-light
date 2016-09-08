@@ -136,18 +136,21 @@ public class IANEJB {
     }
 
     public void scheduleIANTask(IanTask task, Attributes attrs) {
-        for (String remoteAET : task.getIanDestinations()) {
-            try {
-                ObjectMessage msg = queueManager.createObjectMessage(attrs);
-                msg.setStringProperty("LocalAET", task.getCallingAET());
-                msg.setStringProperty("RemoteAET", remoteAET);
-                msg.setStringProperty("SOPInstanceUID", UIDUtils.createUID());
-                queueManager.scheduleMessage(IANSCU.QUEUE_NAME, msg);
-            } catch (JMSException e) {
-                throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
-            }
-        }
+        for (String remoteAET : task.getIanDestinations())
+            scheduleMessage(task.getCallingAET(), attrs, remoteAET);
         removeIANTask(task);
+    }
+
+    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET) {
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(attrs);
+            msg.setStringProperty("LocalAET", callingAET);
+            msg.setStringProperty("RemoteAET", remoteAET);
+            msg.setStringProperty("SOPInstanceUID", UIDUtils.createUID());
+            queueManager.scheduleMessage(IANSCU.QUEUE_NAME, msg);
+        } catch (JMSException e) {
+            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+        }
     }
 
     public void removeIANTask(IanTask task) {

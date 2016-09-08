@@ -44,11 +44,11 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.IanTask;
 import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
@@ -63,6 +63,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2016
  */
 @ApplicationScoped
@@ -183,6 +184,18 @@ public class IANScheduler extends Scheduler {
         }
     }
 
+    public void onExport(@Observes ExportContext ctx) {
+        ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
+        if (ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED
+                || descriptor.getIanDestinations().length == 0)
+            return;
+        ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
+        Attributes attrs = createIANForExport(descriptor.getRetrieveAETitles(), descriptor.getInstanceAvailability(),
+                ae, ctx.getStudyInstanceUID());
+        for (String remoteAET : descriptor.getIanDestinations())
+            ejb.scheduleMessage(ctx.getAETitle(), attrs, remoteAET);
+    }
+
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {
         Attributes mppsAttrs = mpps.getAttributes();
         String studyInstanceUID = mpps.getStudyInstanceUID();
@@ -238,6 +251,17 @@ public class IANScheduler extends Scheduler {
 
     private Attributes createIANForStudy(ApplicationEntity ae, String studyInstanceUID) {
         Attributes result = queryService.getStudyAttributesWithSOPInstanceRefs(studyInstanceUID, null, null, ae, true);
+        if (result == null)
+            return null;
+        Attributes refStudy = result.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
+        refStudy.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
+        return refStudy;
+    }
+
+    private Attributes createIANForExport(String[] retrieveAETs, Availability instanceAvailability,
+                                          ApplicationEntity ae, String studyInstanceUID) {
+        Attributes result = queryService.getStudyAttributesWithSOPInstanceRefs(studyInstanceUID, retrieveAETs,
+                instanceAvailability, ae);
         if (result == null)
             return null;
         Attributes refStudy = result.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);

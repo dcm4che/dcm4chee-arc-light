@@ -241,21 +241,21 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-    public Attributes getStudyAttributesWithSOPInstanceRefs(
+    public Attributes getStudyAttributesWithSOPInstanceRefs(String[] retrieveAETs, Availability instanceAvailability,
             String studyUID, String seriesUID, String objectUID, QueryParam queryParam,
             Collection<Attributes> seriesAttrs, boolean availability) {
         Attributes attrs = getStudyAttributes(studyUID);
         if (attrs == null)
             return null;
 
-        Attributes sopInstanceRefs = getSOPInstanceRefs(
+        Attributes sopInstanceRefs = getSOPInstanceRefs(retrieveAETs, instanceAvailability,
                 studyUID, seriesUID, objectUID, queryParam, seriesAttrs, availability);
         if (sopInstanceRefs != null)
             attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(sopInstanceRefs);
         return attrs;
     }
 
-    public Attributes getSOPInstanceRefs(
+    public Attributes getSOPInstanceRefs(String[] retrieveAETs, Availability instanceAvailability,
             String studyUID, String seriesUID, String objectUID, QueryParam queryParam,
             Collection<Attributes> seriesAttrs, boolean availability) {
         BooleanBuilder predicate = new BooleanBuilder(QStudy.study.studyInstanceUID.eq(studyUID));
@@ -285,7 +285,10 @@ public class QueryServiceEJB {
             Sequence refSOPSeq = seriesMap.get(seriesPk);
             if (refSOPSeq == null) {
                 Attributes refSeries = new Attributes(4);
-                refSeries.setString(Tag.RetrieveAETitle, VR.AE, queryParam.getAETitle());
+                if (retrieveAETs != null && retrieveAETs.length != 0)
+                    refSeries.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+                else
+                    refSeries.setString(Tag.RetrieveAETitle, VR.AE, queryParam.getAETitle());
                 refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 10);
                 refSeries.setString(Tag.SeriesInstanceUID, VR.UI, tuple.get(QSeries.series.seriesInstanceUID));
                 seriesMap.put(seriesPk, refSOPSeq);
@@ -297,6 +300,8 @@ public class QueryServiceEJB {
             if (availability)
                 refSOP.setString(Tag.InstanceAvailability, VR.CS,
                         tuple.get(QInstance.instance.availability).toString());
+            else
+                refSOP.setString(Tag.InstanceAvailability, VR.CS, instanceAvailability.toString());
             refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
             refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
             refSOPSeq.add(refSOP);
