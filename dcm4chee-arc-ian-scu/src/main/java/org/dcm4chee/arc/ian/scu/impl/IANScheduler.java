@@ -264,7 +264,9 @@ public class IANScheduler extends Scheduler {
                 instanceAvailability, ae);
         if (result == null)
             return null;
-        return result;
+        Attributes refStudy = result.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
+        refStudy.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
+        return refStudy;
     }
 
 }
