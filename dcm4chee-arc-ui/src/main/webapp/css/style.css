@@ -608,8 +608,8 @@ table.subtable_1, table.subtable_2 {
 
 .div-table .thead .td_cell {
   font-size: 14px;
-  height: 25px;
-  line-height: 25px;
+  height: 27px;
+  line-height: 27px;
   padding-left: 7px;
   vertical-align: middle; }
 .div-table .thead .tr_row {
@@ -660,18 +660,18 @@ table.subtable_1, table.subtable_2 {
     .repeat0 .open_patient:hover {
       cursor: pointer; }
   .repeat0 > .thead {
-    height: 25px; }
+    height: 27px; }
     .repeat0 > .thead > .tr_row {
-      height: 25px;
+      height: 27px;
       background: rgba(254, 254, 254, 0.56);
       color: black; }
       .repeat0 > .thead > .tr_row .th {
-        height: 25px; }
+        height: 27px; }
         .repeat0 > .thead > .tr_row .th .table_btn {
           border-left: 1px solid #ddd;
           color: black;
           float: left;
-          height: 25px;
+          height: 27px;
           text-align: center;
           width: 20%; }
           .repeat0 > .thead > .tr_row .th .table_btn:hover {

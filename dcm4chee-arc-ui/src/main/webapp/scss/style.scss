@@ -778,8 +778,8 @@ table{
 	    // color: white;
 	    font-size: 14px;
 	    // font-weight: bold;
-	    height: 25px;
-	    line-height: 25px;
+	    height: 27px;
+	    line-height: 27px;
 	    padding-left: 7px;
 	    vertical-align: middle;
 	}
@@ -840,9 +840,9 @@ table{
 		}
 	}
 	& > .thead{
-		height: 25px;
+		height: 27px;
 		& > .tr_row{
-			height: 25px;
+			height: 27px;
 			background:rgba(254, 254, 254, 0.56);
 			color: black;
 			&.hover{
@@ -853,12 +853,12 @@ table{
 			// 	background:rgba(176, 176, 176, 0.98);
 			// }
 			.th{
-				height: 25px;
+				height: 27px;
 				.table_btn{
 				    border-left: 1px solid #ddd;
 				    color: black;
 				    float: left;
-				    height: 25px;
+				    height: 27px;
 				    text-align: center;
 				    width: 20%;
 
