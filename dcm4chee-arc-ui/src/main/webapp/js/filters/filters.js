@@ -19,44 +19,79 @@ myApp.filter("formatTM", function() {
     }
 });
 
+// myApp.filter("contentDescription", function() {
+//     function valueOf(attr) {
+//         return attr && attr.Value && attr.Value[0];
+//     };
+//     function valuesOf(attr) {
+//         return attr && attr.Value && attr.Value.join();
+//     };
+//     function imageDescriptionOf(attrs) {
+//         var cols = valueOf(attrs["00280011"]); // Columns
+//         return cols && (cols + "x"
+//             + valueOf(attrs["00280010"]) + " " // Rows
+//             + valueOf(attrs["00280100"]) + " bit " // BitsAllocated
+//             + valuesOf(attrs["00080008"])); // ImageType
+//     };
+//     function srDescriptionOf(attrs) {
+//         var code = valueOf(attrs["0040A043"]); // ConceptNameCodeSequence
+//         return code && [
+//                 valueOf(attrs["0040A496"]), // PreliminaryFlag
+//                 valueOf(attrs["0040A491"]), // CompletionFlag
+//                 valueOf(attrs["0040A493"]), // VerificationFlag
+//                 valueOf(code["00080104"])  // CodeMeaning
+//             ].filter(function (obj) { return obj }).join(" ");
+//     };
+//     return function(attrs) {
+//         try {
+//             var instCheck = false;        
+//             if((inst != undefined  || inst != null) && inst["00080016"] && valueOf(inst["00080016"])){
+//                instCheck = true; 
+//             }
+//             return valueOf(attrs["00700081"]) // ContentDescription
+//                 || imageDescriptionOf(attrs)
+//                 || srDescriptionOf(attrs)
+//                 || instCheck; // SOPClassUID
+
+//         }
+//         catch(err) {
+//             return false;
+//         }
+//     };
+
+// });
 myApp.filter("contentDescription", function() {
-    function valueOf(attr) {
-        return attr && attr.Value && attr.Value[0];
+    function valueOf(attrs, code) {
+        try{
+            return attrs[code].Value[0];
+        }catch(e){
+            return false;
+        }
     };
     function valuesOf(attr) {
         return attr && attr.Value && attr.Value.join();
     };
     function imageDescriptionOf(attrs) {
-        var cols = valueOf(attrs["00280011"]); // Columns
+        var cols = valueOf(attrs,"00280011"); // Columns
         return cols && (cols + "x"
-            + valueOf(attrs["00280010"]) + " " // Rows
-            + valueOf(attrs["00280100"]) + " bit " // BitsAllocated
+            + valueOf(attrs,"00280010") + " " // Rows
+            + valueOf(attrs,"00280100") + " bit " // BitsAllocated
             + valuesOf(attrs["00080008"])); // ImageType
     };
     function srDescriptionOf(attrs) {
-        var code = valueOf(attrs["0040A043"]); // ConceptNameCodeSequence
+        var code = valueOf(attrs,"0040A043"); // ConceptNameCodeSequence
         return code && [
-                valueOf(attrs["0040A496"]), // PreliminaryFlag
-                valueOf(attrs["0040A491"]), // CompletionFlag
-                valueOf(attrs["0040A493"]), // VerificationFlag
-                valueOf(code["00080104"])  // CodeMeaning
+                valueOf(attrs,"0040A496"), // PreliminaryFlag
+                valueOf(attrs,"0040A491"), // CompletionFlag
+                valueOf(attrs,"0040A493"), // VerificationFlag
+                valueOf(code,"0080104")  // CodeMeaning
             ].filter(function (obj) { return obj }).join(" ");
     };
     return function(attrs) {
-        try {
-            var instCheck = false;        
-            if((inst != undefined  || inst != null) && inst["00080016"] && valueOf(inst["00080016"])){
-               instCheck = true; 
-            }
-            return valueOf(attrs["00700081"]) // ContentDescription
-                || imageDescriptionOf(attrs)
-                || srDescriptionOf(attrs)
-                || instCheck; // SOPClassUID
-
-        }
-        catch(err) {
-            return false;
-        }
+        return valueOf(attrs,"00700081") // ContentDescription
+            || imageDescriptionOf(attrs)
+            || srDescriptionOf(attrs)
+            || valueOf(attrs,"00420010"); // Document Title
     };
 
 });
