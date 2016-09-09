@@ -109,13 +109,19 @@ public class ExporterRS {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException("No such Application Entity: " + aet, Response.Status.SERVICE_UNAVAILABLE);
+            throw new WebApplicationException(getResponse("No such Application Entity: " + aet,
+                    Response.Status.SERVICE_UNAVAILABLE));
 
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter == null)
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new WebApplicationException(getResponse("Exporter not found.", Response.Status.NOT_FOUND));
 
         exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet);
+    }
+
+    private Response getResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 }

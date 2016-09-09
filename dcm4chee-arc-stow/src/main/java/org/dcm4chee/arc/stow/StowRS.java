@@ -84,6 +84,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Apr 2016
  */
 @RequestScoped
@@ -306,7 +307,7 @@ public class StowRS {
     private String boundary() {
         String boundary = contentType.getParameters().get("boundary");
         if (boundary == null)
-            throw new WebApplicationException("Missing Boundary Parameter", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(getResponse("Missing Boundary Parameter", Response.Status.BAD_REQUEST));
 
         return boundary;
     }
@@ -314,8 +315,8 @@ public class StowRS {
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet, Response.Status.SERVICE_UNAVAILABLE);
+            throw new WebApplicationException(getResponse(
+                    "No such Application Entity: " + aet, Response.Status.SERVICE_UNAVAILABLE));
         return ae;
     }
 
@@ -536,5 +537,10 @@ public class StowRS {
             this.bulkData = new BulkData(path.toUri().toString(), 0, (int) Files.size(path), false);
             this.mediaType = mediaType;
         }
+    }
+
+    private Response getResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 }

@@ -52,6 +52,7 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2016
  */
 enum ObjectType {
@@ -129,11 +130,11 @@ enum ObjectType {
             },
             null),
     EncapsulatedPDF(
-            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.APPLICATION_PDF_TYPE },
-            new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE }),
+            new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE },
+            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaTypes.APPLICATION_PDF_TYPE }),
     EncapsulatedCDA(
-            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaType.TEXT_XML_TYPE },
-            new MediaType[] { MediaType.TEXT_XML_TYPE }),
+            new MediaType[] { MediaType.TEXT_XML_TYPE },
+            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE, MediaType.TEXT_XML_TYPE }),
     Other(new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE }, null);
 
     private final MediaType[] mimeTypes;
