@@ -42,9 +42,12 @@ package org.dcm4chee.arc.query.util;
 
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.CodeEntity;
+
+import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -68,22 +71,98 @@ public class QueryParam {
     private final boolean retrieveFailed;
     private final boolean retrieveFailedSeries;
 
-    public QueryParam(ApplicationEntity ae, boolean combinedDatetimeMatching, boolean fuzzySemanticMatching,
-                      boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies,
-                      boolean incomplete, boolean incompleteSeries, boolean retrieveFailed, boolean retrieveFailedSeries) {
-        this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+    public static final class Builder {
+        private final ArchiveAEExtension arcAE;
+        private boolean combinedDatetimeMatching;
+        private boolean fuzzySemanticMatching;
+        private boolean returnEmpty;
+        private boolean expired;
+        private boolean expiredSeries;
+        private boolean withoutStudies = true;
+        private boolean incomplete;
+        private boolean incompleteSeries;
+        private boolean retrieveFailed;
+        private boolean retrieveFailedSeries;
+
+        public Builder(ApplicationEntity ae) {
+            this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        }
+
+        public Builder queryOpts(EnumSet<QueryOption> queryOpts) {
+            combinedDatetimeMatching = queryOpts.contains(QueryOption.DATETIME);
+            fuzzySemanticMatching = queryOpts.contains(QueryOption.FUZZY);
+            return this;
+        }
+
+        public Builder combinedDatetimeMatching(boolean combinedDatetimeMatching) {
+            this.combinedDatetimeMatching = combinedDatetimeMatching;
+            return this;
+        }
+
+        public Builder fuzzySemanticMatching(boolean fuzzySemanticMatching) {
+            this.fuzzySemanticMatching = fuzzySemanticMatching;
+            return this;
+        }
+
+        public Builder returnEmpty(boolean returnEmpty) {
+            this.returnEmpty = returnEmpty;
+            return this;
+        }
+
+        public Builder expired(boolean expired) {
+            this.expired = expired;
+            return this;
+        }
+
+        public Builder expiredSeries(boolean expiredSeries) {
+            this.expiredSeries = expiredSeries;
+            return this;
+        }
+
+        public Builder withoutStudies(boolean withoutStudies) {
+            this.withoutStudies = withoutStudies;
+            return this;
+        }
+
+        public Builder incomplete(boolean incomplete) {
+            this.incomplete = incomplete;
+            return this;
+        }
+
+        public Builder incompleteSeries(boolean incompleteSeries) {
+            this.incompleteSeries = incompleteSeries;
+            return this;
+        }
+
+        public Builder retrieveFailed(boolean retrieveFailed) {
+            this.retrieveFailed = retrieveFailed;
+            return this;
+        }
+
+        public Builder retrieveFailedSeries(boolean retrieveFailedSeries) {
+            this.retrieveFailedSeries = retrieveFailedSeries;
+            return this;
+        }
+
+        public QueryParam build() {
+            return new QueryParam(this);
+        }
+    }
+
+    private QueryParam(Builder builder) {
+        this.arcAE = builder.arcAE;
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
-        this.combinedDatetimeMatching = combinedDatetimeMatching;
-        this.fuzzySemanticMatching = fuzzySemanticMatching;
-        this.returnEmpty = returnEmpty;
-        this.expired = expired;
-        this.expiredSeries = expiredSeries;
-        this.withoutStudies = withoutStudies;
-        this.incomplete = incomplete;
-        this.incompleteSeries = incompleteSeries;
-        this.retrieveFailed = retrieveFailed;
-        this.retrieveFailedSeries = retrieveFailedSeries;
+        this.combinedDatetimeMatching = builder.combinedDatetimeMatching;
+        this.fuzzySemanticMatching = builder.fuzzySemanticMatching;
+        this.returnEmpty = builder.returnEmpty;
+        this.expired = builder.expired;
+        this.expiredSeries = builder.expiredSeries;
+        this.withoutStudies = builder.withoutStudies;
+        this.incomplete = builder.incomplete;
+        this.incompleteSeries = builder.incompleteSeries;
+        this.retrieveFailed = builder.retrieveFailed;
+        this.retrieveFailedSeries = builder.retrieveFailedSeries;
     }
 
     public String getAETitle() {

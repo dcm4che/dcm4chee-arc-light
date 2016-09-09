@@ -48,14 +48,13 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.query.util.AttributesBuilder;
+import org.dcm4chee.arc.query.util.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
@@ -68,6 +67,7 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.*;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
@@ -388,12 +388,21 @@ public class QidoRS {
 
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
                                          String seriesInstanceUID, int[] includetags, Model model) {
-        QueryContext ctx = service.newQueryContextQIDO(request, method, getApplicationEntity(),
-                Boolean.parseBoolean(fuzzymatching), Boolean.parseBoolean(returnempty), Boolean.parseBoolean(expired),
-                model == Model.SERIES && Boolean.parseBoolean(expired),
-                withoutstudies == null || Boolean.parseBoolean(withoutstudies),
-                Boolean.parseBoolean(incomplete), model == Model.SERIES && Boolean.parseBoolean(incomplete),
-                Boolean.parseBoolean(retrievefailed), model == Model.SERIES && Boolean.parseBoolean(retrievefailed));
+        ApplicationEntity ae = getApplicationEntity();
+
+        QueryContext ctx = service.newQueryContextQIDO(request, method, ae,
+                new org.dcm4chee.arc.query.util.QueryParam.Builder(ae)
+                        .combinedDatetimeMatching(true)
+                        .fuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching))
+                        .returnEmpty(Boolean.parseBoolean(returnempty))
+                        .expired(Boolean.parseBoolean(expired))
+                        .expiredSeries(model == Model.SERIES && Boolean.parseBoolean(expired))
+                        .withoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies))
+                        .incomplete(Boolean.parseBoolean(incomplete))
+                        .incompleteSeries(model == Model.SERIES && Boolean.parseBoolean(incomplete))
+                        .retrieveFailed(Boolean.parseBoolean(retrievefailed))
+                        .retrieveFailedSeries(model == Model.SERIES && Boolean.parseBoolean(retrievefailed))
+                        .build());
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)

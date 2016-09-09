@@ -96,37 +96,23 @@ class QueryServiceImpl implements QueryService {
     @Override
     public QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts) {
         ApplicationEntity ae = as.getApplicationEntity();
-        return new QueryContextImpl(as, sopClassUID, ae,
-                newQueryParam(ae,
-                        queryOpts.contains(QueryOption.DATETIME),
-                        queryOpts.contains(QueryOption.FUZZY),
-                        false, false, false, true, false, false, false, false),
-                this);
+        QueryParam queryParam = new QueryParam.Builder(ae).queryOpts(queryOpts).build();
+        return new QueryContextImpl(as, sopClassUID, ae, initCodeEntities(queryParam), this);
     }
 
     @Override
     public QueryContext newQueryContextQIDO(
-            HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-            boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies,
-            boolean incomplete, boolean incompleteSeries, boolean retrieveFailed, boolean retrieveFailedSeries) {
-        return new QueryContextImpl(httpRequest, searchMethod, ae,
-                newQueryParam(ae, true, fuzzyMatching, returnEmpty, expired, expiredSeries, withoutStudies,
-                        incomplete, incompleteSeries, retrieveFailed, retrieveFailedSeries),
-                this);
+            HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam) {
+        return new QueryContextImpl(httpRequest, searchMethod, ae, initCodeEntities(queryParam), this);
     }
 
-    private QueryParam newQueryParam(
-            ApplicationEntity ae, boolean datetimeMatching, boolean fuzzyMatching, boolean returnEmpty,
-            boolean expired, boolean expiredSeries, boolean withoutStudies, boolean incomplete, boolean incompleteSeries,
-            boolean retrieveFailed, boolean retrieveFailedSeries) {
-        QueryParam queryParam = new QueryParam(ae, datetimeMatching, fuzzyMatching, returnEmpty, expired, expiredSeries,
-                                withoutStudies, incomplete, incompleteSeries, retrieveFailed, retrieveFailedSeries);
-        QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
-        queryParam.setHideRejectionNotesWithCode(
+    private QueryParam initCodeEntities(QueryParam param) {
+        QueryRetrieveView qrView = param.getQueryRetrieveView();
+        param.setHideRejectionNotesWithCode(
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
-        queryParam.setShowInstancesRejectedByCode(
+        param.setShowInstancesRejectedByCode(
                 codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
-        return queryParam;
+        return param;
     }
 
     @Override
@@ -189,15 +175,14 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(null, null,
-                studyUID, null, null, newQueryParam(ae, false, false, false, false, false, true, false, false, false, false),
+                studyUID, null, null, new QueryParam.Builder(ae).build(),
                 seriesAttrs, false);
     }
-
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(null, null,
-                studyUID, seriesUID, objectUID, newQueryParam(ae, false, false, false, false, false, true, false, false, false, false),
+                studyUID, seriesUID, objectUID, new QueryParam.Builder(ae).build(),
                 null, availability);
     }
 
@@ -205,7 +190,7 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(String studyUID, String[] retrieveAETs,
                 Availability instanceAvailability, ApplicationEntity ae) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(retrieveAETs, instanceAvailability,
-                studyUID, null, null, newQueryParam(ae, false, false, false, false, false, true, false, false, false, false),
+                studyUID, null, null, new QueryParam.Builder(ae).build(),
                 null, instanceAvailability == null);
     }
 
