@@ -300,7 +300,7 @@ public class QueryServiceEJB {
             if (availability)
                 refSOP.setString(Tag.InstanceAvailability, VR.CS,
                         tuple.get(QInstance.instance.availability).toString());
-            else
+            if (instanceAvailability != null)
                 refSOP.setString(Tag.InstanceAvailability, VR.CS, instanceAvailability.toString());
             refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
             refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
