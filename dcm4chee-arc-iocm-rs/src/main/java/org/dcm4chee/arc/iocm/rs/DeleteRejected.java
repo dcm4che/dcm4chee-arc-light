@@ -61,6 +61,7 @@ import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @Path("reject")
@@ -115,7 +116,8 @@ public class DeleteRejected {
         Code code = new Code(codeValue, designator, null, "?");
         RejectionNote rjNote = arcDev.getRejectionNote(code);
         if (rjNote == null)
-            throw new WebApplicationException("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND);
+            throw new WebApplicationException(
+                    getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
 
         boolean keep = Boolean.parseBoolean(keepRejectionNote);
         Date before = parseDate(rejectedBefore);
@@ -126,5 +128,10 @@ public class DeleteRejected {
 
         LOG.info("Deleted {} instances permanently", deleted);
         return "{\"deleted\":" + deleted + '}';
+    }
+
+    private Response getResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 }
