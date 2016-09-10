@@ -96,7 +96,9 @@ class QueryServiceImpl implements QueryService {
     @Override
     public QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts) {
         ApplicationEntity ae = as.getApplicationEntity();
-        QueryParam queryParam = new QueryParam.Builder(ae).queryOpts(queryOpts).build();
+        QueryParam queryParam = new QueryParam(ae);
+        queryParam.setCombinedDatetimeMatching(queryOpts.contains(QueryOption.DATETIME));
+        queryParam.setFuzzySemanticMatching(queryOpts.contains(QueryOption.FUZZY));
         return new QueryContextImpl(as, sopClassUID, ae, initCodeEntities(queryParam), this);
     }
 
@@ -175,14 +177,14 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(null, null,
-                studyUID, null, null, new QueryParam.Builder(ae).build(),
+                studyUID, null, null, new QueryParam(ae),
                 seriesAttrs, false);
     }
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(null, null,
-                studyUID, seriesUID, objectUID, new QueryParam.Builder(ae).build(),
+                studyUID, seriesUID, objectUID, new QueryParam(ae),
                 null, availability);
     }
 
@@ -190,7 +192,7 @@ class QueryServiceImpl implements QueryService {
     public Attributes getStudyAttributesWithSOPInstanceRefs(String studyUID, String[] retrieveAETs,
                 Availability instanceAvailability, ApplicationEntity ae) {
         return ejb.getStudyAttributesWithSOPInstanceRefs(retrieveAETs, instanceAvailability,
-                studyUID, null, null, new QueryParam.Builder(ae).build(),
+                studyUID, null, null, new QueryParam(ae),
                 null, instanceAvailability == null);
     }
 

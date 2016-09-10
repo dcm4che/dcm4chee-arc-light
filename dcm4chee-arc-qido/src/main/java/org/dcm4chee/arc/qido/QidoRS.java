@@ -390,19 +390,18 @@ public class QidoRS {
                                          String seriesInstanceUID, int[] includetags, Model model) {
         ApplicationEntity ae = getApplicationEntity();
 
-        QueryContext ctx = service.newQueryContextQIDO(request, method, ae,
-                new org.dcm4chee.arc.query.util.QueryParam.Builder(ae)
-                        .combinedDatetimeMatching(true)
-                        .fuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching))
-                        .returnEmpty(Boolean.parseBoolean(returnempty))
-                        .expired(Boolean.parseBoolean(expired))
-                        .expiredSeries(model == Model.SERIES && Boolean.parseBoolean(expired))
-                        .withoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies))
-                        .incomplete(Boolean.parseBoolean(incomplete))
-                        .incompleteSeries(model == Model.SERIES && Boolean.parseBoolean(incomplete))
-                        .retrieveFailed(Boolean.parseBoolean(retrievefailed))
-                        .retrieveFailedSeries(model == Model.SERIES && Boolean.parseBoolean(retrievefailed))
-                        .build());
+        org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
+        queryParam.setCombinedDatetimeMatching(true);
+        queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
+        queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
+        queryParam.setExpired(Boolean.parseBoolean(expired));
+        queryParam.setExpiredSeries(model == Model.SERIES && Boolean.parseBoolean(expired));
+        queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
+        queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
+        queryParam.setIncompleteSeries(model == Model.SERIES && Boolean.parseBoolean(incomplete));
+        queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
+        queryParam.setRetrieveFailedSeries(model == Model.SERIES && Boolean.parseBoolean(retrievefailed));
+        QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)
