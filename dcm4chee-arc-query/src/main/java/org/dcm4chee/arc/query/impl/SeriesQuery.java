@@ -174,6 +174,23 @@ class SeriesQuery extends AbstractQuery {
         attrs.setString(Tag.InstanceAvailability, VR.CS,
             StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,
+                results.get(QSeries.series.createdTime));
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesUpdateDateTime, VR.DT,
+                results.get(QSeries.series.updatedTime));
+        if (results.get(QSeries.series.expirationDate) != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
+                    results.get(QSeries.series.expirationDate));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesRejectionState, VR.CS,
+                results.get(QSeries.series.rejectionState).toString());
+        if (results.get(QSeries.series.failedSOPInstanceUIDList) != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
+                    results.get(QSeries.series.failedSOPInstanceUIDList));
+        if (results.get(QSeries.series.failedRetrieves) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
+                    results.get(QSeries.series.failedRetrieves));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityOfSeries, VR.AE,
+                results.get(QSeries.series.sourceAET));
         return attrs;
     }
 
@@ -235,23 +252,6 @@ class SeriesQuery extends AbstractQuery {
                 results.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
                 results.get(QStudy.study.storageIDs));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,
-                results.get(QSeries.series.createdTime));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesUpdateDateTime, VR.DT,
-                results.get(QSeries.series.updatedTime));
-        if (results.get(QSeries.series.expirationDate) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
-                    results.get(QSeries.series.expirationDate));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesRejectionState, VR.CS,
-                results.get(QSeries.series.rejectionState).toString());
-        if (results.get(QSeries.series.failedSOPInstanceUIDList) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
-                    results.get(QSeries.series.failedSOPInstanceUIDList));
-        if (results.get(QSeries.series.failedRetrieves) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
-                    results.get(QSeries.series.failedRetrieves));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityOfSeries, VR.AE,
-                results.get(QSeries.series.sourceAET));
         return attrs;
     }
 
