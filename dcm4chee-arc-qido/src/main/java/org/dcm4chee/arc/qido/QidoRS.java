@@ -395,12 +395,9 @@ public class QidoRS {
         queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
         queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
         queryParam.setExpired(Boolean.parseBoolean(expired));
-        queryParam.setExpiredSeries(model == Model.SERIES && Boolean.parseBoolean(expired));
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
-        queryParam.setIncompleteSeries(model == Model.SERIES && Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
-        queryParam.setRetrieveFailedSeries(model == Model.SERIES && Boolean.parseBoolean(retrievefailed));
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);

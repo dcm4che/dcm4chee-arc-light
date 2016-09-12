@@ -280,7 +280,8 @@ public class QueryBuilder {
         return path.in(values);
     }
 
-    public static void addStudyLevelPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam) {
+    public static void addStudyLevelPredicates(BooleanBuilder builder, Attributes keys,
+                                               QueryParam queryParam, QueryRetrieveLevel2 retrieveLevel) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         builder.and(accessControl(queryParam.getAccessControlIDs()));
         builder.and(uidsPredicate(QStudy.study.studyInstanceUID, keys.getStrings(Tag.StudyInstanceUID)));
@@ -312,11 +313,11 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
-        if (queryParam.isExpired() && !queryParam.isExpiredSeries())
+        if (queryParam.isExpired() && retrieveLevel != QueryRetrieveLevel2.SERIES)
             builder.and(QStudy.study.expirationDate.loe(LocalDate.now().toString()));
-        if (queryParam.isIncomplete() && !queryParam.isIncompleteSeries())
+        if (queryParam.isIncomplete() && retrieveLevel != QueryRetrieveLevel2.SERIES)
             builder.and(QStudy.study.failedSOPInstanceUIDList.isNotNull());
-        if (queryParam.isRetrieveFailed() && !queryParam.isRetrieveFailedSeries())
+        if (queryParam.isRetrieveFailed() && retrieveLevel != QueryRetrieveLevel2.SERIES)
             builder.and(QStudy.study.failedRetrieves.gt(0));
     }
 
@@ -377,11 +378,11 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QSeries.series.seriesCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
-        if (queryParam.isExpiredSeries())
+        if (queryParam.isExpired())
             builder.and(QSeries.series.expirationDate.loe(LocalDate.now().toString()));
-        if (queryParam.isIncompleteSeries())
+        if (queryParam.isIncomplete())
             builder.and(QSeries.series.failedSOPInstanceUIDList.isNotNull());
-        if (queryParam.isRetrieveFailedSeries())
+        if (queryParam.isRetrieveFailed())
             builder.and(QSeries.series.failedRetrieves.gt(0));
     }
 

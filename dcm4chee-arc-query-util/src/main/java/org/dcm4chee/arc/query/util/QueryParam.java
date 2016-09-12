@@ -62,12 +62,9 @@ public class QueryParam {
     private boolean fuzzySemanticMatching;
     private boolean returnEmpty;
     private boolean expired;
-    private boolean expiredSeries;
     private boolean withoutStudies = true;
     private boolean incomplete;
-    private boolean incompleteSeries;
     private boolean retrieveFailed;
-    private boolean retrieveFailedSeries;
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
 
@@ -165,14 +162,6 @@ public class QueryParam {
         this.expired = expired;
     }
 
-    public boolean isExpiredSeries() {
-        return expiredSeries;
-    }
-
-    public void setExpiredSeries(boolean expiredSeries) {
-        this.expiredSeries = expiredSeries;
-    }
-
     public boolean isWithoutStudies() {
         return withoutStudies;
     }
@@ -189,14 +178,6 @@ public class QueryParam {
         this.incomplete = incomplete;
     }
 
-    public boolean isIncompleteSeries() {
-        return incompleteSeries;
-    }
-
-    public void setIncompleteSeries(boolean incompleteSeries) {
-        this.incompleteSeries = incompleteSeries;
-    }
-
     public boolean isRetrieveFailed() {
         return retrieveFailed;
     }
@@ -204,12 +185,5 @@ public class QueryParam {
     public void setRetrieveFailed(boolean retrieveFailed) {
         this.retrieveFailed = retrieveFailed;
     }
-
-    public boolean isRetrieveFailedSeries() {
-        return retrieveFailedSeries;
-    }
-
-    public void setRetrieveFailedSeries(boolean retrieveFailedSeries) {
-        this.retrieveFailedSeries = retrieveFailedSeries;
-    }
+    
 }
