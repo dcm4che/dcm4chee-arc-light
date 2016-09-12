@@ -129,7 +129,7 @@ class SeriesQuery extends AbstractQuery {
                 context.getQueryParam(), QueryRetrieveLevel2.SERIES);
         QueryBuilder.addSeriesLevelPredicates(predicates,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(), QueryRetrieveLevel2.SERIES);
         return q.where(predicates);
     }
 

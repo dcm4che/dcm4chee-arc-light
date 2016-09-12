@@ -109,7 +109,7 @@ class InstanceQuery extends AbstractQuery {
                 context.getQueryParam(), QueryRetrieveLevel2.IMAGE);
         QueryBuilder.addSeriesLevelPredicates(predicates,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(), QueryRetrieveLevel2.IMAGE);
         QueryBuilder.addInstanceLevelPredicates(predicates,
                 context.getQueryKeys(),
                 context.getQueryParam());

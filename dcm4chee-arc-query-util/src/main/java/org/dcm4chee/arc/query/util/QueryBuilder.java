@@ -282,7 +282,7 @@ public class QueryBuilder {
     }
 
     public static void addStudyLevelPredicates(BooleanBuilder builder, Attributes keys,
-                                               QueryParam queryParam, QueryRetrieveLevel2 retrieveLevel) {
+                                               QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         builder.and(accessControl(queryParam.getAccessControlIDs()));
         builder.and(uidsPredicate(QStudy.study.studyInstanceUID, keys.getStrings(Tag.StudyInstanceUID)));
@@ -314,12 +314,14 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
-        if (queryParam.isExpired() && retrieveLevel != QueryRetrieveLevel2.SERIES)
-            builder.and(QStudy.study.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
-        if (queryParam.isIncomplete() && retrieveLevel != QueryRetrieveLevel2.SERIES)
-            builder.and(QStudy.study.failedSOPInstanceUIDList.isNotNull());
-        if (queryParam.isRetrieveFailed() && retrieveLevel != QueryRetrieveLevel2.SERIES)
-            builder.and(QStudy.study.failedRetrieves.gt(0));
+        if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
+            if (queryParam.isExpired())
+                builder.and(QStudy.study.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
+            if (queryParam.isIncomplete())
+                builder.and(QStudy.study.failedSOPInstanceUIDList.isNotNull());
+            if (queryParam.isRetrieveFailed())
+                builder.and(QStudy.study.failedRetrieves.gt(0));
+        }
     }
 
     public static Predicate accessControl(String[] accessControlIDs) {
@@ -345,7 +347,8 @@ public class QueryBuilder {
         return query;
     }
 
-    public static void addSeriesLevelPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam) {
+    public static void addSeriesLevelPredicates(BooleanBuilder builder, Attributes keys,
+                                                QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel) {
         builder.and(uidsPredicate(QSeries.series.seriesInstanceUID, keys.getStrings(Tag.SeriesInstanceUID)));
         builder.and(numberPredicate(QSeries.series.seriesNumber, keys.getString(Tag.SeriesNumber, "0")));
         builder.and(wildCard(QSeries.series.modality, keys.getString(Tag.Modality, "*").toUpperCase(),
@@ -379,12 +382,14 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QSeries.series.seriesCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
-        if (queryParam.isExpired())
-            builder.and(QSeries.series.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
-        if (queryParam.isIncomplete())
-            builder.and(QSeries.series.failedSOPInstanceUIDList.isNotNull());
-        if (queryParam.isRetrieveFailed())
-            builder.and(QSeries.series.failedRetrieves.gt(0));
+        if (queryRetrieveLevel == QueryRetrieveLevel2.SERIES) {
+            if (queryParam.isExpired())
+                builder.and(QSeries.series.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
+            if (queryParam.isIncomplete())
+                builder.and(QSeries.series.failedSOPInstanceUIDList.isNotNull());
+            if (queryParam.isRetrieveFailed())
+                builder.and(QSeries.series.failedRetrieves.gt(0));
+        }
     }
 
     public static HibernateQuery<Tuple> applyInstanceLevelJoins(
