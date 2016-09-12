@@ -56,6 +56,7 @@ import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -314,7 +315,7 @@ public class QueryBuilder {
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
         if (queryParam.isExpired() && retrieveLevel != QueryRetrieveLevel2.SERIES)
-            builder.and(QStudy.study.expirationDate.loe(LocalDate.now().toString()));
+            builder.and(QStudy.study.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
         if (queryParam.isIncomplete() && retrieveLevel != QueryRetrieveLevel2.SERIES)
             builder.and(QStudy.study.failedSOPInstanceUIDList.isNotNull());
         if (queryParam.isRetrieveFailed() && retrieveLevel != QueryRetrieveLevel2.SERIES)
@@ -379,7 +380,7 @@ public class QueryBuilder {
         builder.and(wildCard(QSeries.series.seriesCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
         if (queryParam.isExpired())
-            builder.and(QSeries.series.expirationDate.loe(LocalDate.now().toString()));
+            builder.and(QSeries.series.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
         if (queryParam.isIncomplete())
             builder.and(QSeries.series.failedSOPInstanceUIDList.isNotNull());
         if (queryParam.isRetrieveFailed())
