@@ -40,21 +40,23 @@
 
 package org.dcm4chee.arc.query.impl;
 
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.entity.SeriesQueryAttributes;
-import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.query.Query;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
@@ -176,30 +178,33 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
-        return ejb.getStudyAttributesWithSOPInstanceRefs(null, null,
-                studyUID, null, null, new QueryParam(ae),
-                seriesAttrs, false);
-    }
-    @Override
-    public Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability) {
-        return ejb.getStudyAttributesWithSOPInstanceRefs(null, null,
-                studyUID, seriesUID, objectUID, new QueryParam(ae),
-                null, availability);
+        SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);
+        return ejb.getStudyAttributesWithSOPInstanceRefs(
+                QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, builder.build(ae), seriesAttrs);
     }
 
     @Override
-    public Attributes getStudyAttributesWithSOPInstanceRefs(String studyUID, String[] retrieveAETs,
-                Availability instanceAvailability, ApplicationEntity ae) {
-        return ejb.getStudyAttributesWithSOPInstanceRefs(retrieveAETs, instanceAvailability,
-                studyUID, null, null, new QueryParam(ae),
-                null, instanceAvailability == null);
+    public Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID,
+                                Availability availability, String... retrieveAETs) {
+        SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);
+        if (seriesUID != null)
+            builder.setSeriesInstanceUID(seriesUID);
+        return ejb.getSOPInstanceRefs(
+                QueryServiceEJB.SOPInstanceRefsType.IAN, studyUID, builder.build(ae), null,
+                retrieveAETs.length > 0 ? StringUtils.concat(retrieveAETs, '\\') : null, availability);
     }
 
     @Override
     public Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote) {
-        Attributes attrs = getStudyAttributesWithSOPInstanceRefs(studyUID, seriesUID, objectUID, ae, false);
+        SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);
+        if (seriesUID != null) {
+            builder.setSeriesInstanceUID(seriesUID);
+            if (objectUID != null)
+                builder.setSOPInstanceUID(objectUID);
+        }
+        Attributes attrs = ejb.getStudyAttributesWithSOPInstanceRefs(
+                QueryServiceEJB.SOPInstanceRefsType.KOS_IOCM, studyUID, builder.build(ae), null);
         if (attrs == null || !attrs.containsValue(Tag.CurrentRequestedProcedureEvidenceSequence))
             return null;
 
@@ -263,5 +268,28 @@ class QueryServiceImpl implements QueryService {
         item.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
         item.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
         return item;
+    }
+
+    private class SOPInstanceRefsPredicateBuilder {
+        private final BooleanBuilder predicate;
+
+        private SOPInstanceRefsPredicateBuilder(String studyUID) {
+            predicate = new BooleanBuilder(QStudy.study.studyInstanceUID.eq(studyUID));
+        }
+
+        public void setSeriesInstanceUID(String seriesUID) {
+            predicate.and(QSeries.series.seriesInstanceUID.eq(seriesUID));
+        }
+
+        public void setSOPInstanceUID(String objectUID) {
+            predicate.and(QInstance.instance.sopInstanceUID.eq(objectUID));
+        }
+
+        public BooleanBuilder build(ApplicationEntity ae) {
+            QueryParam queryParam = initCodeEntities(new QueryParam(ae));
+            predicate.and(QueryBuilder.hideRejectedInstance(queryParam));
+            predicate.and(QueryBuilder.hideRejectionNote(queryParam));
+            return predicate;
+        }
     }
 }

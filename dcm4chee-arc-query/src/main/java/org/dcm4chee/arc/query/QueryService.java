@@ -88,11 +88,8 @@ public interface QueryService {
     Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
 
-    Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability);
-
-    Attributes getStudyAttributesWithSOPInstanceRefs(String studyUID, String[] retrieveAETs,
-            Availability instanceAvailability, ApplicationEntity ae);
+    Attributes createIAN(ApplicationEntity ae, String studyInstanceUID, String seriesInstanceUID,
+                         Availability instanceAvailability, String... retrieveAETs);
 
     Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);
