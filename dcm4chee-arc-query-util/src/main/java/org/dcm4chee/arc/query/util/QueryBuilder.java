@@ -302,7 +302,7 @@ public class QueryBuilder {
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
             builder.and(idWithIssuer(QStudy.study.accessionNumber, QStudy.study.issuerOfAccessionNumber, accNo, issuer));
         }
-        builder.and(modalitiesInStudy(keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase()));
+        builder.and(seriesAttributesInStudy(keys));
         builder.and(sopClassInStudy(keys.getString(Tag.SOPClassesInStudy, "*")));
         builder.and(code(QStudy.study.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence)));
         if (queryParam.isHideNotRejectedInstances())
@@ -639,14 +639,18 @@ public class QueryBuilder {
         return like.toString();
     }
 
-    static Predicate modalitiesInStudy(String modality) {
-        if (modality.equals("*"))
+    static Predicate seriesAttributesInStudy(Attributes keys) {
+        BooleanBuilder result = new BooleanBuilder();
+        result.and(wildCard(QSeries.series.institutionName, keys.getString(Tag.InstitutionName), true))
+            .and(wildCard(QSeries.series.institutionalDepartmentName, keys.getString(Tag.InstitutionalDepartmentName), true))
+            .and(wildCard(QSeries.series.stationName, keys.getString(Tag.StationName), true))
+            .and(wildCard(QSeries.series.seriesDescription, keys.getString(Tag.SeriesDescription), true))
+            .and(wildCard(QSeries.series.modality, keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase(), false))
+            .and(wildCard(QSeries.series.bodyPartExamined, keys.getString(Tag.BodyPartExamined, "*").toUpperCase(), false));
+        if (!result.hasValue())
             return null;
-
         return JPAExpressions.selectFrom(QSeries.series)
-                .where(QSeries.series.study.eq(QStudy.study),
-                        wildCard(QSeries.series.modality, modality,
-                                false)).exists();
+                .where(QSeries.series.study.eq(QStudy.study), result).exists();
     }
 
     static Predicate sopClassInStudy(String sopClass) {

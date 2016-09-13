@@ -57,7 +57,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.StatelessSession;
 
-import java.time.LocalDate;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
