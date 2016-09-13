@@ -48,6 +48,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
@@ -125,10 +126,10 @@ class SeriesQuery extends AbstractQuery {
                 context.getQueryParam());
         QueryBuilder.addStudyLevelPredicates(predicates,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(), QueryRetrieveLevel2.SERIES);
         QueryBuilder.addSeriesLevelPredicates(predicates,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(), QueryRetrieveLevel2.SERIES);
         return q.where(predicates);
     }
 
@@ -173,6 +174,23 @@ class SeriesQuery extends AbstractQuery {
         attrs.setString(Tag.InstanceAvailability, VR.CS,
             StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,
+                results.get(QSeries.series.createdTime));
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesUpdateDateTime, VR.DT,
+                results.get(QSeries.series.updatedTime));
+        if (results.get(QSeries.series.expirationDate) != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
+                    results.get(QSeries.series.expirationDate));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesRejectionState, VR.CS,
+                results.get(QSeries.series.rejectionState).toString());
+        if (results.get(QSeries.series.failedSOPInstanceUIDList) != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
+                    results.get(QSeries.series.failedSOPInstanceUIDList));
+        if (results.get(QSeries.series.failedRetrieves) != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
+                    results.get(QSeries.series.failedRetrieves));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+                results.get(QSeries.series.sourceAET));
         return attrs;
     }
 
@@ -234,23 +252,6 @@ class SeriesQuery extends AbstractQuery {
                 results.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
                 results.get(QStudy.study.storageIDs));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,
-                results.get(QSeries.series.createdTime));
-        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesUpdateDateTime, VR.DT,
-                results.get(QSeries.series.updatedTime));
-        if (results.get(QSeries.series.expirationDate) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
-                    results.get(QSeries.series.expirationDate));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesRejectionState, VR.CS,
-                results.get(QSeries.series.rejectionState).toString());
-        if (results.get(QSeries.series.failedSOPInstanceUIDList) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
-                    results.get(QSeries.series.failedSOPInstanceUIDList));
-        if (results.get(QSeries.series.failedRetrieves) != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
-                    results.get(QSeries.series.failedRetrieves));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityOfSeries, VR.AE,
-                results.get(QSeries.series.sourceAET));
         return attrs;
     }
 

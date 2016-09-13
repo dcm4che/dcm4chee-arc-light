@@ -48,6 +48,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
@@ -56,7 +57,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.StatelessSession;
 
-import java.time.LocalDate;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -111,7 +112,7 @@ class StudyQuery extends AbstractQuery {
                 context.getQueryParam());
         QueryBuilder.addStudyLevelPredicates(predicates,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(), QueryRetrieveLevel2.STUDY);
         return q.where(predicates);
     }
 

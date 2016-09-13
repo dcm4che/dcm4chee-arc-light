@@ -49,6 +49,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -105,10 +106,10 @@ class InstanceQuery extends AbstractQuery {
                 context.getQueryParam());
         QueryBuilder.addStudyLevelPredicates(predicates,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(), QueryRetrieveLevel2.IMAGE);
         QueryBuilder.addSeriesLevelPredicates(predicates,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(), QueryRetrieveLevel2.IMAGE);
         QueryBuilder.addInstanceLevelPredicates(predicates,
                 context.getQueryKeys(),
                 context.getQueryParam());

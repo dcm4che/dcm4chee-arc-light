@@ -653,6 +653,7 @@ public class StoreServiceEJB {
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .setParameter(2, ctx.getSeriesInstanceUID())
                         .getSingleResult();
+                updateStorageIDs(series.getStudy(), storeSession.getArchiveAEExtension().storageID());
                 if (result.getRejectionNote() == null)
                     updateSeriesRejectionState(ctx, series);
             } catch (NoResultException e) {}

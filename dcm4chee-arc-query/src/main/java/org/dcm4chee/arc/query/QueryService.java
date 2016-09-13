@@ -65,9 +65,7 @@ public interface QueryService {
     QueryContext newQueryContextFIND(Association as, String sopClassUID, EnumSet<QueryOption> queryOpts);
 
     QueryContext newQueryContextQIDO(
-            HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
-            boolean fuzzyMatching, boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies,
-            boolean incomplete, boolean incompleteSeries, boolean retrieveFailed, boolean retrieveFailedSeries);
+            HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam);
 
     Query createQuery(QueryContext ctx, QueryRetrieveLevel2 qrLevel);
 
@@ -90,11 +88,8 @@ public interface QueryService {
     Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
 
-    Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyUID, String seriesUID, String objectUID, ApplicationEntity ae, boolean availability);
-
-    Attributes getStudyAttributesWithSOPInstanceRefs(String studyUID, String[] retrieveAETs,
-            Availability instanceAvailability, ApplicationEntity ae);
+    Attributes createIAN(ApplicationEntity ae, String studyInstanceUID, String seriesInstanceUID,
+                         Availability instanceAvailability, String... retrieveAETs);
 
     Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);

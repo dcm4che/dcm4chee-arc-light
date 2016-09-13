@@ -42,9 +42,12 @@ package org.dcm4chee.arc.query.util;
 
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.CodeEntity;
+
+import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -52,38 +55,23 @@ import org.dcm4chee.arc.entity.CodeEntity;
  * @since Aug 2015
  */
 public class QueryParam {
-    private final ArchiveDeviceExtension arcDev;
     private final ArchiveAEExtension arcAE;
-    private final boolean combinedDatetimeMatching;
-    private final boolean fuzzySemanticMatching;
-    private final boolean returnEmpty;
-    private final boolean expired;
-    private final boolean expiredSeries;
+    private final ArchiveDeviceExtension arcDev;
     private final QueryRetrieveView qrView;
+    private boolean combinedDatetimeMatching;
+    private boolean fuzzySemanticMatching;
+    private boolean returnEmpty;
+    private boolean expired;
+    private boolean withoutStudies = true;
+    private boolean incomplete;
+    private boolean retrieveFailed;
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
-    private final boolean withoutStudies;
-    private final boolean incomplete;
-    private final boolean incompleteSeries;
-    private final boolean retrieveFailed;
-    private final boolean retrieveFailedSeries;
 
-    public QueryParam(ApplicationEntity ae, boolean combinedDatetimeMatching, boolean fuzzySemanticMatching,
-                      boolean returnEmpty, boolean expired, boolean expiredSeries, boolean withoutStudies,
-                      boolean incomplete, boolean incompleteSeries, boolean retrieveFailed, boolean retrieveFailedSeries) {
+    public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
-        this.combinedDatetimeMatching = combinedDatetimeMatching;
-        this.fuzzySemanticMatching = fuzzySemanticMatching;
-        this.returnEmpty = returnEmpty;
-        this.expired = expired;
-        this.expiredSeries = expiredSeries;
-        this.withoutStudies = withoutStudies;
-        this.incomplete = incomplete;
-        this.incompleteSeries = incompleteSeries;
-        this.retrieveFailed = retrieveFailed;
-        this.retrieveFailedSeries = retrieveFailedSeries;
     }
 
     public String getAETitle() {
@@ -96,22 +84,6 @@ public class QueryParam {
 
     public SPSStatus[] getHideSPSWithStatusFromMWL() {
         return arcAE.hideSPSWithStatusFromMWL();
-    }
-
-    public boolean isFuzzySemanticMatching() {
-        return fuzzySemanticMatching;
-    }
-
-    public boolean isReturnEmpty() {
-        return returnEmpty;
-    }
-
-    public boolean isExpired() {
-        return expired;
-    }
-
-    public boolean isExpiredSeries() {
-        return expiredSeries;
     }
 
     public FuzzyStr getFuzzyStr() {
@@ -154,31 +126,64 @@ public class QueryParam {
         return qrView;
     }
 
+    public Issuer getDefaultIssuerOfAccessionNumber() {
+        return null;
+    }
+
     public boolean isCombinedDatetimeMatching() {
         return combinedDatetimeMatching;
     }
 
-    public Issuer getDefaultIssuerOfAccessionNumber() {
-        return null;
+    public void setCombinedDatetimeMatching(boolean combinedDatetimeMatching) {
+        this.combinedDatetimeMatching = combinedDatetimeMatching;
+    }
+
+    public boolean isFuzzySemanticMatching() {
+        return fuzzySemanticMatching;
+    }
+
+    public void setFuzzySemanticMatching(boolean fuzzySemanticMatching) {
+        this.fuzzySemanticMatching = fuzzySemanticMatching;
+    }
+
+    public boolean isReturnEmpty() {
+        return returnEmpty;
+    }
+
+    public void setReturnEmpty(boolean returnEmpty) {
+        this.returnEmpty = returnEmpty;
+    }
+
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public void setExpired(boolean expired) {
+        this.expired = expired;
     }
 
     public boolean isWithoutStudies() {
         return withoutStudies;
     }
 
+    public void setWithoutStudies(boolean withoutStudies) {
+        this.withoutStudies = withoutStudies;
+    }
+
     public boolean isIncomplete() {
         return incomplete;
     }
 
-    public boolean isIncompleteSeries() {
-        return incompleteSeries;
+    public void setIncomplete(boolean incomplete) {
+        this.incomplete = incomplete;
     }
 
     public boolean isRetrieveFailed() {
         return retrieveFailed;
     }
 
-    public boolean isRetrieveFailedSeries() {
-        return retrieveFailedSeries;
+    public void setRetrieveFailed(boolean retrieveFailed) {
+        this.retrieveFailed = retrieveFailed;
     }
+    
 }

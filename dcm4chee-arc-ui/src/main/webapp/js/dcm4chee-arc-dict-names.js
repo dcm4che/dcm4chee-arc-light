@@ -17,7 +17,7 @@ DCM4CHE.elementName.addDictionary({
 "7777xx34":"Series Rejection State",
 "7777xx35":"Missing SOP Instance UID List of Series",
 "7777xx36":"Failed Retrieves of Series",
-"7777xx37":"Sending Application Entity of Series",
+"7777xx37":"Sending Application Entity Title of Series",
 "7777xx40":"Instance Receive Date Time",
 "7777xx41":"Instance Update Date Time",
 "7777xx42":"Rejection Code Sequence"
