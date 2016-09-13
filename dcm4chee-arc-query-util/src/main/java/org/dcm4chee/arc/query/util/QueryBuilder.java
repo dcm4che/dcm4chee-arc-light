@@ -302,7 +302,7 @@ public class QueryBuilder {
                 issuer = queryParam.getDefaultIssuerOfAccessionNumber();
             builder.and(idWithIssuer(QStudy.study.accessionNumber, QStudy.study.issuerOfAccessionNumber, accNo, issuer));
         }
-        builder.and(seriesAttributesInStudy(keys));
+        builder.and(seriesAttributesInStudy(keys, queryParam));
         builder.and(sopClassInStudy(keys.getString(Tag.SOPClassesInStudy, "*")));
         builder.and(code(QStudy.study.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence)));
         if (queryParam.isHideNotRejectedInstances())
@@ -389,6 +389,8 @@ public class QueryBuilder {
                 builder.and(QSeries.series.failedSOPInstanceUIDList.isNotNull());
             if (queryParam.isRetrieveFailed())
                 builder.and(QSeries.series.failedRetrieves.gt(0));
+            if (queryParam.getSendingApplicationEntityTitleOfSeries() != null)
+                builder.and(QSeries.series.sourceAET.eq(queryParam.getSendingApplicationEntityTitleOfSeries()));
         }
     }
 
@@ -639,7 +641,7 @@ public class QueryBuilder {
         return like.toString();
     }
 
-    static Predicate seriesAttributesInStudy(Attributes keys) {
+    static Predicate seriesAttributesInStudy(Attributes keys, QueryParam queryParam) {
         BooleanBuilder result = new BooleanBuilder();
         result.and(wildCard(QSeries.series.institutionName, keys.getString(Tag.InstitutionName), true))
             .and(wildCard(QSeries.series.institutionalDepartmentName, keys.getString(Tag.InstitutionalDepartmentName), true))
@@ -647,6 +649,8 @@ public class QueryBuilder {
             .and(wildCard(QSeries.series.seriesDescription, keys.getString(Tag.SeriesDescription), true))
             .and(wildCard(QSeries.series.modality, keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase(), false))
             .and(wildCard(QSeries.series.bodyPartExamined, keys.getString(Tag.BodyPartExamined, "*").toUpperCase(), false));
+        if (queryParam.getSendingApplicationEntityTitleOfSeries() != null)
+            result.and(wildCard(QSeries.series.sourceAET, queryParam.getSendingApplicationEntityTitleOfSeries().toUpperCase(), false));
         if (!result.hasValue())
             return null;
         return JPAExpressions.selectFrom(QSeries.series)

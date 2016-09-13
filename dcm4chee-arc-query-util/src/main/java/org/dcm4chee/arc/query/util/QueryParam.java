@@ -67,6 +67,7 @@ public class QueryParam {
     private boolean retrieveFailed;
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
+    private String sendingApplicationEntityTitleOfSeries;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
@@ -185,5 +186,12 @@ public class QueryParam {
     public void setRetrieveFailed(boolean retrieveFailed) {
         this.retrieveFailed = retrieveFailed;
     }
-    
+
+    public String getSendingApplicationEntityTitleOfSeries() {
+        return sendingApplicationEntityTitleOfSeries;
+    }
+
+    public void setSendingApplicationEntityTitleOfSeries(String sendingApplicationEntityTitleOfSeries) {
+        this.sendingApplicationEntityTitleOfSeries = sendingApplicationEntityTitleOfSeries;
+    }
 }

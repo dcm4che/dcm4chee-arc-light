@@ -216,6 +216,9 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String retrievefailed;
 
+    @QueryParam("SendingApplicationEntityTitleOfSeries")
+    private String sendingApplicationEntityTitleOfSeries;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -398,6 +401,7 @@ public class QidoRS {
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
+        queryParam.setSendingApplicationEntityTitleOfSeries(sendingApplicationEntityTitleOfSeries);
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
@@ -462,6 +466,7 @@ public class QidoRS {
                     case "expired":
                     case "retrievefailed":
                     case "incomplete":
+                    case "SendingApplicationEntityTitleOfSeries":
                         break;
                     default:
                         addQueryKey(key, entry.getValue());
