@@ -235,6 +235,12 @@
             "description": "limit={maximumResults}",
             "type": "integer",
             "default": 50
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "return Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -396,6 +402,12 @@
             "description": "limit={maximumResults}",
             "type": "integer",
             "default": 50
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "return Series received from this <AE Title>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -511,6 +523,12 @@
             "description": "limit={maximumResults}",
             "type": "integer",
             "default": 50
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "return Series received from this <AE Title>",
+            "type": "string"
           }
         ],
         "responses": {
