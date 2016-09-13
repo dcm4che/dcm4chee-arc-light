@@ -2348,6 +2348,46 @@ input.ng-invalid, .has-error .form-control{
 				    margin-top: 0px;
 				    color: #777;
 				}
+		    } 
+		    & > .schema-form-textarea{
+		    	float: left;
+			    margin: 0;
+			    // padding: 10px 0;
+			    width: 100%;
+		    	.control-label,label {
+				    color: black !important;
+				    float: left;
+				    padding-bottom: 0;
+				    padding-right: 15px;
+				    text-align: right;
+				    height: 32px;
+				    line-height: 32px;
+	    			// line-height: 30px;
+	    			// margin-top: 4px;
+	    			width: 25%;
+	    			margin-bottom: 0;
+	    			padding-bottom:0;
+				}
+				textarea{
+				    width: 24.2%;
+				    float: left;
+			    	border-color: #ccc;
+				    border-style: solid;
+				    border-width: 1px;
+				    border-radius:0;
+				    padding: 3px 12px;
+				    height: 60px;
+				    min-height: 26px;
+    				margin-top: 3px;
+
+				}
+				.help-block {
+			   		float: right;
+				    margin-right: 1%;
+				    width: 49%;
+				    margin-top: 0px;
+				    color: #777;
+				}
 		    }
 		    & > .schema-form-radios {
 		    	position:relative;

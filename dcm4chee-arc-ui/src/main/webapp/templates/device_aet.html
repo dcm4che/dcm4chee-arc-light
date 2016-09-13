@@ -14,7 +14,7 @@
 			<div class="content" ng-show="showdevice===true">
 				<div sf-schema='newDeviceAESchema' sf-form='newDeviceAEForm' sf-model="newAetModel"  sf-options="sfOptions"></div>
 			</div>
-			<h4 ng-click="showconn=!showconn;showdevice=false" ng-init="showconn=false">New Network Connection  <span ng-if="newAetModel.dicomNetworkConnection[0].cn && !showconn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>
+			<h4 ng-click="showconn=!showconn;showdevice=false" ng-init="showconn=true">New Network Connection  <span ng-if="newAetModel.dicomNetworkConnection[0].cn && !showconn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>
 			<div class="content"  ng-show="showconn===true">
 			    <div sf-schema="netConnSchema" sf-form="netConnForm" sf-model="netConnModel"  sf-options="sfOptions"></div>
 			</div>
