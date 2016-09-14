@@ -374,9 +374,8 @@ public class AuditService {
         if (rCtx != null) {
             HttpServletRequest req = rCtx.getHttpRequest();
             Collection<InstanceLocations> il = rCtx.getMatches();
-            for (InstanceLocations i : il) {
+            for (InstanceLocations i : il)
                 attrs = i.getAttributes();
-            }
             fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.getRemoteAddr(),
                     rCtx.getLocalAETitle(), rCtx.getStudyInstanceUIDs()[0]);
             String callingAET = req.getAttribute(keycloakClassName) != null
@@ -473,15 +472,21 @@ public class AuditService {
                 .destAET(destAET).destNapID(null != req ? req.getRemoteAddr() : ctx.getDestinationHostName()).warning(warning)
                 .callingHost(ctx.getRequestorHostName()).moveAET(ctx.getMoveOriginatorAETitle()).outcome(outcome).failedIUIDShow(failedIUIDShow).build();
         obj.add(new AuditInfo(i));
-        for (InstanceLocations instanceLocation : il) {
-            Attributes attrs = instanceLocation.getAttributes();
-            BuildAuditInfo iI = new BuildAuditInfo.Builder().studyUID(attrs.getString(Tag.StudyInstanceUID)).accNum(getAcc(attrs))
-                    .sopCUID(sopCUID(attrs)).sopIUID(attrs.getString(Tag.SOPInstanceUID)).pID(getPID(attrs))
-                    .pName(pName(attrs)).studyDate(getSD(attrs)).build();
-            obj.add(new AuditInfo(iI));
-        }
+        for (InstanceLocations instanceLocation : il)
+            addInstanceInfoForRetrieve(obj, instanceLocation);
+        for (InstanceLocations instanceLocationCStoreForward : ctx.getCStoreForwards())
+            addInstanceInfoForRetrieve(obj, instanceLocationCStoreForward);
         writeSpoolFile(etFile, obj);
     }
+
+    private void addInstanceInfoForRetrieve(LinkedHashSet<Object> obj, InstanceLocations instanceLocation) {
+        Attributes attrs = instanceLocation.getAttributes();
+        BuildAuditInfo iI = new BuildAuditInfo.Builder().studyUID(attrs.getString(Tag.StudyInstanceUID)).accNum(getAcc(attrs))
+                .sopCUID(sopCUID(attrs)).sopIUID(attrs.getString(Tag.SOPInstanceUID)).pID(getPID(attrs))
+                .pName(pName(attrs)).studyDate(getSD(attrs)).build();
+        obj.add(new AuditInfo(iI));
+    }
+
 
     private void auditRetrieve(SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
         AuditInfo ri = new AuditInfo(readerObj.getMainInfo());
