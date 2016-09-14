@@ -435,6 +435,12 @@
             <div class="col-md-6" ng-show="filterMode === 'mwl'">
                 <input id="ScheduledProcedureStepSequence" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledProcedureStepDescription']" placeholder="SPS Description" title="Scheduled Procedure Step Description" class="col-md-12" />
             </div>
+                        <div class="col-md-6" ng-show="filterMode === 'study'">
+                <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12 clearable" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'study'">
+                <input id="SOPClassesInStudy" type="text" ng-model="filter.SeriesDescription" placeholder="Series Description" title="Series Description" class="col-md-12 clearable" />
+            </div>
         </div>    
 
 <!--         <div class="row">
@@ -481,11 +487,16 @@
             <!-- </div> -->
         <!-- </div> -->
         <div class="row">
-            <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12 clearable" />
+
+            <div class="col-md-6">
+                <label title="Show only expired studies">
+                    <input type="checkbox" ng-model="filter.expired"> Only expired studies
+                </label>
             </div>
-            <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="SOPClassesInStudy" type="text" ng-model="filter.SeriesDescription" placeholder="Series Description" title="Series Description" class="col-md-12 clearable" />
+            <div class="col-md-6">
+                <label title="Show only incomplete studies">
+                    <input type="checkbox" ng-model="filter.incomplete"> Only incomplete studies
+                </label>
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder="Study ID" title="Study ID" class="col-md-12" />
@@ -495,6 +506,12 @@
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'|| filterMode === 'mwl'">
                 <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12 clearable" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'study'|| filterMode === 'mwl'">
+                <input id="StudyInstanceUID" type="text" ng-model="filter.SendingApplicationEntityTitleOfSeries" placeholder="Sending Application Entity Title of Series" title="Sending Application Entity Title of Series" class="col-md-12 clearable" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'study'">
+                <input id="SOPClassesInStudy" type="text" ng-model="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'patient'">
 <!--                 <input id="PatientBirthDate" ng-model="birthDate.filter" type="hiden" ng-model="filter.PatientBirthDate" />
@@ -530,19 +547,8 @@
                     <input type="checkbox" ng-model="filter.returnempty"> Return empty studies
                 </label>
             </div> -->
-            <div class="col-md-6">
-                <label title="Show only expired studies">
-                    <input type="checkbox" ng-model="filter.expired"> Only expired studies
-                </label>
-            </div>
-            <div class="col-md-6">
-                <label title="Show only incomplete studies">
-                    <input type="checkbox" ng-model="filter.incomplete"> Only incomplete studies
-                </label>
-            </div>
-            <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="SOPClassesInStudy" type="text" ng-model="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
-            </div>
+
+
             <div class="col-md-6">
                 <label title="Show only studies failed to be retrieved">
                     <input type="checkbox" ng-model="filter.retrievefailed"> Only failed to be retrieved
