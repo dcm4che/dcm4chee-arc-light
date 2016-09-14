@@ -181,20 +181,24 @@ class AuditServiceUtils {
         static HashSet<EventType> forDicomInstTransferred(RetrieveContext ctx) {
             HashSet<EventType> eventType = new HashSet<>();
             if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size()) {
-                if (null != ctx.getException() || ctx.failedSOPInstanceUIDs().length > 0) {
+                if (null != ctx.getException() || ctx.failedSOPInstanceUIDs().length > 0)
                     eventType.add(getDicomInstTrfdErrorEventType(ctx));
-                }
-                if (ctx.getException() == null || ctx.failedSOPInstanceUIDs().length > 0) {
-                    eventType.add(ctx.isLocalRequestor() ? RTRV_T_E_P
-                            : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_T_M_P
-                            : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                            && ctx.isDestinationRequestor()
-                            ? RTRV_T_G_P : null != ctx.getHttpRequest() ? RTRV_T_W_P : null);
-                }
+                if (ctx.getException() == null || ctx.failedSOPInstanceUIDs().length > 0)
+                    eventType.add(getDicomInstTrfdSuccessEventType(ctx));
             }
+            if (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty())
+                eventType.add(getDicomInstTrfdSuccessEventType(ctx));
             else
                 eventType.add(getDicomInstTrfdErrorEventType(ctx));
             return eventType;
+        }
+
+        static EventType getDicomInstTrfdSuccessEventType(RetrieveContext ctx) {
+            return ctx.isLocalRequestor() ? RTRV_T_E_P
+                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_T_M_P
+                    : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                    && ctx.isDestinationRequestor()
+                    ? RTRV_T_G_P : null != ctx.getHttpRequest() ? RTRV_T_W_P : null;
         }
 
         static EventType getDicomInstTrfdErrorEventType(RetrieveContext ctx) {
