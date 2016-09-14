@@ -92,6 +92,7 @@ public class CFindSCUImpl implements CFindSCU {
         setReturnKeys(keys, patTags);
         setReturnKeys(keys, studyTags);
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        keys.setNull(Tag.NumberOfStudyRelatedInstances, VR.IS);
         return keys;
     }
 

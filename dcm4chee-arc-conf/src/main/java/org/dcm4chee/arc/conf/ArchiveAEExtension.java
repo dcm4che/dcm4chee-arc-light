@@ -74,6 +74,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration ianDelay;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
+    private String fallbackCMoveSCPLeadingCFindSCP;
     private Duration ianTimeout;
     private Boolean ianOnTimeout;
     private int fallbackCMoveSCPRetries;
@@ -366,6 +367,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackCMoveSCPDestination();
     }
 
+    public String getFallbackCMoveSCPLeadingCFindSCP() {
+        return fallbackCMoveSCPLeadingCFindSCP;
+    }
+
+    public void setFallbackCMoveSCPLeadingCFindSCP(String fallbackCMoveSCPLeadingCFindSCP) {
+        this.fallbackCMoveSCPLeadingCFindSCP = fallbackCMoveSCPLeadingCFindSCP;
+    }
+
+    public String fallbackCMoveSCPLeadingCFindSCP() {
+        return fallbackCMoveSCPLeadingCFindSCP != null
+                ? fallbackCMoveSCPLeadingCFindSCP
+                : getArchiveDeviceExtension().getFallbackCMoveSCPLeadingCFindSCP();
+    }
+
     public void setFallbackCMoveSCPRetries(int fallbackCMoveSCPRetries) {
         this.fallbackCMoveSCPRetries = fallbackCMoveSCPRetries;
     }
@@ -621,6 +636,7 @@ public class ArchiveAEExtension extends AEExtension {
         ianOnTimeout = aeExt.ianOnTimeout;
         fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
+        fallbackCMoveSCPLeadingCFindSCP = aeExt.fallbackCMoveSCPLeadingCFindSCP;
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
