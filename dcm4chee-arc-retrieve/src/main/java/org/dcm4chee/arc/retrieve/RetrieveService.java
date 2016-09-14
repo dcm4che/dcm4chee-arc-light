@@ -92,5 +92,9 @@ public interface RetrieveService {
 
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst);
 
-    void updateFailedSOPInstanceUIDList(RetrieveContext ctx, String failedSOPInstanceUIDList);
+    void waitForPendingCStoreForward(RetrieveContext ctx);
+
+    void waitForPendingCMoveForward(RetrieveContext ctx);
+
+    void updateFailedSOPInstanceUIDList(RetrieveContext ctx);
 }

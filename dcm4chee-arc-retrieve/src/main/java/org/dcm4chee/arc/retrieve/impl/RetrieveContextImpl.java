@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -71,6 +72,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private Association requestAssociation;
     private Association storeAssociation;
     private Association forwardAssociation;
+    private Association fallbackAssociation;
     private HttpServletRequest httpRequest;
     private final RetrieveService retrieveService;
     private final ArchiveAEExtension arcAE;
@@ -94,12 +96,19 @@ class RetrieveContextImpl implements RetrieveContext {
     private final Collection<SeriesInfo> seriesInfos = new ArrayList<>();
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
+    private final AtomicInteger failed = new AtomicInteger();
     private final AtomicInteger pendingCStoreForward = new AtomicInteger();
+    private final Collection<InstanceLocations> cstoreForwards =
+            Collections.synchronizedCollection(new ArrayList<InstanceLocations>());
     private final Collection<String> failedSOPInstanceUIDs =
             Collections.synchronizedCollection(new ArrayList<String>());
     private final HashMap<String, Storage> storageMap = new HashMap<>();
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
+    private ScheduledFuture<?> writePendingRSP;
+    private volatile int fallbackMoveRSPNumberOfMatches;
+    private volatile int fallbackMoveRSPFailed;
+    private volatile String[] fallbackMoveRSPFailedIUIDs = {};
 
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
@@ -148,6 +157,16 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setForwardAssociation(Association forwardAssociation) {
         this.forwardAssociation = forwardAssociation;
+    }
+
+    @Override
+    public Association getFallbackAssociation() {
+        return fallbackAssociation;
+    }
+
+    @Override
+    public void setFallbackAssociation(Association fallbackAssociation) {
+        this.fallbackAssociation = fallbackAssociation;
     }
 
     @Override
@@ -376,11 +395,6 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public void incrementNumberOfMatches(int inc) {
-        numberOfMatches += inc;
-    }
-
-    @Override
     public int completed() {
         return completed.get();
     }
@@ -412,7 +426,17 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public int failed() {
-        return failedSOPInstanceUIDs.size();
+        return failed.get() + fallbackMoveRSPFailed;
+    }
+
+    @Override
+    public void incrementFailed() {
+        failed.getAndIncrement();
+    }
+
+    @Override
+    public void addFailed(int delta) {
+        failed.getAndAdd(delta);
     }
 
     @Override
@@ -427,7 +451,13 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public int remaining() {
-        return numberOfMatches - completed() - warning() - failed();
+         return Math.max(numberOfMatches + cstoreForwards.size(), fallbackMoveRSPNumberOfMatches)
+                 - completed() - warning() - failed();
+    }
+
+    @Override
+    public int getNumberOfCStoreForwards() {
+        return cstoreForwards.size();
     }
 
     @Override
@@ -503,10 +533,53 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public void addMatch(InstanceLocations inst) {
-        synchronized (matches) {
-            matches.add(inst);
-        }
+    public void addCStoreForward(InstanceLocations inst) {
+        cstoreForwards.add(inst);
+    }
+
+    public Collection<InstanceLocations> getCStoreForwards() {
+        return cstoreForwards;
+    }
+
+    @Override
+    public void setWritePendingRSP(ScheduledFuture<?> writePendingRSP) {
+        this.writePendingRSP = writePendingRSP;
+    }
+
+    @Override
+    public void stopWritePendingRSP() {
+        if (writePendingRSP != null)
+            writePendingRSP.cancel(true);
+    }
+
+    @Override
+    public int getFallbackMoveRSPNumberOfMatches() {
+        return fallbackMoveRSPNumberOfMatches;
+    }
+
+    @Override
+    public void setFallbackMoveRSPNumberOfMatches(int fallbackMoveRSPNumberOfMatches) {
+        this.fallbackMoveRSPNumberOfMatches = fallbackMoveRSPNumberOfMatches;
+    }
+
+    @Override
+    public int getFallbackMoveRSPFailed() {
+        return fallbackMoveRSPFailed;
+    }
+
+    @Override
+    public void setFallbackMoveRSPFailed(int fallbackMoveRSPFailed) {
+        this.fallbackMoveRSPFailed = fallbackMoveRSPFailed;
+    }
+
+    @Override
+    public String[] getFallbackMoveRSPFailedIUIDs() {
+        return fallbackMoveRSPFailedIUIDs;
+    }
+
+    @Override
+    public void setFallbackMoveRSPFailedIUIDs(String[] fallbackMoveRSPFailedIUIDs) {
+        this.fallbackMoveRSPFailedIUIDs = fallbackMoveRSPFailedIUIDs;
     }
 
     @Override

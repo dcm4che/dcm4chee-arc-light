@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.retrieve;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
@@ -53,6 +54,7 @@ import org.dcm4chee.arc.storage.Storage;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
 import java.util.Collection;
+import java.util.concurrent.ScheduledFuture;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,6 +76,10 @@ public interface RetrieveContext extends Closeable {
     Association getForwardAssociation();
 
     void setForwardAssociation(Association fwdas);
+
+    Association getFallbackAssociation();
+
+    void setFallbackAssociation(Association fallbackAssociation);
 
     HttpServletRequest getHttpRequest();
 
@@ -161,8 +167,6 @@ public interface RetrieveContext extends Closeable {
 
     void setNumberOfMatches(int numberOfMatches);
 
-    void incrementNumberOfMatches(int inc);
-
     int completed();
 
     void incrementCompleted();
@@ -177,11 +181,17 @@ public interface RetrieveContext extends Closeable {
 
     int failed();
 
+    void incrementFailed();
+
+    void addFailed(int delta);
+
     void addFailedSOPInstanceUID(String iuid);
 
     String[] failedSOPInstanceUIDs();
 
     int remaining();
+
+    int getNumberOfCStoreForwards();
 
     int status();
 
@@ -205,5 +215,21 @@ public interface RetrieveContext extends Closeable {
 
     void waitForPendingCStoreForward() throws InterruptedException;
 
-    void addMatch(InstanceLocations inst);
+    void addCStoreForward(InstanceLocations inst);
+
+    void setWritePendingRSP(ScheduledFuture<?> scheduledFuture);
+
+    void stopWritePendingRSP();
+
+    int getFallbackMoveRSPNumberOfMatches();
+
+    void setFallbackMoveRSPNumberOfMatches(int fallbackMoveRSPNumberOfMatches);
+
+    int getFallbackMoveRSPFailed();
+
+    void setFallbackMoveRSPFailed(int fallbackMoveRSPFailed);
+
+    String[] getFallbackMoveRSPFailedIUIDs();
+
+    void setFallbackMoveRSPFailedIUIDs(String[] fallbackMoveRSPFailedIUIDs);
 }

@@ -101,6 +101,7 @@ public class CMoveSCUImpl implements CMoveSCU {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
             Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
                     createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
+            ctx.setFallbackAssociation(fwdas);
             fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
             rq.setString(Tag.MoveDestination, VR.AE, fallbackCMoveSCPDestination);
             storeForwardSCU.addRetrieveContext(ctx);
@@ -136,6 +137,31 @@ public class CMoveSCUImpl implements CMoveSCU {
         for (int i = 0; i < keys.length; i++) {
             rq.setInt(Tag.MessageID, VR.US, msgID + i);
             new ForwardRetrieveTask.UpdateRetrieveCtx(ctx, pc, rq, keys[i], fwdas).forwardMoveRQ();
+        }
+    }
+
+    @Override
+    public void forwardMoveRQs(
+            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String fallbackCMoveSCP,
+            String fallbackCMoveSCPDestination) throws DicomServiceException {
+        Association as = ctx.getRequestAssociation();
+        try {
+            ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
+            Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
+                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
+            ctx.setFallbackAssociation(fwdas);
+            fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
+            rq.setString(Tag.MoveDestination, VR.AE, fallbackCMoveSCPDestination);
+            storeForwardSCU.addRetrieveContext(ctx);
+            fwdas.addAssociationListener(new AssociationListener() {
+                @Override
+                public void onClose(Association association) {
+                    storeForwardSCU.removeRetrieveContext(ctx);
+                }
+            });
+            new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd).forwardMoveRQ();
+        } catch (Exception e) {
+            throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
     }
 

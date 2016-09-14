@@ -64,4 +64,8 @@ public interface CMoveSCU {
     void forwardMoveRQs(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes[] keys, String otherCMoveSCP)
             throws DicomServiceException;
+
+    void forwardMoveRQs(
+            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
+            String fallbackCMoveSCP, String fallbackCMoveSCPDestination) throws DicomServiceException;
 }

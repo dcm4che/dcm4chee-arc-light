@@ -99,6 +99,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private static Logger LOG = LoggerFactory.getLogger(RetrieveServiceImpl.class);
 
+    private static final int MAX_FAILED_IUIDS_LEN = 4000;
+
     private static final Expression<?>[] SELECT = {
             QLocation.location.pk,
             QLocation.location.storageID,
@@ -476,8 +478,89 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public void updateFailedSOPInstanceUIDList(RetrieveContext ctx, String failedSOPInstanceUIDList) {
-        ejb.updateFailedSOPInstanceUIDList(ctx, failedSOPInstanceUIDList);
+    public void waitForPendingCStoreForward(RetrieveContext ctx) {
+        Association fwdas = ctx.getFallbackAssociation();
+        if (fwdas == null)
+            return;
+
+        Association rqas = ctx.getRequestAssociation();
+        String fallbackMoveSCP = fwdas.getCalledAET();
+        String suids = Arrays.toString(ctx.getStudyInstanceUIDs());
+        String destAET = ctx.getDestinationAETitle();
+        try {
+            LOG.info("{}: wait for pending forward of objects of study{} from {} to {}",
+                    rqas, suids, fallbackMoveSCP, destAET);
+            ctx.waitForPendingCStoreForward();
+            LOG.info("{}: complete forward of objects of study{} from {} to {} - remaining={}, completed={}, failed={}, warning={}",
+                    rqas, suids, fallbackMoveSCP, destAET, ctx.remaining(), ctx.completed(), ctx.failed(), ctx.warning());
+        } catch (InterruptedException e) {
+            LOG.warn("{}: failed to wait for pending forward of  objects of study{} from {} to {}:\n",
+                    rqas, suids, fallbackMoveSCP, destAET, e);
+        }
+    }
+
+    @Override
+    public void waitForPendingCMoveForward(RetrieveContext ctx) {
+        waitForPendingCMoveForward(ctx, ctx.getForwardAssociation());
+        waitForPendingCMoveForward(ctx, ctx.getFallbackAssociation());
+    }
+
+    private void waitForPendingCMoveForward(RetrieveContext ctx, Association fwdas) {
+        if (fwdas == null)
+            return;
+
+        Association rqas = ctx.getRequestAssociation();
+        String moveSCP = fwdas.getRemoteAET();
+        LOG.info("{}: wait for outstanding C-MOVE RSP(s) for C-MOVE RQ(s) forwarded to {}",
+                rqas, moveSCP);
+        try {
+            fwdas.waitForOutstandingRSP();
+        } catch (InterruptedException e) {
+            LOG.warn("{}: failed to wait for outstanding C-MOVE RSP(s) for C-MOVE RQ(s) forwarded to {}",
+                    rqas, moveSCP, e);
+        }
+        try {
+            fwdas.release();
+        } catch (IOException e) {
+            LOG.warn("{}: failed to release association to {}:\n", rqas, moveSCP, e);
+        }
+    }
+
+    @Override
+    public void updateFailedSOPInstanceUIDList(RetrieveContext ctx) {
+        int retrieved = ctx.getNumberOfCStoreForwards();
+        if (retrieved > 0)
+            ejb.updateFailedSOPInstanceUIDList(ctx, failedIUIDList(ctx));
+    }
+
+    private String failedIUIDList(RetrieveContext ctx) {
+        int failed = ctx.getFallbackMoveRSPFailed();
+        if (failed == 0)
+            return null;
+
+        Association as = ctx.getRequestAssociation();
+        Association fwdas = ctx.getFallbackAssociation();
+        LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {}",
+                as, failed, ctx.getNumberOfMatches(),
+                Arrays.toString(ctx.getStudyInstanceUIDs()), fwdas.getCalledAET());
+
+        String[] failedIUIDs = ctx.getFallbackMoveRSPFailedIUIDs();
+        if (failedIUIDs.length == 0) {
+            LOG.warn("{}: Missing Failed SOP Instance UID List in C-MOVE-RSP from {}", as, fwdas.getCalledAET());
+            return "*";
+        }
+        if (failed != failedIUIDs.length) {
+            LOG.warn("{}: Number Of Failed Suboperations [{}] does not match " +
+                            "size of Failed SOP Instance UID List [{}] in C-MOVE-RSP from {}",
+                    as, failed, failedIUIDs.length, fwdas.getCalledAET());
+        }
+        String concat = StringUtils.concat(failedIUIDs, '\\');
+        if (concat.length() > MAX_FAILED_IUIDS_LEN) {
+            LOG.warn("{}: Failed SOP Instance UID List [{}] in C-MOVE-RSP from {} too large to persist in DB",
+                    as, failed, fwdas.getCalledAET());
+            return "*";
+        }
+        return concat;
     }
 
     private AttributesCoercion uidRemap(InstanceLocations inst, AttributesCoercion next) {

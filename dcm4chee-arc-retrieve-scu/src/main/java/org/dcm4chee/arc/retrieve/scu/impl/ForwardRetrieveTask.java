@@ -57,7 +57,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -68,8 +67,6 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(ForwardRetrieveTask.class);
 
-    private static final int MAX_FAILED_IUIDS_LEN = 4000;
-
     protected final RetrieveContext ctx;
     private final PresentationContext pc;
     private final Attributes rqCmd;
@@ -78,7 +75,6 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
     protected final Attributes keys;
     private final Association rqas;
     private final Association fwdas;
-    protected final String fallbackCMoveSCP;
     private final CMoveRSPHandler rspHandler;
 
     public ForwardRetrieveTask(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
@@ -86,7 +82,6 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         this.ctx = ctx;
         this.rqas = ctx.getRequestAssociation();
         this.fwdas = fwdas;
-        this.fallbackCMoveSCP = fwdas.getRemoteAET();
         this.pc = pc;
         this.rqCmd = rqCmd;
         this.keys = keys;
@@ -100,7 +95,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         try {
             rspHandler.cancel(fwdas);
         } catch (IOException e) {
-            LOG.info("{}: failed to forward C-CANCEL-RQ on association to {}", rqas, fallbackCMoveSCP, e);
+            LOG.info("{}: failed to forward C-CANCEL-RQ on association to {}", rqas, fwdas.getRemoteAET(), e);
         }
     }
 
@@ -109,14 +104,13 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         rqas.addCancelRQHandler(msgId, this);
         try {
             forwardMoveRQ();
-            waitForFinalMoveRSP();
         } catch (DicomServiceException e) {
             onFailure(e);
         } finally {
-            releaseAssociation();
+            ctx.getRetrieveService().waitForPendingCMoveForward(ctx);
             rqas.removeCancelRQHandler(msgId);
+            onFinished();
         }
-        onFinished();
     }
 
     protected void onFailure(DicomServiceException e) {};
@@ -128,7 +122,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
             fwdas.invoke(fwdas.pcFor(cuid, null), rqCmd, new DataWriterAdapter(keys), rspHandler,
                     fwdas.getConnection().getRetrieveTimeout());
         } catch (Exception e) {
-            LOG.info("{}: failed to forward C-MOVE-RQ on association to {}", rqas, fallbackCMoveSCP, e);
+            LOG.info("{}: failed to forward C-MOVE-RQ on association to {}", rqas, fwdas.getRemoteAET(), e);
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
     }
@@ -153,38 +147,6 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         cmd.setInt(Tag.NumberOfFailedSuboperations, VR.US, failed);
         cmd.setInt(Tag.NumberOfWarningSuboperations, VR.US, warning);
         writeMoveRSP(cmd, data);
-    }
-
-    protected void waitForPendingCStoreForward(RetrieveContext ctx) {
-        try {
-            LOG.info("{}: wait for pending forward of objects of study{} from {} to {}",
-                    rqas, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP, ctx.getDestinationAETitle());
-            ctx.waitForPendingCStoreForward();
-            LOG.info("{}: complete forward of objects of study{} from {} to {} - remaining={}, completed={}, failed={}, warning={}",
-                    rqas, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP, ctx.getDestinationAETitle(),
-                    ctx.remaining(), ctx.completed(), ctx.failed(), ctx.warning());
-        } catch (InterruptedException e) {
-            LOG.warn("{}: failed to wait for pending forward of  objects of study{} from {} to {}:\n",
-                    rqas, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP, ctx.getDestinationAETitle(),
-                    e);
-        }
-    }
-
-    private void waitForFinalMoveRSP() throws DicomServiceException {
-        try {
-            fwdas.waitForOutstandingRSP();
-        } catch (InterruptedException e) {
-            LOG.warn("{}: failed to wait for outstanding RSP on association to {}", rqas, fallbackCMoveSCP, e);
-            throw new DicomServiceException(Status.ProcessingFailure, e);
-        }
-    }
-
-    private void releaseAssociation() {
-        try {
-            fwdas.release();
-        } catch (IOException e) {
-            LOG.warn("{}: failed to release association to {}", rqas, fallbackCMoveSCP, e);
-        }
     }
 
     private class CMoveRSPHandler extends DimseRSPHandler {
@@ -219,8 +181,9 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
     }
 
     static class UpdateRetrieveCtx extends ForwardRetrieveTask {
-        private int warnings;
         private int completed;
+        private int failed;
+        private int warnings;
 
         public UpdateRetrieveCtx(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
                                  Association fwdas) {
@@ -229,12 +192,15 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
         @Override
         protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
-            int warnigs0 = cmd.getInt(Tag.NumberOfWarningSuboperations, 0);
             int completed0 = cmd.getInt(Tag.NumberOfCompletedSuboperations, 0);
-            ctx.addWarning(warnigs0 - warnings);
+            int failed0 = cmd.getInt(Tag.NumberOfFailedSuboperations, 0);
+            int warnigs0 = cmd.getInt(Tag.NumberOfWarningSuboperations, 0);
             ctx.addCompleted(completed0 - completed);
-            warnings = warnigs0;
+            ctx.addWarning(warnigs0 - warnings);
+            ctx.addFailed(failed0 - failed);
             completed = completed0;
+            failed = failed0;
+            warnings = warnigs0;
             if (data != null) {
                 String[] iuids = data.getStrings(Tag.FailedSOPInstanceUIDList);
                 if (iuids != null)
@@ -247,10 +213,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
     static class ForwardCStoreRQ extends ForwardRetrieveTask {
         private final Duration pendingRSPInterval;
         private final Event<RetrieveContext> retrieveEnd;
-        private volatile Attributes bwdMoveRSP;
-        private volatile int bwdMoveRSPFailed;
-        private volatile String[] bwdMoveRSPFailedIUIDs = {};
-        private ScheduledFuture<?> writePendingRSP;
+        private int rspCount;
 
         public ForwardCStoreRQ(RetrieveContext ctx, PresentationContext pc, Attributes rqCmd, Attributes keys,
                                Association fwdas, Event<RetrieveContext> retrieveEnd) {
@@ -266,33 +229,31 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
         @Override
         protected void onFailure(DicomServiceException e) {
-            bwdMoveRSP = mkMoveRSP(e);
-            bwdMoveRSPFailed = -1;
+ //           ctx.setFallbackMoveRSP(mkMoveRSP(e));
         }
 
         @Override
         protected void onCMoveRSP(Association as, Attributes cmd, Attributes data) {
-            boolean first = bwdMoveRSP == null;
-            bwdMoveRSP = cmd;
-            bwdMoveRSPFailed = cmd.getInt(Tag.NumberOfFailedSuboperations, 0);
-            if (data != null)
-                bwdMoveRSPFailedIUIDs = StringUtils.maskNull(
-                        data.getStrings(Tag.FailedSOPInstanceUIDList), StringUtils.EMPTY_STRING);
-            if (first) {
-                ctx.setNumberOfMatches(bwdMoveRSP.getInt(Tag.NumberOfRemainingSuboperations, 0) +
-                        bwdMoveRSP.getInt(Tag.NumberOfCompletedSuboperations, 0) +
-                        bwdMoveRSP.getInt(Tag.NumberOfWarningSuboperations, 0) +
-                        bwdMoveRSPFailed);
-                if (Status.isPending(cmd.getInt(Tag.Status, -1)))
+            int failed = cmd.getInt(Tag.NumberOfFailedSuboperations, 0);
+            ctx.setFallbackMoveRSPFailed(failed);
+            if (rspCount++ == 0) {
+                ctx.setFallbackMoveRSPNumberOfMatches(failed +
+                        cmd.getInt(Tag.NumberOfRemainingSuboperations, 0) +
+                        cmd.getInt(Tag.NumberOfWarningSuboperations, 0));
+                if (Status.isPending(cmd.getInt(Tag.Status, -1))) {
                     startWritePendingRSP();
+                }
             }
+            if (data != null)
+                ctx.setFallbackMoveRSPFailedIUIDs(StringUtils.maskNull(
+                        data.getStrings(Tag.FailedSOPInstanceUIDList), StringUtils.EMPTY_STRING));
         }
 
         @Override
         protected void onFinished() {
-            updateFailedSOPInstanceUIDList();
-            waitForPendingCStoreForward(ctx);
-            stopWritePendingRSP();
+            ctx.getRetrieveService().waitForPendingCStoreForward(ctx);
+            ctx.getRetrieveService().updateFailedSOPInstanceUIDList(ctx);
+            ctx.stopWritePendingRSP();
             writeFinalRSP();
             SafeClose.close(ctx);
             retrieveEnd.fire(ctx);
@@ -300,7 +261,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
         private void startWritePendingRSP() {
             if (pendingRSPInterval != null)
-                writePendingRSP = ctx.getLocalApplicationEntity().getDevice()
+                ctx.setWritePendingRSP(ctx.getLocalApplicationEntity().getDevice()
                         .scheduleAtFixedRate(
                                 new Runnable() {
                                     @Override
@@ -308,29 +269,15 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
                                         writePendingRSP();
                                     }
                                 },
-                                0, pendingRSPInterval.getSeconds(), TimeUnit.SECONDS);
-        }
-
-        private void stopWritePendingRSP() {
-            if (writePendingRSP != null)
-                writePendingRSP.cancel(false);
+                                0, pendingRSPInterval.getSeconds(), TimeUnit.SECONDS));
         }
 
         private void writeFinalRSP() {
-            Association as = ctx.getRequestAssociation();
-            int fwdStoreRQFailed = ctx.failed() + ctx.remaining();
-            if (fwdStoreRQFailed > 0) {
-                LOG.warn("{}: Failed to forward {} from {} objects of study{} from {} to {}",
-                        as, fwdStoreRQFailed, ctx.getNumberOfMatches(),
-                        Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP, ctx.getDestinationAETitle());
-            }
-            writeMoveRSP(status(),
-                    0, ctx.completed(), bwdMoveRSPFailed + fwdStoreRQFailed, ctx.warning(),
-                    finalRSPDataset());
+            writeMoveRSP(status(), 0, ctx.completed(), ctx.failed(), ctx.warning(), finalRSPDataset());
         }
 
         private int status() {
-            return (bwdMoveRSPFailed == 0 && ctx.failed() == 0 && ctx.warning() == 0)
+            return (ctx.failed() == 0 && ctx.warning() == 0)
                     ? Status.Success
                     : (ctx.completed() == 0 && ctx.warning() == 0)
                     ? Status.UnableToPerformSubOperations
@@ -338,52 +285,19 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         }
 
         private Attributes finalRSPDataset() {
-            if (ctx.failed() == 0 && bwdMoveRSPFailedIUIDs.length == 0)
+            if (ctx.failed() == 0)
                 return null;
 
-            String[] failedIUIDs = cat(ctx.failedSOPInstanceUIDs(), bwdMoveRSPFailedIUIDs);
+            String[] failedIUIDs = cat(ctx.failedSOPInstanceUIDs(), ctx.getFallbackMoveRSPFailedIUIDs());
             Attributes data = new Attributes(1);
             data.setString(Tag.FailedSOPInstanceUIDList, VR.UI, failedIUIDs);
             return data;
         }
 
         private void writePendingRSP() {
-            int remaining = ctx.remaining() - bwdMoveRSPFailed;
+            int remaining = ctx.remaining();
             if (remaining > 0)
-                writeMoveRSP(Status.Pending,
-                        remaining, ctx.completed(), ctx.failed() + bwdMoveRSPFailed, ctx.warning(),
-                        null);
-        }
-
-        private void updateFailedSOPInstanceUIDList() {
-            int retrieved = bwdMoveRSP.getInt(Tag.NumberOfCompletedSuboperations, 0) +
-                    bwdMoveRSP.getInt(Tag.NumberOfWarningSuboperations, 0);
-            if (retrieved > 0)
-                ctx.getRetrieveService().updateFailedSOPInstanceUIDList(ctx,
-                        bwdMoveRSPFailed > 0 ? failedIUIDList(ctx, retrieved) : null);
-        }
-
-        private String failedIUIDList(RetrieveContext ctx, int retrieved) {
-            Association as = ctx.getRequestAssociation();
-            LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {}",
-                    as, bwdMoveRSPFailed, ctx.getNumberOfMatches(),
-                    Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
-            if (bwdMoveRSPFailedIUIDs.length == 0) {
-                LOG.warn("{}: Missing Failed SOP Instance UID List in C-MOVE-RSP from {}", as, fallbackCMoveSCP);
-                return "*";
-            }
-            if (bwdMoveRSPFailed != bwdMoveRSPFailedIUIDs.length) {
-                LOG.warn("{}: Number Of Failed Suboperations [{}] does not match " +
-                                "size of Failed SOP Instance UID List [{}] in C-MOVE-RSP from {}",
-                        as, bwdMoveRSPFailed, bwdMoveRSPFailedIUIDs.length, fallbackCMoveSCP);
-            }
-            String concat = StringUtils.concat(bwdMoveRSPFailedIUIDs, '\\');
-            if (concat.length() > MAX_FAILED_IUIDS_LEN) {
-                LOG.warn("{}: Failed SOP Instance UID List [{}] in C-MOVE-RSP from {} too large to persist in DB",
-                        as, bwdMoveRSPFailed, fallbackCMoveSCP);
-                return "*";
-            }
-            return concat;
+                writeMoveRSP(Status.Pending, remaining, ctx.completed(), ctx.failed(), ctx.warning(), null);
         }
     }
 

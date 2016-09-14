@@ -80,8 +80,10 @@ class CStoreForwardTask implements Runnable {
     public void onStore(StoreContext storeContext) {
         if (storeas != null)
             queue.offer(new WrappedStoreContext(storeContext));
-        else if (storeContext != null)
+        else if (storeContext != null) {
             ctx.addFailedSOPInstanceUID(storeContext.getSopInstanceUID());
+            ctx.incrementFailed();
+        }
     }
 
     @Override
@@ -111,7 +113,7 @@ class CStoreForwardTask implements Runnable {
 
     private void store(StoreContext storeCtx) {
         InstanceLocations inst = createInstanceLocations(storeCtx);
-        ctx.addMatch(inst);
+        ctx.addCStoreForward(inst);
         String cuid = inst.getSopClassUID();
         String iuid = inst.getSopInstanceUID();
         Set<String> tsuids = storeas.getTransferSyntaxesFor(cuid);
@@ -130,15 +132,15 @@ class CStoreForwardTask implements Runnable {
                             data, tsuid, rspHandler);
             }
         } catch (Exception e) {
+            ctx.incrementFailed();
             ctx.addFailedSOPInstanceUID(iuid);
             LOG.info("{}: failed to send {} to {}:", rqas, inst, ctx.getDestinationAETitle(), e);
         }
     }
 
     private InstanceLocations createInstanceLocations(StoreContext storeCtx) {
-        List<Location> locations = storeCtx.getLocations();
-        Location location = !locations.isEmpty() ? locations.get(0) : null;
-        Instance inst = location != null ? location.getInstance() : storeCtx.getPreviousInstance();
+        Location location = storeCtx.getLocations().get(0);
+        Instance inst = location.getInstance();
         Series series = inst.getSeries();
         Study study = series.getStudy();
         Patient patient = study.getPatient();
@@ -153,10 +155,7 @@ class CStoreForwardTask implements Runnable {
         RetrieveService service = ctx.getRetrieveService();
         InstanceLocations instanceLocations = service.newInstanceLocations(
                 storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), null, null, instAttrs);
-        if (location != null)
-            instanceLocations.getLocations().add(location);
-        else
-            instanceLocations.getLocations().addAll(inst.getLocations());
+        instanceLocations.getLocations().add(location);
         return instanceLocations;
     }
 
@@ -186,6 +185,7 @@ class CStoreForwardTask implements Runnable {
             } else if ((storeStatus & 0xB000) == 0xB000) {
                 ctx.incrementWarning();
             } else {
+                ctx.incrementFailed();
                 ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
             }
         }
