@@ -537,6 +537,7 @@ class RetrieveContextImpl implements RetrieveContext {
         cstoreForwards.add(inst);
     }
 
+    @Override
     public Collection<InstanceLocations> getCStoreForwards() {
         return cstoreForwards;
     }

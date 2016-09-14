@@ -217,6 +217,8 @@ public interface RetrieveContext extends Closeable {
 
     void addCStoreForward(InstanceLocations inst);
 
+    Collection<InstanceLocations> getCStoreForwards();
+
     void setWritePendingRSP(ScheduledFuture<?> scheduledFuture);
 
     void stopWritePendingRSP();
