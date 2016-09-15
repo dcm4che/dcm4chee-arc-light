@@ -95,7 +95,7 @@ public class AuditTriggerObserver {
         if (auditService.isAuditInstalled()) {
             if (ctx.getRejectionNote() != null)
                 auditService.spoolInstancesDeleted(ctx);
-            else if (!ctx.getLocations().isEmpty() || ctx.getException() != null)
+            else if (ctx.getStoredInstance() != null || ctx.getException() != null)
                 auditService.spoolInstanceStoredOrWadoRetrieve(ctx, null);
         }
     }
