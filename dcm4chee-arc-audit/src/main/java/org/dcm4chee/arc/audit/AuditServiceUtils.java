@@ -191,6 +191,7 @@ class AuditServiceUtils {
                     case CSTOREFWD:
                     case PARTIAL_TRANSFERRED:
                         eventType.add(getDicomInstTrfdSuccessEventType(ctx));
+                        break;
                 }
             return eventType;
         }
