@@ -82,6 +82,7 @@ class StoreContextImpl implements StoreContext {
     private String mppsInstanceUID;
     private RejectionNote rejectionNote;
     private Instance previousInstance;
+    private Instance storedInstance;
     private Exception exception;
     private final List<Location> locations = new ArrayList<>();
     private String[] retrieveAETs;
@@ -251,6 +252,16 @@ class StoreContextImpl implements StoreContext {
     @Override
     public void setPreviousInstance(Instance previousInstance) {
         this.previousInstance = previousInstance;
+    }
+
+    @Override
+    public Instance getStoredInstance() {
+        return storedInstance;
+    }
+
+    @Override
+    public void setStoredInstance(Instance storedInstance) {
+        this.storedInstance = storedInstance;
     }
 
     @Override

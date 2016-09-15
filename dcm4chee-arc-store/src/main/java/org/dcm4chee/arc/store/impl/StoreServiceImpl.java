@@ -186,6 +186,7 @@ class StoreServiceImpl implements StoreService {
                 ctx.getLocations().addAll(result.getLocations());
                 ctx.setRejectionNote(result.getRejectionNote());
                 ctx.setPreviousInstance(result.getPreviousInstance());
+                ctx.setStoredInstance(result.getStoredInstance());
             }
             storeEvent.fire(ctx);
             if (ctx.getLocations().isEmpty())
@@ -271,6 +272,7 @@ class StoreServiceImpl implements StoreService {
                 locations.addAll(result.getLocations());
                 ctx.setRejectionNote(result.getRejectionNote());
                 ctx.setPreviousInstance(result.getPreviousInstance());
+                ctx.setStoredInstance(result.getStoredInstance());
             }
             storeEvent.fire(ctx);
             if (locations.isEmpty())

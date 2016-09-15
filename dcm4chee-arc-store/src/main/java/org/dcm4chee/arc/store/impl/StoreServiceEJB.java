@@ -163,6 +163,7 @@ public class StoreServiceEJB {
                 logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
                 if (rjNote != null) {
                     prevInstance.setRejectionNoteCode(null);
+                    result.setStoredInstance(prevInstance);
                     deleteQueryAttributes(prevInstance);
                     logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
                 }
@@ -194,6 +195,7 @@ public class StoreServiceEJB {
         else
             copyLocations(ctx, instance, result);
 
+        result.setStoredInstance(instance);
         deleteQueryAttributes(instance);
         return result;
     }

@@ -57,6 +57,7 @@ class UpdateDBResult {
     private Instance createdInstance;
     private Patient createdPatient;
     private Study createdStudy;
+    private Instance storedInstance;
 
     public List<Location> getLocations() {
         return locations;
@@ -100,5 +101,13 @@ class UpdateDBResult {
 
     public void setCreatedInstance(Instance createdInstance) {
         this.createdInstance = createdInstance;
+    }
+
+    public Instance getStoredInstance() {
+        return storedInstance;
+    }
+
+    public void setStoredInstance(Instance storedInstance) {
+        this.storedInstance = storedInstance;
     }
 }

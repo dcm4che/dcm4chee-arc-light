@@ -78,6 +78,10 @@ public interface StoreContext {
 
     void setPreviousInstance(Instance previousInstance);
 
+    Instance getStoredInstance();
+
+    void setStoredInstance(Instance storedInstance);
+
     List<Location> getLocations();
 
     String[] getRetrieveAETs();
