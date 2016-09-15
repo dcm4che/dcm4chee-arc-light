@@ -203,11 +203,10 @@ class AuditServiceUtils {
                 ot.add(DicomInstancesTransferredOutcomeType.ALL_SUCCESS);
             if (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty())
                 ot.add(DicomInstancesTransferredOutcomeType.CSTOREFWD);
-            if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0)
-                if (ctx.getException() != null)
-                    ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED_EXCEPTION);
-                else
-                    ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED);
+            if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0) {
+                ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED_EXCEPTION);
+                ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED);
+            }
             return ot;
         }
 
