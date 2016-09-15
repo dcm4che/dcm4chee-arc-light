@@ -137,9 +137,19 @@
       "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive",
       "type": "string"
     },
+    "dcmFallbackCMoveSCPStudyOlderThan": {
+      "title": "Fallback C-Move SCP Study Older Than",
+      "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
+      "type": "string"
+    },
     "dcmFallbackCMoveSCPDestination": {
       "title": "Fallback C-Move SCP Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPLeadingCFindSCP": {
+      "title": "Fallback C-Move SCP Leading C-Find SCP",
+      "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
       "type": "string"
     },
     "dcmFallbackCMoveSCPRetries": {
@@ -150,11 +160,6 @@
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
-      "type": "string"
-    },
-    "dcmFallbackCMoveSCPStudyOlderThan": {
-      "title": "Fallback C-Move SCP Study Older Than",
-      "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
       "type": "string"
     },
     "dcmStorePermissionServiceURL": {
@@ -197,11 +202,6 @@
     "dcmStorePermissionServiceExpirationDatePattern": {
       "title": "Store Permission Service Expiration Date Pattern",
       "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"(\\d[8])\". If absent, locally configured Study Retention Policy Rules will be applied.",
-      "type": "string"
-    },
-    "dcmFallbackCMoveSCPLeadingCFindSCP": {
-      "title": "Fallback C-Move SCP Leading C-Find SCP",
-      "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
       "type": "string"
     },
     "dcmExportRule": {

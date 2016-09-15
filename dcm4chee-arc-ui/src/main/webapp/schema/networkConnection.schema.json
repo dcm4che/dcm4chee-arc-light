@@ -29,6 +29,7 @@
       "description": "The TLS CipherSuites that are supported on this particular connection. If not present TLS is disabled",
       "type": "array",
       "items": {
+        "type": "string",
         "enum": [
           "SSL_RSA_WITH_NULL_SHA",
           "TLS_RSA_WITH_AES_128_CBC_SHA",

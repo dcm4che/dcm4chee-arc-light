@@ -167,6 +167,16 @@
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP",
       "type": "string"
     },
+    "dcmFallbackCMoveSCPStudyOlderThan": {
+      "title": "Fallback C-Move SCP Study Older Than",
+      "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPLeadingCFindSCP": {
+      "title": "Fallback C-Move SCP Leading C-Find SCP",
+      "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
+      "type": "string"
+    },
     "dcmFallbackCMoveSCPRetries": {
       "title": "Fallback C-Move SCP Retries",
       "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever. 0 if absent",
@@ -343,11 +353,6 @@
       "description": "AE Title of Local Application Entity performing the automatic rejection of expired Studies and Series. If absent, neither expired Studies nor Series will be rejected automatically.",
       "type": "string"
     },
-    "dcmFallbackCMoveSCPStudyOlderThan": {
-      "title": "Fallback C-Move SCP Study Older Than",
-      "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
-      "type": "string"
-    },
     "dcmStorePermissionServiceURL": {
       "title": "Store Permission Service URL",
       "description": "URL of Store Permission Service which will be invoked on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030}",
@@ -419,11 +424,6 @@
         "HASH_NAME",
         "HASH_NAME_AND_ID"
       ]
-    },
-    "dcmFallbackCMoveSCPLeadingCFindSCP": {
-      "title": "Fallback C-Move SCP Leading C-Find SCP",
-      "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
-      "type": "string"
     },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
