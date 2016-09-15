@@ -199,6 +199,11 @@
       "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"(\\d[8])\". If absent, locally configured Study Retention Policy Rules will be applied.",
       "type": "string"
     },
+    "dcmFallbackCMoveSCPLeadingCFindSCP": {
+      "title": "Fallback C-Move SCP Leading C-Find SCP",
+      "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
+      "type": "string"
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rule",

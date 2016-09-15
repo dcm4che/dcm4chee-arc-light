@@ -98,6 +98,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination());
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcDev.getFallbackCMoveSCPRetries(), 0);
+        writer.writeNotNull("dcmFallbackCMoveSCPLeadingCFindSCP", arcDev.getFallbackCMoveSCPLeadingCFindSCP());
         writer.writeNotNull("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP());
         writer.writeNotNull("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval());
         writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 5);
@@ -395,6 +396,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries(), 0);
+        writer.writeNotNull("dcmFallbackCMoveSCPLeadingCFindSCP", arcAE.getFallbackCMoveSCPLeadingCFindSCP());
         writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
         writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcAE.getFallbackCMoveSCPStudyOlderThan());
         writer.writeNotNull("dcmStorePermissionServiceURL", arcAE.getStorePermissionServiceURL());
@@ -500,6 +502,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPRetries":
                     arcDev.setFallbackCMoveSCPRetries(reader.intValue());
+                    break;
+                case "dcmFallbackCMoveSCPLeadingCFindSCP":
+                    arcDev.setFallbackCMoveSCPLeadingCFindSCP(reader.stringValue());
                     break;
                 case "dcmAltCMoveSCP":
                     arcDev.setAlternativeCMoveSCP(reader.stringValue());
@@ -1222,6 +1227,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmFallbackCMoveSCPRetries":
                     arcAE.setFallbackCMoveSCPRetries(reader.intValue());
+                    break;
+                case "dcmFallbackCMoveSCPLeadingCFindSCP":
+                    arcAE.setFallbackCMoveSCPLeadingCFindSCP(reader.stringValue());
                     break;
                 case "dcmAltCMoveSCP":
                     arcAE.setAlternativeCMoveSCP(reader.stringValue());
