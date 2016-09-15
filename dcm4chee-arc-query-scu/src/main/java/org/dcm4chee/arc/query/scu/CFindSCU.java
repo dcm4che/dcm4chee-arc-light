@@ -42,11 +42,15 @@ package org.dcm4chee.arc.query.scu;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4chee.arc.Cache;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2016
  */
 public interface CFindSCU {
-    Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID) throws Exception;
+    Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID)
+            throws Exception;
+
+    Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, Cache<String,Attributes> cache);
 }

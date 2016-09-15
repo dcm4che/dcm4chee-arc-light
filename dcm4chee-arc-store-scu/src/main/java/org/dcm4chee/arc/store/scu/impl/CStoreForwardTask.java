@@ -53,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -88,7 +89,6 @@ class CStoreForwardTask implements Runnable {
 
     @Override
     public void run() {
-        ctx.incrementPendingCStoreForward();
         try {
             StoreContext storeCtx;
             while ((storeCtx = queue.take().storeContext) != null) {
@@ -139,8 +139,7 @@ class CStoreForwardTask implements Runnable {
     }
 
     private InstanceLocations createInstanceLocations(StoreContext storeCtx) {
-        Location location = storeCtx.getLocations().get(0);
-        Instance inst = location.getInstance();
+        Instance inst = storeCtx.getStoredInstance();
         Series series = inst.getSeries();
         Study study = series.getStudy();
         Patient patient = study.getPatient();
@@ -155,8 +154,13 @@ class CStoreForwardTask implements Runnable {
         RetrieveService service = ctx.getRetrieveService();
         InstanceLocations instanceLocations = service.newInstanceLocations(
                 storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), null, null, instAttrs);
-        instanceLocations.getLocations().add(location);
+        instanceLocations.getLocations().addAll(locations(storeCtx));
         return instanceLocations;
+    }
+
+    private Collection<Location> locations(StoreContext storeCtx) {
+        Collection<Location> locations = storeCtx.getLocations();
+        return locations.isEmpty() ? storeCtx.getStoredInstance().getLocations() : locations;
     }
 
     private static class WrappedStoreContext {

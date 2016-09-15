@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
+import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -81,6 +82,24 @@ public class CFindSCUImpl implements CFindSCU {
             as.waitForOutstandingRSP();
             as.release();
         }
+    }
+
+    @Override
+    public Attributes queryStudy(
+            ApplicationEntity localAE, String calledAET, String studyIUID, Cache<String, Attributes> cache) {
+        Cache.Entry<Attributes> entry = cache.getEntry(studyIUID);
+        Attributes newAttrs;
+        if (entry != null) {
+            newAttrs = entry.value();
+        } else {
+            try {
+                newAttrs = queryStudy(localAE, calledAET, studyIUID);
+            } catch (Exception e) {
+                newAttrs = null;
+            }
+            cache.put(studyIUID, newAttrs);
+        }
+        return newAttrs;
     }
 
     private Attributes mkQueryStudyKeys(String studyIUID) {

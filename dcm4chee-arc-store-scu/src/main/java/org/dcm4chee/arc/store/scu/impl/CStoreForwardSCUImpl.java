@@ -82,7 +82,7 @@ public class CStoreForwardSCUImpl implements CStoreForwardSCU {
     }
 
     public void onStore(@Observes StoreContext storeContext) {
-        if (storeContext.getLocations().isEmpty())
+        if (storeContext.getStoredInstance() == null)
             return;
 
         CStoreForward forward = forStoreContext(storeContext);

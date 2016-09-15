@@ -52,13 +52,11 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.json.JSONReader;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.Dimse;
-import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
@@ -528,39 +526,69 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public void updateFailedSOPInstanceUIDList(RetrieveContext ctx) {
-        int retrieved = ctx.getNumberOfCStoreForwards();
-        if (retrieved > 0)
+        if (ctx.getNumberOfCStoreForwards() > 0)
             ejb.updateFailedSOPInstanceUIDList(ctx, failedIUIDList(ctx));
     }
 
     private String failedIUIDList(RetrieveContext ctx) {
+        Association as = ctx.getRequestAssociation();
+        Association fwdas = ctx.getFallbackAssociation();
+        String fallbackMoveSCP = fwdas.getRemoteAET();
+        int expected = queryFallbackCMoveSCPLeadingCFindSCP(ctx);
+        if (expected > 0) {
+            int retrieved = ctx.completed() + ctx.warning();
+            if (retrieved >= expected)
+                return null;
+
+            LOG.warn("{}: Expected {} but actual retrieved {} objects of study{} from {}",
+                    as, expected, retrieved, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackMoveSCP);
+            return "*";
+        }
+
         int failed = ctx.getFallbackMoveRSPFailed();
         if (failed == 0)
             return null;
 
-        Association as = ctx.getRequestAssociation();
-        Association fwdas = ctx.getFallbackAssociation();
         LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {}",
-                as, failed, ctx.getNumberOfMatches(),
-                Arrays.toString(ctx.getStudyInstanceUIDs()), fwdas.getCalledAET());
+                as, failed, ctx.getFallbackMoveRSPNumberOfMatches(),
+                Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackMoveSCP);
 
         String[] failedIUIDs = ctx.getFallbackMoveRSPFailedIUIDs();
         if (failedIUIDs.length == 0) {
-            LOG.warn("{}: Missing Failed SOP Instance UID List in C-MOVE-RSP from {}", as, fwdas.getCalledAET());
+            LOG.warn("{}: Missing Failed SOP Instance UID List in C-MOVE-RSP from {}", as, fallbackMoveSCP);
             return "*";
         }
         if (failed != failedIUIDs.length) {
             LOG.warn("{}: Number Of Failed Suboperations [{}] does not match " +
                             "size of Failed SOP Instance UID List [{}] in C-MOVE-RSP from {}",
-                    as, failed, failedIUIDs.length, fwdas.getCalledAET());
+                    as, failed, failedIUIDs.length, fallbackMoveSCP);
         }
         String concat = StringUtils.concat(failedIUIDs, '\\');
         if (concat.length() > MAX_FAILED_IUIDS_LEN) {
             LOG.warn("{}: Failed SOP Instance UID List [{}] in C-MOVE-RSP from {} too large to persist in DB",
-                    as, failed, fwdas.getCalledAET());
+                    as, failed, fallbackMoveSCP);
             return "*";
         }
         return concat;
+    }
+
+    private int queryFallbackCMoveSCPLeadingCFindSCP(RetrieveContext ctx) {
+        String findSCP = ctx.getArchiveAEExtension().fallbackCMoveSCPLeadingCFindSCP();
+        if (findSCP == null || ctx.getQueryRetrieveLevel() != QueryRetrieveLevel2.STUDY)
+            return -1;
+
+        int expected = 0;
+        ApplicationEntity localAE = ctx.getLocalApplicationEntity();
+        for (String studyIUID : ctx.getStudyInstanceUIDs()) {
+            Attributes studyAttrs = cfindscu.queryStudy(localAE, findSCP, studyIUID, leadingCFindSCPQueryCache);
+            if (studyAttrs == null) {
+                LOG.warn("Failed to query Study[{}] from {} - cannot verify number of retrieved objects from {}",
+                        studyIUID, findSCP, ctx.getFallbackAssociation().getRemoteAET());
+                return -1;
+            }
+            expected += studyAttrs.getInt(Tag.NumberOfStudyRelatedInstances, 0);
+        }
+        return expected;
     }
 
     private AttributesCoercion uidRemap(InstanceLocations inst, AttributesCoercion next) {

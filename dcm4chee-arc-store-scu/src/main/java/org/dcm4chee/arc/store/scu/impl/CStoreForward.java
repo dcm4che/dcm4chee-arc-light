@@ -87,8 +87,10 @@ class CStoreForward {
                 forwardTasks.remove(as);
             }
         });
-        if (storeas != null)
+        if (storeas != null) {
+            retrieveCtx.incrementPendingCStoreForward();
             localAE.getDevice().execute(task);
+        }
         return task;
     }
 
