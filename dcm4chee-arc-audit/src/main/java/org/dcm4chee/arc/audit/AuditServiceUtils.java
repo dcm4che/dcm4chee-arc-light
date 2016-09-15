@@ -180,17 +180,35 @@ class AuditServiceUtils {
 
         static HashSet<EventType> forDicomInstTransferred(RetrieveContext ctx) {
             HashSet<EventType> eventType = new HashSet<>();
-            if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size()) {
-                if (null != ctx.getException() || ctx.failedSOPInstanceUIDs().length > 0)
-                    eventType.add(getDicomInstTrfdErrorEventType(ctx));
-                if (ctx.getException() == null || ctx.failedSOPInstanceUIDs().length > 0)
-                    eventType.add(getDicomInstTrfdSuccessEventType(ctx));
-            }
-            if (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty())
-                eventType.add(getDicomInstTrfdSuccessEventType(ctx));
-            else
-                eventType.add(getDicomInstTrfdErrorEventType(ctx));
+            HashSet<DicomInstancesTransferredOutcomeType> outcomes = getInstancesTransferredOutcomeType(ctx);
+            for (DicomInstancesTransferredOutcomeType ot : outcomes)
+                switch (ot) {
+                    case PARTIAL_TRANSFERRED_EXCEPTION:
+                    case ALL_FAIL:
+                        eventType.add(getDicomInstTrfdErrorEventType(ctx));
+                        break;
+                    case ALL_SUCCESS:
+                    case CSTOREFWD:
+                    case PARTIAL_TRANSFERRED:
+                        eventType.add(getDicomInstTrfdSuccessEventType(ctx));
+                }
             return eventType;
+        }
+
+        static HashSet<DicomInstancesTransferredOutcomeType> getInstancesTransferredOutcomeType(RetrieveContext ctx) {
+            HashSet<DicomInstancesTransferredOutcomeType> ot = new HashSet<>();
+            if (ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty())
+                ot.add(DicomInstancesTransferredOutcomeType.ALL_FAIL);
+            if (ctx.failedSOPInstanceUIDs().length == 0 && !ctx.getMatches().isEmpty())
+                ot.add(DicomInstancesTransferredOutcomeType.ALL_SUCCESS);
+            if (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty())
+                ot.add(DicomInstancesTransferredOutcomeType.CSTOREFWD);
+            if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0)
+                if (ctx.getException() != null)
+                    ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED_EXCEPTION);
+                else
+                    ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED);
+            return ot;
         }
 
         static EventType getDicomInstTrfdSuccessEventType(RetrieveContext ctx) {
@@ -230,6 +248,10 @@ class AuditServiceUtils {
                     ? EventType.PROC_STD_R : PROC_STD_D);
             return et;
         }
+    }
+
+    enum DicomInstancesTransferredOutcomeType {
+        ALL_FAIL, ALL_SUCCESS, PARTIAL_TRANSFERRED, PARTIAL_TRANSFERRED_EXCEPTION, CSTOREFWD
     }
 
 }
