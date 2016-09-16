@@ -241,6 +241,12 @@
             "in": "query",
             "description": "return Studies which includes at least one Series received from <AE Title>",
             "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "return Studies which were created between <datetime1> - <datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
