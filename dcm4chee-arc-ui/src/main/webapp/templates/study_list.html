@@ -504,7 +504,7 @@
             <div class="col-md-6" ng-show="filterMode === 'mwl'">
                 <input id="ReferringPhysicianName" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
             </div>
-            <div class="col-md-6" ng-show="filterMode === 'study'">
+            <div class="col-md-6" ng-show="filterMode === 'study' || filterMode === 'mwl'">
                 <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
