@@ -316,9 +316,9 @@ public class QueryBuilder {
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
         if (queryParam.getStudyReceiveDateTime() != null)
-            ExpressionUtils.and(MatchDateTimeRange.range(
+            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
                     QStudy.study.createdTime, getDateRange(queryParam.getStudyReceiveDateTime()), MatchDateTimeRange.FormatDate.DT),
-                    QStudy.study.createdTime.isNotNull());
+                    QStudy.study.createdTime.isNotNull()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             if (queryParam.isExpired())
                 builder.and(QStudy.study.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));

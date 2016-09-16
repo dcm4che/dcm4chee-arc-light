@@ -127,9 +127,9 @@ class MatchDateTimeRange {
         Date startDate = range.getStartDate();
         Date endDate = range.getEndDate();
         if (startDate == null)
-            return field.loe(dt.format(endDate));
+            return field.loe(endDate);
         if (endDate == null)
-            return field.goe(dt.format(startDate));
+            return field.goe(startDate);
         return rangeInterval(field, startDate, endDate, dt, range);
     }
 
@@ -152,18 +152,16 @@ class MatchDateTimeRange {
 
     private static Predicate rangeInterval(DateTimePath field, Date startDate,
                                            Date endDate, FormatDate dt, DateRange range) {
-        String start = dt.format(startDate);
-        String end = dt.format(endDate);
         if(dt.equals(FormatDate.TM) && range.isStartDateExeedsEndDate()){
             String midnightLow = "115959.999";
             String midnightHigh = "000000.000";
-            return ExpressionUtils.or(field.between(start, midnightLow),field.between(midnightHigh, end));
+            return ExpressionUtils.or(field.between(startDate, midnightLow),field.between(midnightHigh, endDate));
         }
         else
         {
-            return end.equals(start)
-                    ? field.eq(start)
-                    : field.between(start, end);
+            return endDate.equals(startDate)
+                    ? field.eq(startDate)
+                    : field.between(startDate, endDate);
         }
     }
 
