@@ -57,6 +57,7 @@ import org.dcm4chee.arc.entity.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -314,6 +315,10 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
+        if (queryParam.getStudyReceiveDateTime() != null)
+            ExpressionUtils.and(MatchDateTimeRange.range(
+                    QStudy.study.createdTime, getDateRange(queryParam.getStudyReceiveDateTime()), MatchDateTimeRange.FormatDate.DT),
+                    QStudy.study.createdTime.isNotNull());
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             if (queryParam.isExpired())
                 builder.and(QStudy.study.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
@@ -800,5 +805,29 @@ public class QueryBuilder {
                 .where(QInstance.instance.contentItems
                                 .contains(QContentItem.contentItem),
                         predicate).exists();
+    }
+
+    private static DateRange getDateRange(String s) {
+        String[] range = splitRange(s);
+        DatePrecision precision = new DatePrecision();
+        Date start = range[0] == null ? null
+                : VR.DT.toDate(range[0], null, 0, false, null, precision);
+        Date end = range[1] == null ? null
+                : VR.DT.toDate(range[1], null, 0, true, null, precision);
+        return new DateRange(start, end);
+    }
+
+    private static String[] splitRange(String s) {
+        String[] range = new String[2];
+        int delim = s.indexOf('-');
+        if (delim == -1)
+            range[0] = range[1] = s;
+        else {
+            if (delim > 0)
+                range[0] =  s.substring(0, delim);
+            if (delim < s.length() - 1)
+                range[1] =  s.substring(delim+1);
+        }
+        return range;
     }
 }

@@ -116,6 +116,7 @@ import java.util.Date;
     uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
     indexes = {
         @Index(columnList = "access_time"),
+        @Index(columnList = "created_time"),
         @Index(columnList = "access_control_id"),
         @Index(columnList = "rejection_state"),
         @Index(columnList = "storage_ids"),

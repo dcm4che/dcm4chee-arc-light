@@ -43,6 +43,7 @@ package org.dcm4chee.arc.query.util;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.StringPath;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.DateRange;
@@ -122,21 +123,48 @@ class MatchDateTimeRange {
         return rangeInterval(field, startDate, endDate, dt, range);
     }
 
+    static Predicate range(DateTimePath field, DateRange range, FormatDate dt) {
+        Date startDate = range.getStartDate();
+        Date endDate = range.getEndDate();
+        if (startDate == null)
+            return field.loe(dt.format(endDate));
+        if (endDate == null)
+            return field.goe(dt.format(startDate));
+        return rangeInterval(field, startDate, endDate, dt, range);
+    }
+
     private static Predicate rangeInterval(StringPath field, Date startDate,
             Date endDate, FormatDate dt, DateRange range) {
         String start = dt.format(startDate);
         String end = dt.format(endDate);
-    	if(dt.equals(FormatDate.TM) && range.isStartDateExeedsEndDate()){
-    		String midnightLow = "115959.999";
-    		String midnightHigh = "000000.000";
-    		return ExpressionUtils.or(field.between(start, midnightLow),field.between(midnightHigh, end));
-    	}
-    	else
-    	{
-    	     return end.equals(start)
-    	             ? field.eq(start)
-    	             : field.between(start, end);
-    	}
+        if(dt.equals(FormatDate.TM) && range.isStartDateExeedsEndDate()){
+            String midnightLow = "115959.999";
+            String midnightHigh = "000000.000";
+            return ExpressionUtils.or(field.between(start, midnightLow),field.between(midnightHigh, end));
+        }
+        else
+        {
+             return end.equals(start)
+                     ? field.eq(start)
+                     : field.between(start, end);
+        }
+    }
+
+    private static Predicate rangeInterval(DateTimePath field, Date startDate,
+                                           Date endDate, FormatDate dt, DateRange range) {
+        String start = dt.format(startDate);
+        String end = dt.format(endDate);
+        if(dt.equals(FormatDate.TM) && range.isStartDateExeedsEndDate()){
+            String midnightLow = "115959.999";
+            String midnightHigh = "000000.000";
+            return ExpressionUtils.or(field.between(start, midnightLow),field.between(midnightHigh, end));
+        }
+        else
+        {
+            return end.equals(start)
+                    ? field.eq(start)
+                    : field.between(start, end);
+        }
     }
 
     private static Predicate combinedRange(StringPath dateField, StringPath timeField, DateRange dateRange) {

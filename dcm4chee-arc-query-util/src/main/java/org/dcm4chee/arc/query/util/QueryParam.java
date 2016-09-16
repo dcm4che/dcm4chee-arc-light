@@ -68,6 +68,7 @@ public class QueryParam {
     private CodeEntity[] showInstancesRejectedByCode = {};
     private CodeEntity[] hideRejectionNotesWithCode = {};
     private String sendingApplicationEntityTitleOfSeries;
+    private String studyReceiveDateTime;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
@@ -193,5 +194,13 @@ public class QueryParam {
 
     public void setSendingApplicationEntityTitleOfSeries(String sendingApplicationEntityTitleOfSeries) {
         this.sendingApplicationEntityTitleOfSeries = sendingApplicationEntityTitleOfSeries;
+    }
+
+    public String getStudyReceiveDateTime() {
+        return studyReceiveDateTime;
+    }
+
+    public void setStudyReceiveDateTime(String studyReceiveDateTime) {
+        this.studyReceiveDateTime = studyReceiveDateTime;
     }
 }

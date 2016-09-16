@@ -219,6 +219,9 @@ public class QidoRS {
     @QueryParam("SendingApplicationEntityTitleOfSeries")
     private String sendingApplicationEntityTitleOfSeries;
 
+    @QueryParam("StudyReceiveDateTime")
+    private String studyReceiveDateTime;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -402,6 +405,7 @@ public class QidoRS {
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setSendingApplicationEntityTitleOfSeries(sendingApplicationEntityTitleOfSeries);
+        queryParam.setStudyReceiveDateTime(studyReceiveDateTime);
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
@@ -467,6 +471,7 @@ public class QidoRS {
                     case "retrievefailed":
                     case "incomplete":
                     case "SendingApplicationEntityTitleOfSeries":
+                    case "StudyReceiveDateTime":
                         break;
                     default:
                         addQueryKey(key, entry.getValue());
