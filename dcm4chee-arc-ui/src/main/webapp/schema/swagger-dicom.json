@@ -245,7 +245,7 @@
           {
             "name": "StudyReceiveDateTime",
             "in": "query",
-            "description": "return Studies which were created between <datetime1> - <datetime2>",
+            "description": "return Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
           }
         ],
