@@ -1,0 +1,1 @@
+create index UK_6ry2squ4qcv129lxpae1oy93m on study (created_time);
