@@ -20,6 +20,7 @@ public class ExporterDescriptor {
     private String[] ianDestinations = {};
     private String[] retrieveAETitles = {};
     private Availability instanceAvailability;
+    private String stgCmtSCPAETitle;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
@@ -130,6 +131,14 @@ public class ExporterDescriptor {
         }
     }
 
+    public String getStgCmtSCPAETitle() {
+        return stgCmtSCPAETitle;
+    }
+
+    public void setStgCmtSCPAETitle(String stgCmtSCPAETitle) {
+        this.stgCmtSCPAETitle = stgCmtSCPAETitle;
+    }
+
     @Override
     public String toString() {
         return "ExporterDescriptor{" +
@@ -141,6 +150,7 @@ public class ExporterDescriptor {
                 ", availability=" + instanceAvailability +
                 ", schedules=" + Arrays.toString(schedules) +
                 ", properties=" + properties +
+                ", stgCmtSCPAETitle=" + stgCmtSCPAETitle +
                 '}';
     }
 }

@@ -33,6 +33,11 @@
       "description": "Application Entity (AE) title",
       "type": "string"
     },
+    "dcmStgCmtSCP": {
+      "title": "Storage Commitment SCP AE Title",
+      "description": "AE Title of external Storage Commitment SCP used to verify export to another archive.",
+      "type": "string"
+    },
     "dcmIanDestination": {
       "title": "Ian Destination",
       "description": "Destination to send IAN N-CREATE RQ",

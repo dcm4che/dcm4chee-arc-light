@@ -242,6 +242,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmQueueName", ed.getQueueName());
             writer.writeNotNull("dicomDescription", ed.getDescription());
             writer.writeNotNull("dicomAETitle", ed.getAETitle());
+            writer.writeNotNull("dcmStgCmtSCP", ed.getStgCmtSCPAETitle());
             writer.writeNotEmpty("dcmIanDestination", ed.getIanDestinations());
             writer.writeNotEmpty("dcmRetrieveAET", ed.getRetrieveAETitles());
             writer.writeNotNull("dcmInstanceAvailability", ed.getInstanceAvailability());
@@ -856,6 +857,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dicomAETitle":
                         ed.setAETitle(reader.stringValue());
+                        break;
+                    case "dcmStgCmtSCP":
+                        ed.setStgCmtSCPAETitle(reader.stringValue());
                         break;
                     case "dcmIanDestination":
                         ed.setIanDestinations(reader.stringArray());
