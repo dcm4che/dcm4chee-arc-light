@@ -119,18 +119,49 @@ public class ProcedureServiceEJB {
         try {
             Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
             String spsID = null;
-            for (Attributes item : spsSeq)
+            List<String> scheduledStationAETitles = null;
+            for (Attributes item : spsSeq) {
                 spsID = item.getString(Tag.ScheduledProcedureStepID);
+                scheduledStationAETitles = item.getStrings(Tag.ScheduledStationAETitle).length != 0
+                                            ? Arrays.asList(item.getStrings(Tag.ScheduledStationAETitle)) : new ArrayList<>();
+            }
             MWLItem mwlItem = em.createNamedQuery(MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID, MWLItem.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .setParameter(2, spsID).getSingleResult();
             mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
             mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+            processScheduledStationAETitles(mwlItem, scheduledStationAETitles);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         } catch (NoResultException e) {
             persistMWL(ctx, patient, attrs, issuerOfAccessionNumber);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         }
+    }
+
+    private void processScheduledStationAETitles(MWLItem mwlItem, List<String> ssAETitles) {
+        Collection<ScheduledStationAETitle> ssAETsFromMWL = mwlItem.getScheduledStationAETs();
+        if (ssAETsFromMWL.isEmpty()) {
+            for (String s : ssAETitles)
+                persistScheduledStationAETitle(mwlItem, s);
+            return;
+        }
+        List<String> temp = new ArrayList<>();
+        Iterator<ScheduledStationAETitle> iter = ssAETsFromMWL.iterator();
+        while (iter.hasNext()) {
+            ScheduledStationAETitle ssAET = iter.next();
+            if (!ssAETitles.contains(ssAET.getAETitle()))
+                iter.remove();
+            temp.add(ssAET.getAETitle());
+        }
+        for (String s : ssAETitles)
+            if (!temp.contains(s))
+                persistScheduledStationAETitle(mwlItem, s);
+    }
+
+    private void persistScheduledStationAETitle(MWLItem mwlItem, String s) {
+        ScheduledStationAETitle ssAET = new ScheduledStationAETitle(s);
+        ssAET.setMwlItem(mwlItem);
+        em.persist(ssAET);
     }
 
     private void persistMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
