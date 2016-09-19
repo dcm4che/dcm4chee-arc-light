@@ -195,6 +195,16 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
+        SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyIUID);
+        if (seriesIUID != null && !seriesIUID.equals("*"))
+            builder.setSeriesInstanceUID(seriesIUID);
+        if (sopIUID != null && !sopIUID.equals("*"))
+            builder.setSOPInstanceUID(sopIUID);
+        return ejb.getSOPInstanceRefs(QueryServiceEJB.SOPInstanceRefsType.STGCMT, studyIUID, builder.build(ae), null, null, null);
+    }
+
+    @Override
     public Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote) {
         SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);

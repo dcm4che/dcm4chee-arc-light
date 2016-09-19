@@ -53,6 +53,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -242,7 +243,7 @@ public class QueryServiceEJB {
     }
 
 
-    public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI }
+    public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT }
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             SOPInstanceRefsType type, String studyIUID, Predicate predicate,
@@ -274,6 +275,8 @@ public class QueryServiceEJB {
         Attributes refStudy = new Attributes(2);
         Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
         refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        if (type == SOPInstanceRefsType.STGCMT)
+            refStudy.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
         HashMap<Long, Sequence> seriesMap = new HashMap<>();
         for (Tuple tuple : tuples) {
             Long seriesPk = tuple.get(QSeries.series.pk);

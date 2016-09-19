@@ -59,6 +59,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.stgcmt.StgCmtSCP;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.slf4j.Logger;
@@ -74,6 +75,7 @@ import java.io.IOException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 @ApplicationScoped
@@ -91,6 +93,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     @Inject
     private IApplicationEntityCache aeCache;
 
+    @Inject
+    private QueryService queryService;
 
     public StgCmtImpl() {
         super(UID.StorageCommitmentPushModelSOPClass);
@@ -121,8 +125,13 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     private Attributes createActionInfo(ExportContext ctx) {
-        //TODO
-        return null;
+        try {
+            ApplicationEntity ae = aeCache.findApplicationEntity(ctx.getAETitle());
+            return queryService.createActionInfo(
+                    ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ae);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void onNActionRQ(Association as, PresentationContext pc, Attributes rq, Attributes actionInfo)
