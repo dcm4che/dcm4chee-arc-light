@@ -377,7 +377,7 @@
     <module>dcm4chee-arc-retrieve-scp</module>
     <module>dcm4chee-arc-retrieve-scu</module>
     <module>dcm4chee-arc-service</module>
-    <module>dcm4chee-arc-stgcmt-scp</module>
+    <module>dcm4chee-arc-stgcmt</module>
     <module>dcm4chee-arc-storage</module>
     <module>dcm4chee-arc-storage-cloud</module>
     <module>dcm4chee-arc-storage-filesystem</module>

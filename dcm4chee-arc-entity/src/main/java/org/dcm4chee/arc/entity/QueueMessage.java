@@ -392,7 +392,7 @@ public class QueueMessage {
         return w.toString();
     }
 
-    private JMSRuntimeException toJMSRuntimeException(JMSException e) {
+    public static JMSRuntimeException toJMSRuntimeException(JMSException e) {
         return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
     }
 

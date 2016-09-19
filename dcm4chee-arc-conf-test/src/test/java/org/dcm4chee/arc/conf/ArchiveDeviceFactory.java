@@ -142,7 +142,8 @@ class ArchiveDeviceFactory {
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
         newQueueDescriptor("MPPSSCU", "Forward MPPS Tasks"),
         newQueueDescriptor("IANSCU", "IAN Tasks"),
-        newQueueDescriptor("StgCmtSCP", "Storage Commitment Tasks"),
+        newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks"),
+        newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks"),
         newQueueDescriptor("Export1", "Dicom Export Tasks (1)"),
         newQueueDescriptor("Export2", "Dicom Export Tasks (2)"),
         newQueueDescriptor("Export3", "XDS-I Export Tasks"),
@@ -835,7 +836,7 @@ class ArchiveDeviceFactory {
             "DSS"
     };
 
-    static final String DCM4CHEE_ARC_VERSION = "5.6.0";
+    static final String DCM4CHEE_ARC_VERSION = "5.7.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -1320,6 +1321,7 @@ class ArchiveDeviceFactory {
             addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
             for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
                 addTCs(ae, null, SCU, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i + 1]);
+            addTC(ae, null, SCU, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
         }
         if (storeSCP) {
             for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)

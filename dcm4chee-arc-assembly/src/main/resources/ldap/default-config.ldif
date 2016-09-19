@@ -80,7 +80,7 @@ dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
-dicomSoftwareVersion: 5.6.0
+dicomSoftwareVersion: 5.7.0
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
@@ -534,8 +534,19 @@ dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/IANSCU
 
+dn: dcmQueueName=StgCmtSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Storage Commitment SCU Tasks
+dcmQueueName: StgCmtSCU
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/StgCmtSCU
+
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomDescription: Storage Commitment Tasks
+dicomDescription: Storage Commitment SCP Tasks
 dcmQueueName: StgCmtSCP
 dcmMaxRetries: 10
 dcmRetryDelayMultiplier: 200
@@ -5716,6 +5727,14 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private TomTec Annotation Storage SCU
 
+dn: cn=Storage Commitment Push Model SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.1.20.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Storage Commitment Push Model SOP Class SCU
+
 dn: cn=Modality Performed Procedure Step SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.3.1.2.3.3
 dicomTransferRole: SCU
@@ -8286,6 +8305,14 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private TomTec Annotation Storage SCU
+
+dn: cn=Storage Commitment Push Model SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.1.20.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Storage Commitment Push Model SOP Class SCU
 
 dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE

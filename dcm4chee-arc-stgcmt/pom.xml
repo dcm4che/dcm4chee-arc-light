@@ -9,7 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arc-stgcmt-scp</artifactId>
+  <artifactId>dcm4chee-arc-stgcmt</artifactId>
 
   <dependencies>
     <dependency>
@@ -21,6 +21,12 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-entity</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-export</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
