@@ -291,7 +291,7 @@
     },
     "dcmAuditRecordRepository": {
       "title": "Audit Record Repository",
-      "description": "Specifies Java Image IO Image Readers used for decompressing compressed DICOM images",
+      "description": "Audit Record Repository related information",
       "$ref": "auditRecordRepository.schema.json"
     },
     "dcmArchiveDevice": {
