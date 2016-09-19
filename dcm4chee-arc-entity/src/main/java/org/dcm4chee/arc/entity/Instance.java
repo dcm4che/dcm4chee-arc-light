@@ -217,6 +217,10 @@ public class Instance {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "instance_fk")
+    private Collection<ExternalRetrieveAETitle> externalRetrieveAETitles;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "instance_fk")
     private Collection<ContentItem> contentItems;
 
     @OneToMany(mappedBy = "instance")
@@ -345,13 +349,19 @@ public class Instance {
 
     public Collection<VerifyingObserver> getVerifyingObservers() {
         if (verifyingObservers == null)
-            verifyingObservers = new ArrayList<VerifyingObserver>();
+            verifyingObservers = new ArrayList<>();
         return verifyingObservers;
+    }
+
+    public Collection<ExternalRetrieveAETitle> getExternalRetrieveAETitles() {
+        if (externalRetrieveAETitles == null)
+            externalRetrieveAETitles = new ArrayList<>();
+        return externalRetrieveAETitles;
     }
 
     public Collection<ContentItem> getContentItems() {
         if (contentItems == null)
-            contentItems = new ArrayList<ContentItem>();
+            contentItems = new ArrayList<>();
         return contentItems;
     }
 

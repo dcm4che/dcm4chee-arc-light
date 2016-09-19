@@ -101,6 +101,16 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.ExternalRetrieveAETitle">
+    <sequence-generator name="ext_retrieve_aet_pk_seq" sequence-name="ext_retrieve_aet_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="ext_retrieve_aet_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.IanTask">
     <sequence-generator name="ian_task_pk_seq" sequence-name="ian_task_pk_seq" allocation-size="1"/>
     <attributes>
@@ -260,6 +270,16 @@
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="study_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
+  <entity class="org.dcm4chee.arc.entity.StudyExternalRetrieveAETitle">
+    <sequence-generator name="study_ext_retrieve_aet_pk_seq" sequence-name="study_ext_retrieve_aet_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="study_ext_retrieve_aet_pk_seq"/>
       </id>
     </attributes>
   </entity>

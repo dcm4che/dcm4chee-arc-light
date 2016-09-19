@@ -1,6 +1,7 @@
 create index FK_gudw6viy7lrf5t5hetw7mbgh5 on content_item (code_fk) ;
 create index FK_pyrd1nhijag5ct0ee9xqq4h78 on content_item (name_fk) ;
 create index FK_9kpe6whsov3ur9rph4ih2vi5a on content_item (instance_fk) ;
+create index FK_h5738j9g4vrxxh0n06v74f9pq on ext_retrieve_aet (instance_fk) ;
 create index FK_1fuh251le2hid2byw90hd1mly on ian_task (mpps_fk) ;
 create index FK_7w6f9bi2w91qr2abl6ddxnrwq on instance (srcode_fk) ;
 create index FK_6pnwsvi69g5ypye6gjo26vn7e on instance (reject_code_fk) ;
@@ -31,6 +32,7 @@ create index FK_js5xqyw5qa9rpttwmck14duow on sps_station_aet (mwl_item_fk) ;
 create index FK_lp0rdx659kewq8qrqg702yfyv on study (accno_issuer_fk) ;
 create index FK_e3fdaqhw7u60trs5aspf4sna9 on study (patient_fk) ;
 create index FK_49eet5qgcsb32ktsqrf1mj3x2 on study (ref_phys_name_fk) ;
+create index FK_4ewtjnrk7hiy1dhypmvxrmeyc on study_ext_retrieve_aet (study_fk) ;
 create index FK_sxccj81423w8o6w2tsb7nshy9 on study_query_attrs (study_fk) ;
 create index FK_105wt9hglqsmtnoxgma9x18vj on verify_observer (observer_name_fk) ;
 create index FK_qjgrn9rfyyt6sv14utk9ijcfq on verify_observer (instance_fk) ;
