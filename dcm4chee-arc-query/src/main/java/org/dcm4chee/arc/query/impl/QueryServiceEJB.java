@@ -272,11 +272,12 @@ public class QueryServiceEJB {
         if (tuples.isEmpty())
             return null;
 
+        if (type == SOPInstanceRefsType.STGCMT)
+            return getStgCmtRqstAttr(tuples);
+
         Attributes refStudy = new Attributes(2);
         Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
         refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
-        if (type == SOPInstanceRefsType.STGCMT)
-            refStudy.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
         HashMap<Long, Sequence> seriesMap = new HashMap<>();
         for (Tuple tuple : tuples) {
             Long seriesPk = tuple.get(QSeries.series.pk);
@@ -304,6 +305,23 @@ public class QueryServiceEJB {
             refSOPSeq.add(refSOP);
         }
         return refStudy;
+    }
+
+    private Attributes getStgCmtRqstAttr(List<Tuple> tuples) {
+        Attributes refStgcmt = new Attributes(2);
+        refStgcmt.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
+        HashMap<Long, Sequence> seriesMap = new HashMap<>();
+        for (Tuple tuple : tuples) {
+            Long seriesPk = tuple.get(QSeries.series.pk);
+            Sequence refSOPSeq = seriesMap.get(seriesPk);
+            if (refSOPSeq == null)
+                refSOPSeq = refStgcmt.newSequence(Tag.ReferencedSOPSequence, 10);
+            Attributes refSOP = new Attributes(2);
+            refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
+            refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
+            refSOPSeq.add(refSOP);
+        }
+        return refStgcmt;
     }
 
     public Attributes getStudyAttributes(String studyInstanceUID) {
