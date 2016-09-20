@@ -243,12 +243,13 @@ public class DeletionServiceEJB {
                 getSingleResult();
     }
 
-    private int deleteStudyQueryAttributes(Study study) {
-        return em.createNamedQuery(StudyQueryAttributes.DELETE_FOR_STUDY).setParameter(1, study).executeUpdate();
+    private void deleteStudyQueryAttributes(Study study) {
+        em.createNamedQuery(StudyQueryAttributes.DELETE_FOR_STUDY).setParameter(1, study).executeUpdate();
+        em.createNamedQuery(StudyExternalRetrieveAETitle.DELETE_FOR_STUDY).setParameter(1, study).executeUpdate();
     }
 
-    private int deleteSeriesQueryAttributes(Series series) {
-        return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
+    private void deleteSeriesQueryAttributes(Series series) {
+        em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
     private ApplicationEntity getApplicationEntity() {

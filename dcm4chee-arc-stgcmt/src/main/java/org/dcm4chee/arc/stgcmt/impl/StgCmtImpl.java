@@ -96,6 +96,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     @Inject
     private QueryService queryService;
 
+    @Inject
+    private StgCmtEJB ejb;
+
     public StgCmtImpl() {
         super(UID.StorageCommitmentPushModelSOPClass);
     }
@@ -158,8 +161,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         }
     }
 
-    private void onNEventReportRQ(Association as, PresentationContext pc, Attributes rq, Attributes data) {
-        //TODO
+    private void onNEventReportRQ(Association as, PresentationContext pc, Attributes rq, Attributes eventInfo) {
+        ejb.addExternalRetrieveAETs(eventInfo);
         try {
             as.writeDimseRSP(pc, Commands.mkNEventReportRSP(rq, Status.Success), null);
         } catch (Exception e) {
