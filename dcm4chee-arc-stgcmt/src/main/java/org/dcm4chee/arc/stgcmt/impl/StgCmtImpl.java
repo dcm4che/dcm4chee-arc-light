@@ -212,6 +212,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             dimseRSP.next();
             Attributes cmd = dimseRSP.getCommand();
             int status = cmd.getInt(Tag.Status, -1);
+            if (status == Status.Success)
+                ejb.persistStgCmtResult(studyInstanceUID, seriesInstanceUID, sopInstanceUID, exporterID, actionInfo, device.getDeviceName());
             return status == Status.Success
                     ? new Outcome(QueueMessage.Status.COMPLETED,
                     "Request Storage Commitment Request from AE: " + remoteAET)

@@ -45,6 +45,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.entity.ExternalRetrieveAETitle;
 import org.dcm4chee.arc.entity.Instance;
+import org.dcm4chee.arc.entity.StgCmtResult;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -84,4 +85,16 @@ public class StgCmtEJB {
 
     //TODO fallback remaining - exporterDescriptor required
 
+    public void persistStgCmtResult(
+            String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID, String exporterID,
+            Attributes actionInfo, String deviceName) {
+        StgCmtResult result = new StgCmtResult();
+        result.setStgCmtRequest(actionInfo);
+        result.setStudyInstanceUID(studyInstanceUID);
+        result.setSeriesInstanceUID(seriesInstanceUID);
+        result.setSopInstanceUID(sopInstanceUID);
+        result.setExporterID(exporterID);
+        result.setDeviceName(deviceName);
+        em.persist(result);
+    }
 }
