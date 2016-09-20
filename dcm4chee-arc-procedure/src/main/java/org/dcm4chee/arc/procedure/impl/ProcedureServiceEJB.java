@@ -108,7 +108,7 @@ public class ProcedureServiceEJB {
             }
         }
         for (Attributes mwlAttrs : mwlAttrsMap.values())
-            persistMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber);
+            persistMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber, null);
         ctx.setEventActionCode(prevMWLItems.isEmpty()
                 ? AuditMessages.EventActionCode.Create
                 : AuditMessages.EventActionCode.Update);
@@ -116,10 +116,10 @@ public class ProcedureServiceEJB {
 
     private void updateProcedureForWeb(ProcedureContext ctx, Patient patient, Attributes attrs,
                                        IssuerEntity issuerOfAccessionNumber) {
+        List<String> scheduledStationAETitles = null;
         try {
             Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
             String spsID = null;
-            List<String> scheduledStationAETitles = null;
             for (Attributes item : spsSeq) {
                 spsID = item.getString(Tag.ScheduledProcedureStepID);
                 scheduledStationAETitles = item.getStrings(Tag.ScheduledStationAETitle).length != 0
@@ -133,7 +133,7 @@ public class ProcedureServiceEJB {
             processScheduledStationAETitles(mwlItem, scheduledStationAETitles);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         } catch (NoResultException e) {
-            persistMWL(ctx, patient, attrs, issuerOfAccessionNumber);
+            persistMWL(ctx, patient, attrs, issuerOfAccessionNumber, scheduledStationAETitles);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         }
     }
@@ -165,12 +165,15 @@ public class ProcedureServiceEJB {
     }
 
     private void persistMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
-                            IssuerEntity issuerOfAccessionNumber) {
+                            IssuerEntity issuerOfAccessionNumber, List<String> scheduledStationAETitles) {
         MWLItem mwlItem = new MWLItem();
         mwlItem.setPatient(patient);
         mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
         em.persist(mwlItem);
+        if (scheduledStationAETitles != null && !scheduledStationAETitles.isEmpty())
+            for (String s : scheduledStationAETitles)
+                persistScheduledStationAETitle(mwlItem, s);
     }
 
     private IssuerEntity findOrCreateIssuer(Attributes item) {
