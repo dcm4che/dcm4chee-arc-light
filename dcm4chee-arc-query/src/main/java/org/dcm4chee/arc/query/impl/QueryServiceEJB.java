@@ -310,12 +310,8 @@ public class QueryServiceEJB {
     private Attributes getStgCmtRqstAttr(List<Tuple> tuples) {
         Attributes refStgcmt = new Attributes(2);
         refStgcmt.setString(Tag.TransactionUID, VR.UI, UIDUtils.createUID());
-        HashMap<Long, Sequence> seriesMap = new HashMap<>();
+        Sequence refSOPSeq = refStgcmt.newSequence(Tag.ReferencedSOPSequence, 10);
         for (Tuple tuple : tuples) {
-            Long seriesPk = tuple.get(QSeries.series.pk);
-            Sequence refSOPSeq = seriesMap.get(seriesPk);
-            if (refSOPSeq == null)
-                refSOPSeq = refStgcmt.newSequence(Tag.ReferencedSOPSequence, 10);
             Attributes refSOP = new Attributes(2);
             refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
             refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));

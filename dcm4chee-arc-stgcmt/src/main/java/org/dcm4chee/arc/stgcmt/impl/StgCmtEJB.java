@@ -41,13 +41,21 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
+import org.dcm4chee.arc.entity.ExternalRetrieveAETitle;
+import org.dcm4chee.arc.entity.Instance;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
 @Stateless
@@ -58,5 +66,22 @@ public class StgCmtEJB {
 
     public void addExternalRetrieveAETs(Attributes eventInfo) {
         //TODO
+        String retrieveAET = eventInfo.getString(Tag.RetrieveAETitle);
+        Sequence seq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
+        for (Attributes item : seq) {
+            if (retrieveAET == null)
+                retrieveAET = item.getString(Tag.RetrieveAETitle);
+//            Instance instance = em.createNamedQuery(Instance.FIND_INSTANCE_STUDY_BY_SOP_IUID_EAGER, Instance.class)
+//                                .setParameter(1, item.getString(Tag.ReferencedSOPInstanceUID)).getSingleResult();
+//            Collection<ExternalRetrieveAETitle> externalRetrieveAETitles = instance.getExternalRetrieveAETitles();
+//            List<String> extRetrieveAETsList = new ArrayList<>();
+//            for (ExternalRetrieveAETitle extRetrieveAET : externalRetrieveAETitles)
+//                extRetrieveAETsList.add(extRetrieveAET.getRetrieveAET());
+//            if (!extRetrieveAETsList.isEmpty() && !extRetrieveAETsList.contains(retrieveAET))
+//                externalRetrieveAETitles.add(new ExternalRetrieveAETitle(retrieveAET));
+        }
     }
+
+    //TODO fallback remaining - exporterDescriptor required
+
 }
