@@ -124,7 +124,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             return;
 
         Attributes actionInfo = createActionInfo(ctx);
-        scheduleNAction(ctx.getAETitle(), stgCmtSCPAETitle, actionInfo);
+        scheduleNAction(ctx.getAETitle(), stgCmtSCPAETitle, actionInfo, ctx, descriptor.getExporterID());
     }
 
     private Attributes createActionInfo(ExportContext ctx) {
@@ -170,28 +170,36 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         }
     }
 
-    private void scheduleNAction(String localAET, String remoteAET, Attributes actionInfo) {
-        scheduleCommitment(localAET, remoteAET, actionInfo, StgCmtSCU.QUEUE_NAME);
+    private void scheduleNAction(String localAET, String remoteAET, Attributes actionInfo,
+                                 ExportContext ctx, String exporterID) {
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(actionInfo);
+            msg.setStringProperty("LocalAET", localAET);
+            msg.setStringProperty("RemoteAET", remoteAET);
+            msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
+            msg.setStringProperty("SeriesInstanceUID", ctx.getSeriesInstanceUID());
+            msg.setStringProperty("SopInstanceUID", ctx.getSopInstanceUID());
+            msg.setStringProperty("ExporterID", exporterID);
+            queueManager.scheduleMessage(StgCmtSCU.QUEUE_NAME, msg);
+        } catch (JMSException e) {
+            throw QueueMessage.toJMSRuntimeException(e);
+        }
     }
 
     private void scheduleNEventReport(String localAET, String remoteAET, Attributes eventInfo) {
-        scheduleCommitment(localAET, remoteAET, eventInfo, StgCmtSCP.QUEUE_NAME);
-    }
-
-    private void scheduleCommitment(String localAET, String remoteAET, Attributes data, String queueName) {
         try {
-            ObjectMessage msg = queueManager.createObjectMessage(data);
+            ObjectMessage msg = queueManager.createObjectMessage(eventInfo);
             msg.setStringProperty("LocalAET", localAET);
             msg.setStringProperty("RemoteAET", remoteAET);
-            queueManager.scheduleMessage(queueName, msg);
+            queueManager.scheduleMessage(StgCmtSCP.QUEUE_NAME, msg);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
     }
 
     @Override
-    public Outcome sendNAction(String localAET, String remoteAET, Attributes actionInfo)
-            throws Exception  {
+    public Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID,
+                               String sopInstanceUID, String exporterID, Attributes actionInfo) throws Exception  {
         ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
         ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
         AAssociateRQ aarq = mkAAssociateRQ(localAE, localAET, TransferCapability.Role.SCU);

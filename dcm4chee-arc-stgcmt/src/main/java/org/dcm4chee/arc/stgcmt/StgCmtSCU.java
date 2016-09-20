@@ -51,5 +51,6 @@ public interface StgCmtSCU {
     String QUEUE_NAME = "StgCmtSCU";
     String JNDI_NAME = "jms/queue/StgCmtSCU";
 
-    Outcome sendNAction(String localAET, String remoteAET, Attributes eventInfo) throws Exception;
+    Outcome sendNAction(String localAET, String remoteAET, String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID, String exporterID, Attributes actionInfo)
+            throws Exception;
 }

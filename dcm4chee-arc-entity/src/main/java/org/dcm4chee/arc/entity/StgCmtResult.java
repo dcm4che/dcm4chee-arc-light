@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -167,7 +169,40 @@ public class StgCmtResult {
         this.sopInstanceUID = sopInstanceUID;
     }
 
-    public void setActionInfo(Attributes actionInfo) {
+    public Date getCreatedTime() {
+        return createdTime;
+    }
 
+    public Date getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public String getTransactionUID() {
+        return transactionUID;
+    }
+
+    public int getNumberOfInstances() {
+        return numberOfInstances;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public int getNumberOfFailures() {
+        return numberOfFailures;
+    }
+
+    public void setStgCmtRequest(Attributes actionInfo) {
+        this.transactionUID = actionInfo.getString(Tag.TransactionUID);
+        this.numberOfInstances = actionInfo.getSequence(Tag.ReferencedSOPSequence).size();
+        this.status = Status.PENDING;
+    }
+
+    public void setStgCmtResult(Attributes eventInfo) {
+        Sequence failedSeq = eventInfo.getSequence(Tag.FailedSOPSequence);
+        this.numberOfFailures = failedSeq != null ? failedSeq.size() : 0;
+        this.status = failedSeq == null ? Status.COMPLETED
+                : numberOfFailures < numberOfInstances ? Status.WARNING : Status.FAILED;
     }
 }
