@@ -249,6 +249,10 @@ public class Study {
     @OneToMany(mappedBy = "study", cascade=CascadeType.ALL)
     private Collection<StudyQueryAttributes> queryAttributes;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "study_fk")
+    private Collection<StudyExternalRetrieveAETitle> externalRetrieveAETs;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_fk")
     private Patient patient;
@@ -406,6 +410,35 @@ public class Study {
         return procedureCodes;
     }
 
+    public Collection<StudyExternalRetrieveAETitle> getExternalRetrieveAETs() {
+        if (externalRetrieveAETs == null)
+            externalRetrieveAETs = new ArrayList<>();
+
+        return externalRetrieveAETs;
+    }
+
+    public boolean containsExternalRetrieveAET(String aet) {
+        if (externalRetrieveAETs == null)
+            return false;
+
+        for (StudyExternalRetrieveAETitle entity : externalRetrieveAETs) {
+            if (entity.getRetrieveAET().equals(aet))
+                return true;
+        }
+
+        return false;
+    }
+
+    public boolean addExternalRetrieveAET(String aet) {
+        return !containsExternalRetrieveAET(aet)
+                && getExternalRetrieveAETs().add(new StudyExternalRetrieveAETitle(aet));
+    }
+
+    public void clearExternalRetrieveAETs() {
+        if (externalRetrieveAETs != null)
+            externalRetrieveAETs.clear();
+    }
+
     public Patient getPatient() {
         return patient;
     }
@@ -444,5 +477,4 @@ public class Study {
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
     }
-
 }

@@ -164,7 +164,8 @@ public class StoreServiceEJB {
                 if (rjNote != null) {
                     prevInstance.setRejectionNoteCode(null);
                     result.setStoredInstance(prevInstance);
-                    deleteQueryAttributes(prevInstance, true);
+                    deleteQueryAttributes(prevInstance);
+                    prevInstance.getSeries().getStudy().clearExternalRetrieveAETs();
                     logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
                 }
                 return result;
@@ -197,7 +198,9 @@ public class StoreServiceEJB {
             copyLocations(ctx, instance, result);
 
         result.setStoredInstance(instance);
-        deleteQueryAttributes(instance, rjNote == null || !rjNote.isDataRetentionPolicyExpired());
+        deleteQueryAttributes(instance);
+        if(rjNote == null || !rjNote.isDataRetentionPolicyExpired())
+            prevInstance.getSeries().getStudy().clearExternalRetrieveAETs();
         return result;
     }
 
@@ -384,7 +387,7 @@ public class StoreServiceEJB {
         boolean sameStudy = ctx.getStudyInstanceUID().equals(study.getStudyInstanceUID());
         boolean sameSeries = sameStudy && ctx.getSeriesInstanceUID().equals(series.getSeriesInstanceUID());
         if (!sameSeries) {
-            deleteQueryAttributes(instance, false);
+            deleteQueryAttributes(instance);
             if (deleteSeriesIfEmpty(series, ctx) && !sameStudy)
                 deleteStudyIfEmpty(study, ctx);
         }
@@ -430,13 +433,11 @@ public class StoreServiceEJB {
         return sourceAET != null && sourceAET.equals(prevSourceAET);
     }
 
-    private void deleteQueryAttributes(Instance instance, boolean deleteExternalRetrieveAETitles) {
+    private void deleteQueryAttributes(Instance instance) {
         Series series = instance.getSeries();
         Study study = series.getStudy();
         deleteSeriesQueryAttributes(series);
         deleteStudyQueryAttributes(study);
-        if (deleteExternalRetrieveAETitles)
-            deleteStudyExternalRetrieveAETitles(study);
     }
 
     private int deleteStudyQueryAttributes(Study study) {
@@ -445,10 +446,6 @@ public class StoreServiceEJB {
 
     private int deleteSeriesQueryAttributes(Series series) {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
-    }
-
-    private int deleteStudyExternalRetrieveAETitles(Study study) {
-        return em.createNamedQuery(StudyExternalRetrieveAETitle.DELETE_FOR_STUDY).setParameter(1, study).executeUpdate();
     }
 
     private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)

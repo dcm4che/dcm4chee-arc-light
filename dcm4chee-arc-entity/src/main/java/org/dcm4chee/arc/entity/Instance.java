@@ -225,7 +225,7 @@ public class Instance {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "instance_fk")
-    private Collection<ExternalRetrieveAETitle> externalRetrieveAETitles;
+    private Collection<ExternalRetrieveAETitle> externalRetrieveAETs;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "instance_fk")
@@ -361,10 +361,26 @@ public class Instance {
         return verifyingObservers;
     }
 
-    public Collection<ExternalRetrieveAETitle> getExternalRetrieveAETitles() {
-        if (externalRetrieveAETitles == null)
-            externalRetrieveAETitles = new ArrayList<>();
-        return externalRetrieveAETitles;
+    public Collection<ExternalRetrieveAETitle> getExternalRetrieveAETs() {
+        if (externalRetrieveAETs == null)
+            externalRetrieveAETs = new ArrayList<>();
+        return externalRetrieveAETs;
+    }
+
+    public boolean containsExternalRetrieveAET(String aet) {
+        if (externalRetrieveAETs == null)
+            return false;
+
+        for (ExternalRetrieveAETitle entity : externalRetrieveAETs) {
+            if (entity.getRetrieveAET().equals(aet))
+                return true;
+        }
+
+        return false;
+    }
+
+    public boolean addExternalRetrieveAET(String aet) {
+        return !containsExternalRetrieveAET(aet) && getExternalRetrieveAETs().add(new ExternalRetrieveAETitle(aet));
     }
 
     public Collection<ContentItem> getContentItems() {

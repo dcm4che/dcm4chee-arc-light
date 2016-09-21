@@ -46,17 +46,11 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2016
  */
-@NamedQuery(
-        name = StudyExternalRetrieveAETitle.DELETE_FOR_STUDY,
-        query = "delete from StudyExternalRetrieveAETitle a where a.study = ?1"
-)
 @Entity
 @Table(name = "study_ext_retrieve_aet", indexes = {
         @Index(columnList = "retrieve_aet")
 })
 public class StudyExternalRetrieveAETitle {
-
-    public static final String DELETE_FOR_STUDY = "StudyExternalRetrieveAETitle.deleteForStudy";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -67,9 +61,11 @@ public class StudyExternalRetrieveAETitle {
     @Column(name = "retrieve_aet", updatable = false)
     private String retrieveAET;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "study_fk")
-    private Study study;
+    public StudyExternalRetrieveAETitle() {}
+
+    public StudyExternalRetrieveAETitle(String retrieveAET) {
+        this.retrieveAET = retrieveAET;
+    }
 
     public long getPk() {
         return pk;
@@ -81,13 +77,5 @@ public class StudyExternalRetrieveAETitle {
 
     public void setRetrieveAET(String retrieveAET) {
         this.retrieveAET = retrieveAET;
-    }
-
-    public Study getStudy() {
-        return study;
-    }
-
-    public void setStudy(Study study) {
-        this.study = study;
     }
 }

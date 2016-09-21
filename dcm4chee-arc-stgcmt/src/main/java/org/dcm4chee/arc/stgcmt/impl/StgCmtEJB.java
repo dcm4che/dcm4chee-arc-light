@@ -41,18 +41,17 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExternalRetrieveAETitle;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.StgCmtResult;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -69,76 +68,38 @@ public class StgCmtEJB {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
         StgCmtResult result = em.createNamedQuery(StgCmtResult.FIND_BY_TRANSACTION_UID, StgCmtResult.class)
                             .setParameter(1, transactionUID).getSingleResult();
-        HashMap<String, List<Instance>> extRetrAETInstanceMap = mapExternalRetrieveAETWithInstances(eventInfo, result, device);
-        addExternalRetrieveAETsToInstances(extRetrAETInstanceMap);
+        addExternalRetrieveAETsToInstances(eventInfo,
+                device.getDeviceExtension(ArchiveDeviceExtension.class)
+                        .getExporterDescriptorNotNull(result.getExporterID()),
+                result.getStudyInstanceUID());
     }
 
-    private HashMap<String, List<Instance>> mapExternalRetrieveAETWithInstances(Attributes eventInfo, StgCmtResult result, Device device) {
-        List<Instance> instances = getInstancesOfStudy(result);
-        HashMap<String, List<Instance>> extRetrAETInstanceMap = new HashMap<>();
-        HashMap<String, Instance> sopIUIDInstanceMap = new HashMap<>();
-        for (Instance i : instances)
-            sopIUIDInstanceMap.put(i.getSopInstanceUID(), i);
-
-        ExporterDescriptor ed = device.getDeviceExtension(ArchiveDeviceExtension.class)
-                                .getExporterDescriptorNotNull(result.getExporterID());
-        String[] exporterDescRetrieveAETs = ed.getRetrieveAETitles();
-        String commonRetrieveAETFromResult = eventInfo.getString(Tag.RetrieveAETitle);
-        String stgcmtSCPAET = ed.getStgCmtSCPAETitle();
-
-        if (exporterDescRetrieveAETs != null && exporterDescRetrieveAETs.length != 0) {
-            for (String s : exporterDescRetrieveAETs)
-                extRetrAETInstanceMap.put(s, instances);
-            return extRetrAETInstanceMap;
-        }
-        if (commonRetrieveAETFromResult != null) {
-            extRetrAETInstanceMap.put(commonRetrieveAETFromResult, instances);
-            return extRetrAETInstanceMap;
-        }
-        for (Attributes item : eventInfo.getSequence(Tag.ReferencedSOPSequence)) {
-            String itemRetrieveAET = item.getString(Tag.RetrieveAETitle) != null ? item.getString(Tag.RetrieveAETitle) : stgcmtSCPAET;
-            String referencedSopIUID = item.getString(Tag.ReferencedSOPInstanceUID);
-            List<Instance> tmp = extRetrAETInstanceMap.get(itemRetrieveAET);
-            tmp.add(sopIUIDInstanceMap.get(referencedSopIUID));
-            extRetrAETInstanceMap.put(itemRetrieveAET, tmp);
-        }
-        return extRetrAETInstanceMap;
-    }
-
-    private List<Instance> getInstancesOfStudy(StgCmtResult result) {
-        List<Instance> instances = em.createNamedQuery(Instance.FIND_BY_STUDY_IUID, Instance.class)
-                                .setParameter(1, result.getStudyInstanceUID()).getResultList();
-        return instances;
-    }
-
-    private void addExternalRetrieveAETsToInstances(HashMap<String, List<Instance>> extRetrAETInstanceMap) {
-        for (Map.Entry<String, List<Instance>> entry : extRetrAETInstanceMap.entrySet()) {
-            String retrieveAET = entry.getKey();
-            List<Instance> instances = entry.getValue();
-            for (Instance instance : instances) {
-                Collection<ExternalRetrieveAETitle> instanceExternalRetrieveAETs = instance.getExternalRetrieveAETitles();
-                if (instanceExternalRetrieveAETs.isEmpty())
-                    instanceExternalRetrieveAETs.add(getExternalRetrieveAET(retrieveAET));
-                else {
-                    List<String> erAETsOfI = getExistingExtRetrieveAETsOfInstanceAsList(instanceExternalRetrieveAETs);
-                    if (!erAETsOfI.contains(retrieveAET))
-                        instanceExternalRetrieveAETs.add(getExternalRetrieveAET(retrieveAET));
+    private void addExternalRetrieveAETsToInstances(Attributes eventInfo, ExporterDescriptor ed, String suid) {
+        String[] configRetrieveAETs = ed.getRetrieveAETitles();
+        String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed.getStgCmtSCPAETitle());
+        Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
+        for (Instance inst : em.createNamedQuery(Instance.FIND_BY_STUDY_IUID, Instance.class)
+                                .setParameter(1, suid)
+                .getResultList()) {
+            Attributes sopRef = sopRefOf(inst.getSopInstanceUID(), sopSeq);
+            if (sopRef != null) {
+                if (configRetrieveAETs.length > 0) {
+                    for (String retrieveAET : configRetrieveAETs) {
+                        inst.addExternalRetrieveAET(retrieveAET);
+                    }
+                } else {
+                    inst.addExternalRetrieveAET(sopRef.getString(Tag.RetrieveAETitle, defRetrieveAET));
                 }
             }
         }
     }
 
-    private List<String> getExistingExtRetrieveAETsOfInstanceAsList(
-            Collection<ExternalRetrieveAETitle> instanceExternalRetrieveAETs) {
-        List<String> extRetrieveAETsAsList =  new ArrayList<>();
-        for (ExternalRetrieveAETitle eraet : instanceExternalRetrieveAETs)
-            extRetrieveAETsAsList.add(eraet.getRetrieveAET());
-        return extRetrieveAETsAsList;
-    }
-
-    private ExternalRetrieveAETitle getExternalRetrieveAET (String retrieveAET) {
-        ExternalRetrieveAETitle extRetrieveAET = new ExternalRetrieveAETitle(retrieveAET);
-        return extRetrieveAET;
+    private Attributes sopRefOf(String iuid, Sequence seq) {
+        for (Attributes item : seq) {
+            if (iuid.equals(item.getString(Tag.ReferencedSOPInstanceUID)))
+                return item;
+        }
+        return null;
     }
 
     public void persistStgCmtResult(
