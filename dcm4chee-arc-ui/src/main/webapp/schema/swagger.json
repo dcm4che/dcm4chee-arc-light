@@ -2129,9 +2129,6 @@
               "$ref": "#/definitions/Deleted"
             }
           },
-          "404": {
-            "description": "Queue not found"
-          },
           "default": {
             "description": "unexpected error"
           }
