@@ -287,7 +287,7 @@ public class MWLItem {
             scheduledStartTime = "*";
         }
         scheduledPerformingPhysicianName = PersonName.valueOf(
-                attrs.getString(Tag.ScheduledPerformingPhysicianName), fuzzyStr, scheduledPerformingPhysicianName);
+                spsItem.getString(Tag.ScheduledPerformingPhysicianName), fuzzyStr, scheduledPerformingPhysicianName);
         String cs = spsItem.getString(Tag.ScheduledProcedureStepStatus);
         status = SPSStatus.valueOf(cs);
         requestedProcedureID = attrs.getString(Tag.RequestedProcedureID);
