@@ -3,17 +3,24 @@
   "type": "array",
   "items": {
     "required": [
-      "id",
-      "queue",
+      "dicomDeviceName",
+      "transactionUID",
       "status",
-      "failures",
+      "studyUID",
+      "exporterID",
+      "requested",
       "createdTime",
       "updatedTime"
     ],
     "properties": {
-      "id": {
-        "title": "Message ID",
-        "description": "id of message",
+      "dicomDeviceName": {
+        "title": "Device Name",
+        "description": "A unique name for this device",
+        "type": "string"
+      },
+      "transactionUID": {
+        "title": "Transaction UID",
+        "description": "Transaction UID of Storage Commitment",
         "type": "string"
       },
       "status": {
@@ -21,61 +28,53 @@
         "description": "Status of Storage Commitment",
         "type": "string",
         "enum": [
-            "PENDING",
-            "COMPLETED",
-            "WARNING",
-            "FAILED"
+          "PENDING",
+          "COMPLETED",
+          "WARNING",
+          "FAILED"
         ]
+      },
+      "studyUID": {
+        "title": "Study Instance UID",
+        "description": "Unique Identifier of the Study",
+        "type": "string"
+      },
+      "seriesUID": {
+        "title": "Series Instance UID",
+        "description": "Unique Identifier of the Series",
+        "type": "string"
+      },
+      "objectUID": {
+        "title": "SOP Instance UID",
+        "description": "Unique Identifier of the Object",
+        "type": "string"
+      },
+      "exporterID": {
+        "title": "Exporter ID",
+        "description": "Exporter ID to filter by",
+        "type": "string"
+      },
+      "requested": {
+        "title": "Requested",
+        "description": "number of instances requested for Storage Commitment",
+        "type": "integer"
       },
       "failures": {
         "title": "Failures",
-        "description": "number of failed attempts to process this message",
+        "description": "number of instances for which Storage Commitment failed",
         "type": "integer"
       },
       "createdTime": {
         "title": "Created Time",
-        "description": "time when this messages was created",
+        "description": "time when this Storage Commitment was requested",
         "type": "string",
         "format": "date-time"
       },
       "updatedTime": {
         "title": "Updated Time",
-        "description": "time when this messages was last updated",
+        "description": "time when this Storage Commitment was last updated",
         "type": "string",
         "format": "date-time"
-      },
-      "scheduledTime": {
-        "title": "Scheduled Time",
-        "description": "time when next attempt to process this messages is scheduled",
-        "type": "string",
-        "format": "date-time"
-      },
-      "processingStartTime": {
-        "title": "Processing Start Time",
-        "description": "time when last attempt to process this messages started",
-        "type": "string",
-        "format": "date-time"
-      },
-      "processingEndTime": {
-        "title": "Processing End Time",
-        "description": "time when last attempt to process this messages finished",
-        "type": "string",
-        "format": "date-time"
-      },
-      "errorMessage": {
-        "title": "Error Message",
-        "description": "error message of last failed attempt to process this message",
-        "type": "string"
-      },
-      "outcomeMessage": {
-        "title": "Outcome Message",
-        "description": "outcome message of process this message",
-        "type": "string"
-      },
-      "messagePropertyXX": {
-        "title": "Message Property XX",
-        "description": "other JMS property of this message",
-        "type": "string"
       }
     }
   }
