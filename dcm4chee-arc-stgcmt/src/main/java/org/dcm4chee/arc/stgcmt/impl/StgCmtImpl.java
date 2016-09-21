@@ -109,10 +109,10 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         switch (dimse) {
             case N_ACTION_RQ:
                 onNActionRQ(as, pc, rq, data);
-                break;
+                return;
             case N_EVENT_REPORT_RQ:
                 onNEventReportRQ(as, pc, rq, data);
-                break;
+                return;
         }
         throw new DicomServiceException(Status.UnrecognizedOperation);
     }
