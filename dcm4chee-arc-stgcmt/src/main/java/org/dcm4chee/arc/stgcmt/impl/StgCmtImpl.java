@@ -162,7 +162,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     private void onNEventReportRQ(Association as, PresentationContext pc, Attributes rq, Attributes eventInfo) {
-        ejb.addExternalRetrieveAETs(eventInfo);
+        ejb.addExternalRetrieveAETs(eventInfo, device);
         try {
             as.writeDimseRSP(pc, Commands.mkNEventReportRSP(rq, Status.Success), null);
         } catch (Exception e) {

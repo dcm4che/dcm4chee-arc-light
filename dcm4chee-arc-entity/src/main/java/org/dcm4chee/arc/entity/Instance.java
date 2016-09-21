@@ -58,6 +58,7 @@ import java.util.Date;
  * @author Justin Falk <jfalkmu@gmail.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Michael Backhaus <michael.backhaus@agfa.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
 @NamedQueries({
 @NamedQuery(
@@ -107,7 +108,13 @@ import java.util.Date;
 @NamedQuery(
     name=Instance.COUNT_INSTANCES_OF_SERIES,
     query="select count(i) from Instance i " +
-            "where i.series = ?1")
+            "where i.series = ?1"),
+@NamedQuery(
+        name = Instance.FIND_BY_STUDY_IUID,
+        query = "select instance from Instance instance " +
+                "join fetch instance.series series " +
+                "join fetch series.study study " +
+                "where study.studyInstanceUID = ?1 ")
 })
 @Entity
 @Table(name = "instance",
@@ -132,6 +139,7 @@ public class Instance {
     public static final String COUNT_INSTANCES_OF_SERIES = "Instance.countInstancesOfSeries";
     public static final String COUNT_REJECTED_INSTANCES_OF_SERIES = "Instance.countRejectedInstancesOfSeries";
     public static final String COUNT_NOT_REJECTED_INSTANCES_OF_SERIES = "Instance.countNotRejectedInstancesOfSeries";
+    public static final String FIND_BY_STUDY_IUID = "Instance.findByStudyIUID";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

@@ -49,8 +49,17 @@ import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Sep 2016
  */
+@NamedQueries({
+@NamedQuery(
+        name = StgCmtResult.FIND_BY_TRANSACTION_UID,
+        query = "select result from StgCmtResult result " +
+                "where result.transactionUID = ?1"
+)
+})
+
 @Entity
 @Table(name = "stgcmt_result",
         uniqueConstraints = @UniqueConstraint(columnNames = "transaction_uid"),
@@ -63,6 +72,8 @@ import java.util.Date;
 public class StgCmtResult {
 
     public enum Status { PENDING, COMPLETED, WARNING, FAILED }
+
+    public static final String FIND_BY_TRANSACTION_UID = "StgCmtResult.findByTransactionUID";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
