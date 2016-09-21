@@ -51,6 +51,7 @@ import org.dcm4chee.arc.conf.Availability;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -361,10 +362,21 @@ public class Instance {
         return verifyingObservers;
     }
 
-    public Collection<ExternalRetrieveAETitle> getExternalRetrieveAETs() {
+    public Collection<ExternalRetrieveAETitle> getExternalRetrieveAETitles() {
         if (externalRetrieveAETs == null)
             externalRetrieveAETs = new ArrayList<>();
         return externalRetrieveAETs;
+    }
+
+    public Collection<String> getExternalRetrieveAETs() {
+        if (externalRetrieveAETs == null || externalRetrieveAETs.isEmpty())
+            return Collections.emptyList();
+
+        ArrayList<String> aets = new ArrayList<String>(externalRetrieveAETs.size());
+        for (ExternalRetrieveAETitle entity : externalRetrieveAETs) {
+            aets.add(entity.getRetrieveAET());
+        }
+        return aets;
     }
 
     public boolean containsExternalRetrieveAET(String aet) {
@@ -380,7 +392,8 @@ public class Instance {
     }
 
     public boolean addExternalRetrieveAET(String aet) {
-        return !containsExternalRetrieveAET(aet) && getExternalRetrieveAETs().add(new ExternalRetrieveAETitle(aet));
+        return !containsExternalRetrieveAET(aet)
+                && getExternalRetrieveAETitles().add(new ExternalRetrieveAETitle(aet));
     }
 
     public Collection<ContentItem> getContentItems() {

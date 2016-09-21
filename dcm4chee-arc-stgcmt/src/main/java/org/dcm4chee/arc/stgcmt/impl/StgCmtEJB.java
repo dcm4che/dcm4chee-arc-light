@@ -46,9 +46,9 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExternalRetrieveAETitle;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.entity.Study;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +56,8 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -78,7 +78,7 @@ public class StgCmtEJB {
         try {
             StgCmtResult result = em.createNamedQuery(StgCmtResult.FIND_BY_TRANSACTION_UID, StgCmtResult.class)
                     .setParameter(1, transactionUID).getSingleResult();
-            addExternalRetrieveAETsToInstances(eventInfo,
+            updateExternalRetrieveAETs(eventInfo,
                     device.getDeviceExtension(ArchiveDeviceExtension.class)
                             .getExporterDescriptorNotNull(result.getExporterID()),
                     result.getStudyInstanceUID());
@@ -88,13 +88,12 @@ public class StgCmtEJB {
         }
     }
 
-    private void addExternalRetrieveAETsToInstances(Attributes eventInfo, ExporterDescriptor ed, String suid) {
+    private void updateExternalRetrieveAETs(Attributes eventInfo, ExporterDescriptor ed, String suid) {
         String[] configRetrieveAETs = ed.getRetrieveAETitles();
         String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed.getStgCmtSCPAETitle());
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
         List<Instance> instances = em.createNamedQuery(Instance.FIND_BY_STUDY_IUID, Instance.class)
                                 .setParameter(1, suid).getResultList();
-        HashSet<String> disjoin = new HashSet<>();
         for (Instance inst : instances) {
             Attributes sopRef = sopRefOf(inst.getSopInstanceUID(), sopSeq);
             if (sopRef != null) {
@@ -107,16 +106,18 @@ public class StgCmtEJB {
                 }
             }
         }
-        boolean allInstancesWithExtRetrAET = false;
-        for (Instance i : instances) {
-            allInstancesWithExtRetrAET = !i.getExternalRetrieveAETs().isEmpty();
-            for (ExternalRetrieveAETitle aet : i.getExternalRetrieveAETs())
-                disjoin.add(aet.getRetrieveAET());
-            if (!allInstancesWithExtRetrAET)
-                break;
+        Iterator<Instance> iter = instances.iterator();
+        Instance inst1 = iter.next();
+        HashSet<String> studyExternalAETs = new HashSet<>(inst1.getExternalRetrieveAETs());
+        while (iter.hasNext()) {
+            studyExternalAETs.retainAll(iter.next().getExternalRetrieveAETs());
         }
-        if (allInstancesWithExtRetrAET && !disjoin.isEmpty() && disjoin.size() == 1)
-            instances.get(0).getSeries().getStudy().addExternalRetrieveAET(disjoin.iterator().next());
+        if (!studyExternalAETs.isEmpty()) {
+            Study study = inst1.getSeries().getStudy();
+            for (String s : studyExternalAETs) {
+                study.addExternalRetrieveAET(s);
+            }
+        }
     }
 
     private Attributes sopRefOf(String iuid, Sequence seq) {
