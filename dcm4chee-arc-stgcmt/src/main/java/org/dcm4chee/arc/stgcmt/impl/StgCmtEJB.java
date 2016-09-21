@@ -46,12 +46,19 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.ExternalRetrieveAETitle;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.StgCmtResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -61,29 +68,37 @@ import javax.persistence.PersistenceContext;
 @Stateless
 public class StgCmtEJB {
 
+    private final Logger LOG = LoggerFactory.getLogger(StgCmtEJB.class);
+
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
-        StgCmtResult result = em.createNamedQuery(StgCmtResult.FIND_BY_TRANSACTION_UID, StgCmtResult.class)
-                            .setParameter(1, transactionUID).getSingleResult();
-        addExternalRetrieveAETsToInstances(eventInfo,
-                device.getDeviceExtension(ArchiveDeviceExtension.class)
-                        .getExporterDescriptorNotNull(result.getExporterID()),
-                result.getStudyInstanceUID());
+        try {
+            StgCmtResult result = em.createNamedQuery(StgCmtResult.FIND_BY_TRANSACTION_UID, StgCmtResult.class)
+                    .setParameter(1, transactionUID).getSingleResult();
+            addExternalRetrieveAETsToInstances(eventInfo,
+                    device.getDeviceExtension(ArchiveDeviceExtension.class)
+                            .getExporterDescriptorNotNull(result.getExporterID()),
+                    result.getStudyInstanceUID());
+            result.setStgCmtResult(eventInfo);
+        } catch (NoResultException e) {
+            LOG.warn("No Storage Commitment result found with transaction UID : " + transactionUID);
+        }
     }
 
     private void addExternalRetrieveAETsToInstances(Attributes eventInfo, ExporterDescriptor ed, String suid) {
         String[] configRetrieveAETs = ed.getRetrieveAETitles();
         String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed.getStgCmtSCPAETitle());
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
-        for (Instance inst : em.createNamedQuery(Instance.FIND_BY_STUDY_IUID, Instance.class)
-                                .setParameter(1, suid)
-                .getResultList()) {
+        List<Instance> instances = em.createNamedQuery(Instance.FIND_BY_STUDY_IUID, Instance.class)
+                                .setParameter(1, suid).getResultList();
+        HashSet<String> disjoin = new HashSet<>();
+        for (Instance inst : instances) {
             Attributes sopRef = sopRefOf(inst.getSopInstanceUID(), sopSeq);
             if (sopRef != null) {
-                if (configRetrieveAETs.length > 0) {
+                if (configRetrieveAETs != null && configRetrieveAETs.length > 0) {
                     for (String retrieveAET : configRetrieveAETs) {
                         inst.addExternalRetrieveAET(retrieveAET);
                     }
@@ -92,6 +107,16 @@ public class StgCmtEJB {
                 }
             }
         }
+        boolean allInstancesWithExtRetrAET = false;
+        for (Instance i : instances) {
+            allInstancesWithExtRetrAET = !i.getExternalRetrieveAETs().isEmpty();
+            for (ExternalRetrieveAETitle aet : i.getExternalRetrieveAETs())
+                disjoin.add(aet.getRetrieveAET());
+            if (!allInstancesWithExtRetrAET)
+                break;
+        }
+        if (allInstancesWithExtRetrAET && !disjoin.isEmpty() && disjoin.size() == 1)
+            instances.get(0).getSeries().getStudy().addExternalRetrieveAET(disjoin.iterator().next());
     }
 
     private Attributes sopRefOf(String iuid, Sequence seq) {
