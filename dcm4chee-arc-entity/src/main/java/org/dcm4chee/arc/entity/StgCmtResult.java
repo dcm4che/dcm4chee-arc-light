@@ -64,7 +64,7 @@ import java.util.Date;
 @Table(name = "stgcmt_result",
         uniqueConstraints = @UniqueConstraint(columnNames = "transaction_uid"),
         indexes = {
-            @Index(columnList = "device_name, created_time"),
+            @Index(columnList = "updated_time"),
             @Index(columnList = "transaction_uid"),
             @Index(columnList = "stgcmt_status")
     }

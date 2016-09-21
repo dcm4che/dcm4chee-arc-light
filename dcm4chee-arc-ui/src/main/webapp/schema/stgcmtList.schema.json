@@ -16,14 +16,9 @@
         "description": "id of message",
         "type": "string"
       },
-      "queue": {
-        "title": "Queue Name",
-        "description": "name of queue",
-        "type": "string"
-      },
       "status": {
         "title": "Storage Commitment Status",
-        "description": "status of Storage Commitment",
+        "description": "Status of Storage Commitment",
         "type": "string",
         "enum": [
             "PENDING",

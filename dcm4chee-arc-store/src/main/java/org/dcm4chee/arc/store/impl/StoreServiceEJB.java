@@ -200,7 +200,7 @@ public class StoreServiceEJB {
         result.setStoredInstance(instance);
         deleteQueryAttributes(instance);
         if(rjNote == null || !rjNote.isDataRetentionPolicyExpired())
-            prevInstance.getSeries().getStudy().clearExternalRetrieveAETs();
+            instance.getSeries().getStudy().clearExternalRetrieveAETs();
         return result;
     }
 
