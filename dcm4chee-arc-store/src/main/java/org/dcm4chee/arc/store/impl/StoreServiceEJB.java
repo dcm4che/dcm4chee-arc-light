@@ -164,7 +164,7 @@ public class StoreServiceEJB {
                 if (rjNote != null) {
                     prevInstance.setRejectionNoteCode(null);
                     result.setStoredInstance(prevInstance);
-                    deleteQueryAttributes(prevInstance);
+                    deleteQueryAttributes(prevInstance, true);
                     logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
                 }
                 return result;
@@ -172,9 +172,10 @@ public class StoreServiceEJB {
             LOG.info("{}: Replace previous received {}", session, prevInstance);
             deleteInstance(prevInstance, ctx);
         }
+        RejectionNote rjNote = null;
         CodeEntity conceptNameCode = findOrCreateCode(ctx.getAttributes(), Tag.ConceptNameCodeSequence);
         if (conceptNameCode != null && ctx.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)) {
-            RejectionNote rjNote = arcDev.getRejectionNote(conceptNameCode.getCode());
+            rjNote = arcDev.getRejectionNote(conceptNameCode.getCode());
             if (rjNote != null) {
                 result.setRejectionNote(rjNote);
                 AllowRejectionForDataRetentionPolicyExpired policy =
@@ -196,7 +197,7 @@ public class StoreServiceEJB {
             copyLocations(ctx, instance, result);
 
         result.setStoredInstance(instance);
-        deleteQueryAttributes(instance);
+        deleteQueryAttributes(instance, rjNote == null || !rjNote.isDataRetentionPolicyExpired());
         return result;
     }
 
@@ -383,7 +384,7 @@ public class StoreServiceEJB {
         boolean sameStudy = ctx.getStudyInstanceUID().equals(study.getStudyInstanceUID());
         boolean sameSeries = sameStudy && ctx.getSeriesInstanceUID().equals(series.getSeriesInstanceUID());
         if (!sameSeries) {
-            deleteQueryAttributes(instance);
+            deleteQueryAttributes(instance, false);
             if (deleteSeriesIfEmpty(series, ctx) && !sameStudy)
                 deleteStudyIfEmpty(study, ctx);
         }
@@ -429,11 +430,13 @@ public class StoreServiceEJB {
         return sourceAET != null && sourceAET.equals(prevSourceAET);
     }
 
-    private void deleteQueryAttributes(Instance instance) {
+    private void deleteQueryAttributes(Instance instance, boolean deleteExternalRetrieveAETitles) {
         Series series = instance.getSeries();
         Study study = series.getStudy();
         deleteSeriesQueryAttributes(series);
         deleteStudyQueryAttributes(study);
+        if (deleteExternalRetrieveAETitles)
+            deleteStudyExternalRetrieveAETitles(study);
     }
 
     private int deleteStudyQueryAttributes(Study study) {
@@ -442,6 +445,10 @@ public class StoreServiceEJB {
 
     private int deleteSeriesQueryAttributes(Series series) {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
+    }
+
+    private int deleteStudyExternalRetrieveAETitles(Study study) {
+        return em.createNamedQuery(StudyExternalRetrieveAETitle.DELETE_FOR_STUDY).setParameter(1, study).executeUpdate();
     }
 
     private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)

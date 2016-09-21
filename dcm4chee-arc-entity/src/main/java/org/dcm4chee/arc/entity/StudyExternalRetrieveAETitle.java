@@ -46,11 +46,17 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2016
  */
+@NamedQuery(
+        name = StudyExternalRetrieveAETitle.DELETE_FOR_STUDY,
+        query = "delete from StudyExternalRetrieveAETitle a where a.study = ?1"
+)
 @Entity
 @Table(name = "study_ext_retrieve_aet", indexes = {
         @Index(columnList = "retrieve_aet")
 })
 public class StudyExternalRetrieveAETitle {
+
+    public static final String DELETE_FOR_STUDY = "StudyExternalRetrieveAETitle.deleteForStudy";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

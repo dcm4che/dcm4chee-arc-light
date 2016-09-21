@@ -56,27 +56,17 @@ public class ExternalRetrieveAETitle {
     private long pk;
 
     @Basic(optional = false)
-    @Column(name = "sop_iuid", updatable = false)
-    private String sopInstanceUID;
-
-    @Basic(optional = false)
     @Column(name = "retrieve_aet", updatable = false)
     private String retrieveAET;
 
-    public ExternalRetrieveAETitle() {
-    }
+    public ExternalRetrieveAETitle() {}
 
-    public ExternalRetrieveAETitle(String sopInstanceUID, String retrieveAET) {
-        this.sopInstanceUID = sopInstanceUID;
+    public ExternalRetrieveAETitle(String retrieveAET) {
         this.retrieveAET = retrieveAET;
     }
 
     public long getPk() {
         return pk;
-    }
-
-    public String getSopInstanceUID() {
-        return sopInstanceUID;
     }
 
     public String getRetrieveAET() {

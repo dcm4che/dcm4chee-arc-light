@@ -88,6 +88,10 @@ public class RejectionNote {
         return rejectionNoteType == Type.REVOKE_REJECTION;
     }
 
+    public boolean isDataRetentionPolicyExpired() {
+        return rejectionNoteType == Type.DATA_RETENTION_POLICY_EXPIRED;
+    }
+
     public Code getRejectionNoteCode() {
         return rejectionNoteCode;
     }
