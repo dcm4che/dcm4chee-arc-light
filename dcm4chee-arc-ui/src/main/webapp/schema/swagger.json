@@ -2015,155 +2015,155 @@
           }
         }
       }
-    }
-  },
-  "/stgcmt": {
-    "get": {
-      "tags": [
-        "EXPORT-RS"
-      ],
-      "summary": "List Storage Commitment Results",
-      "operationId": "listStgCmts",
-      "produces": [
-        "application/json"
-      ],
-      "parameters": [
-        {
-          "name": "status",
-          "in": "query",
-          "description": "Storage Commitment Status to filter by",
-          "type": "string",
-          "enum": [
-            "PENDING",
-            "COMPLETED",
-            "WARNING",
-            "FAILED"
-          ]
-        },
-        {
-          "name": "transactionUID",
-          "in": "query",
-          "description": "Transaction UID to filter by",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "studyUID",
-          "in": "query",
-          "description": "Unique Identifier of the Study to filter by",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "exporterID",
-          "in": "query",
-          "description": "Exporter ID to filter by",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "updatedBefore",
-          "in": "query",
-          "description": "maximum update date of Storage Commitment Result to filter by. Format: YYYY-MM-DD",
-          "type": "string",
-          "format": "date"
-        },
-        {
-          "name": "offset",
-          "in": "query",
-          "description": "number of skipped Storage Commitment Results before first result in returned list",
-          "type": "integer"
-        },
-        {
-          "name": "limit",
-          "in": "query",
-          "description": "maximal number of Storage Commitment Results in returned list",
-          "type": "integer"
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "Storage Commitment Result List",
-          "schema": {
-            "$ref": "stgcmtList.schema.json"
+    },
+    "/stgcmt": {
+      "get": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "List Storage Commitment Results",
+        "operationId": "listStgCmts",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Storage Commitment Status to filter by",
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "WARNING",
+              "FAILED"
+            ]
+          },
+          {
+            "name": "transactionUID",
+            "in": "query",
+            "description": "Transaction UID to filter by",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "query",
+            "description": "Exporter ID to filter by",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "maximum update date of Storage Commitment Result to filter by. Format: YYYY-MM-DD",
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped Storage Commitment Results before first result in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of Storage Commitment Results in returned list",
+            "type": "integer"
           }
-        },
-        "default": {
-          "description": "unexpected error"
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage Commitment Result List",
+            "schema": {
+              "$ref": "stgcmtList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Delete Storage Commitment Results",
+        "operationId": "deleteStgCmts",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Storage Commitment Status to filter by",
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "WARNING",
+              "FAILED"
+            ]
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "maximum update date of Storage Commitment Result to filter by. Format: YYYY-MM-DD",
+            "type": "string",
+            "format": "date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Deleted"
+            }
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
         }
       }
     },
-    "delete": {
-      "tags": [
-        "EXPORT-RS"
-      ],
-      "summary": "Delete Storage Commitment Results",
-      "operationId": "deleteStgCmts",
-      "produces": [
-        "application/json"
-      ],
-      "parameters": [
-        {
-          "name": "status",
-          "in": "query",
-          "description": "Storage Commitment Status to filter by",
-          "type": "string",
-          "enum": [
-            "PENDING",
-            "COMPLETED",
-            "WARNING",
-            "FAILED"
-          ]
-        },
-        {
-          "name": "updatedBefore",
-          "in": "query",
-          "description": "maximum update date of Storage Commitment Result to filter by. Format: YYYY-MM-DD",
-          "type": "string",
-          "format": "date"
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "successful operation",
-          "schema": {
-            "$ref": "#/definitions/Deleted"
+    "/stgcmt/{transactionUID}": {
+      "delete": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Delete Storage Commitment Result",
+        "operationId": "deleteStgCmt",
+        "parameters": [
+          {
+            "name": "transactionUID",
+            "in": "path",
+            "description": "Transaction UID of Storage Commitment",
+            "required": true,
+            "type": "string"
           }
-        },
-        "404": {
-          "description": "Queue not found"
-        },
-        "default": {
-          "description": "unexpected error"
-        }
-      }
-    }
-  },
-  "/stgcmt/{transactionUID}": {
-    "delete": {
-      "tags": [
-        "EXPORT-RS"
-      ],
-      "summary": "Storage Commitment Result",
-      "operationId": "deleteStgCmt",
-      "parameters": [
-        {
-          "name": "transactionUID",
-          "in": "path",
-          "description": "Transaction UID of Storage Commitment",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "responses": {
-        "204": {
-          "description": "successful operation"
-        },
-        "404": {
-          "description": "Storage Commitment Result not found"
-        },
-        "default": {
-          "description": "unexpected error"
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Storage Commitment Result not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
         }
       }
     }
