@@ -418,6 +418,16 @@
         "HASH_NAME_AND_ID"
       ]
     },
+    "dcmPurgeStgCmtCompletedDelay": {
+      "title": "Purge Storage Commitment Completed Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which results of completed Storage Commitment requests are purged. If absent, there is no deletion.",
+      "type": "string"
+    },
+    "dcmPurgeStgCmtPollingInterval": {
+      "title": "Purge Storage Commitment Polling Interval",
+      "description": "Polling Interval for purging Storage Commitment Results in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion",
+      "type": "string"
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",

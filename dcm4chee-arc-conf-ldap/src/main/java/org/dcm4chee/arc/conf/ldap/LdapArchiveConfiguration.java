@@ -147,6 +147,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceExpirationDatePattern", ext.getStorePermissionServiceExpirationDatePattern());
         LdapUtils.storeNotNull(attrs, "dcmShowPatientInfoInSystemLog", ext.getShowPatientInfoInSystemLog());
         LdapUtils.storeNotNull(attrs, "dcmShowPatientInfoInAuditLog", ext.getShowPatientInfoInAuditLog());
+        LdapUtils.storeNotNull(attrs, "dcmPurgeStgCmtCompletedDelay", ext.getPurgeStgCmtCompletedDelay());
+        LdapUtils.storeNotNull(attrs, "dcmPurgeStgCmtPollingInterval", ext.getPurgeStgCmtPollingInterval());
     }
 
     @Override
@@ -228,6 +230,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setShowPatientInfoInSystemLog(LdapUtils.enumValue(ShowPatientInfo.class, attrs.get("dcmShowPatientInfoInSystemLog"), null));
         ext.setShowPatientInfoInAuditLog(LdapUtils.enumValue(ShowPatientInfo.class, attrs.get("dcmShowPatientInfoInAuditLog"), null));
+        ext.setPurgeStgCmtCompletedDelay(toDuration(attrs.get("dcmPurgeStgCmtCompletedDelay")));
+        ext.setPurgeStgCmtPollingInterval(toDuration(attrs.get("dcmPurgeStgCmtPollingInterval")));
     }
 
     @Override
@@ -353,6 +357,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorePermissionServiceExpirationDatePattern(), bb.getStorePermissionServiceExpirationDatePattern());
         LdapUtils.storeDiff(mods, "dcmShowPatientInfoInSystemLog", aa.getShowPatientInfoInSystemLog(), bb.getShowPatientInfoInSystemLog());
         LdapUtils.storeDiff(mods, "dcmShowPatientInfoInAuditLog", aa.getShowPatientInfoInAuditLog(), bb.getShowPatientInfoInAuditLog());
+        LdapUtils.storeDiff(mods, "dcmPurgeStgCmtCompletedDelay", aa.getPurgeStgCmtCompletedDelay(), bb.getPurgeStgCmtCompletedDelay());
+        LdapUtils.storeDiff(mods, "dcmPurgeStgCmtPollingInterval", aa.getPurgeStgCmtPollingInterval(), bb.getPurgeStgCmtPollingInterval());
     }
 
     @Override

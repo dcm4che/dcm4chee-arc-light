@@ -141,6 +141,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorePermissionServiceExpirationDatePattern", arcDev.getStorePermissionServiceExpirationDatePattern());
         writer.writeNotNull("dcmShowPatientInfoInSystemLog", arcDev.getShowPatientInfoInSystemLog());
         writer.writeNotNull("dcmShowPatientInfoInAuditLog", arcDev.getShowPatientInfoInAuditLog());
+        writer.writeNotNull("dcmPurgeStgCmtCompletedDelay", arcDev.getPurgeStgCmtCompletedDelay());
+        writer.writeNotNull("dcmPurgeStgCmtPollingInterval", arcDev.getPurgeStgCmtPollingInterval());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -632,6 +634,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmShowPatientInfoInAuditLog":
                     arcDev.setShowPatientInfoInAuditLog(ShowPatientInfo.valueOf(reader.stringValue()));
+                    break;
+                case "dcmPurgeStgCmtCompletedDelay":
+                    arcDev.setPurgeStgCmtCompletedDelay(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmPurgeStgCmtPollingInterval":
+                    arcDev.setPurgeStgCmtPollingInterval(Duration.parse(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
