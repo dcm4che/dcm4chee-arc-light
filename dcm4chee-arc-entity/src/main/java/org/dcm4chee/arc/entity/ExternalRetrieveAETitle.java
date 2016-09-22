@@ -47,7 +47,7 @@ import javax.persistence.*;
  * @since Sep 2016
  */
 @Entity
-@Table(name = "ext_retrieve_aet", indexes = @Index(columnList = "retrieve_aet"))
+@Table(name = "ext_retrieve_aet")
 public class ExternalRetrieveAETitle {
 
     @Id

@@ -66,6 +66,9 @@ import java.util.Date;
         indexes = {
             @Index(columnList = "updated_time"),
             @Index(columnList = "transaction_uid"),
+            @Index(columnList = "device_name"),
+            @Index(columnList = "exporter_id"),
+            @Index(columnList = "study_iuid"),
             @Index(columnList = "stgcmt_status")
     }
 )
