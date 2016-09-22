@@ -128,7 +128,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAuditAggregateDuration", ext.getAuditAggregateDuration());
         LdapUtils.storeNotNull(attrs, "dcmStowSpoolDirectory", ext.getStowSpoolDirectory());
         LdapUtils.storeNotNull(attrs, "dcmPurgeQueueMessagePollingInterval", ext.getPurgeQueueMessagePollingInterval());
-        LdapUtils.storeNotDef(attrs, "dcmPurgeQueueMessageFetchSize", ext.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmWadoSpoolDirectory", ext.getWadoSpoolDirectory());
         LdapUtils.storeNotEmpty(attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
         LdapUtils.storeNotNull(attrs, "dcmRejectExpiredStudiesPollingInterval", ext.getRejectExpiredStudiesPollingInterval());
@@ -207,7 +206,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditAggregateDuration(toDuration(attrs.get("dcmAuditAggregateDuration")));
         ext.setStowSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmStowSpoolDirectory"), null));
         ext.setPurgeQueueMessagePollingInterval(toDuration(attrs.get("dcmPurgeQueueMessagePollingInterval")));
-        ext.setPurgeQueueMessageFetchSize(LdapUtils.intValue(attrs.get("dcmPurgeQueueMessageFetchSize"), 100));
         ext.setWadoSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmWadoSpoolDirectory"), null));
         ext.setHideSPSWithStatusFrom(LdapUtils.enumArray(SPSStatus.class, attrs.get("dcmHideSPSWithStatusFromMWL")));
         ext.setRejectExpiredStudiesPollingInterval(toDuration(attrs.get("dcmRejectExpiredStudiesPollingInterval")));
@@ -320,8 +318,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getAuditAggregateDuration(), bb.getAuditAggregateDuration());
         LdapUtils.storeDiff(mods, "dcmStowSpoolDirectory",
                 aa.getStowSpoolDirectory(), bb.getStowSpoolDirectory());
-        LdapUtils.storeDiff(mods, "dcmPurgeQueueMessageFetchSize", aa.getPurgeQueueMessageFetchSize(),
-                bb.getPurgeQueueMessageFetchSize(), 100);
         LdapUtils.storeDiff(mods, "dcmPurgeQueueMessagePollingInterval", aa.getPurgeQueueMessagePollingInterval(),
                 bb.getPurgeQueueMessagePollingInterval());
         LdapUtils.storeDiff(mods, "dcmWadoSpoolDirectory",

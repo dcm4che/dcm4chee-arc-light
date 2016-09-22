@@ -87,20 +87,15 @@ public class PurgeQueueMessageScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int fetchSize = arcDev.getPurgeQueueMessageFetchSize();
         for (QueueDescriptor desc : arcDev.getQueueDescriptors())
-            delete(desc.getQueueName(), QueueMessage.Status.COMPLETED,
-                    desc.getPurgeQueueMessageCompletedDelay(), fetchSize);
+            delete(desc.getQueueName(), QueueMessage.Status.COMPLETED, desc.getPurgeQueueMessageCompletedDelay());
     }
 
-    private void delete(String queueName, QueueMessage.Status status, Duration delay, int fetchSize) {
+    private void delete(String queueName, QueueMessage.Status status, Duration delay) {
         if (delay == null)
             return;
 
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        int deleted;
-        do {
-            deleted = ejb.deleteMessages(queueName, status, before);
-        } while (deleted == fetchSize);
+        ejb.deleteMessages(queueName, status, before);
     }
 }

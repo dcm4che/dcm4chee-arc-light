@@ -104,7 +104,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String stowSpoolDirectory;
     private String wadoSpoolDirectory;
     private Duration purgeQueueMessagePollingInterval;
-    private int purgeQueueMessageFetchSize = 100;
     private SPSStatus[] hideSPSWithStatusFrom = {};
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
@@ -653,14 +652,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.purgeQueueMessagePollingInterval = purgeQueueMessagePollingInterval;
     }
 
-    public int getPurgeQueueMessageFetchSize() {
-        return purgeQueueMessageFetchSize;
-    }
-
-    public void setPurgeQueueMessageFetchSize(int purgeQueueMessageFetchSize) {
-        this.purgeQueueMessageFetchSize = purgeQueueMessageFetchSize;
-    }
-
     public SPSStatus[] getHideSPSWithStatusFrom() {
         return hideSPSWithStatusFrom;
     }
@@ -1038,7 +1029,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7LogFilePattern = arcdev.hl7LogFilePattern;
         hl7ErrorLogFilePattern = arcdev.hl7ErrorLogFilePattern;
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
-        purgeQueueMessageFetchSize = arcdev.purgeQueueMessageFetchSize;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
         rejectExpiredStudiesPollingStartTime = arcdev.rejectExpiredStudiesPollingStartTime;

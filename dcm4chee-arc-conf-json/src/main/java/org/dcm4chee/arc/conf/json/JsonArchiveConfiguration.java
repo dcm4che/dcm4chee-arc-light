@@ -123,7 +123,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("hl7ErrorLogFilePattern", arcDev.getHl7ErrorLogFilePattern());
         writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
         writer.writeNotNull("dcmPurgeQueueMessagePollingInterval", arcDev.getPurgeQueueMessagePollingInterval());
-        writer.writeNotDef("dcmPurgeQueueMessageFetchSize", arcDev.getPurgeQueueMessageFetchSize(), 100);
         writer.writeNotNull("dcmWadoSpoolDirectory", arcDev.getWadoSpoolDirectory());
         writer.writeNotNull("dcmRejectExpiredStudiesPollingInterval", arcDev.getRejectExpiredStudiesPollingInterval());
         writer.writeNotNull("dcmRejectExpiredStudiesPollingStartTime", arcDev.getRejectExpiredStudiesPollingStartTime());
@@ -575,9 +574,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUnzipVendorDataToURI":
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());
-                    break;
-                case "dcmPurgeQueueMessageFetchSize":
-                    arcDev.setPurgeQueueMessageFetchSize(reader.intValue());
                     break;
                 case "dcmPurgeQueueMessagePollingInterval":
                     arcDev.setPurgeQueueMessagePollingInterval(Duration.parse(reader.stringValue()));
