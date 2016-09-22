@@ -49,6 +49,7 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +57,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -66,7 +65,7 @@ import java.util.List;
  * @since Sep 2016
  */
 @Stateless
-public class StgCmtEJB {
+public class StgCmtEJB implements StgCmtManager {
 
     private final Logger LOG = LoggerFactory.getLogger(StgCmtEJB.class);
 
@@ -139,5 +138,24 @@ public class StgCmtEJB {
         result.setExporterID(exporterID);
         result.setDeviceName(deviceName);
         em.persist(result);
+    }
+
+    @Override
+    public List<StgCmtResult> listStgCmts(
+            StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit) {
+        //TODO
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean deleteStgCmt(String transactionUID) {
+        //TODO
+        return false;
+    }
+
+    @Override
+    public int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore) {
+        //TODO
+        return 0;
     }
 }

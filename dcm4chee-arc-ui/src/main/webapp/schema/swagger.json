@@ -2040,13 +2040,6 @@
             ]
           },
           {
-            "name": "transactionUID",
-            "in": "query",
-            "description": "Transaction UID to filter by",
-            "required": true,
-            "type": "string"
-          },
-          {
             "name": "studyUID",
             "in": "query",
             "description": "Unique Identifier of the Study to filter by",
@@ -2059,13 +2052,6 @@
             "description": "Exporter ID to filter by",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "updatedBefore",
-            "in": "query",
-            "description": "maximum update date of Storage Commitment Result to filter by. Format: YYYY-MM-DD",
-            "type": "string",
-            "format": "date"
           },
           {
             "name": "offset",

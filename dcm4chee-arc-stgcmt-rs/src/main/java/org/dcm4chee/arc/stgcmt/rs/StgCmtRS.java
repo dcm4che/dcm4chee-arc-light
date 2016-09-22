@@ -40,9 +40,23 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
+import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
+
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -52,22 +66,80 @@ import javax.ws.rs.core.Response;
 @Path("stgcmt")
 public class StgCmtRS {
 
+    @Inject
+    private StgCmtManager mgr;
+
+    @QueryParam("status")
+    @Pattern(regexp = "PENDING|COMPLETED|WARNING|FAILED")
+    private String status;
+
+    @QueryParam("studyUID")
+    private String studyUID;
+
+    @QueryParam("exporterID")
+    private String exporterID;
+
+    @QueryParam("updatedBefore")
+    @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
+    private String updatedBefore;
+
+    @QueryParam("offset")
+    @Pattern(regexp = "0|([1-9]\\d{0,4})")
+    private String offset;
+
+    @QueryParam("limit")
+    @Pattern(regexp = "[1-9]\\d{0,4}")
+    private String limit;
+
     @GET
     @Produces("application/json")
-    public Response search() throws Exception {
-        //TODO
-        return Response.ok("[]").build();
+    public StreamingOutput listStgCmts() throws Exception {
+        final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(
+                statusOf(status), studyUID, exporterID, parseInt(offset), parseInt(limit));
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                JsonGenerator gen = Json.createGenerator(out);
+                gen.writeStartArray();
+                for (StgCmtResult stgCmtResult : stgCmtResults) {
+                    //TODO
+                }
+                gen.writeEnd();
+                gen.flush();
+            }
+        };
     }
 
     @DELETE
     @Path("{transactionUID}")
-    public void deleteMessage(@PathParam("transactionUID") String transactionUID) {
-        //TODO
+    public void deleteStgCmt(@PathParam("transactionUID") String transactionUID) {
+        if (!mgr.deleteStgCmt(transactionUID))
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
     @DELETE
     @Produces("application/json")
-    public String deleteMessages() {
-        return "{\"deleted\":0}";
+    public String deleteStgCmts() {
+        return "{\"deleted\":"
+                + mgr.deleteStgCmts(statusOf(status), parseDate(updatedBefore))
+                + '}';
+    }
+
+    private static StgCmtResult.Status statusOf(String status) {
+        return status != null ? StgCmtResult.Status.valueOf(status) : null;
+    }
+
+    private static int parseInt(String s) {
+        return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private static Date parseDate(String s) {
+        try {
+            return s != null
+                    ? new SimpleDateFormat("yyyy-MM-dd").parse(s)
+                    : null;
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
