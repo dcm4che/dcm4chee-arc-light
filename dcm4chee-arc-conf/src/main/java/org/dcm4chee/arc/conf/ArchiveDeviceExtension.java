@@ -104,6 +104,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String stowSpoolDirectory;
     private String wadoSpoolDirectory;
     private Duration purgeQueueMessagePollingInterval;
+    private Duration purgeStgCmtPollingInterval;
+    private Duration purgeStgCmtCompletedDelay;
     private SPSStatus[] hideSPSWithStatusFrom = {};
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
@@ -652,6 +654,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.purgeQueueMessagePollingInterval = purgeQueueMessagePollingInterval;
     }
 
+    public Duration getPurgeStgCmtPollingInterval() {
+        return purgeStgCmtPollingInterval;
+    }
+
+    public void setPurgeStgCmtPollingInterval(Duration purgeStgCmtPollingInterval) {
+        this.purgeStgCmtPollingInterval = purgeStgCmtPollingInterval;
+    }
+
+    public Duration getPurgeStgCmtCompletedDelay() {
+        return purgeStgCmtCompletedDelay;
+    }
+
+    public void setPurgeStgCmtCompletedDelay(Duration purgeStgCmtCompletedDelay) {
+        this.purgeStgCmtCompletedDelay = purgeStgCmtCompletedDelay;
+    }
+
     public SPSStatus[] getHideSPSWithStatusFrom() {
         return hideSPSWithStatusFrom;
     }
@@ -1029,6 +1047,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7LogFilePattern = arcdev.hl7LogFilePattern;
         hl7ErrorLogFilePattern = arcdev.hl7ErrorLogFilePattern;
         purgeQueueMessagePollingInterval = arcdev.purgeQueueMessagePollingInterval;
+        purgeStgCmtPollingInterval = arcdev.purgeStgCmtPollingInterval;
+        purgeStgCmtCompletedDelay = arcdev.purgeStgCmtCompletedDelay;
         hideSPSWithStatusFrom = arcdev.hideSPSWithStatusFrom;
         rejectExpiredStudiesPollingInterval = arcdev.rejectExpiredStudiesPollingInterval;
         rejectExpiredStudiesPollingStartTime = arcdev.rejectExpiredStudiesPollingStartTime;

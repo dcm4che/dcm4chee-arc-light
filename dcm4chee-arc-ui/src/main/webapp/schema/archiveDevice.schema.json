@@ -312,13 +312,6 @@
       "description": "Polling Interval for purging queue messages in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion",
       "type": "string"
     },
-    "dcmPurgeQueueMessageFetchSize": {
-      "title": "Purge Completed Queue Messages Fetch Size",
-      "description": "Number of Completed Queue Messages to be purged; 100 if absent",
-      "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
-    },
     "dcmWadoSpoolDirectory": {
       "title": "Wado-RS Spool Directory",
       "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.",
