@@ -147,7 +147,7 @@ public class StgCmtEJB implements StgCmtManager {
     }
 
     @Override
-    public boolean deleteStgCmt(String transactionUID) throws NoResultException {
+    public boolean deleteStgCmt(String transactionUID) {
         try {
             StgCmtResult result = getStgCmtResult(transactionUID);
             em.remove(result);
