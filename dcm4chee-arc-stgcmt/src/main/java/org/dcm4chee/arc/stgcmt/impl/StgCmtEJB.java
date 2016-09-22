@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
@@ -47,9 +48,12 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Instance;
+import org.dcm4chee.arc.entity.QStgCmtResult;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +62,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.*;
+
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -71,6 +78,10 @@ public class StgCmtEJB implements StgCmtManager {
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
+
+    StatelessSession openStatelessSession() {
+        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    }
 
     @Override
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
@@ -142,8 +153,12 @@ public class StgCmtEJB implements StgCmtManager {
     @Override
     public List<StgCmtResult> listStgCmts(
             StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit) {
-        //TODO
-        return Collections.emptyList();
+        StatelessSession session = openStatelessSession();
+        HibernateQuery<StgCmtResult> query = getStgCmtResults(session, status, studyUID, exporterID);
+        List<StgCmtResult> results = query.fetch();
+        if (results.isEmpty())
+            return Collections.emptyList();
+        return results;
     }
 
     @Override
@@ -159,20 +174,38 @@ public class StgCmtEJB implements StgCmtManager {
 
     @Override
     public int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore) {
-        List<StgCmtResult> results = status != null && updatedBefore != null
-                                    ? em.createNamedQuery(StgCmtResult.FIND_BY_STATUS_AND_UPDATED_BEFORE, StgCmtResult.class)
-                                        .setParameter(1, status).setParameter(2, updatedBefore).getResultList()
-                                    : status != null && updatedBefore == null
-                                    ? em.createNamedQuery(StgCmtResult.FIND_BY_STATUS, StgCmtResult.class)
-                                        .setParameter(1, status).getResultList()
-                                    : status == null && updatedBefore != null
-                                    ? em.createNamedQuery(StgCmtResult.FIND_BY_UPDATED_BEFORE, StgCmtResult.class)
-                                        .setParameter(1, updatedBefore).getResultList()
-                                    : em.createNamedQuery(StgCmtResult.FIND_ALL, StgCmtResult.class).getResultList();
+        List<StgCmtResult> results = status != null
+                                    ? updatedBefore != null
+                                        ? em.createNamedQuery(StgCmtResult.FIND_BY_STATUS_AND_UPDATED_BEFORE, StgCmtResult.class)
+                                            .setParameter(1, status).setParameter(2, updatedBefore).getResultList()
+                                        : em.createNamedQuery(StgCmtResult.FIND_BY_STATUS, StgCmtResult.class)
+                                            .setParameter(1, status).getResultList()
+                                    : updatedBefore != null
+                                        ? em.createNamedQuery(StgCmtResult.FIND_BY_UPDATED_BEFORE, StgCmtResult.class)
+                                            .setParameter(1, updatedBefore).getResultList()
+                                        : em.createNamedQuery(StgCmtResult.FIND_ALL, StgCmtResult.class).getResultList();
         if (results.isEmpty())
             return 0;
         for (StgCmtResult result : results)
             em.remove(result);
         return results.size();
+    }
+
+    private HibernateQuery<StgCmtResult> getStgCmtResults(
+            StatelessSession session, StgCmtResult.Status status, String studyUID, String exporterId) {
+        Predicate predicate = getPredicates(status, studyUID, exporterId);
+        HibernateQuery<StgCmtResult> query = new HibernateQuery<Void>(session).select(QStgCmtResult.stgCmtResult).from(QStgCmtResult.stgCmtResult);
+        return query.where(predicate);
+    }
+
+    private Predicate getPredicates(StgCmtResult.Status status, String studyUID, String exporterId) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (status != null)
+            predicate.and(QStgCmtResult.stgCmtResult.status.eq(status));
+        if (studyUID != null)
+            predicate.and(QStgCmtResult.stgCmtResult.studyInstanceUID.eq(studyUID));
+        if (exporterId != null)
+            predicate.and(QStgCmtResult.stgCmtResult.exporterID.eq(exporterId.toUpperCase()));
+        return predicate;
     }
 }

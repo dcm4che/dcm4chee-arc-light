@@ -60,6 +60,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
 @RequestScoped
@@ -102,7 +103,19 @@ public class StgCmtRS {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (StgCmtResult stgCmtResult : stgCmtResults) {
-                    //TODO
+                    gen.writeStartObject();
+                    gen.write("dicomDeviceName", stgCmtResult.getDeviceName());
+                    gen.write("transactionUID", stgCmtResult.getTransactionUID());
+                    gen.write("status", stgCmtResult.getStatus().toString());
+                    gen.write("studyUID", stgCmtResult.getStudyInstanceUID());
+                    gen.write("seriesUID", stgCmtResult.getSeriesInstanceUID());
+                    gen.write("objectUID", stgCmtResult.getSopInstanceUID());
+                    gen.write("exporterID", stgCmtResult.getExporterID());
+                    gen.write("requested", stgCmtResult.getNumberOfInstances());
+                    gen.write("failures", stgCmtResult.getNumberOfFailures());
+                    gen.write("createdTime", stgCmtResult.getCreatedTime().toString());
+                    gen.write("updatedTime", stgCmtResult.getUpdatedTime().toString());
+                    gen.writeEnd();
                 }
                 gen.writeEnd();
                 gen.flush();
