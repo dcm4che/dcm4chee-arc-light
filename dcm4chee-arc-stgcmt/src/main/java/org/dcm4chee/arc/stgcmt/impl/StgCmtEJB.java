@@ -75,20 +75,25 @@ public class StgCmtEJB implements StgCmtManager {
     @Override
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
-        try {
-            StgCmtResult result = em.createNamedQuery(StgCmtResult.FIND_BY_TRANSACTION_UID, StgCmtResult.class)
-                    .setParameter(1, transactionUID).getSingleResult();
-            updateExternalRetrieveAETs(eventInfo,
-                    device.getDeviceExtension(ArchiveDeviceExtension.class)
-                            .getExporterDescriptorNotNull(result.getExporterID()),
-                    result.getStudyInstanceUID());
-            result.setStgCmtResult(eventInfo);
-        } catch (NoResultException e) {
-            LOG.warn("No Storage Commitment result found with transaction UID : " + transactionUID);
-        }
+        StgCmtResult result = getStgCmtResult(transactionUID);
+        updateExternalRetrieveAETs(eventInfo, result.getStudyInstanceUID(),
+                device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(result.getExporterID()));
+        result.setStgCmtResult(eventInfo);
     }
 
-    private void updateExternalRetrieveAETs(Attributes eventInfo, ExporterDescriptor ed, String suid) {
+    private StgCmtResult getStgCmtResult(String transactionUID) throws NoResultException {
+        StgCmtResult result;
+        try {
+            result = em.createNamedQuery(StgCmtResult.FIND_BY_TRANSACTION_UID, StgCmtResult.class)
+                    .setParameter(1, transactionUID).getSingleResult();
+        } catch (NoResultException e) {
+            LOG.warn("No Storage Commitment result found with transaction UID : " + transactionUID);
+            throw e;
+        }
+        return result;
+    }
+
+    private void updateExternalRetrieveAETs(Attributes eventInfo, String suid, ExporterDescriptor ed) {
         String[] configRetrieveAETs = ed.getRetrieveAETitles();
         String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed.getStgCmtSCPAETitle());
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
@@ -142,14 +147,32 @@ public class StgCmtEJB implements StgCmtManager {
     }
 
     @Override
-    public boolean deleteStgCmt(String transactionUID) {
-        //TODO
-        return false;
+    public boolean deleteStgCmt(String transactionUID) throws NoResultException {
+        try {
+            StgCmtResult result = getStgCmtResult(transactionUID);
+            em.remove(result);
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 
     @Override
     public int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore) {
-        //TODO
-        return 0;
+        List<StgCmtResult> results = status != null && updatedBefore != null
+                                    ? em.createNamedQuery(StgCmtResult.FIND_BY_STATUS_AND_UPDATED_BEFORE, StgCmtResult.class)
+                                        .setParameter(1, status).setParameter(2, updatedBefore).getResultList()
+                                    : status != null && updatedBefore == null
+                                    ? em.createNamedQuery(StgCmtResult.FIND_BY_STATUS, StgCmtResult.class)
+                                        .setParameter(1, status).getResultList()
+                                    : status == null && updatedBefore != null
+                                    ? em.createNamedQuery(StgCmtResult.FIND_BY_UPDATED_BEFORE, StgCmtResult.class)
+                                        .setParameter(1, updatedBefore).getResultList()
+                                    : em.createNamedQuery(StgCmtResult.FIND_ALL, StgCmtResult.class).getResultList();
+        if (results.isEmpty())
+            return 0;
+        for (StgCmtResult result : results)
+            em.remove(result);
+        return results.size();
     }
 }
