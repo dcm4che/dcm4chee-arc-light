@@ -49,6 +49,7 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +57,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -66,13 +65,14 @@ import java.util.List;
  * @since Sep 2016
  */
 @Stateless
-public class StgCmtEJB {
+public class StgCmtEJB implements StgCmtManager {
 
     private final Logger LOG = LoggerFactory.getLogger(StgCmtEJB.class);
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
+    @Override
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
         try {
@@ -128,16 +128,27 @@ public class StgCmtEJB {
         return null;
     }
 
-    public void persistStgCmtResult(
-            String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID, String exporterID,
-            Attributes actionInfo, String deviceName) {
-        StgCmtResult result = new StgCmtResult();
-        result.setStgCmtRequest(actionInfo);
-        result.setStudyInstanceUID(studyInstanceUID);
-        result.setSeriesInstanceUID(seriesInstanceUID);
-        result.setSopInstanceUID(sopInstanceUID);
-        result.setExporterID(exporterID);
-        result.setDeviceName(deviceName);
+    @Override
+    public void persistStgCmtResult(StgCmtResult result) {
         em.persist(result);
+    }
+
+    @Override
+    public List<StgCmtResult> listStgCmts(
+            StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit) {
+        //TODO
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean deleteStgCmt(String transactionUID) {
+        //TODO
+        return false;
+    }
+
+    @Override
+    public int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore) {
+        //TODO
+        return 0;
     }
 }

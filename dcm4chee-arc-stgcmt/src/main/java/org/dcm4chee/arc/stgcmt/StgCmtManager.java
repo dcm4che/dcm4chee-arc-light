@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.stgcmt;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.StgCmtResult;
 
 import java.util.Date;
@@ -50,6 +52,10 @@ import java.util.List;
  * @since Sep 2016
  */
 public interface StgCmtManager {
+    void addExternalRetrieveAETs(Attributes eventInfo, Device device);
+
+    void persistStgCmtResult(StgCmtResult result);
+
     List<StgCmtResult> listStgCmts(
             StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit);
 

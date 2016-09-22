@@ -56,10 +56,12 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgCmtSCP;
 import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.slf4j.Logger;
@@ -97,7 +99,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     private QueryService queryService;
 
     @Inject
-    private StgCmtEJB ejb;
+    private StgCmtManager ejb;
 
     public StgCmtImpl() {
         super(UID.StorageCommitmentPushModelSOPClass);
@@ -212,15 +214,22 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             dimseRSP.next();
             Attributes cmd = dimseRSP.getCommand();
             int status = cmd.getInt(Tag.Status, -1);
-            if (status == Status.Success)
-                ejb.persistStgCmtResult(studyInstanceUID, seriesInstanceUID, sopInstanceUID, exporterID, actionInfo, device.getDeviceName());
-            return status == Status.Success
-                    ? new Outcome(QueueMessage.Status.COMPLETED,
-                    "Request Storage Commitment Request from AE: " + remoteAET)
-                    : new Outcome(QueueMessage.Status.WARNING,
-                    "Request Storage Commitment Request from AE: " + remoteAET
-                            + " failed with status: " + TagUtils.shortToHexString(status)
-                            + "H, error comment: " + cmd.getString(Tag.ErrorComment));
+            if (status != Status.Success)
+                return new Outcome(QueueMessage.Status.WARNING,
+                        "Request Storage Commitment Request from AE: " + remoteAET
+                                + " failed with status: " + TagUtils.shortToHexString(status)
+                                + "H, error comment: " + cmd.getString(Tag.ErrorComment));
+
+            StgCmtResult result = new StgCmtResult();
+            result.setStgCmtRequest(actionInfo);
+            result.setStudyInstanceUID(studyInstanceUID);
+            result.setSeriesInstanceUID(seriesInstanceUID);
+            result.setSopInstanceUID(sopInstanceUID);
+            result.setExporterID(exporterID);
+            result.setDeviceName(device.getDeviceName());
+            ejb.persistStgCmtResult(result);
+            return new Outcome(QueueMessage.Status.COMPLETED,
+                "Request Storage Commitment Request from AE: " + remoteAET);
         } finally {
             try {
                 as.release();
