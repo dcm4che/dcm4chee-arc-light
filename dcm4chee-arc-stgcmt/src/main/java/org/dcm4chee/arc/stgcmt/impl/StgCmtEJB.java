@@ -94,7 +94,8 @@ public class StgCmtEJB implements StgCmtManager {
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
         List<Instance> instances = em.createNamedQuery(Instance.FIND_BY_STUDY_IUID, Instance.class)
                                 .setParameter(1, suid).getResultList();
-        for (Instance inst : instances) {
+        HashSet<Instance> i = new HashSet<>(instances);
+        for (Instance inst : i) {
             Attributes sopRef = sopRefOf(inst.getSopInstanceUID(), sopSeq);
             if (sopRef != null) {
                 if (configRetrieveAETs != null && configRetrieveAETs.length > 0) {
