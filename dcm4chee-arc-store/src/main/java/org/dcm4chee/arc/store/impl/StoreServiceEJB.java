@@ -620,20 +620,11 @@ public class StoreServiceEJB {
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
-                updateStorageIDs(study, storeSession.getArchiveAEExtension().storageID());
+                study.addStorageID(storeSession.getArchiveAEExtension().storageID());
                 if (result.getRejectionNote() == null)
                     updateStudyRejectionState(ctx, study);
             } catch (NoResultException e) {}
         return study;
-    }
-
-    private void updateStorageIDs(Study study, String storageID) {
-        String prevStorageIDs = study.getStorageIDs();
-        for (String id : StringUtils.split(prevStorageIDs, '\\'))
-            if (id.equals(storageID))
-                return;
-
-        study.setStorageIDs(prevStorageIDs + '\\' + storageID);
     }
 
     private void updateStudyRejectionState(StoreContext ctx, Study study) {
@@ -659,7 +650,7 @@ public class StoreServiceEJB {
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .setParameter(2, ctx.getSeriesInstanceUID())
                         .getSingleResult();
-                updateStorageIDs(series.getStudy(), storeSession.getArchiveAEExtension().storageID());
+                series.getStudy().addStorageID(storeSession.getArchiveAEExtension().storageID());
                 if (result.getRejectionNote() == null)
                     updateSeriesRejectionState(ctx, series);
             } catch (NoResultException e) {}
@@ -713,7 +704,7 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
-        study.setStorageIDs(arcAE.storageID());
+        study.addStorageID(arcAE.storageID());
         study.setAccessControlID(arcAE.getStoreAccessControlID());
         study.setRejectionState(RejectionState.NONE);
         setStudyAttributes(ctx, study);

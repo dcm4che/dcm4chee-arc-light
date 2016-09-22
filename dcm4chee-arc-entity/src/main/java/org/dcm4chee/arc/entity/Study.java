@@ -50,9 +50,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author Damien Evans <damien.daddy@gmail.com>
@@ -300,12 +298,24 @@ public class Study {
         this.accessTime = accessTime;
     }
 
-    public String getStorageIDs() {
-        return storageIDs;
+    public String[] getStorageIDs() {
+        return StringUtils.split(storageIDs, '\\');
     }
 
-    public void setStorageIDs(String storageIDs) {
-        this.storageIDs = storageIDs;
+    public boolean addStorageID(String storageID) {
+        if (storageID.equals(storageIDs))
+            return false;
+
+        if (storageIDs == null) {
+            storageIDs = storageID;
+            return true;
+        }
+        TreeSet<String> set = new TreeSet<>(Arrays.asList(getStorageIDs()));
+        if (!set.add(storageID))
+            return false;
+
+        this.storageIDs = StringUtils.concat(set.toArray(new String[set.size()]), '\\');
+        return true;
     }
 
     public String getStudyInstanceUID() {
