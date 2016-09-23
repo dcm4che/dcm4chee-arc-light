@@ -512,6 +512,7 @@ dcmOverwritePolicy: SAME_SOURCE
 dcmSendPendingCGet: TRUE
 dcmQueryRetrieveViewID: hideRejected
 dicomDeviceName: dcm4chee-arc
+dcmPurgeStgCmtPollingInterval: PT1H
 dcmRejectExpiredStudiesFetchSize: 10
 dicomPrimaryDeviceType: ARCHIVE
 hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl
@@ -527,6 +528,7 @@ dicomAuthorizedNodeCertificateReference: dicomDeviceName=getscu,cn=Devices,cn=DI
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=hl7snd,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmStorageID: fs1
+dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
