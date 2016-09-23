@@ -47,6 +47,7 @@ import javax.enterprise.event.Observes;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2016
  */
 public interface ExportManager {
@@ -55,4 +56,7 @@ public interface ExportManager {
     int scheduleExportTasks(int fetchSize);
 
     void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle);
+
+    void onlySendIANOrStgCmt(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle,
+                         boolean onlyStgCmt, boolean onlyIAN);
 }

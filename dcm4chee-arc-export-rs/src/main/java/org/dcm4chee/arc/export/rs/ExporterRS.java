@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -74,6 +75,14 @@ public class ExporterRS {
 
     @PathParam("AETitle")
     private String aet;
+
+    @QueryParam("only-stgcmt")
+    @Pattern(regexp = "true|false")
+    private String onlyStgCmt;
+
+    @QueryParam("only-ian")
+    @Pattern(regexp = "true|false")
+    private String onlyIAN;
 
     @Context
     private HttpServletRequest request;
@@ -106,7 +115,7 @@ public class ExporterRS {
     }
 
     private void export(String studyUID, String seriesUID, String objectUID, String exporterID) {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(getResponse("No such Application Entity: " + aet,
@@ -116,12 +125,16 @@ public class ExporterRS {
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter == null)
             throw new WebApplicationException(getResponse("Exporter not found.", Response.Status.NOT_FOUND));
-
-        exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet);
+        if (!Boolean.parseBoolean(onlyIAN) && !Boolean.parseBoolean(onlyStgCmt))
+            exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet);
+        else
+            exportManager.onlySendIANOrStgCmt(studyUID, seriesUID, objectUID, exporter, aet,
+                    Boolean.parseBoolean(onlyStgCmt), Boolean.parseBoolean(onlyIAN));
     }
 
     private Response getResponse(String errorMessage, Response.Status status) {
         Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
         return Response.status(status).entity(entity).build();
     }
+
 }

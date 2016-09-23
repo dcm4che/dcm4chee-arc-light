@@ -120,11 +120,17 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     public void onExport(@Observes ExportContext ctx) {
+        if (ctx.isOnlyIAN())
+            return;
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         String stgCmtSCPAETitle = descriptor.getStgCmtSCPAETitle();
-        if (stgCmtSCPAETitle == null || ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED)
-            return;
+        if (stgCmtSCPAETitle != null)
+            if (ctx.isOnlyStgCmt() || ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
+                triggerStorageCommit(ctx, descriptor, stgCmtSCPAETitle);
+        return;
+    }
 
+    private void triggerStorageCommit(ExportContext ctx, ExporterDescriptor descriptor, String stgCmtSCPAETitle) {
         Attributes actionInfo = createActionInfo(ctx);
         scheduleNAction(ctx.getAETitle(), stgCmtSCPAETitle, actionInfo, ctx, descriptor.getExporterID());
     }

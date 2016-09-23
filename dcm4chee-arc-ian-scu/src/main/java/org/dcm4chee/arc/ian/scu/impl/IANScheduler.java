@@ -185,10 +185,16 @@ public class IANScheduler extends Scheduler {
     }
 
     public void onExport(@Observes ExportContext ctx) {
-        ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
-        if (ctx.getOutcome().getStatus() != QueueMessage.Status.COMPLETED
-                || descriptor.getIanDestinations().length == 0)
+        if (ctx.isOnlyStgCmt())
             return;
+        ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
+        if (descriptor.getIanDestinations().length != 0)
+            if (ctx.isOnlyIAN() || ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
+                sendIAN(ctx, descriptor);
+        return;
+    }
+
+    private void sendIAN(ExportContext ctx, ExporterDescriptor descriptor) {
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
         Attributes attrs = createIAN(ae, ctx.getStudyInstanceUID(), null,
                 descriptor.getInstanceAvailability(), descriptor.getRetrieveAETitles());

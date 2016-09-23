@@ -4,6 +4,7 @@ import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 public interface ExportContext {
@@ -32,4 +33,12 @@ public interface ExportContext {
     Outcome getOutcome();
 
     void setOutcome(Outcome outcome);
+
+    boolean isOnlyStgCmt();
+
+    void setOnlyStgCmt(boolean onlyStgCmt);
+
+    boolean isOnlyIAN();
+
+    void setOnlyIAN(boolean onlyIAN);
 }
