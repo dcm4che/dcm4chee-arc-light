@@ -1524,21 +1524,15 @@
             "type": "string"
           },
           {
-            "name": "no-export",
+            "name": "only-stgcmt",
             "in": "query",
-            "description": "Only request Storage Commitment and send IAN, if configured for the exporter, without exporting the Study",
+            "description": "Only enable storage commitment without export",
             "type": "boolean"
           },
           {
-            "name": "no-stgcmt",
+            "name": "only-ian",
             "in": "query",
-            "description": "Disable Storage Commitment even if configured for the exporter",
-            "type": "boolean"
-          },
-          {
-            "name": "no-ian",
-            "in": "query",
-            "description": "Disable IAN even if configured for the exporter",
+            "description": "Only enable IAN without export",
             "type": "boolean"
           }
         ],
@@ -1592,21 +1586,15 @@
             "type": "string"
           },
           {
-            "name": "no-export",
+            "name": "only-stgcmt",
             "in": "query",
-            "description": "Only request Storage Commitment and send IAN, if configured for the exporter, without exporting the Series",
+            "description": "Only enable storage commitment without export",
             "type": "boolean"
           },
           {
-            "name": "no-stgcmt",
+            "name": "only-ian",
             "in": "query",
-            "description": "Disable Storage Commitment even if configured for the exporter",
-            "type": "boolean"
-          },
-          {
-            "name": "no-ian",
-            "in": "query",
-            "description": "Disable IAN even if configured for the exporter",
+            "description": "Only enable IAN without export",
             "type": "boolean"
           }
         ],
@@ -1667,21 +1655,15 @@
             "type": "string"
           },
           {
-            "name": "no-export",
+            "name": "only-stgcmt",
             "in": "query",
-            "description": "Only request Storage Commitment and send IAN, if configured for the exporter, without exporting the Object",
+            "description": "Only enable storage commitment without export",
             "type": "boolean"
           },
           {
-            "name": "no-stgcmt",
+            "name": "only-ian",
             "in": "query",
-            "description": "Disable Storage Commitment even if configured for the exporter",
-            "type": "boolean"
-          },
-          {
-            "name": "no-ian",
-            "in": "query",
-            "description": "Disable IAN even if configured for the exporter",
+            "description": "Only enable IAN without export",
             "type": "boolean"
           }
         ],
