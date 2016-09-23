@@ -114,9 +114,8 @@ import java.util.Date;
         name = Instance.FIND_BY_STUDY_IUID,
         query = "select instance from Instance instance " +
                 "left join fetch instance.externalRetrieveAETs " +
-                "join fetch instance.series series " +
-                "join fetch series.study study " +
-                "where study.studyInstanceUID = ?1 ")
+                "where instance.series.study.studyInstanceUID = ?1 " +
+                "and instance.rejectionNoteCode is null and instance.conceptNameCode is null")
 })
 @Entity
 @Table(name = "instance",
