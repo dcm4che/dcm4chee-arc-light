@@ -491,6 +491,8 @@ public class QueryBuilder {
                     sps.getString(Tag.ScheduledPerformingPhysicianName, "*"), queryParam));
             builder.and(wildCard(QMWLItem.mWLItem.modality, sps.getString(Tag.Modality, "*").toUpperCase(),
                     false));
+            if (sps.getString(Tag.ScheduledProcedureStepStatus) != null)
+                builder.and(showSPSWithStatus(sps));
             builder.and(scheduledStationAETitle(sps.getString(Tag.ScheduledStationAETitle, "*")));
         }
         builder.and(hideSPSWithStatus(queryParam));
@@ -510,6 +512,18 @@ public class QueryBuilder {
         return (hideSPSWithStatusFromMWL.length > 0)
                 ? QMWLItem.mWLItem.status.notIn(hideSPSWithStatusFromMWL)
                 : null;
+    }
+
+    private static Predicate showSPSWithStatus(Attributes sps) {
+        SPSStatus status = SPSStatus.valueOf(sps.getString(Tag.ScheduledProcedureStepStatus).toUpperCase());
+        switch(status) {
+            case SCHEDULED:
+            case ARRIVED:
+            case READY:
+                return QMWLItem.mWLItem.status.eq(status);
+            default:
+                return null;
+        }
     }
 
     public static Predicate hideRejectedInstance(QueryParam queryParam) {

@@ -150,7 +150,7 @@
         </div>
         <div class="row" ng-show="filterMode === 'mwl'||filterMode === 'study'">
             <div class="col-md-6" ng-show="filterMode === 'mwl'" >
-                <input id="ScheduledStationAETitle" type="text" ng-model="filter.ScheduledStationAETitle" placeholder="Scheduled Station AE Title" title="Scheduled Station AE Title" class="col-md-12 clearable" />
+                <input id="ScheduledStationAETitle" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledStationAETitle']" placeholder="Scheduled Station AE Title" title="Scheduled Station AE Title" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="ReferringPhysicianName" type="text" ng-model="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
@@ -404,16 +404,16 @@
         </div> -->
         <div class="row">
             <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="StudyID" type="text" ng-model="filter.InstitutionName" placeholder="Institution Name" title="Institution Name" class="col-md-12" />
+                <input id="InstitutionName" type="text" ng-model="filter.InstitutionName" placeholder="Institution Name" title="Institution Name" class="col-md-12" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
                 <input id="StudyDescription" type="text" ng-model="filter.StudyDescription" placeholder="Study description" title="Study description" class="col-md-12" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="SOPClassesInStudy" type="text" ng-model="filter.InstitutionalDepartmentName" placeholder="Institutional Department Name" title="Institutional Department Name" class="col-md-12 clearable" />
+                <input id="InstitutionalDepartmentName" type="text" ng-model="filter.InstitutionalDepartmentName" placeholder="Institutional Department Name" title="Institutional Department Name" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="StudyDescription" type="text" ng-model="filter.StationName" placeholder="Station Name" title="Station Name" class="col-md-12" />
+                <input id="StationName" type="text" ng-model="filter.StationName" placeholder="Station Name" title="Station Name" class="col-md-12" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'patient'">
                 <label title="Only patients with studies">
@@ -439,7 +439,7 @@
                 <input id="SOPClassesInStudy" type="text" ng-model="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="SOPClassesInStudy" type="text" ng-model="filter.SeriesDescription" placeholder="Series Description" title="Series Description" class="col-md-12 clearable" />
+                <input id="SeriesDescription" type="text" ng-model="filter.SeriesDescription" placeholder="Series Description" title="Series Description" class="col-md-12 clearable" />
             </div>
         </div>    
 
@@ -502,16 +502,16 @@
                 <input id="StudyID" type="text" ng-model="filter.StudyID" placeholder="Study ID" title="Study ID" class="col-md-12" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'mwl'">
-                <input id="ReferringPhysicianName" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
+                <input id="ScheduledPerformingPhysicianName" type="text" ng-model="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study' || filterMode === 'mwl'">
                 <input id="StudyInstanceUID" type="text" ng-model="filter.StudyInstanceUID" placeholder="Study instance UID" title="Study instance UID" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="StudyInstanceUID" type="text" ng-model="filter.SendingApplicationEntityTitleOfSeries" placeholder="Sending Application Entity Title of Series" title="Sending Application Entity Title of Series" class="col-md-12 clearable" />
+                <input id="SendingApplicationEntityTitleOfSeries" type="text" ng-model="filter.SendingApplicationEntityTitleOfSeries" placeholder="Sending Application Entity Title of Series" title="Sending Application Entity Title of Series" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'study'">
-                <input id="SOPClassesInStudy" type="text" ng-model="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
+                <input id="BodyPartExamined" type="text" ng-model="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
             </div>
             <div class="col-md-6" ng-show="filterMode === 'patient'">
 <!--                 <input id="PatientBirthDate" ng-model="birthDate.filter" type="hiden" ng-model="filter.PatientBirthDate" />
