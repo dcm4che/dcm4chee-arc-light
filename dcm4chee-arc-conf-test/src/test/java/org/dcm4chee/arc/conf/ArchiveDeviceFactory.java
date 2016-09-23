@@ -877,6 +877,8 @@ class ArchiveDeviceFactory {
     static final LocalTime REJECT_EXPIRED_STUDIES_START_TIME = LocalTime.parse("00:00:00");
     static final int REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE = 10;
     static final String REJECT_EXPIRED_STUDIES_AE_TITLE = "DCM4CHEE";
+    static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.parse("P1D");
+    static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.parse("PT1H");
 
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
@@ -1136,6 +1138,8 @@ class ArchiveDeviceFactory {
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
         ext.setDeleteRejectedPollingInterval(DELETE_REJECTED_POLLING_INTERVAL);
+        ext.setPurgeStgCmtCompletedDelay(PURGE_STGCMT_COMPLETED_DELAY);
+        ext.setPurgeStgCmtPollingInterval(PURGE_STGCMT_POLLING_INTERVAL);
         ext.setAuditSpoolDirectory(AUDIT_SPOOL_DIR);
         ext.setAuditPollingInterval(AUDIT_POLLING_INTERVAL);
         ext.setAuditAggregateDuration(AUDIT_AGGREGATE_DURATION);
