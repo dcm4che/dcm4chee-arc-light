@@ -1522,6 +1522,12 @@
             "description": "Exporter ID",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Request Storage Commitment without previous export",
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -1572,6 +1578,12 @@
             "description": "Exporter ID",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Request Storage Commitment without previous export",
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -1629,6 +1641,12 @@
             "description": "Exporter ID",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Request Storage Commitment without previous export",
+            "type": "boolean"
           }
         ],
         "responses": {
