@@ -125,11 +125,9 @@ public class ExporterRS {
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter == null)
             throw new WebApplicationException(getResponse("Exporter not found.", Response.Status.NOT_FOUND));
-        if (!Boolean.parseBoolean(onlyIAN) && !Boolean.parseBoolean(onlyStgCmt))
-            exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet);
-        else
-            exportManager.onlySendIANOrStgCmt(studyUID, seriesUID, objectUID, exporter, aet,
-                    Boolean.parseBoolean(onlyStgCmt), Boolean.parseBoolean(onlyIAN));
+        boolean ian = Boolean.parseBoolean(onlyIAN);
+        boolean stgcmt = Boolean.parseBoolean(onlyStgCmt);
+        exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet, ian, stgcmt);
     }
 
     private Response getResponse(String errorMessage, Response.Status status) {

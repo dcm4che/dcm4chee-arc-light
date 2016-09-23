@@ -179,7 +179,7 @@ public class ExportManagerEJB implements ExportManager {
                     exportTask.getSeriesInstanceUID(),
                     exportTask.getSopInstanceUID(),
                     exporter,
-                    exporter.getAETitle());
+                    exporter.getAETitle(), false, false);
             em.remove(exportTask);
         }
         return resultList.size();
@@ -187,9 +187,12 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                   String aeTitle) {
-        queueManager.scheduleMessage(exporter.getQueueName(),
+                                   String aeTitle, boolean onlyIAN, boolean onlyStgCmt) {
+        if (!onlyIAN && !onlyStgCmt)
+            queueManager.scheduleMessage(exporter.getQueueName(),
                 createMessage(studyUID, seriesUID, objectUID, exporter.getExporterID(), aeTitle));
+        else
+            onlySendIANOrStgCmt(studyUID, seriesUID, objectUID, exporter, aeTitle, onlyStgCmt, onlyIAN);
     }
 
     private ObjectMessage createMessage(String studyUID, String seriesUID, String objectUID, String exporterID,
@@ -207,8 +210,7 @@ public class ExportManagerEJB implements ExportManager {
         return msg;
     }
 
-    @Override
-    public void onlySendIANOrStgCmt(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
+    private void onlySendIANOrStgCmt(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
                                 String aeTitle, boolean onlyStgCmt, boolean onlyIAN) {
         Exporter e = exporterFactory.getExporter(exporter);
         ExportContext ctx = e.createExportContext();
