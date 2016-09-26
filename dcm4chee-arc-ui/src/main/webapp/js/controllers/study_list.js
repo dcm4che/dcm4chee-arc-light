@@ -3388,7 +3388,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 } else {
                     DeviceService.msg($scope, {
                         "title": "Info",
-                        "text": "No matching Studies found!",
+                        "text": "No matching Modality Worklist Entries found!",
                         "status": "info"
                     });
                 }
