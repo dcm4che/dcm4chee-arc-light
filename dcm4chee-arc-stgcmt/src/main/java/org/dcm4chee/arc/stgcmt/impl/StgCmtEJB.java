@@ -44,9 +44,11 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.QStgCmtResult;
 import org.dcm4chee.arc.entity.StgCmtResult;
@@ -58,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -78,6 +81,9 @@ public class StgCmtEJB implements StgCmtManager {
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
+
+    @Inject
+    private Device device;
 
     StatelessSession openStatelessSession() {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
@@ -124,10 +130,13 @@ public class StgCmtEJB implements StgCmtManager {
             }
         }
         Iterator<Instance> iter = instances.iterator();
-        Instance inst1 = iter.next();
+        Instance inst1 = nextNotRejected(iter);
+        if (inst1 == null)
+            return;
+
         HashSet<String> studyExternalAETs = new HashSet<>(inst1.getExternalRetrieveAETs());
-        while (iter.hasNext()) {
-            studyExternalAETs.retainAll(iter.next().getExternalRetrieveAETs());
+        while ((inst1 = nextNotRejected(iter)) != null) {
+            studyExternalAETs.retainAll(inst1.getExternalRetrieveAETs());
         }
         if (!studyExternalAETs.isEmpty()) {
             Study study = inst1.getSeries().getStudy();
@@ -135,6 +144,28 @@ public class StgCmtEJB implements StgCmtManager {
                 study.addExternalRetrieveAET(s);
             }
         }
+    }
+
+    private Instance nextNotRejected(Iterator<Instance> iter) {
+        while (iter.hasNext()) {
+            Instance next = iter.next();
+            if (!isRejectedOrRejectionNoteDataRetentionPolicyExpired(next))
+                return next;
+        }
+        return null;
+    }
+
+    private boolean isRejectedOrRejectionNoteDataRetentionPolicyExpired(Instance inst) {
+        if (inst.getRejectionNoteCode() != null)
+            return true;
+
+        if (!inst.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
+                || inst.getConceptNameCode() == null)
+            return false;
+
+        ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        RejectionNote rjnote = arcdev.getRejectionNote(inst.getConceptNameCode().getCode());
+        return rjnote != null && rjnote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED;
     }
 
     private Attributes sopRefOf(String iuid, Sequence seq) {

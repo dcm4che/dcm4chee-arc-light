@@ -114,8 +114,7 @@ import java.util.Date;
     name = Instance.FIND_BY_STUDY_IUID,
     query = "select instance from Instance instance " +
             "left join fetch instance.externalRetrieveAETs " +
-            "where instance.series.study.studyInstanceUID = ?1 " +
-            "and instance.rejectionNoteCode is null and instance.conceptNameCode is null"),
+            "where instance.series.study.studyInstanceUID = ?1"),
 @NamedQuery(
     name = Instance.IUIDS_OF_STUDY,
     query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID " +
