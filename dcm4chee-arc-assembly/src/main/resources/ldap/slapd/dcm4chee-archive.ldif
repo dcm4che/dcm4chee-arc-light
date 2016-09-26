@@ -589,12 +589,17 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.118 NAME 'dcmPurgeStgCmtCompletedDel
   DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which results of completed Storage Commitment requests are purged. If absent, there is no deletion.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.119 NAME 'dcmPurgeStgCmtPollingInterval'
   DESC 'Polling Interval for purging Storage Commitment Results in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE)
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.120 NAME 'dcmDefaultCharacterSet'
+  DESC 'Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by the Network AE.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -603,6 +608,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorageID $
     dcmQueryRetrieveViewID )
   MAY (
+    dcmDefaultCharacterSet $
     dcmMetadataStorageID $
     dcmOverwritePolicy $
     dcmAcceptMissingPatientID $
@@ -676,6 +682,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY
   MAY (
+    dcmDefaultCharacterSet $
     dcmStorageID $
     dcmMetadataStorageID $
     dcmStoreAccessControlID $

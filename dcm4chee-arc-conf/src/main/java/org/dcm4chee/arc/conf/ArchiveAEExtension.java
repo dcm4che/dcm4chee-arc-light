@@ -57,6 +57,7 @@ import java.util.regex.Pattern;
  */
 public class ArchiveAEExtension extends AEExtension {
     private static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
+    private String defaultCharacterSet;
     private String storageID;
     private String metadataStorageID;
     private String storeAccessControlID;
@@ -93,6 +94,20 @@ public class ArchiveAEExtension extends AEExtension {
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
+
+    public String getDefaultCharacterSet() {
+        return defaultCharacterSet;
+    }
+
+    public void setDefaultCharacterSet(String defaultCharacterSet) {
+        this.defaultCharacterSet = defaultCharacterSet;
+    }
+
+    public String defaultCharacterSet() {
+        return defaultCharacterSet != null
+                ? defaultCharacterSet
+                : getArchiveDeviceExtension().getDefaultCharacterSet();
+    }
 
     public String getStorageID() {
         return storageID;
@@ -617,6 +632,7 @@ public class ArchiveAEExtension extends AEExtension {
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
+        defaultCharacterSet = aeExt.defaultCharacterSet;
         storageID = aeExt.storageID;
         metadataStorageID = aeExt.metadataStorageID;
         storeAccessControlID = aeExt.storeAccessControlID;
@@ -721,5 +737,4 @@ public class ArchiveAEExtension extends AEExtension {
                         policy1 = policy;
         return policy1;
     }
-
 }

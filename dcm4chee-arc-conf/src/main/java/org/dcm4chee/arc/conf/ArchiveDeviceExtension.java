@@ -56,6 +56,7 @@ import java.util.regex.Pattern;
  */
 public class ArchiveDeviceExtension extends DeviceExtension {
 
+    private String defaultCharacterSet;
     private String fuzzyAlgorithmClass;
     private String storageID;
     private String metadataStorageID;
@@ -140,6 +141,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private transient FuzzyStr fuzzyStr;
+
+    public String getDefaultCharacterSet() {
+        return defaultCharacterSet;
+    }
+
+    public void setDefaultCharacterSet(String defaultCharacterSet) {
+        this.defaultCharacterSet = defaultCharacterSet;
+    }
 
     public String getFuzzyAlgorithmClass() {
         return fuzzyAlgorithmClass;
@@ -994,6 +1003,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
+        defaultCharacterSet = arcdev.defaultCharacterSet;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
         storageID = arcdev.storageID;
