@@ -54,6 +54,7 @@ import org.dcm4chee.arc.query.util.QueryParam;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -97,4 +98,10 @@ public interface QueryService {
     Attributes createRejectionNote(Attributes sopInstanceRefs, RejectionNote rjNote);
 
     Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae);
+
+    List<Object[]> getSeriesInstanceUIDs(String studyUID);
+
+    List<Object[]> getSOPInstanceUIDs(String studyUID);
+
+    List<Object[]> getSOPInstanceUIDs(String studyUID, String seriesUID);
 }

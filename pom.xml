@@ -352,6 +352,7 @@
     <module>dcm4chee-arc-export-mgt</module>
     <module>dcm4chee-arc-export-dicom</module>
     <module>dcm4chee-arc-export-rs</module>
+    <module>dcm4chee-arc-export-wado</module>
     <module>dcm4chee-arc-hl7</module>
     <module>dcm4chee-arc-ian-scu</module>
     <module>dcm4chee-arc-id</module>
@@ -378,6 +379,7 @@
     <module>dcm4chee-arc-retrieve-scu</module>
     <module>dcm4chee-arc-service</module>
     <module>dcm4chee-arc-stgcmt</module>
+    <module>dcm4chee-arc-stgcmt-rs</module>
     <module>dcm4chee-arc-storage</module>
     <module>dcm4chee-arc-storage-cloud</module>
     <module>dcm4chee-arc-storage-filesystem</module>
@@ -392,7 +394,6 @@
     <module>dcm4chee-arc-ui</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
-    <module>dcm4chee-arc-stgcmt-rs</module>
   </modules>
 
   <build>

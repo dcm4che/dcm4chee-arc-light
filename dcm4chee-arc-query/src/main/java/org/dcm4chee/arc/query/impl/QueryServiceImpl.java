@@ -70,6 +70,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -228,6 +229,27 @@ class QueryServiceImpl implements QueryService {
         attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(sopInstanceRefs);
         mkKOS(attrs, rjNote);
         return attrs;
+    }
+
+    @Override
+    public List<Object[]> getSeriesInstanceUIDs(String studyUID) {
+        return em.createNamedQuery(Series.SERIES_IUIDS_OF_STUDY, Object[].class)
+                .setParameter(1, studyUID)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> getSOPInstanceUIDs(String studyUID) {
+        return em.createNamedQuery(Instance.IUIDS_OF_STUDY, Object[].class)
+                    .setParameter(1, studyUID)
+                    .getResultList();
+    }
+
+    @Override
+    public List<Object[]> getSOPInstanceUIDs(String studyUID, String seriesUID) {
+        return em.createNamedQuery(Instance.IUIDS_OF_SERIES, Object[].class)
+                    .setParameter(1, studyUID)
+                    .setParameter(2, seriesUID).getResultList();
     }
 
     private void mkKOS(Attributes attrs, RejectionNote rjNote) {

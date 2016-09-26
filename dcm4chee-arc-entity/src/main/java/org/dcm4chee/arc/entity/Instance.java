@@ -111,11 +111,21 @@ import java.util.Date;
     query="select count(i) from Instance i " +
             "where i.series = ?1"),
 @NamedQuery(
-        name = Instance.FIND_BY_STUDY_IUID,
-        query = "select instance from Instance instance " +
-                "left join fetch instance.externalRetrieveAETs " +
-                "where instance.series.study.studyInstanceUID = ?1 " +
-                "and instance.rejectionNoteCode is null and instance.conceptNameCode is null")
+    name = Instance.FIND_BY_STUDY_IUID,
+    query = "select instance from Instance instance " +
+            "left join fetch instance.externalRetrieveAETs " +
+            "where instance.series.study.studyInstanceUID = ?1 " +
+            "and instance.rejectionNoteCode is null and instance.conceptNameCode is null"),
+@NamedQuery(
+    name = Instance.IUIDS_OF_STUDY,
+    query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID " +
+            "from Instance instance " +
+            "where instance.series.study.studyInstanceUID = ?1 "),
+@NamedQuery(
+    name = Instance.IUIDS_OF_SERIES,
+    query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID " +
+            "from Instance instance " +
+            "where instance.series.study.studyInstanceUID = ?1 and instance.series.seriesInstanceUID = ?2")
 })
 @Entity
 @Table(name = "instance",
@@ -141,6 +151,8 @@ public class Instance {
     public static final String COUNT_REJECTED_INSTANCES_OF_SERIES = "Instance.countRejectedInstancesOfSeries";
     public static final String COUNT_NOT_REJECTED_INSTANCES_OF_SERIES = "Instance.countNotRejectedInstancesOfSeries";
     public static final String FIND_BY_STUDY_IUID = "Instance.findByStudyIUID";
+    public static final String IUIDS_OF_STUDY = "Instance.iuidsOfStudy";
+    public static final String IUIDS_OF_SERIES = "Instance.iuidsOfSeries";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
