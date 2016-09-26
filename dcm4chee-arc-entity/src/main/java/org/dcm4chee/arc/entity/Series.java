@@ -201,7 +201,6 @@ public class Series {
     @Column(name = "series_iuid", updatable = false)
     private String seriesInstanceUID;
 
-    @Basic(optional = false)
     @Column(name = "series_no")
     private Integer seriesNumber;
 
@@ -464,7 +463,7 @@ public class Series {
 
     public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         seriesInstanceUID = attrs.getString(Tag.SeriesInstanceUID);
-        seriesNumber = getSeriesNumberAsInteger(attrs.getString(Tag.SeriesNumber));
+        seriesNumber = getInt(attrs, Tag.SeriesNumber);
         seriesDescription = attrs.getString(Tag.SeriesDescription, "*");
         institutionName = attrs.getString(Tag.InstitutionName, "*");
         institutionalDepartmentName = attrs.getString(Tag.InstitutionalDepartmentName, "*");
@@ -507,14 +506,14 @@ public class Series {
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
     }
 
-    private Integer getSeriesNumberAsInteger(String seriesNumber) {
-        if (seriesNumber == null)
-            return null;
-        try {
-            return Integer.parseInt(seriesNumber);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+    private Integer getInt(Attributes attrs, int tag) {
+        String val = attrs.getString(tag);
+        if (val != null)
+            try {
+                return Integer.valueOf(val);
+            } catch (NumberFormatException e) {
+            }
+        return null;
     }
 
 }

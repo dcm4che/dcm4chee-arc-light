@@ -181,7 +181,6 @@ public class Instance {
     @Column(name = "sop_cuid", updatable = false)
     private String sopClassUID;
 
-    @Basic(optional = false)
     @Column(name = "inst_no")
     private Integer instanceNumber;
 
