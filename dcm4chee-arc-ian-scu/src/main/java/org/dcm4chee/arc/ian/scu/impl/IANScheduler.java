@@ -185,11 +185,10 @@ public class IANScheduler extends Scheduler {
     }
 
     public void onExport(@Observes ExportContext ctx) {
-        if (ctx.isOnlyStgCmt())
-            return;
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         if (descriptor.getIanDestinations().length != 0)
-            if (ctx.isOnlyIAN() || ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
+            if (ctx.isOnlyIAN()
+                    || !ctx.isOnlyStgCmt() && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
                 sendIAN(ctx, descriptor);
         return;
     }
