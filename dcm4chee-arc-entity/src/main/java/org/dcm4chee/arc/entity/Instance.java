@@ -213,6 +213,9 @@ public class Instance {
     @Column(name = "inst_custom3")
     private String instanceCustomAttribute3;
 
+    @Column(name = "num_frames")
+    private Integer numberOfFrames;
+
     @Column(name = "retrieve_aets")
     private String retrieveAETs;
 
@@ -435,7 +438,8 @@ public class Instance {
     public void setAttributes(Attributes attrs, AttributeFilter filter, FuzzyStr fuzzyStr) {
         sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
         sopClassUID = attrs.getString(Tag.SOPClassUID);
-        instanceNumber = getInstanceNumberAsInteger(attrs.getString(Tag.InstanceNumber));
+        instanceNumber = getInt(attrs, Tag.InstanceNumber, null);
+        numberOfFrames = attrs.contains(Tag.Rows) ? getInt(attrs, Tag.NumberOfFrames, "1") : Integer.valueOf(0);
         Date dt = attrs.getDate(Tag.ContentDateAndTime);
         if (dt != null) {
             contentDate = DateUtils.formatDA(null, dt);
@@ -463,13 +467,13 @@ public class Instance {
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
     }
 
-    private Integer getInstanceNumberAsInteger(String instanceNumber) {
-        if (instanceNumber == null)
-            return null;
-        try {
-            return Integer.parseInt(instanceNumber);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+    private Integer getInt(Attributes attrs, int tag, String defVal) {
+        String val = attrs.getString(tag, defVal);
+        if (val != null)
+            try {
+                return Integer.valueOf(val);
+            } catch (NumberFormatException e) {
+            }
+        return null;
     }
 }

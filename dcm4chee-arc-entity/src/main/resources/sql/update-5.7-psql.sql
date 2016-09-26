@@ -18,6 +18,8 @@ create index UK_gu96kxnbf2p84d1katepo0btq on stgcmt_result (exporter_id);
 create index UK_p65blcj4h0uh2itb0bp49mc07 on stgcmt_result (study_iuid);
 create index UK_nyoefler7agcmxc8t8yfngq7e on stgcmt_result (stgcmt_status);
 
+alter table instance add num_frames int4;
+
 create sequence ext_retrieve_aet_pk_seq;
 create sequence stgcmt_result_pk_seq;
 create sequence study_ext_retrieve_aet_pk_seq;
