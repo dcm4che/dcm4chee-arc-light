@@ -135,8 +135,9 @@ public class StgCmtEJB implements StgCmtManager {
             return;
 
         HashSet<String> studyExternalAETs = new HashSet<>(inst1.getExternalRetrieveAETs());
-        while ((inst1 = nextNotRejected(iter)) != null) {
-            studyExternalAETs.retainAll(inst1.getExternalRetrieveAETs());
+        Instance inst;
+        while ((inst = nextNotRejected(iter)) != null) {
+            studyExternalAETs.retainAll(inst.getExternalRetrieveAETs());
         }
         if (!studyExternalAETs.isEmpty()) {
             Study study = inst1.getSeries().getStudy();
