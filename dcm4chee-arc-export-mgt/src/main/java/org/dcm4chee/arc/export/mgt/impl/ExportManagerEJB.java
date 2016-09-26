@@ -4,9 +4,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.exporter.ExportContext;
-import org.dcm4chee.arc.exporter.Exporter;
-import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -14,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.jms.JMSException;
@@ -30,7 +26,6 @@ import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @Stateless
@@ -46,12 +41,6 @@ public class ExportManagerEJB implements ExportManager {
 
     @Inject
     private QueueManager queueManager;
-
-    @Inject
-    private ExporterFactory exporterFactory;
-
-    @Inject
-    private Event<ExportContext> exportEvent;
 
     @Override
     public void onStore(@Observes StoreContext ctx) {
@@ -179,7 +168,7 @@ public class ExportManagerEJB implements ExportManager {
                     exportTask.getSeriesInstanceUID(),
                     exportTask.getSopInstanceUID(),
                     exporter,
-                    exporter.getAETitle(), false, false);
+                    exporter.getAETitle());
             em.remove(exportTask);
         }
         return resultList.size();
@@ -187,12 +176,9 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                   String aeTitle, boolean onlyIAN, boolean onlyStgCmt) {
-        if (!onlyIAN && !onlyStgCmt)
-            queueManager.scheduleMessage(exporter.getQueueName(),
+                                   String aeTitle) {
+        queueManager.scheduleMessage(exporter.getQueueName(),
                 createMessage(studyUID, seriesUID, objectUID, exporter.getExporterID(), aeTitle));
-        else
-            onlySendIANOrStgCmt(studyUID, seriesUID, objectUID, exporter, aeTitle, onlyStgCmt, onlyIAN);
     }
 
     private ObjectMessage createMessage(String studyUID, String seriesUID, String objectUID, String exporterID,
@@ -208,18 +194,5 @@ public class ExportManagerEJB implements ExportManager {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }
         return msg;
-    }
-
-    private void onlySendIANOrStgCmt(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                String aeTitle, boolean onlyStgCmt, boolean onlyIAN) {
-        Exporter e = exporterFactory.getExporter(exporter);
-        ExportContext ctx = e.createExportContext();
-        ctx.setStudyInstanceUID(studyUID);
-        ctx.setSeriesInstanceUID(seriesUID);
-        ctx.setSopInstanceUID(objectUID);
-        ctx.setAETitle(aeTitle);
-        ctx.setOnlyStgCmt(onlyStgCmt);
-        ctx.setOnlyIAN(onlyIAN);
-        exportEvent.fire(ctx);
     }
 }

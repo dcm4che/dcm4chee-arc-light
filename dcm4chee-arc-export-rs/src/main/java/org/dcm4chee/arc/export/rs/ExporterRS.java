@@ -45,10 +45,14 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.export.mgt.ExportManager;
+import org.dcm4chee.arc.exporter.ExportContext;
+import org.dcm4chee.arc.exporter.Exporter;
+import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
@@ -72,6 +76,12 @@ public class ExporterRS {
 
     @Inject
     private ExportManager exportManager;
+
+    @Inject
+    private ExporterFactory exporterFactory;
+
+    @Inject
+    private Event<ExportContext> exportEvent;
 
     @PathParam("AETitle")
     private String aet;
@@ -125,9 +135,18 @@ public class ExporterRS {
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter == null)
             throw new WebApplicationException(getResponse("Exporter not found.", Response.Status.NOT_FOUND));
-        boolean ian = Boolean.parseBoolean(onlyIAN);
-        boolean stgcmt = Boolean.parseBoolean(onlyStgCmt);
-        exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet, ian, stgcmt);
+
+        boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
+        boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
+        if (bOnlyIAN && exporter.getIanDestinations().length == 0)
+            throw new WebApplicationException(getResponse("No IAN Destinations configured", Response.Status.NOT_FOUND));
+        if (bOnlyStgCmt && exporter.getStgCmtSCPAETitle() == null)
+            throw new WebApplicationException(getResponse("No Storage Commitment SCP configured", Response.Status.NOT_FOUND));
+
+        if (bOnlyIAN || bOnlyStgCmt)
+            exportEvent.fire(createExportContext(studyUID, seriesUID, objectUID, exporter, aet, bOnlyIAN, bOnlyStgCmt));
+        else
+            exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet);
     }
 
     private Response getResponse(String errorMessage, Response.Status status) {
@@ -135,4 +154,17 @@ public class ExporterRS {
         return Response.status(status).entity(entity).build();
     }
 
+    private ExportContext createExportContext(
+            String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle,
+            boolean bOnlyIAN, boolean bOnlyStgCmt) {
+        Exporter e = exporterFactory.getExporter(exporter);
+        ExportContext ctx = e.createExportContext();
+        ctx.setStudyInstanceUID(studyUID);
+        ctx.setSeriesInstanceUID(seriesUID);
+        ctx.setSopInstanceUID(objectUID);
+        ctx.setAETitle(aeTitle);
+        ctx.setOnlyStgCmt(bOnlyStgCmt);
+        ctx.setOnlyIAN(bOnlyIAN);
+        return ctx;
+    }
 }

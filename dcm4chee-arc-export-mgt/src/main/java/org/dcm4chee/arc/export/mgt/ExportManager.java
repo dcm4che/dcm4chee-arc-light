@@ -54,6 +54,5 @@ public interface ExportManager {
 
     int scheduleExportTasks(int fetchSize);
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle,
-                            boolean onlyIAN, boolean onlyStgCmt);
+    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle);
 }
