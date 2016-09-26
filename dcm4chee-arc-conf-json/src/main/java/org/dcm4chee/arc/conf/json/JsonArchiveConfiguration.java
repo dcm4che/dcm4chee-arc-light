@@ -143,6 +143,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmShowPatientInfoInAuditLog", arcDev.getShowPatientInfoInAuditLog());
         writer.writeNotNull("dcmPurgeStgCmtCompletedDelay", arcDev.getPurgeStgCmtCompletedDelay());
         writer.writeNotNull("dcmPurgeStgCmtPollingInterval", arcDev.getPurgeStgCmtPollingInterval());
+        writer.writeNotNull("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -408,6 +409,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmAcceptMissingPatientID", arcAE.getAcceptMissingPatientID());
         writer.writeNotNull("dcmAllowDeleteStudyPermanently", arcAE.getAllowDeleteStudyPermanently());
         writer.writeNotNull("dcmStorePermissionServiceExpirationDatePattern", arcAE.getStorePermissionServiceExpirationDatePattern());
+        writer.writeNotNull("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -640,6 +642,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmPurgeStgCmtPollingInterval":
                     arcDev.setPurgeStgCmtPollingInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmDefaultCharacterSet":
+                    arcDev.setDefaultCharacterSet(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1266,6 +1271,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionServiceExpirationDatePattern":
                     arcAE.setStorePermissionServiceExpirationDatePattern(Pattern.compile(reader.stringValue()));
+                    break;
+                case "dcmDefaultCharacterSet":
+                    arcAE.setDefaultCharacterSet(reader.stringValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

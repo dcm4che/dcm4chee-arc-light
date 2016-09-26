@@ -204,6 +204,11 @@
       "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"(\\d[8])\". If absent, locally configured Study Retention Policy Rules will be applied.",
       "type": "string"
     },
+    "dcmDefaultCharacterSet": {
+      "title": "Default Character Set",
+      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by the Network AE.",
+      "type": "string"
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rule",

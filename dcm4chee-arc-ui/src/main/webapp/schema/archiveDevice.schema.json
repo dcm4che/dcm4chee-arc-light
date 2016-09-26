@@ -428,6 +428,11 @@
       "description": "Polling Interval for purging Storage Commitment Results in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion",
       "type": "string"
     },
+    "dcmDefaultCharacterSet": {
+      "title": "Default Character Set",
+      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by the Network AE.",
+      "type": "string"
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",

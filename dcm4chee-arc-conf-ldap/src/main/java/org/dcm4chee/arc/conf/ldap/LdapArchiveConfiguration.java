@@ -149,6 +149,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmShowPatientInfoInAuditLog", ext.getShowPatientInfoInAuditLog());
         LdapUtils.storeNotNull(attrs, "dcmPurgeStgCmtCompletedDelay", ext.getPurgeStgCmtCompletedDelay());
         LdapUtils.storeNotNull(attrs, "dcmPurgeStgCmtPollingInterval", ext.getPurgeStgCmtPollingInterval());
+        LdapUtils.storeNotNull(attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet());
     }
 
     @Override
@@ -232,6 +233,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setShowPatientInfoInAuditLog(LdapUtils.enumValue(ShowPatientInfo.class, attrs.get("dcmShowPatientInfoInAuditLog"), null));
         ext.setPurgeStgCmtCompletedDelay(toDuration(attrs.get("dcmPurgeStgCmtCompletedDelay")));
         ext.setPurgeStgCmtPollingInterval(toDuration(attrs.get("dcmPurgeStgCmtPollingInterval")));
+        ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
     }
 
     @Override
@@ -359,6 +361,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmShowPatientInfoInAuditLog", aa.getShowPatientInfoInAuditLog(), bb.getShowPatientInfoInAuditLog());
         LdapUtils.storeDiff(mods, "dcmPurgeStgCmtCompletedDelay", aa.getPurgeStgCmtCompletedDelay(), bb.getPurgeStgCmtCompletedDelay());
         LdapUtils.storeDiff(mods, "dcmPurgeStgCmtPollingInterval", aa.getPurgeStgCmtPollingInterval(), bb.getPurgeStgCmtPollingInterval());
+        LdapUtils.storeDiff(mods, "dcmDefaultCharacterSet", aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet());
     }
 
     @Override
@@ -468,6 +471,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID());
         LdapUtils.storeNotNull(attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceExpirationDatePattern", ext.getStorePermissionServiceExpirationDatePattern());
+        LdapUtils.storeNotNull(attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet());
     }
 
     @Override
@@ -513,6 +517,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.enumValue(AcceptMissingPatientID.class, attrs.get("dcmAcceptMissingPatientID"), null));
         ext.setAllowDeleteStudyPermanently(LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
+        ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
     }
 
     @Override
@@ -570,6 +575,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmAllowDeleteStudyPermanently", aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently());
         LdapUtils.storeDiff(mods, "dcmStorePermissionServiceExpirationDatePattern",
                 aa.getStorePermissionServiceExpirationDatePattern(), bb.getStorePermissionServiceExpirationDatePattern());
+        LdapUtils.storeDiff(mods, "dcmDefaultCharacterSet", aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet());
     }
 
     @Override
