@@ -118,13 +118,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String fallbackCMoveSCPStudyOlderThan;
     private String storePermissionServiceURL;
     private Pattern storePermissionServiceResponsePattern;
+    private Pattern storePermissionServiceExpirationDatePattern;
+    private Pattern storePermissionServiceErrorCommentPattern;
     private Duration storePermissionCacheStaleTimeout;
     private int storePermissionCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
-    private Pattern storePermissionServiceExpirationDatePattern;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -711,6 +712,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storePermissionServiceExpirationDatePattern = storePermissionServiceExpirationDatePattern;
     }
 
+    public Pattern getStorePermissionServiceErrorCommentPattern() {
+        return storePermissionServiceErrorCommentPattern;
+    }
+
+    public void setStorePermissionServiceErrorCommentPattern(Pattern storePermissionServiceErrorCommentPattern) {
+        this.storePermissionServiceErrorCommentPattern = storePermissionServiceErrorCommentPattern;
+    }
+
     public Duration getStorePermissionCacheStaleTimeout() {
         return storePermissionCacheStaleTimeout;
     }
@@ -1068,13 +1077,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCPStudyOlderThan = arcdev.fallbackCMoveSCPStudyOlderThan;
         storePermissionServiceURL = arcdev.storePermissionServiceURL;
         storePermissionServiceResponsePattern = arcdev.storePermissionServiceResponsePattern;
+        storePermissionServiceExpirationDatePattern = arcdev.storePermissionServiceExpirationDatePattern;
+        storePermissionServiceErrorCommentPattern = arcdev.storePermissionServiceErrorCommentPattern;
         storePermissionCacheStaleTimeout = arcdev.storePermissionCacheStaleTimeout;
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
-        storePermissionServiceExpirationDatePattern = arcdev.storePermissionServiceExpirationDatePattern;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();

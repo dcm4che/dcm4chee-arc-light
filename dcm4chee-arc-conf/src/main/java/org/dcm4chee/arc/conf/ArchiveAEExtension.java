@@ -85,10 +85,11 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCPStudyOlderThan;
     private String storePermissionServiceURL;
     private Pattern storePermissionServiceResponsePattern;
+    private Pattern storePermissionServiceExpirationDatePattern;
+    private Pattern storePermissionServiceErrorCommentPattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
-    private Pattern storePermissionServiceExpirationDatePattern;
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -508,6 +509,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getStorePermissionServiceExpirationDatePattern();
     }
 
+    public Pattern getStorePermissionServiceErrorCommentPattern() {
+        return storePermissionServiceErrorCommentPattern;
+    }
+
+    public void setStorePermissionServiceErrorCommentPattern(Pattern storePermissionServiceErrorCommentPattern) {
+        this.storePermissionServiceErrorCommentPattern = storePermissionServiceErrorCommentPattern;
+    }
+
+    public Pattern storePermissionServiceErrorCommentPattern() {
+        return storePermissionServiceErrorCommentPattern != null
+                ? storePermissionServiceErrorCommentPattern
+                : getArchiveDeviceExtension().getStorePermissionServiceErrorCommentPattern();
+    }
+
     public QueryRetrieveView getQueryRetrieveView() {
         return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
     }
@@ -660,10 +675,11 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
         storePermissionServiceURL = aeExt.storePermissionServiceURL;
         storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
+        storePermissionServiceExpirationDatePattern = aeExt.storePermissionServiceExpirationDatePattern;
+        storePermissionServiceErrorCommentPattern = aeExt.storePermissionServiceErrorCommentPattern;
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
-        storePermissionServiceExpirationDatePattern = aeExt.storePermissionServiceExpirationDatePattern;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();
