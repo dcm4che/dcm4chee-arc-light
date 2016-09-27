@@ -209,6 +209,11 @@
       "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by the Network AE.",
       "type": "string"
     },
+    "dcmStorePermissionServiceErrorCommentPattern": {
+      "title": "Store Permission Service Error Comment Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\". If absent, the Error Comment will be \"Storage denied\".",
+      "type": "string"
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rule",

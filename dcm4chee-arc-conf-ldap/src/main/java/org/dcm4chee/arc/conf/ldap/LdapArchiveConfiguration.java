@@ -150,6 +150,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmPurgeStgCmtCompletedDelay", ext.getPurgeStgCmtCompletedDelay());
         LdapUtils.storeNotNull(attrs, "dcmPurgeStgCmtPollingInterval", ext.getPurgeStgCmtPollingInterval());
         LdapUtils.storeNotNull(attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet());
+        LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern());
     }
 
     @Override
@@ -234,6 +235,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPurgeStgCmtCompletedDelay(toDuration(attrs.get("dcmPurgeStgCmtCompletedDelay")));
         ext.setPurgeStgCmtPollingInterval(toDuration(attrs.get("dcmPurgeStgCmtPollingInterval")));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
+        ext.setStorePermissionServiceErrorCommentPattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
     }
 
     @Override
@@ -362,6 +364,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmPurgeStgCmtCompletedDelay", aa.getPurgeStgCmtCompletedDelay(), bb.getPurgeStgCmtCompletedDelay());
         LdapUtils.storeDiff(mods, "dcmPurgeStgCmtPollingInterval", aa.getPurgeStgCmtPollingInterval(), bb.getPurgeStgCmtPollingInterval());
         LdapUtils.storeDiff(mods, "dcmDefaultCharacterSet", aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet());
+        LdapUtils.storeDiff(mods, "dcmStorePermissionServiceErrorCommentPattern",
+                aa.getStorePermissionServiceErrorCommentPattern(), bb.getStorePermissionServiceErrorCommentPattern());
     }
 
     @Override
@@ -472,6 +476,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceExpirationDatePattern", ext.getStorePermissionServiceExpirationDatePattern());
         LdapUtils.storeNotNull(attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet());
+        LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern());
     }
 
     @Override
@@ -518,6 +523,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAllowDeleteStudyPermanently(LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
+        ext.setStorePermissionServiceErrorCommentPattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
     }
 
     @Override
@@ -576,6 +582,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmStorePermissionServiceExpirationDatePattern",
                 aa.getStorePermissionServiceExpirationDatePattern(), bb.getStorePermissionServiceExpirationDatePattern());
         LdapUtils.storeDiff(mods, "dcmDefaultCharacterSet", aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet());
+        LdapUtils.storeDiff(mods, "dcmStorePermissionServiceErrorCommentPattern",
+                aa.getStorePermissionServiceErrorCommentPattern(), bb.getStorePermissionServiceErrorCommentPattern());
     }
 
     @Override
