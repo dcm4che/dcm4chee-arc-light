@@ -467,8 +467,9 @@ public class StoreServiceEJB {
                         : patientService.createPatientMgtContextHL7(session.getSocket(), session.getHL7MessageHeader());
                 patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);
-                if (!checkStorePermission(ctx, pat))
-                    throw new DicomServiceException(Status.NotAuthorized, "Storage denied.");
+                String errorComment = checkStorePermission(ctx, pat);
+                if (errorComment != null)
+                    throw new DicomServiceException(Status.NotAuthorized, errorComment);
 
                 if (pat == null) {
                     pat = patientService.createPatient(patMgtCtx);
@@ -480,12 +481,12 @@ public class StoreServiceEJB {
                 if (ctx.getExpirationDate() != null)
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
-            } else if (checkStorePermission(ctx, study.getPatient())) {
+            } else if (checkStorePermission(ctx, study.getPatient()) == null) {
                 study = updateStudy(ctx, study);
                 updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study, result);
-        } else if (checkStorePermission(ctx, series.getStudy().getPatient())) {
+        } else if (checkStorePermission(ctx, series.getStudy().getPatient()) == null) {
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
             updatePatient(ctx, series.getStudy().getPatient());
@@ -715,12 +716,12 @@ public class StoreServiceEJB {
         return study;
     }
 
-    private boolean checkStorePermission(StoreContext ctx, Patient pat) {
+    private String checkStorePermission(StoreContext ctx, Patient pat) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         String serviceURL = arcAE.storePermissionServiceURL();
         if (serviceURL == null)
-            return true;
+            return null;
 
         Attributes attrs = ctx.getAttributes();
         if (pat != null)
@@ -730,12 +731,13 @@ public class StoreServiceEJB {
         if (storePermission != null) {
             LOG.debug("{}: Use cached result of Query Store Permission Service {} - {}", session, urlspec, storePermission);
             ctx.setExpirationDate(storePermission.expirationDate);
-            return storePermission.granted;
+            return storePermission.errorComment;
         }
 
         LOG.info("{}: Query Store Permission Service {}", session, urlspec);
         boolean granted = false;
         LocalDate expirationDate = null;
+        String errorComment = null;
         try {
             URL url = new URL(urlspec);
             HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
@@ -743,12 +745,17 @@ public class StoreServiceEJB {
             String responseContent = null;
             Pattern responsePattern = arcAE.storePermissionServiceResponsePattern();
             Pattern expirationDatePattern = arcAE.storePermissionServiceExpirationDatePattern();
+            Pattern errorCommentPattern = arcAE.storePermissionServiceErrorCommentPattern();
             switch (responseCode) {
                 case HttpURLConnection.HTTP_OK:
                     responseContent = readContent(httpConn);
                     granted = responsePattern == null || responsePattern.matcher(responseContent).find();
-                    if (granted && expirationDatePattern != null)
-                        expirationDate = selectExpirationDate(session, urlspec, responseContent, expirationDatePattern);
+                    expirationDate = granted && expirationDatePattern != null
+                                    ? selectExpirationDate(session, urlspec, responseContent, expirationDatePattern) : null;
+                    errorComment = !granted
+                                    ? errorCommentPattern != null
+                                    ? selectErrorComment(session, urlspec, responseContent, errorCommentPattern)
+                                    : StoreService.NOT_AUTHORIZED : null;
                     break;
                 case HttpURLConnection.HTTP_NO_CONTENT:
                     granted = responsePattern == null;
@@ -765,9 +772,9 @@ public class StoreServiceEJB {
         } catch (Exception e) {
             LOG.warn("{}: Failed to query Store Permission Service {}:\n", session, urlspec, e);
         }
-        storePermissionCache.put(urlspec, new StorePermission(granted, expirationDate));
+        storePermissionCache.put(urlspec, new StorePermission(expirationDate, errorComment));
         ctx.setExpirationDate(expirationDate);
-        return granted;
+        return errorComment;
     }
 
     private LocalDate selectExpirationDate(StoreSession session, String url, String response, Pattern pattern) {
@@ -785,6 +792,16 @@ public class StoreServiceEJB {
                     session, url, response, pattern);
         }
         return null;
+    }
+
+    private String selectErrorComment(StoreSession session, String url, String response, Pattern pattern) {
+        Matcher matcher = pattern.matcher(response);
+        if (matcher.find())
+            return matcher.group(1);
+        else
+            LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not contain error comment {}",
+                    session, url, response, pattern);
+        return StoreService.NOT_AUTHORIZED;
     }
 
     private String readContent(HttpURLConnection httpConn) throws IOException {

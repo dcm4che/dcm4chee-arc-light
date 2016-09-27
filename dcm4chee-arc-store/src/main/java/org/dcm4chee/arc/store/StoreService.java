@@ -38,6 +38,7 @@ public interface StoreService {
     String REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED_MSG = "Rejection for Retention Policy Expired not authorized.";
     String RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG = "Retention Period of Study not yet expired.";
     String PATIENT_ID_MISSING_IN_OBJECT_MSG = "Storage denied as Patient ID missing in object.";
+    String NOT_AUTHORIZED = "Storage denied.";
 
     StoreSession newStoreSession(Association as);
 

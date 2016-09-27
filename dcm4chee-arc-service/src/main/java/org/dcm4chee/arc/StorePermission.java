@@ -44,20 +44,21 @@ import java.time.LocalDate;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
 public class StorePermission {
 
-    public final boolean granted;
     public final LocalDate expirationDate;
+    public final String errorComment;
 
-    public StorePermission(boolean granted, LocalDate expirationDate) {
-        this.granted = granted;
+    public StorePermission(LocalDate expirationDate, String errorComment) {
         this.expirationDate = expirationDate;
+        this.errorComment = errorComment;
     }
 
     @Override
     public String toString() {
-        return "StorePermission[granted=" + granted + ", expirationDate=" + expirationDate + ']';
+        return "StorePermission[expirationDate=" + expirationDate + ", errorComment=" + errorComment + ']';
     }
 }
