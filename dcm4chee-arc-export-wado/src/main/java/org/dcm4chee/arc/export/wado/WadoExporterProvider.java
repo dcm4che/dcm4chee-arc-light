@@ -40,10 +40,12 @@
 
 package org.dcm4chee.arc.export.wado;
 
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.storage.StorageFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -60,8 +62,14 @@ public class WadoExporterProvider implements ExporterProvider {
     @Inject
     private QueryService queryService;
 
+    @Inject
+    private StorageFactory storageFactory;
+
+    @Inject
+    private Device device;
+
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new WadoExporter(descriptor, queryService);
+        return new WadoExporter(descriptor, queryService, storageFactory, device);
     }
 }

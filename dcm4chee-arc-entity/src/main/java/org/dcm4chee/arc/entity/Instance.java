@@ -117,12 +117,12 @@ import java.util.Date;
             "where instance.series.study.studyInstanceUID = ?1"),
 @NamedQuery(
     name = Instance.IUIDS_OF_STUDY,
-    query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID " +
+    query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID, instance.numberOfFrames " +
             "from Instance instance " +
             "where instance.series.study.studyInstanceUID = ?1 "),
 @NamedQuery(
     name = Instance.IUIDS_OF_SERIES,
-    query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID " +
+    query = "select instance.series.study.studyInstanceUID, instance.series.seriesInstanceUID, instance.sopInstanceUID, instance.numberOfFrames " +
             "from Instance instance " +
             "where instance.series.study.studyInstanceUID = ?1 and instance.series.seriesInstanceUID = ?2")
 })

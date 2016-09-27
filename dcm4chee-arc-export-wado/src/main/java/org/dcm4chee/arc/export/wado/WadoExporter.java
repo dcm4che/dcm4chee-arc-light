@@ -40,59 +40,119 @@
 
 package org.dcm4chee.arc.export.wado;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StreamUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.storage.Storage;
+import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.storage.WriteContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2016
  */
 public class WadoExporter extends AbstractExporter {
-    private static final int COPY_BUFFER_SIZE = 8192;
-    private final MessageFormat format;
-    private final Entity entity;
-    private final QueryService queryService;
 
-    public WadoExporter(ExporterDescriptor descriptor, QueryService queryService) {
+    private static Logger LOG = LoggerFactory.getLogger(WadoExporter.class);
+
+    private static final int COPY_BUFFER_SIZE = 8192;
+    private final QueryService queryService;
+    private final StorageFactory storageFactory;
+    private final EnumMap<Entity,List<WadoRequest>> wadoRequests = new EnumMap<>(Entity.class);
+
+    public WadoExporter(ExporterDescriptor descriptor, QueryService queryService, StorageFactory storageFactory, Device device) {
         super(descriptor);
-        this.format = new MessageFormat(
-                descriptor.getExportURI().getSchemeSpecificPart().replace('[','{').replace(']','}'));
-        this.entity = Entity.values()[format.getFormats().length];
         this.queryService = queryService;
+        this.storageFactory = storageFactory;
+        String accept = descriptor.getProperty("Accept", null);
+        String storageID = descriptor.getProperty("StorageID", null);
+        addWadoRequest(descriptor.getExportURI().getSchemeSpecificPart(), accept, storageDescriptor(device, storageID));
+        String pattern;
+        for (int i = 1; (pattern = descriptor.getProperty("URL." + i, null)) != null; ++i)
+            addWadoRequest(pattern,
+                    descriptor.getProperty("Accept." + i, accept),
+                    storageDescriptor(device, descriptor.getProperty("StorageID." + i, storageID)));
+    }
+
+    private StorageDescriptor storageDescriptor(Device device, String storageID) {
+        if (storageID == null)
+            return null;
+
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        StorageDescriptor storageDescriptor = arcDev.getStorageDescriptor(storageID);
+        if (storageDescriptor == null)
+            LOG.warn("WADO Exporter {} refers not configured StorageID={} - cannot store fetched objects",
+                    descriptor.getExporterID(), storageID);
+        return storageDescriptor;
+    }
+
+    private void addWadoRequest(String pattern, String accept, StorageDescriptor storageDescriptor) {
+        MessageFormat format = new MessageFormat(pattern.replace('[', '{').replace(']', '}'));
+        Entity entity = Entity.values()[format.getFormats().length];
+        List<WadoRequest> list = wadoRequests.get(entity);
+        if (list == null)
+            wadoRequests.put(entity, list = new ArrayList<WadoRequest>(2));
+        list.add(new WadoRequest(format, accept, storageDescriptor));
     }
 
     @Override
     public Outcome export(ExportContext exportContext) throws Exception {
         byte[] buffer = new byte[COPY_BUFFER_SIZE];
-        for (Object[] params : entity.queryParams(exportContext, queryService)) {
-            fetch(params, buffer);
-        }
-        return new Outcome(QueueMessage.Status.COMPLETED, "");
-    }
-
-    private void fetch(Object[] params, byte[] buffer) {
+        int count = 0;
+        int failed = 0;
+        Exception ex = null;
+        HashMap<String, Storage> storageMap = new HashMap<>();
         try {
-            URL url = new URL(format.format(params));
-            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-            int responseCode = httpConn.getResponseCode();
-            try (InputStream in = httpConn.getInputStream()) {
-                StreamUtils.copy(in, null, buffer);
+            for (Map.Entry<Entity, List<WadoRequest>> entry : wadoRequests.entrySet()) {
+                for (Object[] params : entry.getKey().queryParams(exportContext, queryService)) {
+                    for (WadoRequest wadoRequest : entry.getValue()) {
+                        try {
+                            if (wadoRequest.invoke(params, buffer, storageMap))
+                                count++;
+                        } catch (Exception e) {
+                            failed++;
+                            ex = e;
+                        }
+                    }
+                }
             }
-        } catch (Exception e) {
-
+        } finally {
+            for (Storage storage : storageMap.values())
+                SafeClose.close(storage);
         }
+
+        String exporterID = exportContext.getExporter().getExporterDescriptor().getExporterID();
+        if (failed == 0) {
+            return new Outcome(QueueMessage.Status.COMPLETED,
+                    "Fetched " + count + " objects by WADO Exporter " + exporterID);
+        }
+        if (count > 0) {
+            return new Outcome(QueueMessage.Status.WARNING,
+                    "Fetched " + count + " objects by WADO Exporter " + exporterID
+                            + ", failed: " + failed + " - " + ex.getMessage());
+        }
+        throw ex;
     }
 
     private enum Entity {
@@ -127,8 +187,76 @@ public class WadoExporter extends AbstractExporter {
                             ctx.getSeriesInstanceUID(),
                             ctx.getSopInstanceUID()});
             }
+        }, FRAME {
+            @Override
+            List<Object[]> queryParams(ExportContext ctx, QueryService queryService) {
+                List<Object[]> insts = INSTANCE.queryParams(ctx, queryService);
+                ArrayList<Object[]> frames = new ArrayList<>(insts.size());
+                for (Object[] inst : insts) {
+                    Integer numFrames = (Integer) inst[3];
+                    int n = numFrames != null ? numFrames.intValue() : 1;
+                    for (int i = 1; i <= n; i++) {
+                        Object[] frame = inst.clone();
+                        frame[3] = i;
+                        frames.add(frame);
+                    }
+                }
+                return frames;
+            }
         };
 
         abstract List<Object[]> queryParams(ExportContext ctx, QueryService queryService);
+    }
+
+    private class WadoRequest {
+        final MessageFormat format;
+        final String accept;
+        final StorageDescriptor storageDescriptor;
+
+        private WadoRequest(MessageFormat format, String accept, StorageDescriptor storageDescriptor) {
+            this.format = format;
+            this.accept = accept;
+            this.storageDescriptor = storageDescriptor;
+        }
+
+        public boolean invoke(Object[] params, byte[] buffer, Map<String, Storage> storageMap) throws Exception {
+            URL url = new URL(format.format(params));
+            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+            if (accept != null)
+                httpConn.setRequestProperty("Accept", accept);
+            int responseCode = httpConn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_NOT_FOUND)
+                return false;
+            try (InputStream in = httpConn.getInputStream();
+                OutputStream out = getOutputStream(params, storageMap)) {
+                StreamUtils.copy(in, out, buffer);
+            }
+            return true;
+        }
+
+        private OutputStream getOutputStream(Object[] params, Map<String, Storage> storageMap) throws IOException {
+            if (storageDescriptor == null)
+                return null;
+
+            Storage storage = storageMap.get(storageDescriptor.getStorageID());
+            if (storage == null) {
+                storage = storageFactory.getStorage(storageDescriptor);
+                storageMap.put(storageDescriptor.getStorageID(), storage);
+            }
+            WriteContext ctx = storage.createWriteContext();
+            Attributes attrs = new Attributes(params.length);
+            switch (params.length) {
+                case 4:
+                    attrs.setInt(Tag.ReferencedFrameNumber, VR.IS, (Integer) params[3]);
+                case 3:
+                    attrs.setString(Tag.SOPInstanceUID, VR.UI, (String) params[2]);
+                case 2:
+                    attrs.setString(Tag.SeriesInstanceUID, VR.UI, (String) params[1]);
+                case 1:
+                    attrs.setString(Tag.StudyInstanceUID, VR.UI, (String) params[0]);
+            }
+            ctx.setAttributes(attrs);
+            return storage.openOutputStream(ctx);
+        }
     }
 }

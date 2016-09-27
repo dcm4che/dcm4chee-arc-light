@@ -1003,6 +1003,20 @@ objectClass: dcmStorage
 dcmStorageID: fs1
 dcmURI: ${jboss.server.data.url}/fs1/
 
+dn: dcmStorageID=wado-jpeg,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmProperty: pathFormat={0020000D}/{0020000E}/{00080018}/{00081160}.jpeg
+dcmProperty: checkMountFile=NO_MOUNT
+objectClass: dcmStorage
+dcmStorageID: wado-jpeg
+dcmURI: ${jboss.server.data.url}/wado/
+
+dn: dcmStorageID=wado-json,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmProperty: pathFormat={0020000D}.json
+dcmProperty: checkMountFile=NO_MOUNT
+objectClass: dcmStorage
+dcmStorageID: wado-json
+dcmURI: ${jboss.server.data.url}/wado/
+
 dn: dcmQueueName=HL7Send,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Forward HL7 Tasks
 dcmQueueName: HL7Send
@@ -1048,7 +1062,7 @@ dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/StgCmtSCP
 
 dn: dcmQueueName=Export1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomDescription: Dicom Export Tasks (1)
+dicomDescription: Dicom Export Tasks
 dcmQueueName: Export1
 dcmMaxRetries: 10
 dcmRetryDelayMultiplier: 200
@@ -1081,7 +1095,7 @@ dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/Export3
 
 dn: dcmQueueName=Export2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomDescription: Dicom Export Tasks (2)
+dicomDescription: WADO Export Tasks
 dcmQueueName: Export2
 dcmMaxRetries: 10
 dcmRetryDelayMultiplier: 200
@@ -1101,6 +1115,18 @@ dcmSchedule: hour=18-6 dayOfWeek=*
 dcmSchedule: hour=* dayOfWeek=0,6
 dcmURI: dicom:STORESCP
 
+dn: dcmExporterID=WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: WADO
+dicomDescription: Export to WADO
+dcmQueueName: Export2
+dcmProperty: Accept.1=application/json
+dcmProperty: URL.1=http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/[0]/metadata
+dcmProperty: StorageID.1=wado-json
+dcmProperty: StorageID=wado-jpeg
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: wado:http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]
+
 dn: cn=Forward to STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: STORESCP
 dcmDuration: PT1M
@@ -1109,6 +1135,14 @@ dcmProperty: Modality=CT|MR
 dcmProperty: SendingApplicationEntityTitle=FORWARD
 objectClass: dcmExportRule
 cn: Forward to STORESCP
+
+dn: cn=Forward to WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: WADO
+dcmDuration: PT1M
+dcmEntity: Series
+dcmProperty: SendingApplicationEntityTitle=WADO
+objectClass: dcmExportRule
+cn: Forward to WADO
 
 dn: cn=JPEG 8-bit Lossy,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomTransferSyntax: 1.2.840.10008.1.2.4.50

@@ -559,7 +559,7 @@ dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/StgCmtSCP
 
 dn: dcmQueueName=Export1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomDescription: Dicom Export Tasks (1)
+dicomDescription: Dicom Export Tasks
 dcmQueueName: Export1
 dcmMaxRetries: 10
 dcmRetryDelayMultiplier: 200
@@ -592,7 +592,7 @@ dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/Export3
 
 dn: dcmQueueName=Export2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomDescription: Dicom Export Tasks (2)
+dicomDescription: WADO Export Tasks
 dcmQueueName: Export2
 dcmMaxRetries: 10
 dcmRetryDelayMultiplier: 200

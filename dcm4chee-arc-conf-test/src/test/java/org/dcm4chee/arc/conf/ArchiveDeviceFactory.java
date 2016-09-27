@@ -144,8 +144,8 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("IANSCU", "IAN Tasks"),
         newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks"),
         newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks"),
-        newQueueDescriptor("Export1", "Dicom Export Tasks (1)"),
-        newQueueDescriptor("Export2", "Dicom Export Tasks (2)"),
+        newQueueDescriptor("Export1", "Dicom Export Tasks"),
+        newQueueDescriptor("Export2", "WADO Export Tasks"),
         newQueueDescriptor("Export3", "XDS-I Export Tasks"),
         newQueueDescriptor("HL7Send", "Forward HL7 Tasks")
     };
@@ -855,14 +855,25 @@ class ArchiveDeviceFactory {
     static final String METADATA_STORAGE_ID = "metadata";
     static final String METADATA_STORAGE_URI = "${jboss.server.data.url}/metadata/";
     static final String METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json";
+    static final String WADO_JPEG_STORAGE_ID = "wado-jpeg";
+    static final String WADO_JPEG_STORAGE_URI = "${jboss.server.data.url}/wado/";
+    static final String WADO_JPEG_PATH_FORMAT = "{0020000D}/{0020000E}/{00080018}/{00081160}.jpeg";
+    static final String WADO_JSON_STORAGE_ID = "wado-json";
+    static final String WADO_JSON_STORAGE_URI = "${jboss.server.data.url}/wado/";
+    static final String WADO_JSON_PATH_FORMAT = "{0020000D}.json";
     static final boolean SEND_PENDING_C_GET = true;
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
-    static final String EXPORTER_ID = "STORESCP";
-    static final String EXPORTER_DESC = "Export to STORESCP";
-    static final URI EXPORT_URI = URI.create("dicom:STORESCP");
+    static final String DICOM_EXPORTER_ID = "STORESCP";
+    static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
+    static final URI DICOM_EXPORT_URI = URI.create("dicom:STORESCP");
+    static final String WADO_EXPORTER_ID = "WADO";
+    static final String WADO_EXPORTER_DESC = "Export to WADO";
+    static final URI WADO_EXPORT_URI = URI.create("wado:http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]");
+    static final String WADO_JSON_EXPORT_URL = "http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/[0]/metadata";
+    static final String WADO_JSON_ACCEPT = "application/json";
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.parse("PT5M");
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
@@ -1235,17 +1246,26 @@ class ArchiveDeviceFactory {
             metadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
             ext.addStorageDescriptor(metadataStorageDescriptor);
 
-            ExporterDescriptor exportDescriptor = new ExporterDescriptor(EXPORTER_ID);
-            exportDescriptor.setDescription(EXPORTER_DESC);
-            exportDescriptor.setExportURI(EXPORT_URI);
+            StorageDescriptor wadoJpegStorageDescriptor = new StorageDescriptor(WADO_JPEG_STORAGE_ID);
+            wadoJpegStorageDescriptor.setStorageURIStr(WADO_JPEG_STORAGE_URI);
+            wadoJpegStorageDescriptor.setProperty("pathFormat", WADO_JPEG_PATH_FORMAT);
+            wadoJpegStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            ext.addStorageDescriptor(wadoJpegStorageDescriptor);
+
+            StorageDescriptor wadoJsonStorageDescriptor = new StorageDescriptor(WADO_JSON_STORAGE_ID);
+            wadoJsonStorageDescriptor.setStorageURIStr(WADO_JSON_STORAGE_URI);
+            wadoJsonStorageDescriptor.setProperty("pathFormat", WADO_JSON_PATH_FORMAT);
+            wadoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            ext.addStorageDescriptor(wadoJsonStorageDescriptor);
+
+            ExporterDescriptor exportDescriptor = new ExporterDescriptor(DICOM_EXPORTER_ID);
+            exportDescriptor.setDescription(DICOM_EXPORTER_DESC);
+            exportDescriptor.setExportURI(DICOM_EXPORT_URI);
             exportDescriptor.setSchedules(
                     ScheduleExpression.valueOf("hour=18-6 dayOfWeek=*"),
                     ScheduleExpression.valueOf("hour=* dayOfWeek=0,6"));
             exportDescriptor.setQueueName("Export1");
             exportDescriptor.setAETitle("DCM4CHEE");
-            if (configType == configType.TEST) {
-                exportDescriptor.setProperty("checkMountFile", "NO_MOUNT");
-            }
             ext.addExporterDescriptor(exportDescriptor);
 
             ExportRule exportRule = new ExportRule("Forward to STORESCP");
@@ -1253,11 +1273,26 @@ class ArchiveDeviceFactory {
             exportRule.getConditions().setCondition("Modality", "CT|MR");
             exportRule.setEntity(Entity.Series);
             exportRule.setExportDelay(Duration.parse("PT1M"));
-            exportRule.setExporterIDs(EXPORTER_ID);
-            if (configType == configType.TEST) {
-                exportRule.setSchedules(ScheduleExpression.valueOf("hour=3 dayOfWeek=2"));
-            }
+            exportRule.setExporterIDs(DICOM_EXPORTER_ID);
             ext.addExportRule(exportRule);
+
+            ExporterDescriptor wadoExportDescriptor = new ExporterDescriptor(WADO_EXPORTER_ID);
+            wadoExportDescriptor.setDescription(WADO_EXPORTER_DESC);
+            wadoExportDescriptor.setExportURI(WADO_EXPORT_URI);
+            wadoExportDescriptor.setQueueName("Export2");
+            wadoExportDescriptor.setAETitle("DCM4CHEE");
+            wadoExportDescriptor.setProperty("StorageID", WADO_JPEG_STORAGE_ID);
+            wadoExportDescriptor.setProperty("URL.1", WADO_JSON_EXPORT_URL);
+            wadoExportDescriptor.setProperty("Accept.1", WADO_JSON_ACCEPT);
+            wadoExportDescriptor.setProperty("StorageID.1", WADO_JSON_STORAGE_ID);
+            ext.addExporterDescriptor(wadoExportDescriptor);
+
+            ExportRule wadoExportRule = new ExportRule("Forward to WADO");
+            wadoExportRule.getConditions().setSendingAETitle("WADO");
+            wadoExportRule.setEntity(Entity.Series);
+            wadoExportRule.setExportDelay(Duration.parse("PT1M"));
+            wadoExportRule.setExporterIDs(WADO_EXPORTER_ID);
+            ext.addExportRule(wadoExportRule);
 
             HL7ForwardRule hl7ForwardRule = new HL7ForwardRule("Forward to HL7RCV|DCM4CHEE");
             hl7ForwardRule.getConditions().setCondition("MSH-3", "FORWARD");
