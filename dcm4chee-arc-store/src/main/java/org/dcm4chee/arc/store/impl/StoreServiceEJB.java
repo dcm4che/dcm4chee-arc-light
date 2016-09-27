@@ -47,7 +47,6 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StreamUtils;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.StorePermission;
 import org.dcm4chee.arc.StorePermissionCache;
@@ -65,6 +64,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.text.MessageFormat;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -131,7 +131,7 @@ public class StoreServiceEJB {
             if (prevInstance.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
                     && getRejectionNote(arcDev, prevInstance.getConceptNameCode()) != null)
                 throw new DicomServiceException(StoreService.DUPLICATE_REJECTION_NOTE,
-                        "Rejection Note [uid=" + prevInstance.getSopInstanceUID() + "] already received");
+                        MessageFormat.format(StoreService.DUPLICATE_REJECTION_NOTE_MSG, prevInstance.getSopInstanceUID()));
             RejectionNote rjNote = getRejectionNote(arcDev, prevInstance.getRejectionNoteCode());
             if (rjNote != null) {
                 RejectionNote.AcceptPreviousRejectedInstance accept = rjNote.getAcceptPreviousRejectedInstance();
@@ -141,8 +141,8 @@ public class StoreServiceEJB {
                         return result;
                     case REJECT:
                         throw new DicomServiceException(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT,
-                                "Subsequent occurrence of rejected Object [uid=" + prevInstance.getSopInstanceUID()
-                                        + ", rejection=" + rjNote.getRejectionNoteCode() + "]");
+                                MessageFormat.format(StoreService.SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG,
+                                        prevInstance.getSopInstanceUID(), rjNote.getRejectionNoteCode()));
                     case RESTORE:
                         break;
                 }
@@ -184,7 +184,7 @@ public class StoreServiceEJB {
                 if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
                         && policy == AllowRejectionForDataRetentionPolicyExpired.NEVER) {
                     throw new DicomServiceException(StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED,
-                            "Rejection for Retentation Policy Expired not authorized");
+                            StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED_MSG);
                 }
                 rejectInstances(ctx, rjNote, conceptNameCode, policy);
                 if (rjNote.isRevokeRejection())
@@ -264,7 +264,7 @@ public class StoreServiceEJB {
         LocalDate seriesExpirationDate = series.getExpirationDate();
         if ((seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isAfter(LocalDate.now())) {
             throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
-                    "Retention Period of Study not yet expired");
+                    StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG);
         }
     }
 
@@ -293,17 +293,17 @@ public class StoreServiceEJB {
         Instance inst = findInstance(studyUID, seriesUID, objectUID);
         if (inst == null)
             throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
-                    "Failed to reject Instance[uid=" + objectUID + "] - no such Instance");
+                    MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE_MSG, objectUID));
         if (!inst.getSopClassUID().equals(classUID))
             throw new DicomServiceException(StoreService.REJECTION_FAILED_CLASS_INSTANCE_CONFLICT,
-                    "Failed to reject Instance[uid=" + objectUID + "] - class-instance conflict");
+                    MessageFormat.format(StoreService.REJECTION_FAILED_CLASS_INSTANCE_CONFLICT_MSG, objectUID));
         CodeEntity prevRjNoteCode = inst.getRejectionNoteCode();
         if (prevRjNoteCode != null) {
             if (!rjNote.isRevokeRejection() && rejectionCode.getPk() == prevRjNoteCode.getPk())
                 return inst;
             if (!rjNote.canOverwritePreviousRejection(prevRjNoteCode.getCode()))
                 throw new DicomServiceException(StoreService.REJECTION_FAILED_ALREADY_REJECTED,
-                        "Failed to reject Instance[uid=" + objectUID + "] - already rejected");
+                        MessageFormat.format(StoreService.REJECTION_FAILED_ALREADY_REJECTED_MSG, objectUID));
         }
         inst.setRejectionNoteCode(rjNote.isRevokeRejection() ? null : rejectionCode);
         if (!rjNote.isRevokeRejection())
@@ -456,7 +456,7 @@ public class StoreServiceEJB {
             if (study == null) {
                 if (!checkMissingPatientID(ctx))
                     throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
-                            "Storage denied as Patient ID missing in object");
+                            StoreService.PATIENT_ID_MISSING_IN_OBJECT_MSG);
 
                 StoreSession session = ctx.getStoreSession();
                 HttpServletRequest httpRequest = session.getHttpRequest();
@@ -468,7 +468,7 @@ public class StoreServiceEJB {
                 patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);
                 if (!checkStorePermission(ctx, pat))
-                    throw new DicomServiceException(Status.NotAuthorized, "Storage denied");
+                    throw new DicomServiceException(Status.NotAuthorized, "Storage denied.");
 
                 if (pat == null) {
                     pat = patientService.createPatient(patMgtCtx);
@@ -770,7 +770,7 @@ public class StoreServiceEJB {
         return granted;
     }
 
-    private static LocalDate selectExpirationDate(StoreSession session, String url, String response, Pattern pattern) {
+    private LocalDate selectExpirationDate(StoreSession session, String url, String response, Pattern pattern) {
         Matcher matcher = pattern.matcher(response);
         if (matcher.find()) {
             String s = matcher.group(1);
@@ -787,7 +787,7 @@ public class StoreServiceEJB {
         return null;
     }
 
-    private static String readContent(HttpURLConnection httpConn) throws IOException {
+    private String readContent(HttpURLConnection httpConn) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(512);
         try (InputStream in = httpConn.getInputStream()) {
             StreamUtils.copy(in, out);
@@ -795,7 +795,7 @@ public class StoreServiceEJB {
         return new String(out.toByteArray(), charsetOf(httpConn));
     }
 
-    private static String charsetOf(HttpURLConnection httpConn) {
+    private String charsetOf(HttpURLConnection httpConn) {
         String contentType = httpConn.getContentType().toUpperCase();
         int index = contentType.lastIndexOf("CHARSET=");
         return index >= 0 ? contentType.substring(index + 8) : "UTF-8";
