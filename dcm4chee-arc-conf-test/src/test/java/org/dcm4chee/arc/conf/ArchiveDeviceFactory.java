@@ -872,6 +872,7 @@ class ArchiveDeviceFactory {
     static final String WADO_EXPORTER_ID = "WADO";
     static final String WADO_EXPORTER_DESC = "Export to WADO";
     static final URI WADO_EXPORT_URI = URI.create("wado:http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]");
+    static final String WADO_CACHE_CONTROL = "no-cache";
     static final String WADO_JSON_EXPORT_URL = "http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/[0]/metadata";
     static final String WADO_JSON_ACCEPT = "application/json";
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
@@ -1281,6 +1282,7 @@ class ArchiveDeviceFactory {
             wadoExportDescriptor.setExportURI(WADO_EXPORT_URI);
             wadoExportDescriptor.setQueueName("Export2");
             wadoExportDescriptor.setAETitle("DCM4CHEE");
+            wadoExportDescriptor.setProperty("Cache-Control", WADO_CACHE_CONTROL);
             wadoExportDescriptor.setProperty("StorageID", WADO_JPEG_STORAGE_ID);
             wadoExportDescriptor.setProperty("URL.1", WADO_JSON_EXPORT_URL);
             wadoExportDescriptor.setProperty("Accept.1", WADO_JSON_ACCEPT);

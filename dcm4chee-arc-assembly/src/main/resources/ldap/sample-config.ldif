@@ -1120,6 +1120,7 @@ dcmExporterID: WADO
 dicomDescription: Export to WADO
 dcmQueueName: Export2
 dcmProperty: Accept.1=application/json
+dcmProperty: Cache-Control=no-cache
 dcmProperty: URL.1=http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/[0]/metadata
 dcmProperty: StorageID.1=wado-json
 dcmProperty: StorageID=wado-jpeg
