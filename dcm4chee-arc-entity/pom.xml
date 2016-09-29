@@ -105,6 +105,7 @@
               <classifier>${db}-sql</classifier>
               <includes>
                 <include>sql/create-${db}.sql</include>
+                <include>sql/update-*-${db}.sql</include>
                 <include>sql/drop-${db}.sql</include>
                 <include>sql/create-index.sql</include>
                 <include>sql/create-case-insensitive-index.sql</include>
@@ -148,7 +149,7 @@
               <databaseMajorVersion>${databaseMajorVersion}</databaseMajorVersion>
               <databaseMinorVersion>${databaseMinorVersion}</databaseMinorVersion>
               <scriptAction>drop-and-create</scriptAction>
-              <outputDirectory>${build.outputDirectory}/sql</outputDirectory>
+              <outputDirectory>${project.build.outputDirectory}/sql</outputDirectory>
               <createOutputFileName>create-${db}.sql</createOutputFileName>
               <dropOutputFileName>drop-${db}.sql</dropOutputFileName>
             </configuration>
