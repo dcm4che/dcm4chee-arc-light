@@ -216,7 +216,7 @@
     },
     "dcmStorePermissionServiceErrorCodePattern": {
       "title": "Store Permission Service Error Code Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". If absent, the Error Code will be 0x0124 (Not Authorized).",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". If absent, the Error Code will be 0124H (Not Authorized).",
       "type": "string"
     },
     "dcmExportRule": {
