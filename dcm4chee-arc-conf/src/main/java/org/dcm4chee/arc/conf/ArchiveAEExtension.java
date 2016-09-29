@@ -87,6 +87,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Pattern storePermissionServiceResponsePattern;
     private Pattern storePermissionServiceExpirationDatePattern;
     private Pattern storePermissionServiceErrorCommentPattern;
+    private Pattern storePermissionServiceErrorCodePattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
@@ -523,6 +524,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getStorePermissionServiceErrorCommentPattern();
     }
 
+    public Pattern getStorePermissionServiceErrorCodePattern() {
+        return storePermissionServiceErrorCodePattern;
+    }
+
+    public void setStorePermissionServiceErrorCodePattern(Pattern storePermissionServiceErrorCodePattern) {
+        this.storePermissionServiceErrorCodePattern = storePermissionServiceErrorCodePattern;
+    }
+
+    public Pattern storePermissionServiceErrorCodePattern() {
+        return storePermissionServiceErrorCodePattern != null
+                ? storePermissionServiceErrorCodePattern
+                : getArchiveDeviceExtension().getStorePermissionServiceErrorCodePattern();
+    }
+
     public QueryRetrieveView getQueryRetrieveView() {
         return getArchiveDeviceExtension().getQueryRetrieveViewNotNull(queryRetrieveViewID());
     }
@@ -677,6 +692,7 @@ public class ArchiveAEExtension extends AEExtension {
         storePermissionServiceResponsePattern = aeExt.storePermissionServiceResponsePattern;
         storePermissionServiceExpirationDatePattern = aeExt.storePermissionServiceExpirationDatePattern;
         storePermissionServiceErrorCommentPattern = aeExt.storePermissionServiceErrorCommentPattern;
+        storePermissionServiceErrorCodePattern = aeExt.storePermissionServiceErrorCodePattern;
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;

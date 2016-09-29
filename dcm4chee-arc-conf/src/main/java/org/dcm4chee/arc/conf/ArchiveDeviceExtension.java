@@ -120,6 +120,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Pattern storePermissionServiceResponsePattern;
     private Pattern storePermissionServiceExpirationDatePattern;
     private Pattern storePermissionServiceErrorCommentPattern;
+    private Pattern storePermissionServiceErrorCodePattern;
     private Duration storePermissionCacheStaleTimeout;
     private int storePermissionCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
@@ -720,6 +721,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storePermissionServiceErrorCommentPattern = storePermissionServiceErrorCommentPattern;
     }
 
+    public Pattern getStorePermissionServiceErrorCodePattern() {
+        return storePermissionServiceErrorCodePattern;
+    }
+
+    public void setStorePermissionServiceErrorCodePattern(Pattern storePermissionServiceErrorCodePattern) {
+        this.storePermissionServiceErrorCodePattern = storePermissionServiceErrorCodePattern;
+    }
+
     public Duration getStorePermissionCacheStaleTimeout() {
         return storePermissionCacheStaleTimeout;
     }
@@ -1079,6 +1088,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storePermissionServiceResponsePattern = arcdev.storePermissionServiceResponsePattern;
         storePermissionServiceExpirationDatePattern = arcdev.storePermissionServiceExpirationDatePattern;
         storePermissionServiceErrorCommentPattern = arcdev.storePermissionServiceErrorCommentPattern;
+        storePermissionServiceErrorCodePattern = arcdev.storePermissionServiceErrorCodePattern;
         storePermissionCacheStaleTimeout = arcdev.storePermissionCacheStaleTimeout;
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
