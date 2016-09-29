@@ -81,7 +81,6 @@ import java.util.Date;
         uniqueConstraints = @UniqueConstraint(columnNames = "transaction_uid"),
         indexes = {
             @Index(columnList = "updated_time"),
-            @Index(columnList = "transaction_uid"),
             @Index(columnList = "device_name"),
             @Index(columnList = "exporter_id"),
             @Index(columnList = "study_iuid"),

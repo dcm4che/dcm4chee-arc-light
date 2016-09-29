@@ -12,7 +12,6 @@ create index UK_9bjf166lbmyirre66uoy96wag on study_ext_retrieve_aet (retrieve_ae
 create table stgcmt_result (pk int8 not null, created_time timestamp not null, device_name varchar(255) not null, exporter_id varchar(255) not null, num_failures int4, num_instances int4, series_iuid varchar(255), sop_iuid varchar(255), stgcmt_status int4 not null, study_iuid varchar(255) not null, transaction_uid varchar(255) not null, updated_time timestamp not null, primary key (pk));
 alter table stgcmt_result add constraint UK_ey6qpep2qtiwayou7pd0vj22w  unique (transaction_uid);
 create index UK_qko59fn9pb87j1eu070ilfkhm on stgcmt_result (updated_time);
-create index UK_ey6qpep2qtiwayou7pd0vj22w on stgcmt_result (transaction_uid);
 create index UK_7ltjgxoijy15rrwihl8euv7vh on stgcmt_result (device_name);
 create index UK_gu96kxnbf2p84d1katepo0btq on stgcmt_result (exporter_id);
 create index UK_p65blcj4h0uh2itb0bp49mc07 on stgcmt_result (study_iuid);
