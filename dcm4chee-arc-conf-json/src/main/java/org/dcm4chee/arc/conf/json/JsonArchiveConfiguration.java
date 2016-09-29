@@ -145,6 +145,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmPurgeStgCmtPollingInterval", arcDev.getPurgeStgCmtPollingInterval());
         writer.writeNotNull("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet());
         writer.writeNotNull("dcmStorePermissionServiceErrorCommentPattern", arcDev.getStorePermissionServiceErrorCommentPattern());
+        writer.writeNotNull("dcmStorePermissionServiceErrorCodePattern", arcDev.getStorePermissionServiceErrorCodePattern());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -412,6 +413,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorePermissionServiceExpirationDatePattern", arcAE.getStorePermissionServiceExpirationDatePattern());
         writer.writeNotNull("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet());
         writer.writeNotNull("dcmStorePermissionServiceErrorCommentPattern", arcAE.getStorePermissionServiceErrorCommentPattern());
+        writer.writeNotNull("dcmStorePermissionServiceErrorCodePattern", arcAE.getStorePermissionServiceErrorCodePattern());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -650,6 +652,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionServiceErrorCommentPattern":
                     arcDev.setStorePermissionServiceErrorCommentPattern(Pattern.compile(reader.stringValue()));
+                    break;
+                case "dcmStorePermissionServiceErrorCodePattern":
+                    arcDev.setStorePermissionServiceErrorCodePattern(Pattern.compile(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1282,6 +1287,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionServiceErrorCommentPattern":
                     arcAE.setStorePermissionServiceErrorCommentPattern(Pattern.compile(reader.stringValue()));
+                    break;
+                case "dcmStorePermissionServiceErrorCodePattern":
+                    arcAE.setStorePermissionServiceErrorCodePattern(Pattern.compile(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
