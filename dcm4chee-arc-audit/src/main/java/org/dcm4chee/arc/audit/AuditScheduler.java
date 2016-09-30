@@ -117,18 +117,7 @@ public class AuditScheduler extends Scheduler {
         } catch (IOException e) {
             LOG.warn("Failed to access Audit Spool Directory - {}", dir, e);
         }
-        for (Path path : pathList) {
-            try {
-                service.aggregateAuditMessage(path);
-                Files.delete(path);
-            } catch (Exception e) {
-                LOG.warn("Failed to process Audit Spool File - {}", path, e);
-                try {
-                    Files.move(path, path.resolveSibling(path.getFileName().toString() + FAILED));
-                } catch (IOException e1) {
-                    LOG.warn("Failed to mark Audit Spool File - {} as failed", path, e);
-                }
-            }
-        }
+        for (Path path : pathList)
+            service.auditAndProcessFile(path);
     }
 }

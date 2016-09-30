@@ -89,7 +89,7 @@ import java.util.*;
 @ApplicationScoped
 public class AuditService {
     private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
-    private final String JBOSS_SERVER_TEMP = "${jboss.server.temp}";
+    private final String JBOSS_SERVER_TEMP = "${jboss.server.data.dir}/temp";
     private final String studyDate = "StudyDate";
     private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
     private final String noValue = "<none>";
@@ -262,7 +262,7 @@ public class AuditService {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         boolean auditAggregate = arcDev.isAuditAggregate();
         Path dir = Paths.get(StringUtils.replaceSystemProperties(
-                auditAggregate? arcDev.getAuditSpoolDirectory() : JBOSS_SERVER_TEMP));
+                auditAggregate ? arcDev.getAuditSpoolDirectory() : JBOSS_SERVER_TEMP));
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forQuery(ctx);
         AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
         try {
@@ -280,9 +280,23 @@ public class AuditService {
                 }
             }
             if (!auditAggregate)
-                aggregateAuditMessage(file);
+                auditAndProcessFile(file);
         } catch (Exception e) {
             LOG.warn("Failed to write to Audit Spool File - {} ", e);
+        }
+    }
+
+    void auditAndProcessFile(Path file) {
+        try {
+            aggregateAuditMessage(file);
+            Files.delete(file);
+        } catch (Exception e) {
+            LOG.warn("Failed to process Audit Spool File - {}", file, e);
+            try {
+                Files.move(file, file.resolveSibling(file.getFileName().toString() + ".failed"));
+            } catch (IOException e1) {
+                LOG.warn("Failed to mark Audit Spool File - {} as failed", file, e);
+            }
         }
     }
 
@@ -840,7 +854,7 @@ public class AuditService {
                     writer.writeLine(o);
             }
             if (!auditAggregate)
-                aggregateAuditMessage(file);
+                auditAndProcessFile(file);
         } catch (Exception e) {
             LOG.warn("Failed to write to Audit Spool File - {} ", e);
         }
@@ -868,7 +882,7 @@ public class AuditService {
                 writer.writeLine(instanceInfo);
             }
             if (!auditAggregate)
-                aggregateAuditMessage(file);
+                auditAndProcessFile(file);
         } catch (Exception e) {
             LOG.warn("Failed to write to Audit Spool File - {} ", file, e);
         }
