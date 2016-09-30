@@ -259,7 +259,7 @@
     },
     "dcmAuditSpoolDirectory": {
       "title": "Audit Spool Directory",
-      "description": "Path to Audit Service Spool Directory used to aggregate Audit Messages. Audit Message aggregation disabled, if absent.",
+      "description": "Path to Audit Service Spool Directory used to aggregate Audit Messages. If absent, audit messages written to temporary location in server",
       "type": "string"
     },
     "dcmAuditPollingInterval": {
