@@ -49,6 +49,7 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -89,6 +90,7 @@ public class ConfigurationRS {
     };
 
     @GET
+    @NoCache
     @Path("/devices/{DeviceName}")
     @Produces("application/json")
     public StreamingOutput getDevice(@PathParam("DeviceName") String deviceName) throws Exception {
@@ -105,6 +107,7 @@ public class ConfigurationRS {
     }
 
     @GET
+    @NoCache
     @Path("/auth")
     @Produces("application/json")
     public String getAuthServerURL() throws Exception {
@@ -112,6 +115,7 @@ public class ConfigurationRS {
     }
 
     @GET
+    @NoCache
     @Path("/devices")
     @Produces("application/json")
     public StreamingOutput listDevices() throws Exception {
@@ -130,6 +134,7 @@ public class ConfigurationRS {
     }
 
     @GET
+    @NoCache
     @Path("/aes")
     @Produces("application/json")
     public StreamingOutput listAETs() throws Exception {
@@ -148,6 +153,7 @@ public class ConfigurationRS {
     }
 
     @GET
+    @NoCache
     @Path("/unique/aets")
     @Produces("application/json")
     public StreamingOutput listRegisteredAETS() throws Exception {
@@ -156,6 +162,7 @@ public class ConfigurationRS {
     }
 
     @GET
+    @NoCache
     @Path("/unique/hl7apps")
     @Produces("application/json")
     public StreamingOutput listRegisteredHL7Apps() throws Exception {

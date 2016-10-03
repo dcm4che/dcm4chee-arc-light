@@ -44,6 +44,7 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -74,6 +75,7 @@ public class QueryRejectionNotes {
     private String revokeRejection;
 
     @GET
+    @NoCache
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
         return new StreamingOutput() {

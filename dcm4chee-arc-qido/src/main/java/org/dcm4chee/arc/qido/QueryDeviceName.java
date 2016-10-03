@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.qido;
 
 import org.dcm4che3.net.Device;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -60,6 +61,7 @@ public class QueryDeviceName {
     private Device device;
 
     @GET
+    @NoCache
     @Produces("application/json")
     public String devicename() {
         return "{\"dicomDeviceName\":\"" + device.getDeviceName() + "\"}";

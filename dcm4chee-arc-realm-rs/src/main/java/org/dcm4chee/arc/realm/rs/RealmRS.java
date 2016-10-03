@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.realm.rs;
 
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.IDToken;
@@ -72,6 +73,7 @@ public class RealmRS {
     private SecurityContext sc;
 
     @GET
+    @NoCache
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
         return new StreamingOutput() {

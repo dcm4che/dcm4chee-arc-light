@@ -56,6 +56,7 @@ import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,6 +229,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/patients")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForPatientsXML() throws Exception {
@@ -235,6 +237,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/patients")
     @Produces("application/json")
     public Response searchForPatientsJSON() throws Exception {
@@ -242,6 +245,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/studies")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForStudiesXML() throws Exception {
@@ -249,6 +253,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/studies")
     @Produces("application/json")
     public Response searchForStudiesJSON() throws Exception {
@@ -256,6 +261,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/series")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSeriesXML() throws Exception {
@@ -263,6 +269,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/series")
     @Produces("application/json")
     public Response searchForSeriesJSON() throws Exception {
@@ -270,6 +277,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSeriesOfStudyXML(
@@ -278,6 +286,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
     public Response searchForSeriesOfStudyJSON(
@@ -286,6 +295,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/instances")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesXML() throws Exception {
@@ -293,6 +303,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/instances")
     @Produces("application/json")
     public Response searchForInstancesJSON() throws Exception {
@@ -300,6 +311,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesOfStudyXML(
@@ -309,6 +321,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
     public Response searchForInstancesOfStudyJSON(
@@ -318,6 +331,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesOfSeriesXML(
@@ -328,6 +342,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
     public Response searchForInstancesOfSeriesJSON(
@@ -338,6 +353,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/mwlitems")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSPSXML() throws Exception {
@@ -345,6 +361,7 @@ public class QidoRS {
     }
 
     @GET
+    @NoCache
     @Path("/mwlitems")
     @Produces("application/json")
     public Response searchForSPSJSON() throws Exception {

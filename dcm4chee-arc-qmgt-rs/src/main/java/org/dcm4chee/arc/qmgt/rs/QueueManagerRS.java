@@ -42,6 +42,7 @@ package org.dcm4chee.arc.qmgt.rs;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -90,6 +91,7 @@ public class QueueManagerRS {
     private String updatedBefore;
 
     @GET
+    @NoCache
     @Produces("application/json")
     public Response search() throws Exception {
         return Response.ok(toEntity(mgr.search(queueName, parseStatus(status), parseInt(offset), parseInt(limit))))

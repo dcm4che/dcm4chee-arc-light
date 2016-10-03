@@ -42,6 +42,7 @@ package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -93,6 +94,7 @@ public class StgCmtRS {
     private String limit;
 
     @GET
+    @NoCache
     @Produces("application/json")
     public StreamingOutput listStgCmts() throws Exception {
         final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(

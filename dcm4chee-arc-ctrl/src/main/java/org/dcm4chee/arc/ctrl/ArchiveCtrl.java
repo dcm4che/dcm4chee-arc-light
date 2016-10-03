@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.ctrl;
 
 import org.dcm4chee.arc.ArchiveService;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -85,6 +86,7 @@ public class ArchiveCtrl {
     }
 
     @GET
+    @NoCache
     @Path("status")
     @Produces("application/json")
     public String status() {

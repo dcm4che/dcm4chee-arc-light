@@ -43,6 +43,7 @@ package org.dcm4chee.arc.export.rs;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -67,6 +68,7 @@ public class QueryExporters {
     private Device device;
 
     @GET
+    @NoCache
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
         return new StreamingOutput() {

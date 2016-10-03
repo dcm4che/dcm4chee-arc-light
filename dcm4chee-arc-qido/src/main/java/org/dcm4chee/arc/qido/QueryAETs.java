@@ -44,6 +44,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -76,6 +77,7 @@ public class QueryAETs {
     private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
 
     @GET
+    @NoCache
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
         return new StreamingOutput() {

@@ -46,6 +46,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.json.JsonArchiveConfiguration;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -73,6 +74,7 @@ public class QueryAttributeFilter {
     private JsonConfiguration jsonConf;
 
     @GET
+    @NoCache
     @Path("/{Entity}")
     @Produces("application/json")
     public StreamingOutput getAttributeFilter(@PathParam("Entity") final String entity) throws Exception {

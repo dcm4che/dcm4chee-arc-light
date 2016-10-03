@@ -48,6 +48,7 @@ package org.dcm4chee.arc.monitor.rs;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -70,6 +71,7 @@ public class ArchiveMonitor {
     private Device device;
 
     @GET
+    @NoCache
     @Path("associations")
     @Produces("application/json")
     public StreamingOutput listOpenAssociations() throws Exception {

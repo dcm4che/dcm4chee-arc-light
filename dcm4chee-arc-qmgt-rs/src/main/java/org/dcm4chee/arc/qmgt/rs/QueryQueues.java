@@ -40,10 +40,10 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -68,6 +68,7 @@ public class QueryQueues {
     private Device device;
 
     @GET
+    @NoCache
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
         return new StreamingOutput() {
