@@ -243,7 +243,8 @@ class ArchiveDeviceFactory {
             Tag.AdditionalPatientHistory,
             Tag.PatientSexNeutered,
             Tag.StudyInstanceUID,
-            Tag.StudyID
+            Tag.StudyID,
+            Tag.PhysiciansOfRecord
     };
     static final int[] SERIES_ATTRS = {
             Tag.SpecificCharacterSet,
