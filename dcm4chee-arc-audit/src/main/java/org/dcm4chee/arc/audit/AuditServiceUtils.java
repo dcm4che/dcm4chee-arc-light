@@ -122,8 +122,6 @@ class AuditServiceUtils {
 
         PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
                 null, null, true, false, false, null),
-        PROC_STD_R(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Read,
-                null, null, true, false, false, null),
         PROC_STD_U(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
                  null, null, true, false, false, null),
         PROC_STD_D(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
@@ -244,8 +242,7 @@ class AuditServiceUtils {
             HashSet<EventType> et = new HashSet<>();
             et.add(eac.equals(AuditMessages.EventActionCode.Create)
                     ? EventType.PROC_STD_C : eac.equals(AuditMessages.EventActionCode.Update)
-                    ? EventType.PROC_STD_U : eac.equals(AuditMessages.EventActionCode.Read)
-                    ? EventType.PROC_STD_R : PROC_STD_D);
+                    ? EventType.PROC_STD_U : PROC_STD_D);
             return et;
         }
     }
