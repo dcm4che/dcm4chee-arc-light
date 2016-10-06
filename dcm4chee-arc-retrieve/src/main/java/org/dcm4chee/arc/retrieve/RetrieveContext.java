@@ -191,8 +191,6 @@ public interface RetrieveContext extends Closeable {
 
     int remaining();
 
-    int getNumberOfCStoreForwards();
-
     int status();
 
     String getOutcomeDescription();

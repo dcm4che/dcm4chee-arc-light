@@ -456,11 +456,6 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public int getNumberOfCStoreForwards() {
-        return cstoreForwards.size();
-    }
-
-    @Override
     public int status() {
         return (failed() == 0 && warning() == 0)
                 ? Status.Success
