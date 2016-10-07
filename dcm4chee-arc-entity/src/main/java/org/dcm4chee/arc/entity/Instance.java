@@ -463,6 +463,7 @@ public class Instance {
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+        updatedTime = new Date();
     }
 
     private Integer getInt(Attributes attrs, int tag, String defVal) {

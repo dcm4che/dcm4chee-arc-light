@@ -290,5 +290,6 @@ public class Patient {
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+        updatedTime = new Date();
     }
 }
