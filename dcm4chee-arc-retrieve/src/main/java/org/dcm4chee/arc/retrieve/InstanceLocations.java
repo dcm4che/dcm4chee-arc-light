@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.Location;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -63,4 +64,6 @@ public interface InstanceLocations {
     String getRetrieveAETs();
 
     Availability getAvailability();
+
+    Date getUpdatedTime();
 }

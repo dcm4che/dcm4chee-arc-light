@@ -81,10 +81,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import java.awt.*;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -215,6 +212,7 @@ public class WadoURI {
                         "More than one matching resource found");
 
             InstanceLocations inst = matches.iterator().next();
+            Date d = service.getLastModified(ctx);
             ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
             MediaType mimeType = selectMimeType(objectType);
             if (mimeType == null)
@@ -234,7 +232,7 @@ public class WadoURI {
                     retrieveWado.fire(ctx);
                 }
             });
-            ar.resume(Response.ok(entity, mimeType).build());
+            ar.resume(Response.ok(entity, mimeType).lastModified(d).tag(String.valueOf(d.hashCode())).build());
         } catch (Exception e) {
             ar.resume(e);
         }

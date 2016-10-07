@@ -114,19 +114,23 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.sopInstanceUID,
             QInstance.instance.retrieveAETs,
             QInstance.instance.availability,
+            QInstance.instance.updatedTime,
             QUIDMap.uIDMap,
             QueryBuilder.instanceAttributesBlob.encodedAttributes
     };
 
     static final Expression<?>[] PATIENT_STUDY_SERIES_ATTRS = {
+            QPatient.patient.updatedTime,
             QStudy.study.pk,
             QStudy.study.studyInstanceUID,
             QStudy.study.accessTime,
             QStudy.study.failedRetrieves,
             QStudy.study.failedSOPInstanceUIDList,
+            QStudy.study.updatedTime,
             QSeries.series.seriesInstanceUID,
             QSeries.series.failedRetrieves,
             QSeries.series.failedSOPInstanceUIDList,
+            QSeries.series.updatedTime,
             QueryBuilder.seriesAttributesBlob.encodedAttributes,
             QueryBuilder.studyAttributesBlob.encodedAttributes,
             QueryBuilder.patientAttributesBlob.encodedAttributes
@@ -253,6 +257,18 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
+    public Date getLastModified(RetrieveContext ctx) {
+        List<Date> dates = new ArrayList<>();
+        dates.add(ctx.getPatientUpdatedTime());
+        dates.add(ctx.getStudyInfos().iterator().next().getUpdatedTime());
+        for (SeriesInfo si : ctx.getSeriesInfos())
+            dates.add(si.getUpdatedTime());
+        for (InstanceLocations il : ctx.getMatches())
+            dates.add(il.getUpdatedTime());
+        return Collections.max(dates);
+    }
+
+    @Override
     public boolean calculateMatches(RetrieveContext ctx)  {
         StatelessSession session = openStatelessSession();
         Collection<InstanceLocations> matches = ctx.getMatches();
@@ -272,6 +288,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                         studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
                         ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
                         seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
+                        ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
                     }
                     Attributes instAttrs = AttributesBlob.decodeAttributes(
                             tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
@@ -282,6 +299,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                             tuple.get(QInstance.instance.sopInstanceUID),
                             tuple.get(QInstance.instance.retrieveAETs),
                             tuple.get(QInstance.instance.availability),
+                            tuple.get(QInstance.instance.updatedTime),
                             instAttrs);
                     matches.add(match);
                     instMap.put(instPk, match);
@@ -298,9 +316,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public InstanceLocationsImpl newInstanceLocations(
-            String sopClassUID, String sopInstanceUID, String retrieveAETs, Availability availability, Attributes attrs) {
-        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, availability, attrs);
+    public InstanceLocationsImpl newInstanceLocations(String sopClassUID, String sopInstanceUID, String retrieveAETs,
+              Availability availability, Date updatedTime, Attributes attrs) {
+        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, availability, updatedTime, attrs);
     }
 
     private void updateStudyAccessTime(RetrieveContext ctx) {
@@ -336,11 +354,13 @@ public class RetrieveServiceImpl implements RetrieveService {
         final Attributes attrs;
         final StudyInfo studyInfo;
         final SeriesInfo seriesInfo;
+        final Date patientUpdatedTime;
 
-        SeriesAttributes(Attributes attrs, StudyInfo studyInfo, SeriesInfo seriesInfo) {
+        SeriesAttributes(Attributes attrs, StudyInfo studyInfo, SeriesInfo seriesInfo, Date patientUpdatedTime) {
             this.attrs = attrs;
             this.studyInfo = studyInfo;
             this.seriesInfo = seriesInfo;
+            this.patientUpdatedTime = patientUpdatedTime;
         }
 
     }
@@ -360,12 +380,15 @@ public class RetrieveServiceImpl implements RetrieveService {
                 tuple.get(QStudy.study.studyInstanceUID),
                 tuple.get(QStudy.study.accessTime),
                 tuple.get(QStudy.study.failedRetrieves),
-                tuple.get(QStudy.study.failedSOPInstanceUIDList));
+                tuple.get(QStudy.study.failedSOPInstanceUIDList),
+                tuple.get(QStudy.study.updatedTime));
         SeriesInfo seriesInfo = new SeriesInfoImpl(
                 studyInfo.getStudyInstanceUID(),
                 tuple.get(QSeries.series.seriesInstanceUID),
                 tuple.get(QSeries.series.failedRetrieves),
-                tuple.get(QSeries.series.failedSOPInstanceUIDList));
+                tuple.get(QSeries.series.failedSOPInstanceUIDList),
+                tuple.get(QSeries.series.updatedTime));
+        Date patientUpdatedTime = tuple.get(QPatient.patient.updatedTime);
         Attributes patAttrs = AttributesBlob.decodeAttributes(
                 tuple.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);
         Attributes studyAttrs = AttributesBlob.decodeAttributes(
@@ -377,7 +400,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
-        return new SeriesAttributes(attrs, studyInfo, seriesInfo);
+        return new SeriesAttributes(attrs, studyInfo, seriesInfo, patientUpdatedTime);
 }
 
     private HibernateQuery<Tuple> createQuery(RetrieveContext ctx, StatelessSession session) {

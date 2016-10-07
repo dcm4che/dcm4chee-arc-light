@@ -341,6 +341,7 @@ public class WadoRS {
             if (ctx.getMatches().isEmpty())
                 throw new WebApplicationException(
                         notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
+            Date d = service.getLastModified(ctx);
             retrieveStart.fire(ctx);
             ar.register(new CompletionCallback() {
                 @Override
@@ -356,7 +357,7 @@ public class WadoRS {
             });
             responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
             Object entity = output.entity(this, ctx, frameList, attributePath);
-            ar.resume(Response.status(responseStatus).entity(entity).build());
+            ar.resume(Response.status(responseStatus).lastModified(d).tag(String.valueOf(d.hashCode())).entity(entity).build());
         } catch (Exception e) {
             ar.resume(e);
         }

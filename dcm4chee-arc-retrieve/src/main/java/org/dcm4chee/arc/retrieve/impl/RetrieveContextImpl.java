@@ -57,10 +57,7 @@ import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -109,7 +106,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private volatile int fallbackMoveRSPNumberOfMatches;
     private volatile int fallbackMoveRSPFailed;
     private volatile String[] fallbackMoveRSPFailedIUIDs = {};
-
+    private Date patientUpdatedTime;
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -582,5 +579,15 @@ class RetrieveContextImpl implements RetrieveContext {
     public void close() throws IOException {
         for (Storage storage : storageMap.values())
             SafeClose.close(storage);
+    }
+
+    @Override
+    public Date getPatientUpdatedTime() {
+        return patientUpdatedTime;
+    }
+
+    @Override
+    public void setPatientUpdatedTime(Date patientUpdatedTime) {
+        this.patientUpdatedTime = patientUpdatedTime;
     }
 }

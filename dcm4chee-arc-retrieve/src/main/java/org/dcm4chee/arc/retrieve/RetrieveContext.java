@@ -54,6 +54,7 @@ import org.dcm4chee.arc.storage.Storage;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -232,4 +233,8 @@ public interface RetrieveContext extends Closeable {
     String[] getFallbackMoveRSPFailedIUIDs();
 
     void setFallbackMoveRSPFailedIUIDs(String[] fallbackMoveRSPFailedIUIDs);
+
+    Date getPatientUpdatedTime();
+
+    void setPatientUpdatedTime(Date patientUpdatedTime);
 }

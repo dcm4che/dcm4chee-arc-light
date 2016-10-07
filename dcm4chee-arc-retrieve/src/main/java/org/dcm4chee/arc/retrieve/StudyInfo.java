@@ -56,4 +56,6 @@ public interface StudyInfo {
     String getFailedSOPInstanceUIDList();
 
     int getFailedRetrieves();
+
+    Date getUpdatedTime();
 }

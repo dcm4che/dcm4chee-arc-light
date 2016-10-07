@@ -54,4 +54,6 @@ public interface SeriesInfo {
     String getFailedSOPInstanceUIDList();
 
     int getFailedRetrieves();
+
+    Date getUpdatedTime();
 }

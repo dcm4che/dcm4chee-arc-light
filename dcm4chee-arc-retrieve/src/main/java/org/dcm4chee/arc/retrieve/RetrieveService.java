@@ -52,6 +52,7 @@ import org.dcm4chee.arc.conf.Availability;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -78,8 +79,8 @@ public interface RetrieveService {
 
     boolean calculateMatches(RetrieveContext ctx);
 
-    InstanceLocations newInstanceLocations(
-            String sopClassUID, String sopInstanceUID, String retrieveAETs, Availability availability, Attributes attrs);
+    InstanceLocations newInstanceLocations(String sopClassUID, String sopInstanceUID, String retrieveAETs,
+           Availability availability, Date updatedTime, Attributes attrs);
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException;
@@ -97,4 +98,6 @@ public interface RetrieveService {
     void waitForPendingCMoveForward(RetrieveContext ctx);
 
     void updateFailedSOPInstanceUIDList(RetrieveContext ctx);
+
+    Date getLastModified(RetrieveContext ctx);
 }
