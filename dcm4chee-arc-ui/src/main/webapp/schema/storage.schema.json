@@ -55,6 +55,11 @@
       "items": {
         "type": "string"
       }
+    },
+    "dcmExternalRetrieveAET": {
+      "title": "External Retrieve AET",
+      "description": "Enable deletion of Studies which are retrievable from this AE from the Storage System if the usable space fall below configured threshold.",
+      "type": "string"
     }
   }
 }
