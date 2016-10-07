@@ -97,6 +97,9 @@ public class WadoRS {
     private UriInfo uriInfo;
 
     @Context
+    private Request req;
+
+    @Context
     private HttpHeaders headers;
 
     @Inject
@@ -342,25 +345,33 @@ public class WadoRS {
                 throw new WebApplicationException(
                         notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
             Date d = service.getLastModified(ctx);
-            retrieveStart.fire(ctx);
-            ar.register(new CompletionCallback() {
-                @Override
-                public void onComplete(Throwable throwable) {
-                    SafeClose.close(compressedMFPixelDataOutput);
-                    SafeClose.close(uncompressedFramesOutput);
-                    SafeClose.close(compressedFramesOutput);
-                    SafeClose.close(decompressFramesOutput);
-                    purgeSpoolDirectory();
-                    ctx.setException(throwable);
-                    retrieveEnd.fire(ctx);
-                }
-            });
-            responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
-            Object entity = output.entity(this, ctx, frameList, attributePath);
-            ar.resume(Response.status(responseStatus).lastModified(d).tag(String.valueOf(d.hashCode())).entity(entity).build());
+            if (evaluatePreConditions(d)) {
+                retrieveStart.fire(ctx);
+                ar.register(new CompletionCallback() {
+                    @Override
+                    public void onComplete(Throwable throwable) {
+                        SafeClose.close(compressedMFPixelDataOutput);
+                        SafeClose.close(uncompressedFramesOutput);
+                        SafeClose.close(compressedFramesOutput);
+                        SafeClose.close(decompressFramesOutput);
+                        purgeSpoolDirectory();
+                        ctx.setException(throwable);
+                        retrieveEnd.fire(ctx);
+                    }
+                });
+                responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
+                Object entity = output.entity(this, ctx, frameList, attributePath);
+                ar.resume(Response.status(responseStatus).lastModified(d).tag(String.valueOf(d.hashCode())).entity(entity).build());
+            } else {
+                ar.resume(Response.status(Response.Status.NOT_MODIFIED).build());
+            }
         } catch (Exception e) {
             ar.resume(e);
         }
+    }
+
+    private boolean evaluatePreConditions(Date lastModified) {
+        return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode()))) == null;
     }
 
     private void checkAET() {

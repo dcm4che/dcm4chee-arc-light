@@ -116,6 +116,9 @@ public class WadoURI {
     @Inject @RetrieveWADO
     private Event<RetrieveContext> retrieveWado;
 
+    @Context
+    private Request req;
+
     @PathParam("AETitle")
     private String aet;
 
@@ -213,29 +216,37 @@ public class WadoURI {
 
             InstanceLocations inst = matches.iterator().next();
             Date d = service.getLastModified(ctx);
-            ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
-            MediaType mimeType = selectMimeType(objectType);
-            if (mimeType == null)
-                throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+            if (evaluatePreConditions(d)) {
+                ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
+                MediaType mimeType = selectMimeType(objectType);
+                if (mimeType == null)
+                    throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
 
-            StreamingOutput entity;
-            if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
-                mimeType = MediaTypes.APPLICATION_DICOM_TYPE;
-                entity = new DicomObjectOutput(ctx, inst, tsuids());
-            } else {
-                entity = entityOf(ctx, inst, objectType, mimeType);
-            }
-            ar.register(new CompletionCallback() {
-                @Override
-                public void onComplete(Throwable throwable) {
-                    ctx.setException(throwable);
-                    retrieveWado.fire(ctx);
+                StreamingOutput entity;
+                if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
+                    mimeType = MediaTypes.APPLICATION_DICOM_TYPE;
+                    entity = new DicomObjectOutput(ctx, inst, tsuids());
+                } else {
+                    entity = entityOf(ctx, inst, objectType, mimeType);
                 }
-            });
-            ar.resume(Response.ok(entity, mimeType).lastModified(d).tag(String.valueOf(d.hashCode())).build());
+                ar.register(new CompletionCallback() {
+                    @Override
+                    public void onComplete(Throwable throwable) {
+                        ctx.setException(throwable);
+                        retrieveWado.fire(ctx);
+                    }
+                });
+                ar.resume(Response.ok(entity, mimeType).lastModified(d).tag(String.valueOf(d.hashCode())).build());
+            } else {
+                ar.resume(Response.status(Response.Status.NOT_MODIFIED).build());
+            }
         } catch (Exception e) {
             ar.resume(e);
         }
+    }
+
+    private boolean evaluatePreConditions(Date lastModified) {
+        return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode()))) == null;
     }
 
     private void checkAET() {
