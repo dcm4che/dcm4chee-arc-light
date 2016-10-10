@@ -50,7 +50,7 @@
     },
     "dcmProperty": {
       "title": "Storage Property",
-      "description": "Property in format &lt;name&gt;=&lt;value&gt;",
+      "description": "Property in format <name>=<value>",
       "type": "array",
       "items": {
         "type": "string"
