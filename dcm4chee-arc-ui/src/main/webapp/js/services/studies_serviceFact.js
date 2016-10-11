@@ -1,6 +1,6 @@
 "use strict";
 
-myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
+myApp.factory('StudiesService', function(cfpLoadingBar, $compile, $filter) {
 
     var integerVr = ["DS","FL","FD","IS","SL","SS","UL", "US"];
     var getSchemaModelFromIodHelper = function(iod, patient, schema, patientedit){
@@ -237,19 +237,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
 
     return {
         getTodayDate: function() {
-           	var today = new Date();
-		    var dd = today.getDate();
-		    var mm = today.getMonth()+1; //January is 0!
-		    var yyyy = today.getFullYear();
-
-		    if(dd<10) {
-		        dd='0'+dd;
-		    } 
-
-		    if(mm<10) {
-		        mm='0'+mm;
-		    }
-		   return yyyy+mm+dd;
+ 		    return $filter('date')(new Date(), 'yyyyMMdd');
         },
         updateTime : function(studyTime, scope){
             if(studyTime.fromObject){
@@ -286,19 +274,9 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         updateFromDate : function(studyDate, scope){
 
             if(studyDate.fromObject){
-                var timestampFrom   = Date.parse(studyDate.fromObject);
-                var d1From          = new Date(timestampFrom);
-                var yyyyFrom        = d1From.getFullYear();
-                var MMFrom          = d1From.getMonth()+1;
-                var ddFrom          = d1From.getDate();
-                if(MMFrom<10){
-                    MMFrom = '0'+MMFrom;
-                }
-                if(ddFrom<10){
-                    ddFrom = '0'+ddFrom;
-                }
-                studyDate.from      = yyyyFrom+MMFrom+ddFrom;
-                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].from = yyyyFrom+MMFrom+ddFrom;
+                var yyyymmdd = $filter('date')(Date.parse(studyDate.fromObject), 'yyyyMMdd');
+                studyDate.from = yyyymmdd;
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].from = yyyymmdd;
             }else{
                 studyDate.from      = "";
             }
@@ -307,20 +285,7 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         updateBirthDate : function(birthDate, scope){
 
             if(birthDate.object){
-                var timestampFrom   = Date.parse(birthDate.object);
-                var d1From          = new Date(timestampFrom);
-                var yyyyFrom        = d1From.getFullYear();
-                var MMFrom          = d1From.getMonth()+1;
-                var ddFrom          = d1From.getDate();
-                if(MMFrom<10){
-                    MMFrom = '0'+MMFrom;
-                }
-                if(ddFrom<10){
-                    ddFrom = '0'+ddFrom;
-                }
-                // birthDate.filter      = yyyyFrom+MMFrom+ddFrom;
-                scope.filter.PatientBirthDate = yyyyFrom+MMFrom+ddFrom;
-                // scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].filter = yyyyFrom+MMFrom+ddFrom;
+                scope.filter.PatientBirthDate = $filter('date')(Date.parse(birthDate.object), 'yyyyMMdd');
             }else{
                 if(scope.filter.PatientBirthDate){
                     delete scope.filter.PatientBirthDate;
@@ -331,21 +296,9 @@ myApp.factory('StudiesService', function(cfpLoadingBar, $compile) {
         },
         updateToDate : function(studyDate, scope){
         	if(studyDate.toObject){
-                var timestampTo   = Date.parse(studyDate.toObject);
-                var d1To          = new Date(timestampTo);
-                var yyyyTo        = d1To.getFullYear();
-                var MMTo          = d1To.getMonth()+1;
-                var ddTo          = d1To.getDate();
-                if(MMTo<10){
-                    MMTo = '0'+MMTo;
-                }
-                if(ddTo<10){
-                    ddTo = '0'+ddTo;
-                }
-                studyDate.to      = yyyyTo+MMTo+ddTo;
-                // console.log("in updateTo date studyDate.ScheduledProcedureStepEndDate",studyDate.ScheduledProcedureStepEndDate);
-                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].to     = yyyyTo+MMTo+ddTo;
-                // console.log("in updateTo date studyDate.ScheduledProcedureStepEndDate",ScheduledProcedureStepSequence.ScheduledProcedureStepEndDate);
+                var yyyymmdd = $filter('date')(Date.parse(studyDate.toObject), 'yyyyMMdd');
+                studyDate.to = yyyymmdd;
+                scope["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"].to = yyyymmdd;
             }else{
                 studyDate.to      = "";
             }
