@@ -31,7 +31,7 @@
     },
     "dcmAcceptPreviousRejectedInstance": {
       "title": "Accept Previous Rejected Instance",
-      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note",
+      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note. Enumerated values: REJECT, RESTORE, IGNORE. REJECT if absent.",
       "type": "string",
       "enum": [
         "REJECT",
