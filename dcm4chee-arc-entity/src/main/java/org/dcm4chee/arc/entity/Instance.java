@@ -49,10 +49,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Availability;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author Damien Evans <damien.daddy@gmail.com>
@@ -237,9 +234,10 @@ public class Instance {
     @JoinColumn(name = "instance_fk")
     private Collection<VerifyingObserver> verifyingObservers;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "instance_fk")
-    private Collection<ExternalRetrieveAETitle> externalRetrieveAETs;
+    @ElementCollection
+    @CollectionTable(name = "ext_retrieve_aet", joinColumns = @JoinColumn(name = "instance_fk"))
+    @Column(name = "retrieve_aet")
+    private Set<String> externalRetrieveAETs;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "instance_fk")
@@ -375,38 +373,21 @@ public class Instance {
         return verifyingObservers;
     }
 
-    public Collection<ExternalRetrieveAETitle> getExternalRetrieveAETitles() {
+    public Set<String> getExternalRetrieveAETitles() {
         if (externalRetrieveAETs == null)
-            externalRetrieveAETs = new ArrayList<>();
+            externalRetrieveAETs = new HashSet<>();
         return externalRetrieveAETs;
     }
 
-    public Collection<String> getExternalRetrieveAETs() {
-        if (externalRetrieveAETs == null || externalRetrieveAETs.isEmpty())
-            return Collections.emptyList();
-
-        ArrayList<String> aets = new ArrayList<String>(externalRetrieveAETs.size());
-        for (ExternalRetrieveAETitle entity : externalRetrieveAETs) {
-            aets.add(entity.getRetrieveAET());
-        }
-        return aets;
-    }
-
-    public boolean containsExternalRetrieveAET(String aet) {
+    public Set<String> getExternalRetrieveAETs() {
         if (externalRetrieveAETs == null)
-            return false;
+            externalRetrieveAETs = new HashSet();
 
-        for (ExternalRetrieveAETitle entity : externalRetrieveAETs) {
-            if (entity.getRetrieveAET().equals(aet))
-                return true;
-        }
-
-        return false;
+        return externalRetrieveAETs;
     }
 
     public boolean addExternalRetrieveAET(String aet) {
-        return !containsExternalRetrieveAET(aet)
-                && getExternalRetrieveAETitles().add(new ExternalRetrieveAETitle(aet));
+        return getExternalRetrieveAETitles().add(aet);
     }
 
     public Collection<ContentItem> getContentItems() {

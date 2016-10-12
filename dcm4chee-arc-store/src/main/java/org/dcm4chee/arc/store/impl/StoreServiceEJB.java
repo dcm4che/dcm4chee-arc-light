@@ -332,9 +332,11 @@ public class StoreServiceEJB {
                 arg);
     }
 
-    private Long countLocationsByMultiRef(Integer multiRef) {
-        return em.createNamedQuery(Location.COUNT_BY_MULTI_REF, Long.class)
-                .setParameter(1, multiRef).getSingleResult();
+    private long countLocationsByMultiRef(Integer multiRef) {
+        return multiRef != null
+                ? em.createNamedQuery(Location.COUNT_BY_MULTI_REF, Long.class)
+                    .setParameter(1, multiRef).getSingleResult()
+                : 0L;
     }
 
     private Long countLocationsByUIDMap(UIDMap uidMap) {
@@ -343,21 +345,19 @@ public class StoreServiceEJB {
         return result;
     }
 
-    public Location processLocation(Location location, HashSet<UIDMap> uidMaps) {
-        if (location.getMultiReference() != null) {
-            UIDMap uidMap = location.getUidMap();
-            if (uidMap != null)
-                uidMaps.add(uidMap);
-            if (countLocationsByMultiRef(location.getMultiReference()) > 1)
-                em.remove(location);
-            else {
-                if (uidMap != null)
-                    location.setUidMap(null);
-                markToDelete(location);
-            }
-        } else
+    public void removeOrMarkToDelete(Location location) {
+        if (countLocationsByMultiRef(location.getMultiReference()) > 1) {
+            em.remove(location);
+        } else {
             markToDelete(location);
-        return location;
+        }
+    }
+
+    private void markToDelete(Location location) {
+        location.setMultiReference(null);
+        location.setUidMap(null);
+        location.setInstance(null);
+        location.setStatus(Location.Status.TO_DELETE);
     }
 
     public void removeOrphaned(UIDMap uidMap) {
@@ -365,19 +365,16 @@ public class StoreServiceEJB {
             em.remove(uidMap);
     }
 
-    private Location markToDelete(Location location) {
-        location.setInstance(null);
-        location.setStatus(Location.Status.TO_DELETE);
-        return location;
-    }
-
     private void deleteInstance(Instance instance, StoreContext ctx) {
         Collection<Location> locations = instance.getLocations();
-        HashSet<UIDMap> uidMaps = new HashSet<>();
+        HashMap<Long, UIDMap> uidMaps = new HashMap<>();
         for (Location location : locations) {
-            processLocation(location, uidMaps);
+            UIDMap uidMap = location.getUidMap();
+            if (uidMap != null)
+                uidMaps.put(uidMap.getPk(), uidMap);
+            removeOrMarkToDelete(location);
         }
-        for (UIDMap uidMap : uidMaps)
+        for (UIDMap uidMap : uidMaps.values())
             removeOrphaned(uidMap);
         locations.clear();
         Series series = instance.getSeries();

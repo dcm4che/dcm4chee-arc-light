@@ -83,6 +83,11 @@ import java.util.*;
             "where st.storageIDs = ?1 " +
             "order by st.accessTime"),
 @NamedQuery(
+    name=Study.FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET,
+    query="select st.pk from Study st " +
+            "where st.storageIDs = ?1 and ?2 member of st.externalRetrieveAETs " +
+            "order by st.accessTime"),
+@NamedQuery(
     name=Study.UPDATE_ACCESS_TIME,
     query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1"),
 @NamedQuery(
@@ -135,6 +140,7 @@ public class Study {
     public static final String FIND_BY_STUDY_IUID = "Study.findByStudyIUID";
     public static final String FIND_BY_STUDY_IUID_EAGER = "Study.findByStudyIUIDEager";
     public static final String FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME = "Study.findPkByStorageIDOrderByAccessTime";
+    public static final String FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET = "Study.findPkByStorageIDAndExtRetrAET";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
     public static final String SET_FAILED_SOP_INSTANCE_UID_LIST = "Study.SetFailedSOPInstanceUIDList";
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
@@ -247,9 +253,11 @@ public class Study {
     @OneToMany(mappedBy = "study", cascade=CascadeType.ALL)
     private Collection<StudyQueryAttributes> queryAttributes;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "study_fk")
-    private Collection<StudyExternalRetrieveAETitle> externalRetrieveAETs;
+    @ElementCollection
+    @CollectionTable(name = "study_ext_retrieve_aet", joinColumns = @JoinColumn(name = "study_fk"),
+            indexes = @Index(columnList = "retrieve_aet"))
+    @Column(name = "retrieve_aet")
+    private Set<String> externalRetrieveAETs;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_fk")
@@ -420,28 +428,15 @@ public class Study {
         return procedureCodes;
     }
 
-    public Collection<StudyExternalRetrieveAETitle> getExternalRetrieveAETs() {
+    public Set<String> getExternalRetrieveAETs() {
         if (externalRetrieveAETs == null)
-            externalRetrieveAETs = new ArrayList<>();
+            externalRetrieveAETs = new HashSet<>();
 
         return externalRetrieveAETs;
     }
 
-    public boolean containsExternalRetrieveAET(String aet) {
-        if (externalRetrieveAETs == null)
-            return false;
-
-        for (StudyExternalRetrieveAETitle entity : externalRetrieveAETs) {
-            if (entity.getRetrieveAET().equals(aet))
-                return true;
-        }
-
-        return false;
-    }
-
     public boolean addExternalRetrieveAET(String aet) {
-        return !containsExternalRetrieveAET(aet)
-                && getExternalRetrieveAETs().add(new StudyExternalRetrieveAETitle(aet));
+        return getExternalRetrieveAETs().add(aet);
     }
 
     public void clearExternalRetrieveAETs() {

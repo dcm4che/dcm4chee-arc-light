@@ -151,11 +151,15 @@ public class PurgeStorageScheduler extends Scheduler {
     }
 
     private List<Long> deleteStudy(List<Long> studyPks, StorageDescriptor desc, int fetchSize, boolean deletePatient) {
+        String externalRetrieveAETitle = desc.getExternalRetrieveAETitle();
         boolean studyRemoved = false;
         while (!studyRemoved) {
             if (studyPks.isEmpty()) {
                 try {
-                    studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+                    studyPks = externalRetrieveAETitle == null
+                            ? ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize)
+                            : ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(
+                                    desc.getStorageID(), externalRetrieveAETitle, fetchSize);
                 } catch (Exception e) {
                     LOG.warn("Query for studies for deletion on {} failed", desc.getStorageURI(), e);
                     return null;
@@ -168,10 +172,15 @@ public class PurgeStorageScheduler extends Scheduler {
             Long studyPk = studyPks.remove(0);
             StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
             ctx.setDeletePatientOnDeleteLastStudy(deletePatient);
+            ctx.setExternalRetrieveAETitle(externalRetrieveAETitle);
             try {
                 studyRemoved = ejb.removeStudyOnStorage(ctx);
                 if (studyRemoved) {
-                    LOG.info("Successfully delete {} on {} from database", ctx.getStudy(), desc.getStorageURI());
+                    if (externalRetrieveAETitle == null)
+                        LOG.info("Successfully delete {} on {} from database", ctx.getStudy(), desc.getStorageURI());
+                    else
+                        LOG.info("Successfully delete external retrieveable {} on {}",
+                                ctx.getStudy(), desc.getStorageURI());
                 } else {
                     LOG.warn("Failed to delete {} on {}", ctx.getStudy(), desc.getStorageURI(), ctx.getException());
                 }

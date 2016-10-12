@@ -78,4 +78,8 @@ public interface StudyDeleteContext {
     boolean isDeletePatientOnDeleteLastStudy();
 
     void setDeletePatientOnDeleteLastStudy(boolean deletePatientOnDeleteLastStudy);
+
+    String getExternalRetrieveAETitle();
+
+    void setExternalRetrieveAETitle(String externalRetrieveAETitle);
 }

@@ -59,7 +59,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -96,6 +95,14 @@ public class DeletionServiceEJB {
     public List<Long> findStudiesForDeletionOnStorage(String storageID, int limit) {
         return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME, Long.class)
                 .setParameter(1, storageID)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    public List<Long> findStudiesForDeletionOnStorageWithExternalRetrieveAET(String storageID, String aet, int limit) {
+        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET, Long.class)
+                .setParameter(1, storageID)
+                .setParameter(2, aet)
                 .setMaxResults(limit)
                 .getResultList();
     }
@@ -147,14 +154,21 @@ public class DeletionServiceEJB {
             return 0;
 
         HashMap<Long,Instance> insts = new HashMap<>();
-        HashSet<UIDMap> uidMaps = new HashSet<>();
+        HashMap<Long, UIDMap> uidMaps = new HashMap<>();
         for (Location location : locations) {
             Instance inst = location.getInstance();
             insts.put(inst.getPk(), inst);
-            storeEjb.processLocation(location, uidMaps);
+            UIDMap uidMap = location.getUidMap();
+            if (uidMap != null)
+                uidMaps.put(uidMap.getPk(), uidMap);
+            storeEjb.removeOrMarkToDelete(location);
         }
-        for (UIDMap uidMap : uidMaps)
+        for (UIDMap uidMap : uidMaps.values())
             storeEjb.removeOrphaned(uidMap);
+
+        if (studyDeleteContext.getExternalRetrieveAETitle() != null)
+            return insts.size();
+
         HashMap<Long,Series> series = new HashMap<>();
         for (Instance inst : insts.values()) {
             Series ser = inst.getSeries();
