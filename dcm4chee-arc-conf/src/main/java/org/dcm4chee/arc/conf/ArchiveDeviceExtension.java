@@ -390,7 +390,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setIanTaskFetchSize(int ianTaskFetchSize) {
-        this.ianTaskFetchSize = ianTaskFetchSize;
+        if (checkValidFetchSize(ianTaskFetchSize))
+            this.ianTaskFetchSize = ianTaskFetchSize;
     }
 
     public String getFallbackCMoveSCP() {
@@ -446,7 +447,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setExportTaskFetchSize(int exportTaskFetchSize) {
-        this.exportTaskFetchSize = exportTaskFetchSize;
+        if (checkValidFetchSize(exportTaskFetchSize))
+            this.exportTaskFetchSize = exportTaskFetchSize;
     }
 
     public Duration getExportTaskPollingInterval() {
@@ -470,7 +472,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setDeleteRejectedFetchSize(int deleteRejectedFetchSize) {
-        this.deleteRejectedFetchSize = deleteRejectedFetchSize;
+        if (checkValidFetchSize(deleteRejectedFetchSize))
+            this.deleteRejectedFetchSize = deleteRejectedFetchSize;
     }
 
     public Duration getPurgeStoragePollingInterval() {
@@ -486,7 +489,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setPurgeStorageFetchSize(int purgeStorageFetchSize) {
-        this.purgeStorageFetchSize = purgeStorageFetchSize;
+        if (checkValidFetchSize(purgeStorageFetchSize))
+            this.purgeStorageFetchSize = purgeStorageFetchSize;
     }
 
     public int getDeleteStudyBatchSize() {
@@ -494,7 +498,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setDeleteStudyBatchSize(int deleteStudyBatchSize) {
-        this.deleteStudyBatchSize = deleteStudyBatchSize;
+        if (checkValidFetchSize(deleteStudyBatchSize))
+            this.deleteStudyBatchSize = deleteStudyBatchSize;
     }
 
     public boolean isDeletePatientOnDeleteLastStudy() {
@@ -546,7 +551,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setLeadingCFindSCPQueryCacheSize(int leadingCFindSCPQueryCacheSize) {
-        this.leadingCFindSCPQueryCacheSize = leadingCFindSCPQueryCacheSize;
+        if (checkValidFetchSize(leadingCFindSCPQueryCacheSize))
+            this.leadingCFindSCPQueryCacheSize = leadingCFindSCPQueryCacheSize;
     }
 
     public String getAuditSpoolDirectory() {
@@ -614,7 +620,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setRejectExpiredStudiesFetchSize(int rejectExpiredStudiesFetchSize) {
-        this.rejectExpiredStudiesFetchSize = rejectExpiredStudiesFetchSize;
+        if (checkValidFetchSize(rejectExpiredStudiesFetchSize))
+            this.rejectExpiredStudiesFetchSize = rejectExpiredStudiesFetchSize;
     }
 
     public int getRejectExpiredSeriesFetchSize() {
@@ -622,7 +629,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setRejectExpiredSeriesFetchSize(int rejectExpiredSeriesFetchSize) {
-        this.rejectExpiredSeriesFetchSize = rejectExpiredSeriesFetchSize;
+        if (checkValidFetchSize(rejectExpiredSeriesFetchSize))
+            this.rejectExpiredSeriesFetchSize = rejectExpiredSeriesFetchSize;
     }
 
     public Duration getRejectExpiredStudiesPollingInterval() {
@@ -746,7 +754,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setStorePermissionCacheSize(int storePermissionCacheSize) {
-        this.storePermissionCacheSize = storePermissionCacheSize;
+        if (checkValidFetchSize(storePermissionCacheSize))
+            this.storePermissionCacheSize = storePermissionCacheSize;
     }
 
     public int getStoreUpdateDBMaxRetries() {
@@ -891,6 +900,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void addExporterDescriptor(ExporterDescriptor destination) {
         exporterDescriptorMap.put(destination.getExporterID(), destination);
+    }
+
+    private boolean checkValidFetchSize(int size) {
+        if (size < 0)
+            throw new IllegalArgumentException("Fetch size : " + size);
+        return true;
     }
 
     public Collection<ExporterDescriptor> getExporterDescriptors() {
