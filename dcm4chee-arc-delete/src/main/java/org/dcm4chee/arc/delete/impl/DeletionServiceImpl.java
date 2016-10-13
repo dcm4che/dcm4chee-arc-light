@@ -179,7 +179,7 @@ public class DeletionServiceImpl implements DeletionService {
         ctx.setPatient(study.getPatient());
         ctx.setDeletePatientOnDeleteLastStudy(false);
         if (study.getRejectionState() == RejectionState.COMPLETE || allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS) {
-            ejb.removeStudyOnStorage(ctx);
+            ejb.deleteStudy(ctx);
             return true;
         }
         else if (study.getRejectionState() == RejectionState.EMPTY) {

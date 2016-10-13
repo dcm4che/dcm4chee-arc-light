@@ -119,15 +119,21 @@ public class DeletionServiceEJB {
         em.remove(em.merge(location));
     }
 
-    public boolean removeStudyOnStorage(StudyDeleteContext ctx) {
+    public Study deleteStudy(StudyDeleteContext ctx) {
         Long studyPk = ctx.getStudyPk();
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                                     .setParameter(1, studyPk)
                                     .getResultList();
+        return deleteStudy(removeOrMarkToDelete(locations, Integer.MAX_VALUE), ctx);
+    }
+
+    public Study deleteObjectsOfStudy(Long studyPk, String storageID) {
+        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_ID, Location.class)
+                                    .setParameter(1, studyPk)
+                                    .setParameter(2, storageID)
+                                    .getResultList();
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE);
-        if (ctx.getExternalRetrieveAETitle() == null)
-            deleteStudy(insts, ctx);
-        return true;
+        return insts.iterator().next().getSeries().getStudy();
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
@@ -215,7 +221,7 @@ public class DeletionServiceEJB {
         }
     }
 
-    private void deleteStudy(Collection<Instance> insts, StudyDeleteContext ctx) {
+    private Study deleteStudy(Collection<Instance> insts, StudyDeleteContext ctx) {
         Patient patient = null;
         Study study = null;
         HashMap<Long,Series> series = new HashMap<>();
@@ -243,6 +249,7 @@ public class DeletionServiceEJB {
             patMgtCtx.setPatientID(IDWithIssuer.pidOf(patient.getAttributes()));
             patientService.deletePatientIfHasNoMergedWith(patMgtCtx);
         }
+        return study;
     }
 
     private boolean hasRejectedInstances(Series series) {

@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
@@ -60,7 +61,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -115,15 +115,15 @@ public class PurgeStorageScheduler extends Scheduler {
 
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
-            List<Long> studyPks = Collections.emptyList();
             if (deleteSize > 0L) {
                 LOG.info("Usable Space on {} below {} - start deleting {}", desc.getStorageURI(),
                         BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
             }
             for (int i = 0; i == 0 || deleteSize > 0L; i++) {
-                if (deleteSize > 0) {
-                    studyPks = deleteStudy(studyPks, desc, deleteStudyBatchSize, deletePatient);
-                    if (studyPks == null)
+                if (deleteSize > 0L) {
+                    if ((desc.getExternalRetrieveAETitle() == null
+                            ? deleteStudies(desc, deleteStudyBatchSize, deletePatient)
+                            : deleteObjectsOfStudies(desc, deleteStudyBatchSize)) == 0)
                         deleteSize = 0L;
                 }
                 try {
@@ -150,49 +150,62 @@ public class PurgeStorageScheduler extends Scheduler {
         }
     }
 
-    private List<Long> deleteStudy(List<Long> studyPks, StorageDescriptor desc, int fetchSize, boolean deletePatient) {
-        String externalRetrieveAETitle = desc.getExternalRetrieveAETitle();
-        boolean studyRemoved = false;
-        while (!studyRemoved) {
-            if (studyPks.isEmpty()) {
-                try {
-                    studyPks = externalRetrieveAETitle == null
-                            ? ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize)
-                            : ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(
-                                    desc.getStorageID(), externalRetrieveAETitle, fetchSize);
-                } catch (Exception e) {
-                    LOG.warn("Query for studies for deletion on {} failed", desc.getStorageURI(), e);
-                    return null;
-                }
-                if (studyPks.isEmpty()) {
-                    LOG.warn("No studies for deletion found on {}", desc.getStorageURI());
-                    return null;
-                }
-            }
-            Long studyPk = studyPks.remove(0);
+    private int deleteStudies(StorageDescriptor desc, int fetchSize, boolean deletePatient) {
+        List<Long> studyPks;
+        try {
+           studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+        } catch (Exception e) {
+            LOG.warn("Query for studies for deletion on {} failed", desc.getStorageURI(), e);
+            return 0;
+        }
+        if (studyPks.isEmpty()) {
+            LOG.warn("No studies for deletion found on {}", desc.getStorageURI());
+            return 0;
+        }
+        int removed = 0;
+        for (Long studyPk : studyPks) {
             StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
             ctx.setDeletePatientOnDeleteLastStudy(deletePatient);
-            ctx.setExternalRetrieveAETitle(externalRetrieveAETitle);
             try {
-                studyRemoved = ejb.removeStudyOnStorage(ctx);
-                if (studyRemoved) {
-                    if (externalRetrieveAETitle == null)
-                        LOG.info("Successfully delete {} on {} from database", ctx.getStudy(), desc.getStorageURI());
-                    else
-                        LOG.info("Successfully delete external retrieveable {} on {}",
-                                ctx.getStudy(), desc.getStorageURI());
-                } else {
-                    LOG.warn("Failed to delete {} on {}", ctx.getStudy(), desc.getStorageURI(), ctx.getException());
-                }
+                Study study = ejb.deleteStudy(ctx);
+                removed++;
+                LOG.info("Successfully delete {} on {}", study, desc.getStorageURI());
                 studyDeletedEvent.fire(ctx);
             } catch (Exception e) {
-                LOG.warn("Failed to delete {} on {}", ctx.getStudy(), desc.getStorageURI(), e);
+                LOG.warn("Failed to delete Study[pk={}] on {}", studyPk, desc.getStorageURI(), e);
                 ctx.setException(e);
                 studyDeletedEvent.fire(ctx);
-                return null;
             }
         }
-        return studyPks;
+        return removed;
+    }
+
+    private int deleteObjectsOfStudies(StorageDescriptor desc, int fetchSize) {
+        List<Long> studyPks;
+        try {
+           studyPks = ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(
+                    desc.getStorageID(), desc.getExternalRetrieveAETitle(), fetchSize);
+        } catch (Exception e) {
+            LOG.warn("Query for studies available at {} for deletion on {} failed",
+                    desc.getExternalRetrieveAETitle(), desc.getStorageURI(), e);
+            return 0;
+        }
+        if (studyPks.isEmpty()) {
+            LOG.warn("No studies available at {} for deletion found on {}",
+                    desc.getExternalRetrieveAETitle(), desc.getStorageURI());
+            return 0;
+        }
+        int removed = 0;
+        for (Long studyPk : studyPks) {
+            try {
+                Study study = ejb.deleteObjectsOfStudy(studyPk, desc.getStorageID());
+                removed++;
+                LOG.info("Successfully delete objects of {} on {}", study, desc.getStorageURI());
+            } catch (Exception e) {
+                LOG.warn("Failed to delete objects of Study[pk={}] on {}", studyPk, desc.getStorageURI(), e);
+            }
+        }
+        return removed;
     }
 
     private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) throws IOException {

@@ -63,7 +63,6 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     private Exception exception;
     private HttpServletRequest request;
     private boolean deletePatientOnDeleteLastStudy;
-    private String externalRetrieveAETitle;
 
     public StudyDeleteContextImpl(Long studyPk) {
         this.studyPk = studyPk;
@@ -132,15 +131,5 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     @Override
     public void setDeletePatientOnDeleteLastStudy(boolean deletePatientOnDeleteLastStudy) {
         this.deletePatientOnDeleteLastStudy = deletePatientOnDeleteLastStudy;
-    }
-
-    @Override
-    public String getExternalRetrieveAETitle() {
-        return externalRetrieveAETitle;
-    }
-
-    @Override
-    public void setExternalRetrieveAETitle(String externalRetrieveAETitle) {
-        this.externalRetrieveAETitle = externalRetrieveAETitle;
     }
 }

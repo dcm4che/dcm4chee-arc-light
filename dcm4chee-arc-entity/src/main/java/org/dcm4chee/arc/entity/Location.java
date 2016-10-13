@@ -61,6 +61,8 @@ import java.util.Date;
                 query = "select l from Location l where l.storageID=?1 and l.status=?2"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK,
                 query = "select l from Location l where l.instance.series.study.pk=?1"),
+        @NamedQuery(name = Location.FIND_BY_STUDY_PK_AND_STORAGE_ID,
+                query = "select l from Location l where l.instance.series.study.pk=?1 and l.storageID=?2"),
         @NamedQuery(name = Location.FIND_BY_REJECTION_CODE,
                 query = "select l from Location l join l.instance i " +
                         "where i.rejectionNoteCode=?1 order by i.pk"),
@@ -82,6 +84,7 @@ public class Location {
 
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
     public static final String FIND_BY_STUDY_PK = "Location.FindByStudyPk";
+    public static final String FIND_BY_STUDY_PK_AND_STORAGE_ID = "Location.FindByStudyPkAndStorageID";
     public static final String FIND_BY_REJECTION_CODE = "Location.FindByRejectionCode";
     public static final String FIND_BY_CONCEPT_NAME_CODE = "Location.FindByConceptNameCode";
     public static final String FIND_BY_REJECTION_CODE_BEFORE = "Location.FindByRejectionCodeBefore";
