@@ -57,6 +57,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +69,8 @@ import java.util.List;
  */
 @Stateless
 public class DeletionServiceEJB {
+
+    public static final int MAX_LOCATIONS_PER_INSTANCE = 2;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -121,7 +124,9 @@ public class DeletionServiceEJB {
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                                     .setParameter(1, studyPk)
                                     .getResultList();
-        deleteInstances(locations, ctx);
+        Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE);
+        if (ctx.getExternalRetrieveAETitle() == null)
+            deleteStudy(insts, ctx);
         return true;
     }
 
@@ -133,7 +138,9 @@ public class DeletionServiceEJB {
             query.setParameter(2, before);
 
         List<Location> locations = query.setMaxResults(limit).getResultList();
-        return deleteInstances(locations, null);
+        if (!locations.isEmpty())
+            deleteInstances(removeOrMarkToDelete(locations, limit));
+        return locations.size();
     }
 
     public void deleteEmptyStudy(StudyDeleteContext ctx) {
@@ -148,16 +155,18 @@ public class DeletionServiceEJB {
             em.remove(mwlItem);
     }
 
-    private int deleteInstances(List<Location> locations, StudyDeleteContext studyDeleteContext) {
-        boolean deletePatient = studyDeleteContext != null && studyDeleteContext.isDeletePatientOnDeleteLastStudy();
-        if (locations.isEmpty())
-            return 0;
-
-        HashMap<Long,Instance> insts = new HashMap<>();
-        HashMap<Long, UIDMap> uidMaps = new HashMap<>();
+    private Collection<Instance> removeOrMarkToDelete(List<Location> locations, int limit) {
+        int size = locations.size();
+        int initialCapacity = size * 4 / 3;
+        HashMap<Long, Instance> insts = new HashMap<>(initialCapacity);
+        HashMap<Long, UIDMap> uidMaps = new HashMap<>(initialCapacity);
+        Instance prev = null;
+        int n = limit - (MAX_LOCATIONS_PER_INSTANCE - 1);
         for (Location location : locations) {
             Instance inst = location.getInstance();
-            insts.put(inst.getPk(), inst);
+            if (n-- <= 0 && prev != inst) // ensure to detach all locations of returned instances
+                break;
+            insts.put(inst.getPk(), prev = inst);
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
@@ -165,20 +174,17 @@ public class DeletionServiceEJB {
         }
         for (UIDMap uidMap : uidMaps.values())
             storeEjb.removeOrphaned(uidMap);
+        return insts.values();
+    }
 
-        if (studyDeleteContext != null && studyDeleteContext.getExternalRetrieveAETitle() != null)
-            return insts.size();
-
+    private void deleteInstances(Collection<Instance> insts) {
         HashMap<Long,Series> series = new HashMap<>();
-        for (Instance inst : insts.values()) {
+        for (Instance inst : insts) {
             Series ser = inst.getSeries();
             if (!series.containsKey(ser.getPk())) {
                 series.put(ser.getPk(), ser);
                 deleteSeriesQueryAttributes(ser);
             }
-            if (studyDeleteContext != null)
-                studyDeleteContext.addInstance(inst);
-            em.remove(inst);
         }
         HashMap<Long,Study> studies = new HashMap<>();
         for (Series ser : series.values()) {
@@ -186,12 +192,8 @@ public class DeletionServiceEJB {
             if (!studies.containsKey(study.getPk())) {
                 studies.put(study.getPk(), study);
                 deleteStudyQueryAttributes(study);
-                if (studyDeleteContext != null) {
-                    studyDeleteContext.setStudy(study);
-                    studyDeleteContext.setPatient(study.getPatient());
-                }
-            }
-            if (studyDeleteContext != null || countInstancesOfSeries(ser) == 0) {
+           }
+            if (countInstancesOfSeries(ser) == 0) {
                 em.remove(ser);
             } else {
                 studies.put(study.getPk(), null);
@@ -199,34 +201,48 @@ public class DeletionServiceEJB {
                     ser.setRejectionState(RejectionState.NONE);
             }
         }
-        HashMap<Long,Patient> patients = new HashMap<>();
         for (Study study : studies.values()) {
             if (study == null)
                 continue;
 
-            Patient patient = study.getPatient();
-            if (studyDeleteContext != null || countSeriesOfStudy(study) == 0) {
+            if (countSeriesOfStudy(study) == 0) {
                 em.remove(study);
-                if (deletePatient && !patients.containsKey(patient.getPk()))
-                    patients.put(patient.getPk(), patient);
             } else {
-                patients.put(patient.getPk(), null);
                 if (study.getRejectionState() == RejectionState.PARTIAL
                         && !hasSeriesWithOtherRejectionState(study, RejectionState.NONE))
                     study.setRejectionState(RejectionState.NONE);
             }
         }
-        for (Patient patient : patients.values()) {
-            if (patient != null && countStudiesOfPatient(patient) == 0) {
-                PatientMgtContext ctx = patientService.createPatientMgtContextScheduler(getApplicationEntity());
-                ctx.setPatient(patient);
-                ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
-                ctx.setAttributes(patient.getAttributes());
-                ctx.setPatientID(IDWithIssuer.pidOf(patient.getAttributes()));
-                patientService.deletePatientIfHasNoMergedWith(ctx);
+    }
+
+    private void deleteStudy(Collection<Instance> insts, StudyDeleteContext ctx) {
+        Patient patient = null;
+        Study study = null;
+        HashMap<Long,Series> series = new HashMap<>();
+        for (Instance inst : insts) {
+            Series ser = inst.getSeries();
+            if (!series.containsKey(ser.getPk())) {
+                series.put(ser.getPk(), ser);
             }
+            ctx.addInstance(inst);
+            em.remove(inst);
         }
-        return insts.size();
+        for (Series ser : series.values()) {
+            if (study == null) {
+                ctx.setStudy(study = ser.getStudy());
+                ctx.setPatient(patient = study.getPatient());
+            }
+            em.remove(ser);
+        }
+        em.remove(study);
+        if (ctx.isDeletePatientOnDeleteLastStudy() && countStudiesOfPatient(patient) == 0) {
+            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler(getApplicationEntity());
+            patMgtCtx.setPatient(patient);
+            patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+            patMgtCtx.setAttributes(patient.getAttributes());
+            patMgtCtx.setPatientID(IDWithIssuer.pidOf(patient.getAttributes()));
+            patientService.deletePatientIfHasNoMergedWith(patMgtCtx);
+        }
     }
 
     private boolean hasRejectedInstances(Series series) {

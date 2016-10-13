@@ -63,16 +63,16 @@ import java.util.Date;
                 query = "select l from Location l where l.instance.series.study.pk=?1"),
         @NamedQuery(name = Location.FIND_BY_REJECTION_CODE,
                 query = "select l from Location l join l.instance i " +
-                        "where i.rejectionNoteCode=?1"),
+                        "where i.rejectionNoteCode=?1 order by i.pk"),
         @NamedQuery(name = Location.FIND_BY_CONCEPT_NAME_CODE,
                 query = "select l from Location l join l.instance i " +
-                        "where i.conceptNameCode=?1"),
+                        "where i.conceptNameCode=?1 order by i.pk"),
         @NamedQuery(name = Location.FIND_BY_REJECTION_CODE_BEFORE,
                 query = "select l from Location l join l.instance i " +
-                        "where i.rejectionNoteCode=?1 and i.updatedTime<?2"),
+                        "where i.rejectionNoteCode=?1 and i.updatedTime<?2 order by i.pk"),
         @NamedQuery(name = Location.FIND_BY_CONCEPT_NAME_CODE_BEFORE,
                 query = "select l from Location l join l.instance i " +
-                        "where i.conceptNameCode=?1 and i.updatedTime<?2"),
+                        "where i.conceptNameCode=?1 and i.updatedTime<?2 order by i.pk"),
         @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
