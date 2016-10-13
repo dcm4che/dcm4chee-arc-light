@@ -212,19 +212,6 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         AAssociateRQ aarq = mkAAssociateRQ(localAE, localAET, TransferCapability.Role.SCU);
         Association as = localAE.connect(remoteAE, aarq);
         try {
-            DimseRSP dimseRSP = as.naction(
-                    UID.StorageCommitmentPushModelSOPClass,
-                    UID.StorageCommitmentPushModelSOPInstance,
-                    1, actionInfo, null);
-            dimseRSP.next();
-            Attributes cmd = dimseRSP.getCommand();
-            int status = cmd.getInt(Tag.Status, -1);
-            if (status != Status.Success)
-                return new Outcome(QueueMessage.Status.WARNING,
-                        "Request Storage Commitment Request from AE: " + remoteAET
-                                + " failed with status: " + TagUtils.shortToHexString(status)
-                                + "H, error comment: " + cmd.getString(Tag.ErrorComment));
-
             StgCmtResult result = new StgCmtResult();
             result.setStgCmtRequest(actionInfo);
             result.setStudyInstanceUID(studyInstanceUID);
@@ -233,9 +220,26 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             result.setExporterID(exporterID);
             result.setDeviceName(device.getDeviceName());
             ejb.persistStgCmtResult(result);
-            return new Outcome(QueueMessage.Status.COMPLETED,
-                "Request Storage Commitment Request from AE: " + remoteAET);
-        } finally {
+            DimseRSP dimseRSP = as.naction(
+                    UID.StorageCommitmentPushModelSOPClass,
+                    UID.StorageCommitmentPushModelSOPInstance,
+                    1, actionInfo, null);
+            dimseRSP.next();
+            Attributes cmd = dimseRSP.getCommand();
+            int status = cmd.getInt(Tag.Status, -1);
+            if (status != Status.Success) {
+                ejb.deleteStgCmt(actionInfo.getString(Tag.TransactionUID));
+                return new Outcome(QueueMessage.Status.WARNING,
+                        "Request Storage Commitment Request from AE: " + remoteAET
+                                + " failed with status: " + TagUtils.shortToHexString(status)
+                                + "H, error comment: " + cmd.getString(Tag.ErrorComment));
+            }
+            return new Outcome(QueueMessage.Status.COMPLETED, "Request Storage Commitment Request from AE: " + remoteAET);
+        } catch (Exception e) {
+            ejb.deleteStgCmt(actionInfo.getString(Tag.TransactionUID));
+            throw e;
+        }
+        finally {
             try {
                 as.release();
             } catch (IOException e) {

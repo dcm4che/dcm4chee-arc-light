@@ -93,6 +93,8 @@ public class StgCmtEJB implements StgCmtManager {
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
         String transactionUID = eventInfo.getString(Tag.TransactionUID);
         StgCmtResult result = getStgCmtResult(transactionUID);
+        if (result == null)
+            return;
         updateExternalRetrieveAETs(eventInfo, result.getStudyInstanceUID(),
                 device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(result.getExporterID()));
         result.setStgCmtResult(eventInfo);
@@ -105,7 +107,7 @@ public class StgCmtEJB implements StgCmtManager {
                     .setParameter(1, transactionUID).getSingleResult();
         } catch (NoResultException e) {
             LOG.warn("No Storage Commitment result found with transaction UID : " + transactionUID);
-            throw e;
+            return null;
         }
         return result;
     }
@@ -197,11 +199,14 @@ public class StgCmtEJB implements StgCmtManager {
     public boolean deleteStgCmt(String transactionUID) {
         try {
             StgCmtResult result = getStgCmtResult(transactionUID);
-            em.remove(result);
-            return true;
-        } catch (NoResultException e) {
-            return false;
+            if (result != null) {
+                em.remove(result);
+                return true;
+            }
+        } catch (Exception e) {
+            LOG.warn("Deletion of Storage Commitment Result threw exception : " + e);
         }
+        return false;
     }
 
     @Override
