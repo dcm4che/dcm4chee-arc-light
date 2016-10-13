@@ -166,7 +166,7 @@ public class DeletionServiceEJB {
         for (UIDMap uidMap : uidMaps.values())
             storeEjb.removeOrphaned(uidMap);
 
-        if (studyDeleteContext.getExternalRetrieveAETitle() != null)
+        if (studyDeleteContext != null && studyDeleteContext.getExternalRetrieveAETitle() != null)
             return insts.size();
 
         HashMap<Long,Series> series = new HashMap<>();
