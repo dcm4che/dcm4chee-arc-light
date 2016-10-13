@@ -128,8 +128,8 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
             return;
         }
         int studyFetchSize = arcDev.getRejectExpiredStudiesFetchSize();
-        if (studyFetchSize == 0) {
-            LOG.warn("Study fetch size is 0");
+        if (studyFetchSize <= 0) {
+            LOG.warn("Study fetch size is <= 0");
             return;
         }
         List<Study> studies;
@@ -145,8 +145,8 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
             }
         } while (studyFetchSize == studies.size());
         int seriesFetchSize = arcDev.getRejectExpiredSeriesFetchSize();
-        if (seriesFetchSize == 0) {
-            LOG.warn("Series fetch size is 0");
+        if (seriesFetchSize <= 0) {
+            LOG.warn("Series fetch size is <= 0");
             return;
         }
         List<Series> seriesList;
