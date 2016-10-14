@@ -113,7 +113,7 @@ public class AuditService {
         Calendar eventTime = getEventTime(path, log());
         switch (eventType.eventClass) {
             case CONN_REJECT:
-                auditConnectionRejected(new AuditInfo(readerObj.getMainInfo()), eventType);
+                auditConnectionRejected(readerObj, eventTime, eventType);
                 break;
             case STORE_WADOR:
                 auditStoreOrWADORetrieve(readerObj, eventTime, eventType);
@@ -123,16 +123,16 @@ public class AuditService {
                 break;
             case DELETE:
             case PERM_DELETE:
-                auditDeletion(readerObj, eventType);
+                auditDeletion(readerObj, eventTime, eventType);
                 break;
             case QUERY:
-                auditQuery(path, eventType);
+                auditQuery(path, eventTime, eventType);
                 break;
             case HL7:
-                auditPatientRecord(new AuditInfo(readerObj.getMainInfo()), eventType);
+                auditPatientRecord(readerObj, eventTime, eventType);
                 break;
             case PROC_STUDY:
-                auditProcedureRecord(new AuditInfo(readerObj.getMainInfo()), eventType);
+                auditProcedureRecord(readerObj, eventTime, eventType);
                 break;
         }
     }
@@ -206,10 +206,10 @@ public class AuditService {
                 .pName(null != p.getPatientName().toString() ? getPlainOrHashedPatientName(p.getPatientName().toString()) : null).build();
     }
 
-    private void auditDeletion(SpoolFileReader readerObj, AuditServiceUtils.EventType eventType) {
+    private void auditDeletion(SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
         AuditInfo dI = new AuditInfo(readerObj.getMainInfo());
         EventIdentification ei = getCustomEI(eventType, dI.getField(AuditInfo.OUTCOME),
-                dI.getField(AuditInfo.WARNING), log().timeStamp());
+                dI.getField(AuditInfo.WARNING), eventTime);
         BuildActiveParticipant ap1 = null;
         if (eventType.isSource) {
             ap1 = new BuildActiveParticipant.Builder(
@@ -245,8 +245,9 @@ public class AuditService {
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.CONN__RJCT), obj);
     }
 
-    private void auditConnectionRejected(AuditInfo crI, AuditServiceUtils.EventType eventType) {
-        EventIdentification ei = getEI(eventType, crI.getField(AuditInfo.OUTCOME), log().timeStamp());
+    private void auditConnectionRejected(SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
+        AuditInfo crI = new AuditInfo(readerObj.getMainInfo());
+        EventIdentification ei = getEI(eventType, crI.getField(AuditInfo.OUTCOME), eventTime);
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(getAET(device),
                 crI.getField(AuditInfo.CALLED_HOST)).altUserID(AuditLogger.processID()).requester(false).build();
         String userID, napID;
@@ -324,11 +325,11 @@ public class AuditService {
                         .build());
     }
 
-    private void auditQuery(Path file, AuditServiceUtils.EventType eventType) throws IOException {
+    private void auditQuery(Path file, Calendar eventTime, AuditServiceUtils.EventType eventType) throws IOException {
         AuditInfo qrI;
         List<ActiveParticipant> apList;
         List<ParticipantObjectIdentification> poiList;
-        EventIdentification ei = getEI(eventType, null, log().timeStamp());
+        EventIdentification ei = getEI(eventType, null, eventTime);
         try (InputStream in = new BufferedInputStream(Files.newInputStream(file))) {
             qrI = new AuditInfo(new DataInputStream(in).readUTF());
             BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(qrI.getField(AuditInfo.CALLING_AET),
@@ -596,8 +597,9 @@ public class AuditService {
         }
     }
 
-    private void auditPatientRecord(AuditInfo hl7I, AuditServiceUtils.EventType et) {
-        EventIdentification ei = getEI(et, hl7I.getField(AuditInfo.OUTCOME), log().timeStamp());
+    private void auditPatientRecord(SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType et) {
+        AuditInfo hl7I = new AuditInfo(readerObj.getMainInfo());
+        EventIdentification ei = getEI(et, hl7I.getField(AuditInfo.OUTCOME), eventTime);
         BuildActiveParticipant ap1 = null;
         if (et.isSource)
              ap1 = new BuildActiveParticipant.Builder(hl7I.getField(AuditInfo.CALLING_AET),
@@ -673,8 +675,9 @@ public class AuditService {
         }
     }
 
-    private void auditProcedureRecord(AuditInfo prI, AuditServiceUtils.EventType et) {
-        EventIdentification ei = getEI(et, prI.getField(AuditInfo.OUTCOME), log().timeStamp());
+    private void auditProcedureRecord(SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType et) {
+        AuditInfo prI = new AuditInfo(readerObj.getMainInfo());
+        EventIdentification ei = getEI(et, prI.getField(AuditInfo.OUTCOME), eventTime);
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(prI.getField(AuditInfo.CALLING_AET),
                 prI.getField(AuditInfo.CALLING_HOST)).requester(et.isSource).build();
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(prI.getField(AuditInfo.CALLED_AET),
