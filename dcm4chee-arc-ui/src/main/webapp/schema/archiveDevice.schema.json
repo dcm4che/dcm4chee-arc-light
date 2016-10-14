@@ -445,7 +445,7 @@
     },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
-      "description": "AE Title associated with Storage System",
+      "description": "AE Title associated with Network AE",
       "type": "array",
       "items": {
         "type": "string"

@@ -54,7 +54,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.9 NAME 'dcmDigestAlgorithm'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.10 NAME 'dcmRetrieveAET'
-  DESC 'AE Title associated with Storage System'
+  DESC 'AE Title associated with Network AE'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
