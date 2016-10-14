@@ -1,4 +1,5 @@
 create index UK_6ry2squ4qcv129lxpae1oy93m on study (created_time);
+alter table study alter storage_ids drop not null;
 
 create table ext_retrieve_aet (instance_fk int8 not null, retrieve_aet varchar(255));
 alter table ext_retrieve_aet add constraint FK_h5738j9g4vrxxh0n06v74f9pq foreign key (instance_fk) references instance;
