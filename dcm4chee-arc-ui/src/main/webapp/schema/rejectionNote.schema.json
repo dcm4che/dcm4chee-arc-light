@@ -14,7 +14,7 @@
     },
     "dcmRejectionNoteType": {
       "title": "Rejection Note Type",
-      "description": "Rejection Note Type",
+      "description": "Type of Rejection Note. Enumerated values: REJECTED_FOR_QUALITY_REASONS, REJECTED_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY, DATA_RETENTION_POLICY_EXPIRED, REVOKE_REJECTION.",
       "type": "string",
       "enum": [
         "REJECTED_FOR_QUALITY_REASONS",

@@ -75,7 +75,7 @@
     },
     "dcmAttributeUpdatePolicy": {
       "title": "Attribute Update Policy",
-      "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP; MERGE, if absent",
+      "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE. If absent, MERGE will be applied.",
       "type": "string",
       "enum": [
         "SUPPLEMENT",
