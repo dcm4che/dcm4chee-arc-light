@@ -123,7 +123,7 @@ abstract class AbstractQuery implements Query {
         if (hasNext || rejected == 0 || limit != matches)
             return hasNext;
 
-        offset(offset + matches - rejected);
+        offset(offset + matches);
         limit(rejected);
         executeQuery();
         return results.hasNext();
