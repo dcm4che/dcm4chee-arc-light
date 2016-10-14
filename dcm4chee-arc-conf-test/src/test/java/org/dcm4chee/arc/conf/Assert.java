@@ -85,6 +85,7 @@ class Assert {
         assertEquals(expected.getFallbackCMoveSCP(), actual.getFallbackCMoveSCP());
         assertEquals(expected.getFallbackCMoveSCPDestination(), actual.getFallbackCMoveSCPDestination());
         assertEquals(expected.getAlternativeCMoveSCP(), actual.getAlternativeCMoveSCP());
+        assertArrayEquals(expected.getRetrieveAETitles(), actual.getRetrieveAETitles());
     }
 
     static void assertEqualsArchiveDeviceExtension(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
@@ -116,6 +117,7 @@ class Assert {
         assertEquals(expected.getMaxAccessTimeStaleness(), actual.getMaxAccessTimeStaleness());
         assertEquals(expected.getPatientUpdateTemplateURI(), actual.getPatientUpdateTemplateURI());
         assertEquals(expected.getUnzipVendorDataToURI(), actual.getUnzipVendorDataToURI());
+        assertArrayEquals(expected.getRetrieveAETitles(), actual.getRetrieveAETitles());
         assertChildren(expected, actual);
         assertExportRule(expected, actual);
         assertArchiveCompressionRule(expected, actual);
@@ -145,7 +147,6 @@ class Assert {
             assertEquals(expectedSD.getStorageID(), actualSD.getStorageID());
             assertEquals(expectedSD.getStorageURI(), actualSD.getStorageURI());
             assertEquals(expectedSD.getDigestAlgorithm(), actualSD.getDigestAlgorithm());
-            assertArrayEquals(expectedSD.getRetrieveAETitles(), actualSD.getRetrieveAETitles());
             assertEquals(expectedSD.getInstanceAvailability(), actualSD.getInstanceAvailability());
             assertArrayEquals(expectedSD.getDeleterThresholdsAsStrings(), actualSD.getDeleterThresholdsAsStrings());
             assertArrayEquals(toStrings(expectedSD.getProperties()), toStrings(actualSD.getProperties()));

@@ -256,7 +256,7 @@ public class StowRS {
                 purgeSpoolDirectory();
             }
         });
-        final StoreSession session = service.newStoreSession(request, getApplicationEntity());
+        final StoreSession session = service.newStoreSession(request, aet, getApplicationEntity());
         new MultipartParser(boundary()).parse(new BufferedInputStream(in), new MultipartParser.Handler() {
             @Override
             public void bodyPart(int partNumber, MultipartInputStream in) throws IOException {

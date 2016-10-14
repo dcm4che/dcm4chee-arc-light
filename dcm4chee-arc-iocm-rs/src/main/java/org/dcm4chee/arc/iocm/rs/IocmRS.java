@@ -453,7 +453,7 @@ public class IocmRS {
         if (attrs == null)
             throw new WebApplicationException(getResponse("No Study with UID: " + studyUID, Response.Status.NOT_FOUND));
 
-        StoreSession session = storeService.newStoreSession(request, ae);
+        StoreSession session = storeService.newStoreSession(request, aet, ae);
         StoreContext ctx = storeService.newStoreContext(session);
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
@@ -471,7 +471,7 @@ public class IocmRS {
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
 
         Map<String, String> uidMap = new HashMap<>();
-        StoreSession session = storeService.newStoreSession(request, ae);
+        StoreSession session = storeService.newStoreSession(request, aet, ae);
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
         if (instances.isEmpty())
             throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));

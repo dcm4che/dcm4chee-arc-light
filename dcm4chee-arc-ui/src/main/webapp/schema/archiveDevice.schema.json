@@ -443,6 +443,14 @@
       "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". If absent, the Error Code will be 0124H (Not Authorized).",
       "type": "string"
     },
+    "dcmRetrieveAET": {
+      "title": "Retrieve AE Title",
+      "description": "AE Title associated with Storage System",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",

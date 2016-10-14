@@ -67,6 +67,7 @@ class StoreSessionImpl implements StoreSession {
     private final Association as;
     private final HttpServletRequest httpRequest;
     private final ApplicationEntity ae;
+    private final String calledAET;
     private final Socket socket;
     private final HL7Segment msh;
     private final Map<String, Storage> storageMap = new HashMap<>();
@@ -75,7 +76,7 @@ class StoreSessionImpl implements StoreSession {
     private Map<Long,UIDMap> uidMapCache = new HashMap<>();
     private Map<String, String> uidMap;
 
-    StoreSessionImpl(HttpServletRequest httpRequest, Association as, ApplicationEntity ae,
+    StoreSessionImpl(HttpServletRequest httpRequest, String pathParam, Association as, ApplicationEntity ae,
                             Socket socket, HL7Segment msh) {
         this.httpRequest = httpRequest;
         this.as = as;
@@ -83,6 +84,7 @@ class StoreSessionImpl implements StoreSession {
         this.socket = socket;
         this.msh = msh;
         this.uidMapCache = new HashMap<>();
+        this.calledAET = as != null ? as.getCalledAET() : httpRequest != null ? pathParam : ae.getAETitle();
     }
 
     @Override
@@ -127,7 +129,7 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String getCalledAET() {
-        return as != null ? as.getCalledAET() : ae.getAETitle();
+        return calledAET;
     }
 
     @Override

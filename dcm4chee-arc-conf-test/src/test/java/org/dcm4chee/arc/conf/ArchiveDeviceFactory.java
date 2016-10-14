@@ -1160,6 +1160,7 @@ class ArchiveDeviceFactory {
         ext.setAECacheStaleTimeout(AE_CACHE_STALE_TIMEOUT);
         ext.setLeadingCFindSCPQueryCacheStaleTimeout(LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT);
         ext.setScheduleProcedureTemplateURI(HL7_ORDER2DCM_XSL);
+        ext.setRetrieveAETitles("DCM4CHEE", "DCM4CHEE_ADMIN");
 
         ext.setRejectExpiredStudiesPollingInterval(REJECT_EXPIRED_STUDIES_POLLING_INTERVAL);
         ext.setRejectExpiredStudiesPollingStartTime(REJECT_EXPIRED_STUDIES_START_TIME);
@@ -1201,7 +1202,6 @@ class ArchiveDeviceFactory {
         storageDescriptor.setStorageURIStr(STORAGE_URI);
         storageDescriptor.setProperty("pathFormat", PATH_FORMAT);
         storageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
-        storageDescriptor.setRetrieveAETitles("DCM4CHEE", "DCM4CHEE_ADMIN");
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
         if (configType == configType.TEST) {

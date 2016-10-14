@@ -127,6 +127,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
+    private String[] retrieveAETitles = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1033,6 +1034,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.allowDeleteStudyPermanently = allowDeleteStudyPermanently;
     }
 
+    public String[] getRetrieveAETitles() {
+        return retrieveAETitles;
+    }
+
+    public void setRetrieveAETitles(String... retrieveAETitles) {
+        this.retrieveAETitles = retrieveAETitles;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1110,6 +1119,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
+        retrieveAETitles = arcdev.retrieveAETitles;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         idGenerators.clear();

@@ -146,6 +146,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet());
         writer.writeNotNull("dcmStorePermissionServiceErrorCommentPattern", arcDev.getStorePermissionServiceErrorCommentPattern());
         writer.writeNotNull("dcmStorePermissionServiceErrorCodePattern", arcDev.getStorePermissionServiceErrorCodePattern());
+        writer.writeNotEmpty("dcmRetrieveAET", arcDev.getRetrieveAETitles());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -188,7 +189,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmStorageID", st.getStorageID());
             writer.writeNotNull("dcmURI", st.getStorageURIStr());
             writer.writeNotNull("dcmDigestAlgorithm", st.getDigestAlgorithm());
-            writer.writeNotEmpty("dcmRetrieveAET", st.getRetrieveAETitles());
             writer.writeNotNull("dcmInstanceAvailability", st.getInstanceAvailability());
             writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
             writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
@@ -415,6 +415,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet());
         writer.writeNotNull("dcmStorePermissionServiceErrorCommentPattern", arcAE.getStorePermissionServiceErrorCommentPattern());
         writer.writeNotNull("dcmStorePermissionServiceErrorCodePattern", arcAE.getStorePermissionServiceErrorCodePattern());
+        writer.writeNotEmpty("dcmRetrieveAET", arcAE.getRetrieveAETitles());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -657,6 +658,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStorePermissionServiceErrorCodePattern":
                     arcDev.setStorePermissionServiceErrorCodePattern(Pattern.compile(reader.stringValue()));
                     break;
+                case "dcmRetrieveAET":
+                    arcDev.setRetrieveAETitles(reader.stringArray());
+                    break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
                     break;
@@ -752,9 +756,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmDigestAlgorithm":
                         st.setDigestAlgorithm(reader.stringValue());
-                        break;
-                    case "dcmRetrieveAET":
-                        st.setRetrieveAETitles(reader.stringArray());
                         break;
                     case "dcmInstanceAvailability":
                         st.setInstanceAvailability(Availability.valueOf(reader.stringValue()));
@@ -1294,6 +1295,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStorePermissionServiceErrorCodePattern":
                     arcAE.setStorePermissionServiceErrorCodePattern(Pattern.compile(reader.stringValue()));
+                    break;
+                case "dcmRetrieveAET":
+                    arcAE.setRetrieveAETitles(reader.stringArray());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

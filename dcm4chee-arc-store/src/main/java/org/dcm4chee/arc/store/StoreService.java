@@ -42,7 +42,7 @@ public interface StoreService {
 
     StoreSession newStoreSession(Association as);
 
-    StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae);
+    StoreSession newStoreSession(HttpServletRequest httpRequest, String pathParam, ApplicationEntity ae);
 
     StoreSession newStoreSession(ApplicationEntity ae);
 

@@ -91,6 +91,7 @@ public class ArchiveAEExtension extends AEExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
+    private String[] retrieveAETitles = {};
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
@@ -658,6 +659,17 @@ public class ArchiveAEExtension extends AEExtension {
                 AllowDeleteStudyPermanently.REJECTED);
     }
 
+    public String[] getRetrieveAETitles() {
+        return retrieveAETitles;
+    }
+
+    public void setRetrieveAETitles(String... retrieveAETitles) {
+        this.retrieveAETitles = retrieveAETitles;
+    }
+
+    public String[] retrieveAETitles() {
+        return retrieveAETitles.length > 0 ? retrieveAETitles : getArchiveDeviceExtension().getRetrieveAETitles();
+    }
 
     @Override
     public void reconfigure(AEExtension from) {
@@ -696,6 +708,7 @@ public class ArchiveAEExtension extends AEExtension {
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
+        retrieveAETitles = aeExt.retrieveAETitles;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         compressionRules.clear();

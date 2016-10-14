@@ -274,11 +274,10 @@ class StoreContextImpl implements StoreContext {
         if (retrieveAETs != null)
             return retrieveAETs;
 
-        String[] aets = getWriteContext(Location.ObjectType.DICOM_FILE).getStorage().getStorageDescriptor()
-                .getRetrieveAETitles();
+        String[] aets = storeSession.getArchiveAEExtension().retrieveAETitles();
         return aets != null && aets.length > 0
                 ? aets
-                : new String[] { storeSession.getLocalApplicationEntity().getAETitle() };
+                : new String[] { storeSession.getCalledAET() };
     }
 
     @Override

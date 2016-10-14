@@ -22,14 +22,6 @@
       "description": "Algorithm for generation of check sums: 'MD5' or 'SHA-1'",
       "type": "string"
     },
-    "dcmRetrieveAET": {
-      "title": "Retrieve AE Title",
-      "description": "AE Title associated with Storage System",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "dcmInstanceAvailability": {
       "title": "Instance Availability",
       "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",

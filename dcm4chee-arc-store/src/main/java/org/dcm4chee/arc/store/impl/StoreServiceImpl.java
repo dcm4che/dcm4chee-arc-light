@@ -111,22 +111,22 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public StoreSession newStoreSession(Association as) {
-        return new StoreSessionImpl(null, as, as.getApplicationEntity(), as.getSocket(), null);
+        return new StoreSessionImpl(null, null, as, as.getApplicationEntity(), as.getSocket(), null);
     }
 
     @Override
-    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae) {
-        return new StoreSessionImpl(httpRequest, null, ae, null, null);
+    public StoreSession newStoreSession(HttpServletRequest httpRequest, String pathParam, ApplicationEntity ae) {
+        return new StoreSessionImpl(httpRequest, pathParam, null, ae, null, null);
     }
 
     @Override
     public StoreSession newStoreSession(ApplicationEntity ae) {
-        return new StoreSessionImpl(null, null, ae, null, null);
+        return new StoreSessionImpl(null, null, null, ae, null, null);
     }
 
     @Override
     public StoreSession newStoreSession(Socket socket, HL7Segment msh, ApplicationEntity ae) {
-        return new StoreSessionImpl(null, null, ae, socket, msh);
+        return new StoreSessionImpl(null, null, null, ae, socket, msh);
     }
 
     @Override

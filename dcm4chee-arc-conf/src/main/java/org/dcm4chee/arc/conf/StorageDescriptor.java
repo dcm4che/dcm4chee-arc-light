@@ -9,6 +9,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jul 2015
  */
 public final class StorageDescriptor {
@@ -16,7 +17,6 @@ public final class StorageDescriptor {
     private String storageURIStr;
     private URI storageURI;
     private String digestAlgorithm;
-    private String[] retrieveAETitles = {};
     private Availability instanceAvailability;
     private String externalRetrieveAETitle;
     private boolean readOnly;
@@ -71,14 +71,6 @@ public final class StorageDescriptor {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException("No such algorithm: " + algorithm);
         }
-    }
-
-    public String[] getRetrieveAETitles() {
-        return retrieveAETitles;
-    }
-
-    public void setRetrieveAETitles(String... retrieveAETitles) {
-        this.retrieveAETitles = retrieveAETitles;
     }
 
     public Availability getInstanceAvailability() {
@@ -163,7 +155,6 @@ public final class StorageDescriptor {
                 "storageID=" + storageID +
                 ", storageURI=" + storageURI +
                 ", digestAlg=" + digestAlgorithm +
-                ", retrieveAETs=" + Arrays.toString(retrieveAETitles) +
                 ", availability=" + instanceAvailability +
                 ", deleterThresholds=" + deleterThresholds +
                 ", externalRetrieveAETitle=" + externalRetrieveAETitle +
