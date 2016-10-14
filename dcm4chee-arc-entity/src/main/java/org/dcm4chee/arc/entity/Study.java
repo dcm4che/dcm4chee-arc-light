@@ -173,7 +173,7 @@ public class Study {
     @Column(name = "access_time")
     private Date accessTime;
 
-    @Basic(optional = false)
+    @Basic
     @Column(name = "storage_ids")
     private String storageIDs;
 
@@ -324,6 +324,10 @@ public class Study {
 
         this.storageIDs = StringUtils.concat(set.toArray(new String[set.size()]), '\\');
         return true;
+    }
+
+    public void clearStorageIDs() {
+        storageIDs = null;
     }
 
     public String getStudyInstanceUID() {

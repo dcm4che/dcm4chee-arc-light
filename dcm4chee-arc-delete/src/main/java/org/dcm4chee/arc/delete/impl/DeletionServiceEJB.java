@@ -133,7 +133,9 @@ public class DeletionServiceEJB {
                                     .setParameter(2, storageID)
                                     .getResultList();
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE);
-        return insts.iterator().next().getSeries().getStudy();
+        Study study = insts.iterator().next().getSeries().getStudy();
+        study.clearStorageIDs();
+        return study;
     }
 
     public int deleteRejectedInstancesOrRejectionNotesBefore(
