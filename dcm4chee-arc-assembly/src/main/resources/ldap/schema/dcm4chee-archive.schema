@@ -736,6 +736,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.123 NAME 'dcmExternalRetrieveAET'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.124 NAME 'dcmExternalRetrieveAEDestination'
+  DESC 'AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AEs.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -772,6 +778,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
+    dcmExternalRetrieveAEDestination $
     dcmAltCMoveSCP $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
@@ -851,6 +858,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmFallbackCMoveSCPLevel $
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
+    dcmExternalRetrieveAEDestination $
     dcmAltCMoveSCP $
     dcmStorePermissionServiceURL $
     dcmStorePermissionServiceResponsePattern $

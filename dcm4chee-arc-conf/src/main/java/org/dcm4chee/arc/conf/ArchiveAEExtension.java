@@ -73,16 +73,17 @@ public class ArchiveAEExtension extends AEExtension {
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
     private Duration ianDelay;
-    private String fallbackCMoveSCP;
-    private String fallbackCMoveSCPDestination;
-    private String fallbackCMoveSCPLeadingCFindSCP;
     private Duration ianTimeout;
     private Boolean ianOnTimeout;
     private int fallbackCMoveSCPRetries;
+    private String fallbackCMoveSCP;
+    private String fallbackCMoveSCPDestination;
+    private String fallbackCMoveSCPLeadingCFindSCP;
+    private String fallbackCMoveSCPStudyOlderThan;
+    private String externalRetrieveAEDestination;
     private String alternativeCMoveSCP;
     private int qidoMaxNumberOfResults;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
-    private String fallbackCMoveSCPStudyOlderThan;
     private String storePermissionServiceURL;
     private Pattern storePermissionServiceResponsePattern;
     private Pattern storePermissionServiceExpirationDatePattern;
@@ -413,6 +414,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackCMoveSCPRetries();
     }
 
+    public String getExternalRetrieveAEDestination() {
+        return externalRetrieveAEDestination;
+    }
+
+    public void setExternalRetrieveAEDestination(String externalRetrieveAEDestination) {
+        this.externalRetrieveAEDestination = externalRetrieveAEDestination;
+    }
+
+    public String externalRetrieveAEDestination() {
+        return externalRetrieveAEDestination != null
+                ? externalRetrieveAEDestination
+                : getArchiveDeviceExtension().getExternalRetrieveAEDestination();
+    }
+
     public String getAlternativeCMoveSCP() {
         return alternativeCMoveSCP;
     }
@@ -696,6 +711,7 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
         fallbackCMoveSCPLeadingCFindSCP = aeExt.fallbackCMoveSCPLeadingCFindSCP;
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
+        externalRetrieveAEDestination = aeExt.externalRetrieveAEDestination;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
