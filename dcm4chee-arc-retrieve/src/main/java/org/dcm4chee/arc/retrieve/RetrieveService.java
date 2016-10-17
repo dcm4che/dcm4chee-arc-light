@@ -53,6 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,7 +90,7 @@ public interface RetrieveService {
 
     Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException;
 
-    Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx);
+    Map<String,Collection<InstanceLocations>> removeNotAccessableMatches(RetrieveContext ctx);
 
     AttributesCoercion getAttributesCoercion(RetrieveContext ctx, InstanceLocations inst);
 

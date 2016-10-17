@@ -66,4 +66,6 @@ public interface InstanceLocations {
     Availability getAvailability();
 
     Date getUpdatedTime();
+
+    List<String> getExternalRetrieveAETs();
 }

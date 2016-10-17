@@ -108,32 +108,34 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                     : moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP,
                         fallbackCMoveSCPDestination);
         }
-        boolean retryFailedRetrieve = fallbackCMoveSCP != null && fallbackCMoveSCPDestination != null
+        boolean retryFailedRetrieve = fallbackCMoveSCP != null
+                && fallbackCMoveSCPDestination != null
                 && retryFailedRetrieve(ctx, qrLevel);
-        String altCMoveSCP = arcAE.alternativeCMoveSCP();
-        if (altCMoveSCP != null) {
-            Collection<InstanceLocations> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
-            if (!retryFailedRetrieve && ctx.getMatches().isEmpty()) {
+        Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
+        Collection<InstanceLocations> notRetrieveable = notAccessable.get(null);
+        Map.Entry<String, Collection<InstanceLocations>> remoteAccessable = removeWithMaxInstances(notAccessable);
+        if (remoteAccessable != null) {
+            if (!retryFailedRetrieve && ctx.getMatches().isEmpty() && notAccessable.isEmpty()) {
                 LOG.info("{}: No objects of study{} locally accessable - forward C-MOVE RQ to {}",
-                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), altCMoveSCP);
-                return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, altCMoveSCP);
+                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), remoteAccessable.getKey());
+                return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, remoteAccessable.getKey());
             }
-
-            if (!notAccessable.isEmpty()) {
-                Set<SeriesKey> localSeries = seriesOf(ctx.getMatches());
-                Map<SeriesKey, Collection<String>> remoteSeries = instancesBySeriesOf(notAccessable);
+            Set<SeriesKey> localSeries = seriesOf(ctx.getMatches());
+            do {
+                Map<SeriesKey, Collection<String>> remoteSeries = instancesBySeriesOf(remoteAccessable.getValue());
                 LOG.info("{}: {} objects of study{} not locally accessable - send {} C-MOVE RQs to {}",
                         as, notAccessable.size(), Arrays.toString(ctx.getStudyInstanceUIDs()), remoteSeries.size(),
-                        altCMoveSCP);
+                        remoteAccessable.getKey());
                 try {
-                    moveSCU.forwardMoveRQs(ctx, pc, rq, toKeys(remoteSeries, localSeries), altCMoveSCP);
+                    moveSCU.forwardMoveRQs(ctx, pc, rq, toKeys(remoteSeries, localSeries), remoteAccessable.getKey());
                 } catch (Exception e) {
-                    for (InstanceLocations inst: notAccessable) {
+                    for (InstanceLocations inst: remoteAccessable.getValue()) {
                         ctx.incrementFailed();
                         ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
                     }
                 }
-            }
+
+            } while ((remoteAccessable = removeWithMaxInstances(notAccessable)) != null);
         }
         if (retryFailedRetrieve) {
             LOG.info("{}: Some objects of study{} not found - retry forward C-MOVE RQ to {}",
@@ -144,6 +146,23 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             moveSCU.forwardMoveRQs(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
+    }
+
+    private Map.Entry<String, Collection<InstanceLocations>> removeWithMaxInstances(
+            Map<String, Collection<InstanceLocations>> notAccessable) {
+        if (notAccessable.isEmpty())
+            return null;
+
+        Map.Entry<String, Collection<InstanceLocations>> result = null;
+        for (Map.Entry<String, Collection<InstanceLocations>> entry : notAccessable.entrySet()) {
+            if (result == null || result.getValue().size() < entry.getValue().size())
+                result = entry;
+        }
+        notAccessable.remove(result.getKey());
+        for (Collection<InstanceLocations> values : notAccessable.values()) {
+            values.removeAll(result.getValue());
+        }
+        return result;
     }
 
     private Set<SeriesKey> seriesOf(Collection<InstanceLocations> instances) {

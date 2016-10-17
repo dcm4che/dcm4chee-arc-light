@@ -43,6 +43,8 @@ package org.dcm4chee.arc.retrieve.impl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
@@ -56,7 +58,6 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
@@ -99,6 +100,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private static final int MAX_FAILED_IUIDS_LEN = 4000;
 
+    private static final Path<String> externalRetrieveAET = Expressions.stringPath("retrieveAET");
+
     private static final Expression<?>[] SELECT = {
             QLocation.location.pk,
             QLocation.location.storageID,
@@ -115,7 +118,9 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.retrieveAETs,
             QInstance.instance.availability,
             QInstance.instance.updatedTime,
-            QUIDMap.uIDMap,
+            externalRetrieveAET,
+            QUIDMap.uIDMap.pk,
+            QUIDMap.uIDMap.encodedMap,
             QueryBuilder.instanceAttributesBlob.encodedAttributes
     };
 
@@ -304,7 +309,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                     matches.add(match);
                     instMap.put(instPk, match);
                 }
-                match.getLocations().add(loadLocation(tuple));
+                addLocation(match, tuple);
+                addExternalRetrieveAET(match, tuple.get(externalRetrieveAET));
             }
             ctx.setNumberOfMatches(matches.size());
             ctx.getStudyInfos().addAll(studyInfoMap.values());
@@ -313,6 +319,33 @@ public class RetrieveServiceImpl implements RetrieveService {
         } finally {
             session.close();
         }
+    }
+
+    private void addExternalRetrieveAET(InstanceLocations match, String aet) {
+        if (aet != null)
+            match.getExternalRetrieveAETs().add(aet);
+    }
+
+    private void addLocation(InstanceLocations match, Tuple tuple) {
+        Long pk = tuple.get(QLocation.location.pk);
+        if (pk == null)
+            return;
+
+        Location location = new Location.Builder()
+                .pk(pk)
+                .storageID(tuple.get(QLocation.location.storageID))
+                .storagePath(tuple.get(QLocation.location.storagePath))
+                .objectType(tuple.get(QLocation.location.objectType))
+                .transferSyntaxUID(tuple.get(QLocation.location.transferSyntaxUID))
+                .digest(tuple.get(QLocation.location.digest))
+                .size(tuple.get(QLocation.location.size))
+                .status(tuple.get(QLocation.location.status))
+                .build();
+        Long uidMapPk = tuple.get(QUIDMap.uIDMap.pk);
+        if (uidMapPk != null) {
+            location.setUidMap(new UIDMap(uidMapPk, tuple.get(QUIDMap.uIDMap.encodedMap)));
+        }
+        match.getLocations().add(location);
     }
 
     @Override
@@ -333,21 +366,6 @@ public class RetrieveServiceImpl implements RetrieveService {
             if (study.getAccessTime().getTime() < minAccessTime)
                 ejb.updateStudyAccessTime(study.getStudyPk());
         }
-    }
-
-    private Location loadLocation(Tuple next) {
-        Location location = new Location.Builder()
-                .pk(next.get(QLocation.location.pk))
-                .storageID(next.get(QLocation.location.storageID))
-                .storagePath(next.get(QLocation.location.storagePath))
-                .objectType(next.get(QLocation.location.objectType))
-                .transferSyntaxUID(next.get(QLocation.location.transferSyntaxUID))
-                .digest(next.get(QLocation.location.digest))
-                .size(next.get(QLocation.location.size))
-                .status(next.get(QLocation.location.status))
-                .build();
-        location.setUidMap(next.get(QUIDMap.uIDMap));
-        return location;
     }
 
     private static class SeriesAttributes {
@@ -405,12 +423,18 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private HibernateQuery<Tuple> createQuery(RetrieveContext ctx, StatelessSession session) {
         HibernateQuery<Tuple> query = new HibernateQuery<Void>(session).select(SELECT)
-                .from(QLocation.location)
-                .join(QLocation.location.instance, QInstance.instance)
+                .from(QInstance.instance)
                 .join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob)
                 .join(QInstance.instance.series, QSeries.series)
                 .join(QSeries.series.study, QStudy.study)
-                .leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
+                .leftJoin(QInstance.instance.externalRetrieveAETs, externalRetrieveAET)
+                .leftJoin(QInstance.instance.locations, QLocation.location);
+
+        Location.ObjectType objectType = ctx.getObjectType();
+        if (objectType != null)
+            query.on(QLocation.location.objectType.eq(objectType));
+
+        query = query.leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
 
         IDWithIssuer[] pids = ctx.getPatientIDs();
         if (pids.length > 0) {
@@ -429,9 +453,6 @@ public class RetrieveServiceImpl implements RetrieveService {
                     ctx.isHideNotRejectedInstances()));
             predicate.and(QueryBuilder.hideRejectionNote(ctx.getHideRejectionNotesWithCode()));
         }
-        Location.ObjectType objectType = ctx.getObjectType();
-        if (objectType != null)
-            predicate.and(QLocation.location.objectType.eq(objectType));
         return query.where(predicate);
     }
 
@@ -478,19 +499,36 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public Collection<InstanceLocations> removeNotAccessableMatches(RetrieveContext ctx) {
-        ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
+    public Map<String,Collection<InstanceLocations>> removeNotAccessableMatches(RetrieveContext ctx) {
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        String altCMoveSCP = arcAE.alternativeCMoveSCP();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         Collection<InstanceLocations> matches = ctx.getMatches();
-        Collection<InstanceLocations> notAccessable = new ArrayList<>(matches.size());
+        int numMatches = matches.size();
+        Map<String,Collection<InstanceLocations>> notAccessable = new HashMap<>(1);
         Iterator<InstanceLocations> iter = matches.iterator();
         while (iter.hasNext()) {
             InstanceLocations match = iter.next();
             if (!isAccessable(arcDev, match)) {
                 iter.remove();
-                notAccessable.add(match);
+                if (!match.getLocations().isEmpty())
+                    putMatchTo(notAccessable, altCMoveSCP, match, numMatches);
+                else if (!match.getExternalRetrieveAETs().isEmpty())
+                    for (String extRetrAET : match.getExternalRetrieveAETs())
+                        putMatchTo(notAccessable, extRetrAET, match, numMatches);
+                else
+                    putMatchTo(null, altCMoveSCP, match, numMatches);
             }
         }
         return notAccessable;
+    }
+
+    private void putMatchTo(
+            Map<String, Collection<InstanceLocations>> map, String aet, InstanceLocations match, int numMatches) {
+        Collection<InstanceLocations> list = map.get(aet);
+        if (list == null)
+            map.put(aet, list = new ArrayList<InstanceLocations>(numMatches));
+        list.add(match);
     }
 
     @Override

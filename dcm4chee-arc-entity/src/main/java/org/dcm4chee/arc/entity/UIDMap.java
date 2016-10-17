@@ -64,6 +64,13 @@ public class UIDMap {
     @Transient
     private Map<String,String> cachedMap;
 
+    public UIDMap() {}
+
+    public UIDMap(long pk, byte[] encodedMap) {
+        this.pk = pk;
+        this.encodedMap = encodedMap;
+    }
+
     @Override
     public String toString() {
         return "UIDMap[pk=" + pk + "]";

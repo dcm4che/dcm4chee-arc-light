@@ -61,7 +61,8 @@ public class InstanceLocationsImpl implements InstanceLocations {
     private final String retrieveAETs;
     private final Availability availability;
     private final Date updatedTime;
-    private final ArrayList<Location> locations = new ArrayList<>();
+    private final ArrayList<Location> locations = new ArrayList<>(1);
+    private final ArrayList<String> externalRetrieveAETs = new ArrayList<>(1);
 
     public InstanceLocationsImpl(String sopClassUID, String sopInstanceUID, String retrieveAETs,
             Availability availability, Date updatedTime, Attributes attributes) {
@@ -91,6 +92,11 @@ public class InstanceLocationsImpl implements InstanceLocations {
     @Override
     public List<Location> getLocations() {
         return locations;
+    }
+
+    @Override
+    public List<String> getExternalRetrieveAETs() {
+        return externalRetrieveAETs;
     }
 
     @Override
