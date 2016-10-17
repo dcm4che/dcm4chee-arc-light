@@ -50,7 +50,7 @@
     },
     "dcmExternalRetrieveAET": {
       "title": "External Retrieve AET",
-      "description": "Constrain deletion of Studies, whose objects are retrievable using this AE from the external Storage System, if usable space falls below configured threshold.",
+      "description": "Constrain deletion of Studies, whose objects are retrievable using this AE from an external C-MOVE SCP, if usable space falls below configured threshold.",
       "type": "string"
     }
   }
