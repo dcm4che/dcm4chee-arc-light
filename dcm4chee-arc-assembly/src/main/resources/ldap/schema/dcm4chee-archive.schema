@@ -731,7 +731,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.122 NAME 'dcmStorePermissionServiceErrorC
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.123 NAME 'dcmExternalRetrieveAET'
-  DESC 'Enable deletion of Studies which are retrievable from this AE from the Storage System if the usable space fall below configured threshold.'
+  DESC 'Constrain deletion of Studies, whose objects are retrievable using this AE from the external Storage System, if usable space falls below configured threshold.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
