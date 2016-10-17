@@ -373,12 +373,6 @@ public class Instance {
         return verifyingObservers;
     }
 
-    public Set<String> getExternalRetrieveAETitles() {
-        if (externalRetrieveAETs == null)
-            externalRetrieveAETs = new HashSet<>();
-        return externalRetrieveAETs;
-    }
-
     public Set<String> getExternalRetrieveAETs() {
         if (externalRetrieveAETs == null)
             externalRetrieveAETs = new HashSet();
@@ -387,7 +381,7 @@ public class Instance {
     }
 
     public boolean addExternalRetrieveAET(String aet) {
-        return getExternalRetrieveAETitles().add(aet);
+        return getExternalRetrieveAETs().add(aet);
     }
 
     public Collection<ContentItem> getContentItems() {

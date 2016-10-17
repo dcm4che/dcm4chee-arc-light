@@ -94,7 +94,8 @@ public class StoreServiceEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
     private static final String IGNORE = "{}: Ignore received Instance[studyUID={},seriesUID={},objectUID={}]";
-    private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source";
+    private static final String IGNORE_FROM_EXTERNAL_RETRIEVE_AE = IGNORE + " from external retrieve AE: {}";
+    private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source: {}";
     private static final String IGNORE_PREVIOUS_REJECTED = IGNORE + " previous rejected by {}";
     private static final String IGNORE_WITH_EQUAL_DIGEST = IGNORE + " with equal digest";
     private static final String REVOKE_REJECTION =
@@ -128,6 +129,15 @@ public class StoreServiceEJB {
             Collection<Location> locations = prevInstance.getLocations();
             result.setPreviousInstance(prevInstance);
             LOG.info("{}: Found previous received {}", session, prevInstance);
+            if (prevInstance.getExternalRetrieveAETs().contains(session.getCallingAET())) {
+                if (containsDicomFile(locations)) {
+                    logInfo(IGNORE_FROM_EXTERNAL_RETRIEVE_AE, ctx, session.getCallingAET());
+                    return result;
+                }
+                createLocation(ctx, prevInstance, result, Location.ObjectType.DICOM_FILE);
+                result.setStoredInstance(prevInstance);
+                return result;
+            }
             if (prevInstance.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
                     && getRejectionNote(arcDev, prevInstance.getConceptNameCode()) != null)
                 throw new DicomServiceException(StoreService.DUPLICATE_REJECTION_NOTE,
@@ -154,7 +164,7 @@ public class StoreServiceEJB {
                     case SAME_SOURCE:
                     case SAME_SOURCE_AND_SERIES:
                         if (!isSameSource(ctx, prevInstance)) {
-                            logInfo(IGNORE_FROM_DIFFERENT_SOURCE, ctx);
+                            logInfo(IGNORE_FROM_DIFFERENT_SOURCE, ctx, session.getCallingAET());
                             return result;
                         }
                 }
@@ -410,6 +420,14 @@ public class StoreServiceEJB {
         LOG.info("{}: Delete {}", ctx.getStoreSession(), series);
         em.remove(series);
         return true;
+    }
+
+    private boolean containsDicomFile(Collection<Location> locations) {
+        for (Location location : locations) {
+            if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
+                return true;
+        }
+        return false;
     }
 
     private boolean containsWithEqualDigest(Collection<Location> locations, byte[] digest) {

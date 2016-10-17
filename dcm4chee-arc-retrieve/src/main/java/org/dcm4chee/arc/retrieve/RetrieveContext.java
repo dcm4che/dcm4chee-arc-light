@@ -237,4 +237,8 @@ public interface RetrieveContext extends Closeable {
     Date getPatientUpdatedTime();
 
     void setPatientUpdatedTime(Date patientUpdatedTime);
+
+    boolean isRetryFailedRetrieve();
+
+    void setRetryFailedRetrieve(boolean retryFailedRetrieve);
 }

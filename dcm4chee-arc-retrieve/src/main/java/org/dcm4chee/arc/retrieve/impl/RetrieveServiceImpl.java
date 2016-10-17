@@ -587,7 +587,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public void updateFailedSOPInstanceUIDList(RetrieveContext ctx) {
-        ejb.updateFailedSOPInstanceUIDList(ctx, failedIUIDList(ctx));
+        if (ctx.isRetryFailedRetrieve())
+            ejb.updateFailedSOPInstanceUIDList(ctx, failedIUIDList(ctx));
     }
 
     private String failedIUIDList(RetrieveContext ctx) {

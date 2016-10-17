@@ -95,6 +95,8 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
         RetrieveContext ctx = newRetrieveContext(as, rq, qrLevel, keys);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        String altCMoveSCP = arcAE.alternativeCMoveSCP();
+        String extRetrieveAEDestination = arcAE.externalRetrieveAEDestination();
         String fallbackCMoveSCP = arcAE.fallbackCMoveSCP();
         String fallbackCMoveSCPDestination = arcAE.fallbackCMoveSCPDestination();
         if (!retrieveService.calculateMatches(ctx)) {
@@ -111,23 +113,28 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         boolean retryFailedRetrieve = fallbackCMoveSCP != null
                 && fallbackCMoveSCPDestination != null
                 && retryFailedRetrieve(ctx, qrLevel);
+        ctx.setRetryFailedRetrieve(retryFailedRetrieve);
         Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
         Collection<InstanceLocations> notRetrieveable = notAccessable.get(null);
         Map.Entry<String, Collection<InstanceLocations>> remoteAccessable = removeWithMaxInstances(notAccessable);
         if (remoteAccessable != null) {
             if (!retryFailedRetrieve && ctx.getMatches().isEmpty() && notAccessable.isEmpty()) {
+                String extRetrAET = remoteAccessable.getKey();
                 LOG.info("{}: No objects of study{} locally accessable - forward C-MOVE RQ to {}",
-                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), remoteAccessable.getKey());
-                return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, remoteAccessable.getKey());
+                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), extRetrAET);
+                    return extRetrieveAEDestination == null || extRetrAET.equals(altCMoveSCP)
+                        ? moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, extRetrAET)
+                        : moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, extRetrAET, extRetrieveAEDestination);
             }
             Set<SeriesKey> localSeries = seriesOf(ctx.getMatches());
             do {
+                String extRetrAET = remoteAccessable.getKey();
                 Map<SeriesKey, Collection<String>> remoteSeries = instancesBySeriesOf(remoteAccessable.getValue());
                 LOG.info("{}: {} objects of study{} not locally accessable - send {} C-MOVE RQs to {}",
                         as, notAccessable.size(), Arrays.toString(ctx.getStudyInstanceUIDs()), remoteSeries.size(),
-                        remoteAccessable.getKey());
+                        extRetrAET);
                 try {
-                    moveSCU.forwardMoveRQs(ctx, pc, rq, toKeys(remoteSeries, localSeries), remoteAccessable.getKey());
+                    moveSCU.forwardMoveRQs(ctx, pc, rq, toKeys(remoteSeries, localSeries), extRetrAET);
                 } catch (Exception e) {
                     for (InstanceLocations inst: remoteAccessable.getValue()) {
                         ctx.incrementFailed();

@@ -801,8 +801,6 @@ dcmAttributeUpdatePolicy: MERGE
 
 dn: dcmStorageID=fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmInstanceAvailability: ONLINE
-dcmRetrieveAET: DCM4CHEE
-dcmRetrieveAET: DCM4CHEE_ADMIN
 dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}
 dcmProperty: checkMountFile=NO_MOUNT
 dcmDigestAlgorithm: MD5
