@@ -141,6 +141,7 @@
         <xsl:variable name="scheduledProcedureStepStatus">
         <xsl:choose>
             <xsl:when test="field[1]='NW' and field[5]='SC'">SCHEDULED</xsl:when>
+            <xsl:when test="field[1]='NW' and field[5]='IP'">SCHEDULED</xsl:when>
             <xsl:when test="field[1]='CA' and field[5]='CA'">CANCELLED</xsl:when>
             <xsl:when test="field[1]='DC' and field[5]='CA'">DISCONTINUED</xsl:when>
             <xsl:when test="field[1]='XO' and field[5]='SC'">SCHEDULED</xsl:when>
