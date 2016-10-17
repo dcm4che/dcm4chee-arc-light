@@ -737,7 +737,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.123 NAME 'dcmExternalRetrieveAET'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.124 NAME 'dcmExternalRetrieveAEDestination'
-  DESC 'AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AEs.'
+  DESC 'AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

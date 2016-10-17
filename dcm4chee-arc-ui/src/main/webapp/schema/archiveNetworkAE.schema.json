@@ -227,6 +227,11 @@
         "type": "string"
       }
     },
+    "dcmExternalRetrieveAEDestination": {
+      "title": "External Retrieve AE Destination",
+      "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
+      "type": "string"
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rule",

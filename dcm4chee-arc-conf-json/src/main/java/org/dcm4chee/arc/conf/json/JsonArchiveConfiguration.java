@@ -147,6 +147,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorePermissionServiceErrorCommentPattern", arcDev.getStorePermissionServiceErrorCommentPattern());
         writer.writeNotNull("dcmStorePermissionServiceErrorCodePattern", arcDev.getStorePermissionServiceErrorCodePattern());
         writer.writeNotEmpty("dcmRetrieveAET", arcDev.getRetrieveAETitles());
+        writer.writeNotNull("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
@@ -416,6 +417,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorePermissionServiceErrorCommentPattern", arcAE.getStorePermissionServiceErrorCommentPattern());
         writer.writeNotNull("dcmStorePermissionServiceErrorCodePattern", arcAE.getStorePermissionServiceErrorCodePattern());
         writer.writeNotEmpty("dcmRetrieveAET", arcAE.getRetrieveAETitles());
+        writer.writeNotNull("dcmExternalRetrieveAEDestination", arcAE.getExternalRetrieveAEDestination());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
@@ -660,6 +662,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRetrieveAET":
                     arcDev.setRetrieveAETitles(reader.stringArray());
+                    break;
+                case "dcmExternalRetrieveAEDestination":
+                    arcDev.setExternalRetrieveAEDestination(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1298,6 +1303,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRetrieveAET":
                     arcAE.setRetrieveAETitles(reader.stringArray());
+                    break;
+                case "dcmExternalRetrieveAEDestination":
+                    arcAE.setExternalRetrieveAEDestination(reader.stringValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
