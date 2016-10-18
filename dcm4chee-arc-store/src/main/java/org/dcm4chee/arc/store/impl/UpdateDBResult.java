@@ -42,6 +42,7 @@ package org.dcm4chee.arc.store.impl;
 
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.storage.WriteContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ import java.util.List;
  */
 class UpdateDBResult {
     private final List<Location> locations = new ArrayList<>();
+    private final List<WriteContext> writeContexts = new ArrayList<>(2);
     private RejectionNote rejectionNote;
     private Instance previousInstance;
     private Instance createdInstance;
@@ -61,6 +63,10 @@ class UpdateDBResult {
 
     public List<Location> getLocations() {
         return locations;
+    }
+
+    public List<WriteContext> getWriteContexts() {
+        return writeContexts;
     }
 
     public void setRejectionNote(RejectionNote rejectionNote) {

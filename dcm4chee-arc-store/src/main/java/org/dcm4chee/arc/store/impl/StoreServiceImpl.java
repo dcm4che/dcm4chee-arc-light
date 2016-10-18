@@ -182,16 +182,8 @@ class StoreServiceImpl implements StoreService {
         } finally {
             for (File tmpFile : bulkDataFiles)
                 tmpFile.delete();
-
-            if (result != null) {
-                ctx.getLocations().addAll(result.getLocations());
-                ctx.setRejectionNote(result.getRejectionNote());
-                ctx.setPreviousInstance(result.getPreviousInstance());
-                ctx.setStoredInstance(result.getStoredInstance());
-            }
+            revokeStorage(ctx, result);
             storeEvent.fire(ctx);
-            if (ctx.getLocations().isEmpty())
-                revokeStorage(ctx);
         }
     }
 
@@ -217,28 +209,31 @@ class StoreServiceImpl implements StoreService {
 
     private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
         Instance instance = result.getCreatedInstance();
-        if (instance == null)
-            return;
-
-        if (result.getCreatedPatient() != null) {
-            synchronized (this) {
-                try {
-                    ejb.checkDuplicatePatientCreated(ctx, result);
-                } catch (Exception e) {
-                    LOG.warn("{}: Failed to remove duplicate created {}",
-                            ctx.getStoreSession(), result.getCreatedPatient(), e);
+        if (instance != null) {
+            if (result.getCreatedPatient() != null) {
+                synchronized (this) {
+                    try {
+                        ejb.checkDuplicatePatientCreated(ctx, result);
+                    } catch (Exception e) {
+                        LOG.warn("{}: Failed to remove duplicate created {}",
+                                ctx.getStoreSession(), result.getCreatedPatient(), e);
+                    }
                 }
             }
+            Series series = instance.getSeries();
+            updateAttributes(ctx, series);
+            ctx.getStoreSession().cacheSeries(series);
         }
-
-        commitStorage(ctx);
-        Series series = instance.getSeries();
-        updateAttributes(ctx, series);
-        ctx.getStoreSession().cacheSeries(series);
+        commitStorage(result);
+        ctx.getLocations().clear();
+        ctx.getLocations().addAll(result.getLocations());
+        ctx.setRejectionNote(result.getRejectionNote());
+        ctx.setPreviousInstance(result.getPreviousInstance());
+        ctx.setStoredInstance(result.getStoredInstance());
     }
 
-    private void commitStorage(StoreContext ctx) throws IOException {
-        for (WriteContext writeContext : ctx.getWriteContexts()) {
+    private void commitStorage(UpdateDBResult result) throws IOException {
+        for (WriteContext writeContext : result.getWriteContexts()) {
             Storage storage = writeContext.getStorage();
             storage.commitStorage(writeContext);
         }
@@ -269,16 +264,8 @@ class StoreServiceImpl implements StoreService {
             ctx.setException(dse);
             throw dse;
         } finally {
-            if (result != null) {
-                locations.clear();
-                locations.addAll(result.getLocations());
-                ctx.setRejectionNote(result.getRejectionNote());
-                ctx.setPreviousInstance(result.getPreviousInstance());
-                ctx.setStoredInstance(result.getStoredInstance());
-            }
+            revokeStorage(ctx, result);
             storeEvent.fire(ctx);
-            if (locations.isEmpty())
-                revokeStorage(ctx);
         }
     }
 
@@ -394,9 +381,10 @@ class StoreServiceImpl implements StoreService {
         return iuids == null || iuids.contains(il.getSopInstanceUID());
     }
 
-    private static void revokeStorage(StoreContext ctx) {
+    private static void revokeStorage(StoreContext ctx, UpdateDBResult result) {
         for (WriteContext writeCtx : ctx.getWriteContexts()) {
-            if (writeCtx.getStoragePath() != null) {
+            if ((result == null || !result.getWriteContexts().contains(writeCtx))
+                    && writeCtx.getStoragePath() != null) {
                 Storage storage = writeCtx.getStorage();
                 try {
                     storage.revokeStorage(writeCtx);

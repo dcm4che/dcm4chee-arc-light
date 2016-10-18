@@ -94,8 +94,7 @@ public class StoreServiceEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
     private static final String IGNORE = "{}: Ignore received Instance[studyUID={},seriesUID={},objectUID={}]";
-    private static final String IGNORE_FROM_EXTERNAL_RETRIEVE_AE = IGNORE + " from external retrieve AE: {}";
-    private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source: {}";
+    private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source";
     private static final String IGNORE_PREVIOUS_REJECTED = IGNORE + " previous rejected by {}";
     private static final String IGNORE_WITH_EQUAL_DIGEST = IGNORE + " with equal digest";
     private static final String REVOKE_REJECTION =
@@ -131,7 +130,7 @@ public class StoreServiceEJB {
             LOG.info("{}: Found previous received {}", session, prevInstance);
             if (prevInstance.getExternalRetrieveAETs().contains(session.getCallingAET())) {
                 if (containsDicomFile(locations)) {
-                    logInfo(IGNORE_FROM_EXTERNAL_RETRIEVE_AE, ctx, session.getCallingAET());
+                    logInfo(IGNORE, ctx);
                     return result;
                 }
                 createLocation(ctx, prevInstance, result, Location.ObjectType.DICOM_FILE);
@@ -164,7 +163,7 @@ public class StoreServiceEJB {
                     case SAME_SOURCE:
                     case SAME_SOURCE_AND_SERIES:
                         if (!isSameSource(ctx, prevInstance)) {
-                            logInfo(IGNORE_FROM_DIFFERENT_SOURCE, ctx, session.getCallingAET());
+                            logInfo(IGNORE_FROM_DIFFERENT_SOURCE, ctx);
                             return result;
                         }
                 }
@@ -966,6 +965,7 @@ public class StoreServiceEJB {
         location.setInstance(instance);
         em.persist(location);
         result.getLocations().add(location);
+        result.getWriteContexts().add(writeContext);
     }
 
     private void copyLocations(StoreContext ctx, Instance instance, UpdateDBResult result) {
