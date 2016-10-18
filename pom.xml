@@ -60,8 +60,8 @@
     <hibernate.version>5.0.7.Final</hibernate.version>
     <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
     <resteasy.version>3.0.14.Final</resteasy.version>
-    <jclouds.version>1.9.1</jclouds.version>
-    <querydsl.version>4.0.3</querydsl.version>
+    <jclouds.version>1.9.2</jclouds.version>
+    <querydsl.version>4.1.4</querydsl.version>
     <keycloak.version>2.1.0.Final</keycloak.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
 
