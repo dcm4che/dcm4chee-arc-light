@@ -23,5 +23,6 @@ alter table instance alter inst_no drop not null;
 alter table instance add num_frames int4;
 
 alter table sps_station_aet drop pk
+drop sequence sps_station_aet_pk_seq;
 
 create sequence stgcmt_result_pk_seq;
