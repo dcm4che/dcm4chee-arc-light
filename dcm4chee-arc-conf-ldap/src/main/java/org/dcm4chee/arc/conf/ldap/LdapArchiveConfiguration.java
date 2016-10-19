@@ -1606,8 +1606,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                             config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name.name(), deviceDN));
         }
         for (IDGenerator entryNew : arcDev.getIDGenerators().values()) {
-            String name = entryNew.getName().toString();
-            String dn = LdapUtils.dnOf("dcmIDGenerator", name, deviceDN);
+            IDGenerator.Name name = entryNew.getName();
+            String dn = LdapUtils.dnOf("dcmIDGenerator", name.name(), deviceDN);
             IDGenerator entryOld = prev.getIDGenerators().get(name);
             if (entryOld == null) {
                 config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
