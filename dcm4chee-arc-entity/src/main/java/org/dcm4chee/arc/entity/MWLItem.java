@@ -48,9 +48,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.SPSStatus;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -155,8 +153,11 @@ public class MWLItem {
     @JoinColumn(name = "accno_issuer_fk")
     private IssuerEntity issuerOfAccessionNumber;
 
-    @OneToMany(mappedBy = "mwlItem", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<ScheduledStationAETitle> scheduledStationAETs;
+    @ElementCollection
+    @CollectionTable(name = "sps_station_aet", joinColumns = @JoinColumn(name = "mwl_item_fk"),
+            indexes = @Index(columnList = "station_aet"))
+    @Column(name = "station_aet")
+    private Set<String> scheduledStationAETs;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_fk")
@@ -218,11 +219,15 @@ public class MWLItem {
         return status;
     }
 
-    public Collection<ScheduledStationAETitle> getScheduledStationAETs() {
+    public Set<String> getScheduledStationAETs() {
         if (scheduledStationAETs == null)
-            scheduledStationAETs = new ArrayList<>();
+            scheduledStationAETs = new HashSet<>();
 
         return scheduledStationAETs;
+    }
+
+    public boolean addScheduledStationAETs(String spsAET) {
+        return getScheduledStationAETs().add(spsAET);
     }
 
     public void setPatient(Patient patient) {

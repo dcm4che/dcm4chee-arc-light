@@ -493,19 +493,19 @@ public class QueryBuilder {
                     false));
             if (sps.getString(Tag.ScheduledProcedureStepStatus) != null)
                 builder.and(showSPSWithStatus(sps));
-            builder.and(scheduledStationAETitle(sps.getString(Tag.ScheduledStationAETitle, "*")));
+//            builder.and(scheduledStationAETitle(sps.getString(Tag.ScheduledStationAETitle, "*")));
         }
         builder.and(hideSPSWithStatus(queryParam));
     }
 
-    private static Predicate scheduledStationAETitle(String aet) {
-        if (aet.equals("*"))
-            return null;
-
-        return JPAExpressions.selectFrom(QScheduledStationAETitle.scheduledStationAETitle)
-                .where(QScheduledStationAETitle.scheduledStationAETitle.mwlItem.eq(QMWLItem.mWLItem),
-                        wildCard(QScheduledStationAETitle.scheduledStationAETitle.aeTitle, aet, false)).exists();
-    }
+//    private static Predicate scheduledStationAETitle(String aet) {
+//        if (aet.equals("*"))
+//            return null;
+//
+//        return JPAExpressions.selectFrom(QScheduledStationAETitle.scheduledStationAETitle)
+//                .where(QScheduledStationAETitle.scheduledStationAETitle.mwlItem.eq(QMWLItem.mWLItem),
+//                        wildCard(QScheduledStationAETitle.scheduledStationAETitle.aeTitle, aet, false)).exists();
+//    }
 
     private static Predicate hideSPSWithStatus(QueryParam queryParam) {
         SPSStatus[] hideSPSWithStatusFromMWL = queryParam.getHideSPSWithStatusFromMWL();

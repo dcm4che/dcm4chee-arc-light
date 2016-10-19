@@ -249,16 +249,6 @@
     </attributes>
   </entity>
 
-  <entity class="org.dcm4chee.arc.entity.ScheduledStationAETitle">
-    <sequence-generator name="sps_station_aet_pk_seq" sequence-name="sps_station_aet_pk_seq" allocation-size="1"/>
-    <attributes>
-      <id name="pk">
-        <column name="pk"/>
-        <generated-value strategy="SEQUENCE" generator="sps_station_aet_pk_seq"/>
-      </id>
-    </attributes>
-  </entity>
-
   <entity class="org.dcm4chee.arc.entity.Series">
     <sequence-generator name="series_pk_seq" sequence-name="series_pk_seq" allocation-size="1"/>
     <attributes>
