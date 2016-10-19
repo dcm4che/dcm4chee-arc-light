@@ -493,7 +493,8 @@ public class QueryBuilder {
                     false));
             if (sps.getString(Tag.ScheduledProcedureStepStatus) != null)
                 builder.and(showSPSWithStatus(sps));
-            builder.and(QMWLItem.mWLItem.scheduledStationAETs.contains(sps.getString(Tag.ScheduledStationAETitle, "*").toUpperCase()));
+            if (sps.getString(Tag.ScheduledStationAETitle) != null)
+                builder.and(QMWLItem.mWLItem.scheduledStationAETs.contains(sps.getString(Tag.ScheduledStationAETitle)));
         }
         builder.and(hideSPSWithStatus(queryParam));
     }

@@ -117,15 +117,13 @@ public class ProcedureServiceEJB {
     private void updateProcedureForWeb(ProcedureContext ctx, Patient patient, Attributes attrs,
                                        IssuerEntity issuerOfAccessionNumber) {
         Set<String> scheduledStationAETitles = null;
+        Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
+        String spsID = null;
+        for (Attributes item : spsSeq) {
+            spsID = item.getString(Tag.ScheduledProcedureStepID);
+            scheduledStationAETitles = getSPSStationAETs(item.getStrings(Tag.ScheduledStationAETitle));
+        }
         try {
-            Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
-            String spsID = null;
-            for (Attributes item : spsSeq) {
-                spsID = item.getString(Tag.ScheduledProcedureStepID);
-                scheduledStationAETitles = item.getStrings(Tag.ScheduledStationAETitle).length != 0
-                                            ? new HashSet<>(Arrays.asList(item.getStrings(Tag.ScheduledStationAETitle)))
-                                            : new HashSet<>();
-            }
             MWLItem mwlItem = em.createNamedQuery(MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID, MWLItem.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .setParameter(2, spsID).getSingleResult();
@@ -139,22 +137,51 @@ public class ProcedureServiceEJB {
         }
     }
 
-    private void processScheduledStationAETitles(MWLItem mwlItem, Set<String> ssAETitles) {
+    private Set<String> getSPSStationAETs(String... ssAETs) {
+        Set<String> scheduledStationAETitles = new HashSet<>();
+        if (ssAETs != null)
+            for (String s : ssAETs)
+                if (!s.equals(""))
+                    scheduledStationAETitles.add(s);
+        return scheduledStationAETitles;
+    }
+
+    private enum SPSStationAETEvent {
+        NONE, ADD_ALL, MODIFY, CLEAR_ALL
+    }
+
+    private void processScheduledStationAETitles(MWLItem mwlItem, Set<String> ssAETsFromUser) {
         Set<String> ssAETsFromMWL = mwlItem.getScheduledStationAETs();
-        if (ssAETsFromMWL.isEmpty()) {
-            for (String s : ssAETitles)
-                mwlItem.addScheduledStationAETs(s);
-            return;
+        SPSStationAETEvent event = ssAETsFromUser.isEmpty()
+                                    ? ssAETsFromMWL.isEmpty()
+                                        ? SPSStationAETEvent.NONE : SPSStationAETEvent.CLEAR_ALL
+                                    : ssAETsFromMWL.isEmpty()
+                                        ? SPSStationAETEvent.ADD_ALL : SPSStationAETEvent.MODIFY;
+        switch (event) {
+            case ADD_ALL:
+                addAllScheduledStationAETsToMWL(ssAETsFromUser, mwlItem);
+                break;
+            case MODIFY:
+                modifyMWLScheduledStationAETs(mwlItem, ssAETsFromUser, ssAETsFromMWL);
+                break;
+            case CLEAR_ALL:
+                mwlItem.getScheduledStationAETs().clear();
+                break;
+            case NONE:
+                break;
         }
+    }
+
+    private void modifyMWLScheduledStationAETs(MWLItem mwlItem, Set<String> ssAETsFromUser, Set<String> ssAETsFromMWL) {
         Set<String> temp = new HashSet<>();
         Iterator<String> iter = ssAETsFromMWL.iterator();
         while (iter.hasNext()) {
             String ssAET = iter.next();
-            if (!ssAETitles.contains(ssAET))
+            if (!ssAETsFromUser.contains(ssAET))
                 iter.remove();
             temp.add(ssAET);
         }
-        for (String s : ssAETitles)
+        for (String s : ssAETsFromUser)
             if (!temp.contains(s))
                 mwlItem.addScheduledStationAETs(s);
     }
@@ -166,9 +193,13 @@ public class ProcedureServiceEJB {
         mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
         if (scheduledStationAETitles != null)
-            for (String s : scheduledStationAETitles)
-                mwlItem.addScheduledStationAETs(s);
+            addAllScheduledStationAETsToMWL(scheduledStationAETitles, mwlItem);
         em.persist(mwlItem);
+    }
+
+    private void addAllScheduledStationAETsToMWL(Set<String> scheduledStationAETitles, MWLItem mwlItem) {
+        for (String s : scheduledStationAETitles)
+            mwlItem.addScheduledStationAETs(s);
     }
 
     private IssuerEntity findOrCreateIssuer(Attributes item) {

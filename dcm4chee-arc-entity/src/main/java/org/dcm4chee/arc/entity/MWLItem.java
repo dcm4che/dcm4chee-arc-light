@@ -227,7 +227,7 @@ public class MWLItem {
     }
 
     public boolean addScheduledStationAETs(String spsAET) {
-        return getScheduledStationAETs().add(spsAET.toUpperCase());
+        return getScheduledStationAETs().add(spsAET);
     }
 
     public void setPatient(Patient patient) {
