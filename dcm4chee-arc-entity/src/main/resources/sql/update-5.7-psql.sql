@@ -1,14 +1,7 @@
 create index UK_6ry2squ4qcv129lxpae1oy93m on study (created_time);
 alter table study alter storage_ids drop not null;
-
-create table ext_retrieve_aet (instance_fk int8 not null, retrieve_aet varchar(255));
-alter table ext_retrieve_aet add constraint FK_h5738j9g4vrxxh0n06v74f9pq foreign key (instance_fk) references instance;
-create index FK_h5738j9g4vrxxh0n06v74f9pq on ext_retrieve_aet (instance_fk) ;
-
-create table study_ext_retrieve_aet (study_fk int8 not null, retrieve_aet varchar(255));
-alter table study_ext_retrieve_aet add constraint FK_4ewtjnrk7hiy1dhypmvxrmeyc foreign key (study_fk) references study;
-create index FK_4ewtjnrk7hiy1dhypmvxrmeyc on study_ext_retrieve_aet (study_fk) ;
-create index UK_9bjf166lbmyirre66uoy96wag on study_ext_retrieve_aet (retrieve_aet);
+alter table study add ext_retrieve_aet varchar(255);
+create index UK_cl9dmi0kb97ov1cjh7rn3dhve on study (ext_retrieve_aet);
 
 create table stgcmt_result (pk int8 not null, created_time timestamp not null, device_name varchar(255) not null, exporter_id varchar(255) not null, num_failures int4, num_instances int4, series_iuid varchar(255), sop_iuid varchar(255), stgcmt_status int4 not null, study_iuid varchar(255) not null, transaction_uid varchar(255) not null, updated_time timestamp not null, primary key (pk));
 alter table stgcmt_result add constraint UK_ey6qpep2qtiwayou7pd0vj22w  unique (transaction_uid);
@@ -20,7 +13,8 @@ create index UK_nyoefler7agcmxc8t8yfngq7e on stgcmt_result (stgcmt_status);
 
 alter table series alter series_no drop not null;
 alter table instance alter inst_no drop not null;
-alter table instance add num_frames int4;
+alter table instance add num_frames int4, add ext_retrieve_aet varchar(255);
+create index UK_bvouoply3acp09dryhh3luj6d on instance (ext_retrieve_aet);
 
 alter table sps_station_aet drop pk
 drop sequence sps_station_aet_pk_seq;

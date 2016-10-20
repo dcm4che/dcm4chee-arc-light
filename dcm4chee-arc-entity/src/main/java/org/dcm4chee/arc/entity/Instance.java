@@ -110,7 +110,6 @@ import java.util.*;
 @NamedQuery(
     name = Instance.FIND_BY_STUDY_IUID,
     query = "select instance from Instance instance " +
-            "left join fetch instance.externalRetrieveAETs " +
             "where instance.series.study.studyInstanceUID = ?1"),
 @NamedQuery(
     name = Instance.IUIDS_OF_STUDY,
@@ -135,6 +134,7 @@ import java.util.*;
         @Index(columnList = "sr_verified"),
         @Index(columnList = "sr_complete"),
         @Index(columnList = "availability"),
+        @Index(columnList = "ext_retrieve_aet"),
         @Index(columnList = "inst_custom1"),
         @Index(columnList = "inst_custom2"),
         @Index(columnList = "inst_custom3")
@@ -214,6 +214,9 @@ public class Instance {
     @Column(name = "retrieve_aets")
     private String retrieveAETs;
 
+    @Column(name = "ext_retrieve_aet")
+    private String externalRetrieveAET;
+
     @Basic(optional = false)
     @Column(name = "availability")
     private Availability availability;
@@ -233,11 +236,6 @@ public class Instance {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "instance_fk")
     private Collection<VerifyingObserver> verifyingObservers;
-
-    @ElementCollection
-    @CollectionTable(name = "ext_retrieve_aet", joinColumns = @JoinColumn(name = "instance_fk"))
-    @Column(name = "retrieve_aet")
-    private Set<String> externalRetrieveAETs;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "instance_fk")
@@ -351,6 +349,14 @@ public class Instance {
         this.retrieveAETs = retrieveAETs;
     }
 
+    public String getExternalRetrieveAET() {
+        return externalRetrieveAET;
+    }
+
+    public void setExternalRetrieveAET(String externalRetrieveAET) {
+        this.externalRetrieveAET = externalRetrieveAET;
+    }
+
     public CodeEntity getConceptNameCode() {
         return conceptNameCode;
     }
@@ -371,17 +377,6 @@ public class Instance {
         if (verifyingObservers == null)
             verifyingObservers = new ArrayList<>();
         return verifyingObservers;
-    }
-
-    public Set<String> getExternalRetrieveAETs() {
-        if (externalRetrieveAETs == null)
-            externalRetrieveAETs = new HashSet();
-
-        return externalRetrieveAETs;
-    }
-
-    public boolean addExternalRetrieveAET(String aet) {
-        return getExternalRetrieveAETs().add(aet);
     }
 
     public Collection<ContentItem> getContentItems() {

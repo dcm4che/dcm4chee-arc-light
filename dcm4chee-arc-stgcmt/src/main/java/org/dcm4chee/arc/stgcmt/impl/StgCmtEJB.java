@@ -113,40 +113,25 @@ public class StgCmtEJB implements StgCmtManager {
     }
 
     private void updateExternalRetrieveAETs(Attributes eventInfo, String suid, ExporterDescriptor ed) {
-        String[] configRetrieveAETs = ed.getRetrieveAETitles();
+        String configRetrieveAET = ed.getRetrieveAETitles().length > 0 ? ed.getRetrieveAETitles()[0] : null;
         String defRetrieveAET = eventInfo.getString(Tag.RetrieveAETitle, ed.getStgCmtSCPAETitle());
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
         List<Instance> instances = em.createNamedQuery(Instance.FIND_BY_STUDY_IUID, Instance.class)
                                 .setParameter(1, suid).getResultList();
-        HashSet<Instance> i = new HashSet<>(instances);
-        for (Instance inst : i) {
+        HashSet<String> studyExternalAETs = new HashSet<>(4);
+        for (Instance inst : instances) {
             Attributes sopRef = sopRefOf(inst.getSopInstanceUID(), sopSeq);
             if (sopRef != null) {
-                if (configRetrieveAETs != null && configRetrieveAETs.length > 0) {
-                    for (String retrieveAET : configRetrieveAETs) {
-                        inst.addExternalRetrieveAET(retrieveAET);
-                    }
-                } else {
-                    inst.addExternalRetrieveAET(sopRef.getString(Tag.RetrieveAETitle, defRetrieveAET));
-                }
+                inst.setExternalRetrieveAET(
+                        configRetrieveAET != null
+                                ? configRetrieveAET
+                                : sopRef.getString(Tag.RetrieveAETitle, defRetrieveAET));
             }
+            if (!isRejectedOrRejectionNoteDataRetentionPolicyExpired(inst))
+                studyExternalAETs.add(inst.getExternalRetrieveAET());
         }
-        Iterator<Instance> iter = instances.iterator();
-        Instance inst1 = nextNotRejected(iter);
-        if (inst1 == null)
-            return;
-
-        HashSet<String> studyExternalAETs = new HashSet<>(inst1.getExternalRetrieveAETs());
-        Instance inst;
-        while ((inst = nextNotRejected(iter)) != null) {
-            studyExternalAETs.retainAll(inst.getExternalRetrieveAETs());
-        }
-        if (!studyExternalAETs.isEmpty()) {
-            Study study = inst1.getSeries().getStudy();
-            for (String s : studyExternalAETs) {
-                study.addExternalRetrieveAET(s);
-            }
-        }
+        if (studyExternalAETs.size() == 1 && !studyExternalAETs.contains(null))
+            instances.get(0).getSeries().getStudy().setExternalRetrieveAET(studyExternalAETs.iterator().next());
     }
 
     private Instance nextNotRejected(Iterator<Instance> iter) {

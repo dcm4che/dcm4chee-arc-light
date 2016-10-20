@@ -48,6 +48,7 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.retrieve.impl.InstanceLocationsImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -80,8 +81,9 @@ public interface RetrieveService {
 
     boolean calculateMatches(RetrieveContext ctx);
 
-    InstanceLocations newInstanceLocations(String sopClassUID, String sopInstanceUID, String retrieveAETs,
-           Availability availability, Date updatedTime, Attributes attrs);
+    InstanceLocations newInstanceLocations(
+            String sopClassUID, String sopInstanceUID, String retrieveAETs, String extRetrieveAET,
+            Availability availability, Date updatedTime, Attributes attrs);
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException;

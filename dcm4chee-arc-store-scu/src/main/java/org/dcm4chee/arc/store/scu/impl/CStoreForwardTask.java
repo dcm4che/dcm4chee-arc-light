@@ -153,7 +153,7 @@ class CStoreForwardTask implements Runnable {
         instAttrs.addAll(patAttrs);
         RetrieveService service = ctx.getRetrieveService();
         InstanceLocations instanceLocations = service.newInstanceLocations(
-                storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), null, null, null, instAttrs);
+                storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), null, null, null, null, instAttrs);
         instanceLocations.getLocations().addAll(locations(storeCtx));
         return instanceLocations;
     }

@@ -100,8 +100,6 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private static final int MAX_FAILED_IUIDS_LEN = 4000;
 
-    private static final Path<String> externalRetrieveAET = Expressions.stringPath("retrieveAET");
-
     private static final Expression<?>[] SELECT = {
             QLocation.location.pk,
             QLocation.location.storageID,
@@ -116,9 +114,9 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.sopClassUID,
             QInstance.instance.sopInstanceUID,
             QInstance.instance.retrieveAETs,
+            QInstance.instance.externalRetrieveAET,
             QInstance.instance.availability,
             QInstance.instance.updatedTime,
-            externalRetrieveAET,
             QUIDMap.uIDMap.pk,
             QUIDMap.uIDMap.encodedMap,
             QueryBuilder.instanceAttributesBlob.encodedAttributes
@@ -303,6 +301,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                             tuple.get(QInstance.instance.sopClassUID),
                             tuple.get(QInstance.instance.sopInstanceUID),
                             tuple.get(QInstance.instance.retrieveAETs),
+                            tuple.get(QInstance.instance.externalRetrieveAET),
                             tuple.get(QInstance.instance.availability),
                             tuple.get(QInstance.instance.updatedTime),
                             instAttrs);
@@ -310,7 +309,6 @@ public class RetrieveServiceImpl implements RetrieveService {
                     instMap.put(instPk, match);
                 }
                 addLocation(match, tuple);
-                addExternalRetrieveAET(match, tuple.get(externalRetrieveAET));
             }
             ctx.setNumberOfMatches(matches.size());
             ctx.getStudyInfos().addAll(studyInfoMap.values());
@@ -319,11 +317,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         } finally {
             session.close();
         }
-    }
-
-    private void addExternalRetrieveAET(InstanceLocations match, String aet) {
-        if (aet != null)
-            match.getExternalRetrieveAETs().add(aet);
     }
 
     private void addLocation(InstanceLocations match, Tuple tuple) {
@@ -350,8 +343,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public InstanceLocationsImpl newInstanceLocations(String sopClassUID, String sopInstanceUID, String retrieveAETs,
-              Availability availability, Date updatedTime, Attributes attrs) {
-        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, availability, updatedTime, attrs);
+              String extRetrieveAET, Availability availability, Date updatedTime, Attributes attrs) {
+        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, extRetrieveAET, availability,
+                updatedTime, attrs);
     }
 
     private void updateStudyAccessTime(RetrieveContext ctx) {
@@ -427,7 +421,6 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob)
                 .join(QInstance.instance.series, QSeries.series)
                 .join(QSeries.series.study, QStudy.study)
-                .leftJoin(QInstance.instance.externalRetrieveAETs, externalRetrieveAET)
                 .leftJoin(QInstance.instance.locations, QLocation.location);
 
         Location.ObjectType objectType = ctx.getObjectType();
@@ -513,11 +506,9 @@ public class RetrieveServiceImpl implements RetrieveService {
                 iter.remove();
                 if (!match.getLocations().isEmpty())
                     putMatchTo(notAccessable, altCMoveSCP, match, numMatches);
-                else if (!match.getExternalRetrieveAETs().isEmpty())
-                    for (String extRetrAET : match.getExternalRetrieveAETs())
-                        putMatchTo(notAccessable, extRetrAET, match, numMatches);
                 else
-                    putMatchTo(null, altCMoveSCP, match, numMatches);
+                    putMatchTo(notAccessable, StringUtils.maskNull(match.getExternalRetrieveAET(), altCMoveSCP),
+                            match, numMatches);
             }
         }
         return notAccessable;

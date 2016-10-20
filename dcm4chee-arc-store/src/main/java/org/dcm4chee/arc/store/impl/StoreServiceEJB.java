@@ -129,7 +129,7 @@ public class StoreServiceEJB {
             result.setPreviousInstance(prevInstance);
             LOG.info("{}: Found previous received {}", session, prevInstance);
             Study prevStudy = prevInstance.getSeries().getStudy();
-            if (prevInstance.getExternalRetrieveAETs().contains(session.getCallingAET())) {
+            if (session.getCallingAET().equals(prevInstance.getExternalRetrieveAET())) {
                 if (containsDicomFile(locations)) {
                     logInfo(IGNORE, ctx);
                     return result;
@@ -177,7 +177,7 @@ public class StoreServiceEJB {
                     prevInstance.setRejectionNoteCode(null);
                     result.setStoredInstance(prevInstance);
                     deleteQueryAttributes(prevInstance);
-                    prevStudy.clearExternalRetrieveAETs();
+                    prevStudy.setExternalRetrieveAET(null);
                     prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                     logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
                 }
@@ -213,7 +213,7 @@ public class StoreServiceEJB {
         result.setStoredInstance(instance);
         deleteQueryAttributes(instance);
         if(rjNote == null || !rjNote.isDataRetentionPolicyExpired())
-            instance.getSeries().getStudy().clearExternalRetrieveAETs();
+            instance.getSeries().getStudy().setExternalRetrieveAET(null);
         return result;
     }
 

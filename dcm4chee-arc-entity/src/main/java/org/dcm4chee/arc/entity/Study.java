@@ -86,7 +86,7 @@ import java.util.*;
 @NamedQuery(
     name=Study.FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET,
     query="select st.pk from Study st " +
-            "where st.storageIDs = ?1 and ?2 member of st.externalRetrieveAETs " +
+            "where st.storageIDs = ?1 and st.externalRetrieveAET = ?2 " +
             "order by st.accessTime"),
 @NamedQuery(
     name=Study.UPDATE_ACCESS_TIME,
@@ -133,8 +133,9 @@ import java.util.*;
         @Index(columnList = "study_custom3"),
         @Index(columnList = "expiration_date"),
         @Index(columnList = "failed_retrieves"),
-        @Index(columnList = "failed_iuids")
-})
+        @Index(columnList = "failed_iuids"),
+        @Index(columnList = "ext_retrieve_aet")
+    })
 public class Study {
 
     public static final String FIND_BY_PATIENT = "Study.findByPatient";
@@ -233,6 +234,9 @@ public class Study {
     @Column(name = "expiration_date")
     private String expirationDate;
 
+    @Column(name = "ext_retrieve_aet")
+    private String externalRetrieveAET;
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
     private AttributesBlob attributesBlob;
@@ -253,12 +257,6 @@ public class Study {
 
     @OneToMany(mappedBy = "study", cascade=CascadeType.ALL)
     private Collection<StudyQueryAttributes> queryAttributes;
-
-    @ElementCollection
-    @CollectionTable(name = "study_ext_retrieve_aet", joinColumns = @JoinColumn(name = "study_fk"),
-            indexes = @Index(columnList = "retrieve_aet"))
-    @Column(name = "retrieve_aet")
-    private Set<String> externalRetrieveAETs;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_fk")
@@ -438,27 +436,19 @@ public class Study {
         this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
     }
 
+    public String getExternalRetrieveAET() {
+        return externalRetrieveAET;
+    }
+
+    public void setExternalRetrieveAET(String externalRetrieveAET) {
+        this.externalRetrieveAET = externalRetrieveAET;
+    }
+
     public Collection<CodeEntity> getProcedureCodes() {
         if (procedureCodes == null)
             procedureCodes = new ArrayList<>();
 
         return procedureCodes;
-    }
-
-    public Set<String> getExternalRetrieveAETs() {
-        if (externalRetrieveAETs == null)
-            externalRetrieveAETs = new HashSet<>();
-
-        return externalRetrieveAETs;
-    }
-
-    public boolean addExternalRetrieveAET(String aet) {
-        return getExternalRetrieveAETs().add(aet);
-    }
-
-    public void clearExternalRetrieveAETs() {
-        if (externalRetrieveAETs != null)
-            externalRetrieveAETs.clear();
     }
 
     public Patient getPatient() {
