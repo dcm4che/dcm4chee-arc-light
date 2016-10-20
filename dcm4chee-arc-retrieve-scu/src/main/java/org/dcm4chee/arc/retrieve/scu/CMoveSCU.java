@@ -54,18 +54,9 @@ public interface CMoveSCU {
 
     RetrieveTask newForwardRetrieveTask(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
-            String fallbackCMoveSCP) throws DicomServiceException;
+            String otherCMoveSCP, String otherMoveDest) throws DicomServiceException;
 
-    RetrieveTask newForwardRetrieveTask(
+    void forwardMoveRQ(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
-            String fallbackCMoveSCP, String fallbackCMoveSCPDestination)
-            throws DicomServiceException;
-
-    void forwardMoveRQs(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes[] keys, String otherCMoveSCP)
-            throws DicomServiceException;
-
-    void forwardMoveRQs(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
-            String fallbackCMoveSCP, String fallbackCMoveSCPDestination) throws DicomServiceException;
+            String otherCMoveSCP, String otherMoveDest) throws DicomServiceException;
 }

@@ -449,8 +449,8 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public int remaining() {
-         return Math.max(numberOfMatches + cstoreForwards.size(), fallbackMoveRSPNumberOfMatches)
-                 - completed() - warning() - failed();
+         return Math.max(0,
+                 Math.max(numberOfMatches, fallbackMoveRSPNumberOfMatches) - completed() - warning() - failed());
     }
 
     @Override

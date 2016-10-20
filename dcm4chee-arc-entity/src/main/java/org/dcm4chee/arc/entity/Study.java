@@ -46,6 +46,7 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.conf.Duration;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -304,6 +305,18 @@ public class Study {
 
     public void setAccessTime(Date accessTime) {
         this.accessTime = accessTime;
+    }
+
+    public boolean updateAccessTime(Duration maxAccessTimeStaleness) {
+        if (maxAccessTimeStaleness == null)
+            return false;
+
+        Date now = new Date();
+        if (accessTime.getTime() + maxAccessTimeStaleness.getSeconds() * 1000 < now.getTime()) {
+            accessTime = now;
+            return true;
+        }
+        return false;
     }
 
     public String[] getStorageIDs() {

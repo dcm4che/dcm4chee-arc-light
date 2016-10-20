@@ -175,8 +175,8 @@ final class RetrieveTaskImpl implements RetrieveTask {
     }
 
     private void writeFinalRSP() {
-        int remaining = ctx.remaining();
-        writeRSP(remaining > 0 ? Status.Cancel : ctx.status(), remaining, finalRSPDataset());
+        ctx.addFailed(ctx.remaining());
+        writeRSP(ctx.status(), 0, finalRSPDataset());
     }
 
     private Attributes finalRSPDataset() {

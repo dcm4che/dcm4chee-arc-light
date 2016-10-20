@@ -95,8 +95,6 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
         RetrieveContext ctx = newRetrieveContext(as, rq, qrLevel, keys);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        String altCMoveSCP = arcAE.alternativeCMoveSCP();
-        String extRetrieveAEDestination = arcAE.externalRetrieveAEDestination();
         String fallbackCMoveSCP = arcAE.fallbackCMoveSCP();
         String fallbackCMoveSCPDestination = arcAE.fallbackCMoveSCPDestination();
         if (!retrieveService.calculateMatches(ctx)) {
@@ -105,143 +103,48 @@ class CommonCMoveSCP extends BasicCMoveSCP {
 
             LOG.info("{}: No objects of study{} found - forward C-MOVE RQ to {}",
                     as, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
-            return fallbackCMoveSCPDestination == null
-                    ? moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP)
-                    : moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP,
-                        fallbackCMoveSCPDestination);
+            return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
         }
-        boolean retryFailedRetrieve = fallbackCMoveSCP != null
-                && fallbackCMoveSCPDestination != null
-                && retryFailedRetrieve(ctx, qrLevel);
-        ctx.setRetryFailedRetrieve(retryFailedRetrieve);
         Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
-        Collection<InstanceLocations> notRetrieveable = notAccessable.get(null);
-        Map.Entry<String, Collection<InstanceLocations>> remoteAccessable = removeWithMaxInstances(notAccessable);
-        if (remoteAccessable != null) {
-            if (!retryFailedRetrieve && ctx.getMatches().isEmpty() && notAccessable.isEmpty()) {
-                String extRetrAET = remoteAccessable.getKey();
-                LOG.info("{}: No objects of study{} locally accessable - forward C-MOVE RQ to {}",
-                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), extRetrAET);
-                    return extRetrieveAEDestination == null || extRetrAET.equals(altCMoveSCP)
-                        ? moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, extRetrAET)
-                        : moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, extRetrAET, extRetrieveAEDestination);
-            }
-            Set<SeriesKey> localSeries = seriesOf(ctx.getMatches());
-            do {
-                String extRetrAET = remoteAccessable.getKey();
-                Map<SeriesKey, Collection<String>> remoteSeries = instancesBySeriesOf(remoteAccessable.getValue());
-                LOG.info("{}: {} objects of study{} not locally accessable - send {} C-MOVE RQs to {}",
-                        as, notAccessable.size(), Arrays.toString(ctx.getStudyInstanceUIDs()), remoteSeries.size(),
-                        extRetrAET);
-                try {
-                    moveSCU.forwardMoveRQs(ctx, pc, rq, toKeys(remoteSeries, localSeries), extRetrAET);
-                } catch (Exception e) {
-                    for (InstanceLocations inst: remoteAccessable.getValue()) {
-                        ctx.incrementFailed();
-                        ctx.addFailedSOPInstanceUID(inst.getSopInstanceUID());
-                    }
+        String altCMoveSCP = arcAE.alternativeCMoveSCP();
+        if (!as.getCallingAET().equals(altCMoveSCP)) {
+            boolean retryFailedRetrieve = fallbackCMoveSCP != null
+                    && fallbackCMoveSCPDestination != null
+                    && retryFailedRetrieve(ctx, qrLevel);
+            Collection<InstanceLocations> notRetrieveable = notAccessable.remove(null); //TODO
+            Iterator<Map.Entry<String, Collection<InstanceLocations>>> notAccessableIter = notAccessable.entrySet().iterator();
+            if (notAccessableIter.hasNext()) {
+                Map.Entry<String, Collection<InstanceLocations>> notAccessableNext = notAccessableIter.next();
+                String otherCMoveSCP = notAccessableNext.getKey();
+                String otherMoveDest = otherCMoveSCP.equals(altCMoveSCP) ? null : arcAE.externalRetrieveAEDestination();
+                while (notAccessableIter.hasNext()) {
+                    LOG.info("{}: {} objects of study{} not locally accessable - send C-MOVE RQ to {}",
+                            as, notAccessableNext.getValue().size(), Arrays.toString(ctx.getStudyInstanceUIDs()),
+                            otherCMoveSCP);
+                    moveSCU.forwardMoveRQ(ctx, pc, rq, keys, otherCMoveSCP, otherMoveDest);
+                    notAccessableNext = notAccessableIter.next();
+                    otherCMoveSCP = notAccessableNext.getKey();
+                    otherMoveDest = otherCMoveSCP.equals(altCMoveSCP) ? null : arcAE.externalRetrieveAEDestination();
                 }
+                LOG.info("{}: {} objects of study{} not locally accessable - send C-MOVE RQ to {}",
+                    as, notAccessableNext.getValue().size(), Arrays.toString(ctx.getStudyInstanceUIDs()),
+                    otherCMoveSCP);
+                if (!retryFailedRetrieve && ctx.getMatches().isEmpty()) {
+                    return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, otherCMoveSCP, otherMoveDest);
+                }
+                moveSCU.forwardMoveRQ(ctx, pc, rq, keys, otherCMoveSCP, otherMoveDest);
+            }
+            if (retryFailedRetrieve) {
+                ctx.setRetryFailedRetrieve(retryFailedRetrieve);
+                LOG.info("{}: Some objects of study{} not found - retry forward C-MOVE RQ to {}",
+                        as, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
+                if (ctx.getMatches().isEmpty())
+                    return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
 
-            } while ((remoteAccessable = removeWithMaxInstances(notAccessable)) != null);
-        }
-        if (retryFailedRetrieve) {
-            LOG.info("{}: Some objects of study{} not found - retry forward C-MOVE RQ to {}",
-                    as, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
-            if (ctx.getMatches().isEmpty())
-                return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
-
-            moveSCU.forwardMoveRQs(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
+                moveSCU.forwardMoveRQ(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
+            }
         }
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
-    }
-
-    private Map.Entry<String, Collection<InstanceLocations>> removeWithMaxInstances(
-            Map<String, Collection<InstanceLocations>> notAccessable) {
-        if (notAccessable.isEmpty())
-            return null;
-
-        Map.Entry<String, Collection<InstanceLocations>> result = null;
-        for (Map.Entry<String, Collection<InstanceLocations>> entry : notAccessable.entrySet()) {
-            if (result == null || result.getValue().size() < entry.getValue().size())
-                result = entry;
-        }
-        notAccessable.remove(result.getKey());
-        for (Collection<InstanceLocations> values : notAccessable.values()) {
-            values.removeAll(result.getValue());
-        }
-        return result;
-    }
-
-    private Set<SeriesKey> seriesOf(Collection<InstanceLocations> instances) {
-        Set<SeriesKey> series = new HashSet<>();
-        for (InstanceLocations instance : instances)
-            series.add(new SeriesKey(instance.getAttributes()));
-        return series;
-    }
-
-    private Map<SeriesKey, Collection<String>> instancesBySeriesOf(Collection<InstanceLocations> instances) {
-        Map<SeriesKey, Collection<String>> series = new HashMap<>();
-        for (InstanceLocations instance : instances) {
-            SeriesKey seriesKey = new SeriesKey(instance.getAttributes());
-            Collection<String> iuids = series.get(seriesKey);
-            if (iuids == null) {
-                iuids = new ArrayList<>(instances.size());
-                series.put(seriesKey, iuids);
-            }
-            iuids.add(instance.getSopInstanceUID());
-        }
-        return series;
-    }
-
-    private Attributes[] toKeys(Map<SeriesKey, Collection<String>> remoteSeries, Set<SeriesKey> localSeries) {
-        Attributes[] keys = new Attributes[remoteSeries.size()];
-        int i = 0;
-        for (Map.Entry<SeriesKey, Collection<String>> entry : remoteSeries.entrySet()) {
-            SeriesKey seriesKey = entry.getKey();
-            keys[i++] = seriesKey.makeKeys(
-                    localSeries.contains(seriesKey) ? QueryRetrieveLevel2.IMAGE : QueryRetrieveLevel2.SERIES,
-                    entry.getValue());
-        }
-        return keys;
-    }
-
-    private static class SeriesKey {
-        final String studyIUID;
-        final String seriesIUID;
-
-        SeriesKey(Attributes attrs) {
-            studyIUID = attrs.getString(Tag.StudyInstanceUID);
-            seriesIUID = attrs.getString(Tag.SeriesInstanceUID);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            SeriesKey seriesKey = (SeriesKey) o;
-
-            if (!studyIUID.equals(seriesKey.studyIUID)) return false;
-            return seriesIUID.equals(seriesKey.seriesIUID);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = studyIUID.hashCode();
-            result = 31 * result + seriesIUID.hashCode();
-            return result;
-        }
-
-        public Attributes makeKeys(QueryRetrieveLevel2 qrLevel, Collection<String> iuids) {
-            Attributes keys = new Attributes(4);
-            keys.setString(Tag.QueryRetrieveLevel, VR.CS, qrLevel.toString());
-            if (qrLevel == QueryRetrieveLevel2.IMAGE)
-                keys.setString(Tag.SOPInstanceUID, VR.UI, iuids.toArray(new String[iuids.size()]));
-            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
-            keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
-            return keys;
-        }
     }
 
     private RetrieveContext newRetrieveContext(Association as, Attributes rq, QueryRetrieveLevel2 qrLevel,

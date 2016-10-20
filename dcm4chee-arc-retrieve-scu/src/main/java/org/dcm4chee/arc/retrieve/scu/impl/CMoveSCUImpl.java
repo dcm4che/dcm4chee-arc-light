@@ -50,6 +50,7 @@ import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -78,32 +79,22 @@ public class CMoveSCUImpl implements CMoveSCU {
 
     @Override
     public RetrieveTask newForwardRetrieveTask(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String fallbackCMoveSCP)
-            throws DicomServiceException {
+            final RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String otherCMoveSCP,
+            String otherMoveDest) throws DicomServiceException {
         Association as = ctx.getRequestAssociation();
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        String altCMoveSCP = arcAE.alternativeCMoveSCP();
+        String callingAET = !otherCMoveSCP.equals(altCMoveSCP) ? as.getCallingAET() : null;
         try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
+            ApplicationEntity remoteAE = aeCache.findApplicationEntity(otherCMoveSCP);
             Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
+                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), callingAET));
             fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
-            return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas);
-        } catch (Exception e) {
-            throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
-        }
-    }
-
-    @Override
-    public RetrieveTask newForwardRetrieveTask(
-            final RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String fallbackCMoveSCP,
-            String fallbackCMoveSCPDestination) throws DicomServiceException {
-        Association as = ctx.getRequestAssociation();
-        try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
-            Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
+            if (otherMoveDest == null) {
+                return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas);
+            }
             ctx.setFallbackAssociation(fwdas);
-            fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
-            rq.setString(Tag.MoveDestination, VR.AE, fallbackCMoveSCPDestination);
+            rq.setString(Tag.MoveDestination, VR.AE, otherMoveDest);
             storeForwardSCU.addRetrieveContext(ctx);
             fwdas.addAssociationListener(new AssociationListener() {
                 @Override
@@ -118,48 +109,32 @@ public class CMoveSCUImpl implements CMoveSCU {
     }
 
     @Override
-    public void forwardMoveRQs(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes[] keys, String otherCMoveSCP)
-            throws DicomServiceException {
+    public void forwardMoveRQ(
+            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String otherCMoveSCP,
+            String otherMoveDest) throws DicomServiceException {
         Association as = ctx.getRequestAssociation();
-        Association fwdas = null;
+        String altCMoveSCP = ctx.getArchiveAEExtension().alternativeCMoveSCP();
+        String callingAET = !otherCMoveSCP.equals(altCMoveSCP) ? as.getCallingAET() : null;
         try {
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(otherCMoveSCP);
-            fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
-            ctx.setForwardAssociation(fwdas);
-            fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
-        } catch (Exception e) {
-            throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
-        }
-        rq = new Attributes(rq);
-        int msgID = rq.getInt(Tag.MessageID, 0);
-        for (int i = 0; i < keys.length; i++) {
-            rq.setInt(Tag.MessageID, VR.US, msgID + i);
-            new ForwardRetrieveTask.UpdateRetrieveCtx(ctx, pc, rq, keys[i], fwdas).forwardMoveRQ();
-        }
-    }
-
-    @Override
-    public void forwardMoveRQs(
-            RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String fallbackCMoveSCP,
-            String fallbackCMoveSCPDestination) throws DicomServiceException {
-        Association as = ctx.getRequestAssociation();
-        try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(fallbackCMoveSCP);
             Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), as.getCallingAET()));
-            ctx.setFallbackAssociation(fwdas);
+                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), callingAET));
             fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
-            rq.setString(Tag.MoveDestination, VR.AE, fallbackCMoveSCPDestination);
-            storeForwardSCU.addRetrieveContext(ctx);
-            fwdas.addAssociationListener(new AssociationListener() {
-                @Override
-                public void onClose(Association association) {
-                    storeForwardSCU.removeRetrieveContext(ctx);
-                }
-            });
-            new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd).forwardMoveRQ();
+            if (otherMoveDest == null) {
+                ctx.setForwardAssociation(fwdas);
+                new ForwardRetrieveTask.UpdateRetrieveCtx(ctx, pc, rq, keys, fwdas).forwardMoveRQ();
+            } else {
+                ctx.setFallbackAssociation(fwdas);
+                rq.setString(Tag.MoveDestination, VR.AE, otherMoveDest);
+                storeForwardSCU.addRetrieveContext(ctx);
+                fwdas.addAssociationListener(new AssociationListener() {
+                    @Override
+                    public void onClose(Association association) {
+                        storeForwardSCU.removeRetrieveContext(ctx);
+                    }
+                });
+                new ForwardRetrieveTask.ForwardCStoreRQ(ctx, pc, rq, keys, fwdas, retrieveEnd).forwardMoveRQ();
+            }
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }

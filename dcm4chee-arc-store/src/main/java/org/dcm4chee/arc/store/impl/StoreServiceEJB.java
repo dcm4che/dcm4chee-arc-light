@@ -128,11 +128,14 @@ public class StoreServiceEJB {
             Collection<Location> locations = prevInstance.getLocations();
             result.setPreviousInstance(prevInstance);
             LOG.info("{}: Found previous received {}", session, prevInstance);
+            Study prevStudy = prevInstance.getSeries().getStudy();
             if (prevInstance.getExternalRetrieveAETs().contains(session.getCallingAET())) {
                 if (containsDicomFile(locations)) {
                     logInfo(IGNORE, ctx);
                     return result;
                 }
+                prevStudy.addStorageID(arcAE.storageID());
+                prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 createLocation(ctx, prevInstance, result, Location.ObjectType.DICOM_FILE);
                 result.setStoredInstance(prevInstance);
                 return result;
@@ -174,7 +177,8 @@ public class StoreServiceEJB {
                     prevInstance.setRejectionNoteCode(null);
                     result.setStoredInstance(prevInstance);
                     deleteQueryAttributes(prevInstance);
-                    prevInstance.getSeries().getStudy().clearExternalRetrieveAETs();
+                    prevStudy.clearExternalRetrieveAETs();
+                    prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                     logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
                 }
                 return result;
@@ -633,10 +637,13 @@ public class StoreServiceEJB {
         Study study = storeSession.getCachedStudy(ctx.getStudyInstanceUID());
         if (study == null)
             try {
+                ArchiveAEExtension arcAE = storeSession.getArchiveAEExtension();
+                ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
-                study.addStorageID(storeSession.getArchiveAEExtension().storageID());
+                study.addStorageID(arcAE.storageID());
+                study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 if (result.getRejectionNote() == null)
                     updateStudyRejectionState(ctx, study);
             } catch (NoResultException e) {}
@@ -662,11 +669,15 @@ public class StoreServiceEJB {
         Series series = storeSession.getCachedSeries(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID());
         if (series == null)
             try {
+                ArchiveAEExtension arcAE = storeSession.getArchiveAEExtension();
+                ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
                 series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .setParameter(2, ctx.getSeriesInstanceUID())
                         .getSingleResult();
-                series.getStudy().addStorageID(storeSession.getArchiveAEExtension().storageID());
+                Study study = series.getStudy();
+                study.addStorageID(storeSession.getArchiveAEExtension().storageID());
+                study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 if (result.getRejectionNote() == null)
                     updateSeriesRejectionState(ctx, series);
             } catch (NoResultException e) {}
