@@ -155,6 +155,10 @@ public class Patient {
     @JoinColumn(name = "pat_name_fk")
     private PersonName patientName;
 
+    @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "responsible_person_fk")
+    private PersonName responsiblePerson;
+
     @ManyToOne
     @JoinColumn(name = "merge_fk")
     private Patient mergedWith;
@@ -269,6 +273,10 @@ public class Patient {
         this.patientID = patientID;
     }
 
+    public PersonName getResponsiblePerson() {
+        return responsiblePerson;
+    }
+
     public Attributes getAttributes() throws BlobCorruptedException {
         return attributesBlob.getAttributes();
     }
@@ -290,6 +298,10 @@ public class Patient {
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
+
+        responsiblePerson = PersonName.valueOf(
+                attrs.getString(Tag.ResponsiblePerson), fuzzyStr, responsiblePerson);
+
         updatedTime = new Date();
     }
 }

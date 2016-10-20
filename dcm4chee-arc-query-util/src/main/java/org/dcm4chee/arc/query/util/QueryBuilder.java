@@ -72,6 +72,7 @@ public class QueryBuilder {
     public static final QPersonName performingPhysicianName = new QPersonName("performingPhysicianName");
     public static final QPersonName verifyingObserverName = new QPersonName("verifyingObserverName");
     public static final QPersonName requestingPhysician = new QPersonName("requestingPhysician");
+    public static final QPersonName responsiblePerson = new QPersonName("responsiblePerson");
     public static final QAttributesBlob patientAttributesBlob = new QAttributesBlob("patientAttributesBlob");
     public static final QAttributesBlob studyAttributesBlob = new QAttributesBlob("studyAttributesBlob");
     public static final QAttributesBlob seriesAttributesBlob =  new QAttributesBlob("seriesAttributesBlob");
@@ -207,7 +208,8 @@ public class QueryBuilder {
             query = query.join(QPatient.patient.patientName, QueryBuilder.patientName);
         else if (orderByPatientName)
             query = query.leftJoin(QPatient.patient.patientName, QueryBuilder.patientName);
-
+        if (!isUniversalMatching(keys.getString(Tag.ResponsiblePerson)))
+            query = query.join(QPatient.patient.responsiblePerson, QueryBuilder.responsiblePerson);
         query = query.join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob);
         return query;
 
@@ -255,6 +257,7 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
         if (!queryParam.isWithoutStudies())
             builder.and(QPatient.patient.numberOfStudies.gt(0));
+        builder.and(MatchPersonName.match(QueryBuilder.responsiblePerson, keys.getString(Tag.ResponsiblePerson, "*"), queryParam));
     }
 
     public static HibernateQuery<Tuple> applyStudyLevelJoins(

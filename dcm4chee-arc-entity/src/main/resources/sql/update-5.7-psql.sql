@@ -19,4 +19,6 @@ create index UK_bvouoply3acp09dryhh3luj6d on instance (ext_retrieve_aet);
 alter table sps_station_aet drop pk
 drop sequence sps_station_aet_pk_seq;
 
+alter table patient add column responsible_person_fk int8;
+
 create sequence stgcmt_result_pk_seq;
