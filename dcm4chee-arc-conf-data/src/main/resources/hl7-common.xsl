@@ -102,6 +102,77 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template name="vet-owner">
+    <xsl:param name="owner"/>
+    <xsl:if test="$owner/text()">
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00102297'"/>
+        <xsl:with-param name="vr" select="'PN'"/>
+        <xsl:with-param name="val" select="$owner/text()"/>
+      </xsl:call-template>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00102298'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'OWNER'"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="vet-species">
+    <xsl:param name="species"/>
+    <xsl:if test="$species/text()">
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00102201'"/>
+        <xsl:with-param name="vr" select="'LO'"/>
+        <xsl:with-param name="val" select="$species/component[1]"/>
+      </xsl:call-template>
+      <xsl:call-template name="vet-codeItem">
+        <xsl:with-param name="sqtag" select="'00102202'"/>
+        <xsl:with-param name="code" select="$species/text()"/>
+        <xsl:with-param name="meaning" select="$species/component[1]"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="vet-breed">
+    <xsl:param name="breed"/>
+    <xsl:if test="$breed/text()">
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00102292'"/>
+        <xsl:with-param name="vr" select="'LO'"/>
+        <xsl:with-param name="val" select="$breed/component[1]"/>
+      </xsl:call-template>
+      <xsl:call-template name="vet-codeItem">
+        <xsl:with-param name="sqtag" select="'00102293'"/>
+        <xsl:with-param name="code" select="$breed/text()"/>
+        <xsl:with-param name="meaning" select="$breed/component[1]"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="other-patient-ids">
+    <xsl:param name="chip"/>
+    <xsl:param name="tattoo"/>
+    <xsl:if test="$chip/text() or $tattoo/text()">
+      <DicomAttribute tag="00101002" vr="SQ">
+        <Item number="1">
+            <xsl:call-template name="vet-otherPIDs">
+              <xsl:with-param name="pid" select="$chip/text()"/>
+              <xsl:with-param name="pid-issuer" select="$chip/component[3]"/>
+              <xsl:with-param name="pid-type" select="'RFID'"/>
+            </xsl:call-template>
+        </Item>
+        <Item number="2">
+          <xsl:call-template name="vet-otherPIDs">
+            <xsl:with-param name="pid" select="$tattoo/text()"/>
+            <xsl:with-param name="pid-issuer" select="$tattoo/component[3]"/>
+            <xsl:with-param name="pid-type" select="'BARCODE'"/>
+          </xsl:call-template>
+        </Item>
+      </DicomAttribute>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template name="cx2pidAttrs">
     <xsl:param name="cx"/>
     <DicomAttribute tag="00100020" vr="LO">
@@ -198,7 +269,58 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template name="vet-codeItem">
+    <xsl:param name="sqtag"/>
+    <xsl:param name="code"/>
+    <xsl:param name="meaning"/>
+    <xsl:if test="$code">
+      <DicomAttribute tag="{$sqtag}" vr="SQ">
+        <Item number="1">
+          <!-- Code Value -->
+          <DicomAttribute tag="00080100" vr="SH">
+            <Value number="1">
+              <xsl:value-of select="$code"/>
+            </Value>
+          </DicomAttribute>
+          <!-- Code Meaning -->
+          <DicomAttribute tag="00080104" vr="LO">
+            <Value number="1">
+              <xsl:value-of select="$meaning"/>
+            </Value>
+          </DicomAttribute>
+        </Item>
+      </DicomAttribute>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="vet-otherPIDs">
+    <xsl:param name="pid"/>
+    <xsl:param name="pid-issuer"/>
+    <xsl:param name="pid-type"/>
+    <xsl:if test="$pid">
+        <!-- Patient ID -->
+        <DicomAttribute tag="00100020" vr="LO">
+          <Value number="1">
+            <xsl:value-of select="$pid"/>
+          </Value>
+        </DicomAttribute>
+        <!-- Issuer of Patient ID -->
+        <DicomAttribute tag="00100021" vr="LO">
+          <Value number="1">
+            <xsl:value-of select="$pid-issuer"/>
+          </Value>
+        </DicomAttribute>
+        <!-- Type of Patient ID -->
+        <DicomAttribute tag="00100022" vr="CS">
+          <Value number="1">
+            <xsl:value-of select="$pid-type"/>
+          </Value>
+        </DicomAttribute>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template match="PID">
+    <!-- Vet - Chip ID -->
     <!-- Patient Name -->
     <xsl:call-template name="xpn2pnAttr">
       <xsl:with-param name="tag" select="'00100010'"/>
@@ -228,6 +350,23 @@
     <xsl:call-template name="xpn2pnAttr">
       <xsl:with-param name="tag" select="'00101060'"/>
       <xsl:with-param name="xpn" select="field[6]"/>
+    </xsl:call-template>
+    <!-- Vet - other patient ids -->
+    <xsl:call-template name="other-patient-ids">
+      <xsl:with-param name="chip" select="field[2]" />
+      <xsl:with-param name="tattoo" select="field[4]" />
+    </xsl:call-template>
+    <!-- Vet - Patient's owner name -->
+    <xsl:call-template name="vet-owner">
+      <xsl:with-param name="owner" select="field[9]"/>
+    </xsl:call-template>
+    <!-- Vet - Patient species -->
+    <xsl:call-template name="vet-species">
+      <xsl:with-param name="species" select="field[35]"/>
+    </xsl:call-template>
+    <!-- Vet - Patient breed -->
+    <xsl:call-template name="vet-breed">
+      <xsl:with-param name="breed" select="field[36]"/>
     </xsl:call-template>
   </xsl:template>
   <xsl:template match="MRG">
