@@ -133,8 +133,6 @@ import java.util.*;
         @Index(columnList = "content_time"),
         @Index(columnList = "sr_verified"),
         @Index(columnList = "sr_complete"),
-        @Index(columnList = "availability"),
-        @Index(columnList = "ext_retrieve_aet"),
         @Index(columnList = "inst_custom1"),
         @Index(columnList = "inst_custom2"),
         @Index(columnList = "inst_custom3")

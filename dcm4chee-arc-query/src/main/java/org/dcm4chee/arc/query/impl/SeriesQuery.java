@@ -86,6 +86,7 @@ class SeriesQuery extends AbstractQuery {
             QSeries.series.failedSOPInstanceUIDList,
             QSeries.series.failedRetrieves,
             QSeries.series.sourceAET,
+            QSeries.series.externalRetrieveAET,
             QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -170,7 +171,11 @@ class SeriesQuery extends AbstractQuery {
         Attributes attrs = new Attributes(studyAttrs.size() + seriesAttrs.size() + 3);
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
-        attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+        String externalRetrieveAET = results.get(QSeries.series.externalRetrieveAET);
+        if (externalRetrieveAET != null)
+            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs, externalRetrieveAET);
+        else
+            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
         attrs.setString(Tag.InstanceAvailability, VR.CS,
             StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);

@@ -156,7 +156,7 @@ public class Patient {
     private PersonName patientName;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "responsible_person_fk")
+    @JoinColumn(name = "resp_person_fk")
     private PersonName responsiblePerson;
 
     @ManyToOne

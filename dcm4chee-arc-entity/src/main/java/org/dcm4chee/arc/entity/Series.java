@@ -263,6 +263,9 @@ public class Series {
     @Column(name = "src_aet")
     private String sourceAET;
 
+    @Column(name = "ext_retrieve_aet")
+    private String externalRetrieveAET;
+
     @Basic(optional = false)
     @Column(name = "rejection_state")
     private RejectionState rejectionState;
@@ -401,6 +404,14 @@ public class Series {
 
     public void setSourceAET(String sourceAET) {
         this.sourceAET = sourceAET;
+    }
+
+    public String getExternalRetrieveAET() {
+        return externalRetrieveAET;
+    }
+
+    public void setExternalRetrieveAET(String externalRetrieveAET) {
+        this.externalRetrieveAET = externalRetrieveAET;
     }
 
     public RejectionState getRejectionState() {

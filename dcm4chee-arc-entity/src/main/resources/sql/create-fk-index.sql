@@ -16,6 +16,7 @@ create index FK_44qwwvs50lgpog2cqmicxgt1f on mwl_item (perf_phys_name_fk) ;
 create index FK_sk77bwjgaoetvy1pbcgqf08g on patient (merge_fk) ;
 create index FK_39gahcxyursxfxe2ucextr65s on patient (patient_id_fk) ;
 create index FK_rj42ffdtimnrcwmqqlvj24gi2 on patient (pat_name_fk) ;
+create index FK_56r2g5ggptqgcvb3hl11adke2 on patient (resp_person_fk) ;
 create index FK_oo232lt89k1b5h8mberi9v152 on patient_id (issuer_fk) ;
 create index FK_fryhnb2ppb6fcop3jrrfwvnfy on rel_study_pcode (pcode_fk) ;
 create index FK_mnahh8fh77d365m6w2x4x3f4q on rel_study_pcode (study_fk) ;

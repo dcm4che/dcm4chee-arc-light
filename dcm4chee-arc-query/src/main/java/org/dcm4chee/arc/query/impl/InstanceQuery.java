@@ -66,6 +66,7 @@ class InstanceQuery extends AbstractQuery {
     private static final Expression<?>[] SELECT = {
             QSeries.series.pk,
             QInstance.instance.retrieveAETs,
+            QInstance.instance.externalRetrieveAET,
             QInstance.instance.availability,
             QInstance.instance.createdTime,
             QInstance.instance.updatedTime,
@@ -132,7 +133,11 @@ class InstanceQuery extends AbstractQuery {
         Attributes attrs = new Attributes(seriesAttrs.size() + instAtts.size() + 2);
         attrs.addAll(seriesAttrs);
         attrs.addAll(instAtts);
-        attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+        String externalRetrieveAET = results.get(QInstance.instance.externalRetrieveAET);
+        if (externalRetrieveAET != null)
+            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs, externalRetrieveAET);
+        else
+            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
         attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime, VR.DT,
                 results.get(QInstance.instance.createdTime));

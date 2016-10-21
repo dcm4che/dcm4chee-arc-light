@@ -80,6 +80,7 @@ class StudyQuery extends AbstractQuery {
             QStudy.study.failedRetrieves,
             QStudy.study.accessControlID,
             QStudy.study.storageIDs,
+            QStudy.study.externalRetrieveAET,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
             QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy,
@@ -158,7 +159,11 @@ class StudyQuery extends AbstractQuery {
         Attributes attrs = new Attributes(patAttrs.size() + studyAttrs.size() + 6);
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
-        attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+        String externalRetrieveAET = results.get(QStudy.study.externalRetrieveAET);
+        if (externalRetrieveAET != null)
+            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs, externalRetrieveAET);
+        else
+            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
         attrs.setString(Tag.InstanceAvailability, VR.CS,
                 StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);

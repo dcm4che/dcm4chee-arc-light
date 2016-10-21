@@ -49,10 +49,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.entity.Instance;
-import org.dcm4chee.arc.entity.QStgCmtResult;
-import org.dcm4chee.arc.entity.StgCmtResult;
-import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
@@ -118,7 +115,8 @@ public class StgCmtEJB implements StgCmtManager {
         Sequence sopSeq = eventInfo.getSequence(Tag.ReferencedSOPSequence);
         List<Instance> instances = em.createNamedQuery(Instance.FIND_BY_STUDY_IUID, Instance.class)
                                 .setParameter(1, suid).getResultList();
-        HashSet<String> studyExternalAETs = new HashSet<>(4);
+        Set<String> studyExternalAETs = new HashSet<>(4);
+        Map<Series,Set<String>> seriesExternalAETsMap = new IdentityHashMap<>();
         for (Instance inst : instances) {
             Attributes sopRef = sopRefOf(inst.getSopInstanceUID(), sopSeq);
             if (sopRef != null) {
@@ -127,8 +125,20 @@ public class StgCmtEJB implements StgCmtManager {
                                 ? configRetrieveAET
                                 : sopRef.getString(Tag.RetrieveAETitle, defRetrieveAET));
             }
-            if (!isRejectedOrRejectionNoteDataRetentionPolicyExpired(inst))
-                studyExternalAETs.add(inst.getExternalRetrieveAET());
+            if (!isRejectedOrRejectionNoteDataRetentionPolicyExpired(inst)) {
+                String externalRetrieveAET = inst.getExternalRetrieveAET();
+                Series series = inst.getSeries();
+                Set<String> seriesExternalAETs = seriesExternalAETsMap.get(series);
+                if (seriesExternalAETs == null)
+                    seriesExternalAETsMap.put(series, seriesExternalAETs = new HashSet<String>(4));
+                seriesExternalAETs.add(externalRetrieveAET);
+                studyExternalAETs.add(externalRetrieveAET);
+            }
+        }
+        for (Map.Entry<Series, Set<String>> entry : seriesExternalAETsMap.entrySet()) {
+            Set<String> seriesExternalAETs = entry.getValue();
+            if (seriesExternalAETs.size() == 1 && !seriesExternalAETs.contains(null))
+                entry.getKey().setExternalRetrieveAET(seriesExternalAETs.iterator().next());
         }
         if (studyExternalAETs.size() == 1 && !studyExternalAETs.contains(null))
             instances.get(0).getSeries().getStudy().setExternalRetrieveAET(studyExternalAETs.iterator().next());
