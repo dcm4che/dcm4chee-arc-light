@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,54 +35,40 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** END LICENSE BLOCK *****
  */
 
 package org.dcm4chee.arc.code.impl;
 
 import org.dcm4che3.data.Code;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.entity.CodeEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import javax.ejb.EJBException;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jul 2015
+ * @since Oct 2016
  */
-@Stateless
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class CodeServiceEJB {
+@ApplicationScoped
+public class CodeServiceImpl implements CodeService {
 
-    @PersistenceContext(unitName="dcm4chee-arc")
-    private EntityManager em;
+    static final Logger LOG = LoggerFactory.getLogger(CodeServiceImpl.class);
 
+    @Inject
+    private CodeServiceEJB ejb;
+
+    @Override
     public CodeEntity findOrCreate(Code code) {
         try {
-            return find(code);
-        } catch (NoResultException e) {
-            CodeEntity entity = new CodeEntity(code);
-            em.persist(entity);
-            em.flush();
-            return entity;
+            return ejb.findOrCreate(code);
+        } catch (EJBException e) {
+            LOG.info("Failed to update DB - retry:\n", e);
+            return ejb.findOrCreate(code);
         }
-    }
-
-    private CodeEntity find(Code code) {
-        TypedQuery<CodeEntity> query = em.createNamedQuery(
-                CodeEntity.FIND_BY_CODE_VALUE_WITH_SCHEME_VERSION,
-                CodeEntity.class)
-                .setParameter(1, code.getCodeValue())
-                .setParameter(2, code.getCodingSchemeDesignator())
-                .setParameter(3, StringUtils.maskNull(code.getCodingSchemeVersion(), "*"));
-        return query.getSingleResult();
     }
 }
