@@ -155,20 +155,33 @@
     <xsl:param name="tattoo"/>
     <xsl:if test="$chip/text() or $tattoo/text()">
       <DicomAttribute tag="00101002" vr="SQ">
-        <Item number="1">
+          <xsl:if test="$chip/text()">
             <xsl:call-template name="vet-otherPIDs">
+              <xsl:with-param name="itemNo" select="'1'"/>
               <xsl:with-param name="pid" select="$chip/text()"/>
               <xsl:with-param name="pid-issuer" select="$chip/component[3]"/>
+              <xsl:with-param name="default-pid-issuer" select="'CHIP'"/>
               <xsl:with-param name="pid-type" select="'RFID'"/>
             </xsl:call-template>
-        </Item>
-        <Item number="2">
-          <xsl:call-template name="vet-otherPIDs">
-            <xsl:with-param name="pid" select="$tattoo/text()"/>
-            <xsl:with-param name="pid-issuer" select="$tattoo/component[3]"/>
-            <xsl:with-param name="pid-type" select="'BARCODE'"/>
-          </xsl:call-template>
-        </Item>
+          </xsl:if>
+          <xsl:if test="$chip/text() and $tattoo/text()">
+            <xsl:call-template name="vet-otherPIDs">
+              <xsl:with-param name="itemNo" select="'2'"/>
+              <xsl:with-param name="pid" select="$tattoo/text()"/>
+              <xsl:with-param name="pid-issuer" select="$tattoo/component[3]"/>
+              <xsl:with-param name="default-pid-issuer" select="'TATTOO'"/>
+              <xsl:with-param name="pid-type" select="'BARCODE'"/>
+            </xsl:call-template>
+          </xsl:if>
+          <xsl:if test="not($chip/text()) and $tattoo/text()">
+            <xsl:call-template name="vet-otherPIDs">
+              <xsl:with-param name="itemNo" select="'1'"/>
+              <xsl:with-param name="pid" select="$tattoo/text()"/>
+              <xsl:with-param name="pid-issuer" select="$tattoo/component[3]"/>
+              <xsl:with-param name="default-pid-issuer" select="'TATTOO'"/>
+              <xsl:with-param name="pid-type" select="'BARCODE'"/>
+            </xsl:call-template>
+          </xsl:if>
       </DicomAttribute>
     </xsl:if>
   </xsl:template>
@@ -294,10 +307,13 @@
   </xsl:template>
 
   <xsl:template name="vet-otherPIDs">
+    <xsl:param name="itemNo"/>
     <xsl:param name="pid"/>
     <xsl:param name="pid-issuer"/>
+    <xsl:param name="default-pid-issuer"/>
     <xsl:param name="pid-type"/>
     <xsl:if test="$pid">
+      <Item number="{$itemNo}">
         <!-- Patient ID -->
         <DicomAttribute tag="00100020" vr="LO">
           <Value number="1">
@@ -307,7 +323,14 @@
         <!-- Issuer of Patient ID -->
         <DicomAttribute tag="00100021" vr="LO">
           <Value number="1">
-            <xsl:value-of select="$pid-issuer"/>
+              <xsl:choose>
+                <xsl:when test="$pid-issuer/text()">
+                  <xsl:value-of select="$pid-issuer/text()"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="$default-pid-issuer"/>
+                </xsl:otherwise>
+              </xsl:choose>
           </Value>
         </DicomAttribute>
         <!-- Type of Patient ID -->
@@ -316,6 +339,7 @@
             <xsl:value-of select="$pid-type"/>
           </Value>
         </DicomAttribute>
+      </Item>
     </xsl:if>
   </xsl:template>
 
