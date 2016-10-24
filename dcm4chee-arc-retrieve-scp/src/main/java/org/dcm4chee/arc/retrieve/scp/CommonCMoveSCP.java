@@ -101,13 +101,19 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             if (fallbackCMoveSCP == null)
                 return null;
 
+            ctx.setRetryFailedRetrieve(true);
             LOG.info("{}: No objects of study{} found - forward C-MOVE RQ to {}",
                     as, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
             return moveSCU.newForwardRetrieveTask(ctx, pc, rq, keys, fallbackCMoveSCP, fallbackCMoveSCPDestination);
         }
         Map<String, Collection<InstanceLocations>> notAccessable = retrieveService.removeNotAccessableMatches(ctx);
         String altCMoveSCP = arcAE.alternativeCMoveSCP();
-        if (!as.getCallingAET().equals(altCMoveSCP)) {
+        if (ctx.getMoveOriginatorAETitle().equals(altCMoveSCP)) {
+            // mask altCMoveSCP in Move Originator AET in C-STORE RQ - assume Destination originated Move RQ to altCMoveSCP
+            ctx.setMoveOriginatorAETitle(ctx.getDestinationAETitle());
+            // ignore not accessible matches - assume they are handled by altCMoveSCP
+            ctx.setNumberOfMatches(ctx.getMatches().size());
+        } else {
             boolean retryFailedRetrieve = fallbackCMoveSCP != null
                     && fallbackCMoveSCPDestination != null
                     && retryFailedRetrieve(ctx, qrLevel);
@@ -135,7 +141,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
                 moveSCU.forwardMoveRQ(ctx, pc, rq, keys, otherCMoveSCP, otherMoveDest);
             }
             if (retryFailedRetrieve) {
-                ctx.setRetryFailedRetrieve(retryFailedRetrieve);
+                ctx.setRetryFailedRetrieve(true);
                 LOG.info("{}: Some objects of study{} not found - retry forward C-MOVE RQ to {}",
                         as, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackCMoveSCP);
                 if (ctx.getMatches().isEmpty())

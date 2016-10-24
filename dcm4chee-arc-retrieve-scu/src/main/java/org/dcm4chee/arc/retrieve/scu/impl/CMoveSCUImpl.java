@@ -59,6 +59,8 @@ import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.EnumSet;
 
 /**
@@ -81,15 +83,8 @@ public class CMoveSCUImpl implements CMoveSCU {
     public RetrieveTask newForwardRetrieveTask(
             final RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String otherCMoveSCP,
             String otherMoveDest) throws DicomServiceException {
-        Association as = ctx.getRequestAssociation();
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        String altCMoveSCP = arcAE.alternativeCMoveSCP();
-        String callingAET = !otherCMoveSCP.equals(altCMoveSCP) ? as.getCallingAET() : null;
         try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(otherCMoveSCP);
-            Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), callingAET));
-            fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
+            Association fwdas = openAssociation(ctx, pc, otherCMoveSCP);
             if (otherMoveDest == null) {
                 return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas);
             }
@@ -112,14 +107,8 @@ public class CMoveSCUImpl implements CMoveSCU {
     public void forwardMoveRQ(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys, String otherCMoveSCP,
             String otherMoveDest) throws DicomServiceException {
-        Association as = ctx.getRequestAssociation();
-        String altCMoveSCP = ctx.getArchiveAEExtension().alternativeCMoveSCP();
-        String callingAET = !otherCMoveSCP.equals(altCMoveSCP) ? as.getCallingAET() : null;
         try {
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(otherCMoveSCP);
-            Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE,
-                    createAARQ(as.getAAssociateRQ().getPresentationContext(pc.getPCID()), callingAET));
-            fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
+            Association fwdas = openAssociation(ctx, pc, otherCMoveSCP);
             if (otherMoveDest == null) {
                 ctx.setForwardAssociation(fwdas);
                 new ForwardRetrieveTask.UpdateRetrieveCtx(ctx, pc, rq, keys, fwdas).forwardMoveRQ();
@@ -140,12 +129,19 @@ public class CMoveSCUImpl implements CMoveSCU {
         }
     }
 
-    private AAssociateRQ createAARQ(PresentationContext pc, String callingAET) {
+    private Association openAssociation(RetrieveContext ctx, PresentationContext pc, String otherCMoveSCP)
+            throws Exception {
+        ApplicationEntity remoteAE = aeCache.findApplicationEntity(otherCMoveSCP);
+        Association as = ctx.getRequestAssociation();
+        PresentationContext rqpc = as.getAAssociateRQ().getPresentationContext(pc.getPCID());
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.setCallingAET(callingAET);
-        aarq.addPresentationContext(pc);
-        aarq.addExtendedNegotiation(new ExtendedNegotiation(pc.getAbstractSyntax(),
+        if (!otherCMoveSCP.equals(ctx.getArchiveAEExtension().alternativeCMoveSCP()))
+            aarq.setCallingAET(as.getCallingAET());
+        aarq.addPresentationContext(rqpc);
+        aarq.addExtendedNegotiation(new ExtendedNegotiation(rqpc.getAbstractSyntax(),
                 QueryOption.toExtendedNegotiationInformation(EnumSet.of(QueryOption.RELATIONAL))));
-        return aarq;
+        Association fwdas = ctx.getLocalApplicationEntity().connect(remoteAE, aarq);
+        fwdas.setProperty("forward-C-MOVE-RQ-for-Study", ctx.getStudyInstanceUID());
+        return fwdas;
     }
 }
