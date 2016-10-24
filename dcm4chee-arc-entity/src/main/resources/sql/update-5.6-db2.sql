@@ -4,7 +4,7 @@ update patient set num_studies = (
 alter table patient alter num_studies set not null;
 create index UK_296rccryifu6d8byisl2f4dvq on patient (num_studies);
 
-alter table location add multi_ref integer, add uidmap_fk bigint, add object_type integer;
+alter table location add multi_ref integer add uidmap_fk bigint, add object_type integer;
 update location set object_type = 0;
 alter table location alter object_type set not null;
 alter table location alter tsuid drop not null;

@@ -7,7 +7,7 @@ create index UK_296rccryifu6d8byisl2f4dvq on patient (num_studies);
 alter table location add multi_ref integer, add uidmap_fk bigint, add object_type integer;
 update location set object_type = 0;
 alter table location modify object_type integer not null;
-alter table location modify tsuid drop not null;
+alter table location modify tsuid varchar(255);
 create table uidmap (pk bigint not null auto_increment, uidmap longblob not null, primary key (pk));
 
 --to be checked---
