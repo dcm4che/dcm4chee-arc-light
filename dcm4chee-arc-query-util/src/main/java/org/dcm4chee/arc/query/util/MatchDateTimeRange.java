@@ -93,22 +93,22 @@ class MatchDateTimeRange {
     static Predicate rangeMatch(StringPath dateField, StringPath timeField,
             int dateTag, int timeTag, long dateAndTimeTag,
             Attributes keys, boolean combinedDatetimeMatching) {
-        final boolean containsDateTag = keys.containsValue(dateTag);
-        final boolean containsTimeTag = keys.containsValue(timeTag);
-        if (!containsDateTag && !containsTimeTag)
+        DateRange dateRange = keys.getDateRange(dateTag, null);
+        DateRange timeRange = keys.getDateRange(timeTag, null);
+        if (dateRange == null && timeRange == null)
             return null;
 
         BooleanBuilder predicates = new BooleanBuilder();
-        if (containsDateTag && containsTimeTag && combinedDatetimeMatching) {
+        if (dateRange != null && timeRange != null && combinedDatetimeMatching) {
             predicates.and(ExpressionUtils.and(combinedRange(
                     dateField, timeField, keys.getDateRange(dateAndTimeTag, null)), dateField.ne("*")));
         } else {
-            if (containsDateTag)
-                predicates.and(ExpressionUtils.and(range(dateField, keys.getDateRange(dateTag, null), FormatDate.DA),
-                        dateField.ne("*")));
-            if (containsTimeTag)
-                predicates.and(ExpressionUtils.and(range(timeField, keys.getDateRange(timeTag, null), FormatDate.TM),
-                        timeField.ne("*")));
+            if (dateRange != null) {
+                predicates.and(ExpressionUtils.and(range(dateField, dateRange, FormatDate.DA), dateField.ne("*")));
+            }
+            if (timeRange != null) {
+                predicates.and(ExpressionUtils.and(range(timeField, timeRange, FormatDate.TM), timeField.ne("*")));
+            }
         }
         return predicates;
     }
