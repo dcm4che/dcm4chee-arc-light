@@ -56,8 +56,6 @@ import org.jclouds.io.payloads.InputStreamPayload;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 
 import java.io.*;
-import java.net.URI;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
@@ -108,7 +106,7 @@ public class CloudStorage extends AbstractStorage {
             endpoint = api.substring(endApi + 1);
             api = api.substring(0, endApi);
         }
-        this.uploader = api.equals("aws-s3") ? new AWS_S3Uploader() : DEFAULT_UPLOADER;
+        this.uploader = api.endsWith("s3") ? new S3Uploader() : DEFAULT_UPLOADER;
         ContextBuilder ctxBuilder = ContextBuilder.newBuilder(api);
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
@@ -167,10 +165,13 @@ public class CloudStorage extends AbstractStorage {
             while (blobStore.blobExists(container, storagePath))
                 storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
                         .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
-        } catch (ContainerNotFoundException e) {
+            uploader.upload(context, in, blobStore, container, storagePath);
+        } catch (RuntimeException e) {
+            if (!(e instanceof ContainerNotFoundException || e.getCause() instanceof ContainerNotFoundException))
+                throw e;
             blobStore.createContainerInLocation(null, container);
+            uploader.upload(context, in, blobStore, container, storagePath);
         }
-        uploader.upload(context, in, blobStore, container, storagePath);
         ctx.setStoragePath(storagePath);
     }
 

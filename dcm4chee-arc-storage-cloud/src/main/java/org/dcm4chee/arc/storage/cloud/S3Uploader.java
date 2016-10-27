@@ -46,6 +46,7 @@ import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.io.Payload;
 import org.jclouds.io.payloads.InputStreamPayload;
+import org.jclouds.s3.S3Client;
 import org.jclouds.s3.domain.ObjectMetadataBuilder;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ import java.util.Map;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
  */
-class AWS_S3Uploader extends InputStream implements Uploader {
+class S3Uploader extends InputStream implements Uploader {
 
     private static int BUFFER_SIZE  = 5120;
     private static int MAX_BUFFERS  = 1024;
@@ -149,7 +150,7 @@ class AWS_S3Uploader extends InputStream implements Uploader {
 
     private void uploadMultipleParts(BlobStoreContext context, InputStream in, BlobStore blobStore,
                                      String container, String storagePath) throws IOException {
-        AWSS3Client client = context.unwrapApi(AWSS3Client.class);
+        S3Client client = context.unwrapApi(S3Client.class);
         String uploadId = client.initiateMultipartUpload(container,
                 ObjectMetadataBuilder.create().key(storagePath).build());
         Map<Integer, String> parts = new HashMap<>();
