@@ -193,6 +193,7 @@ public class DeletionServiceEJB {
                 series.put(ser.getPk(), ser);
                 deleteSeriesQueryAttributes(ser);
             }
+            em.remove(inst);
         }
         HashMap<Long,Study> studies = new HashMap<>();
         for (Series ser : series.values()) {
@@ -200,7 +201,7 @@ public class DeletionServiceEJB {
             if (!studies.containsKey(study.getPk())) {
                 studies.put(study.getPk(), study);
                 deleteStudyQueryAttributes(study);
-           }
+            }
             if (countInstancesOfSeries(ser) == 0) {
                 em.remove(ser);
             } else {
