@@ -68,6 +68,8 @@
             <!-- jclouds modules -->
             <module name="org.apache.jclouds.core" export="TRUE"/>
             <module name="org.apache.jclouds.blobstore" export="TRUE" services="export"/>
+            <!-- emc-ecs modules -->
+            <module name="com.emc.ecs" export="TRUE"/>
         </dependencies>
     </deployment>
 </jboss-deployment-structure>

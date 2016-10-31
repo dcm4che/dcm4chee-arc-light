@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,65 +35,61 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.storage.cloud;
+package org.dcm4chee.arc.storage.emc.ecs;
 
+import com.emc.object.s3.S3Client;
+import com.emc.object.s3.S3ObjectMetadata;
+import com.emc.object.s3.bean.MultipartPartETag;
+import com.emc.object.s3.request.CompleteMultipartUploadRequest;
+import com.emc.object.s3.request.InitiateMultipartUploadRequest;
+import com.emc.object.s3.request.PutObjectRequest;
+import com.emc.object.s3.request.UploadPartRequest;
 import org.dcm4chee.arc.storage.CacheInputStream;
-import org.jclouds.blobstore.BlobStore;
-import org.jclouds.blobstore.BlobStoreContext;
-import org.jclouds.blobstore.domain.Blob;
-import org.jclouds.io.Payload;
-import org.jclouds.io.payloads.InputStreamPayload;
-import org.jclouds.s3.S3Client;
-import org.jclouds.s3.domain.ObjectMetadataBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @since Oct 2016
  */
 class S3Uploader extends CacheInputStream implements Uploader {
 
     @Override
-    public void upload(BlobStoreContext context, InputStream in, BlobStore blobStore,
-                       String container, String storagePath) throws IOException {
+    public void upload(S3Client s3, InputStream in, String container, String storagePath) throws IOException {
         if (fillBuffers(in))
-            uploadMultipleParts(context, in, container, storagePath);
+            uploadMultipleParts(s3, in, container, storagePath);
         else
-            uploadSinglePart(blobStore, container, storagePath);
+            uploadSinglePart(s3, container, storagePath);
     }
 
-    private void uploadSinglePart(BlobStore blobStore, String container, String storagePath) {
-        Blob blob = blobStore.blobBuilder(storagePath).payload(createPayload()).build();
-        blobStore.putBlob(container, blob);
+    private void uploadSinglePart(S3Client s3, String container, String storagePath) {
+        s3.putObject(new PutObjectRequest(container, storagePath, this)
+                .withObjectMetadata(new S3ObjectMetadata().withContentLength(available())));
     }
 
-    private Payload createPayload() {
-        Payload payload = new InputStreamPayload(this);
-        payload.getContentMetadata().setContentLength(new Long(available()));
-        return payload;
-    }
-
-    private void uploadMultipleParts(BlobStoreContext context, InputStream in, String container, String storagePath)
+    private void uploadMultipleParts(S3Client s3, InputStream in, String container, String storagePath)
             throws IOException {
-        S3Client client = context.unwrapApi(S3Client.class);
-        String uploadId = client.initiateMultipartUpload(container,
-                ObjectMetadataBuilder.create().key(storagePath).build());
-        Map<Integer, String> parts = new HashMap<>();
+        String uploadId = s3.initiateMultipartUpload(new InitiateMultipartUploadRequest(container, storagePath))
+                .getUploadId();
+        SortedSet<MultipartPartETag> parts = new TreeSet<>();
         int partNumber = 1;
         do {
-            parts.put(partNumber, client.uploadPart(container, storagePath, partNumber, uploadId, createPayload()));
+            parts.add(s3.uploadPart(new UploadPartRequest(container,  storagePath, uploadId, partNumber, this)
+                    .withContentLength(new Long(available()))));
             partNumber++;
         } while (fillBuffers(in));
-        if (available() > 0)
-            parts.put(partNumber, client.uploadPart(container, storagePath, partNumber, uploadId, createPayload()));
-        client.completeMultipartUpload(container, storagePath, uploadId, parts);
+        if (available() > 0) {
+            parts.add(s3.uploadPart(
+                    new UploadPartRequest(container,  storagePath, uploadId, partNumber, this)
+                            .withContentLength(new Long(available()))));
+        }
+        s3.completeMultipartUpload(
+                new CompleteMultipartUploadRequest(container, storagePath, uploadId).withParts(parts));
     }
 
 }

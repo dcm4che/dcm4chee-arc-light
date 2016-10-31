@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,92 +35,78 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.storage.cloud;
+package org.dcm4chee.arc.storage.emc.ecs;
 
+import com.emc.object.s3.S3Client;
+import com.emc.object.s3.S3Config;
+import com.emc.object.s3.S3Exception;
+import com.emc.object.s3.bean.GetObjectResult;
+import com.emc.object.s3.jersey.S3JerseyClient;
+import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
-import org.jclouds.ContextBuilder;
-import org.jclouds.blobstore.BlobStore;
-import org.jclouds.blobstore.BlobStoreContext;
-import org.jclouds.blobstore.domain.Blob;
-import org.jclouds.io.Payload;
-import org.jclouds.io.payloads.InputStreamPayload;
-import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 
 import java.io.*;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
+import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * @author Steve Kroetsch<stevekroetsch@hotmail.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @since Oct 2016
  */
-public class CloudStorage extends AbstractStorage {
+public class EMCECSStorage extends AbstractStorage {
+
+    public static final String PROPERTY_STREAMING = "emc-ecs-s3.streaming";
+    public static final String PROPERTY_URL_CONNECTION_CLIENT_HANDLER = "emc-ecs-s3.URLConnectionClientHandler";
 
     private static final String DEFAULT_CONTAINER = "org.dcm4chee.arc";
-    private static final Uploader DEFAULT_UPLOADER = new Uploader() {
+    private static final Uploader STREAMING_UPLOADER = new Uploader() {
         @Override
-        public void upload(BlobStoreContext context, InputStream in, BlobStore blobStore, String container,
-                           String storagePath) throws IOException {
-            Payload payload = new InputStreamPayload(in);
-            Blob blob = blobStore.blobBuilder(storagePath).payload(payload).build();
-            blobStore.putBlob(container, blob);
+        public void upload(S3Client s3, InputStream in, String container,  String storagePath) throws IOException {
+            s3.putObject(container, storagePath, in, null);
         }
     };
+
     private final Device device;
     private final AttributesFormat pathFormat;
     private final String container;
-    private final BlobStoreContext context;
+    private final S3Client s3;
     private final Uploader uploader;
     private int count;
 
-    @Override
-    public WriteContext createWriteContext() {
-        return new CloudWriteContext(this);
-    }
-
-    protected CloudStorage(StorageDescriptor descriptor, Device device) {
+    public EMCECSStorage(StorageDescriptor descriptor, Device device) {
         super(descriptor);
         this.device = device;
         pathFormat = new AttributesFormat(descriptor.getProperty("pathFormat", DEFAULT_PATH_FORMAT));
         container = descriptor.getProperty("container", DEFAULT_CONTAINER);
         if (Boolean.parseBoolean(descriptor.getProperty("containerExists", null))) count++;
-        String api = descriptor.getStorageURI().getSchemeSpecificPart();
-        String endpoint = null;
-        int endApi = api.indexOf(':');
-        if (endApi != -1) {
-            endpoint = api.substring(endApi + 1);
-            api = api.substring(0, endApi);
-        }
-        this.uploader = api.endsWith("s3") ? new S3Uploader() : DEFAULT_UPLOADER;
-        ContextBuilder ctxBuilder = ContextBuilder.newBuilder(api);
+        String endpoint = descriptor.getStorageURI().getSchemeSpecificPart();
+        S3Config config = new S3Config(URI.create(endpoint));
         String identity = descriptor.getProperty("identity", null);
         if (identity != null)
-            ctxBuilder.credentials(identity, descriptor.getProperty("credential", null));
-        if (endpoint != null)
-            ctxBuilder.endpoint(endpoint);
-        Properties overrides = new Properties();
-        for (Map.Entry<String, String> entry : descriptor.getProperties().entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith("jclouds."))
-                overrides.setProperty(key, entry.getValue());
-        }
-        ctxBuilder.overrides(overrides);
-        ctxBuilder.modules(Collections.singleton(new SLF4JLoggingModule()));
-        context = ctxBuilder.buildView(BlobStoreContext.class);
+            config.withIdentity(identity).withSecretKey(descriptor.getProperty("credential", null));
+        this.uploader = Boolean.parseBoolean(descriptor.getProperty(PROPERTY_STREAMING, null))
+                ? STREAMING_UPLOADER
+                : new S3Uploader();
+        s3 = new S3JerseyClient(config,
+                Boolean.parseBoolean(descriptor.getProperty(PROPERTY_URL_CONNECTION_CLIENT_HANDLER, null))
+                        ? new URLConnectionClientHandler()
+                        : null);
+    }
+
+    @Override
+    public WriteContext createWriteContext() {
+        return new EMCECSWriteContext(this);
     }
 
     @Override
@@ -137,14 +123,14 @@ public class CloudStorage extends AbstractStorage {
                 return null;
             }
         });
-        ((CloudWriteContext) ctx).setUploadTask(task);
+        ((EMCECSWriteContext) ctx).setUploadTask(task);
         device.execute(task);
         return new PipedOutputStream(in);
     }
 
     @Override
     protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {
-        FutureTask<Void> task = ((CloudWriteContext) ctx).getUploadTask();
+        FutureTask<Void> task = ((EMCECSWriteContext) ctx).getUploadTask();
         try {
             task.get();
         } catch (InterruptedException e) {
@@ -158,34 +144,33 @@ public class CloudStorage extends AbstractStorage {
     }
 
     private void upload(WriteContext ctx, InputStream in) throws IOException {
-        BlobStore blobStore = context.getBlobStore();
         String storagePath = pathFormat.format(ctx.getAttributes());
-        if (count++ == 0 && !blobStore.containerExists(container))
-            blobStore.createContainerInLocation(null, container);
-        else {
-            while (blobStore.blobExists(container, storagePath))
-                storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
-                        .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+        if (count++ == 0 && !s3.bucketExists(container))
+            s3.createBucket(container);
+        else while (exits(storagePath)) {
+            storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
+                    .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
-        uploader.upload(context, in, blobStore, container, storagePath);
+        uploader.upload(s3, in, container, storagePath);
         ctx.setStoragePath(storagePath);
     }
 
-    @Override
-    protected InputStream openInputStreamA(ReadContext ctx) throws IOException {
-        BlobStore blobStore = context.getBlobStore();
-        Blob blob = blobStore.getBlob(container, ctx.getStoragePath());
-        if (blob == null)
-            throw objectNotFound(ctx.getStoragePath());
-        return blob.getPayload().openStream();
+    private boolean exits(String storagePath) {
+        try {
+            s3.getObjectMetadata(container, storagePath);
+            return true;
+        } catch (S3Exception e) {
+        }
+        return false;
     }
 
     @Override
-    public void deleteObject(String storagePath) throws IOException {
-        BlobStore blobStore = context.getBlobStore();
-        if (!blobStore.blobExists(container, storagePath))
-            throw objectNotFound(storagePath);
-        blobStore.removeBlob(container, storagePath);
+    protected InputStream openInputStreamA(ReadContext readContext) throws IOException {
+        GetObjectResult<InputStream> s3Object = s3.getObject(container, readContext.getStoragePath());
+        if (s3Object == null)
+            throw objectNotFound(readContext.getStoragePath());
+
+        return s3Object.getObject();
     }
 
     private IOException objectNotFound(String storagePath) {
@@ -196,7 +181,12 @@ public class CloudStorage extends AbstractStorage {
     }
 
     @Override
+    public void deleteObject(String storagePath) throws IOException {
+        s3.deleteObject(container, storagePath);
+    }
+
+    @Override
     public void close() throws IOException {
-        context.close();
+        s3.destroy();
     }
 }

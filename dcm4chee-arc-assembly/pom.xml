@@ -86,6 +86,12 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che</groupId>
+      <artifactId>ecs-object-client-jboss-modules</artifactId>
+      <version>${ecs-object-client.version}</version>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
       <artifactId>querydsl-jboss-modules</artifactId>
       <version>${querydsl.version}-noguava</version>
       <type>zip</type>

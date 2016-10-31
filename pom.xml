@@ -61,6 +61,7 @@
     <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
     <resteasy.version>3.0.19.Final</resteasy.version>
     <jclouds.version>1.9.2</jclouds.version>
+    <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <querydsl.version>4.1.4</querydsl.version>
     <keycloak.version>2.1.0.Final</keycloak.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
@@ -283,6 +284,13 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.emc.ecs</groupId>
+      <artifactId>object-client</artifactId>
+      <version>${ecs-object-client.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Import Enterprise JavaBeans(TM) 3.2 API -->
     <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
@@ -382,6 +390,7 @@
     <module>dcm4chee-arc-stgcmt-rs</module>
     <module>dcm4chee-arc-storage</module>
     <module>dcm4chee-arc-storage-cloud</module>
+    <module>dcm4chee-arc-storage-emc-ecs</module>
     <module>dcm4chee-arc-storage-filesystem</module>
     <module>dcm4chee-arc-store</module>
     <module>dcm4chee-arc-store-scu</module>

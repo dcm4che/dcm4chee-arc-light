@@ -156,7 +156,7 @@ class StoreServiceImpl implements StoreService {
             } catch (StorageException e) {
                 LOG.warn("{}: Failed to store received object:", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.OutOfResources, e);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOG.warn("{}: Failed to parse received object:", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }

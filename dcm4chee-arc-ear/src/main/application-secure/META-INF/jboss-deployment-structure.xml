@@ -71,6 +71,8 @@
             <!-- keycloak modules -->
             <module name="org.keycloak.keycloak-core" export="TRUE" services="export"/>
             <module name="org.keycloak.keycloak-adapter-core" export="TRUE" services="export"/>
+            <!-- emc-ecs modules -->
+            <module name="com.emc.ecs" export="TRUE"/>
         </dependencies>
     </deployment>
 </jboss-deployment-structure>
