@@ -140,6 +140,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionCacheStaleTimeout", ext.getStorePermissionCacheStaleTimeout());
         LdapUtils.storeNotDef(attrs, "dcmStorePermissionCacheSize", ext.getStorePermissionCacheSize(), 10);
+        LdapUtils.storeNotNull(attrs, "dcmEnrichRequestAttributesCacheStaleTimeout", ext.getEnrichRequestAttributesCacheStaleTimeout());
+        LdapUtils.storeNotDef(attrs, "dcmEnrichRequestAttributesCacheSize", ext.getEnrichRequestAttributesCacheSize(), 10);
         LdapUtils.storeNotDef(attrs, "dcmStoreUpdateDBMaxRetries", ext.getStoreUpdateDBMaxRetries(), 1);
         LdapUtils.storeNotNull(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired());
         LdapUtils.storeNotNull(attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID());
@@ -152,7 +154,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern());
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern());
-        LdapUtils.storeNotNull(attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
+        LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination());
     }
 
@@ -225,6 +227,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceResponsePattern(toPattern(attrs.get("dcmStorePermissionServiceResponsePattern")));
         ext.setStorePermissionCacheStaleTimeout(toDuration(attrs.get("dcmStorePermissionCacheStaleTimeout")));
         ext.setStorePermissionCacheSize(LdapUtils.intValue(attrs.get("dcmStorePermissionCacheSize"), 10));
+        ext.setEnrichRequestAttributesCacheStaleTimeout(toDuration(attrs.get("dcmEnrichRequestAttributesCacheStaleTimeout")));
+        ext.setEnrichRequestAttributesCacheSize(LdapUtils.intValue(attrs.get("dcmEnrichRequestAttributesCacheSize"), 10));
         ext.setStoreUpdateDBMaxRetries(LdapUtils.intValue(attrs.get("dcmStoreUpdateDBMaxRetries"), 1));
         ext.setAllowRejectionForDataRetentionPolicyExpired(
                 LdapUtils.enumValue(AllowRejectionForDataRetentionPolicyExpired.class,
@@ -357,6 +361,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStorePermissionCacheStaleTimeout(), bb.getStorePermissionCacheStaleTimeout());
         LdapUtils.storeDiff(mods, "dcmStorePermissionCacheSize",
                 aa.getStorePermissionCacheSize(), bb.getStorePermissionCacheSize(), 10);
+        LdapUtils.storeDiff(mods, "dcmEnrichRequestAttributesCacheStaleTimeout",
+                aa.getEnrichRequestAttributesCacheStaleTimeout(), bb.getEnrichRequestAttributesCacheStaleTimeout());
+        LdapUtils.storeDiff(mods, "dcmEnrichRequestAttributesCacheSize",
+                aa.getEnrichRequestAttributesCacheSize(), bb.getEnrichRequestAttributesCacheSize(), 10);
         LdapUtils.storeDiff(mods, "dcmStoreUpdateDBMaxRetries",
                 aa.getStoreUpdateDBMaxRetries(), bb.getStoreUpdateDBMaxRetries(), 1);
         LdapUtils.storeDiff(mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
@@ -1442,6 +1450,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmURI", coercion.getXSLTStylesheetURI());
         LdapUtils.storeNotDef(attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
         LdapUtils.storeNotNull(attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP());
+        LdapUtils.storeNotNull(attrs, "dcmEnrichRequestAttributesTemplateURI",
+                coercion.getEnrichRequestAttributesTemplateURI());
+        LdapUtils.storeNotNull(attrs, "dcmEnrichRequestAttributesMatchingKey",
+                coercion.getEnrichRequestAttributesMatchingKey());
         LdapUtils.storeNotNull(attrs, "dcmAttributeUpdatePolicy", coercion.getAttributeUpdatePolicy());
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
         return attrs;
@@ -1465,6 +1477,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 coercion.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
                 coercion.setLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCP"), null));
+                coercion.setEnrichRequestAttributesTemplateURI(
+                        LdapUtils.stringValue(attrs.get("dcmEnrichRequestAttributesTemplateURI"), null));
+                coercion.setEnrichRequestAttributesMatchingKey(
+                        LdapUtils.enumValue(EnrichRequestAttributesMatchingKey.class,
+                        attrs.get("dcmEnrichRequestAttributesMatchingKey"), null));
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), null));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
@@ -1486,7 +1503,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI());
         LdapUtils.storeDiff(mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);
         LdapUtils.storeDiff(mods, "dcmLeadingCFindSCP", prev.getLeadingCFindSCP(), coercion.getLeadingCFindSCP());
-        LdapUtils.storeDiff(mods, "dcmAttributeUpdatePolicy", prev.getAttributeUpdatePolicy(), coercion.getAttributeUpdatePolicy());
+        LdapUtils.storeDiff(mods, "dcmEnrichRequestAttributesTemplateURI",
+                prev.getEnrichRequestAttributesTemplateURI(),
+                coercion.getEnrichRequestAttributesTemplateURI());
+        LdapUtils.storeDiff(mods, "dcmEnrichRequestAttributesMatchingKey",
+                prev.getEnrichRequestAttributesMatchingKey(),
+                coercion.getEnrichRequestAttributesMatchingKey());
+        LdapUtils.storeDiff(mods, "dcmAttributeUpdatePolicy",
+                prev.getAttributeUpdatePolicy(),
+                coercion.getAttributeUpdatePolicy());
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
         return mods;
     }

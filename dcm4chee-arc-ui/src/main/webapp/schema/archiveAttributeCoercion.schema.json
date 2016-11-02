@@ -73,6 +73,21 @@
       "description": "AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.",
       "type": "string"
     },
+    "dcmEnrichRequestAttributesMatchingKey": {
+      "title": "Enrich Request Attributes Matching Key",
+      "description": "Specifies attribute of received object to lookup MWL Item used to enrich request attributes. Enumerated values: AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID. If absent, request attributes of received objects will not be enriched.",
+      "type": "string",
+      "enum": [
+        "AccessionNumber",
+        "StudyInstanceUID",
+        "ScheduledProcedureStepID"
+      ]
+    },
+    "dcmEnrichRequestAttributesTemplateURI": {
+      "title": "Enrich Request Attributes Template URI",
+      "description": "Specifies URI for the style sheet to enrich request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmEnrichRequestAttributesMatchingKey is specified.",
+      "type": "string"
+    },
     "dcmAttributeUpdatePolicy": {
       "title": "Attribute Update Policy",
       "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE. If absent, MERGE will be applied.",

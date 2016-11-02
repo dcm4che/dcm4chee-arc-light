@@ -124,6 +124,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Pattern storePermissionServiceErrorCodePattern;
     private Duration storePermissionCacheStaleTimeout;
     private int storePermissionCacheSize = 10;
+    private Duration enrichReqAttrsCacheStaleTimeout;
+    private int enrichReqAttrsCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
@@ -392,8 +394,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setIanTaskFetchSize(int ianTaskFetchSize) {
-        if (checkValidFetchSize(ianTaskFetchSize))
-            this.ianTaskFetchSize = ianTaskFetchSize;
+        this.ianTaskFetchSize = notNegative(ianTaskFetchSize, "ianTaskFetchSize");
     }
 
     public String getFallbackCMoveSCP() {
@@ -457,8 +458,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setExportTaskFetchSize(int exportTaskFetchSize) {
-        if (checkValidFetchSize(exportTaskFetchSize))
-            this.exportTaskFetchSize = exportTaskFetchSize;
+        this.exportTaskFetchSize = notNegative(exportTaskFetchSize, "exportTaskFetchSize");
     }
 
     public Duration getExportTaskPollingInterval() {
@@ -482,8 +482,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setDeleteRejectedFetchSize(int deleteRejectedFetchSize) {
-        if (checkValidFetchSize(deleteRejectedFetchSize))
-            this.deleteRejectedFetchSize = deleteRejectedFetchSize;
+        this.deleteRejectedFetchSize =  notNegative(deleteRejectedFetchSize, "deleteRejectedFetchSize");
     }
 
     public Duration getPurgeStoragePollingInterval() {
@@ -499,8 +498,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setPurgeStorageFetchSize(int purgeStorageFetchSize) {
-        if (checkValidFetchSize(purgeStorageFetchSize))
-            this.purgeStorageFetchSize = purgeStorageFetchSize;
+        this.purgeStorageFetchSize = notNegative(purgeStorageFetchSize, "purgeStorageFetchSize");
     }
 
     public int getDeleteStudyBatchSize() {
@@ -508,8 +506,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setDeleteStudyBatchSize(int deleteStudyBatchSize) {
-        if (checkValidFetchSize(deleteStudyBatchSize))
-            this.deleteStudyBatchSize = deleteStudyBatchSize;
+        this.deleteStudyBatchSize = notNegative(deleteStudyBatchSize, "deleteStudyBatchSize");
     }
 
     public boolean isDeletePatientOnDeleteLastStudy() {
@@ -561,8 +558,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setLeadingCFindSCPQueryCacheSize(int leadingCFindSCPQueryCacheSize) {
-        if (checkValidFetchSize(leadingCFindSCPQueryCacheSize))
-            this.leadingCFindSCPQueryCacheSize = leadingCFindSCPQueryCacheSize;
+        this.leadingCFindSCPQueryCacheSize =
+                notNegative(leadingCFindSCPQueryCacheSize, "leadingCFindSCPQueryCacheSize");
     }
 
     public String getAuditSpoolDirectory() {
@@ -630,8 +627,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setRejectExpiredStudiesFetchSize(int rejectExpiredStudiesFetchSize) {
-        if (checkValidFetchSize(rejectExpiredStudiesFetchSize))
-            this.rejectExpiredStudiesFetchSize = rejectExpiredStudiesFetchSize;
+        this.rejectExpiredStudiesFetchSize =
+                notNegative(rejectExpiredStudiesFetchSize, "rejectExpiredStudiesFetchSize");
     }
 
     public int getRejectExpiredSeriesFetchSize() {
@@ -639,8 +636,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setRejectExpiredSeriesFetchSize(int rejectExpiredSeriesFetchSize) {
-        if (checkValidFetchSize(rejectExpiredSeriesFetchSize))
-            this.rejectExpiredSeriesFetchSize = rejectExpiredSeriesFetchSize;
+        this.rejectExpiredSeriesFetchSize =
+                notNegative(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
     }
 
     public Duration getRejectExpiredStudiesPollingInterval() {
@@ -764,8 +761,27 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setStorePermissionCacheSize(int storePermissionCacheSize) {
-        if (checkValidFetchSize(storePermissionCacheSize))
-            this.storePermissionCacheSize = storePermissionCacheSize;
+        this.storePermissionCacheSize = notNegative(storePermissionCacheSize, "storePermissionCacheSize");
+    }
+
+    public Duration getEnrichRequestAttributesCacheStaleTimeout() {
+        return enrichReqAttrsCacheStaleTimeout;
+    }
+
+    public void setEnrichRequestAttributesCacheStaleTimeout(Duration enrichReqAttrsCacheStaleTimeout) {
+        this.enrichReqAttrsCacheStaleTimeout = enrichReqAttrsCacheStaleTimeout;
+    }
+
+    public int getEnrichRequestAttributesCacheStaleTimeoutSeconds() {
+        return toSeconds(enrichReqAttrsCacheStaleTimeout);
+    }
+
+    public int getEnrichRequestAttributesCacheSize() {
+        return enrichReqAttrsCacheSize;
+    }
+
+    public void setEnrichRequestAttributesCacheSize(int enrichReqAttrsCacheSize) {
+        this.enrichReqAttrsCacheSize = notNegative(enrichReqAttrsCacheSize, "enrichRequestAttributesCacheSize");
     }
 
     public int getStoreUpdateDBMaxRetries() {
@@ -912,10 +928,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.put(destination.getExporterID(), destination);
     }
 
-    private boolean checkValidFetchSize(int size) {
+    private int notNegative(int size, String prompt) {
         if (size < 0)
-            throw new IllegalArgumentException("Fetch size : " + size);
-        return true;
+            throw new IllegalArgumentException(prompt + ": " + size);
+        return size;
     }
 
     public Collection<ExporterDescriptor> getExporterDescriptors() {
@@ -1125,6 +1141,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storePermissionServiceErrorCodePattern = arcdev.storePermissionServiceErrorCodePattern;
         storePermissionCacheStaleTimeout = arcdev.storePermissionCacheStaleTimeout;
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
+        enrichReqAttrsCacheStaleTimeout = arcdev.enrichReqAttrsCacheStaleTimeout;
+        enrichReqAttrsCacheSize = arcdev.enrichReqAttrsCacheSize;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;

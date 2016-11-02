@@ -186,6 +186,8 @@ objectClass: dcmDevice
 objectClass: dcmArchiveDevice
 objectClass: pkiUser
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
+dcmRetrieveAET: DCM4CHEE
+dcmRetrieveAET: DCM4CHEE_ADMIN
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
 dcmMetadataStorageID: metadata
@@ -216,7 +218,7 @@ dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
-dicomSoftwareVersion: 5.7.1
+dicomSoftwareVersion: 5.7.2
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
@@ -807,6 +809,15 @@ dcmDigestAlgorithm: MD5
 objectClass: dcmStorage
 dcmStorageID: fs1
 dcmURI: ${jboss.server.data.url}/fs1/
+
+dn: cn=Enrich Request,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmEnrichRequestAttributesMatchingKey: StudyInstanceUID
+dcmEnrichRequestAttributesTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl
+dcmDIMSE: C_STORE_RQ
+dcmAETitle: ENRICH_REQUEST
+dicomTransferRole: SCU
+objectClass: dcmArchiveAttributeCoercion
+cn: Enrich Request
 
 dn: dcmEntity=Patient,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
