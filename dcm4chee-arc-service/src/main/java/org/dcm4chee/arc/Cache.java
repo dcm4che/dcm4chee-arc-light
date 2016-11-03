@@ -99,6 +99,9 @@ public class Cache<K,V> {
     }
 
     public Entry<V> getEntry(K key) {
+        if (staleTimeout <= 0)
+            return cache.get(key);
+
         long minFetchTime = System.currentTimeMillis() - staleTimeout;
         for (Iterator<Entry<V>> iter = cache.values().iterator(); iter.hasNext(); iter.remove())
             if (iter.next().fetchTime > minFetchTime)
