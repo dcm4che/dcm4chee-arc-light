@@ -186,8 +186,6 @@ objectClass: dcmDevice
 objectClass: dcmArchiveDevice
 objectClass: pkiUser
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
-dcmRetrieveAET: DCM4CHEE
-dcmRetrieveAET: DCM4CHEE_ADMIN
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
 dcmMetadataStorageID: metadata
