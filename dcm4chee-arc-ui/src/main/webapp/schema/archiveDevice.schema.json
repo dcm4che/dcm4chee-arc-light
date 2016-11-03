@@ -368,13 +368,13 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
-    "dcmEnrichRequestAttributesCacheStaleTimeout": {
-      "title": "Enrich Request Attributes Cache Stale Timeout",
+    "dcmMergeMWLCacheStaleTimeout": {
+      "title": "Request Attributes Cache Stale Timeout",
       "description": "Maximal staleness of Request Attributes extracted from matching DICOM MWL items in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached Request Attributes are only removed on reaching the maximal cache size.",
       "type": "string"
     },
-    "dcmEnrichRequestAttributesCacheSize": {
-      "title": "Enrich Request Attributes Cache Size",
+    "dcmMergeMWLCacheSize": {
+      "title": "Request Attributes Cache Size",
       "description": "Maximum number of cached Request Attributes extracted from matching DICOM MWL items; 10 if absent",
       "type": "integer",
       "minimum": 0,

@@ -68,14 +68,9 @@
       "description": "Indicates if keywords shall be omitted in generated DICOM XML or JSON presentations; false if absent",
       "type": "boolean"
     },
-    "dcmLeadingCFindSCP": {
-      "title": "Leading C-FIND SCP",
-      "description": "AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.",
-      "type": "string"
-    },
-    "dcmEnrichRequestAttributesMatchingKey": {
-      "title": "Enrich Request Attributes Matching Key",
-      "description": "Specifies attribute of received object to lookup MWL Item used to enrich request attributes. Enumerated values: AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID. If absent, request attributes of received objects will not be enriched.",
+    "dcmMergeMWLMatchingKey": {
+      "title": "MWL Matching Key",
+      "description": "Specifies attribute of received object to lookup MWL Item used to coerce request attributes. Enumerated values: AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID. If absent, request attributes of received objects will not be coerced.",
       "type": "string",
       "enum": [
         "AccessionNumber",
@@ -83,9 +78,14 @@
         "ScheduledProcedureStepID"
       ]
     },
-    "dcmEnrichRequestAttributesTemplateURI": {
-      "title": "Enrich Request Attributes Template URI",
-      "description": "Specifies URI for the style sheet to enrich request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmEnrichRequestAttributesMatchingKey is specified.",
+    "dcmMergeMWLTemplateURI": {
+      "title": "Request Attributes Template URI",
+      "description": "Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmMergeMWLMatchingKey is specified.",
+      "type": "string"
+    },
+    "dcmLeadingCFindSCP": {
+      "title": "Leading C-FIND SCP",
+      "description": "AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.",
       "type": "string"
     },
     "dcmAttributeUpdatePolicy": {

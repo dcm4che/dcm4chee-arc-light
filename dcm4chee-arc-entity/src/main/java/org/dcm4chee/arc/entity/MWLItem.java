@@ -68,7 +68,20 @@ import java.util.*;
         name = MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID,
         query = "select mwl from MWLItem mwl " +
                 "where mwl.studyInstanceUID = ?1 " +
-                "and mwl.scheduledProcedureStepID = ?2")
+                "and mwl.scheduledProcedureStepID = ?2"),
+@NamedQuery(
+        name = MWLItem.ATTRS_BY_ACCESSION_NO,
+        query = "select mwl.attributesBlob.encodedAttributes from MWLItem mwl " +
+                "where mwl.accessionNumber = ?1"),
+@NamedQuery(
+        name = MWLItem.ATTRS_BY_STUDY_IUID,
+        query = "select mwl.attributesBlob.encodedAttributes from MWLItem mwl " +
+                "where mwl.studyInstanceUID = ?1"),
+@NamedQuery(
+        name = MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID,
+        query = "select mwl.attributesBlob.encodedAttributes from MWLItem mwl " +
+                "where mwl.studyInstanceUID = ?1 " +
+                "and mwl.scheduledProcedureStepID = ?2"),
 })
 @Entity
 @Table(name = "mwl_item",
@@ -89,6 +102,9 @@ public class MWLItem {
     public static final String FIND_BY_STUDY_IUID = "MWLItem.findByStudyIUID";
     public static final String FIND_BY_PATIENT = "MWLItem.findByPatient";
     public static final String FIND_BY_STUDY_UID_AND_SPS_ID = "MWLItem.findByStudyUIDAndSPSID";
+    public static final String ATTRS_BY_ACCESSION_NO = "MWLItem.attrsByAccessionNo";
+    public static final String ATTRS_BY_STUDY_IUID = "MWLItem.attrsByStudyIUID";
+    public static final String ATTRS_BY_STUDY_UID_AND_SPS_ID = "MWLItem.attrsByStudyUIDAndSPSID";
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "pk")

@@ -620,23 +620,23 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.124 NAME 'dcmExternalRetrieveAEDesti
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.125 NAME 'dcmEnrichRequestAttributesMatchingKey'
-  DESC 'Specifies attribute of received object to lookup MWL Item used to enrich request attributes. Enumerated values: AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID. If absent, request attributes of received objects will not be enriched.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.125 NAME 'dcmMergeMWLMatchingKey'
+  DESC 'Specifies attribute of received object to lookup MWL Item used to coerce request attributes. Enumerated values: AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID. If absent, request attributes of received objects will not be coerced.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.126 NAME 'dcmEnrichRequestAttributesTemplateURI'
-  DESC 'Specifies URI for the style sheet to enrich request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmEnrichRequestAttributesMatchingKey is specified.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.126 NAME 'dcmMergeMWLTemplateURI'
+  DESC 'Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmMergeMWLMatchingKey is specified.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.127 NAME 'dcmEnrichRequestAttributesCacheStaleTimeout'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.127 NAME 'dcmMergeMWLCacheStaleTimeout'
   DESC 'Maximal staleness of Request Attributes extracted from matching DICOM MWL items in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached Request Attributes are only removed on reaching the maximal cache size.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.128 NAME 'dcmEnrichRequestAttributesCacheSize'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.128 NAME 'dcmMergeMWLCacheSize'
   DESC 'Maximum number of cached Request Attributes extracted from matching DICOM MWL items; 10 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
@@ -720,8 +720,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStorePermissionServiceErrorCodePattern $
     dcmStorePermissionCacheStaleTimeout $
     dcmStorePermissionCacheSize $
-    dcmEnrichRequestAttributesCacheStaleTimeout $
-    dcmEnrichRequestAttributesCacheSize $
+    dcmMergeMWLCacheStaleTimeout $
+    dcmMergeMWLCacheSize $
     dcmStoreUpdateDBMaxRetries $
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAllowDeleteStudyPermanently ))
@@ -877,8 +877,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmSOPClass $
     dcmURI $
     dcmNoKeywords $
-    dcmEnrichRequestAttributesMatchingKey $
-    dcmEnrichRequestAttributesTemplateURI $
+    dcmMergeMWLMatchingKey $
+    dcmMergeMWLTemplateURI $
     dcmLeadingCFindSCP $
     dcmAttributeUpdatePolicy ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.19 NAME 'dcmRejectionNote'

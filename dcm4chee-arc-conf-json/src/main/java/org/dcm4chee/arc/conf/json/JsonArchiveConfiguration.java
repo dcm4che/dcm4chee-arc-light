@@ -138,10 +138,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getStorePermissionServiceResponsePattern());
         writer.writeNotNull("dcmStorePermissionCacheStaleTimeout", arcDev.getStorePermissionCacheStaleTimeout());
         writer.writeNotDef("dcmStorePermissionCacheSize", arcDev.getStorePermissionCacheSize(), 10);
-        writer.writeNotNull("dcmEnrichRequestAttributesCacheStaleTimeout",
-                arcDev.getEnrichRequestAttributesCacheStaleTimeout());
-        writer.writeNotDef("dcmEnrichRequestAttributesCacheSize",
-                arcDev.getEnrichRequestAttributesCacheSize(), 10);
+        writer.writeNotNull("dcmMergeMWLCacheStaleTimeout",
+                arcDev.getMergeMWLCacheStaleTimeout());
+        writer.writeNotDef("dcmMergeMWLCacheSize",
+                arcDev.getMergeMWLCacheSize(), 10);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 1);
         writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired",
                 arcDev.getAllowRejectionForDataRetentionPolicyExpired());
@@ -324,8 +324,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
             writer.writeNotNull("dcmURI", aac.getXSLTStylesheetURI());
             writer.writeNotNull("dcmLeadingCFindSCP", aac.getLeadingCFindSCP());
-            writer.writeNotNull("dcmEnrichRequestAttributesMatchingKey", aac.getEnrichRequestAttributesMatchingKey());
-            writer.writeNotNull("dcmEnrichRequestAttributesTemplateURI", aac.getEnrichRequestAttributesTemplateURI());
+            writer.writeNotNull("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey());
+            writer.writeNotNull("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI());
             writer.writeNotNull("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy());
             writer.writeEnd();
         }
@@ -647,11 +647,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStorePermissionCacheSize":
                     arcDev.setStorePermissionCacheSize(reader.intValue());
                     break;
-                case "dcmEnrichRequestAttributesCacheStaleTimeout":
-                    arcDev.setEnrichRequestAttributesCacheStaleTimeout(Duration.parse(reader.stringValue()));
+                case "dcmMergeMWLCacheStaleTimeout":
+                    arcDev.setMergeMWLCacheStaleTimeout(Duration.parse(reader.stringValue()));
                     break;
-                case "dcmEnrichRequestAttributesCacheSize":
-                    arcDev.setEnrichRequestAttributesCacheSize(reader.intValue());
+                case "dcmMergeMWLCacheSize":
+                    arcDev.setMergeMWLCacheSize(reader.intValue());
                     break;
                 case "dcmStoreUpdateDBMaxRetries":
                     arcDev.setStoreUpdateDBMaxRetries(reader.intValue());
@@ -1060,12 +1060,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmLeadingCFindSCP":
                         aac.setLeadingCFindSCP(reader.stringValue());
                         break;
-                    case "dcmEnrichRequestAttributesMatchingKey":
-                        aac.setEnrichRequestAttributesMatchingKey(
-                                EnrichRequestAttributesMatchingKey.valueOf(reader.stringValue()));
+                    case "dcmMergeMWLMatchingKey":
+                        aac.setMergeMWLMatchingKey(MergeMWLMatchingKey.valueOf(reader.stringValue()));
                         break;
-                    case "dcmEnrichRequestAttributesTemplateURI":
-                        aac.setEnrichRequestAttributesTemplateURI(reader.stringValue());
+                    case "dcmMergeMWLTemplateURI":
+                        aac.setMergeMWLTemplateURI(reader.stringValue());
                         break;
                     case "dcmAttributeUpdatePolicy":
                         aac.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));

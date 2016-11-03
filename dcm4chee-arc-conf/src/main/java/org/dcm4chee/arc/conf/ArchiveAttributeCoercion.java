@@ -63,8 +63,8 @@ public class ArchiveAttributeCoercion {
     private String xsltStylesheetURI;
     private boolean noKeywords;
     private String leadingCFindSCP;
-    private EnrichRequestAttributesMatchingKey enrichReqAttrsMatchingKey;
-    private String enrichReqAttrsTemplateURI;
+    private MergeMWLMatchingKey mergeMWLMatchingKey;
+    private String mergeMWLTemplateURI;
     private Attributes.UpdatePolicy attributeUpdatePolicy;
 
     public ArchiveAttributeCoercion() {
@@ -154,20 +154,20 @@ public class ArchiveAttributeCoercion {
         this.leadingCFindSCP = leadingCFindSCP;
     }
 
-    public EnrichRequestAttributesMatchingKey getEnrichRequestAttributesMatchingKey() {
-        return enrichReqAttrsMatchingKey;
+    public MergeMWLMatchingKey getMergeMWLMatchingKey() {
+        return mergeMWLMatchingKey;
     }
 
-    public void setEnrichRequestAttributesMatchingKey(EnrichRequestAttributesMatchingKey enrichReqAttrsMatchingKey) {
-        this.enrichReqAttrsMatchingKey = enrichReqAttrsMatchingKey;
+    public void setMergeMWLMatchingKey(MergeMWLMatchingKey mergeMWLMatchingKey) {
+        this.mergeMWLMatchingKey = mergeMWLMatchingKey;
     }
 
-    public String getEnrichRequestAttributesTemplateURI() {
-        return enrichReqAttrsTemplateURI;
+    public String getMergeMWLTemplateURI() {
+        return mergeMWLTemplateURI;
     }
 
-    public void setEnrichRequestAttributesTemplateURI(String enrichReqAttrsTemplateURI) {
-        this.enrichReqAttrsTemplateURI = enrichReqAttrsTemplateURI;
+    public void setMergeMWLTemplateURI(String mergeMWLTemplateURI) {
+        this.mergeMWLTemplateURI = mergeMWLTemplateURI;
     }
 
     public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
@@ -212,8 +212,8 @@ public class ArchiveAttributeCoercion {
                 + ", xslturi=" + xsltStylesheetURI
                 + ", noKeywords=" + noKeywords
                 + ", leadingCFindSCP=" + leadingCFindSCP
-                + ", enrichReqAttrsMatchingKey=" + enrichReqAttrsMatchingKey
-                + ", enrichReqAttrsTemplateURI=" + enrichReqAttrsTemplateURI
+                + ", mergeMWLMatchingKey=" + mergeMWLMatchingKey
+                + ", mergeMWLTemplateURI=" + mergeMWLTemplateURI
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy
                 + "]";
     }

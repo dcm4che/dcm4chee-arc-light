@@ -44,6 +44,6 @@ package org.dcm4chee.arc.conf;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Nov 2016
  */
-public enum EnrichRequestAttributesMatchingKey {
+public enum MergeMWLMatchingKey {
     AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID
 }

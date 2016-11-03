@@ -48,6 +48,7 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.StorePermission;
 import org.dcm4chee.arc.StorePermissionCache;
 import org.dcm4chee.arc.code.CodeCache;
@@ -71,6 +72,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -603,6 +605,31 @@ public class StoreServiceEJB {
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
         return series;
+    }
+
+    public List<Attributes> queryMWL(StoreContext ctx, MergeMWLQueryParam queryParam) {
+        LOG.info("{}: Query for MWL Items with {}", ctx.getStoreSession(), queryParam);
+        TypedQuery<byte[]> namedQuery = queryParam.accessionNumber != null
+                ? em.createNamedQuery(MWLItem.ATTRS_BY_ACCESSION_NO, byte[].class)
+                        .setParameter(1, queryParam.accessionNumber)
+                : queryParam.spsID != null
+                    ? em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, byte[].class)
+                        .setParameter(1, queryParam.studyIUID)
+                        .setParameter(1, queryParam.spsID)
+                    : em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_IUID, byte[].class)
+                        .setParameter(1, queryParam.studyIUID);
+        List<byte[]> resultList = namedQuery.getResultList();
+        if (resultList.isEmpty()) {
+            LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
+            return null;
+        }
+
+        LOG.info("{}: Found {} matching MWL Items", ctx.getStoreSession(), resultList.size());
+        List<Attributes> mwlItems = new ArrayList<>(resultList.size());
+        for (byte[] bytes : resultList) {
+            mwlItems.add(AttributesBlob.decodeAttributes(bytes, null));
+        }
+        return mwlItems;
     }
 
     private static class UpdateInfo {

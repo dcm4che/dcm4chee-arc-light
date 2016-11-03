@@ -95,6 +95,9 @@ public class ArchiveServiceImpl implements ArchiveService {
     private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     @Inject
+    private MergeMWLCache mergeMWLCache;
+
+    @Inject
     private StorePermissionCache storePermissionCache;
 
     @Inject
@@ -201,6 +204,9 @@ public class ArchiveServiceImpl implements ArchiveService {
         leadingCFindSCPQueryCache.setStaleTimeout(
                 arcdev.getLeadingCFindSCPQueryCacheStaleTimeoutSeconds() * 1000L);
         leadingCFindSCPQueryCache.setMaxSize(arcdev.getLeadingCFindSCPQueryCacheSize());
+        mergeMWLCache.setStaleTimeout(
+                arcdev.getMergeMWLCacheStaleTimeoutSeconds() * 1000L);
+        mergeMWLCache.setMaxSize(arcdev.getMergeMWLCacheSize());
         storePermissionCache.setStaleTimeout(
                 arcdev.getStorePermissionCacheStaleTimeoutSeconds() * 1000L);
         storePermissionCache.setMaxSize(arcdev.getStorePermissionCacheSize());

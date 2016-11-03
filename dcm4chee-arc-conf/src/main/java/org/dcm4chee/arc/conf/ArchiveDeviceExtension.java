@@ -124,8 +124,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Pattern storePermissionServiceErrorCodePattern;
     private Duration storePermissionCacheStaleTimeout;
     private int storePermissionCacheSize = 10;
-    private Duration enrichReqAttrsCacheStaleTimeout;
-    private int enrichReqAttrsCacheSize = 10;
+    private Duration mergeMWLCacheStaleTimeout;
+    private int mergeMWLCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
@@ -764,24 +764,24 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storePermissionCacheSize = notNegative(storePermissionCacheSize, "storePermissionCacheSize");
     }
 
-    public Duration getEnrichRequestAttributesCacheStaleTimeout() {
-        return enrichReqAttrsCacheStaleTimeout;
+    public Duration getMergeMWLCacheStaleTimeout() {
+        return mergeMWLCacheStaleTimeout;
     }
 
-    public void setEnrichRequestAttributesCacheStaleTimeout(Duration enrichReqAttrsCacheStaleTimeout) {
-        this.enrichReqAttrsCacheStaleTimeout = enrichReqAttrsCacheStaleTimeout;
+    public void setMergeMWLCacheStaleTimeout(Duration mergeMWLCacheStaleTimeout) {
+        this.mergeMWLCacheStaleTimeout = mergeMWLCacheStaleTimeout;
     }
 
-    public int getEnrichRequestAttributesCacheStaleTimeoutSeconds() {
-        return toSeconds(enrichReqAttrsCacheStaleTimeout);
+    public int getMergeMWLCacheStaleTimeoutSeconds() {
+        return toSeconds(mergeMWLCacheStaleTimeout);
     }
 
-    public int getEnrichRequestAttributesCacheSize() {
-        return enrichReqAttrsCacheSize;
+    public int getMergeMWLCacheSize() {
+        return mergeMWLCacheSize;
     }
 
-    public void setEnrichRequestAttributesCacheSize(int enrichReqAttrsCacheSize) {
-        this.enrichReqAttrsCacheSize = notNegative(enrichReqAttrsCacheSize, "enrichRequestAttributesCacheSize");
+    public void setMergeMWLCacheSize(int mergeMWLCacheSize) {
+        this.mergeMWLCacheSize = notNegative(mergeMWLCacheSize, "mergeMWLCacheSize");
     }
 
     public int getStoreUpdateDBMaxRetries() {
@@ -796,7 +796,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return allowRejectionForDataRetentionPolicyExpired;
     }
 
-    public void setAllowRejectionForDataRetentionPolicyExpired(AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired) {
+    public void setAllowRejectionForDataRetentionPolicyExpired(
+            AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired) {
         this.allowRejectionForDataRetentionPolicyExpired = allowRejectionForDataRetentionPolicyExpired;
     }
 
@@ -1141,8 +1142,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storePermissionServiceErrorCodePattern = arcdev.storePermissionServiceErrorCodePattern;
         storePermissionCacheStaleTimeout = arcdev.storePermissionCacheStaleTimeout;
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
-        enrichReqAttrsCacheStaleTimeout = arcdev.enrichReqAttrsCacheStaleTimeout;
-        enrichReqAttrsCacheSize = arcdev.enrichReqAttrsCacheSize;
+        mergeMWLCacheStaleTimeout = arcdev.mergeMWLCacheStaleTimeout;
+        mergeMWLCacheSize = arcdev.mergeMWLCacheSize;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;

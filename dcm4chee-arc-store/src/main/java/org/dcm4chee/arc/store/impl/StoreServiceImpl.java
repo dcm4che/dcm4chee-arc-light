@@ -46,15 +46,15 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.imageio.codec.TransferSyntaxType;
-import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.io.DicomOutputStream;
-import org.dcm4che3.io.TemplatesCache;
-import org.dcm4che3.io.XSLTAttributesCoercion;
+import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.Cache;
+import org.dcm4chee.arc.MergeMWLQueryParam;
+import org.dcm4chee.arc.MergeMWLCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
@@ -69,6 +69,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.ejb.EJBException;
 import javax.enterprise.context.ApplicationScoped;
@@ -78,6 +79,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -108,6 +110,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private RetrieveService retrieveService;
+
+    @Inject
+    private MergeMWLCache mergeMWLCache;
 
     @Override
     public StoreSession newStoreSession(Association as) {
@@ -395,24 +400,74 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void coerceAttributes(StoreContext ctx) throws Exception {
+    private void coerceAttributes(StoreContext ctx) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAttributeCoercion coercion = session.getArchiveAEExtension().findAttributeCoercion(
+        ArchiveAttributeCoercion rule = session.getArchiveAEExtension().findAttributeCoercion(
                 session.getRemoteHostName(),
                 session.getCallingAET(),
                 TransferCapability.Role.SCU,
                 Dimse.C_STORE_RQ,
                 ctx.getSopClassUID());
-        if (coercion != null) {
-            LOG.debug("{}: Apply {}", session, coercion);
-            Attributes attrs = ctx.getAttributes();
-            Attributes modified = ctx.getCoercedAttributes();
-            String uri = StringUtils.replaceSystemProperties(coercion.getXSLTStylesheetURI());
-            Templates tpls = TemplatesCache.getDefault().get(uri);
-            new XSLTAttributesCoercion(tpls, null)
-                    .includeKeyword(!coercion.isNoKeywords())
-                    .coerce(attrs, modified);
+        if (rule == null)
+            return;
+
+        AttributesCoercion coercion = null;
+        String xsltStylesheetURI = rule.getXSLTStylesheetURI();
+        if (xsltStylesheetURI != null)
+            try {
+                Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
+                coercion = new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+            } catch (TransformerConfigurationException e) {
+                LOG.error("{}: Failed to compile XSL: {}", session, xsltStylesheetURI, e);
+            }
+        Attributes requestAttrs = queryMWL(ctx, rule);
+        if (requestAttrs != null) {
+            LOG.info("{}: Coerce Request Attributes from matching MWL item(s)", session);
+            coercion = new MergeAttributesCoercion(requestAttrs, coercion);
         }
+
+        if (coercion != null)
+            coercion.coerce(ctx.getAttributes(), ctx.getCoercedAttributes());
+    }
+
+    private Attributes queryMWL(StoreContext ctx, ArchiveAttributeCoercion rule) {
+        MergeMWLMatchingKey mergeMWLMatchingKey = rule.getMergeMWLMatchingKey();
+        String tplURI = rule.getMergeMWLTemplateURI();
+        if (mergeMWLMatchingKey == null || tplURI == null)
+            return null;
+
+        MergeMWLQueryParam queryParam =
+                MergeMWLQueryParam.valueOf(mergeMWLMatchingKey, ctx.getAttributes());
+
+        Cache.Entry<Attributes> entry = mergeMWLCache.getEntry(queryParam);
+        if (entry != null)
+            return entry.value();
+
+        List<Attributes> mwlItems = ejb.queryMWL(ctx, queryParam);
+        if (mwlItems == null) {
+            mergeMWLCache.put(queryParam, null);
+            return null;
+        }
+        Attributes result = null;
+        Sequence reqAttrsSeq = null;
+        try {
+            Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(tplURI));
+            for (Attributes mwlItem : mwlItems) {
+                Attributes attrs = SAXTransformer.transform(mwlItem, tpls, false, false);
+                if (reqAttrsSeq == null) {
+                    result = attrs;
+                    reqAttrsSeq = attrs.getSequence(Tag.RequestAttributesSequence);
+                } else {
+                    reqAttrsSeq.add(attrs.getNestedDataset(Tag.RequestAttributesSequence));
+                }
+            }
+        } catch (TransformerConfigurationException tce) {
+            LOG.error("{}: Failed to compile XSL: {}", ctx.getStoreSession(), tplURI, tce);
+        } catch (SAXException e) {
+            LOG.error("{}: Failed to apply XSL: {}", ctx.getStoreSession(), tplURI, e);
+        }
+        mergeMWLCache.put(queryParam, result);
+        return result;
     }
 
     private void updateAttributes(StoreContext ctx, Series series) {

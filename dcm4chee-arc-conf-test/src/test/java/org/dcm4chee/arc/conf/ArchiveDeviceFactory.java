@@ -847,7 +847,7 @@ class ArchiveDeviceFactory {
     static final String UNZIP_VENDOR_DATA = "${jboss.server.temp.url}/dcm4chee-arc";
     static final String NULLIFY_PN = "${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl";
     static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
-    static final String ENRICH_REQUEST = "${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
+    static final String MERGE_MWL = "${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
 
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
@@ -1060,7 +1060,7 @@ class ArchiveDeviceFactory {
 
     private static ArchiveAttributeCoercion createAttributeCoercion(
             String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI, String leadingCFindSCP,
-            EnrichRequestAttributesMatchingKey mwlMatchingKey, ConfigType configType) {
+            MergeMWLMatchingKey mergeMWLMatchingKey, ConfigType configType) {
         ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
         coercion.setAETitles(aet);
         coercion.setRole(role);
@@ -1068,9 +1068,9 @@ class ArchiveDeviceFactory {
         coercion.setXSLTStylesheetURI(xsltURI);
         coercion.setNoKeywords(xsltURI != null);
         coercion.setLeadingCFindSCP(leadingCFindSCP);
-        coercion.setEnrichRequestAttributesMatchingKey(mwlMatchingKey);
-        if (mwlMatchingKey != null)
-            coercion.setEnrichRequestAttributesTemplateURI(ENRICH_REQUEST);
+        coercion.setMergeMWLMatchingKey(mergeMWLMatchingKey);
+        if (mergeMWLMatchingKey != null)
+            coercion.setMergeMWLTemplateURI(MERGE_MWL);
         if (configType == configType.TEST) {
             coercion.setPriority(3);
             coercion.setHostNames("localhost", "testenv");
@@ -1317,8 +1317,8 @@ class ArchiveDeviceFactory {
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, null, null, configType));
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Enrich Request", Dimse.C_STORE_RQ, SCU, "ENRICH_REQUEST", null, null,
-                    EnrichRequestAttributesMatchingKey.StudyInstanceUID, configType));
+                    "Merge MWL", Dimse.C_STORE_RQ, SCU, "MERGE_MWL", null, null,
+                    MergeMWLMatchingKey.StudyInstanceUID, configType));
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, null, null, configType));
             ext.addAttributeCoercion(createAttributeCoercion(
