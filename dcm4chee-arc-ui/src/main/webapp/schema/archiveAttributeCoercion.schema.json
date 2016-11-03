@@ -69,7 +69,7 @@
       "type": "boolean"
     },
     "dcmMergeMWLMatchingKey": {
-      "title": "MWL Matching Key",
+      "title": "Merge MWL Matching Key",
       "description": "Specifies attribute of received object to lookup MWL Item used to coerce request attributes. Enumerated values: AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID. If absent, request attributes of received objects will not be coerced.",
       "type": "string",
       "enum": [
@@ -79,7 +79,7 @@
       ]
     },
     "dcmMergeMWLTemplateURI": {
-      "title": "Request Attributes Template URI",
+      "title": "Merge MWL Template URI",
       "description": "Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmMergeMWLMatchingKey is specified.",
       "type": "string"
     },
