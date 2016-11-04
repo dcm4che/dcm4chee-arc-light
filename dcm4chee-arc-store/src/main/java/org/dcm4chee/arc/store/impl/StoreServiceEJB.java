@@ -759,7 +759,8 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
         study.addStorageID(arcAE.storageID());
-        study.setAccessControlID(arcAE.getStoreAccessControlID());
+        study.setAccessControlID(arcAE.storeAccessControlID(
+                session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setRejectionState(RejectionState.NONE);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);

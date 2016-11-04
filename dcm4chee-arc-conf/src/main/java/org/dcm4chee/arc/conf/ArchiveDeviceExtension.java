@@ -144,8 +144,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
-
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
+    private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
+
     private transient FuzzyStr fuzzyStr;
 
     public String getDefaultCharacterSet() {
@@ -1019,6 +1020,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return attributeCoercions;
     }
 
+    public void removeStoreAccessControlIDRule(StoreAccessControlIDRule storeAccessControlIDRule) {
+        storeAccessControlIDRules.remove(storeAccessControlIDRule);
+    }
+
+    public void clearStoreAccessControlIDRules() {
+        storeAccessControlIDRules.clear();
+    }
+
+    public void addStoreAccessControlIDRule(StoreAccessControlIDRule storeAccessControlIDRule) {
+        storeAccessControlIDRules.add(storeAccessControlIDRule);
+    }
+
+    public ArrayList<StoreAccessControlIDRule> getStoreAccessControlIDRules() {
+        return storeAccessControlIDRules;
+    }
+
     public RejectionNote getRejectionNote(String rjNoteID) {
         return rejectionNoteMap.get(rjNoteID);
     }
@@ -1169,6 +1186,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         studyRetentionPolicies.addAll(arcdev.studyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(arcdev.attributeCoercions);
+        storeAccessControlIDRules.clear();
+        storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
     }

@@ -1172,6 +1172,12 @@ dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=De
 dicomAETitle: DCM4CHEE_TRASH
 dicomAssociationAcceptor: TRUE
 
+dn: cn=StoreAccessControlIDRule1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmStoreAccessControlID: ACCESS_CONTROL_ID
+dcmProperty: SendingApplicationEntityTitle=ACCESS_CONTROL
+objectClass: dcmStoreAccessControlIDRule
+cn: StoreAccessControlIDRule1
+
 dn: dcmIDGeneratorName=PatientID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: PatientID
 dcmIDGeneratorFormat: P-%08d

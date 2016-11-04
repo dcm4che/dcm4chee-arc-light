@@ -98,6 +98,11 @@ public class StudyMgtContextImpl implements StudyMgtContext {
     }
 
     @Override
+    public String getRemoteHostName() {
+        return httpRequest.getRemoteHost();
+    }
+
+    @Override
     public ApplicationEntity getApplicationEntity() {
         return arcAE.getApplicationEntity();
     }

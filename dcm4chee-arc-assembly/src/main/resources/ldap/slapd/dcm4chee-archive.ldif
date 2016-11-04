@@ -920,3 +920,12 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.22 NAME 'hl7ForwardRule'
     hl7FwdApplicationName )
   MAY (
     dcmProperty ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.23 NAME 'dcmStoreAccessControlIDRule'
+  DESC 'Store Access Control ID Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmStoreAccessControlID )
+  MAY (
+    dcmRulePriority $
+    dcmProperty ) )

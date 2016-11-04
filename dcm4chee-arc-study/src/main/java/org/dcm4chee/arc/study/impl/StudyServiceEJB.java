@@ -102,7 +102,8 @@ public class StudyServiceEJB {
             Study study = new Study();
             study.addStorageID(arcAE.storageID());
             study.setRejectionState(RejectionState.EMPTY);
-            study.setAccessControlID(arcAE.getStoreAccessControlID());
+            study.setAccessControlID(arcAE.storeAccessControlID(
+                    ctx.getRemoteHostName(), null, ctx.getApplicationEntity().getAETitle(), ctx.getAttributes()));
             study.setAttributes(attrs, filter, ctx.getFuzzyStr());
             study.setIssuerOfAccessionNumber(
                     findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));

@@ -167,6 +167,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeExporterDescriptor(writer, arcDev.getExporterDescriptors());
         writeExportRule(writer, arcDev.getExportRules());
         writeArchiveCompressionRules(writer, arcDev.getCompressionRules());
+        writeStoreAccessControlIDRules(writer, arcDev.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcDev.getAttributeCoercions());
         writeRejectionNote(writer, arcDev.getRejectionNotes());
         writeStudyRetentionPolicy(writer, arcDev.getStudyRetentionPolicies());
@@ -296,6 +297,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(acr.getConditions().getMap()));
             writer.writeNotEmpty("dcmImageWriteParam", acr.getImageWriteParams());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeStoreAccessControlIDRules(JsonWriter writer, Collection<StoreAccessControlIDRule> rules) {
+        writer.writeStartArray("dcmStoreAccessControlIDRule");
+        for (StoreAccessControlIDRule acr : rules) {
+            writer.writeStartObject();
+            writer.writeNotNull("cn", acr.getCommonName());
+            writer.writeNotNull("dcmStoreAccessControlID", acr.getStoreAccessControlID());
+            writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
+            writer.writeNotEmpty("dcmProperty", toStrings(acr.getConditions().getMap()));
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -444,6 +458,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getExternalRetrieveAEDestination());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
+        writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
         writeStudyRetentionPolicy(writer, arcAE.getStudyRetentionPolicies());
         writer.writeEnd();
@@ -716,6 +731,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmArchiveCompressionRule":
                     loadArchiveCompressionRule(arcDev.getCompressionRules(), reader);
+                    break;
+                case "dcmStoreAccessControlIDRule":
+                    loadStoreAccessControlIDRule(arcDev.getStoreAccessControlIDRules(), reader);
                     break;
                 case "dcmArchiveAttributeCoercion":
                     loadArchiveAttributeCoercion(arcDev.getAttributeCoercions(), reader);
@@ -1011,6 +1029,36 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmImageWriteParam":
                         acr.setImageWriteParams(Property.valueOf(reader.stringArray()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            rules.add(acr);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadStoreAccessControlIDRule(Collection<StoreAccessControlIDRule> rules, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            StoreAccessControlIDRule acr = new StoreAccessControlIDRule();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        acr.setCommonName(reader.stringValue());
+                        break;
+                    case "dcmStoreAccessControlID":
+                        acr.setStoreAccessControlID(reader.stringValue());
+                        break;
+                    case "dcmRulePriority":
+                        acr.setPriority(reader.intValue());
+                        break;
+                    case "dcmProperty":
+                        acr.setConditions(new Conditions(reader.stringArray()));
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -1349,6 +1397,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmArchiveCompressionRule":
                     loadArchiveCompressionRule(arcAE.getCompressionRules(), reader);
+                    break;
+                case "dcmStoreAccessControlIDRule":
+                    loadStoreAccessControlIDRule(arcAE.getStoreAccessControlIDRules(), reader);
                     break;
                 case "dcmArchiveAttributeCoercion":
                     loadArchiveAttributeCoercion(arcAE.getAttributeCoercions(), reader);

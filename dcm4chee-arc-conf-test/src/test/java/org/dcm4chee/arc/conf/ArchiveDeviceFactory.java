@@ -1323,6 +1323,12 @@ class ArchiveDeviceFactory {
                     "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, null, null, configType));
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Leading DCMQRSCP", Dimse.C_STORE_RQ, SCP, "LEADING_DCMQRSCP", null, "DCMQRSCP", null, configType));
+
+            StoreAccessControlIDRule storeAccessControlIDRule =
+                    new StoreAccessControlIDRule("StoreAccessControlIDRule1");
+            storeAccessControlIDRule.getConditions().setSendingAETitle("ACCESS_CONTROL");
+            storeAccessControlIDRule.setStoreAccessControlID("ACCESS_CONTROL_ID");
+            ext.addStoreAccessControlIDRule(storeAccessControlIDRule);
         }
     }
 

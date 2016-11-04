@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,69 +35,79 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.study;
+package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Study;
 
-import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
+import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jun 2016
+ * @since Nov 2016
  */
-public interface StudyMgtContext {
-    AttributeFilter getStudyAttributeFilter();
+public class StoreAccessControlIDRule {
 
-    FuzzyStr getFuzzyStr();
+    private String commonName;
 
-    HttpServletRequest getHttpRequest();
+    private int priority;
 
-    String getRemoteHostName();
+    private Conditions conditions = new Conditions();
 
-    ApplicationEntity getApplicationEntity();
+    private String storeAccessControlID;
 
-    ArchiveAEExtension getArchiveAEExtension();
+    public StoreAccessControlIDRule() {
+    }
 
-    Attributes getAttributes();
+    public StoreAccessControlIDRule(String commonName) {
+        setCommonName(commonName);
+    }
 
-    void setAttributes(Attributes attrs);
+    public final String getCommonName() {
+        return commonName;
+    }
 
-    Patient getPatient();
+    public void setCommonName(String commonName) {
+        this.commonName = commonName;
+    }
 
-    void setPatient(Patient patient);
+    public int getPriority() {
+        return priority;
+    }
 
-    String getStudyInstanceUID();
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 
-    void setStudyInstanceUID(String studyUID);
+    public Conditions getConditions() {
+        return conditions;
+    }
 
-    Study getStudy();
+    public void setConditions(Conditions conditions) {
+        this.conditions = conditions;
+    }
 
-    void setStudy(Study study);
+    public String getStoreAccessControlID() {
+        return storeAccessControlID;
+    }
 
-    String getEventActionCode();
+    public void setStoreAccessControlID(String storeAccessControlID) {
+        this.storeAccessControlID = storeAccessControlID;
+    }
 
-    void setEventActionCode(String eventActionCode);
+    public boolean match(String hostname, String sendingAET, String receivingAET, Attributes attrs) {
+        return conditions.match(hostname, sendingAET, receivingAET, attrs);
+    }
 
-    Exception getException();
-
-    void setException(Exception exception);
-
-    LocalDate getExpirationDate();
-
-    void setExpirationDate(LocalDate expirationDate);
-
-    String getSeriesInstanceUID();
-
-    void setSeriesInstanceUID(String seriesUID);
+    @Override
+    public String toString() {
+        return "StoreAccessControlIDRule{" +
+                "cn='" + commonName +
+                "', priority=" + priority +
+                ", conditions=" + conditions +
+                ", storeAccessControlID='" + storeAccessControlID +
+                "'}";
+    }
 }

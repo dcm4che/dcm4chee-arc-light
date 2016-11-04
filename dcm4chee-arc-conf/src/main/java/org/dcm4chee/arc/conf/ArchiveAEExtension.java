@@ -98,6 +98,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
+    private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
 
     public String getDefaultCharacterSet() {
         return defaultCharacterSet;
@@ -659,6 +660,22 @@ public class ArchiveAEExtension extends AEExtension {
         return attributeCoercions;
     }
 
+    public void removeStoreAccessControlIDRule(StoreAccessControlIDRule storeAccessControlIDRule) {
+        storeAccessControlIDRules.remove(storeAccessControlIDRule);
+    }
+
+    public void clearStoreAccessControlIDRules() {
+        storeAccessControlIDRules.clear();
+    }
+
+    public void addStoreAccessControlIDRule(StoreAccessControlIDRule storeAccessControlIDRule) {
+        storeAccessControlIDRules.add(storeAccessControlIDRule);
+    }
+
+    public ArrayList<StoreAccessControlIDRule> getStoreAccessControlIDRules() {
+        return storeAccessControlIDRules;
+    }
+
     public AllowDeleteStudyPermanently getAllowDeleteStudyPermanently() {
         return allowDeleteStudyPermanently;
     }
@@ -733,6 +750,8 @@ public class ArchiveAEExtension extends AEExtension {
         studyRetentionPolicies.addAll(aeExt.studyRetentionPolicies);
         attributeCoercions.clear();
         attributeCoercions.addAll(aeExt.attributeCoercions);
+        storeAccessControlIDRules.clear();
+        storeAccessControlIDRules.addAll(aeExt.storeAccessControlIDRules);
     }
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
@@ -797,5 +816,19 @@ public class ArchiveAEExtension extends AEExtension {
                     if (policy1 == null || policy1.getPriority() < policy.getPriority())
                         policy1 = policy;
         return policy1;
+    }
+
+    public String storeAccessControlID(String hostName, String sendingAET, String receivingAET, Attributes attrs) {
+        StoreAccessControlIDRule rule1 = null;
+        for (Collection<StoreAccessControlIDRule> rules : new Collection[]{
+                storeAccessControlIDRules,
+                    getArchiveDeviceExtension().getStoreAccessControlIDRules()
+        }) {
+            for (StoreAccessControlIDRule rule : rules)
+                if (rule.match(hostName, sendingAET, receivingAET, attrs))
+                    if (rule1 == null || rule.getPriority() < rule.getPriority())
+                        rule1 = rule;
+        }
+        return rule1 != null ? rule1.getStoreAccessControlID() : storeAccessControlID;
     }
 }

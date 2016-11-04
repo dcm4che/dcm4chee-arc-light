@@ -1,0 +1,35 @@
+{
+  "title": "Store Access Control ID Rule",
+  "description": "Store Access Control ID Rule",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmStoreAccessControlID"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Store Access Control ID Rule",
+      "type": "string"
+    },
+    "dcmStoreAccessControlID": {
+      "title": "Store Access Control ID",
+      "description": "Access Contol ID assigned to Studies which attributes match all conditions",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "Rule Priority",
+      "description": "Rule Priority. 0 if absent.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmProperty": {
+      "title": "Conditions",
+      "description": "Conditions in format {attributeID}[!]={regEx}",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
