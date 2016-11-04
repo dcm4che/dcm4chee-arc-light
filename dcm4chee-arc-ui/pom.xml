@@ -13,10 +13,10 @@
   <packaging>war</packaging>
 
   <properties>
-    <frontend-maven-plugin.version>0.0.25</frontend-maven-plugin.version>
-    <node.version>v0.12.2</node.version>
-    <npm.version>2.7.6</npm.version>
-  </properties>
+    <frontend-maven-plugin.version>1.2</frontend-maven-plugin.version>
+    <node.version>v4.6.0</node.version>
+    <npm.version>2.15.9</npm.version>
+ </properties>
 
   <dependencies>
     <dependency>
