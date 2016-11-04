@@ -95,7 +95,7 @@
           </warSourceIncludes>
           <classifier>${classifier}</classifier>
           <webXml>${webXml}</webXml>
-          <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
+          <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
         </configuration>
       </plugin>
     </plugins>
