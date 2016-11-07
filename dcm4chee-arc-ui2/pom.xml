@@ -92,8 +92,12 @@
         <configuration>
           <classifier>${classifier}</classifier>
           <webXml>${webXml}</webXml>
+          <webResources>
+            <resource>
+              <directory>target/webapp</directory>
+            </resource>
+          </webResources>
           <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
-          <warSourceDirectory>${project.build.directory}/target/webapp</warSourceDirectory>
         </configuration>
       </plugin>
     </plugins>
