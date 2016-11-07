@@ -105,6 +105,7 @@
   <xsl:template name="vetPID2attr">
     <xsl:param name="chip"/>
     <xsl:param name="tattoo"/>
+    <xsl:param name="neutered"/>
     <xsl:param name="owner"/>
     <xsl:param name="species"/>
     <xsl:param name="breed"/>
@@ -139,16 +140,16 @@
         </xsl:if>
       </DicomAttribute>
     </xsl:if>
-    <xsl:if test="$owner/text()">
+    <xsl:if test="$neutered">
       <xsl:call-template name="attr">
-        <xsl:with-param name="tag" select="'00102297'"/>
-        <xsl:with-param name="vr" select="'PN'"/>
-        <xsl:with-param name="val" select="$owner/text()"/>
-      </xsl:call-template>
-      <xsl:call-template name="attr">
-        <xsl:with-param name="tag" select="'00102298'"/>
+        <xsl:with-param name="tag" select="'00102203'"/>
         <xsl:with-param name="vr" select="'CS'"/>
-        <xsl:with-param name="val" select="'OWNER'"/>
+        <xsl:with-param name="val">
+          <xsl:choose>
+            <xsl:when test="$neutered = 'Y'">ALTERED</xsl:when>
+            <xsl:when test="$neutered = 'N'">UNALTERED</xsl:when>
+          </xsl:choose>
+        </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
     <xsl:if test="$species/text()">
@@ -163,6 +164,17 @@
         <xsl:with-param name="descTag" select="'00102292'"/>
         <xsl:with-param name="seqTag" select="'00102293'"/>
         <xsl:with-param name="codedEntry" select="$breed"/>
+      </xsl:call-template>
+    </xsl:if>
+    <xsl:if test="$owner/text()">
+      <xsl:call-template name="xpn2pnAttr">
+        <xsl:with-param name="tag" select="'00102297'"/>
+        <xsl:with-param name="xpn" select="$owner"/>
+      </xsl:call-template>
+      <xsl:call-template name="attr">
+        <xsl:with-param name="tag" select="'00102298'"/>
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="val" select="'OWNER'"/>
       </xsl:call-template>
     </xsl:if>
   </xsl:template>
@@ -362,7 +374,7 @@
       <xsl:with-param name="vr" select="'CS'"/>
       <xsl:with-param name="val">
         <xsl:call-template name="sex">
-          <xsl:with-param name="val" select="field[8]"/>
+          <xsl:with-param name="val" select="field[8]/text()"/>
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
@@ -375,6 +387,7 @@
     <xsl:call-template name="vetPID2attr">
       <xsl:with-param name="chip" select="field[2]" />
       <xsl:with-param name="tattoo" select="field[4]" />
+      <xsl:with-param name="neutered" select="field[8]/component/text()"/>
       <xsl:with-param name="owner" select="field[9]"/>
       <xsl:with-param name="species" select="field[35]"/>
       <xsl:with-param name="breed" select="field[36]"/>
