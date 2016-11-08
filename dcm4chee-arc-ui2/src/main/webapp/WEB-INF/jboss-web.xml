@@ -1,0 +1,3 @@
+<jboss-web>
+  <context-root>dcm4chee-arc/ui2</context-root>
+</jboss-web>
