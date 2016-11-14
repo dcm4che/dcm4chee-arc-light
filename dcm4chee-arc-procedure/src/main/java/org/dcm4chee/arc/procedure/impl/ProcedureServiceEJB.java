@@ -52,7 +52,10 @@ import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMismatchException;
+import org.dcm4chee.arc.patient.impl.PatientServiceEJB;
 import org.dcm4chee.arc.procedure.ProcedureContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -68,6 +71,8 @@ import java.util.*;
  */
 @Stateless
 public class ProcedureServiceEJB {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProcedureServiceEJB.class);
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -195,6 +200,7 @@ public class ProcedureServiceEJB {
         if (scheduledStationAETitles != null)
             addAllScheduledStationAETsToMWL(scheduledStationAETitles, mwlItem);
         em.persist(mwlItem);
+        LOG.info("{}: Create {}", ctx, mwlItem);
     }
 
     private void addAllScheduledStationAETsToMWL(Set<String> scheduledStationAETitles, MWLItem mwlItem) {

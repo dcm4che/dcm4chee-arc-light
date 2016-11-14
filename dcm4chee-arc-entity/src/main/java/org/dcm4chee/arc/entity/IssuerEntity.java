@@ -97,4 +97,9 @@ public class IssuerEntity {
     public void setIssuer(Issuer issuer) {
         this.issuer = issuer;
     }
+
+    @Override
+    public String toString() {
+        return issuer.toString();
+    }
 }
