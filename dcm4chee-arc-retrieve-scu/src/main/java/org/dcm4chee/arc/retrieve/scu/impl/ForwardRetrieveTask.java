@@ -129,7 +129,8 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
 
     protected void writeMoveRSP(Attributes cmd, Attributes data) {
         try {
-            rqas.writeDimseRSP(pc, cmd, data);
+            if (rqas.isReadyForDataTransfer())
+                rqas.writeDimseRSP(pc, cmd, data);
         } catch (IOException e) {
             LOG.warn("{}: Unable to return C-MOVE RSP on association to {}", rqas, rqas.getRemoteAET(), e);
         }
