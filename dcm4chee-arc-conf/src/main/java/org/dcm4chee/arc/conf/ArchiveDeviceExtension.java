@@ -60,6 +60,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String fuzzyAlgorithmClass;
     private String storageID;
     private String metadataStorageID;
+    private String seriesMetadataStorageID;
+    private Duration seriesMetadataDelay;
+    private Duration seriesMetadataPollingInterval;
+    private int seriesMetadataFetchSize = 100;
     private OverwritePolicy overwritePolicy;
     private ShowPatientInfo showPatientInfoInSystemLog;
     private ShowPatientInfo showPatientInfoInAuditLog;
@@ -247,6 +251,38 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setMetadataStorageID(String metadataStorageID) {
         this.metadataStorageID = metadataStorageID;
+    }
+
+    public String getSeriesMetadataStorageID() {
+        return seriesMetadataStorageID;
+    }
+
+    public void setSeriesMetadataStorageID(String seriesMetadataStorageID) {
+        this.seriesMetadataStorageID = seriesMetadataStorageID;
+    }
+
+    public Duration getSeriesMetadataDelay() {
+        return seriesMetadataDelay;
+    }
+
+    public void setSeriesMetadataDelay(Duration seriesMetadataDelay) {
+        this.seriesMetadataDelay = seriesMetadataDelay;
+    }
+
+    public Duration getSeriesMetadataPollingInterval() {
+        return seriesMetadataPollingInterval;
+    }
+
+    public void setSeriesMetadataPollingInterval(Duration seriesMetadataPollingInterval) {
+        this.seriesMetadataPollingInterval = seriesMetadataPollingInterval;
+    }
+
+    public int getSeriesMetadataFetchSize() {
+        return seriesMetadataFetchSize;
+    }
+
+    public void setSeriesMetadataFetchSize(int seriesMetadataFetchSize) {
+        this.seriesMetadataFetchSize =  notNegative(seriesMetadataFetchSize, "seriesMetadataFetchSize");
     }
 
     public String getQueryRetrieveViewID() {
@@ -484,8 +520,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setDeleteRejectedFetchSize(int deleteRejectedFetchSize) {
         this.deleteRejectedFetchSize =  notNegative(deleteRejectedFetchSize, "deleteRejectedFetchSize");
-    }
 
+    }
     public Duration getPurgeStoragePollingInterval() {
         return purgeStoragePollingInterval;
     }
@@ -1093,6 +1129,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fuzzyStr = arcdev.fuzzyStr;
         storageID = arcdev.storageID;
         metadataStorageID = arcdev.metadataStorageID;
+        seriesMetadataStorageID = arcdev.seriesMetadataStorageID;
+        seriesMetadataDelay = arcdev.seriesMetadataDelay;
+        seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
+        seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
         overwritePolicy = arcdev.overwritePolicy;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
         showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;

@@ -13,6 +13,11 @@
       "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. If absent, metadata is not stored additionally",
       "type": "string"
     },
+    "dcmSeriesMetadataStorageID": {
+      "title": "Series Metadata Storage ID",
+      "description": "ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. If absent, no aggregated Series Metadata will be stored.",
+      "type": "string"
+    },
     "dcmStoreAccessControlID": {
       "title": "Store Access Control ID",
       "description": "Access Contol ID assigned to Studies received by this AE",

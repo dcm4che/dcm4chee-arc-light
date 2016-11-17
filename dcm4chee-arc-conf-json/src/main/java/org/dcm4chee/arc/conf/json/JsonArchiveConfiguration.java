@@ -77,6 +77,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass());
         writer.writeNotNull("dcmStorageID", arcDev.getStorageID());
         writer.writeNotNull("dcmMetadataStorageID", arcDev.getMetadataStorageID());
+        writer.writeNotNull("dcmSeriesMetadataStorageID", arcDev.getSeriesMetadataStorageID());
         writer.writeNotNull("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID());
         writer.writeNotNull("dcmOverwritePolicy", arcDev.getOverwritePolicy());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
@@ -414,6 +415,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartObject("dcmArchiveNetworkAE");
         writer.writeNotNull("dcmStorageID", arcAE.getStorageID());
         writer.writeNotNull("dcmMetadataStorageID", arcAE.getMetadataStorageID());
+        writer.writeNotNull("dcmSeriesMetadataStorageID", arcAE.getSeriesMetadataStorageID());
         writer.writeNotNull("dcmStoreAccessControlID", arcAE.getStoreAccessControlID());
         writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
         writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy());
@@ -490,6 +492,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMetadataStorageID":
                     arcDev.setMetadataStorageID(reader.stringValue());
+                    break;
+                case "dcmSeriesMetadataStorageID":
+                    arcDev.setSeriesMetadataStorageID(reader.stringValue());
                     break;
                 case "dcmOverwritePolicy":
                     arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
@@ -1285,6 +1290,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMetadataStorageID":
                     arcAE.setMetadataStorageID(reader.stringValue());
+                    break;
+                case "dcmSeriesMetadataStorageID":
+                    arcAE.setSeriesMetadataStorageID(reader.stringValue());
                     break;
                 case "dcmStoreAccessControlID":
                     arcAE.setStoreAccessControlID(reader.stringValue());

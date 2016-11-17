@@ -641,6 +641,26 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.128 NAME 'dcmMergeMWLCacheSize'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.129 NAME 'dcmSeriesMetadataStorageID'
+  DESC 'ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. If absent, no aggregated Series Metadata will be stored.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.130 NAME 'dcmSeriesMetadataDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for storing aggregated Series Metadata on storage. If absent, no aggregated Series Metadata will be stored.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.131 NAME 'dcmSeriesMetadataPollingInterval'
+  DESC 'Polling Interval for Series scheduled for Metadata update in ISO-8601 duration format PnDTnHnMn.nS. If absent, no aggregated Series Metadata will be stored.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.132 NAME 'dcmSeriesMetadataFetchSize'
+  DESC 'Maximal number of Series scheduled for Metadata update fetched by one query; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -652,6 +672,10 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRetrieveAET $
     dcmDefaultCharacterSet $
     dcmMetadataStorageID $
+    dcmSeriesMetadataStorageID $
+    dcmSeriesMetadataDelay $
+    dcmSeriesMetadataPollingInterval $
+    dcmSeriesMetadataFetchSize $
     dcmOverwritePolicy $
     dcmAcceptMissingPatientID $
     dcmBulkDataSpoolDirectory $
@@ -733,6 +757,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmDefaultCharacterSet $
     dcmStorageID $
     dcmMetadataStorageID $
+    dcmSeriesMetadataStorageID $
     dcmStoreAccessControlID $
     dcmAccessControlID $
     dcmOverwritePolicy $

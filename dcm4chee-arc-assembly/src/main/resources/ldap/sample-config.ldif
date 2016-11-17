@@ -164,6 +164,7 @@ dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: JKS
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
 dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
+dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.65
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.34
@@ -180,7 +181,6 @@ dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.71
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.79.1
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.59
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
-dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 objectClass: dicomDevice
 objectClass: dcmDevice
 objectClass: dcmArchiveDevice
@@ -188,6 +188,7 @@ objectClass: pkiUser
 hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
+dcmSeriesMetadataPollingInterval: PT1M
 dcmMetadataStorageID: metadata
 dcmOverwritePolicy: SAME_SOURCE
 dcmSendPendingCGet: TRUE
@@ -212,10 +213,12 @@ dcmStorageID: fs1
 dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
+dcmSeriesMetadataDelay: PT1M
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
+dcmSeriesMetadataStorageID: series-metadata
 dicomSoftwareVersion: 5.7.2
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
@@ -223,9 +226,9 @@ dcmRejectExpiredStudiesPollingInterval: P1D
 dcmDeleteRejectedPollingInterval: PT5M
 dcmRejectExpiredStudiesPollingStartTime: 00:00
 dcmLeadingCFindSCPQueryCacheStaleTimeout: PT5M
+dcmAuditPollingInterval: PT1M
 dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
 dicomThisNodeCertificateReference: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmAuditPollingInterval: PT1M
 dcmHideSPSWithStatusFromMWL: STARTED
 dcmHideSPSWithStatusFromMWL: DEPARTED
 dcmHideSPSWithStatusFromMWL: CANCELLED
@@ -1182,6 +1185,13 @@ dn: dcmIDGeneratorName=PatientID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICO
 dcmIDGeneratorName: PatientID
 dcmIDGeneratorFormat: P-%08d
 objectClass: dcmIDGenerator
+
+dn: dcmStorageID=series-metadata,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D}/{0020000E}.zip
+dcmProperty: checkMountFile=NO_MOUNT
+objectClass: dcmStorage
+dcmStorageID: series-metadata
+dcmURI: ${jboss.server.data.url}/series-metadata/
 
 dn: cn=Forward to HL7RCV|DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: MSH-3=FORWARD
