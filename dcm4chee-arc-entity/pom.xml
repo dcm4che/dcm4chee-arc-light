@@ -45,7 +45,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.7.2</version>
+    <version>5.8.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -150,7 +150,7 @@
               <databaseMinorVersion>${databaseMinorVersion}</databaseMinorVersion>
               <scriptAction>drop-and-create</scriptAction>
               <outputDirectory>${project.build.outputDirectory}/sql</outputDirectory>
-              <createOutputFileName>create-${db}.sql</createOutputFileName>
+              <createOutputFileName>${createOutputFileName}</createOutputFileName>
               <dropOutputFileName>drop-${db}.sql</dropOutputFileName>
             </configuration>
           </execution>

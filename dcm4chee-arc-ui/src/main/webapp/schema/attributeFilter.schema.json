@@ -1,5 +1,5 @@
 {
-  "title": "Attribute List",
+  "title": "Attribute Filter",
   "description": "Attributes stored in the database",
   "type": "object",
   "required": [

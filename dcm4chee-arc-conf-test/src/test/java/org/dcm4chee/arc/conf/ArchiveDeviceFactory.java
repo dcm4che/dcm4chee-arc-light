@@ -857,6 +857,11 @@ class ArchiveDeviceFactory {
     static final String METADATA_STORAGE_ID = "metadata";
     static final String METADATA_STORAGE_URI = "${jboss.server.data.url}/metadata/";
     static final String METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json";
+    static final String SERIES_METADATA_STORAGE_ID = "series-metadata";
+    static final String SERIES_METADATA_STORAGE_URI = "${jboss.server.data.url}/series-metadata/";
+    static final String SERIES_METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D}/{0020000E}.zip";
+    static final Duration SERIES_METADATA_DELAY = Duration.parse("PT1M");
+    static final Duration SERIES_METADATA_POLLING_INTERVAL = Duration.parse("PT1M");
     static final String WADO_JPEG_STORAGE_ID = "wado-jpeg";
     static final String WADO_JPEG_STORAGE_URI = "${jboss.server.data.url}/wado/";
     static final String WADO_JPEG_PATH_FORMAT = "{0020000D}/{0020000E}/{00080018}/{00081160}.jpeg";
@@ -1250,6 +1255,15 @@ class ArchiveDeviceFactory {
             metadataStorageDescriptor.setProperty("pathFormat", METADATA_PATH_FORMAT);
             metadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
             ext.addStorageDescriptor(metadataStorageDescriptor);
+
+            StorageDescriptor seriesMetadataStorageDescriptor = new StorageDescriptor(SERIES_METADATA_STORAGE_ID);
+            seriesMetadataStorageDescriptor.setStorageURIStr(SERIES_METADATA_STORAGE_URI);
+            seriesMetadataStorageDescriptor.setProperty("pathFormat", SERIES_METADATA_PATH_FORMAT);
+            seriesMetadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            ext.addStorageDescriptor(seriesMetadataStorageDescriptor);
+            ext.setSeriesMetadataStorageID(SERIES_METADATA_STORAGE_ID);
+            ext.setSeriesMetadataDelay(SERIES_METADATA_DELAY);
+            ext.setSeriesMetadataPollingInterval(SERIES_METADATA_POLLING_INTERVAL);
 
             StorageDescriptor wadoJpegStorageDescriptor = new StorageDescriptor(WADO_JPEG_STORAGE_ID);
             wadoJpegStorageDescriptor.setStorageURIStr(WADO_JPEG_STORAGE_URI);

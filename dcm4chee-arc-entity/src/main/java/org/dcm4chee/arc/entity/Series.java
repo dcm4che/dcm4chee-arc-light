@@ -153,7 +153,8 @@ import java.util.Date;
         @Index(columnList = "series_custom3"),
         @Index(columnList = "expiration_date"),
         @Index(columnList = "failed_retrieves"),
-        @Index(columnList = "failed_iuids")
+        @Index(columnList = "failed_iuids"),
+        @Index(columnList = "metadata_update_time")
 })
 public class Series {
 
@@ -273,6 +274,18 @@ public class Series {
     @Basic
     @Column(name = "expiration_date")
     private String expirationDate;
+
+    @Basic
+    @Column(name = "metadata_storage_id")
+    private String metadataStorageID;
+
+    @Basic
+    @Column(name = "metadata_storage_path")
+    private String metadataStoragePath;
+
+    @Basic
+    @Column(name = "metadata_update_time")
+    private Date metadataScheduledUpdateTime;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -435,6 +448,30 @@ public class Series {
             }
         } else
             this.expirationDate = null;
+    }
+
+    public String getMetadataStorageID() {
+        return metadataStorageID;
+    }
+
+    public void setMetadataStorageID(String metadataStorageID) {
+        this.metadataStorageID = metadataStorageID;
+    }
+
+    public String getMetadataStoragePath() {
+        return metadataStoragePath;
+    }
+
+    public void setMetadataStoragePath(String metadataStoragePath) {
+        this.metadataStoragePath = metadataStoragePath;
+    }
+
+    public Date getMetadataScheduledUpdateTime() {
+        return metadataScheduledUpdateTime;
+    }
+
+    public void setMetadataScheduledUpdateTime(Date metadataScheduledUpdateTime) {
+        this.metadataScheduledUpdateTime = metadataScheduledUpdateTime;
     }
 
     public String getFailedSOPInstanceUIDList() {

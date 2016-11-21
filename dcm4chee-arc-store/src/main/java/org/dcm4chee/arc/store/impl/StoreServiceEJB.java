@@ -487,10 +487,7 @@ public class StoreServiceEJB {
                         : patientService.createPatientMgtContextHL7(session.getSocket(), session.getHL7MessageHeader());
                 patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);
-                HashMap<Integer, String> errorCodeComment = checkStorePermission(ctx, pat);
-                if (!errorCodeComment.isEmpty())
-                    for (Map.Entry<Integer, String> entry : errorCodeComment.entrySet())
-                        throw new DicomServiceException(entry.getKey(), entry.getValue());
+                checkStorePermission(ctx, pat);
 
                 if (pat == null) {
                     pat = patientService.createPatient(patMgtCtx);
@@ -502,12 +499,14 @@ public class StoreServiceEJB {
                 if (ctx.getExpirationDate() != null)
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
-            } else if (checkStorePermission(ctx, study.getPatient()).isEmpty()) {
+            } else {
+                checkStorePermission(ctx, study.getPatient());
                 study = updateStudy(ctx, study);
                 updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study, result);
-        } else if (checkStorePermission(ctx, series.getStudy().getPatient()).isEmpty()) {
+        } else {
+            checkStorePermission(ctx, series.getStudy().getPatient());
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
             updatePatient(ctx, series.getStudy().getPatient());
@@ -770,115 +769,113 @@ public class StoreServiceEJB {
         return study;
     }
 
-    private HashMap<Integer, String> checkStorePermission(StoreContext ctx, Patient pat) {
+    private void checkStorePermission(StoreContext ctx, Patient pat) throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        String serviceURL = arcAE.storePermissionServiceURL();
+        String serviceURL = session.getArchiveAEExtension().storePermissionServiceURL();
         if (serviceURL == null)
-            return new HashMap<>();
+            return;
 
         Attributes attrs = ctx.getAttributes();
         if (pat != null)
             attrs.addAll(pat.getAttributes());
         String urlspec = new AttributesFormat(serviceURL).format(attrs);
         StorePermission storePermission = storePermissionCache.get(urlspec);
-        if (storePermission != null) {
-            LOG.debug("{}: Use cached result of Query Store Permission Service {} - {}", session, urlspec, storePermission);
-            ctx.setExpirationDate(storePermission.expirationDate);
-            return storePermission.errorCodeComment;
+        if (storePermission == null) {
+            storePermission = queryStorePermission(session, urlspec);
+            storePermissionCache.put(urlspec, storePermission);
+        } else {
+            LOG.debug("{}: Use cached result of Query Store Permission Service {} - {}",
+                    session, urlspec, storePermission);
         }
+        if (storePermission.exception != null)
+            throw storePermission.exception;
 
+        ctx.setExpirationDate(storePermission.expirationDate);
+    }
+
+    private StorePermission queryStorePermission(StoreSession session, String urlspec) throws DicomServiceException {
         LOG.info("{}: Query Store Permission Service {}", session, urlspec);
-        boolean granted = false;
         LocalDate expirationDate = null;
-        HashMap<Integer, String> errorCodeComment = new HashMap<>();
+        DicomServiceException exception = null;
         try {
             URL url = new URL(urlspec);
             HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
             int responseCode = httpConn.getResponseCode();
             String responseContent = null;
-            Pattern responsePattern = arcAE.storePermissionServiceResponsePattern();
-            Pattern expirationDatePattern = arcAE.storePermissionServiceExpirationDatePattern();
-            Pattern errorCodePattern = arcAE.storePermissionServiceErrorCodePattern();
-            Pattern errorCommentPattern = arcAE.storePermissionServiceErrorCommentPattern();
+            Pattern responsePattern = session.getArchiveAEExtension().storePermissionServiceResponsePattern();
             switch (responseCode) {
                 case HttpURLConnection.HTTP_OK:
                     responseContent = readContent(httpConn);
-                    granted = responsePattern == null || responsePattern.matcher(responseContent).find();
-                    expirationDate = granted && expirationDatePattern != null
-                                    ? selectExpirationDate(session, urlspec, responseContent, expirationDatePattern) : null;
-                    errorCodeComment = !granted
-                                       ? selectErrorCodeComment(session, urlspec, responseContent, errorCodePattern, errorCommentPattern)
-                                       : new HashMap<>();
+                    LOG.debug("{}: Store Permission Service {} response:\n{}", session, urlspec, responseContent);
+                    if (responsePattern == null || responsePattern.matcher(responseContent).find() )
+                        expirationDate = selectExpirationDate(session, urlspec, responseContent);
+                    else {
+                        exception = selectErrorCodeComment(session, urlspec, responseContent);
+                    }
                     break;
                 case HttpURLConnection.HTTP_NO_CONTENT:
-                    granted = responsePattern == null;
+                    if (responsePattern == null)
+                        break;
+                default:
+                    exception = new DicomServiceException(Status.NotAuthorized, StoreService.NOT_AUTHORIZED);
                     break;
-            }
-            if (!granted) {
-                if (responseContent == null || responsePattern == null)
-                    LOG.info("{}: Store Permission Service {} returns HTTP Status: {}",
-                            session, urlspec, responseCode);
-                else
-                    LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not match {}",
-                            session, urlspec, responseContent, responsePattern);
             }
         } catch (Exception e) {
             LOG.warn("{}: Failed to query Store Permission Service {}:\n", session, urlspec, e);
+            throw new DicomServiceException(Status.ProcessingFailure,
+                    StoreService.FAILED_TO_QUERY_STORE_PERMISSION_SERVICE);
         }
-        storePermissionCache.put(urlspec, new StorePermission(expirationDate, errorCodeComment));
-        ctx.setExpirationDate(expirationDate);
-        return errorCodeComment;
+        StorePermission result = new StorePermission(expirationDate, exception);
+        LOG.info("{}: Store Permission Service {} returns {}", session, urlspec, result);
+        return result;
     }
 
-    private LocalDate selectExpirationDate(StoreSession session, String url, String response, Pattern pattern) {
-        Matcher matcher = pattern.matcher(response);
-        if (matcher.find()) {
-            String s = matcher.group(1);
-            try {
-                return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
-            } catch (DateTimeParseException e) {
-                LOG.warn("{}: Store Permission Service {} returns invalid Expiration Date: {} - ignored",
-                        session, url, s);
+    private LocalDate selectExpirationDate(StoreSession session, String url, String response) {
+        Pattern pattern = session.getArchiveAEExtension().storePermissionServiceExpirationDatePattern();
+        if (pattern != null) {
+            Matcher matcher = pattern.matcher(response);
+            if (matcher.find()) {
+                String s = matcher.group(1);
+                try {
+                    return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
+                } catch (DateTimeParseException e) {
+                    LOG.warn("{}: Store Permission Service {} returns invalid Expiration Date: {} - ignored",
+                            session, url, s);
+                }
+            } else {
+                LOG.info("{}: Store Permission Service {} response does not contains expiration date", session, url);
             }
-        } else {
-            LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not contains expiration date {}",
-                    session, url, response, pattern);
         }
         return null;
     }
 
     private String selectErrorComment(StoreSession session, String url, String response, Pattern pattern) {
-        Matcher matcher = pattern.matcher(response);
-        if (matcher.find())
-            return matcher.group(1);
-        else
-            LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not contain error comment {}",
-                    session, url, response, pattern);
+        if (pattern != null) {
+            Matcher matcher = pattern.matcher(response);
+            if (matcher.find())
+                return matcher.group(1);
+            else
+                LOG.info("{}: Store Permission Service {} response does not contain error comment", session, url);
+        }
         return StoreService.NOT_AUTHORIZED;
     }
 
     private int selectErrorCode(StoreSession session, String url, String response, Pattern pattern) {
-        Matcher matcher = pattern.matcher(response);
-        if (matcher.find())
-            return Integer.parseInt(matcher.group(1), 16);
-        else
-            LOG.info("{}: Store Permission Service {} response:\n{}\ndoes not contain error code {}",
-                    session, url, response, pattern);
+        if (pattern != null) {
+            Matcher matcher = pattern.matcher(response);
+            if (matcher.find())
+                return Integer.parseInt(matcher.group(1), 16);
+            else
+                LOG.info("{}: Store Permission Service {} response does not contain error code ", session, url);
+        }
         return Status.NotAuthorized;
     }
 
-    private HashMap<Integer, String> selectErrorCodeComment(StoreSession session, String url, String response,
-                Pattern errorCodePattern, Pattern errorCommentPattern) {
-        HashMap<Integer, String> errorCodeComment = new HashMap<>();
-        int errorCode = Status.NotAuthorized;
-        String errorComment = StoreService.NOT_AUTHORIZED;
-        if (errorCodePattern != null)
-            errorCode = selectErrorCode(session, url, response, errorCodePattern);
-        if (errorCommentPattern != null)
-            errorComment = selectErrorComment(session, url, response, errorCommentPattern);
-        errorCodeComment.put(errorCode, errorComment);
-        return errorCodeComment;
+    private DicomServiceException selectErrorCodeComment(StoreSession session, String url, String response) {
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        return new DicomServiceException(
+                selectErrorCode(session, url, response, arcAE.storePermissionServiceErrorCodePattern()),
+                selectErrorComment(session, url, response, arcAE.storePermissionServiceErrorCommentPattern()));
     }
 
     private String readContent(HttpURLConnection httpConn) throws IOException {

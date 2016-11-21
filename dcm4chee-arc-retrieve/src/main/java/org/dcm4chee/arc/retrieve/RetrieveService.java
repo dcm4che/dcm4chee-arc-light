@@ -103,4 +103,6 @@ public interface RetrieveService {
     void updateFailedSOPInstanceUIDList(RetrieveContext ctx);
 
     Date getLastModified(RetrieveContext ctx);
+
+    Date evaluateLastModified(RetrieveContext ctx);
 }

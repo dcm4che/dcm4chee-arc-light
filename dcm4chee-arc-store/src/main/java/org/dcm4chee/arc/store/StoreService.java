@@ -39,6 +39,7 @@ public interface StoreService {
     String RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG = "Retention Period of Study not yet expired.";
     String PATIENT_ID_MISSING_IN_OBJECT_MSG = "Storage denied as Patient ID missing in object.";
     String NOT_AUTHORIZED = "Storage denied.";
+    String FAILED_TO_QUERY_STORE_PERMISSION_SERVICE = "Failed to query Store Permission Service";
 
     StoreSession newStoreSession(Association as);
 

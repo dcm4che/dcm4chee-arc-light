@@ -60,6 +60,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
     private String storageID;
     private String metadataStorageID;
+    private String seriesMetadataStorageID;
     private String storeAccessControlID;
     private String[] accessControlIDs = {};
     private OverwritePolicy overwritePolicy;
@@ -140,6 +141,20 @@ public class ArchiveAEExtension extends AEExtension {
         return metadataStorageID != null
                 ? metadataStorageID
                 : getArchiveDeviceExtension().getMetadataStorageID();
+    }
+
+    public String getSeriesMetadataStorageID() {
+        return seriesMetadataStorageID;
+    }
+
+    public void setSeriesMetadataStorageID(String seriesMetadataStorageID) {
+        this.seriesMetadataStorageID = seriesMetadataStorageID;
+    }
+
+    public String seriesMetadataStorageID() {
+        return seriesMetadataStorageID != null
+                ? seriesMetadataStorageID
+                : getArchiveDeviceExtension().getSeriesMetadataStorageID();
     }
 
     public String getStoreAccessControlID() {
@@ -709,6 +724,7 @@ public class ArchiveAEExtension extends AEExtension {
         defaultCharacterSet = aeExt.defaultCharacterSet;
         storageID = aeExt.storageID;
         metadataStorageID = aeExt.metadataStorageID;
+        seriesMetadataStorageID = aeExt.seriesMetadataStorageID;
         storeAccessControlID = aeExt.storeAccessControlID;
         accessControlIDs = aeExt.accessControlIDs;
         overwritePolicy = aeExt.overwritePolicy;

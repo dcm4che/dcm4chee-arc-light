@@ -95,7 +95,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     public String toString() {
         return httpRequest != null
                 ? httpRequest.getRemoteAddr()
-                : msh != null ? msh.toString() : as.toString();
+                : as != null ? as.toString() : socket.toString();
     }
 
     @Override

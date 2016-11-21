@@ -77,6 +77,36 @@ import java.util.*;
             "join fetch p.attributesBlob " +
             "where i.sopInstanceUID = ?1"),
 @NamedQuery(
+        name=Instance.FIND_LAST_MODIFIED_STUDY_LEVEL,
+        query="SELECT p.updatedTime, st.updatedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
+                "JOIN i.series se " +
+                "JOIN se.study st " +
+                "JOIN st.patient p " +
+                "where st.studyInstanceUID = ?1 " +
+                "GROUP BY p.updatedTime, st"
+),
+@NamedQuery(
+        name=Instance.FIND_LAST_MODIFIED_SERIES_LEVEL,
+        query="SELECT p.updatedTime, st.updatedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
+                "JOIN i.series se " +
+                "JOIN se.study st " +
+                "JOIN st.patient p " +
+                "where st.studyInstanceUID = ?1 " +
+                "and se.seriesInstanceUID = ?2 " +
+                "GROUP BY p.updatedTime, st"
+),
+@NamedQuery(
+        name=Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL,
+        query="SELECT p.updatedTime, st.updatedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
+                "JOIN i.series se " +
+                "JOIN se.study st " +
+                "JOIN st.patient p " +
+                "where st.studyInstanceUID = ?1 " +
+                "and se.seriesInstanceUID = ?2 " +
+                "and i.sopInstanceUID = ?3 " +
+                "GROUP BY p.updatedTime, st"
+),
+@NamedQuery(
     name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID_EAGER,
     query="select i from Instance i " +
             "join fetch i.series se " +
@@ -147,6 +177,9 @@ public class Instance {
     public static final String FIND_BY_STUDY_IUID = "Instance.findByStudyIUID";
     public static final String IUIDS_OF_STUDY = "Instance.iuidsOfStudy";
     public static final String IUIDS_OF_SERIES = "Instance.iuidsOfSeries";
+    public static final String FIND_LAST_MODIFIED_STUDY_LEVEL = "Instance.findLastModifiedStudyLevel";
+    public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Instance.findLastModifiedSeriesLevel";
+    public static final String FIND_LAST_MODIFIED_INSTANCE_LEVEL = "Instance.findLastModifiedInstanceLevel";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

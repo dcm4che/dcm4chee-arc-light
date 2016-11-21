@@ -40,8 +40,10 @@
 
 package org.dcm4chee.arc;
 
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.TagUtils;
+
 import java.time.LocalDate;
-import java.util.HashMap;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -51,15 +53,21 @@ import java.util.HashMap;
 public class StorePermission {
 
     public final LocalDate expirationDate;
-    public final HashMap<Integer, String> errorCodeComment;
+    public final DicomServiceException exception;
 
-    public StorePermission(LocalDate expirationDate, HashMap<Integer, String> errorCodeComment) {
+    public StorePermission(LocalDate expirationDate, DicomServiceException exception) {
         this.expirationDate = expirationDate;
-        this.errorCodeComment = errorCodeComment;
+        this.exception = exception;
     }
 
     @Override
     public String toString() {
-        return "StorePermission[expirationDate=" + expirationDate + ", errorCodeComment=" + errorCodeComment + ']';
+        return exception == null
+                ? expirationDate == null
+                    ? "StorePermission{GRANTED}"
+                    : "StorePermission{GRANTED, expirationDate=" + expirationDate + '}'
+                : "StorePermission{DIENIED, status="
+                    + TagUtils.shortToHexString(exception.getStatus())
+                    + "H, errorComment=" + exception.getMessage() + '}';
     }
 }

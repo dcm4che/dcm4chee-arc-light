@@ -271,6 +271,25 @@ public class RetrieveServiceImpl implements RetrieveService {
         return Collections.max(dates);
     }
 
+    public Date evaluateLastModified(RetrieveContext ctx) {
+        List<Object[]> dates = ctx.getSopInstanceUIDs().length > 0
+                                ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
+                                .setParameter(1, ctx.getStudyInstanceUID()).setParameter(2, ctx.getSeriesInstanceUID()).setParameter(3, ctx.getSopInstanceUIDs()[0]).getResultList()
+                                : ctx.getSeriesInstanceUID() != null
+                                ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
+                                .setParameter(1, ctx.getStudyInstanceUID()).setParameter(2, ctx.getSeriesInstanceUID()).getResultList()
+                                : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
+                                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        if(dates.isEmpty())
+            return null;
+        List<Date> dts = new ArrayList<>();
+        for (Object[] o : dates) {
+            for (Object obj : o)
+                dts.add((Date) obj);
+        }
+        return Collections.max(dts);
+    }
+
     @Override
     public boolean calculateMatches(RetrieveContext ctx)  {
         StatelessSession session = openStatelessSession();

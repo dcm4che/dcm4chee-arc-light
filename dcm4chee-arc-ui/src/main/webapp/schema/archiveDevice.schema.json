@@ -31,6 +31,28 @@
       "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. If absent, metadata is not stored additionally",
       "type": "string"
     },
+    "dcmSeriesMetadataStorageID": {
+      "title": "Series Metadata Storage ID",
+      "description": "ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. If absent, no aggregated Series Metadata will be stored.",
+      "type": "string"
+    },
+    "dcmSeriesMetadataDelay": {
+      "title": "Aggregate Series Metadata Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for storing aggregated Series Metadata on storage. If absent, no aggregated Series Metadata will be stored.",
+      "type": "string"
+    },
+    "dcmSeriesMetadataPollingInterval": {
+      "title": "Update Series Metadata Polling Interval",
+      "description": "Polling Interval for Series scheduled for Metadata update in ISO-8601 duration format PnDTnHnMn.nS. If absent, no aggregated Series Metadata will be stored.",
+      "type": "string"
+    },
+    "dcmSeriesMetadataFetchSize": {
+      "title": "Update Series Metadata Fetch Size",
+      "description": "Maximal number of Series scheduled for Metadata update fetched by one query; 100 if absent.",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
       "description": "Query/Retrieve View Identifier",
