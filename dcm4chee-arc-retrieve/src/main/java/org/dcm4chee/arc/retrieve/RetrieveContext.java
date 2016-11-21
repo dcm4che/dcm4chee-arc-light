@@ -234,10 +234,6 @@ public interface RetrieveContext extends Closeable {
 
     void setFallbackMoveRSPFailedIUIDs(String[] fallbackMoveRSPFailedIUIDs);
 
-    Date getPatientUpdatedTime();
-
-    void setPatientUpdatedTime(Date patientUpdatedTime);
-
     boolean isRetryFailedRetrieve();
 
     void setRetryFailedRetrieve(boolean retryFailedRetrieve);

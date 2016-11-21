@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.retrieve;
 
-import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,5 +54,4 @@ public interface SeriesInfo {
 
     int getFailedRetrieves();
 
-    Date getUpdatedTime();
 }

@@ -206,6 +206,11 @@ public class WadoURI {
         try {
             checkAET();
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
+            Date lastModified = service.getLastModified(ctx);
+            if (lastModified == null)
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            boolean evaluatePreConditions = evaluatePreConditions(lastModified);
+
             if (!service.calculateMatches(ctx))
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
 
@@ -215,8 +220,7 @@ public class WadoURI {
                         "More than one matching resource found");
 
             InstanceLocations inst = matches.iterator().next();
-            Date d = service.getLastModified(ctx);
-            if (evaluatePreConditions(d)) {
+            if (evaluatePreConditions) {
                 ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
                 MediaType mimeType = selectMimeType(objectType);
                 if (mimeType == null)
@@ -236,7 +240,7 @@ public class WadoURI {
                         retrieveWado.fire(ctx);
                     }
                 });
-                ar.resume(Response.ok(entity, mimeType).lastModified(d).tag(String.valueOf(d.hashCode())).build());
+                ar.resume(Response.ok(entity, mimeType).lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).build());
             } else {
                 ar.resume(Response.status(Response.Status.NOT_MODIFIED).build());
             }

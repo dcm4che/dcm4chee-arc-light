@@ -83,7 +83,7 @@ public interface RetrieveService {
 
     InstanceLocations newInstanceLocations(
             String sopClassUID, String sopInstanceUID, String retrieveAETs, String extRetrieveAET,
-            Availability availability, Date updatedTime, Attributes attrs);
+            Availability availability, Attributes attrs);
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException;
@@ -103,6 +103,4 @@ public interface RetrieveService {
     void updateFailedSOPInstanceUIDList(RetrieveContext ctx);
 
     Date getLastModified(RetrieveContext ctx);
-
-    Date evaluateLastModified(RetrieveContext ctx);
 }

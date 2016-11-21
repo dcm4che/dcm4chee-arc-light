@@ -335,7 +335,7 @@ public class WadoRS {
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata())
                 ctx.setObjectType(null);
-            Date lastModified = service.evaluateLastModified(ctx);
+            Date lastModified = service.getLastModified(ctx);
             if (lastModified == null)
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
             boolean evaluatePreConditions = evaluatePreConditions(lastModified);
@@ -348,7 +348,6 @@ public class WadoRS {
             if (ctx.getMatches().isEmpty())
                 throw new WebApplicationException(
                         notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
-            Date d = service.getLastModified(ctx);
             if (evaluatePreConditions) {
                 retrieveStart.fire(ctx);
                 ar.register(new CompletionCallback() {
@@ -365,7 +364,7 @@ public class WadoRS {
                 });
                 responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
                 Object entity = output.entity(this, ctx, frameList, attributePath);
-                ar.resume(Response.status(responseStatus).lastModified(d).tag(String.valueOf(d.hashCode())).entity(entity).build());
+                ar.resume(Response.status(responseStatus).lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).entity(entity).build());
             } else {
                 ar.resume(Response.status(Response.Status.NOT_MODIFIED).build());
             }

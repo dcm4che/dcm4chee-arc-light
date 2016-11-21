@@ -583,16 +583,6 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public Date getPatientUpdatedTime() {
-        return patientUpdatedTime;
-    }
-
-    @Override
-    public void setPatientUpdatedTime(Date patientUpdatedTime) {
-        this.patientUpdatedTime = patientUpdatedTime;
-    }
-
-    @Override
     public boolean isRetryFailedRetrieve() {
         return retryFailedRetrieve;
     }
