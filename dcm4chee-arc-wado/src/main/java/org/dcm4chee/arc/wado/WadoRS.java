@@ -335,6 +335,10 @@ public class WadoRS {
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata())
                 ctx.setObjectType(null);
+            Date lastModified = service.evaluateLastModified(ctx);
+            if (lastModified == null)
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            boolean evaluatePreConditions = evaluatePreConditions(lastModified);
             service.calculateMatches(ctx);
             LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
             if (ctx.getNumberOfMatches() == 0)
@@ -345,7 +349,7 @@ public class WadoRS {
                 throw new WebApplicationException(
                         notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
             Date d = service.getLastModified(ctx);
-            if (evaluatePreConditions(d)) {
+            if (evaluatePreConditions) {
                 retrieveStart.fire(ctx);
                 ar.register(new CompletionCallback() {
                     @Override
