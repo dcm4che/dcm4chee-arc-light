@@ -84,6 +84,16 @@
               <arguments>install</arguments>
             </configuration>
           </execution>
+            <execution>
+                <id>npm run-script prod</id>
+                <phase>prepare-package</phase>
+                <goals>
+                    <goal>npm</goal>
+                </goals>
+                <configuration>
+                    <arguments>run-script prod</arguments>
+                </configuration>
+            </execution>
         </executions>
       </plugin>
       <plugin>

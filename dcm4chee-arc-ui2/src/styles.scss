@@ -1,0 +1,70 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~material-design-icons/iconfont/material-icons.css";
+@import "~bootstrap/dist/css/bootstrap.min.css";
+@import "~@angular/material/core/theming/prebuilt/deeppurple-amber.css";
+
+$green :#2FA6C1;
+body{
+    margin: 0;
+    font-family: Robot, sans-serif;
+}
+*{
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+md-sidenav-layout{
+    height:100vh;
+}
+md-sidenav{
+    width:320px;
+}
+md-toolbar-row{
+    justify-content: space-between ;
+}
+[md-raised-button]{
+    width:100%;
+}
+md-grid-list{
+    max-width:1403px;
+    margin:16px;
+}
+
+
+[md-icon-button] {
+    width: 27px;
+    height:27px;
+}
+.icon-20{
+    font-size:20px;
+}
+
+//#mainmenu
+#mainmenu{
+  li{
+    a{
+      &.active{
+        text-decoration:underline;
+      }
+    }
+  }
+}
+
+.slim-loading-bar{
+  .slim-loading-bar-progress{
+    background:$green;
+    color:$green;
+    position: fixed;
+    left: 0;
+    top: 0;
+  }
+}
+md-progress-circle, [_nghost-nyg-8]{
+  width:25px !important;
+  height:25px !important;
+  svg{
+    path{
+      color:$green;
+      stroke:$green;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+<ng2-slim-loading-bar [color]="'#2FA6C1'"></ng2-slim-loading-bar>
+<!--<button (click)="onClick()">Alert</button>-->
+<!--<button (click)="msgcomp.setMessage('SetnewMessagetest')">setmessage</button>-->
+<app-messaging></app-messaging>
+<!--<div class="msg_container">-->
+    <!--<li ng-repeat="m in msg" class="{{m.status}} msg_{{m.id}} slideInRight animated"  ng-show="m.text" ng-click="closeBox(m)">-->
+        <!--<span class="close" data-dismiss="alert" aria-label="close">&times;</span>-->
+        <!--<h4>{{m.title}}</h4>-->
+        <!--<p ng-bind-html="m.text"></p>-->
+        <!--<div class="progress"></div>-->
+    <!--</li>-->
+<!--</div>-->
+<div class="background"></div>
+<!--<app-widgets></app-widgets>-->
+<div class="toggle-button out" (click)="showMenu = true;" *ngIf="!showMenu">
+    <md-icon >reorder</md-icon>
+</div>
+<ul id="mainmenu" class="nav slideInLeft animated" *ngIf="showMenu">
+    <div (click)="showMenu = false;" class="glyphicon glyphicon-align-justify toggle-button "></div>
+    <li (click)="showMenu = false;"><a routerLink="studies" routerLinkActive="active">Studies</a></li>
+    <li (click)="showMenu = false;"><a routerLink="control" routerLinkActive="active">Control</a></li>
+</ul>
+
+<router-outlet></router-outlet>
