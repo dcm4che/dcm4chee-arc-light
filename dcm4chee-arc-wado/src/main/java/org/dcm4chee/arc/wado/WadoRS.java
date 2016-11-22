@@ -78,6 +78,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2016
  */
 @RequestScoped
@@ -335,46 +336,63 @@ public class WadoRS {
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata())
                 ctx.setObjectType(null);
+
+            if (request.getHeader("If-Modified-Since") == null && request.getHeader("If-Unmodified-Since") == null
+                    && request.getHeader("If-None-Match") == null && request.getHeader("If-Match") == null) {
+                buildResponse(method, frameList, attributePath, ar, output, ctx, null);
+                return;
+            }
+
             Date lastModified = service.getLastModified(ctx);
             if (lastModified == null)
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
-            boolean evaluatePreConditions = evaluatePreConditions(lastModified);
-            service.calculateMatches(ctx);
-            LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
-            if (ctx.getNumberOfMatches() == 0)
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-//            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
-            Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx);
-            if (ctx.getMatches().isEmpty())
-                throw new WebApplicationException(
-                        notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
-            if (evaluatePreConditions) {
-                retrieveStart.fire(ctx);
-                ar.register(new CompletionCallback() {
-                    @Override
-                    public void onComplete(Throwable throwable) {
-                        SafeClose.close(compressedMFPixelDataOutput);
-                        SafeClose.close(uncompressedFramesOutput);
-                        SafeClose.close(compressedFramesOutput);
-                        SafeClose.close(decompressFramesOutput);
-                        purgeSpoolDirectory();
-                        ctx.setException(throwable);
-                        retrieveEnd.fire(ctx);
-                    }
-                });
-                responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
-                Object entity = output.entity(this, ctx, frameList, attributePath);
-                ar.resume(Response.status(responseStatus).lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).entity(entity).build());
-            } else {
-                ar.resume(Response.status(Response.Status.NOT_MODIFIED).build());
-            }
+            Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
+
+            if (respBuilder == null)
+                buildResponse(method, frameList, attributePath, ar, output, ctx, lastModified);
+            else
+                ar.resume(respBuilder.build());
         } catch (Exception e) {
             ar.resume(e);
         }
     }
 
-    private boolean evaluatePreConditions(Date lastModified) {
-        return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode()))) == null;
+    private void buildResponse(String method, int[] frameList, int[] attributePath, AsyncResponse ar, Output output,
+                               final RetrieveContext ctx, Date lastModified) throws IOException {
+        service.calculateMatches(ctx);
+        LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
+        if (ctx.getNumberOfMatches() == 0)
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+//            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
+        Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx);
+        if (ctx.getMatches().isEmpty())
+            throw new WebApplicationException(
+                    notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
+
+        if (lastModified == null)
+            lastModified = service.getLastModifiedFromMatches(ctx);
+
+        retrieveStart.fire(ctx);
+        ar.register(new CompletionCallback() {
+            @Override
+            public void onComplete(Throwable throwable) {
+                SafeClose.close(compressedMFPixelDataOutput);
+                SafeClose.close(uncompressedFramesOutput);
+                SafeClose.close(compressedFramesOutput);
+                SafeClose.close(decompressFramesOutput);
+                purgeSpoolDirectory();
+                ctx.setException(throwable);
+                retrieveEnd.fire(ctx);
+            }
+        });
+        responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
+        Object entity = output.entity(this, ctx, frameList, attributePath);
+        ar.resume(Response.status(responseStatus).lastModified(lastModified)
+                .tag(String.valueOf(lastModified.hashCode())).entity(entity).build());
+    }
+
+    private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
+        return req.evaluatePreconditions(lastModified, new EntityTag(String.valueOf(lastModified.hashCode())));
     }
 
     private void checkAET() {

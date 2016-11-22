@@ -61,15 +61,17 @@ public class InstanceLocationsImpl implements InstanceLocations {
     private final String retrieveAETs;
     private final String extRetrieveAET;
     private final Availability availability;
+    private final Date updatedTime;
     private final ArrayList<Location> locations = new ArrayList<>(1);
 
     public InstanceLocationsImpl(String sopClassUID, String sopInstanceUID, String retrieveAETs, String extRetrieveAET,
-            Availability availability, Attributes attributes) {
+            Availability availability, Date updatedTime, Attributes attributes) {
         this.sopClassUID = sopClassUID;
         this.sopInstanceUID = sopInstanceUID;
         this.retrieveAETs = retrieveAETs;
         this.extRetrieveAET = extRetrieveAET;
         this.availability = availability;
+        this.updatedTime = updatedTime;
         this.attributes = attributes;
     }
 
@@ -113,4 +115,6 @@ public class InstanceLocationsImpl implements InstanceLocations {
         return availability;
     }
 
+    @Override
+    public Date getUpdatedTime() { return updatedTime; }
 }

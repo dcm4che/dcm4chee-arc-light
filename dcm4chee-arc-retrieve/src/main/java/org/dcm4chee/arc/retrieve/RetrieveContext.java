@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.retrieve;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
@@ -59,6 +58,7 @@ import java.util.concurrent.ScheduledFuture;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 public interface RetrieveContext extends Closeable {
@@ -237,4 +237,8 @@ public interface RetrieveContext extends Closeable {
     boolean isRetryFailedRetrieve();
 
     void setRetryFailedRetrieve(boolean retryFailedRetrieve);
+
+    Date getPatientUpdatedTime();
+
+    void setPatientUpdatedTime(Date patientUpdatedTime);
 }
