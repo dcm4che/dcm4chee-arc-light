@@ -207,8 +207,8 @@ public class WadoURI {
             checkAET();
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
 
-            if (request.getHeader("If-Modified-Since") == null && request.getHeader("If-Unmodified-Since") == null
-                    && request.getHeader("If-None-Match") == null && request.getHeader("If-Match") == null) {
+            if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
+                    && request.getHeader(HttpHeaders.IF_MATCH) == null && request.getHeader(HttpHeaders.IF_NONE_MATCH) == null) {
                 buildResponse(ar, ctx, null);
                 return;
             }
