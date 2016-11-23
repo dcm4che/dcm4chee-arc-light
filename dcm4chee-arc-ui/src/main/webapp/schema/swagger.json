@@ -1043,7 +1043,7 @@
           "IOCM-RS"
         ],
         "summary": "Create Patient",
-        "operationId": "createPatient",
+        "operationId": "CreatePatient",
         "consumes": [
           "application/json"
         ],
@@ -1078,7 +1078,7 @@
           "IOCM-RS"
         ],
         "summary": "Update or Create patient",
-        "operationId": "updatePatient",
+        "operationId": "UpdatePatient",
         "consumes": [
           "application/json"
         ],
@@ -1307,7 +1307,7 @@
           "IOCM-RS"
         ],
         "summary": "Create/Update Study",
-        "operationId": "CreateUpdateStudy",
+        "operationId": "UpdateStudy",
         "consumes": [
           "application/json"
         ],
@@ -1686,7 +1686,7 @@
           "IOCM-RS"
         ],
         "summary": "Reject Study",
-        "operationId": "rejectStudy",
+        "operationId": "RejectStudy",
         "parameters": [
           {
             "name": "aet",
@@ -1736,7 +1736,7 @@
           "IOCM-RS"
         ],
         "summary": "Reject Series",
-        "operationId": "rejectSeries",
+        "operationId": "RejectSeries",
         "parameters": [
           {
             "name": "aet",
@@ -1793,7 +1793,7 @@
           "IOCM-RS"
         ],
         "summary": "Reject Instance",
-        "operationId": "rejectInstance",
+        "operationId": "RejectInstance",
         "parameters": [
           {
             "name": "aet",
@@ -1857,7 +1857,7 @@
           "IOCM-RS"
         ],
         "summary": "Update Study Expiration Date",
-        "operationId": "updateStudyExpirationDate",
+        "operationId": "UpdateStudyExpirationDate",
         "parameters": [
           {
             "name": "aet",
@@ -1900,7 +1900,7 @@
           "IOCM-RS"
         ],
         "summary": "Update Series Expiration Date",
-        "operationId": "updateSeriesExpirationDate",
+        "operationId": "UpdateSeriesExpirationDate",
         "parameters": [
           {
             "name": "aet",

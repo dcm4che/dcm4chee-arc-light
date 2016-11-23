@@ -662,6 +662,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.132 NAME 'dcmSeriesMetadataFetchSize'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.133 NAME 'dcmRSOperation'
+  DESC 'Name of RESTful Operation which shall be forwarded to another archive instance. Enumerated values: CreatePatient, UpdatePatient, DeletePatient, UpdateStudy, DeleteStudy, CopyInstances, MoveInstances, RejectStudy, RejectSeries, RejectInstance, UpdateStudyExpirationDate, UpdateSeriesExpirationDate.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -955,3 +960,11 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.23 NAME 'dcmStoreAccessControlIDRule'
   MAY (
     dcmRulePriority $
     dcmProperty ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
+  DESC 'Store Access Control ID Rule'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmURI )
+  MAY (
+    dcmRSOperation ) )

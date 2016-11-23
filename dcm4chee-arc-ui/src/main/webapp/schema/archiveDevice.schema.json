@@ -538,6 +538,14 @@
         "$ref": "exportRule.schema.json"
       }
     },
+    "dcmRSForwardRule": {
+      "title": "RESTful Forward Rule",
+      "description": "RESTful Forward Rule",
+      "type": "array",
+      "items" : {
+        "$ref": "rsForwardRule.schema.json"
+      }
+    },
     "dcmArchiveCompressionRule": {
       "title": "Archive Compression rule",
       "description": "Archive Compression rule",
