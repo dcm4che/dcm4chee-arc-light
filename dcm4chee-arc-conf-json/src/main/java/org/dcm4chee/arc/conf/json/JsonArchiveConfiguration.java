@@ -174,6 +174,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeStudyRetentionPolicy(writer, arcDev.getStudyRetentionPolicies());
         writeIDGenerators(writer, arcDev);
         writeHL7ForwardRules(writer, arcDev.getHL7ForwardRules());
+        writeRSForwardRules(writer, arcDev.getRSForwardRules());
         writer.writeEnd();
     }
 
@@ -390,6 +391,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
+    protected static void writeRSForwardRules(JsonWriter writer, Collection<RSForwardRule> rules) {
+        writer.writeStartArray("dcmRSForwardRule");
+        for (RSForwardRule rule : rules) {
+            writer.writeStartObject();
+            writer.writeNotNull("cn", rule.getCommonName());
+            writer.writeNotNull("dcmURI", rule.getBaseURI());
+            writer.writeNotEmpty("dcmRSOperation", rule.getRSOperations());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
     protected void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmIDGenerator");
         for (IDGenerator generator : arcDev.getIDGenerators().values()) {
@@ -463,6 +476,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
         writeArchiveAttributeCoercion(writer, arcAE.getAttributeCoercions());
         writeStudyRetentionPolicy(writer, arcAE.getStudyRetentionPolicies());
+        writeRSForwardRules(writer, arcAE.getRSForwardRules());
         writer.writeEnd();
     }
 
@@ -754,6 +768,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ForwardRule":
                     loadHL7ForwardRules(arcDev.getHL7ForwardRules(), reader);
+                    break;
+                case "dcmRSForwardRule":
+                    loadRSForwardRules(arcDev.getRSForwardRules(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -1240,6 +1257,33 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
+    static void loadRSForwardRules(Collection<RSForwardRule> rules, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            RSForwardRule rule = new RSForwardRule();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        rule.setCommonName(reader.stringValue());
+                        break;
+                    case "dcmURI":
+                        rule.setBaseURI(reader.stringValue());
+                        break;
+                    case "dcmRSOperation":
+                        rule.setRSOperations(enumArray(RSOperation.class, reader.stringArray()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            rules.add(rule);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
     private void loadIDGenerators(ArchiveDeviceExtension arcDev, JsonReader reader) {
         IDGenerator.Name name = null;
         reader.next();
@@ -1414,6 +1458,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStudyRetentionPolicy":
                     loadStudyRetentionPolicy(arcAE.getStudyRetentionPolicies(), reader);
+                    break;
+                case "dcmRSForwardRule":
+                    loadRSForwardRules(arcAE.getRSForwardRules(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();

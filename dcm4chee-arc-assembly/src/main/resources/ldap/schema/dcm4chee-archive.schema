@@ -1107,7 +1107,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.23 NAME 'dcmStoreAccessControlIDRule'
     dcmProperty ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
-  DESC 'Store Access Control ID Rule'
+  DESC 'RESTful Forward Rule'
   SUP top STRUCTURAL
   MUST (
     cn $
