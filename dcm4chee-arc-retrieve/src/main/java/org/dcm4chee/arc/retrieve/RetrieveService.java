@@ -79,6 +79,8 @@ public interface RetrieveService {
     RetrieveContext newRetrieveContextIOCM(
             HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs);
 
+    RetrieveContext newRetrieveContextSeriesMetadata(Long seriesPk);
+
     boolean calculateMatches(RetrieveContext ctx);
 
     InstanceLocations newInstanceLocations(

@@ -141,6 +141,16 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.Metadata">
+    <sequence-generator name="metadata_pk_seq" sequence-name="metadata_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="metadata_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.MPPS">
     <sequence-generator name="mpps_pk_seq" sequence-name="mpps_pk_seq" allocation-size="1"/>
     <attributes>

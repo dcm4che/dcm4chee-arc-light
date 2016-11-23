@@ -150,6 +150,10 @@ public interface RetrieveContext extends Closeable {
 
     void setSeriesInstanceUIDs(String... seriesInstanceUIDs);
 
+    Long getSeriesPk();
+
+    void setSeriesPk(Long seriesPk);
+
     String[] getSopInstanceUIDs();
 
     void setSopInstanceUIDs(String... sopInstanceUIDs);

@@ -251,6 +251,14 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
+    @Override
+    public RetrieveContext newRetrieveContextSeriesMetadata(Long seriesPk) {
+        RetrieveContext ctx = new RetrieveContextImpl(this, null, null, null);
+        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.SERIES);
+        ctx.setSeriesPk(seriesPk);
+        return ctx;
+    }
+
     private void initCodes(RetrieveContext ctx) {
         QueryRetrieveView qrView = ctx.getQueryRetrieveView();
         ctx.setHideRejectionNotesWithCode(
@@ -452,6 +460,9 @@ public class RetrieveServiceImpl implements RetrieveService {
             query.on(QLocation.location.objectType.eq(objectType));
 
         query = query.leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
+
+        if (ctx.getSeriesPk() != null)
+            return query.where(QSeries.series.pk.eq(ctx.getSeriesPk()));
 
         IDWithIssuer[] pids = ctx.getPatientIDs();
         if (pids.length > 0) {

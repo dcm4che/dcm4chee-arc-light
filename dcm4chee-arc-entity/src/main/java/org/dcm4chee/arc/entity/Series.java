@@ -132,6 +132,11 @@ import java.util.Date;
         name=Series.SERIES_IUIDS_OF_STUDY,
         query="select se.study.studyInstanceUID, se.seriesInstanceUID from Series se " +
                 "where se.study.studyInstanceUID = ?1"),
+@NamedQuery(
+        name = Series.SCHEDULED_METADATA_UPDATE,
+        query = "select se.pk from Series se " +
+                "where se.metadataScheduledUpdateTime < current_timestamp " +
+                "order by se.metadataScheduledUpdateTime"),
 })
 @Entity
 @Table(name = "series",
@@ -171,6 +176,7 @@ public class Series {
     public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
     public static final String COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE = "Series.countSeriesOfStudyWithOtherRejectionState";
     public static final String SERIES_IUIDS_OF_STUDY = "Series.seriesIUIDsOfStudy";
+    public static final String SCHEDULED_METADATA_UPDATE = "Series.scheduledMetadataUpdate";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -276,14 +282,6 @@ public class Series {
     private String expirationDate;
 
     @Basic
-    @Column(name = "metadata_storage_id")
-    private String metadataStorageID;
-
-    @Basic
-    @Column(name = "metadata_storage_path")
-    private String metadataStoragePath;
-
-    @Basic
     @Column(name = "metadata_update_time")
     private Date metadataScheduledUpdateTime;
 
@@ -309,6 +307,10 @@ public class Series {
     @ManyToOne(optional = false)
     @JoinColumn(name = "study_fk")
     private Study study;
+
+    @OneToOne
+    @JoinColumn(name = "metadata_fk")
+    private Metadata metadata;
 
     @Override
     public String toString() {
@@ -448,22 +450,6 @@ public class Series {
             }
         } else
             this.expirationDate = null;
-    }
-
-    public String getMetadataStorageID() {
-        return metadataStorageID;
-    }
-
-    public void setMetadataStorageID(String metadataStorageID) {
-        this.metadataStorageID = metadataStorageID;
-    }
-
-    public String getMetadataStoragePath() {
-        return metadataStoragePath;
-    }
-
-    public void setMetadataStoragePath(String metadataStoragePath) {
-        this.metadataStoragePath = metadataStoragePath;
     }
 
     public Date getMetadataScheduledUpdateTime() {

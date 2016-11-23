@@ -86,6 +86,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
     private String[] seriesInstanceUIDs = {};
+    private Long seriesPk;
     private String[] sopInstanceUIDs = {};
     private Location.ObjectType objectType = Location.ObjectType.DICOM_FILE;
     private int numberOfMatches;
@@ -346,6 +347,16 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setSeriesInstanceUIDs(String... seriesInstanceUIDs) {
         this.seriesInstanceUIDs = seriesInstanceUIDs != null ? seriesInstanceUIDs : StringUtils.EMPTY_STRING;
+    }
+
+    @Override
+    public Long getSeriesPk() {
+        return seriesPk;
+    }
+
+    @Override
+    public void setSeriesPk(Long seriesPk) {
+        this.seriesPk = seriesPk;
     }
 
     @Override

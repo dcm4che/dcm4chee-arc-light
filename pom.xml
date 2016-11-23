@@ -366,6 +366,7 @@
     <module>dcm4chee-arc-id</module>
     <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-issuer</module>
+    <module>dcm4chee-arc-metadata</module>
     <module>dcm4chee-arc-monitor-rs</module>
     <module>dcm4chee-arc-mpps</module>
     <module>dcm4chee-arc-mpps-scp</module>
