@@ -1,4 +1,4 @@
-"use strict";
+// "use strict";
 
 myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfpLoadingBar, $compile, DeviceService, $parse, schemas, $select, $templateRequest, MainService, user) {
 
