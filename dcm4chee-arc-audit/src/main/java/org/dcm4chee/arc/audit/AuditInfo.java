@@ -68,6 +68,7 @@ class AuditInfo {
     static final int SOP_CUID = 17;
     static final int SOP_IUID = 18;
     static final int MPPS_UID = 19;
+    static final int HL7_MESSAGE_TYPE = 20;
 
     private final String[] fields;
 
@@ -92,7 +93,8 @@ class AuditInfo {
                 i.failedIUIDShow ? Boolean.toString(i.failedIUIDShow) : null,
                 i.sopCUID,
                 i.sopIUID,
-                i.mppsUID
+                i.mppsUID,
+                i.hl7MessageType
         };
     }
 

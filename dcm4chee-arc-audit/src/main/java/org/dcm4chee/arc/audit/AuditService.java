@@ -45,6 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
@@ -568,15 +569,18 @@ public class AuditService {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
             String source = null;
             String dest = null;
+            String hl7MessageType = null;
+            HL7Segment msh = ctx.getHL7MessageHeader();
             if (ctx.getHttpRequest() != null) {
                 source = ctx.getHttpRequest().getAttribute(keycloakClassName) != null
                         ? getPreferredUsername(ctx.getHttpRequest())
                         : ctx.getHttpRequest().getRemoteAddr();
                 dest = ctx.getCalledAET();
             }
-            if (ctx.getHL7MessageHeader() != null) {
-                source = ctx.getHL7MessageHeader().getSendingApplicationWithFacility();
-                dest = ctx.getHL7MessageHeader().getReceivingApplicationWithFacility();
+            if (msh != null) {
+                source = msh.getSendingApplicationWithFacility();
+                dest = msh.getReceivingApplicationWithFacility();
+                hl7MessageType = msh.getMessageType();
             }
             if (ctx.getAssociation() != null) {
                 source = ctx.getAssociation().getCallingAET();
@@ -591,7 +595,7 @@ public class AuditService {
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest() != null
                                 ? ctx.getHttpRequest().getRemoteAddr() : ctx.getRemoteHostName())
                                 .callingAET(source).calledAET(dest).pID(pID).pName(pName)
-                                .outcome(getOD(ctx.getException())).build();
+                                .outcome(getOD(ctx.getException())).hl7MessageType(hl7MessageType).build();
             obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
         }
@@ -611,7 +615,7 @@ public class AuditService {
         BuildParticipantObjectIdentification poi = new BuildParticipantObjectIdentification.Builder(
                 hl7I.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                .name(hl7I.getField(AuditInfo.P_NAME)).build();
+                .name(hl7I.getField(AuditInfo.P_NAME)).detail(getPod("HL7MessageType", hl7I.getField(AuditInfo.HL7_MESSAGE_TYPE))).build();
         emitAuditMessage(ei, et.isSource ? getApList(ap1, ap2) : getApList(ap2), getPoiList(poi), log());
     }
 
