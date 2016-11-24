@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.rs.client.impl;
 
-import com.google.inject.Inject;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.rs.client.RSClient;
@@ -51,6 +50,7 @@ import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -58,6 +58,7 @@ import javax.jms.ObjectMessage;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2016
  */
 @MessageDriven(activationConfig = {
@@ -73,7 +74,7 @@ public class RSClientMDB implements MessageListener {
     @Inject
     private RSClient rsClient;
 
-    @javax.inject.Inject
+    @Inject
     private QueueManager queueManager;
 
     @Override

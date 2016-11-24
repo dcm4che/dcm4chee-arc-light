@@ -46,10 +46,9 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.TeeInputStream;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
@@ -59,6 +58,7 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.rs.client.RSClient;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -76,19 +76,14 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParsingException;
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -124,6 +119,9 @@ public class IocmRS {
     @Inject
     private IDService idService;
 
+    @Inject
+    private RSClient rsClient;
+
     @PathParam("AETitle")
     private String aet;
 
@@ -137,7 +135,7 @@ public class IocmRS {
             @PathParam("StudyUID") String studyUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) throws Exception {
-        reject("rejectStudy", studyUID, null, null, codeValue, designator);
+        reject(RSOperation.RejectStudy, studyUID, null, null, codeValue, designator);
     }
 
     @POST
@@ -147,7 +145,7 @@ public class IocmRS {
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) throws Exception {
-        reject("rejectSeries", studyUID, seriesUID, null, codeValue, designator);
+        reject(RSOperation.RejectSeries, studyUID, seriesUID, null, codeValue, designator);
     }
 
     @POST
@@ -158,7 +156,7 @@ public class IocmRS {
             @PathParam("ObjectUID") String objectUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator) throws Exception {
-        reject("rejectInstance", studyUID, seriesUID, objectUID, codeValue, designator);
+        reject(RSOperation.RejectInstance, studyUID, seriesUID, objectUID, codeValue, designator);
     }
 
     @POST
@@ -198,6 +196,7 @@ public class IocmRS {
         ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
         ctx.setPatient(patient);
         deletionService.deletePatient(ctx);
+        forwardRS("DELETE", RSOperation.DeletePatient, null, new byte[0], patientID.toString());
     }
 
     @DELETE
@@ -220,7 +219,10 @@ public class IocmRS {
     public String createPatient(InputStream in) throws Exception {
         logRequest();
         try {
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+            TeeInputStream tIn = new TeeInputStream(in, bOut);
+
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(tIn, "UTF-8")));
             Attributes attrs = reader.readDataset(null);
             if (attrs.containsValue(Tag.PatientID))
                 throw new WebApplicationException(getResponse("Patient ID in message body", Response.Status.BAD_REQUEST));
@@ -229,6 +231,7 @@ public class IocmRS {
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             patientService.updatePatient(ctx);
+            forwardRS("PUT", RSOperation.CreatePatient, null, bOut.toByteArray(), IDWithIssuer.pidOf(attrs).toString());
             return IDWithIssuer.pidOf(attrs).toString();
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
@@ -243,7 +246,11 @@ public class IocmRS {
         logRequest();
         try {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+
+            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+            TeeInputStream tIn = new TeeInputStream(in, bOut);
+
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(tIn, "UTF-8")));
             ctx.setAttributes(reader.readDataset(null));
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             IDWithIssuer bodyPatientID = ctx.getPatientID();
@@ -251,9 +258,11 @@ public class IocmRS {
                 throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
             if (patientID.equals(bodyPatientID)) {
                 patientService.updatePatient(ctx);
+                forwardRS("PUT", RSOperation.CreatePatient, null, bOut.toByteArray(), null);
             } else {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
+                forwardRS("PUT", RSOperation.UpdatePatient, null, bOut.toByteArray(), bodyPatientID.toString());
             }
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
@@ -438,7 +447,7 @@ public class IocmRS {
         return false;
     }
 
-    private void reject(String method, String studyUID, String seriesUID, String objectUID,
+    private void reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
                         String codeValue, String designator) throws IOException {
         logRequest();
         ApplicationEntity ae = getApplicationEntity();
@@ -459,9 +468,40 @@ public class IocmRS {
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
         storeService.store(ctx, attrs);
+        forwardRS("POST", rsOp, arcAE, new byte[0], null);
     }
 
+    private String composeURL(String targetBaseURI, String relativeURI) {
+        boolean endSlash = targetBaseURI.substring(targetBaseURI.lastIndexOf("rs")+2).contains("/");
+        relativeURI = endSlash ? relativeURI : "/" + relativeURI;
+        return targetBaseURI + relativeURI;
+    }
 
+    private String composeRelativeURI(RSOperation rsOp, String pID) {
+        String reqURI = request.getRequestURI();
+        String relativeURI = reqURI.substring(reqURI.indexOf("rs")+3);
+        switch (rsOp) {
+            case CreatePatient:
+                return pID == null ? relativeURI : relativeURI + pID;
+            case UpdatePatient:
+            case DeletePatient:
+            case RejectStudy:
+            case RejectSeries:
+            case RejectInstance:
+                return relativeURI;
+        }
+        return null;
+    }
+
+    private void forwardRS(String method, RSOperation rsOp, ArchiveAEExtension arcAE, byte[] content, String pID) {
+        if (arcAE == null)
+            arcAE = getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp);
+        for (RSForwardRule rule : rules) {
+            String relativeURI = composeRelativeURI(rsOp, pID);
+            rsClient.scheduleRequest(method, composeURL(rule.getBaseURI(), relativeURI), content);
+        }
+    }
 
     private StreamingOutput copyOrMoveInstances(String studyUID, InputStream in, Code code) throws Exception {
         logRequest();

@@ -50,9 +50,15 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.ObjectMessage;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2016
  */
 @ApplicationScoped
@@ -75,7 +81,37 @@ public class RSClientImpl implements RSClient {
 
     @Override
     public Outcome request(String method, String uri, byte[] content) throws Exception {
-        //TODO
-        return new Outcome(QueueMessage.Status.WARNING, "Not yet implemented");
+        Client client = ClientBuilder.newBuilder().build();
+        WebTarget target = client.target(uri);
+        Response response = null;
+        Outcome outcome;
+        switch (method) {
+            case "DELETE":
+                response = target.request().delete();
+                break;
+            case "POST":
+                response = target.request().post(Entity.json(content));
+                break;
+            case "PUT":
+                response = target.request().put(Entity.json(content));
+                break;
+        }
+        outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
+        response.close();
+        return outcome;
+    }
+
+    private Outcome buildOutcome(Response.Status status, Response.StatusType st) {
+        switch (status) {
+            case NO_CONTENT:
+                return new Outcome(QueueMessage.Status.COMPLETED, "Completed : " + st);
+            case REQUEST_TIMEOUT:
+            case SERVICE_UNAVAILABLE:
+                return new Outcome(QueueMessage.Status.SCHEDULED, "Retry : " + st);
+            case NOT_FOUND:
+            case BAD_REQUEST:
+                return new Outcome(QueueMessage.Status.FAILED, st.toString());
+        }
+        return new Outcome(QueueMessage.Status.WARNING, "Not yet implemented.");
     }
 }
