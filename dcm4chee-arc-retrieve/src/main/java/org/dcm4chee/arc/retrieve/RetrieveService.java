@@ -79,6 +79,8 @@ public interface RetrieveService {
     RetrieveContext newRetrieveContextIOCM(
             HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs);
 
+    RetrieveContext newRetrieveContextSeriesMetadata(Long seriesPk);
+
     boolean calculateMatches(RetrieveContext ctx);
 
     InstanceLocations newInstanceLocations(
@@ -102,7 +104,7 @@ public interface RetrieveService {
 
     void updateFailedSOPInstanceUIDList(RetrieveContext ctx);
 
-    Date getLastModified(RetrieveContext ctx);
+    Date getLastModifiedFromMatches(RetrieveContext ctx);
 
-    Date evaluateLastModified(RetrieveContext ctx);
+    Date getLastModified(RetrieveContext ctx);
 }

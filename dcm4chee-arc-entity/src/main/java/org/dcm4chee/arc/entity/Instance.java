@@ -83,28 +83,27 @@ import java.util.*;
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
                 "where st.studyInstanceUID = ?1 " +
-                "GROUP BY p.updatedTime, st"
+                "GROUP BY p, st"
 ),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_SERIES_LEVEL,
-        query="SELECT p.updatedTime, st.updatedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
+        query="SELECT p.updatedTime, st.updatedTime, se.updatedTime, MAX(i.updatedTime) from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
                 "where st.studyInstanceUID = ?1 " +
                 "and se.seriesInstanceUID = ?2 " +
-                "GROUP BY p.updatedTime, st"
+                "GROUP BY p, st, se"
 ),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL,
-        query="SELECT p.updatedTime, st.updatedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
+        query="SELECT p.updatedTime, st.updatedTime, se.updatedTime, i.updatedTime from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
                 "where st.studyInstanceUID = ?1 " +
                 "and se.seriesInstanceUID = ?2 " +
-                "and i.sopInstanceUID = ?3 " +
-                "GROUP BY p.updatedTime, st"
+                "and i.sopInstanceUID = ?3"
 ),
 @NamedQuery(
     name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID_EAGER,

@@ -44,6 +44,7 @@ import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2016
  */
 public interface StudyInfo {

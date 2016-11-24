@@ -427,6 +427,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeStudyRetentionPolicies(arcDev.getStudyRetentionPolicies(), deviceDN);
         storeIDGenerators(deviceDN, arcDev);
         storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN, config);
+        storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
     }
 
     @Override
@@ -449,6 +450,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadStudyRetentionPolicies(arcdev.getStudyRetentionPolicies(), deviceDN);
         loadIDGenerators(arcdev, deviceDN);
         loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN, config);
+        loadRSForwardRules(arcdev.getRSForwardRules(), deviceDN);
     }
 
     @Override
@@ -467,12 +469,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeExportDescriptors(aa, bb, deviceDN);
         mergeExportRules(aa.getExportRules(), bb.getExportRules(), deviceDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
+        mergeStoreAccessControlIDRules(aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), deviceDN);
         mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
         mergeQueryRetrieveViews(aa, bb, deviceDN);
         mergeRejectNotes(aa, bb, deviceDN);
         mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
         mergeIDGenerators(aa, bb, deviceDN);
         mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
+        mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
     }
 
     @Override
@@ -653,6 +657,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeStoreAccessControlIDRules(aeExt.getStoreAccessControlIDRules(), aeDN);
         storeAttributeCoercions(aeExt.getAttributeCoercions(), aeDN);
         storeStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
+        storeRSForwardRules(aeExt.getRSForwardRules(), aeDN);
     }
 
     @Override
@@ -666,6 +671,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadStoreAccessControlIDRules(aeExt.getStoreAccessControlIDRules(), aeDN);
         loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN);
         loadStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
+        loadRSForwardRules(aeExt.getRSForwardRules(), aeDN);
     }
 
     @Override
@@ -680,6 +686,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeStoreAccessControlIDRules(aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), aeDN);
         mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
         mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), aeDN);
+        mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), aeDN);
     }
 
     private void storeAttributeFilter(String deviceDN, ArchiveDeviceExtension arcDev)
@@ -1188,6 +1195,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeRSForwardRules(Collection<RSForwardRule> rules, String parentDN)
+            throws NamingException {
+        for (RSForwardRule rule : rules) {
+            String cn = rule.getCommonName();
+            config.createSubcontext(
+                    LdapUtils.dnOf("cn", cn, parentDN),
+                    storeTo(rule, new BasicAttributes(true)));
+        }
+    }
+
     private Attributes storeTo(ArchiveCompressionRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmArchiveCompressionRule");
         attrs.put("cn", rule.getCommonName());
@@ -1222,6 +1239,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotEmpty(attrs, "hl7FwdApplicationName", rule.getDestinations());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        return attrs;
+    }
+
+    private Attributes storeTo(RSForwardRule rule, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmRSForwardRule");
+        attrs.put("cn", rule.getCommonName());
+        LdapUtils.storeNotNull(attrs, "dcmURI", rule.getBaseURI());
+        LdapUtils.storeNotEmpty(attrs, "dcmRSOperation", rule.getRSOperations());
         return attrs;
     }
 
@@ -1292,6 +1317,23 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 HL7ForwardRule rule = new HL7ForwardRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setDestinations(LdapUtils.stringArray(attrs.get("hl7FwdApplicationName")));
                 rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                rules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadRSForwardRules(Collection<RSForwardRule> rules, String parentDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmRSForwardRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                RSForwardRule rule = new RSForwardRule(LdapUtils.stringValue(attrs.get("cn"), null));
+                rule.setBaseURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                rule.setRSOperations(LdapUtils.enumArray(RSOperation.class, attrs.get("dcmRSOperation")));
                 rules.add(rule);
             }
         } finally {
@@ -1395,6 +1437,25 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeRSForwardRules(
+            Collection<RSForwardRule> prevRules, Collection<RSForwardRule> rules, String parentDN)
+            throws NamingException {
+        for (RSForwardRule prevRule : prevRules) {
+            String cn = prevRule.getCommonName();
+            if (findRSForwardRuleByCN(rules, cn) == null)
+                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+        }
+        for (RSForwardRule rule : rules) {
+            String cn = rule.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            RSForwardRule prevRule = findRSForwardRuleByCN(prevRules, cn);
+            if (prevRule == null)
+                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+        }
+    }
+
     private List<ModificationItem> storeDiffs(
             ArchiveCompressionRule prev, ArchiveCompressionRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
@@ -1430,6 +1491,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private List<ModificationItem> storeDiffs(
+            RSForwardRule prev, RSForwardRule rule, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmURI", prev.getBaseURI(), rule.getBaseURI());
+        LdapUtils.storeDiff(mods, "dcmRSOperation", prev.getRSOperations(), rule.getRSOperations());
+        return mods;
+    }
+
     private ArchiveCompressionRule findCompressionRuleByCN(Collection<ArchiveCompressionRule> rules, String cn) {
         for (ArchiveCompressionRule rule : rules)
             if (rule.getCommonName().equals(cn))
@@ -1454,6 +1522,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private static HL7ForwardRule findHL7ForwardRuleByCN(Collection<HL7ForwardRule> rules, String cn) {
         for (HL7ForwardRule rule : rules)
+            if (rule.getCommonName().equals(cn))
+                return rule;
+        return null;
+    }
+
+    private RSForwardRule findRSForwardRuleByCN(
+            Collection<RSForwardRule> rules, String cn) {
+        for (RSForwardRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
         return null;

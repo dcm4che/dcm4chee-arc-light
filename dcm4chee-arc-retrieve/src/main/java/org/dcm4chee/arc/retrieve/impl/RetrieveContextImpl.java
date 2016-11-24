@@ -63,6 +63,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 class RetrieveContextImpl implements RetrieveContext {
@@ -85,6 +86,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
     private String[] seriesInstanceUIDs = {};
+    private Long seriesPk;
     private String[] sopInstanceUIDs = {};
     private Location.ObjectType objectType = Location.ObjectType.DICOM_FILE;
     private int numberOfMatches;
@@ -348,6 +350,16 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public Long getSeriesPk() {
+        return seriesPk;
+    }
+
+    @Override
+    public void setSeriesPk(Long seriesPk) {
+        this.seriesPk = seriesPk;
+    }
+
+    @Override
     public String[] getSopInstanceUIDs() {
         return sopInstanceUIDs;
     }
@@ -583,16 +595,6 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public Date getPatientUpdatedTime() {
-        return patientUpdatedTime;
-    }
-
-    @Override
-    public void setPatientUpdatedTime(Date patientUpdatedTime) {
-        this.patientUpdatedTime = patientUpdatedTime;
-    }
-
-    @Override
     public boolean isRetryFailedRetrieve() {
         return retryFailedRetrieve;
     }
@@ -600,5 +602,13 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setRetryFailedRetrieve(boolean retryFailedRetrieve) {
         this.retryFailedRetrieve = retryFailedRetrieve;
+    }
+
+    @Override
+    public Date getPatientUpdatedTime() { return patientUpdatedTime; }
+
+    @Override
+    public void setPatientUpdatedTime(Date patientUpdatedTime) {
+        this.patientUpdatedTime = patientUpdatedTime;
     }
 }

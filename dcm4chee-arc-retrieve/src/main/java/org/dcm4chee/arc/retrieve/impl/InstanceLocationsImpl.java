@@ -116,7 +116,5 @@ public class InstanceLocationsImpl implements InstanceLocations {
     }
 
     @Override
-    public Date getUpdatedTime() {
-        return updatedTime;
-    }
+    public Date getUpdatedTime() { return updatedTime; }
 }

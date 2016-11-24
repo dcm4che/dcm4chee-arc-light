@@ -96,6 +96,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String[] retrieveAETitles = {};
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
+    private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
@@ -627,6 +628,22 @@ public class ArchiveAEExtension extends AEExtension {
         return exportRules;
     }
 
+    public void removeRSForwardRule(RSForwardRule rule) {
+        rsForwardRules.remove(rule);
+    }
+
+    public void clearRSForwardRules() {
+        rsForwardRules.clear();
+    }
+
+    public void addRSForwardRule(RSForwardRule rule) {
+        rsForwardRules.add(rule);
+    }
+
+    public Collection<RSForwardRule> getRSForwardRules() {
+        return rsForwardRules;
+    }
+
     public void removeCompressionRule(ArchiveCompressionRule rule) {
         compressionRules.remove(rule);
     }
@@ -760,6 +777,8 @@ public class ArchiveAEExtension extends AEExtension {
         retrieveAETitles = aeExt.retrieveAETitles;
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
+        rsForwardRules.clear();
+        rsForwardRules.addAll(aeExt.rsForwardRules);
         compressionRules.clear();
         compressionRules.addAll(aeExt.compressionRules);
         studyRetentionPolicies.clear();
@@ -795,6 +814,16 @@ public class ArchiveAEExtension extends AEExtension {
                         if (rule1 == null || rule1.getEntity().compareTo(rule.getEntity()) > 0)
                             result.put(exporterID, rule);
                     }
+        return result;
+    }
+
+    public List<RSForwardRule> findRSForwardRules(RSOperation rsOperation) {
+        ArrayList<RSForwardRule> result = new ArrayList<>();
+        for (Collection<RSForwardRule> rules
+                : new Collection[]{rsForwardRules, getArchiveDeviceExtension().getRSForwardRules()})
+            for (RSForwardRule rule : rules)
+                if (rule.match(rsOperation))
+                    result.add(rule);
         return result;
     }
 

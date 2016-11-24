@@ -145,6 +145,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
+    private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
@@ -992,6 +993,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return exportRules;
     }
 
+    public void removeRSForwardRule(RSForwardRule rule) {
+        rsForwardRules.remove(rule);
+    }
+
+    public void clearRSForwardRules() {
+        rsForwardRules.clear();
+    }
+
+    public void addRSForwardRule(RSForwardRule rule) {
+        rsForwardRules.add(rule);
+    }
+
+    public Collection<RSForwardRule> getRSForwardRules() {
+        return rsForwardRules;
+    }
+
     public void removeHL7ForwardRule(HL7ForwardRule rule) {
         hl7ForwardRules.remove(rule);
     }
@@ -1218,6 +1235,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.putAll(arcdev.exporterDescriptorMap);
         exportRules.clear();
         exportRules.addAll(arcdev.exportRules);
+        rsForwardRules.clear();
+        rsForwardRules.addAll(arcdev.rsForwardRules);
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcdev.hl7ForwardRules);
         compressionRules.clear();

@@ -40,10 +40,12 @@
 
 package org.dcm4chee.arc.retrieve;
 
+
 import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2016
  */
 public interface SeriesInfo {

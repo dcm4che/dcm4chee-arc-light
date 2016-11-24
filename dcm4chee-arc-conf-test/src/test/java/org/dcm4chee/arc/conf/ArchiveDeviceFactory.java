@@ -140,14 +140,15 @@ class ArchiveDeviceFactory {
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
-        newQueueDescriptor("MPPSSCU", "Forward MPPS Tasks"),
+        newQueueDescriptor("MPPSSCU", "MPPS Forward Tasks"),
         newQueueDescriptor("IANSCU", "IAN Tasks"),
         newQueueDescriptor("StgCmtSCP", "Storage Commitment SCP Tasks"),
         newQueueDescriptor("StgCmtSCU", "Storage Commitment SCU Tasks"),
         newQueueDescriptor("Export1", "Dicom Export Tasks"),
         newQueueDescriptor("Export2", "WADO Export Tasks"),
         newQueueDescriptor("Export3", "XDS-I Export Tasks"),
-        newQueueDescriptor("HL7Send", "Forward HL7 Tasks")
+        newQueueDescriptor("HL7Send", "HL7 Forward Tasks"),
+        newQueueDescriptor("RSClient", "RESTful Forward Tasks")
     };
 
     static QueueDescriptor newQueueDescriptor(String name, String description) {

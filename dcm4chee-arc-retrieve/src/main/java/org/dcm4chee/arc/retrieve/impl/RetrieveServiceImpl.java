@@ -251,6 +251,14 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
+    @Override
+    public RetrieveContext newRetrieveContextSeriesMetadata(Long seriesPk) {
+        RetrieveContext ctx = new RetrieveContextImpl(this, null, null, null);
+        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.SERIES);
+        ctx.setSeriesPk(seriesPk);
+        return ctx;
+    }
+
     private void initCodes(RetrieveContext ctx) {
         QueryRetrieveView qrView = ctx.getQueryRetrieveView();
         ctx.setHideRejectionNotesWithCode(
@@ -261,25 +269,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public Date getLastModified(RetrieveContext ctx) {
-        List<Date> dates = new ArrayList<>();
-        dates.add(ctx.getPatientUpdatedTime());
-        dates.add(ctx.getStudyInfos().iterator().next().getUpdatedTime());
-        for (SeriesInfo si : ctx.getSeriesInfos())
-            dates.add(si.getUpdatedTime());
-        for (InstanceLocations il : ctx.getMatches())
-            dates.add(il.getUpdatedTime());
-        return Collections.max(dates);
-    }
-
-    public Date evaluateLastModified(RetrieveContext ctx) {
-        List<Object[]> dates = ctx.getSopInstanceUIDs().length > 0
-                                ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
-                                .setParameter(1, ctx.getStudyInstanceUID()).setParameter(2, ctx.getSeriesInstanceUID()).setParameter(3, ctx.getSopInstanceUIDs()[0]).getResultList()
-                                : ctx.getSeriesInstanceUID() != null
-                                ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
-                                .setParameter(1, ctx.getStudyInstanceUID()).setParameter(2, ctx.getSeriesInstanceUID()).getResultList()
-                                : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
-                                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        List<Object[]> dates = getDates(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUIDs());
         if(dates.isEmpty())
             return null;
         List<Date> dts = new ArrayList<>();
@@ -289,6 +279,30 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         return Collections.max(dts);
     }
+
+    @Override
+    public Date getLastModifiedFromMatches(RetrieveContext ctx) {
+        List<Date> dates = new ArrayList<>();
+        dates.add(ctx.getPatientUpdatedTime());
+        dates.add(ctx.getStudyInfos().iterator().next().getUpdatedTime());
+        for (SeriesInfo si : ctx.getSeriesInfos())
+                dates.add(si.getUpdatedTime());
+        for (InstanceLocations il : ctx.getMatches())
+                dates.add(il.getUpdatedTime());
+        return Collections.max(dates);
+    }
+
+    private List<Object[]> getDates(String studyIUID, String seriesIUID, String[] sopIUIDs) {
+        return sopIUIDs.length > 0
+                    ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
+                    .setParameter(1, studyIUID).setParameter(2, seriesIUID).setParameter(3, sopIUIDs[0]).getResultList()
+                    : seriesIUID != null
+                    ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
+                    .setParameter(1, studyIUID).setParameter(2, seriesIUID).getResultList()
+                    : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
+                    .setParameter(1, studyIUID).getResultList();
+    }
+
 
     @Override
     public boolean calculateMatches(RetrieveContext ctx)  {
@@ -363,8 +377,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public InstanceLocationsImpl newInstanceLocations(String sopClassUID, String sopInstanceUID, String retrieveAETs,
               String extRetrieveAET, Availability availability, Date updatedTime, Attributes attrs) {
-        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, extRetrieveAET, availability,
-                updatedTime, attrs);
+        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, extRetrieveAET, availability, updatedTime, attrs);
     }
 
     private void updateStudyAccessTime(RetrieveContext ctx) {
@@ -447,6 +460,9 @@ public class RetrieveServiceImpl implements RetrieveService {
             query.on(QLocation.location.objectType.eq(objectType));
 
         query = query.leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
+
+        if (ctx.getSeriesPk() != null)
+            return query.where(QSeries.series.pk.eq(ctx.getSeriesPk()));
 
         IDWithIssuer[] pids = ctx.getPatientIDs();
         if (pids.length > 0) {
