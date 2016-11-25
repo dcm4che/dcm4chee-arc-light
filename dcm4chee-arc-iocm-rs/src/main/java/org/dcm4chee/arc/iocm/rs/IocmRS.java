@@ -205,6 +205,7 @@ public class IocmRS {
         logRequest();
         try {
             deletionService.deleteStudy(studyUID, request, getApplicationEntity());
+            forwardRS("DELETE", RSOperation.DeleteStudy, null, new byte[0], null);
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException(getResponse("Study having study instance UID " + studyUID + " not found.",
                     Response.Status.NOT_FOUND));
@@ -277,7 +278,10 @@ public class IocmRS {
     public StreamingOutput updateStudy(InputStream in) throws Exception {
         logRequest();
         try {
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+            TeeInputStream tIn = new TeeInputStream(in, bOut);
+
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(tIn, "UTF-8")));
             final Attributes attrs = reader.readDataset(null);
             IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
             if (patientID == null)
@@ -295,6 +299,7 @@ public class IocmRS {
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
             studyService.updateStudy(ctx);
+            forwardRS("POST", RSOperation.UpdateStudy, null, bOut.toByteArray(), null);
             return new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException {
@@ -426,6 +431,8 @@ public class IocmRS {
             case RejectInstance:
             case UpdateStudyExpirationDate:
             case UpdateSeriesExpirationDate:
+            case UpdateStudy:
+            case DeleteStudy:
                 return relativeURI;
         }
         return null;
