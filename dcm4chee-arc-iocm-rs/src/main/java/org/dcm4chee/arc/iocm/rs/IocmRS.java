@@ -220,10 +220,7 @@ public class IocmRS {
     public String createPatient(InputStream in) throws Exception {
         logRequest();
         try {
-            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-            TeeInputStream tIn = new TeeInputStream(in, bOut);
-
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(tIn, "UTF-8")));
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
             Attributes attrs = reader.readDataset(null);
             if (attrs.containsValue(Tag.PatientID))
                 throw new WebApplicationException(getResponse("Patient ID in message body", Response.Status.BAD_REQUEST));
@@ -232,11 +229,31 @@ public class IocmRS {
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             patientService.updatePatient(ctx);
-            forwardRS("PUT", RSOperation.CreatePatient, null, bOut.toByteArray(), IDWithIssuer.pidOf(attrs).toString());
+            forwardRS("PUT", RSOperation.CreatePatient, null,
+                    getByteArrayOutStream(attrs).toByteArray(), IDWithIssuer.pidOf(attrs).toString());
             return IDWithIssuer.pidOf(attrs).toString();
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        } catch (IOException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private ByteArrayOutputStream getByteArrayOutStream(Attributes attrs) {
+        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        try {
+            (new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws IOException {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    new JSONWriter(gen).write(attrs);
+                    gen.flush();
+                }
+            }).write(bOut);
+            return bOut;
+        } catch (IOException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -278,8 +295,8 @@ public class IocmRS {
     public StreamingOutput updateStudy(InputStream in) throws Exception {
         logRequest();
         try {
-            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-            TeeInputStream tIn = new TeeInputStream(in, bOut);
+            ByteArrayOutputStream bOutStream = new ByteArrayOutputStream();
+            TeeInputStream tIn = new TeeInputStream(in, bOutStream);
 
             JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(tIn, "UTF-8")));
             final Attributes attrs = reader.readDataset(null);
@@ -292,14 +309,16 @@ public class IocmRS {
                 throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
                         Response.Status.NOT_FOUND));
 
-            if (!attrs.containsValue(Tag.StudyInstanceUID))
+            boolean studyIUIDPresent = attrs.containsValue(Tag.StudyInstanceUID);
+            if (!studyIUIDPresent)
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
 
             StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
             studyService.updateStudy(ctx);
-            forwardRS("POST", RSOperation.UpdateStudy, null, bOut.toByteArray(), null);
+            byte[] bOut = studyIUIDPresent ? bOutStream.toByteArray() : getByteArrayOutStream(attrs).toByteArray();
+            forwardRS("POST", RSOperation.UpdateStudy, null, bOut, null);
             return new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException {
