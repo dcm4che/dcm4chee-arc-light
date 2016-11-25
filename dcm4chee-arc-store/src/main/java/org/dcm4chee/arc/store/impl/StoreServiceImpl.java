@@ -375,6 +375,8 @@ class StoreServiceImpl implements StoreService {
     }
 
     private Set<String> refIUIDs(Sequence refSOPSeq) {
+        if (refSOPSeq == null)
+            return null;
         Set<String> iuids = new HashSet<>(refSOPSeq.size() * 4 / 3 + 1);
         for (Attributes refSOP : refSOPSeq)
             iuids.add(refSOP.getString(Tag.ReferencedSOPInstanceUID));
