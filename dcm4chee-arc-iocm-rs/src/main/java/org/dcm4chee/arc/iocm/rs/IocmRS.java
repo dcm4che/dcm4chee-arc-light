@@ -433,6 +433,8 @@ public class IocmRS {
             case UpdateSeriesExpirationDate:
             case UpdateStudy:
             case DeleteStudy:
+            case CopyInstances:
+            case MoveInstances:
                 return relativeURI;
         }
         return null;
@@ -450,7 +452,9 @@ public class IocmRS {
 
     private StreamingOutput copyOrMoveInstances(String studyUID, InputStream in, Code code) throws Exception {
         logRequest();
-        Attributes instanceRefs = parseSOPInstanceReferences(in);
+        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+        TeeInputStream tIn = new TeeInputStream(in, bOut);
+        Attributes instanceRefs = parseSOPInstanceReferences(tIn);
         ApplicationEntity ae = getApplicationEntity();
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
@@ -464,7 +468,8 @@ public class IocmRS {
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
         rejectInstanceRefs(code, instanceRefs, session, arcDev);
         final Attributes result = storeService.copyInstances(session, instances, uidMap);
-
+        forwardRS("POST", code != null ? RSOperation.MoveInstances : RSOperation.CopyInstances,
+                arcAE, bOut.toByteArray(), null);
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
