@@ -109,6 +109,7 @@ public class RSClientImpl implements RSClient {
             case SERVICE_UNAVAILABLE:
                 return new Outcome(QueueMessage.Status.SCHEDULED, "Retry : " + st);
             case NOT_FOUND:
+            case FORBIDDEN:
             case BAD_REQUEST:
                 return new Outcome(QueueMessage.Status.FAILED, st.toString());
         }

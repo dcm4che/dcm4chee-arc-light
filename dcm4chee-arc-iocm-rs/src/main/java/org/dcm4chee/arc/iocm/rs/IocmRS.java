@@ -403,6 +403,8 @@ public class IocmRS {
             LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
             ctx.setExpirationDate(expireDate);
             studyService.updateExpirationDate(ctx);
+            forwardRS("PUT", seriesUID != null ? RSOperation.UpdateSeriesExpirationDate : RSOperation.UpdateStudyExpirationDate,
+                    null, new byte[0], null);
         } catch (Exception e) {
             String message;
             if (seriesUID != null)
@@ -488,6 +490,8 @@ public class IocmRS {
             case RejectStudy:
             case RejectSeries:
             case RejectInstance:
+            case UpdateStudyExpirationDate:
+            case UpdateSeriesExpirationDate:
                 return relativeURI;
         }
         return null;
