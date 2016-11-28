@@ -46,7 +46,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.TeeInputStream;
+import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
@@ -82,6 +82,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
+import java.net.InetAddress;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -96,7 +98,7 @@ import java.util.*;
 public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
-    private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
+    private static final String ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT = "org.keycloak.KeycloakSecurityContext";
 
     @Inject
     private Device device;
@@ -164,7 +166,7 @@ public class IocmRS {
     @Consumes("application/json")
     @Produces("application/json")
     public StreamingOutput copyInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
-        return copyOrMoveInstances(studyUID, in, null);
+        return copyOrMoveInstances(RSOperation.CopyInstances, studyUID, in, null);
     }
 
     @POST
@@ -176,13 +178,14 @@ public class IocmRS {
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator,
             InputStream in) throws Exception {
-        return copyOrMoveInstances(studyUID, in, new Code(codeValue, designator, null, "?"));
+        return copyOrMoveInstances(RSOperation.MoveInstances, studyUID, in, new Code(codeValue, designator, null, "?"));
     }
 
     @DELETE
     @Path("/patients/{PatientID}")
     public void deletePatient(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
         Patient patient = patientService.findPatient(patientID);
         if (patient == null)
             throw new WebApplicationException(getResponse(
@@ -190,22 +193,23 @@ public class IocmRS {
         if (patient.getNumberOfStudies() > 0)
             throw new WebApplicationException(getResponse(
                     "Patient having patient ID : " + patientID + " has non empty studies.", Response.Status.FORBIDDEN));
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
         ctx.setPatientID(patientID);
         ctx.setAttributes(patient.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
         ctx.setPatient(patient);
         deletionService.deletePatient(ctx);
-        forwardRS("DELETE", RSOperation.DeletePatient, null, new byte[0], patientID.toString());
+        forwardRS("DELETE", RSOperation.DeletePatient, arcAE, null);
     }
 
     @DELETE
     @Path("/studies/{StudyUID}")
     public void deleteStudy(@PathParam("StudyUID") String studyUID) throws Exception {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            deletionService.deleteStudy(studyUID, request, getApplicationEntity());
-            forwardRS("DELETE", RSOperation.DeleteStudy, null, new byte[0], null);
+            deletionService.deleteStudy(studyUID, request, arcAE.getApplicationEntity());
+            forwardRS("DELETE", RSOperation.DeleteStudy, arcAE, null);
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException(getResponse("Study having study instance UID " + studyUID + " not found.",
                     Response.Status.NOT_FOUND));
@@ -219,39 +223,22 @@ public class IocmRS {
     @Consumes("application/json")
     public String createPatient(InputStream in) throws Exception {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
         try {
             JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
             Attributes attrs = reader.readDataset(null);
             if (attrs.containsValue(Tag.PatientID))
                 throw new WebApplicationException(getResponse("Patient ID in message body", Response.Status.BAD_REQUEST));
             idService.newPatientID(attrs);
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             patientService.updatePatient(ctx);
-            forwardRS("PUT", RSOperation.CreatePatient, null,
-                    getByteArrayOutStream(attrs).toByteArray(), IDWithIssuer.pidOf(attrs).toString());
+            forwardRS(HttpMethod.PUT, RSOperation.CreatePatient, arcAE, attrs);
             return IDWithIssuer.pidOf(attrs).toString();
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
-        } catch (IOException e) {
-            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
-        }
-    }
-
-    private ByteArrayOutputStream getByteArrayOutStream(Attributes attrs) {
-        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-        try {
-            (new StreamingOutput() {
-                @Override
-                public void write(OutputStream out) throws IOException {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    new JSONWriter(gen).write(attrs);
-                    gen.flush();
-                }
-            }).write(bOut);
-            return bOut;
         } catch (IOException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
@@ -262,26 +249,24 @@ public class IocmRS {
     @Consumes("application/json")
     public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, getApplicationEntity());
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
 
-            ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-            TeeInputStream tIn = new TeeInputStream(in, bOut);
-
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(tIn, "UTF-8")));
-            ctx.setAttributes(reader.readDataset(null));
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+            Attributes attrs = reader.readDataset(null);
+            ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             IDWithIssuer bodyPatientID = ctx.getPatientID();
             if (bodyPatientID == null)
                 throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
             if (patientID.equals(bodyPatientID)) {
                 patientService.updatePatient(ctx);
-                forwardRS("PUT", RSOperation.CreatePatient, null, bOut.toByteArray(), null);
             } else {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
-                forwardRS("PUT", RSOperation.UpdatePatient, null, bOut.toByteArray(), bodyPatientID.toString());
             }
+            forwardRS(HttpMethod.PUT, RSOperation.UpdatePatient, arcAE, attrs);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -294,11 +279,9 @@ public class IocmRS {
     @Produces("application/json")
     public StreamingOutput updateStudy(InputStream in) throws Exception {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            ByteArrayOutputStream bOutStream = new ByteArrayOutputStream();
-            TeeInputStream tIn = new TeeInputStream(in, bOutStream);
-
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(tIn, "UTF-8")));
+            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
             final Attributes attrs = reader.readDataset(null);
             IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
             if (patientID == null)
@@ -313,12 +296,11 @@ public class IocmRS {
             if (!studyIUIDPresent)
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
 
-            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
             studyService.updateStudy(ctx);
-            byte[] bOut = studyIUIDPresent ? bOutStream.toByteArray() : getByteArrayOutStream(attrs).toByteArray();
-            forwardRS("POST", RSOperation.UpdateStudy, null, bOut, null);
+            forwardRS(HttpMethod.POST, RSOperation.UpdateStudy, arcAE, attrs);
             return new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException {
@@ -339,7 +321,7 @@ public class IocmRS {
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
             String expirationDate) throws Exception {
-        updateExpirationDate(studyUID, null, expirationDate);
+        updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate);
     }
 
     @PUT
@@ -348,21 +330,22 @@ public class IocmRS {
             @PathParam("expirationDate")
             @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
             String expirationDate) throws Exception {
-        updateExpirationDate(studyUID, seriesUID, expirationDate);
+        updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate);
     }
 
-    private void updateExpirationDate(String studyUID, String seriesUID, String expirationDate) throws Exception {
+    private void updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate)
+            throws Exception {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, getApplicationEntity());
+            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
             ctx.setStudyInstanceUID(studyUID);
             if (seriesUID != null)
                 ctx.setSeriesInstanceUID(seriesUID);
             LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
             ctx.setExpirationDate(expireDate);
             studyService.updateExpirationDate(ctx);
-            forwardRS("PUT", seriesUID != null ? RSOperation.UpdateSeriesExpirationDate : RSOperation.UpdateStudyExpirationDate,
-                    null, new byte[0], null);
+            forwardRS(HttpMethod.PUT, op, arcAE, null);
         } catch (Exception e) {
             String message;
             if (seriesUID != null)
@@ -384,17 +367,17 @@ public class IocmRS {
                 request.getRemoteUser(), request.getRemoteHost());
     }
 
-    private ApplicationEntity getApplicationEntity() {
+    private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(getResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.SERVICE_UNAVAILABLE));
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        if (request.getAttribute(keycloakClassName) != null)
+        if (request.getAttribute(ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT) != null)
             if(!authenticatedUser(request, arcAE.getAcceptedUserRoles()))
                 throw new WebApplicationException(getResponse("User not allowed to perform this service.", Response.Status.FORBIDDEN));
-        return ae;
+        return arcAE;
     }
 
     private boolean authenticatedUser(HttpServletRequest request, String[] acceptedUserRoles) {
@@ -410,85 +393,82 @@ public class IocmRS {
     private void reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
                         String codeValue, String designator) throws IOException {
         logRequest();
-        ApplicationEntity ae = getApplicationEntity();
-        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        ArchiveAEExtension arcAE = getArchiveAE();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         Code code = new Code(codeValue, designator, null, "?");
         RejectionNote rjNote = arcDev.getRejectionNote(code);
         if (rjNote == null)
             throw new WebApplicationException(getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
 
-        Attributes attrs = queryService.createRejectionNote(ae, studyUID, seriesUID, objectUID, rjNote);
+        Attributes attrs = queryService.createRejectionNote(
+                arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
         if (attrs == null)
             throw new WebApplicationException(getResponse("No Study with UID: " + studyUID, Response.Status.NOT_FOUND));
 
-        StoreSession session = storeService.newStoreSession(request, aet, ae);
+        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         StoreContext ctx = storeService.newStoreContext(session);
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
         storeService.store(ctx, attrs);
-        forwardRS("POST", rsOp, arcAE, new byte[0], null);
+        forwardRS(HttpMethod.POST, rsOp, arcAE, null);
     }
 
-    private String composeURL(String targetBaseURI, String relativeURI) {
-        boolean endSlash = targetBaseURI.substring(targetBaseURI.lastIndexOf("rs")+2).contains("/");
-        relativeURI = endSlash ? relativeURI : "/" + relativeURI;
-        return targetBaseURI + relativeURI;
-    }
-
-    private String composeRelativeURI(RSOperation rsOp, String pID) {
-        String reqURI = request.getRequestURI();
-        String relativeURI = reqURI.substring(reqURI.indexOf("rs")+3);
-        switch (rsOp) {
-            case CreatePatient:
-                return pID == null ? relativeURI : relativeURI + pID;
-            case UpdatePatient:
-            case DeletePatient:
-            case RejectStudy:
-            case RejectSeries:
-            case RejectInstance:
-            case UpdateStudyExpirationDate:
-            case UpdateSeriesExpirationDate:
-            case UpdateStudy:
-            case DeleteStudy:
-            case CopyInstances:
-            case MoveInstances:
-                return relativeURI;
-        }
-        return null;
-    }
-
-    private void forwardRS(String method, RSOperation rsOp, ArchiveAEExtension arcAE, byte[] content, String pID) {
-        if (arcAE == null)
-            arcAE = getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+    private void forwardRS(String method, RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs) {
         List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp);
         for (RSForwardRule rule : rules) {
-            String relativeURI = composeRelativeURI(rsOp, pID);
-            rsClient.scheduleRequest(method, composeURL(rule.getBaseURI(), relativeURI), content);
+            String baseURI = rule.getBaseURI();
+            try {
+                if (!request.getRemoteAddr().equals(
+                        InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
+                    rsClient.scheduleRequest(method, mkForwardURI(baseURI, rsOp, attrs), toContent(attrs));
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to apply {}:\n", rule, e);
+            }
         }
     }
 
-    private StreamingOutput copyOrMoveInstances(String studyUID, InputStream in, Code code) throws Exception {
+    private String mkForwardURI(String baseURI, RSOperation rsOp, Attributes attrs) {
+        String requestURI = request.getRequestURI();
+        int requestURIIndex = requestURI.indexOf("/rs");
+        int baseURIIndex = baseURI.indexOf("/rs");
+        StringBuilder sb = new StringBuilder(requestURI.length() + 16);
+        sb.append(baseURI.substring(0, baseURIIndex));
+        sb.append(requestURI.substring(requestURIIndex));
+        if (rsOp == RSOperation.CreatePatient)
+            sb.append('/').append(IDWithIssuer.pidOf(attrs));
+        return sb.toString();
+    }
+
+    private static byte[] toContent(Attributes attrs) {
+        if (attrs == null)
+            return ByteUtils.EMPTY_BYTES;
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator gen = Json.createGenerator(out)) {
+            new JSONWriter(gen).write(attrs);
+        }
+        return out.toByteArray();
+    }
+
+    private StreamingOutput copyOrMoveInstances(RSOperation op, String studyUID, InputStream in, Code code)
+            throws Exception {
         logRequest();
-        ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-        TeeInputStream tIn = new TeeInputStream(in, bOut);
-        Attributes instanceRefs = parseSOPInstanceReferences(tIn);
-        ApplicationEntity ae = getApplicationEntity();
-        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        Attributes instanceRefs = parseSOPInstanceReferences(in);
+        ArchiveAEExtension arcAE = getArchiveAE();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
 
         Map<String, String> uidMap = new HashMap<>();
-        StoreSession session = storeService.newStoreSession(request, aet, ae);
+        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
         if (instances.isEmpty())
             throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
-        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, ae, false);
+        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
         rejectInstanceRefs(code, instanceRefs, session, arcDev);
         final Attributes result = storeService.copyInstances(session, instances, uidMap);
-        forwardRS("POST", code != null ? RSOperation.MoveInstances : RSOperation.CopyInstances,
-                arcAE, bOut.toByteArray(), null);
+        forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
