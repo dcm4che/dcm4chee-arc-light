@@ -1902,14 +1902,12 @@
             "name": "seriesUID",
             "in": "query",
             "description": "Unique Identifier of the Series",
-            "required": true,
             "type": "string"
           },
           {
             "name": "objectUID",
             "in": "query",
             "description": "Unique Identifier of the Object",
-            "required": true,
             "type": "string"
           },
           {

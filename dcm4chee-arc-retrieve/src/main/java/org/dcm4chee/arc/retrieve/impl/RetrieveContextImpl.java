@@ -90,9 +90,9 @@ class RetrieveContextImpl implements RetrieveContext {
     private String[] sopInstanceUIDs = {};
     private Location.ObjectType objectType = Location.ObjectType.DICOM_FILE;
     private int numberOfMatches;
-    private final Collection<InstanceLocations> matches = new ArrayList<>();
-    private final Collection<StudyInfo> studyInfos = new ArrayList<>();
-    private final Collection<SeriesInfo> seriesInfos = new ArrayList<>();
+    private final List<InstanceLocations> matches = new ArrayList<>();
+    private final List<StudyInfo> studyInfos = new ArrayList<>();
+    private final List<SeriesInfo> seriesInfos = new ArrayList<>();
     private final AtomicInteger completed = new AtomicInteger();
     private final AtomicInteger warning = new AtomicInteger();
     private final AtomicInteger failed = new AtomicInteger();
@@ -380,17 +380,17 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public Collection<InstanceLocations> getMatches() {
+    public List<InstanceLocations> getMatches() {
         return matches;
     }
 
     @Override
-    public Collection<StudyInfo> getStudyInfos() {
+    public List<StudyInfo> getStudyInfos() {
         return studyInfos;
     }
 
     @Override
-    public Collection<SeriesInfo> getSeriesInfos() {
+    public List<SeriesInfo> getSeriesInfos() {
         return seriesInfos;
     }
 

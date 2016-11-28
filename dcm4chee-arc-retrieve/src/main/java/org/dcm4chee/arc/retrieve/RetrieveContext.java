@@ -54,6 +54,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -162,11 +163,11 @@ public interface RetrieveContext extends Closeable {
 
     void setObjectType(Location.ObjectType objectType);
 
-    Collection<InstanceLocations> getMatches();
+    List<InstanceLocations> getMatches();
 
-    Collection<StudyInfo> getStudyInfos();
+    List<StudyInfo> getStudyInfos();
 
-    Collection<SeriesInfo> getSeriesInfos();
+    List<SeriesInfo> getSeriesInfos();
 
     int getNumberOfMatches();
 
