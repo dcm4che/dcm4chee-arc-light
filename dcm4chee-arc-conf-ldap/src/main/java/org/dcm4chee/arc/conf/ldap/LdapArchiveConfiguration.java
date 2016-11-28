@@ -428,6 +428,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeIDGenerators(deviceDN, arcDev);
         storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN, config);
         storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
+        storeMetadataFilter(deviceDN, arcDev);
     }
 
     @Override
@@ -451,6 +452,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadIDGenerators(arcdev, deviceDN);
         loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN, config);
         loadRSForwardRules(arcdev.getRSForwardRules(), deviceDN);
+        loadMetadataFilters(arcdev, deviceDN);
     }
 
     @Override
@@ -477,6 +479,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeIDGenerators(aa, bb, deviceDN);
         mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
         mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
+        mergeMetadataFilters(aa, bb, deviceDN);
     }
 
     @Override
@@ -698,6 +701,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeMetadataFilter(String deviceDN, ArchiveDeviceExtension arcDev)
+            throws NamingException {
+        for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
+            config.createSubcontext(
+                    LdapUtils.dnOf("dcmMetadataFilter", entry.getKey(), deviceDN),
+                    storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
+        }
+    }
+
     private static Attributes storeTo(AttributeFilter filter, Entity entity,  BasicAttributes attrs) {
         attrs.put("objectclass", "dcmAttributeFilter");
         attrs.put("dcmEntity", entity.name());
@@ -706,6 +718,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute2", filter.getCustomAttribute2());
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute3", filter.getCustomAttribute3());
         LdapUtils.storeNotNull(attrs, "dcmAttributeUpdatePolicy", filter.getAttributeUpdatePolicy());
+        return attrs;
+    }
+
+    private static Attributes storeTo(MetadataFilter filter, String filterName,  BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmMetadataFilter");
+        attrs.put("dcmMetadataFilterName", filterName);
+        attrs.put(tagsAttr("dcmTag", filter.getSelection()));
         return attrs;
     }
 
@@ -734,6 +753,23 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 device.setAttributeFilter(
                         Entity.valueOf(LdapUtils.stringValue(attrs.get("dcmEntity"), null)),
                         filter);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadMetadataFilters(ArchiveDeviceExtension device, String deviceDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmMetadataFilter)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                MetadataFilter filter = new MetadataFilter();
+                filter.setName(LdapUtils.stringValue(attrs.get("dcmMetadataFilterName"), null));
+                filter.setSelection(tags(attrs.get("dcmTag")));
+                device.addMetadataFilter(filter);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -772,6 +808,25 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeMetadataFilters(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
+                                       String deviceDN) throws NamingException {
+        for (String filterName : prev.getMetadataFilters().keySet()) {
+            if (!arcDev.getMetadataFilters().containsKey(filterName))
+                config.destroySubcontext(LdapUtils.dnOf("dcmMetadataFilterName", filterName, deviceDN));
+        }
+        for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
+            String filterName = entry.getKey();
+            String dn = LdapUtils.dnOf("dcmMetadataFilterName", filterName, deviceDN);
+            MetadataFilter prevFilter = prev.getMetadataFilters().get(filterName);
+            if (prevFilter == null)
+                config.createSubcontext(dn,
+                        storeTo(entry.getValue(), filterName, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn,
+                        storeDiffs(prevFilter, entry.getValue(), new ArrayList<ModificationItem>()));
+        }
+    }
+
     private List<ModificationItem> storeDiffs(AttributeFilter prev, AttributeFilter filter,
                                               List<ModificationItem> mods) {
         storeDiffTags(mods, "dcmTag", prev.getSelection(), filter.getSelection());
@@ -783,6 +838,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getCustomAttribute3(), filter.getCustomAttribute3());
         LdapUtils.storeDiff(mods, "dcmAttributeUpdatePolicy",
                 prev.getAttributeUpdatePolicy(), filter.getAttributeUpdatePolicy());
+        return mods;
+    }
+
+    private List<ModificationItem> storeDiffs(MetadataFilter prev, MetadataFilter filter,
+                                              List<ModificationItem> mods) {
+        storeDiffTags(mods, "dcmTag", prev.getSelection(), filter.getSelection());
         return mods;
     }
 

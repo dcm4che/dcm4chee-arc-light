@@ -175,6 +175,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeIDGenerators(writer, arcDev);
         writeHL7ForwardRules(writer, arcDev.getHL7ForwardRules());
         writeRSForwardRules(writer, arcDev.getRSForwardRules());
+        writeMetadataFilters(writer, arcDev);
         writer.writeEnd();
     }
 
@@ -182,6 +183,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmAttributeFilter");
         for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
             writeAttributeFilter(writer, entry.getKey(), entry.getValue());
+        }
+        writer.writeEnd();
+    }
+
+    protected void writeMetadataFilters(JsonWriter writer, ArchiveDeviceExtension arcDev) {
+        writer.writeStartArray("dcmMetadataFilter");
+        for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
+            writeMetadataFilter(writer, entry.getKey(), entry.getValue());
         }
         writer.writeEnd();
     }
@@ -195,6 +204,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmCustomAttribute3", attributeFilter.getCustomAttribute3());
         writer.writeNotNull("dcmAttributeUpdatePolicy",
                 attributeFilter.getAttributeUpdatePolicy());
+        writer.writeEnd();
+    }
+
+    public void writeMetadataFilter(JsonWriter writer, String filter, MetadataFilter metadataFilter) {
+        writer.writeStartObject();
+        writer.writeNotNull("dcmMetadataFilterName", filter);
+        writer.writeNotEmpty("dcmTag", metadataFilter.getSelection());
         writer.writeEnd();
     }
 
@@ -772,6 +788,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmRSForwardRule":
                     loadRSForwardRules(arcDev.getRSForwardRules(), reader);
                     break;
+                case "dcmMetadataFilter":
+                    loadMetadataFilterListFrom(arcDev, reader);
+                    break;
                 default:
                     reader.skipUnknownProperty();
             }
@@ -811,6 +830,30 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             arcDev.setAttributeFilter(entity, af);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadMetadataFilterListFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            MetadataFilter mf = new MetadataFilter();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmMetadataFilterName":
+                        mf.setName(reader.stringValue());
+                        break;
+                    case "dcmTag":
+                        mf.setSelection(reader.intArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            arcDev.addMetadataFilter(mf);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
