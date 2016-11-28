@@ -227,7 +227,7 @@ public class WadoURI {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
         List<InstanceLocations> matches = ctx.getMatches();
-        InstanceLocations inst = matches.size() > 1 ? matches.get(matches.size()/2) : matches.iterator().next();
+        InstanceLocations inst = matches.get(matches.size()/2);
 
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx);
