@@ -811,8 +811,11 @@ class ArchiveDeviceFactory {
     );
 
     static final String[] HL7_MESSAGE_TYPES = {
+            "ADT^A01",
             "ADT^A02",
             "ADT^A03",
+            "ADT^A04",
+            "ADT^A05",
             "ADT^A06",
             "ADT^A07",
             "ADT^A08",
