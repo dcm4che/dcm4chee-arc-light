@@ -49,6 +49,7 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.MetadataFilter;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -138,7 +139,7 @@ public class WadoRS {
     public void retrieveStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudy", studyUID, null, null, null, null, ar, Output.DICOM);
+        retrieve("retrieveStudy", studyUID, null, null, null, null, null, ar, Output.DICOM);
     }
 
     @GET
@@ -147,7 +148,7 @@ public class WadoRS {
     public void retrieveStudyBulkdata(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyBulkdata", studyUID, null, null, null, null, ar, Output.BULKDATA);
+        retrieve("retrieveStudyBulkdata", studyUID, null, null, null, null, null, ar, Output.BULKDATA);
     }
 
     @GET
@@ -155,8 +156,9 @@ public class WadoRS {
     @Produces("application/json")
     public void retrieveStudyMetadataAsJSON(
             @PathParam("studyUID") String studyUID,
+            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyMetadataAsJSON", studyUID, null, null, null, null, ar, Output.METADATA_JSON);
+        retrieve("retrieveStudyMetadataAsJSON", studyUID, null, null, null, null, includefields, ar, Output.METADATA_JSON);
     }
 
     @GET
@@ -164,8 +166,9 @@ public class WadoRS {
     @Produces("multipart/related;type=application/dicom+xml")
     public void retrieveStudyMetadataAsXML(
             @PathParam("studyUID") String studyUID,
+            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyMetadataAsXML", studyUID, null, null, null, null, ar, Output.METADATA_XML);
+        retrieve("retrieveStudyMetadataAsXML", studyUID, null, null, null, null, includefields, ar, Output.METADATA_XML);
     }
 
     @GET
@@ -175,7 +178,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeries", studyUID, seriesUID, null, null, null, ar, Output.DICOM);
+        retrieve("retrieveSeries", studyUID, seriesUID, null, null, null, null, ar, Output.DICOM);
     }
 
     @GET
@@ -185,7 +188,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesBulkdata", studyUID, seriesUID, null, null, null, ar, Output.BULKDATA);
+        retrieve("retrieveSeriesBulkdata", studyUID, seriesUID, null, null, null, null, ar, Output.BULKDATA);
     }
 
     @GET
@@ -194,8 +197,9 @@ public class WadoRS {
     public void retrieveSeriesMetadataAsJSON(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
+            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesMetadataAsJSON", studyUID, seriesUID, null, null, null, ar, Output.METADATA_JSON);
+        retrieve("retrieveSeriesMetadataAsJSON", studyUID, seriesUID, null, null, null, includefields, ar, Output.METADATA_JSON);
     }
 
     @GET
@@ -204,8 +208,9 @@ public class WadoRS {
     public void retrieveSeriesMetadataAsXML(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
+            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, null, null, ar, Output.METADATA_XML);
+        retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, null, null, includefields, ar, Output.METADATA_XML);
     }
 
     @GET
@@ -216,7 +221,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, null, ar, Output.DICOM);
+        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, null, null, ar, Output.DICOM);
     }
 
     @GET
@@ -227,7 +232,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceBulkdata", studyUID, seriesUID, objectUID, null, null, ar, Output.BULKDATA);
+        retrieve("retrieveInstanceBulkdata", studyUID, seriesUID, objectUID, null, null, null, ar, Output.BULKDATA);
     }
 
     @GET
@@ -240,7 +245,7 @@ public class WadoRS {
             @PathParam("attributePath") @ValidValueOf(type = AttributePath.class) String attributePath,
             @Suspended AsyncResponse ar) {
         retrieve("retrieveBulkdata", studyUID, seriesUID, objectUID,
-                null, new AttributePath(attributePath).path, ar, Output.BULKDATA_PATH);
+                null, new AttributePath(attributePath).path, null, ar, Output.BULKDATA_PATH);
     }
 
     @GET
@@ -253,7 +258,7 @@ public class WadoRS {
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
         retrieve("retrieveFrames", studyUID, seriesUID, objectUID,
-                new FrameList(frameList).frames, null, ar, Output.BULKDATA_FRAME);
+                new FrameList(frameList).frames, null, null, ar, Output.BULKDATA_FRAME);
     }
 
 /*
@@ -308,8 +313,9 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
+            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceMetadataAsJSON", studyUID, seriesUID, objectUID, null, null, ar,
+        retrieve("retrieveInstanceMetadataAsJSON", studyUID, seriesUID, objectUID, null, null, includefields, ar,
                 Output.METADATA_JSON);
     }
 
@@ -320,12 +326,13 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
+            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, null, null, ar, Output.METADATA_XML);
+        retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, null, null, includefields, ar, Output.METADATA_XML);
     }
 
     private void retrieve(String method, String studyUID, String seriesUID, String objectUID, int[] frameList,
-                          int[] attributePath, AsyncResponse ar, Output output) {
+                          int[] attributePath, String includefields, AsyncResponse ar, Output output) {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         try {
             checkAET();
@@ -336,6 +343,9 @@ public class WadoRS {
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata())
                 ctx.setObjectType(null);
+
+            if (includefields != null)
+                ctx.setIncludeFields(includefields);
 
             if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_MATCH) == null && request.getHeader(HttpHeaders.IF_NONE_MATCH) == null) {
@@ -769,12 +779,29 @@ public class WadoRS {
     }
 
     private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes metadata = service.loadMetadata(ctx, inst);
         StringBuffer sb = request.getRequestURL();
         sb.setLength(sb.lastIndexOf("/metadata"));
         mkInstanceURL(sb, inst);
+        if (ctx.getIncludeFields() != null) {
+            if (arcDev.getMetadataFilter(ctx.getIncludeFields()) != null) {
+                Attributes filteredMetadata = filterMetadata(metadata, ctx, arcDev);
+                setBulkdataURI(filteredMetadata, sb.toString());
+                return filteredMetadata;
+            }
+            LOG.info("Metadata filter not configured for : " + ctx.getIncludeFields());
+        }
         setBulkdataURI(metadata, sb.toString());
         return metadata;
+    }
+
+    private Attributes filterMetadata(Attributes metadata, RetrieveContext ctx, ArchiveDeviceExtension arcDev) {
+        MetadataFilter mf = arcDev.getMetadataFilter(ctx.getIncludeFields());
+        Attributes filteredMetadata = new Attributes();
+        for (int tag : mf.getSelection())
+            filteredMetadata.setString(tag, metadata.getVR(tag), metadata.getStrings(tag));
+        return filteredMetadata;
     }
 
     private void setBulkdataURI(Attributes attrs, String retrieveURL)

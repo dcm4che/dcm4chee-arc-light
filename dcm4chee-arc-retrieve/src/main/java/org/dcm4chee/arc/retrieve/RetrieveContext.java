@@ -246,4 +246,8 @@ public interface RetrieveContext extends Closeable {
     Date getPatientUpdatedTime();
 
     void setPatientUpdatedTime(Date patientUpdatedTime);
+
+    String getIncludeFields();
+
+    void setIncludeFields(String includeFields);
 }

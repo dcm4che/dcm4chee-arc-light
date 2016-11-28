@@ -110,6 +110,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private volatile String[] fallbackMoveRSPFailedIUIDs = {};
     private Date patientUpdatedTime;
     private boolean retryFailedRetrieve;
+    private String includeFields;
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -610,5 +611,13 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setPatientUpdatedTime(Date patientUpdatedTime) {
         this.patientUpdatedTime = patientUpdatedTime;
+    }
+
+    @Override
+    public String getIncludeFields() { return includeFields; }
+
+    @Override
+    public void setIncludeFields(String includeFields) {
+        this.includeFields = includeFields;
     }
 }

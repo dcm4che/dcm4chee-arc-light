@@ -163,6 +163,12 @@ class ArchiveDeviceFactory {
         return desc;
     }
 
+    static MetadataFilter newMetadataFilter(String name, int[] selection) {
+        MetadataFilter mf = new MetadataFilter(name);
+        mf.setSelection(selection);
+        return mf;
+    }
+
     static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {
         IDGenerator gen = new IDGenerator();
         gen.setName(name);
@@ -685,6 +691,12 @@ class ArchiveDeviceFactory {
             SPSStatus.STARTED, SPSStatus.DEPARTED, SPSStatus.CANCELLED, SPSStatus.DISCONTINUED, SPSStatus.COMPLETED
     };
 
+    static final MetadataFilter[] METADATA_FILTERS = {
+            newMetadataFilter("StudyMetadataFilter", STUDY_ATTRS),
+            newMetadataFilter("SeriesMetadataFilter", SERIES_ATTRS),
+            newMetadataFilter("InstanceMetadataFilter", INSTANCE_ATTRS)
+    };
+
     static final Code INCORRECT_WORKLIST_ENTRY_SELECTED =
             new Code("110514", "DCM", null, "Incorrect worklist entry selected");
     static final Code REJECTED_FOR_QUALITY_REASONS =
@@ -1189,6 +1201,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
 
+
         if (configType == configType.TEST) {
             ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
             ext.getAttributeFilter(Entity.Patient).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
@@ -1225,6 +1238,9 @@ class ArchiveDeviceFactory {
 
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
             ext.addQueueDescriptor(descriptor);
+
+        for (MetadataFilter filter : METADATA_FILTERS)
+            ext.addMetadataFilter(filter);
 
         ext.addRejectionNote(createRejectionNote("Quality",
                 RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
