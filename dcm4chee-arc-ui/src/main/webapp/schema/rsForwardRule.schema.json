@@ -19,7 +19,7 @@
     },
     "dcmRSOperation": {
       "title": "RESTful Operation",
-      "description": "Name of RESTful Operation which shall be forwarded to another archive instance.",
+      "description": "Name of RESTful Operation which shall be forwarded to another archive instance. The value can be one of the following : 'CreatePatient', 'UpdatePatient', 'DeletePatient', 'UpdateStudy', 'DeleteStudy', 'CopyInstances', 'MoveInstances', 'RejectStudy', 'RejectSeries', 'RejectInstance', 'UpdateStudyExpirationDate', 'UpdateSeriesExpirationDate'",
       "type": "array",
       "items" : {
         "type": "string",
