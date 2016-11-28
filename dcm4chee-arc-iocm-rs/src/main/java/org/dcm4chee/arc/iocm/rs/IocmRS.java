@@ -260,13 +260,14 @@ public class IocmRS {
             IDWithIssuer bodyPatientID = ctx.getPatientID();
             if (bodyPatientID == null)
                 throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
-            if (patientID.equals(bodyPatientID)) {
+            boolean newPatient = patientID.equals(bodyPatientID);
+            if (newPatient)
                 patientService.updatePatient(ctx);
-            } else {
+            else {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
             }
-            forwardRS(HttpMethod.PUT, RSOperation.UpdatePatient, arcAE, attrs);
+            forwardRS(HttpMethod.PUT, newPatient ? RSOperation.CreatePatient : RSOperation.UpdatePatient, arcAE, attrs);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -437,7 +438,7 @@ public class IocmRS {
         sb.append(baseURI.substring(0, baseURIIndex));
         sb.append(requestURI.substring(requestURIIndex));
         if (rsOp == RSOperation.CreatePatient)
-            sb.append('/').append(IDWithIssuer.pidOf(attrs));
+            sb.append(IDWithIssuer.pidOf(attrs));
         return sb.toString();
     }
 
