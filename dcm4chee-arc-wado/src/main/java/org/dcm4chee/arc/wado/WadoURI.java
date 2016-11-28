@@ -82,6 +82,7 @@ import javax.xml.transform.Transformer;
 import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -132,11 +133,9 @@ public class WadoURI {
     private String studyUID;
 
     @QueryParam("seriesUID")
-    @NotNull
     private String seriesUID;
 
     @QueryParam("objectUID")
-    @NotNull
     private String objectUID;
 
     @QueryParam("contentType")
@@ -231,15 +230,13 @@ public class WadoURI {
         if (!service.calculateMatches(ctx))
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
-        Collection<InstanceLocations> matches = ctx.getMatches();
-        if (matches.size() > 1)
-            throw new WebApplicationException(
-                    "More than one matching resource found");
+        List<InstanceLocations> matches = ctx.getMatches();
+        InstanceLocations inst = matches.size() > 1 ? matches.get(matches.size()/2) : matches.iterator().next();
+//            throw new WebApplicationException(
+//                    "More than one matching resource found");
 
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx);
-
-        InstanceLocations inst = matches.iterator().next();
 
         ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
         MediaType mimeType = selectMimeType(objectType);
