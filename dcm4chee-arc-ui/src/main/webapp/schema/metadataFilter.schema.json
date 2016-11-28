@@ -1,0 +1,24 @@
+{
+  "title": "Metadata Filter",
+  "description": "Named Attribute Filter for WADO-RS Metadata requests.",
+  "type": "object",
+  "required": [
+    "dcmMetadataFilterName",
+    "dcmTag"
+  ],
+  "properties": {
+    "dcmMetadataFilterName": {
+      "title": "Metadata Filter Name",
+      "description": "Metadata Filter Name referenced by propritary 'includefields' Query Parameter of WADO-RS Metadata requests.",
+      "type": "string"
+    },
+    "dcmTag": {
+      "title": "Attribute Tag",
+      "description": "DICOM Tag as integer value",
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    }
+  }
+}

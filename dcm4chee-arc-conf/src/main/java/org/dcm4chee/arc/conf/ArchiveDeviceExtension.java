@@ -138,6 +138,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
+    private final Map<String,MetadataFilter> metadataFilters = new HashMap<>();
     private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
     private QueryRetrieveView[] queryRetrieveViews = {};
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
@@ -855,16 +856,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return attributeFilters;
     }
 
+    public MetadataFilter getMetadataFilter(String name) {
+        return metadataFilters.get(name);
+    }
+
+    public void addMetadataFilter(MetadataFilter filter) {
+        metadataFilters.put(filter.getName(), filter);
+    }
+
+    public void removeMetadataFilter(MetadataFilter filter) {
+        metadataFilters.remove(filter.getName());
+    }
+
+    public Map<String, MetadataFilter> getMetadataFilters() {
+        return metadataFilters;
+    }
+
     public IDGenerator getIDGenerator(IDGenerator.Name name) {
         IDGenerator filter = idGenerators.get(name);
         if (filter == null)
             throw new IllegalArgumentException("No ID Generator for " + name + " configured");
 
         return filter;
-    }
-
-    public void setIDGenerator(IDGenerator.Name name, IDGenerator generator) {
-        idGenerators.put(name, generator);
     }
 
     public void addIDGenerator(IDGenerator generator) {
@@ -1225,6 +1238,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         retrieveAETitles = arcdev.retrieveAETitles;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
+        metadataFilters.clear();
+        metadataFilters.putAll(arcdev.metadataFilters);
         idGenerators.clear();
         idGenerators.putAll(arcdev.idGenerators);
         storageDescriptorMap.clear();

@@ -1711,6 +1711,12 @@
             "description": "study instance UID for a single study",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "includefields",
+            "in": "query",
+            "description": "only include attributes configured by named Metadata Filter",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1760,6 +1766,12 @@
             "in": "path",
             "description": "series instance UID for a single series",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "includefields",
+            "in": "query",
+            "description": "only include attributes configured by named Metadata Filter",
             "type": "string"
           }
         ],
@@ -1817,6 +1829,12 @@
             "in": "path",
             "description": "SOP Instance UID for a single SOP Instance",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "includefields",
+            "in": "query",
+            "description": "only include attributes configured by named Metadata Filter",
             "type": "string"
           }
         ],

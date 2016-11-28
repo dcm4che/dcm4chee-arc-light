@@ -1285,7 +1285,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadIDGenerators(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        IDGenerator.Name name = null;
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -1294,7 +1293,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmIDGeneratorName":
-                        generator.setName(name = IDGenerator.Name.valueOf(reader.stringValue()));
+                        generator.setName(IDGenerator.Name.valueOf(reader.stringValue()));
                         break;
                     case "dcmIDGeneratorFormat":
                         generator.setFormat(reader.stringValue());
@@ -1307,7 +1306,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.setIDGenerator(name, generator);
+            arcDev.addIDGenerator(generator);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

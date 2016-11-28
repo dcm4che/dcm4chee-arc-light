@@ -498,6 +498,14 @@
         "$ref": "attributeFilter.schema.json"
       }
     },
+    "dcmMetadataFilter": {
+      "title": "Metadata Filter",
+      "description": "Named Attribute Filter for WADO-RS Metadata requests.",
+      "type": "array",
+      "items" : {
+        "$ref": "metadataFilter.schema.json"
+      }
+    },
     "dcmStorage": {
       "title": "Storage Descriptor",
       "description": "Specifies Storage System",
