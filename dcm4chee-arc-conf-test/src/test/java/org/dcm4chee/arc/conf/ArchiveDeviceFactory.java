@@ -249,6 +249,8 @@ class ArchiveDeviceFactory {
     };
     static final int[] SERIES_ATTRS = {
             Tag.SpecificCharacterSet,
+            Tag.SeriesDate,
+            Tag.SeriesTime,
             Tag.Modality,
             Tag.Manufacturer,
             Tag.InstitutionName,

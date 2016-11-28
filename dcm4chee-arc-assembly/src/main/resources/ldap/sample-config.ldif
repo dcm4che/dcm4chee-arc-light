@@ -790,6 +790,8 @@ cn: JPEG Lossless
 
 dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
+dcmTag: 00080021
+dcmTag: 00080031
 dcmTag: 00080060
 dcmTag: 00080070
 dcmTag: 00080080
