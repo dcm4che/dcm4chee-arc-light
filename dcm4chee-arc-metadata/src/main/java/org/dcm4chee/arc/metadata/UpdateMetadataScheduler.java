@@ -40,13 +40,13 @@
 
 package org.dcm4chee.arc.metadata;
 
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
-import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -58,10 +58,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -111,7 +110,7 @@ public class UpdateMetadataScheduler extends Scheduler {
             int fetchSize = arcDev.getSeriesMetadataFetchSize();
             List<Long> seriesPks;
             do {
-                seriesPks = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
+                        seriesPks = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
                 for (Long seriesPk : seriesPks) {
                     updateMetadata(retrieveService.newRetrieveContextSeriesMetadata(seriesPk), storage);
                 }
@@ -128,14 +127,35 @@ public class UpdateMetadataScheduler extends Scheduler {
 
         WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
         try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
+            JsonGenerator gen = Json.createGenerator(out);
+            JSONWriter jsonWriter = new JSONWriter(gen);
             for (InstanceLocations match : ctx.getMatches()) {
                 out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
+                jsonWriter.write(retrieveService.loadMetadata(ctx, match));
+                gen.flush();
                 out.closeEntry();
             }
             out.finish();
+        } catch (IOException e) {
+            storage.revokeStorage(writeCtx);
+            throw e;
         }
+        try {
+            storage.commitStorage(writeCtx);
+        } catch (RuntimeException e) {
+            storage.revokeStorage(writeCtx);
+            throw e;
+        }
+    }
 
-     }
+    private Metadata createMetadata(WriteContext writeContext) {
+        Metadata metadata = new Metadata();
+        metadata.setStorageID(writeContext.getStorage().getStorageDescriptor().getStorageID());
+        metadata.setStoragePath(writeContext.getStoragePath());
+        metadata.setSize(writeContext.getSize());
+        metadata.setDigest(writeContext.getDigest());
+        return metadata;
+    }
 
     private WriteContext createWriteContext(Storage storage, InstanceLocations match) {
         WriteContext writeCtx = storage.createWriteContext();

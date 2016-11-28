@@ -491,6 +491,14 @@ public class Series {
         this.study = study;
     }
 
+    public Metadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Metadata metadata) {
+        this.metadata = metadata;
+    }
+
     public Attributes getAttributes() throws BlobCorruptedException {
         return attributesBlob.getAttributes();
     }
@@ -550,5 +558,4 @@ public class Series {
             }
         return null;
     }
-
 }

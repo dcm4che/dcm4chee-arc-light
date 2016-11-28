@@ -40,8 +40,10 @@
 
 package org.dcm4chee.arc.metadata;
 
-import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Series;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.storage.WriteContext;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -64,4 +66,10 @@ public class UpdateMetadataEJB {
                 .getResultList();
     }
 
+    public void updateDB(RetrieveContext ctx, Metadata metadata) {
+        Series series = em.find(Series.class, ctx.getSeriesPk());
+        em.persist(metadata);
+        series.setMetadata(metadata);
+        series.setMetadataScheduledUpdateTime(null);
+    }
 }

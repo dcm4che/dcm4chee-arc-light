@@ -43,13 +43,12 @@ package org.dcm4chee.arc.retrieve.impl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.io.BulkDataCreator;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
@@ -510,23 +509,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {
-        IOException ex = null;
-        String studyInstanceUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
-        for (Location location : inst.getLocations()) {
-            if (location.getObjectType() == Location.ObjectType.METADATA)
-                try (JsonParser parser = Json.createParser(
-                        new InputStreamReader(openInputStream(ctx, location, studyInstanceUID), "UTF-8"))) {
-                    return new JSONReader(parser).readDataset(null);
-                } catch (IOException e) {
-                    ex = e;
-                }
-        }
-        if (ex != null) throw ex;
-        return null;
-    }
-
-    @Override
     public Map<String,Collection<InstanceLocations>> removeNotAccessableMatches(RetrieveContext ctx) {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         String altCMoveSCP = arcAE.alternativeCMoveSCP();
@@ -765,5 +747,52 @@ public class RetrieveServiceImpl implements RetrieveService {
             ctx.putStorage(storageID, storage);
         }
         return storage;
+    }
+
+    @Override
+    public Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst)
+            throws IOException {
+        Attributes attrs;
+        attrs = loadMetadataFromJSONFile(ctx, inst);
+        if (attrs == null)
+            attrs = loadMetadataFromDicomFile(ctx, inst);
+
+        getAttributesCoercion(ctx, inst).coerce(attrs, null);
+        return attrs;
+    }
+
+    private Attributes loadMetadataFromJSONFile(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+        IOException ex = null;
+        String studyInstanceUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
+        for (Location location : inst.getLocations()) {
+            if (location.getObjectType() == Location.ObjectType.METADATA)
+                try (JsonParser parser = Json.createParser(
+                        new InputStreamReader(openInputStream(ctx, location, studyInstanceUID), "UTF-8"))) {
+                    return new JSONReader(parser).readDataset(null);
+                } catch (IOException e) {
+                    ex = e;
+                }
+        }
+        if (ex != null) throw ex;
+        return null;
+    }
+
+    private Attributes loadMetadataFromDicomFile(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+        Attributes attrs;
+        try (DicomInputStream dis = openDicomInputStream(ctx, inst)) {
+            dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
+            dis.setBulkDataCreator(new BulkDataCreator() {
+                @Override
+                public BulkData createBulkData(DicomInputStream dis) throws IOException {
+                    dis.skipFully(dis.length());
+                    return new BulkData(null, "", dis.bigEndian());
+                }
+            });
+            attrs = dis.readDataset(-1, Tag.PixelData);
+            if (dis.tag() == Tag.PixelData) {
+                attrs.setValue(Tag.PixelData, dis.vr(), new BulkData(null, "", dis.bigEndian()));
+            }
+        }
+        return attrs;
     }
 }

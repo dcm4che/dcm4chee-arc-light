@@ -737,7 +737,7 @@ public class WadoRS {
                     public void write(OutputStream out) throws IOException,
                             WebApplicationException {
                         try {
-                            SAXTransformer.getSAXWriter(new StreamResult(out)).write(loadAttrsWithBulkdataURI(ctx, inst));
+                            SAXTransformer.getSAXWriter(new StreamResult(out)).write(loadMetadata(ctx, inst));
                         } catch (Exception e) {
                             throw new WebApplicationException(e);
                         }
@@ -757,7 +757,7 @@ public class WadoRS {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
                     for (InstanceLocations inst : insts) {
-                        writer.write(loadAttrsWithBulkdataURI(ctx, inst));
+                        writer.write(loadMetadata(ctx, inst));
                     }
                     gen.writeEnd();
                     gen.flush();
@@ -768,85 +768,47 @@ public class WadoRS {
         };
     }
 
-    private Attributes loadAttrsWithBulkdataURI(RetrieveContext ctx, InstanceLocations inst) throws Exception {
-        Attributes attrs;
-        final List<BulkData> bulkDataList = new ArrayList<>();
+    private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {
+        Attributes metadata = service.loadMetadata(ctx, inst);
         StringBuffer sb = request.getRequestURL();
         sb.setLength(sb.lastIndexOf("/metadata"));
         mkInstanceURL(sb, inst);
-        attrs = loadAttrsFromMetadata(ctx, inst, bulkDataList, sb);
-        if (attrs == null)
-            attrs = loadAttrsFromDicomFile(ctx, inst, bulkDataList, sb);
-        sb.append("/bulkdata");
-        int length = sb.length();
-        for (BulkData bulkData : bulkDataList) {
-            sb.append(bulkData.getURI());
-            bulkData.setURI(sb.toString());
-            sb.setLength(length);
-        }
-        service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
-        return attrs;
+        setBulkdataURI(metadata, sb.toString());
+        return metadata;
     }
 
-    private Attributes loadAttrsFromMetadata(
-            RetrieveContext ctx, InstanceLocations inst, final List<BulkData> bulkDataList, final StringBuffer sb)
+    private void setBulkdataURI(Attributes attrs, String retrieveURL)
             throws IOException {
-        Attributes attrs = service.loadMetadata(ctx, inst);
-        if (attrs != null)
-            try {
-                final List<ItemPointer> itemPointers = new ArrayList<>(4);
-                attrs.accept(new Attributes.SequenceVisitor() {
-                    @Override
-                    public void startItem(int sqTag, int itemIndex) {
-                        itemPointers.add(new ItemPointer(sqTag, itemIndex));
-                    }
-
-                    @Override
-                    public void endItem() {
-                        itemPointers.remove(itemPointers.size()-1);
-                    }
-
-                    @Override
-                    public boolean visit(Attributes attrs, int tag, VR vr, Object value) {
-                        if (value instanceof BulkData) {
-                            BulkData bulkData = (BulkData) value;
-                            if (tag == Tag.PixelData && itemPointers.isEmpty()) {
-                                bulkData.setURI(sb.toString());
-                            } else {
-                                bulkData.setURI(DicomInputStream.toAttributePath(itemPointers, tag));
-                                bulkDataList.add(bulkData);
-                            }
-                        }
-                        return true;
-                    }
-                }, true);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        return attrs;
-    }
-
-    private Attributes loadAttrsFromDicomFile(
-            RetrieveContext ctx, InstanceLocations inst, final List<BulkData> bulkDataList, StringBuffer sb)
-            throws IOException {
-        Attributes attrs;
-        try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
-            dis.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
-            dis.setBulkDataCreator(new BulkDataCreator() {
+        try {
+            final List<ItemPointer> itemPointers = new ArrayList<>(4);
+            attrs.accept(new Attributes.SequenceVisitor() {
                 @Override
-                public BulkData createBulkData(DicomInputStream dis) throws IOException {
-                    BulkData bulkData = new BulkData(null, dis.getAttributePath(), dis.bigEndian());
-                    dis.skipFully(dis.length());
-                    bulkDataList.add(bulkData);
-                    return bulkData;
+                public void startItem(int sqTag, int itemIndex) {
+                    itemPointers.add(new ItemPointer(sqTag, itemIndex));
                 }
-            });
-            attrs = dis.readDataset(-1, Tag.PixelData);
-            if (dis.tag() == Tag.PixelData) {
-                attrs.setValue(Tag.PixelData, dis.vr(), new BulkData(null, sb.toString(), dis.bigEndian()));
-            }
+
+                @Override
+                public void endItem() {
+                    itemPointers.remove(itemPointers.size()-1);
+                }
+
+                @Override
+                public boolean visit(Attributes attrs, int tag, VR vr, Object value) {
+                    if (value instanceof BulkData) {
+                        BulkData bulkData = (BulkData) value;
+                        if (tag == Tag.PixelData && itemPointers.isEmpty()) {
+                            bulkData.setURI(retrieveURL);
+                        } else {
+                            bulkData.setURI(retrieveURL + "/bulkdata"
+                                    + DicomInputStream.toAttributePath(itemPointers, tag));
+                        }
+                    }
+                    return true;
+                }
+            }, true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return attrs;
     }
 
     private void mkInstanceURL(StringBuffer sb, InstanceLocations inst) {

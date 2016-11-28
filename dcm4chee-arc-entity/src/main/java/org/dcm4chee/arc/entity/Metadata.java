@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.dcm4che3.util.TagUtils;
+
 import javax.persistence.*;
 
 /**
@@ -106,12 +108,12 @@ public class Metadata {
         this.size = size;
     }
 
-    public String getDigest() {
-        return digest;
+    public byte[] getDigest() {
+        return digest != null ? TagUtils.fromHexString(digest) : null;
     }
 
-    public void setDigest(String digest) {
-        this.digest = digest;
+    public void setDigest(byte[] digest) {
+        this.digest = digest != null ? TagUtils.toHexString(digest) : null;
     }
 
     public Status getStatus() {
