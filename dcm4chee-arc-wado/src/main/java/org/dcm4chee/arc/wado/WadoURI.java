@@ -45,15 +45,11 @@ import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
-import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.Dimse;
-import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -232,8 +228,6 @@ public class WadoURI {
 
         List<InstanceLocations> matches = ctx.getMatches();
         InstanceLocations inst = matches.size() > 1 ? matches.get(matches.size()/2) : matches.iterator().next();
-//            throw new WebApplicationException(
-//                    "More than one matching resource found");
 
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx);
