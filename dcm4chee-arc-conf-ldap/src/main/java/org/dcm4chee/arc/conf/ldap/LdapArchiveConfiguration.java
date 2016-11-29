@@ -705,7 +705,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             throws NamingException {
         for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
             config.createSubcontext(
-                    LdapUtils.dnOf("dcmMetadataFilter", entry.getKey(), deviceDN),
+                    LdapUtils.dnOf("dcmMetadataFilterName", entry.getKey(), deviceDN),
                     storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
         }
     }

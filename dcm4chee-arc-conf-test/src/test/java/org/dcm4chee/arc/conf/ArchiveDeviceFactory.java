@@ -163,12 +163,6 @@ class ArchiveDeviceFactory {
         return desc;
     }
 
-    static MetadataFilter newMetadataFilter(String name, int[] selection) {
-        MetadataFilter mf = new MetadataFilter(name);
-        mf.setSelection(selection);
-        return mf;
-    }
-
     static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {
         IDGenerator gen = new IDGenerator();
         gen.setName(name);
@@ -689,12 +683,6 @@ class ArchiveDeviceFactory {
     };
     static final SPSStatus[] HIDE_SPS_WITH_STATUS_FROM_MWL = {
             SPSStatus.STARTED, SPSStatus.DEPARTED, SPSStatus.CANCELLED, SPSStatus.DISCONTINUED, SPSStatus.COMPLETED
-    };
-
-    static final MetadataFilter[] METADATA_FILTERS = {
-            newMetadataFilter("StudyMetadataFilter", STUDY_ATTRS),
-            newMetadataFilter("SeriesMetadataFilter", SERIES_ATTRS),
-            newMetadataFilter("InstanceMetadataFilter", INSTANCE_ATTRS)
     };
 
     static final Code INCORRECT_WORKLIST_ENTRY_SELECTED =
@@ -1239,8 +1227,7 @@ class ArchiveDeviceFactory {
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
             ext.addQueueDescriptor(descriptor);
 
-        for (MetadataFilter filter : METADATA_FILTERS)
-            ext.addMetadataFilter(filter);
+        ext.addMetadataFilter(createMetadataFilter());
 
         ext.addRejectionNote(createRejectionNote("Quality",
                 RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
@@ -1366,6 +1353,18 @@ class ArchiveDeviceFactory {
             storeAccessControlIDRule.setStoreAccessControlID("ACCESS_CONTROL_ID");
             ext.addStoreAccessControlIDRule(storeAccessControlIDRule);
         }
+    }
+
+    private static MetadataFilter createMetadataFilter() {
+        MetadataFilter filter = new MetadataFilter("AttributeFilters");
+        int[] tags = new int[PATIENT_ATTRS.length + STUDY_ATTRS.length + SERIES_ATTRS.length + INSTANCE_ATTRS.length - 3];
+        int destPos = 0;
+        System.arraycopy(PATIENT_ATTRS, 0, tags, destPos, PATIENT_ATTRS.length);
+        System.arraycopy(STUDY_ATTRS, 1, tags, destPos += PATIENT_ATTRS.length, STUDY_ATTRS.length - 1);
+        System.arraycopy(SERIES_ATTRS, 1, tags, destPos += STUDY_ATTRS.length - 1, SERIES_ATTRS.length - 1);
+        System.arraycopy(INSTANCE_ATTRS, 1, tags, destPos += SERIES_ATTRS.length - 1, INSTANCE_ATTRS.length - 1);
+        filter.setSelection(tags);
+        return filter;
     }
 
     private static AttributeFilter newAttributeFilter(int[] patientAttrs, Attributes.UpdatePolicy attrUpdate) {
