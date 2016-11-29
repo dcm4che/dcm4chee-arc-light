@@ -45,6 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.MetadataFilter;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.Location;
@@ -247,7 +248,7 @@ public interface RetrieveContext extends Closeable {
 
     void setPatientUpdatedTime(Date patientUpdatedTime);
 
-    String getIncludeFields();
+    MetadataFilter getMetadataFilter();
 
-    void setIncludeFields(String includeFields);
+    void setMetadataFilter(MetadataFilter metadataFilter);
 }

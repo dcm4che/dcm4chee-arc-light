@@ -341,11 +341,10 @@ public class WadoRS {
             // s. https://issues.jboss.org/browse/RESTEASY-903
             HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
             final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
-            if (output.isMetadata())
+            if (output.isMetadata()) {
                 ctx.setObjectType(null);
-
-            if (includefields != null)
-                ctx.setIncludeFields(includefields);
+                ctx.setMetadataFilter(getMetadataFilter(includefields));
+            }
 
             if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_MATCH) == null && request.getHeader(HttpHeaders.IF_NONE_MATCH) == null) {
@@ -365,6 +364,16 @@ public class WadoRS {
         } catch (Exception e) {
             ar.resume(e);
         }
+    }
+
+    private MetadataFilter getMetadataFilter(String name) {
+        if (name == null)
+            return null;
+
+        MetadataFilter filter = device.getDeviceExtension(ArchiveDeviceExtension.class).getMetadataFilter(name);
+        if (filter == null)
+            LOG.info("No Metadata filter configured for includefields={}", name);
+        return filter;
     }
 
     private void buildResponse(String method, int[] frameList, int[] attributePath, AsyncResponse ar, Output output,
@@ -779,29 +788,14 @@ public class WadoRS {
     }
 
     private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes metadata = service.loadMetadata(ctx, inst);
         StringBuffer sb = request.getRequestURL();
         sb.setLength(sb.lastIndexOf("/metadata"));
         mkInstanceURL(sb, inst);
-        if (ctx.getIncludeFields() != null) {
-            if (arcDev.getMetadataFilter(ctx.getIncludeFields()) != null) {
-                Attributes filteredMetadata = filterMetadata(metadata, ctx, arcDev);
-                setBulkdataURI(filteredMetadata, sb.toString());
-                return filteredMetadata;
-            }
-            LOG.info("Metadata filter not configured for : " + ctx.getIncludeFields());
-        }
+        if (ctx.getMetadataFilter() != null)
+            metadata = new Attributes(metadata, ctx.getMetadataFilter().getSelection());
         setBulkdataURI(metadata, sb.toString());
         return metadata;
-    }
-
-    private Attributes filterMetadata(Attributes metadata, RetrieveContext ctx, ArchiveDeviceExtension arcDev) {
-        MetadataFilter mf = arcDev.getMetadataFilter(ctx.getIncludeFields());
-        Attributes filteredMetadata = new Attributes();
-        for (int tag : mf.getSelection())
-            filteredMetadata.setString(tag, metadata.getVR(tag), metadata.getStrings(tag));
-        return filteredMetadata;
     }
 
     private void setBulkdataURI(Attributes attrs, String retrieveURL)
