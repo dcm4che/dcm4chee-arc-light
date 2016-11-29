@@ -68,4 +68,6 @@ public interface InstanceLocations {
     Availability getAvailability();
 
     Date getUpdatedTime();
+
+    Attributes getRejectionCode();
 }

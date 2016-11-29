@@ -1203,7 +1203,7 @@ dcmIDGeneratorFormat: P-%08d
 objectClass: dcmIDGenerator
 
 dn: dcmStorageID=series-metadata,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D}/{0020000E}.zip
+dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D}/{0020000E}/metadata.zip
 dcmProperty: checkMountFile=NO_MOUNT
 objectClass: dcmStorage
 dcmStorageID: series-metadata

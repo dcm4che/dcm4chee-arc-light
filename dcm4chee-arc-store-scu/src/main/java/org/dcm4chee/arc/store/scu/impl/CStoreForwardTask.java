@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -153,7 +152,7 @@ class CStoreForwardTask implements Runnable {
         instAttrs.addAll(patAttrs);
         RetrieveService service = ctx.getRetrieveService();
         InstanceLocations instanceLocations = service.newInstanceLocations(
-                storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), null, null, null, null, instAttrs);
+                storeCtx.getSopClassUID(), storeCtx.getSopInstanceUID(), null, null, null, null, instAttrs, null);
         instanceLocations.getLocations().addAll(locations(storeCtx));
         return instanceLocations;
     }

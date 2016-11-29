@@ -116,6 +116,9 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.externalRetrieveAET,
             QInstance.instance.availability,
             QInstance.instance.updatedTime,
+            QCodeEntity.codeEntity.codeValue,
+            QCodeEntity.codeEntity.codingSchemeDesignator,
+            QCodeEntity.codeEntity.codeMeaning,
             QUIDMap.uIDMap.pk,
             QUIDMap.uIDMap.encodedMap,
             QueryBuilder.instanceAttributesBlob.encodedAttributes
@@ -164,6 +167,10 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     StatelessSession openStatelessSession() {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    }
+
+    private ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
     @Override
@@ -336,7 +343,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                             tuple.get(QInstance.instance.externalRetrieveAET),
                             tuple.get(QInstance.instance.availability),
                             tuple.get(QInstance.instance.updatedTime),
-                            instAttrs);
+                            instAttrs, rejectionCode(tuple));
                     matches.add(match);
                     instMap.put(instPk, match);
                 }
@@ -349,6 +356,17 @@ public class RetrieveServiceImpl implements RetrieveService {
         } finally {
             session.close();
         }
+    }
+
+    private Attributes rejectionCode(Tuple tuple) {
+        if (tuple.get(QCodeEntity.codeEntity.codeValue) == null)
+            return null;
+
+        Attributes item = new Attributes();
+        item.setString(Tag.CodeValue, VR.SH, tuple.get(QCodeEntity.codeEntity.codeValue));
+        item.setString(Tag.CodeMeaning, VR.LO, tuple.get(QCodeEntity.codeEntity.codeMeaning));
+        item.setString(Tag.CodingSchemeDesignator, VR.SH, tuple.get(QCodeEntity.codeEntity.codingSchemeDesignator));
+        return item;
     }
 
     private void addLocation(InstanceLocations match, Tuple tuple) {
@@ -374,14 +392,18 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public InstanceLocationsImpl newInstanceLocations(String sopClassUID, String sopInstanceUID, String retrieveAETs,
-              String extRetrieveAET, Availability availability, Date updatedTime, Attributes attrs) {
-        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, extRetrieveAET, availability, updatedTime, attrs);
+    public InstanceLocationsImpl newInstanceLocations(
+            String sopClassUID, String sopInstanceUID, String retrieveAETs, String extRetrieveAET,
+            Availability availability, Date updatedTime, Attributes attrs, Attributes rejectionCode) {
+        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, extRetrieveAET, availability,
+                updatedTime, attrs, rejectionCode);
     }
 
     private void updateStudyAccessTime(RetrieveContext ctx) {
-        Duration maxAccessTimeStaleness = ctx.getArchiveAEExtension().getArchiveDeviceExtension()
-                .getMaxAccessTimeStaleness();
+        if (ctx.isSeriesMetadata())
+            return;
+
+        Duration maxAccessTimeStaleness = getArchiveDeviceExtension().getMaxAccessTimeStaleness();
         if (maxAccessTimeStaleness == null)
             return;
 
@@ -452,7 +474,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob)
                 .join(QInstance.instance.series, QSeries.series)
                 .join(QSeries.series.study, QStudy.study)
-                .leftJoin(QInstance.instance.locations, QLocation.location);
+                .leftJoin(QInstance.instance.locations, QLocation.location)
+                .leftJoin(QInstance.instance.rejectionNoteCode, QCodeEntity.codeEntity);
 
         Location.ObjectType objectType = ctx.getObjectType();
         if (objectType != null)
@@ -512,7 +535,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     public Map<String,Collection<InstanceLocations>> removeNotAccessableMatches(RetrieveContext ctx) {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         String altCMoveSCP = arcAE.alternativeCMoveSCP();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         Collection<InstanceLocations> matches = ctx.getMatches();
         int numMatches = matches.size();
         Map<String,Collection<InstanceLocations>> notAccessable = new HashMap<>(1);
@@ -666,6 +689,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {
+        if (ctx.isSeriesMetadata())
+            return new SeriesMetadataAttributeCoercion(ctx, inst);
+
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
         ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
                 ctx.getRequestorHostName(), ctx.getRequestorAET(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ,
@@ -742,7 +768,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     private Storage getStorage(RetrieveContext ctx, String storageID) {
         Storage storage = ctx.getStorage(storageID);
         if (storage == null) {
-            ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
+            ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
             storage = storageFactory.getStorage(arcDev.getStorageDescriptorNotNull(storageID));
             ctx.putStorage(storageID, storage);
         }

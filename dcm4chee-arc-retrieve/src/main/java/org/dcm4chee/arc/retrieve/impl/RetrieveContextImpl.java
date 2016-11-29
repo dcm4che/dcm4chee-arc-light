@@ -623,4 +623,9 @@ class RetrieveContextImpl implements RetrieveContext {
     public void setMetadataFilter(MetadataFilter metadataFilter) {
         this.metadataFilter = metadataFilter;
     }
+
+    @Override
+    public boolean isSeriesMetadata() {
+        return arcAE == null;
+    }
 }

@@ -144,7 +144,7 @@ class InstanceQuery extends AbstractQuery {
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime, VR.DT,
                 results.get(QInstance.instance.updatedTime));
         if (results.get(QCodeEntity.codeEntity.codeValue) != null) {
-            Sequence rejectionCodeSeq = attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 10);
+            Sequence rejectionCodeSeq = attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1);
             Attributes item = new Attributes();
             item.setString(Tag.CodeValue, VR.SH, results.get(QCodeEntity.codeEntity.codeValue));
             item.setString(Tag.CodeMeaning, VR.LO, results.get(QCodeEntity.codeEntity.codeMeaning));

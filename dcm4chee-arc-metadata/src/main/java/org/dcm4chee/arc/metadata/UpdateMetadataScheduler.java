@@ -127,11 +127,10 @@ public class UpdateMetadataScheduler extends Scheduler {
 
         WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
         try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
-            JsonGenerator gen = Json.createGenerator(out);
-            JSONWriter jsonWriter = new JSONWriter(gen);
             for (InstanceLocations match : ctx.getMatches()) {
                 out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
-                jsonWriter.write(retrieveService.loadMetadata(ctx, match));
+                JsonGenerator gen = Json.createGenerator(out);
+                new JSONWriter(gen).write(retrieveService.loadMetadata(ctx, match));
                 gen.flush();
                 out.closeEntry();
             }
@@ -146,6 +145,7 @@ public class UpdateMetadataScheduler extends Scheduler {
             storage.revokeStorage(writeCtx);
             throw e;
         }
+        ejb.updateDB(ctx, createMetadata(writeCtx));
     }
 
     private Metadata createMetadata(WriteContext writeContext) {
