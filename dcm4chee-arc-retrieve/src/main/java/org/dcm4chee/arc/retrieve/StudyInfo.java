@@ -59,4 +59,8 @@ public interface StudyInfo {
     int getFailedRetrieves();
 
     Date getUpdatedTime();
+
+    String getExpirationDate();
+
+    String getAccessControlID();
 }

@@ -58,4 +58,8 @@ public interface SeriesInfo {
     int getFailedRetrieves();
 
     Date getUpdatedTime();
+
+    String getExpirationDate();
+
+    String getSourceAET();
 }

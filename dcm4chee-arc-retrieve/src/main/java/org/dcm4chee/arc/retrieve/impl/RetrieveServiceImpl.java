@@ -132,10 +132,14 @@ public class RetrieveServiceImpl implements RetrieveService {
             QStudy.study.failedRetrieves,
             QStudy.study.failedSOPInstanceUIDList,
             QStudy.study.updatedTime,
+            QStudy.study.expirationDate,
+            QStudy.study.accessControlID,
             QSeries.series.seriesInstanceUID,
             QSeries.series.failedRetrieves,
             QSeries.series.failedSOPInstanceUIDList,
             QSeries.series.updatedTime,
+            QSeries.series.expirationDate,
+            QSeries.series.sourceAET,
             QueryBuilder.seriesAttributesBlob.encodedAttributes,
             QueryBuilder.studyAttributesBlob.encodedAttributes,
             QueryBuilder.patientAttributesBlob.encodedAttributes
@@ -446,13 +450,17 @@ public class RetrieveServiceImpl implements RetrieveService {
                 tuple.get(QStudy.study.accessTime),
                 tuple.get(QStudy.study.failedRetrieves),
                 tuple.get(QStudy.study.failedSOPInstanceUIDList),
-                tuple.get(QStudy.study.updatedTime));
+                tuple.get(QStudy.study.updatedTime),
+                tuple.get(QStudy.study.expirationDate),
+                tuple.get(QStudy.study.accessControlID));
         SeriesInfo seriesInfo = new SeriesInfoImpl(
                 studyInfo.getStudyInstanceUID(),
                 tuple.get(QSeries.series.seriesInstanceUID),
                 tuple.get(QSeries.series.failedRetrieves),
                 tuple.get(QSeries.series.failedSOPInstanceUIDList),
-                tuple.get(QSeries.series.updatedTime));
+                tuple.get(QSeries.series.updatedTime),
+                tuple.get(QSeries.series.expirationDate),
+                tuple.get(QSeries.series.sourceAET));
         Date patientUpdatedTime = tuple.get(QPatient.patient.updatedTime);
         Attributes patAttrs = AttributesBlob.decodeAttributes(
                 tuple.get(QueryBuilder.patientAttributesBlob.encodedAttributes), null);

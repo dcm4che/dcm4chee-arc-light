@@ -47,6 +47,8 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.QSeries;
+import org.dcm4chee.arc.entity.QStudy;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.SeriesInfo;
@@ -69,6 +71,34 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
     public void coerce(Attributes attrs, Attributes modified) {
         attrs.setString(Tag.RetrieveAETitle, VR.AE, inst.getRetrieveAETs());
         attrs.setString(Tag.InstanceAvailability, VR.CS, inst.getAvailability().toString());
+
+        StudyInfo studyInfo = ctx.getStudyInfos().get(0);
+        if (studyInfo.getExpirationDate() != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
+                    studyInfo.getExpirationDate());
+        if (studyInfo.getFailedSOPInstanceUIDList() != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfStudy, VR.UI,
+                    studyInfo.getFailedSOPInstanceUIDList());
+        if (studyInfo.getFailedRetrieves() != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
+                    studyInfo.getFailedRetrieves());
+        if (studyInfo.getAccessControlID() != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
+                    studyInfo.getAccessControlID());
+
+        SeriesInfo seriesInfo = ctx.getSeriesInfos().get(0);
+        if (seriesInfo.getExpirationDate() != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
+                    seriesInfo.getExpirationDate());
+        if (seriesInfo.getFailedSOPInstanceUIDList() != null)
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
+                    seriesInfo.getFailedSOPInstanceUIDList());
+        if (seriesInfo.getFailedRetrieves() != 0)
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
+                    seriesInfo.getFailedRetrieves());
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+                seriesInfo.getSourceAET());
+
         if (inst.getExternalRetrieveAET() != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle, VR.AE,
                     inst.getExternalRetrieveAET());
