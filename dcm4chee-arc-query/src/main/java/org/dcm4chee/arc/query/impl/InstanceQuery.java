@@ -50,6 +50,8 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -73,6 +75,11 @@ class InstanceQuery extends AbstractQuery {
             QCodeEntity.codeEntity.codeValue,
             QCodeEntity.codeEntity.codingSchemeDesignator,
             QCodeEntity.codeEntity.codeMeaning,
+            QLocation.location.storageID,
+            QLocation.location.storagePath,
+            QLocation.location.transferSyntaxUID,
+            QLocation.location.digest,
+            QLocation.location.size,
             QInstance.instance.attributesBlob.encodedAttributes
     };
 
@@ -89,6 +96,8 @@ class InstanceQuery extends AbstractQuery {
         q = QueryBuilder.applyInstanceLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam());
+        q = q.leftJoin(QInstance.instance.locations, QLocation.location)
+                .on(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
         q = QueryBuilder.applySeriesLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam());
@@ -150,6 +159,19 @@ class InstanceQuery extends AbstractQuery {
             item.setString(Tag.CodeMeaning, VR.LO, results.get(QCodeEntity.codeEntity.codeMeaning));
             item.setString(Tag.CodingSchemeDesignator, VR.SH, results.get(QCodeEntity.codeEntity.codingSchemeDesignator));
             rejectionCodeSeq.add(item);
+        }
+        if (results.get(QLocation.location.storageID) != null) {
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID, VR.LO,
+                    results.get(QLocation.location.storageID));
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
+                    StringUtils.split(results.get(QLocation.location.storagePath), '/'));
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntax, VR.UI,
+                    results.get(QLocation.location.transferSyntaxUID));
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
+                    results.get(QLocation.location.size).intValue());
+            if (results.get(QLocation.location.digest) != null)
+                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
+                        results.get(QLocation.location.digest));
         }
         return attrs;
     }

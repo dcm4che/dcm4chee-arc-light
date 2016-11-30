@@ -264,6 +264,10 @@ public class Location {
         return digest != null ? TagUtils.fromHexString(digest) : null;
     }
 
+    public String getDigestAsHexString() {
+        return digest;
+    }
+
     public Status getStatus() {
         return status;
     }
