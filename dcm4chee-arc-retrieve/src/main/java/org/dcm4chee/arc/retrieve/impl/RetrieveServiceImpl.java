@@ -266,6 +266,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         RetrieveContext ctx = new RetrieveContextImpl(this, null, null, null);
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.SERIES);
         ctx.setSeriesPk(seriesPk);
+        ctx.setObjectType(null);
         return ctx;
     }
 
@@ -482,8 +483,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob)
                 .join(QInstance.instance.series, QSeries.series)
                 .join(QSeries.series.study, QStudy.study)
-                .leftJoin(QInstance.instance.locations, QLocation.location)
-                .leftJoin(QInstance.instance.rejectionNoteCode, QCodeEntity.codeEntity);
+                .leftJoin(QInstance.instance.rejectionNoteCode, QCodeEntity.codeEntity)
+                .leftJoin(QInstance.instance.locations, QLocation.location);
 
         Location.ObjectType objectType = ctx.getObjectType();
         if (objectType != null)
