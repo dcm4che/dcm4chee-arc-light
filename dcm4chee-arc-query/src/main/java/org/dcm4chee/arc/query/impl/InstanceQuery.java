@@ -165,7 +165,7 @@ class InstanceQuery extends AbstractQuery {
                     results.get(QLocation.location.storageID));
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
                     StringUtils.split(results.get(QLocation.location.storagePath), '/'));
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntax, VR.UI,
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID, VR.UI,
                     results.get(QLocation.location.transferSyntaxUID));
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
                     results.get(QLocation.location.size).intValue());

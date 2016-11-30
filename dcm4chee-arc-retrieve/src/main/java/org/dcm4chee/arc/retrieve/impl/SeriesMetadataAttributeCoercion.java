@@ -81,7 +81,7 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
                         location.getStorageID());
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
                         StringUtils.split(location.getStoragePath(), '/'));
-                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntax, VR.UI,
+                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID, VR.UI,
                         location.getTransferSyntaxUID());
                 attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
                         (int) location.getSize());
