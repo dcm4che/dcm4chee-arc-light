@@ -671,18 +671,18 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.134 NAME 'dcmMetadataFilterName'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.135 NAME 'dcmRemoveInstanceRecordsDelay'
-  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for removing Instance Records from the DB. If absent, Instance Records will never be removed.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.135 NAME 'dcmPurgeInstanceRecordsDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.136 NAME 'dcmRemoveInstanceRecordsPollingInterval'
-  DESC 'Polling Interval for Series scheduled for removing Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be removed.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.136 NAME 'dcmPurgeInstanceRecordsPollingInterval'
+  DESC 'Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be purged.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.137 NAME 'dcmRemoveInstanceRecordsFetchSize'
-  DESC 'Maximal number of Series scheduled for removing Instance Records from the DB fetched by one query; 100 if absent'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.137 NAME 'dcmPurgeInstanceRecordsFetchSize'
+  DESC 'Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query; 100 if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -701,9 +701,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmSeriesMetadataDelay $
     dcmSeriesMetadataPollingInterval $
     dcmSeriesMetadataFetchSize $
-    dcmRemoveInstanceRecordsDelay $
-    dcmRemoveInstanceRecordsPollingInterval $
-    dcmRemoveInstanceRecordsFetchSize $
+    dcmPurgeInstanceRecordsDelay $
+    dcmPurgeInstanceRecordsPollingInterval $
+    dcmPurgeInstanceRecordsFetchSize $
     dcmOverwritePolicy $
     dcmAcceptMissingPatientID $
     dcmBulkDataSpoolDirectory $
@@ -786,7 +786,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataDelay $
-    dcmRemoveInstanceRecordsDelay $
+    dcmPurgeInstanceRecordsDelay $
     dcmStoreAccessControlID $
     dcmAccessControlID $
     dcmOverwritePolicy $

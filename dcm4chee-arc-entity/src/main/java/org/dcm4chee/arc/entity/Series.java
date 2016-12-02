@@ -137,6 +137,11 @@ import java.util.Date;
         query = "select se.pk from Series se " +
                 "where se.metadataScheduledUpdateTime < current_timestamp " +
                 "order by se.metadataScheduledUpdateTime"),
+@NamedQuery(
+        name = Series.SCHEDULED_PURGE_INSTANCES,
+        query = "select se.pk from Series se " +
+                "where se.purgeInstanceRecordsTime < current_timestamp and se.metadata is not null " +
+                "order by se.purgeInstanceRecordsTime"),
 })
 @Entity
 @Table(name = "series",
@@ -159,7 +164,9 @@ import java.util.Date;
         @Index(columnList = "expiration_date"),
         @Index(columnList = "failed_retrieves"),
         @Index(columnList = "failed_iuids"),
-        @Index(columnList = "metadata_update_time")
+        @Index(columnList = "metadata_update_time"),
+        @Index(columnList = "purge_insts_time"),
+        @Index(columnList = "purged_insts")
 })
 public class Series {
 
@@ -177,6 +184,7 @@ public class Series {
     public static final String COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE = "Series.countSeriesOfStudyWithOtherRejectionState";
     public static final String SERIES_IUIDS_OF_STUDY = "Series.seriesIUIDsOfStudy";
     public static final String SCHEDULED_METADATA_UPDATE = "Series.scheduledMetadataUpdate";
+    public static final String SCHEDULED_PURGE_INSTANCES = "Series.scheduledPurgeInstances";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -284,6 +292,14 @@ public class Series {
     @Basic
     @Column(name = "metadata_update_time")
     private Date metadataScheduledUpdateTime;
+
+    @Basic
+    @Column(name = "purge_insts_time")
+    private Date purgeInstanceRecordsTime;
+
+    @Basic(optional = false)
+    @Column(name = "purged_insts")
+    private int purgedInstanceRecords;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")

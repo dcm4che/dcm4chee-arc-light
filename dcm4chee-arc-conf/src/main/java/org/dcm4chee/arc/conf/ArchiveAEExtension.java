@@ -61,7 +61,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String storageID;
     private String metadataStorageID;
     private Duration seriesMetadataDelay;
-    private Duration removeInstanceRecordsDelay;
+    private Duration purgeInstanceRecordsDelay;
     private String storeAccessControlID;
     private String[] accessControlIDs = {};
     private OverwritePolicy overwritePolicy;
@@ -159,18 +159,18 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getSeriesMetadataDelay();
     }
 
-    public Duration getRemoveInstanceRecordsDelay() {
-        return removeInstanceRecordsDelay;
+    public Duration getPurgeInstanceRecordsDelay() {
+        return purgeInstanceRecordsDelay;
     }
 
-    public void setRemoveInstanceRecordsDelay(Duration removeInstanceRecordsDelay) {
-        this.removeInstanceRecordsDelay = removeInstanceRecordsDelay;
+    public void setPurgeInstanceRecordsDelay(Duration purgeInstanceRecordsDelay) {
+        this.purgeInstanceRecordsDelay = purgeInstanceRecordsDelay;
     }
 
-    public Duration removeInstanceRecordsDelay() {
-        return removeInstanceRecordsDelay != null
-                ? removeInstanceRecordsDelay
-                : getArchiveDeviceExtension().getRemoveInstanceRecordsDelay();
+    public Duration purgeInstanceRecordsDelay() {
+        return purgeInstanceRecordsDelay != null
+                ? purgeInstanceRecordsDelay
+                : getArchiveDeviceExtension().getPurgeInstanceRecordsDelay();
     }
 
     public String getStoreAccessControlID() {
@@ -757,7 +757,7 @@ public class ArchiveAEExtension extends AEExtension {
         storageID = aeExt.storageID;
         metadataStorageID = aeExt.metadataStorageID;
         seriesMetadataDelay = aeExt.seriesMetadataDelay;
-        removeInstanceRecordsDelay = aeExt.removeInstanceRecordsDelay;
+        purgeInstanceRecordsDelay = aeExt.purgeInstanceRecordsDelay;
         storeAccessControlID = aeExt.storeAccessControlID;
         accessControlIDs = aeExt.accessControlIDs;
         overwritePolicy = aeExt.overwritePolicy;

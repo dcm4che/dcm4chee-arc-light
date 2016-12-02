@@ -64,9 +64,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration seriesMetadataDelay;
     private Duration seriesMetadataPollingInterval;
     private int seriesMetadataFetchSize = 100;
-    private Duration removeInstanceRecordsDelay;
-    private Duration removeInstanceRecordsPollingInterval;
-    private int removeInstanceRecordsFetchSize = 100;
+    private Duration purgeInstanceRecordsDelay;
+    private Duration purgeInstanceRecordsPollingInterval;
+    private int purgeInstanceRecordsFetchSize = 100;
     private OverwritePolicy overwritePolicy;
     private ShowPatientInfo showPatientInfoInSystemLog;
     private ShowPatientInfo showPatientInfoInAuditLog;
@@ -290,28 +290,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.seriesMetadataFetchSize =  notNegative(seriesMetadataFetchSize, "seriesMetadataFetchSize");
     }
 
-    public Duration getRemoveInstanceRecordsDelay() {
-        return removeInstanceRecordsDelay;
+    public Duration getPurgeInstanceRecordsDelay() {
+        return purgeInstanceRecordsDelay;
     }
 
-    public void setRemoveInstanceRecordsDelay(Duration removeInstanceRecordsDelay) {
-        this.removeInstanceRecordsDelay = removeInstanceRecordsDelay;
+    public void setPurgeInstanceRecordsDelay(Duration purgeInstanceRecordsDelay) {
+        this.purgeInstanceRecordsDelay = purgeInstanceRecordsDelay;
     }
 
-    public Duration getRemoveInstanceRecordsPollingInterval() {
-        return removeInstanceRecordsPollingInterval;
+    public Duration getPurgeInstanceRecordsPollingInterval() {
+        return purgeInstanceRecordsPollingInterval;
     }
 
-    public void setRemoveInstanceRecordsPollingInterval(Duration removeInstanceRecordsPollingInterval) {
-        this.removeInstanceRecordsPollingInterval = removeInstanceRecordsPollingInterval;
+    public void setPurgeInstanceRecordsPollingInterval(Duration purgeInstanceRecordsPollingInterval) {
+        this.purgeInstanceRecordsPollingInterval = purgeInstanceRecordsPollingInterval;
     }
 
-    public int getRemoveInstanceRecordsFetchSize() {
-        return removeInstanceRecordsFetchSize;
+    public int getPurgeInstanceRecordsFetchSize() {
+        return purgeInstanceRecordsFetchSize;
     }
 
-    public void setRemoveInstanceRecordsFetchSize(int removeInstanceRecordsFetchSize) {
-        this.removeInstanceRecordsFetchSize =  notNegative(removeInstanceRecordsFetchSize, "removeInstanceRecordsFetchSize");
+    public void setPurgeInstanceRecordsFetchSize(int purgeInstanceRecordsFetchSize) {
+        this.purgeInstanceRecordsFetchSize =  notNegative(purgeInstanceRecordsFetchSize, "purgeInstanceRecordsFetchSize");
     }
 
     public String getQueryRetrieveViewID() {
@@ -1190,9 +1190,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
-        removeInstanceRecordsDelay = arcdev.removeInstanceRecordsDelay;
-        removeInstanceRecordsPollingInterval = arcdev.removeInstanceRecordsPollingInterval;
-        removeInstanceRecordsFetchSize = arcdev.removeInstanceRecordsFetchSize;
+        purgeInstanceRecordsDelay = arcdev.purgeInstanceRecordsDelay;
+        purgeInstanceRecordsPollingInterval = arcdev.purgeInstanceRecordsPollingInterval;
+        purgeInstanceRecordsFetchSize = arcdev.purgeInstanceRecordsFetchSize;
         overwritePolicy = arcdev.overwritePolicy;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
         showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;

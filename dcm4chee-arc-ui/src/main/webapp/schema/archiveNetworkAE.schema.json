@@ -18,9 +18,9 @@
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for storing aggregated Series Metadata on storage of objects received by this AE. Overwrites value specified on Device level.",
       "type": "string"
     },
-    "dcmRemoveInstanceRecordsDelay": {
-      "title": "Remove Instance Records Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for removing Instance Records from the DB received by this AE. Overwrites value specified on Device level.",
+    "dcmPurgeInstanceRecordsDelay": {
+      "title": "Purge Instance Records Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB received by this AE. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmStoreAccessControlID": {

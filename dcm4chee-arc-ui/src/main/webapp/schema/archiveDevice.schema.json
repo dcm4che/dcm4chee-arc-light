@@ -53,19 +53,19 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
-    "dcmRemoveInstanceRecordsDelay": {
+    "dcmPurgeInstanceRecordsDelay": {
       "title": "Remove Instance Records Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for removing Instance Records from the DB. If absent, Instance Records will never be removed.",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged.",
       "type": "string"
     },
-    "dcmRemoveInstanceRecordsPollingInterval": {
+    "dcmPurgeInstanceRecordsPollingInterval": {
       "title": "Remove Instance Records Polling Interval",
-      "description": "Polling Interval for Series scheduled for removing Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be removed.",
+      "description": "Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be purged.",
       "type": "string"
     },
-    "dcmRemoveInstanceRecordsFetchSize": {
+    "dcmPurgeInstanceRecordsFetchSize": {
       "title": "Remove Instance Records Fetch Size",
-      "description": "Maximal number of Series scheduled for removing Instance Records from the DB fetched by one query; 100 if absent.",
+      "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query; 100 if absent.",
       "type": "integer",
       "minimum": 0,
       "exclusiveMinimum": true

@@ -78,14 +78,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmStorageID", arcDev.getStorageID());
         writer.writeNotNull("dcmMetadataStorageID", arcDev.getMetadataStorageID());
         writer.writeNotNull("dcmSeriesMetadataStorageID", arcDev.getSeriesMetadataStorageID());
-        writer.writeNotNull("getSeriesMetadataDelay", arcDev.getSeriesMetadataDelay());
+        writer.writeNotNull("dcmSeriesMetadataDelay", arcDev.getSeriesMetadataDelay());
         writer.writeNotNull("dcmSeriesMetadataPollingInterval", arcDev.getSeriesMetadataPollingInterval());
         writer.writeNotDef("dcmSeriesMetadataFetchSize", arcDev.getSeriesMetadataFetchSize(), 100);
-        writer.writeNotNull("getRemoveInstanceRecordsDelay", arcDev.getRemoveInstanceRecordsDelay());
-        writer.writeNotNull("dcmRemoveInstanceRecordsPollingInterval",
-                arcDev.getRemoveInstanceRecordsPollingInterval());
-        writer.writeNotDef("dcmRemoveInstanceRecordsFetchSize",
-                arcDev.getRemoveInstanceRecordsFetchSize(), 100);
+        writer.writeNotNull("dcmPurgeInstanceRecordsDelay", arcDev.getPurgeInstanceRecordsDelay());
+        writer.writeNotNull("dcmPurgeInstanceRecordsPollingInterval",
+                arcDev.getPurgeInstanceRecordsPollingInterval());
+        writer.writeNotDef("dcmPurgeInstanceRecordsFetchSize",
+                arcDev.getPurgeInstanceRecordsFetchSize(), 100);
         writer.writeNotNull("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID());
         writer.writeNotNull("dcmOverwritePolicy", arcDev.getOverwritePolicy());
         writer.writeNotNull("dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
@@ -452,8 +452,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartObject("dcmArchiveNetworkAE");
         writer.writeNotNull("dcmStorageID", arcAE.getStorageID());
         writer.writeNotNull("dcmMetadataStorageID", arcAE.getMetadataStorageID());
-        writer.writeNotNull("getSeriesMetadataDelay", arcAE.getSeriesMetadataDelay());
-        writer.writeNotNull("getRemoveInstanceRecordsDelay", arcAE.getRemoveInstanceRecordsDelay());
+        writer.writeNotNull("dcmSeriesMetadataDelay", arcAE.getSeriesMetadataDelay());
+        writer.writeNotNull("dcmPurgeInstanceRecordsDelay", arcAE.getPurgeInstanceRecordsDelay());
         writer.writeNotNull("dcmStoreAccessControlID", arcAE.getStoreAccessControlID());
         writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
         writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy());
@@ -544,14 +544,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmSeriesMetadataFetchSize":
                     arcDev.setSeriesMetadataFetchSize(reader.intValue());
                     break;
-                case "dcmRemoveInstanceRecordsDelay":
-                    arcDev.setRemoveInstanceRecordsDelay(Duration.parse(reader.stringValue()));
+                case "dcmPurgeInstanceRecordsDelay":
+                    arcDev.setPurgeInstanceRecordsDelay(Duration.parse(reader.stringValue()));
                     break;
-                case "dcmRemoveInstanceRecordsPollingInterval":
-                    arcDev.setRemoveInstanceRecordsPollingInterval(Duration.parse(reader.stringValue()));
+                case "dcmPurgeInstanceRecordsPollingInterval":
+                    arcDev.setPurgeInstanceRecordsPollingInterval(Duration.parse(reader.stringValue()));
                     break;
-                case "dcmRemoveInstanceRecordsFetchSize":
-                    arcDev.setRemoveInstanceRecordsFetchSize(reader.intValue());
+                case "dcmPurgeInstanceRecordsFetchSize":
+                    arcDev.setPurgeInstanceRecordsFetchSize(reader.intValue());
                     break;
                 case "dcmOverwritePolicy":
                     arcDev.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
@@ -1407,8 +1407,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmSeriesMetadataDelay":
                     arcAE.setSeriesMetadataDelay(Duration.parse(reader.stringValue()));
                     break;
-                case "dcmRemoveInstanceRecordsDelay":
-                    arcAE.setRemoveInstanceRecordsDelay(Duration.parse(reader.stringValue()));
+                case "dcmPurgeInstanceRecordsDelay":
+                    arcAE.setPurgeInstanceRecordsDelay(Duration.parse(reader.stringValue()));
                     break;
                 case "dcmStoreAccessControlID":
                     arcAE.setStoreAccessControlID(reader.stringValue());
