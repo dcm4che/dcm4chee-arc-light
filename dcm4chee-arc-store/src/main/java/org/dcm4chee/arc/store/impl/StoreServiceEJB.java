@@ -217,9 +217,10 @@ public class StoreServiceEJB {
         if(rjNote == null || !rjNote.isDataRetentionPolicyExpired()) {
             Series series = instance.getSeries();
             series.getStudy().setExternalRetrieveAET(null);
-            if (arcDev.getSeriesMetadataDelay() != null && series.getMetadataScheduledUpdateTime() == null)
+            Duration seriesMetadataDelay = arcAE.seriesMetadataDelay();
+            if (seriesMetadataDelay != null && series.getMetadataScheduledUpdateTime() == null)
                 series.setMetadataScheduledUpdateTime(
-                        new Date(System.currentTimeMillis() + arcDev.getSeriesMetadataDelay().getSeconds() * 1000));
+                        new Date(System.currentTimeMillis() + seriesMetadataDelay.getSeconds() * 1000));
         }
         return result;
     }
