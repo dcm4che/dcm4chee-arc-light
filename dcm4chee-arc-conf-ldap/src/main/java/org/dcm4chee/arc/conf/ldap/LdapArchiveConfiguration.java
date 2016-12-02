@@ -85,6 +85,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay());
         LdapUtils.storeNotNull(attrs, "dcmSeriesMetadataPollingInterval", ext.getSeriesMetadataPollingInterval());
         LdapUtils.storeNotDef(attrs, "dcmSeriesMetadataFetchSize", ext.getSeriesMetadataFetchSize(), 100);
+        LdapUtils.storeNotNull(attrs, "dcmRemoveInstanceRecordsDelay", ext.getRemoveInstanceRecordsDelay());
+        LdapUtils.storeNotNull(attrs, "dcmRemoveInstanceRecordsPollingInterval", ext.getRemoveInstanceRecordsPollingInterval());
+        LdapUtils.storeNotDef(attrs, "dcmRemoveInstanceRecordsFetchSize", ext.getRemoveInstanceRecordsFetchSize(), 100);
         LdapUtils.storeNotNull(attrs, "dcmOverwritePolicy", ext.getOverwritePolicy());
         LdapUtils.storeNotNull(attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory());
         LdapUtils.storeNotNull(attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID());
@@ -176,6 +179,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setSeriesMetadataDelay(toDuration(attrs.get("dcmSeriesMetadataDelay")));
         ext.setSeriesMetadataPollingInterval(toDuration(attrs.get("dcmSeriesMetadataPollingInterval")));
         ext.setSeriesMetadataFetchSize(LdapUtils.intValue(attrs.get("dcmSeriesMetadataFetchSize"), 100));
+        ext.setRemoveInstanceRecordsDelay(toDuration(attrs.get("dcmRemoveInstanceRecordsDelay")));
+        ext.setRemoveInstanceRecordsPollingInterval(toDuration(attrs.get("dcmRemoveInstanceRecordsPollingInterval")));
+        ext.setRemoveInstanceRecordsFetchSize(
+                LdapUtils.intValue(attrs.get("dcmRemoveInstanceRecordsFetchSize"), 100));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
         ext.setBulkDataSpoolDirectory(LdapUtils.stringValue(attrs.get("dcmBulkDataSpoolDirectory"), null));
         ext.setQueryRetrieveViewID(LdapUtils.stringValue(attrs.get("dcmQueryRetrieveViewID"), null));
@@ -276,6 +283,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmSeriesMetadataFetchSize",
                 aa.getSeriesMetadataFetchSize(),
                 bb.getSeriesMetadataFetchSize(),
+                100);
+        LdapUtils.storeDiff(mods, "dcmRemoveInstanceRecordsDelay",
+                aa.getRemoveInstanceRecordsDelay(),
+                bb.getRemoveInstanceRecordsDelay());
+        LdapUtils.storeDiff(mods, "dcmRemoveInstanceRecordsPollingInterval",
+                aa.getRemoveInstanceRecordsPollingInterval(),
+                bb.getRemoveInstanceRecordsPollingInterval());
+        LdapUtils.storeDiff(mods, "dcmRemoveInstanceRecordsFetchSize",
+                aa.getRemoveInstanceRecordsFetchSize(),
+                bb.getRemoveInstanceRecordsFetchSize(),
                 100);
         LdapUtils.storeDiff(mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy());
         LdapUtils.storeDiff(mods, "dcmBulkDataSpoolDirectory",
@@ -491,7 +508,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.get("objectclass").add("dcmArchiveNetworkAE");
         LdapUtils.storeNotNull(attrs, "dcmStorageID", ext.getStorageID());
         LdapUtils.storeNotNull(attrs, "dcmMetadataStorageID", ext.getMetadataStorageID());
-        LdapUtils.storeNotNull(attrs, "dcmSeriesMetadataStorageID", ext.getSeriesMetadataStorageID());
+        LdapUtils.storeNotNull(attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay());
+        LdapUtils.storeNotNull(attrs, "dcmRemoveInstanceRecordsDelay", ext.getRemoveInstanceRecordsDelay());
         LdapUtils.storeNotNull(attrs, "dcmStoreAccessControlID", ext.getStoreAccessControlID());
         LdapUtils.storeNotEmpty(attrs, "dcmAccessControlID", ext.getAccessControlIDs());
         LdapUtils.storeNotNull(attrs, "dcmOverwritePolicy", ext.getOverwritePolicy());
@@ -539,7 +557,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ae.addAEExtension(ext);
         ext.setStorageID(LdapUtils.stringValue(attrs.get("dcmStorageID"), null));
         ext.setMetadataStorageID(LdapUtils.stringValue(attrs.get("dcmMetadataStorageID"), null));
-        ext.setSeriesMetadataStorageID(LdapUtils.stringValue(attrs.get("dcmSeriesMetadataStorageID"), null));
+        ext.setSeriesMetadataDelay(toDuration(attrs.get("dcmSeriesMetadataDelay")));
+        ext.setRemoveInstanceRecordsDelay(toDuration(attrs.get("dcmRemoveInstanceRecordsDelay")));
         ext.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
         ext.setAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmAccessControlID")));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
@@ -590,9 +609,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         LdapUtils.storeDiff(mods, "dcmStorageID", aa.getStorageID(), bb.getStorageID());
         LdapUtils.storeDiff(mods, "dcmMetadataStorageID", aa.getMetadataStorageID(), bb.getMetadataStorageID());
-        LdapUtils.storeDiff(mods, "dcmSeriesMetadataStorageID",
-                aa.getSeriesMetadataStorageID(),
-                bb.getSeriesMetadataStorageID());
+        LdapUtils.storeDiff(mods, "dcmSeriesMetadataDelay",
+                aa.getSeriesMetadataDelay(),
+                bb.getSeriesMetadataDelay());
+        LdapUtils.storeDiff(mods, "dcmRemoveInstanceRecordsDelay",
+                aa.getRemoveInstanceRecordsDelay(),
+                bb.getRemoveInstanceRecordsDelay());
         LdapUtils.storeDiff(mods, "dcmStoreAccessControlID", aa.getStoreAccessControlID(), bb.getStoreAccessControlID());
         LdapUtils.storeDiff(mods, "dcmAccessControlIDs", aa.getAccessControlIDs(), bb.getAccessControlIDs());
         LdapUtils.storeDiff(mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy());

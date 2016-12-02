@@ -60,7 +60,8 @@ public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
     private String storageID;
     private String metadataStorageID;
-    private String seriesMetadataStorageID;
+    private Duration seriesMetadataDelay;
+    private Duration removeInstanceRecordsDelay;
     private String storeAccessControlID;
     private String[] accessControlIDs = {};
     private OverwritePolicy overwritePolicy;
@@ -144,18 +145,32 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getMetadataStorageID();
     }
 
-    public String getSeriesMetadataStorageID() {
-        return seriesMetadataStorageID;
+    public Duration getSeriesMetadataDelay() {
+        return seriesMetadataDelay;
     }
 
-    public void setSeriesMetadataStorageID(String seriesMetadataStorageID) {
-        this.seriesMetadataStorageID = seriesMetadataStorageID;
+    public void setSeriesMetadataDelay(Duration seriesMetadataDelay) {
+        this.seriesMetadataDelay = seriesMetadataDelay;
     }
 
-    public String seriesMetadataStorageID() {
-        return seriesMetadataStorageID != null
-                ? seriesMetadataStorageID
-                : getArchiveDeviceExtension().getSeriesMetadataStorageID();
+    public Duration seriesMetadataDelay() {
+        return seriesMetadataDelay != null
+                ? seriesMetadataDelay
+                : getArchiveDeviceExtension().getSeriesMetadataDelay();
+    }
+
+    public Duration getRemoveInstanceRecordsDelay() {
+        return removeInstanceRecordsDelay;
+    }
+
+    public void setRemoveInstanceRecordsDelay(Duration removeInstanceRecordsDelay) {
+        this.removeInstanceRecordsDelay = removeInstanceRecordsDelay;
+    }
+
+    public Duration removeInstanceRecordsDelay() {
+        return removeInstanceRecordsDelay != null
+                ? removeInstanceRecordsDelay
+                : getArchiveDeviceExtension().getRemoveInstanceRecordsDelay();
     }
 
     public String getStoreAccessControlID() {
@@ -741,7 +756,8 @@ public class ArchiveAEExtension extends AEExtension {
         defaultCharacterSet = aeExt.defaultCharacterSet;
         storageID = aeExt.storageID;
         metadataStorageID = aeExt.metadataStorageID;
-        seriesMetadataStorageID = aeExt.seriesMetadataStorageID;
+        seriesMetadataDelay = aeExt.seriesMetadataDelay;
+        removeInstanceRecordsDelay = aeExt.removeInstanceRecordsDelay;
         storeAccessControlID = aeExt.storeAccessControlID;
         accessControlIDs = aeExt.accessControlIDs;
         overwritePolicy = aeExt.overwritePolicy;

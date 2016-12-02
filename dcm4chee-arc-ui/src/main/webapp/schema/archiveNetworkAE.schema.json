@@ -10,12 +10,17 @@
     },
     "dcmMetadataStorageID": {
       "title": "Metadata Storage ID",
-      "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. If absent, metadata is not stored additionally",
+      "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object - of objects received by this AE. Overwrites value specified on Device level.",
       "type": "string"
     },
-    "dcmSeriesMetadataStorageID": {
-      "title": "Series Metadata Storage ID",
-      "description": "ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. If absent, no aggregated Series Metadata will be stored.",
+    "dcmSeriesMetadataDelay": {
+      "title": "Aggregate Series Metadata Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for storing aggregated Series Metadata on storage of objects received by this AE. Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "dcmRemoveInstanceRecordsDelay": {
+      "title": "Remove Instance Records Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for removing Instance Records from the DB received by this AE. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmStoreAccessControlID": {

@@ -64,6 +64,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration seriesMetadataDelay;
     private Duration seriesMetadataPollingInterval;
     private int seriesMetadataFetchSize = 100;
+    private Duration removeInstanceRecordsDelay;
+    private Duration removeInstanceRecordsPollingInterval;
+    private int removeInstanceRecordsFetchSize = 100;
     private OverwritePolicy overwritePolicy;
     private ShowPatientInfo showPatientInfoInSystemLog;
     private ShowPatientInfo showPatientInfoInAuditLog;
@@ -285,6 +288,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setSeriesMetadataFetchSize(int seriesMetadataFetchSize) {
         this.seriesMetadataFetchSize =  notNegative(seriesMetadataFetchSize, "seriesMetadataFetchSize");
+    }
+
+    public Duration getRemoveInstanceRecordsDelay() {
+        return removeInstanceRecordsDelay;
+    }
+
+    public void setRemoveInstanceRecordsDelay(Duration removeInstanceRecordsDelay) {
+        this.removeInstanceRecordsDelay = removeInstanceRecordsDelay;
+    }
+
+    public Duration getRemoveInstanceRecordsPollingInterval() {
+        return removeInstanceRecordsPollingInterval;
+    }
+
+    public void setRemoveInstanceRecordsPollingInterval(Duration removeInstanceRecordsPollingInterval) {
+        this.removeInstanceRecordsPollingInterval = removeInstanceRecordsPollingInterval;
+    }
+
+    public int getRemoveInstanceRecordsFetchSize() {
+        return removeInstanceRecordsFetchSize;
+    }
+
+    public void setRemoveInstanceRecordsFetchSize(int removeInstanceRecordsFetchSize) {
+        this.removeInstanceRecordsFetchSize =  notNegative(removeInstanceRecordsFetchSize, "removeInstanceRecordsFetchSize");
     }
 
     public String getQueryRetrieveViewID() {
@@ -1163,6 +1190,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
+        removeInstanceRecordsDelay = arcdev.removeInstanceRecordsDelay;
+        removeInstanceRecordsPollingInterval = arcdev.removeInstanceRecordsPollingInterval;
+        removeInstanceRecordsFetchSize = arcdev.removeInstanceRecordsFetchSize;
         overwritePolicy = arcdev.overwritePolicy;
         showPatientInfoInSystemLog = arcdev.showPatientInfoInSystemLog;
         showPatientInfoInAuditLog = arcdev.showPatientInfoInAuditLog;
