@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -127,8 +128,8 @@ public class PurgeStorageScheduler extends Scheduler {
                         deleteSize = 0L;
                 }
                 try {
-                    while (deleteNextObjectsFromStorage(desc, fetchSize))
-                        ;
+                    while (deleteSeriesMetadata(desc, fetchSize)) ;
+                    while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
                 } catch (IOException e) {
                     LOG.error("Failed to delete objects from {}", desc.getStorageURI(), e);
                 }
@@ -206,6 +207,26 @@ public class PurgeStorageScheduler extends Scheduler {
             }
         }
         return removed;
+    }
+
+    private boolean deleteSeriesMetadata(StorageDescriptor desc, int fetchSize) throws IOException {
+        List<Metadata> metadata = ejb.findMetadataToDelete(desc.getStorageID(), fetchSize);
+        if (metadata.isEmpty())
+            return false;
+
+        try (Storage storage = storageFactory.getStorage(desc)) {
+            for (Metadata m : metadata) {
+                try {
+                    storage.deleteObject(m.getStoragePath());
+                    ejb.removeMetadata(m);
+                    LOG.debug("Successfully delete {} from {}", m, desc.getStorageURI());
+                } catch (IOException e) {
+                    ejb.failedToDelete(m);
+                    LOG.warn("Failed to delete {} from {}", m, desc.getStorageURI(), e);
+                }
+            }
+        }
+        return metadata.size() == fetchSize;
     }
 
     private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) throws IOException {

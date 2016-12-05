@@ -46,11 +46,20 @@ import javax.persistence.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2016
  */
 @Entity
 @Table(name = "metadata", indexes = @Index(columnList = "storage_id,status"))
+
+@NamedQueries({
+        @NamedQuery(name = Metadata.FIND_BY_STORAGE_ID_AND_STATUS,
+                query = "select m from Metadata m where m.storageID=?1 and m.status=?2")
+})
+
 public class Metadata {
+
+    public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Metadata.FindByStorageIDAndStatus";
 
     public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 

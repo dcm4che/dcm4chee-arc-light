@@ -95,6 +95,14 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
+    public List<Metadata> findMetadataToDelete(String storageID, int limit) {
+        return em.createNamedQuery(Metadata.FIND_BY_STORAGE_ID_AND_STATUS, Metadata.class)
+                .setParameter(1, storageID)
+                .setParameter(2, Metadata.Status.TO_DELETE)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     public List<Long> findStudiesForDeletionOnStorage(String storageID, int limit) {
         return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME, Long.class)
                 .setParameter(1, storageID)
@@ -115,8 +123,17 @@ public class DeletionServiceEJB {
         em.merge(location);
     }
 
+    public void failedToDelete(Metadata metadata) {
+        metadata.setStatus(Metadata.Status.FAILED_TO_DELETE);
+        em.merge(metadata);
+    }
+
     public void removeLocation(Location location) {
         em.remove(em.merge(location));
+    }
+
+    public void removeMetadata(Metadata metadata) {
+        em.remove(em.merge(metadata));
     }
 
     public Study deleteStudy(StudyDeleteContext ctx) {
