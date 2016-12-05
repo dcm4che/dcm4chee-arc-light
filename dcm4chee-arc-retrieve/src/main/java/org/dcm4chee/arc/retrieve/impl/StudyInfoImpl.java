@@ -55,18 +55,18 @@ public class StudyInfoImpl implements StudyInfo {
     private final Date accessTime;
     private final int failedRetrieves;
     private final String failedSOPInstanceUIDList;
-    private final Date updatedTime;
+    private final Date modifiedTime;
     private final String expirationDate;
     private final String accessControlID;
 
     public StudyInfoImpl(Long studyPk, String studyInstanceUID, Date accessTime, int failedRetrieves,
-             String failedSOPInstanceUIDList, Date updatedTime, String expirationDate, String accessControlID) {
+             String failedSOPInstanceUIDList, Date modifiedTime, String expirationDate, String accessControlID) {
         this.studyPk = studyPk;
         this.studyInstanceUID = studyInstanceUID;
         this.accessTime = accessTime;
         this.failedRetrieves = failedRetrieves;
         this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
-        this.updatedTime = updatedTime;
+        this.modifiedTime = modifiedTime;
         this.expirationDate = expirationDate;
         this.accessControlID = accessControlID;
     }
@@ -97,8 +97,8 @@ public class StudyInfoImpl implements StudyInfo {
     }
 
     @Override
-    public Date getUpdatedTime() {
-        return updatedTime;
+    public Date getModifiedTime() {
+        return modifiedTime;
     }
 
     @Override

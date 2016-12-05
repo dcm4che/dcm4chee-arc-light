@@ -58,7 +58,7 @@ public interface StudyInfo {
 
     int getFailedRetrieves();
 
-    Date getUpdatedTime();
+    Date getModifiedTime();
 
     String getExpirationDate();
 

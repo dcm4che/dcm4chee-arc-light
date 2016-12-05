@@ -131,7 +131,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             QStudy.study.accessTime,
             QStudy.study.failedRetrieves,
             QStudy.study.failedSOPInstanceUIDList,
-            QStudy.study.updatedTime,
+            QStudy.study.modifiedTime,
             QStudy.study.expirationDate,
             QStudy.study.accessControlID,
             QSeries.series.seriesInstanceUID,
@@ -295,7 +295,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     public Date getLastModifiedFromMatches(RetrieveContext ctx) {
         List<Date> dates = new ArrayList<>();
         dates.add(ctx.getPatientUpdatedTime());
-        dates.add(ctx.getStudyInfos().iterator().next().getUpdatedTime());
+        dates.add(ctx.getStudyInfos().iterator().next().getModifiedTime());
         for (SeriesInfo si : ctx.getSeriesInfos())
                 dates.add(si.getUpdatedTime());
         for (InstanceLocations il : ctx.getMatches())
@@ -451,7 +451,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 tuple.get(QStudy.study.accessTime),
                 tuple.get(QStudy.study.failedRetrieves),
                 tuple.get(QStudy.study.failedSOPInstanceUIDList),
-                tuple.get(QStudy.study.updatedTime),
+                tuple.get(QStudy.study.modifiedTime),
                 tuple.get(QStudy.study.expirationDate),
                 tuple.get(QStudy.study.accessControlID));
         SeriesInfo seriesInfo = new SeriesInfoImpl(
