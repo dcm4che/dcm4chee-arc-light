@@ -203,6 +203,7 @@ public class DeletionServiceEJB {
                 deleteStudyQueryAttributes(study);
             }
             if (countInstancesOfSeries(ser) == 0) {
+                ser.getMetadata().setStatus(Metadata.Status.TO_DELETE);
                 em.remove(ser);
             } else {
                 studies.put(study.getPk(), null);
@@ -241,6 +242,7 @@ public class DeletionServiceEJB {
                 ctx.setStudy(study = ser.getStudy());
                 ctx.setPatient(patient = study.getPatient());
             }
+            ser.getMetadata().setStatus(Metadata.Status.TO_DELETE);
             em.remove(ser);
         }
         em.remove(study);
