@@ -307,10 +307,10 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public void purgeInstanceRecordsOfSeries(List<Long> seriesPks) {
+    public void purgeInstanceRecordsOfSeries(Long seriesPk) {
         HashMap<Long, UIDMap> uidMaps = new HashMap<>();
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_SERIES_PK, Location.class)
-                .setParameter(1, seriesPks)
+                .setParameter(1, seriesPk)
                 .getResultList();
         if (locations.isEmpty())
             return;
@@ -322,7 +322,7 @@ public class DeletionServiceEJB {
                     UIDMap uidMap = location.getUidMap();
                     if (uidMap != null)
                         uidMaps.put(uidMap.getPk(), uidMap);
-                    Instance inst = location.getInstance();
+                    em.remove(location);
                     em.remove(location.getInstance());
                     break;
                 case METADATA:

@@ -222,7 +222,7 @@ public class StoreServiceEJB {
                 long now = System.currentTimeMillis();
                 series.setMetadataScheduledUpdateTime(new Date(now + seriesMetadataDelay.getSeconds() * 1000));
                 Duration purgeInstanceRecordsDelay = arcAE.purgeInstanceRecordsDelay();
-                if (purgeInstanceRecordsDelay != null && series.getMetadataScheduledUpdateTime() == null) {
+                if (purgeInstanceRecordsDelay != null) {
                     series.setInstancePurgeTime(new Date(now + purgeInstanceRecordsDelay.getSeconds() * 1000));
                 }
             }

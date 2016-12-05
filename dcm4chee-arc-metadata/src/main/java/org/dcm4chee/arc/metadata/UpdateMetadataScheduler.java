@@ -98,19 +98,26 @@ public class UpdateMetadataScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getSeriesMetadataStorageID() != null && arcDev.getSeriesMetadataFetchSize() > 0
-                ? arcDev.getSeriesMetadataPollingInterval() : null;
+        String seriesMetadataStorageID = arcDev.getSeriesMetadataStorageID();
+        if (seriesMetadataStorageID != null)
+            try {
+                arcDev.getStorageDescriptorNotNull(seriesMetadataStorageID);
+                return arcDev.getSeriesMetadataPollingInterval();
+            } catch (IllegalArgumentException e) {
+                LOG.warn(e.getMessage());
+            }
+        return null;
     }
 
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        StorageDescriptor storageDesc = arcDev.getStorageDescriptorNotNull(arcDev.getSeriesMetadataStorageID());
+        StorageDescriptor storageDesc = arcDev.getStorageDescriptor(arcDev.getSeriesMetadataStorageID());
+        int fetchSize = arcDev.getSeriesMetadataFetchSize();
         try (Storage storage = storageFactory.getStorage(storageDesc)) {
-            int fetchSize = arcDev.getSeriesMetadataFetchSize();
             List<Long> seriesPks;
             do {
-                        seriesPks = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
+                seriesPks = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
                 for (Long seriesPk : seriesPks) {
                     updateMetadata(retrieveService.newRetrieveContextSeriesMetadata(seriesPk), storage);
                 }

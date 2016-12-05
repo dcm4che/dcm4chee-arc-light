@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -55,6 +56,7 @@ import java.util.List;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Dec 2016
  */
+@ApplicationScoped
 public class PurgeInstanceRecordsScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeInstanceRecordsScheduler.class);
@@ -83,13 +85,12 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        StorageDescriptor storageDesc = arcDev.getStorageDescriptorNotNull(arcDev.getSeriesMetadataStorageID());
         int fetchSize = arcDev.getPurgeInstanceRecordsFetchSize();
         List<Long> seriesPks;
         do {
             seriesPks = ejb.findSeriesToPurgeInstances(fetchSize);
             for (Long seriesPk : seriesPks) {
-                ejb.purgeInstanceRecordsOfSeries(seriesPks);
+                ejb.purgeInstanceRecordsOfSeries(seriesPk);
             }
         }
         while (seriesPks.size() == fetchSize);

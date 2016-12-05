@@ -287,7 +287,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setSeriesMetadataFetchSize(int seriesMetadataFetchSize) {
-        this.seriesMetadataFetchSize =  notNegative(seriesMetadataFetchSize, "seriesMetadataFetchSize");
+        this.seriesMetadataFetchSize =  greaterZero(seriesMetadataFetchSize, "seriesMetadataFetchSize");
     }
 
     public Duration getPurgeInstanceRecordsDelay() {
@@ -311,7 +311,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setPurgeInstanceRecordsFetchSize(int purgeInstanceRecordsFetchSize) {
-        this.purgeInstanceRecordsFetchSize =  notNegative(purgeInstanceRecordsFetchSize, "purgeInstanceRecordsFetchSize");
+        this.purgeInstanceRecordsFetchSize =  greaterZero(purgeInstanceRecordsFetchSize, "purgeInstanceRecordsFetchSize");
     }
 
     public String getQueryRetrieveViewID() {
@@ -460,7 +460,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setIanTaskFetchSize(int ianTaskFetchSize) {
-        this.ianTaskFetchSize = notNegative(ianTaskFetchSize, "ianTaskFetchSize");
+        this.ianTaskFetchSize = greaterZero(ianTaskFetchSize, "ianTaskFetchSize");
     }
 
     public String getFallbackCMoveSCP() {
@@ -524,7 +524,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setExportTaskFetchSize(int exportTaskFetchSize) {
-        this.exportTaskFetchSize = notNegative(exportTaskFetchSize, "exportTaskFetchSize");
+        this.exportTaskFetchSize = greaterZero(exportTaskFetchSize, "exportTaskFetchSize");
     }
 
     public Duration getExportTaskPollingInterval() {
@@ -548,7 +548,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setDeleteRejectedFetchSize(int deleteRejectedFetchSize) {
-        this.deleteRejectedFetchSize =  notNegative(deleteRejectedFetchSize, "deleteRejectedFetchSize");
+        this.deleteRejectedFetchSize =  greaterZero(deleteRejectedFetchSize, "deleteRejectedFetchSize");
 
     }
     public Duration getPurgeStoragePollingInterval() {
@@ -564,7 +564,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setPurgeStorageFetchSize(int purgeStorageFetchSize) {
-        this.purgeStorageFetchSize = notNegative(purgeStorageFetchSize, "purgeStorageFetchSize");
+        this.purgeStorageFetchSize = greaterZero(purgeStorageFetchSize, "purgeStorageFetchSize");
     }
 
     public int getDeleteStudyBatchSize() {
@@ -572,7 +572,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setDeleteStudyBatchSize(int deleteStudyBatchSize) {
-        this.deleteStudyBatchSize = notNegative(deleteStudyBatchSize, "deleteStudyBatchSize");
+        this.deleteStudyBatchSize = greaterZero(deleteStudyBatchSize, "deleteStudyBatchSize");
     }
 
     public boolean isDeletePatientOnDeleteLastStudy() {
@@ -625,7 +625,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setLeadingCFindSCPQueryCacheSize(int leadingCFindSCPQueryCacheSize) {
         this.leadingCFindSCPQueryCacheSize =
-                notNegative(leadingCFindSCPQueryCacheSize, "leadingCFindSCPQueryCacheSize");
+                greaterZero(leadingCFindSCPQueryCacheSize, "leadingCFindSCPQueryCacheSize");
     }
 
     public String getAuditSpoolDirectory() {
@@ -694,7 +694,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setRejectExpiredStudiesFetchSize(int rejectExpiredStudiesFetchSize) {
         this.rejectExpiredStudiesFetchSize =
-                notNegative(rejectExpiredStudiesFetchSize, "rejectExpiredStudiesFetchSize");
+                greaterZero(rejectExpiredStudiesFetchSize, "rejectExpiredStudiesFetchSize");
     }
 
     public int getRejectExpiredSeriesFetchSize() {
@@ -703,7 +703,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setRejectExpiredSeriesFetchSize(int rejectExpiredSeriesFetchSize) {
         this.rejectExpiredSeriesFetchSize =
-                notNegative(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
+                greaterZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
     }
 
     public Duration getRejectExpiredStudiesPollingInterval() {
@@ -827,7 +827,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setStorePermissionCacheSize(int storePermissionCacheSize) {
-        this.storePermissionCacheSize = notNegative(storePermissionCacheSize, "storePermissionCacheSize");
+        this.storePermissionCacheSize = greaterZero(storePermissionCacheSize, "storePermissionCacheSize");
     }
 
     public Duration getMergeMWLCacheStaleTimeout() {
@@ -847,7 +847,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setMergeMWLCacheSize(int mergeMWLCacheSize) {
-        this.mergeMWLCacheSize = notNegative(mergeMWLCacheSize, "mergeMWLCacheSize");
+        this.mergeMWLCacheSize = greaterZero(mergeMWLCacheSize, "mergeMWLCacheSize");
     }
 
     public int getStoreUpdateDBMaxRetries() {
@@ -1007,10 +1007,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         exporterDescriptorMap.put(destination.getExporterID(), destination);
     }
 
-    private int notNegative(int size, String prompt) {
-        if (size < 0)
-            throw new IllegalArgumentException(prompt + ": " + size);
-        return size;
+    private int greaterZero(int i, String prompt) {
+        if (i <= 0)
+            throw new IllegalArgumentException(prompt + ": " + i);
+        return i;
     }
 
     public Collection<ExporterDescriptor> getExporterDescriptors() {
