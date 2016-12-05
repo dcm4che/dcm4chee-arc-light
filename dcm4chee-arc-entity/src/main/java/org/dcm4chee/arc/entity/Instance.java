@@ -78,7 +78,7 @@ import java.util.*;
             "where i.sopInstanceUID = ?1"),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_STUDY_LEVEL,
-        query="SELECT p.updatedTime, st.updatedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
+        query="SELECT p.updatedTime, st.modifiedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
@@ -87,7 +87,7 @@ import java.util.*;
 ),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_SERIES_LEVEL,
-        query="SELECT p.updatedTime, st.updatedTime, se.updatedTime, MAX(i.updatedTime) from Instance i " +
+        query="SELECT p.updatedTime, st.modifiedTime, se.updatedTime, MAX(i.updatedTime) from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
@@ -97,7 +97,7 @@ import java.util.*;
 ),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL,
-        query="SELECT p.updatedTime, st.updatedTime, se.updatedTime, i.updatedTime from Instance i " +
+        query="SELECT p.updatedTime, st.modifiedTime, se.updatedTime, i.updatedTime from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +

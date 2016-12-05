@@ -172,6 +172,11 @@ public class Study {
 
     @Basic(optional = false)
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "modified_time")
+    private Date modifiedTime;
+
+    @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "access_time")
     private Date accessTime;
 
@@ -276,6 +281,7 @@ public class Study {
         createdTime = now;
         updatedTime = now;
         accessTime = now;
+        modifiedTime = now;
     }
 
     @PreUpdate
@@ -295,6 +301,10 @@ public class Study {
 
     public Date getUpdatedTime() {
         return updatedTime;
+    }
+
+    public Date getModifiedTime() {
+        return modifiedTime;
     }
 
     public Date getAccessTime() {
@@ -488,6 +498,6 @@ public class Study {
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
-        updatedTime = new Date();
+        modifiedTime = new Date();
     }
 }
