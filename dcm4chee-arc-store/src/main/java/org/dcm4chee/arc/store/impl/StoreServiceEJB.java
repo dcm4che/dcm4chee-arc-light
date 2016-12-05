@@ -218,9 +218,14 @@ public class StoreServiceEJB {
             Series series = instance.getSeries();
             series.getStudy().setExternalRetrieveAET(null);
             Duration seriesMetadataDelay = arcAE.seriesMetadataDelay();
-            if (seriesMetadataDelay != null && series.getMetadataScheduledUpdateTime() == null)
-                series.setMetadataScheduledUpdateTime(
-                        new Date(System.currentTimeMillis() + seriesMetadataDelay.getSeconds() * 1000));
+            if (seriesMetadataDelay != null && series.getMetadataScheduledUpdateTime() == null) {
+                long now = System.currentTimeMillis();
+                series.setMetadataScheduledUpdateTime(new Date(now + seriesMetadataDelay.getSeconds() * 1000));
+                Duration purgeInstanceRecordsDelay = arcAE.purgeInstanceRecordsDelay();
+                if (purgeInstanceRecordsDelay != null && series.getMetadataScheduledUpdateTime() == null) {
+                    series.setInstancePurgeTime(new Date(now + purgeInstanceRecordsDelay.getSeconds() * 1000));
+                }
+            }
         }
         return result;
     }
@@ -911,6 +916,7 @@ public class StoreServiceEJB {
         Series series = new Series();
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
+        series.setInstancePurgeState(Series.InstancePurgeState.NO);
         if (result.getRejectionNote() == null) {
             markOldStudiesAsIncomplete(ctx, series);
             if (ctx.getExpirationDate() == null)

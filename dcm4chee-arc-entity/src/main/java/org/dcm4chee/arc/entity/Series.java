@@ -140,8 +140,8 @@ import java.util.Date;
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
         query = "select se.pk from Series se " +
-                "where se.purgeInstanceRecordsTime < current_timestamp and se.metadata is not null " +
-                "order by se.purgeInstanceRecordsTime"),
+                "where se.instancePurgeTime < current_timestamp and se.metadata is not null " +
+                "order by se.instancePurgeTime"),
 })
 @Entity
 @Table(name = "series",
@@ -165,8 +165,8 @@ import java.util.Date;
         @Index(columnList = "failed_retrieves"),
         @Index(columnList = "failed_iuids"),
         @Index(columnList = "metadata_update_time"),
-        @Index(columnList = "purge_insts_time"),
-        @Index(columnList = "purged_insts")
+        @Index(columnList = "inst_purge_time"),
+        @Index(columnList = "inst_purge_state")
 })
 public class Series {
 
@@ -185,6 +185,8 @@ public class Series {
     public static final String SERIES_IUIDS_OF_STUDY = "Series.seriesIUIDsOfStudy";
     public static final String SCHEDULED_METADATA_UPDATE = "Series.scheduledMetadataUpdate";
     public static final String SCHEDULED_PURGE_INSTANCES = "Series.scheduledPurgeInstances";
+
+    public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -294,12 +296,13 @@ public class Series {
     private Date metadataScheduledUpdateTime;
 
     @Basic
-    @Column(name = "purge_insts_time")
-    private Date purgeInstanceRecordsTime;
+    @Column(name = "inst_purge_time")
+    private Date instancePurgeTime;
 
     @Basic(optional = false)
-    @Column(name = "purged_insts")
-    private int purgedInstanceRecords;
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "inst_purge_state")
+    private InstancePurgeState instancePurgeState;
 
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -474,6 +477,22 @@ public class Series {
 
     public void setMetadataScheduledUpdateTime(Date metadataScheduledUpdateTime) {
         this.metadataScheduledUpdateTime = metadataScheduledUpdateTime;
+    }
+
+    public Date getInstancePurgeTime() {
+        return instancePurgeTime;
+    }
+
+    public void setInstancePurgeTime(Date instancePurgeTime) {
+        this.instancePurgeTime = instancePurgeTime;
+    }
+
+    public InstancePurgeState getInstancePurgeState() {
+        return instancePurgeState;
+    }
+
+    public void setInstancePurgeState(InstancePurgeState instancePurgeState) {
+        this.instancePurgeState = instancePurgeState;
     }
 
     public String getFailedSOPInstanceUIDList() {

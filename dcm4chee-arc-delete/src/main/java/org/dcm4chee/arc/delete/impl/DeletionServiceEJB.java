@@ -167,7 +167,7 @@ public class DeletionServiceEJB {
         int size = locations.size();
         int initialCapacity = size * 4 / 3;
         HashMap<Long, Instance> insts = new HashMap<>(initialCapacity);
-        HashMap<Long, UIDMap> uidMaps = new HashMap<>(initialCapacity);
+        HashMap<Long, UIDMap> uidMaps = new HashMap<>();
         Instance prev = null;
         int n = limit - (MAX_LOCATIONS_PER_INSTANCE - 1);
         for (Location location : locations) {
@@ -301,4 +301,38 @@ public class DeletionServiceEJB {
     }
 
 
+    public List<Long> findSeriesToPurgeInstances(int fetchSize) {
+        return em.createNamedQuery(Series.SCHEDULED_PURGE_INSTANCES, Long.class)
+                .setMaxResults(fetchSize)
+                .getResultList();
+    }
+
+    public void purgeInstanceRecordsOfSeries(List<Long> seriesPks) {
+        HashMap<Long, UIDMap> uidMaps = new HashMap<>();
+        List<Location> locations = em.createNamedQuery(Location.FIND_BY_SERIES_PK, Location.class)
+                .setParameter(1, seriesPks)
+                .getResultList();
+        if (locations.isEmpty())
+            return;
+
+        Series series = locations.get(0).getInstance().getSeries();
+        for (Location location : locations) {
+            switch (location.getObjectType()) {
+                case DICOM_FILE:
+                    UIDMap uidMap = location.getUidMap();
+                    if (uidMap != null)
+                        uidMaps.put(uidMap.getPk(), uidMap);
+                    Instance inst = location.getInstance();
+                    em.remove(location.getInstance());
+                    break;
+                case METADATA:
+                    storeEjb.removeOrMarkToDelete(location);
+                    break;
+            }
+        }
+        for (UIDMap uidMap : uidMaps.values())
+            storeEjb.removeOrphaned(uidMap);
+        series.setInstancePurgeState(Series.InstancePurgeState.PURGED);
+        series.setInstancePurgeTime(null);
+    }
 }
