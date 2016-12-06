@@ -1690,7 +1690,7 @@
         "tags": [
           "STGCMT-RS"
         ],
-        "summary": "Storage Commitment of Study",
+        "summary": "Request Storage Commitment of Study",
         "operationId": "StorageCommitmentStudy",
         "produces": [
           "application/json"
@@ -1713,13 +1713,13 @@
         ],
         "responses": {
           "200": {
-            "description": "indicates that Storage Commitment for all Instances was successful.",
+            "description": "Storage Commitment Request Successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "indicates that Storage Commitment for some Instances fails.",
+            "description": "Storage Commitment Request Complete - Failures Exist",
             "schema": {
               "type": "file"
             }
@@ -1738,7 +1738,7 @@
         "tags": [
           "STGCMT-RS"
         ],
-        "summary": "Storage Commitment of Series",
+        "summary": "Request Storage Commitment of Series",
         "operationId": "StorageCommitmentSeries",
         "produces": [
           "application/json"
@@ -1768,13 +1768,13 @@
         ],
         "responses": {
           "200": {
-            "description": "indicates that Storage Commitment for all Instances was successful.",
+            "description": "Storage Commitment Request Successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "indicates that Storage Commitment for some Instances fails.",
+            "description": "Storage Commitment Request Complete - Failures Exist",
             "schema": {
               "type": "file"
             }
@@ -1793,7 +1793,7 @@
         "tags": [
           "STGCMT-RS"
         ],
-        "summary": "Storage Commitment of Instance",
+        "summary": "Request Storage Commitment of Instance",
         "operationId": "StorageCommitmentInstance",
         "produces": [
           "application/json"
@@ -1830,13 +1830,13 @@
         ],
         "responses": {
           "200": {
-            "description": "indicates that Storage Commitment for all Instances was successful.",
+            "description": "Storage Commitment Request Successful",
             "schema": {
               "type": "file"
             }
           },
           "202": {
-            "description": "indicates that Storage Commitment for some Instances fails.",
+            "description": "Storage Commitment Request Complete - Failures Exist",
             "schema": {
               "type": "file"
             }
