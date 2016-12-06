@@ -96,30 +96,18 @@ public class StgCmtSCPMDB implements MessageListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(StgCmtSCPMDB.class);
 
-    private static final Expression<?>[] SELECT = {
-            QLocation.location.pk,
-            QLocation.location.storageID,
-            QLocation.location.storagePath,
-            QLocation.location.digest,
-            QLocation.location.status,
-            QInstance.instance.sopClassUID,
-            QInstance.instance.sopInstanceUID,
-            QInstance.instance.retrieveAETs,
-            QStudy.study.studyInstanceUID
-    };
-    private static final int BUFFER_SIZE = 8192;
-
     @Inject
     private Device device;
 
-    @Inject
-    private StorageFactory storageFactory;
 
     @Inject
     private QueueManager queueManager;
 
     @Inject
     private StgCmtSCP stgCmtSCP;
+
+    @Inject
+    private StgCmtEJB ejb;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -136,7 +124,8 @@ public class StgCmtSCPMDB implements MessageListener {
             return;
         try {
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
-            Attributes eventInfo = calculateResult(actionInfo);
+            Attributes eventInfo = ejb.calculateResult(null, null, null,
+                    actionInfo.getSequence(Tag.ReferencedSOPSequence), actionInfo.getString(Tag.TransactionUID));
             Outcome outcome = stgCmtSCP.sendNEventReport(
                     msg.getStringProperty("LocalAET"),
                     msg.getStringProperty("RemoteAET"),
@@ -148,134 +137,5 @@ public class StgCmtSCPMDB implements MessageListener {
         }
     }
 
-    private Attributes calculateResult(Attributes actionInfo) {
-        Sequence requestSeq = actionInfo.getSequence(Tag.ReferencedSOPSequence);
-        int size = requestSeq.size();
-        HashMap<String,List<Tuple>> instances = new HashMap<>(size * 4 / 3);
-        String commonRetrieveAETs = null;
-        for (Tuple location : queryLocations(actionInfo)) {
-            String iuid = location.get(QInstance.instance.sopInstanceUID);
-            List<Tuple> list = instances.get(iuid);
-            if (list == null) {
-                instances.put(iuid, list = new ArrayList<>());
-                if (instances.isEmpty())
-                    commonRetrieveAETs = location.get(QInstance.instance.retrieveAETs);
-                else if (commonRetrieveAETs != null
-                        && !commonRetrieveAETs.equals(location.get(QInstance.instance.retrieveAETs)))
-                    commonRetrieveAETs = null;
-            }
-            list.add(location);
-        }
-        Attributes eventInfo = new Attributes(4);
-        if (commonRetrieveAETs != null)
-            eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAETs);
-        eventInfo.setString(Tag.TransactionUID, VR.UI, actionInfo.getString(Tag.TransactionUID));
-        Sequence successSeq = eventInfo.newSequence(Tag.ReferencedSOPSequence, size);
-        Sequence failedSeq = eventInfo.newSequence(Tag.FailedSOPSequence, size);
-        HashMap<String,Storage> storageMap = new HashMap<>();
-        try {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            for (Attributes refSOP : requestSeq) {
-                String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
-                String cuid = refSOP.getString(Tag.ReferencedSOPClassUID);
-                List<Tuple> tuples = instances.get(iuid);
-                if (tuples == null)
-                    failedSeq.add(refSOP(iuid, cuid, Status.NoSuchObjectInstance));
-                else {
-                    Tuple tuple = tuples.get(0);
-                    if (!cuid.equals(tuple.get(QInstance.instance.sopClassUID)))
-                        failedSeq.add(refSOP(iuid, cuid, Status.ClassInstanceConflict));
-                    else if (validateLocations(tuples, storageMap, buffer))
-                        successSeq.add(refSOP(cuid, iuid,
-                                    commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
-                    else
-                        failedSeq.add(refSOP(iuid, cuid, Status.ProcessingFailure));
-                }
-           }
-        } finally {
-            for (Storage storage : storageMap.values())
-                SafeClose.close(storage);
-        }
-        if (failedSeq.isEmpty())
-            eventInfo.remove(Tag.FailedSOPSequence);
-        return eventInfo;
-    }
 
-    private List<Tuple> queryLocations(Attributes actionInfo) {
-        HibernateQuery<Tuple> query = new HibernateQuery<Void>(em.unwrap(Session.class))
-                .select(SELECT)
-                .from(QLocation.location)
-                .join(QLocation.location.instance, QInstance.instance)
-                .join(QInstance.instance.series, QSeries.series)
-                .join(QSeries.series.study, QStudy.study);
-
-        Sequence requestSeq = actionInfo.getSequence(Tag.ReferencedSOPSequence);
-        int size = requestSeq.size();
-        String[] sopIUIDs = new String[size];
-        for (int i = 0; i < size; i++)
-            sopIUIDs[i] = requestSeq.get(i).getString(Tag.ReferencedSOPInstanceUID);
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(QInstance.instance.sopInstanceUID.in(sopIUIDs));
-        return query.where(builder).fetch();
-    }
-
-    private boolean validateLocations(List<Tuple> tuples, HashMap<String, Storage> storageMap, byte[] buffer) {
-        for (Tuple tuple : tuples)
-            if (validateLocation(tuple, storageMap, buffer))
-                return true;
-        return false;
-    }
-
-    private boolean validateLocation(Tuple tuple, HashMap<String, Storage> storageMap, byte[] buffer) {
-        if (tuple.get(QLocation.location.status) != Location.Status.OK)
-            return false;
-
-        String digest = tuple.get(QLocation.location.digest);
-        if (digest == null)
-            return true;
-
-        Storage storage = getStorage(storageMap, tuple.get(QLocation.location.storageID));
-        ReadContext readContext = storage.createReadContext();
-        readContext.setStoragePath(tuple.get(QLocation.location.storagePath));
-        readContext.setStudyInstanceUID(tuple.get(QStudy.study.studyInstanceUID));
-        readContext.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
-        try {
-            try (InputStream stream = storage.openInputStream(readContext)) {
-               StreamUtils.copy(stream, null, buffer);
-            }
-        } catch (IOException e) {
-            return false;
-        }
-        if (TagUtils.toHexString(readContext.getDigest()).equals(digest))
-            return true;
-
-        return false;
-    }
-
-    private Storage getStorage(HashMap<String, Storage> storageMap, String storageID) {
-        Storage storage = storageMap.get(storageID);
-        if (storage == null) {
-            storage = storageFactory.getStorage(
-                    device.getDeviceExtension(ArchiveDeviceExtension.class).getStorageDescriptorNotNull(storageID));
-            storageMap.put(storageID, storage);
-        }
-        return storage;
-    }
-
-    private static Attributes refSOP(String cuid, String iuid, String retrieveAETs) {
-        Attributes attrs = new Attributes(3);
-        if (retrieveAETs != null)
-            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
-        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
-        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI,  iuid);
-        return attrs;
-    }
-
-    private static Attributes refSOP(String cuid, String iuid, int failureReason) {
-        Attributes attrs = new Attributes(3);
-        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, cuid);
-        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, iuid);
-        attrs.setInt(Tag.FailureReason, VR.US, failureReason);
-        return attrs;
-    }
 }

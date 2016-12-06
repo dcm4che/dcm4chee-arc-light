@@ -38,31 +38,76 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.stgcmt;
+package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.jboss.resteasy.annotations.cache.NoCache;
 
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
-public interface StgCmtManager {
-    void addExternalRetrieveAETs(Attributes eventInfo, Device device);
+@RequestScoped
+@Path("aets/{aet}/rs")
+public class StorageCmtRS {
 
-    void persistStgCmtResult(StgCmtResult result);
+    @Inject
+    private StgCmtManager stgCmtMgr;
 
-    List<StgCmtResult> listStgCmts(
-            StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit);
+    @PathParam("aet")
+    private String aet;
 
-    boolean deleteStgCmt(String transactionUID);
+    @Context
+    private HttpServletRequest request;
 
-    int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore);
+    @POST
+    @Path("/studies/{StudyInstanceUID}/stgcmt")
+    public void studyStorageCommit(
+            @PathParam("StudyInstanceUID") String studyUID) {
+        storageCommit(studyUID, null, null);
+    }
 
-    Attributes calculateResult(String studyIUID, String seriesIUID, String sopIUID, Sequence refSopSeq, String transactionUID);
+    @POST
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt")
+    public void seriesStorageCommit(
+            @PathParam("StudyInstanceUID") String studyUID,
+            @PathParam("SeriesInstanceUID") String seriesUID) {
+        storageCommit(studyUID, seriesUID, null);
+    }
+
+    @POST
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt")
+    public void instanceStorageCommit(
+            @PathParam("StudyInstanceUID") String studyUID,
+            @PathParam("SeriesInstanceUID") String seriesUID,
+            @PathParam("SOPInstanceUID") String sopUID) {
+        storageCommit(studyUID, seriesUID, sopUID);
+    }
+
+    private void storageCommit(String studyUID, String seriesUID, String sopUID) {
+        //TODO
+        Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID, null, null);
+    }
+
+
 }

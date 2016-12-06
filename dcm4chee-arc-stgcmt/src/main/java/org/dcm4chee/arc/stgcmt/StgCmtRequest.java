@@ -40,29 +40,21 @@
 
 package org.dcm4chee.arc.stgcmt;
 
-import org.dcm4che3.data.Attributes;
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4che3.data.Sequence;
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.entity.StgCmtResult;
-
-import java.util.Date;
-import java.util.List;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
-public interface StgCmtManager {
-    void addExternalRetrieveAETs(Attributes eventInfo, Device device);
+public interface StgCmtRequest {
+    Sequence getRefSopSequence();
 
-    void persistStgCmtResult(StgCmtResult result);
+    String getStudyUID();
 
-    List<StgCmtResult> listStgCmts(
-            StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit);
+    String getSeriesUID();
 
-    boolean deleteStgCmt(String transactionUID);
+    String getSOPUID();
 
-    int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore);
-
-    Attributes calculateResult(String studyIUID, String seriesIUID, String sopIUID, Sequence refSopSeq, String transactionUID);
+    BooleanBuilder createPredicate();
 }
