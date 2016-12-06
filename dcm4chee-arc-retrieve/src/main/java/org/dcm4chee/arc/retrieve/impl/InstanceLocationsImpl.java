@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
@@ -58,23 +59,37 @@ public class InstanceLocationsImpl implements InstanceLocations {
     private final String sopClassUID;
     private final String sopInstanceUID;
     private final Attributes attributes;
-    private final Attributes rejectionCode;
-    private final String retrieveAETs;
-    private final String extRetrieveAET;
-    private final Availability availability;
-    private final Date updatedTime;
+    private Attributes rejectionCode;
+    private String retrieveAETs;
+    private String extRetrieveAET;
+    private Availability availability;
+    private Date updatedTime;
     private final ArrayList<Location> locations = new ArrayList<>(1);
 
-    public InstanceLocationsImpl(String sopClassUID, String sopInstanceUID, String retrieveAETs, String extRetrieveAET,
-            Availability availability, Date updatedTime, Attributes attributes, Attributes rejectionCode) {
-        this.sopClassUID = sopClassUID;
-        this.sopInstanceUID = sopInstanceUID;
-        this.retrieveAETs = retrieveAETs;
-        this.extRetrieveAET = extRetrieveAET;
-        this.availability = availability;
-        this.updatedTime = updatedTime;
-        this.attributes = attributes;
+    public InstanceLocationsImpl(Attributes attrs) {
+        this.sopClassUID = attrs.getString(Tag.SOPClassUID);
+        this.sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
+        this.attributes = attrs;
+    }
+
+    public void setRejectionCode(Attributes rejectionCode) {
         this.rejectionCode = rejectionCode;
+    }
+
+    public void setRetrieveAETs(String retrieveAETs) {
+        this.retrieveAETs = retrieveAETs;
+    }
+
+    public void setExternalRetrieveAET(String extRetrieveAET) {
+        this.extRetrieveAET = extRetrieveAET;
+    }
+
+    public void setAvailability(Availability availability) {
+        this.availability = availability;
+    }
+
+    public void setUpdatedTime(Date updatedTime) {
+        this.updatedTime = updatedTime;
     }
 
     @Override

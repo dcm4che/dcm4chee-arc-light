@@ -76,12 +76,6 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
         if (studyInfo.getExpirationDate() != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
                     studyInfo.getExpirationDate());
-        if (studyInfo.getFailedSOPInstanceUIDList() != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfStudy, VR.UI,
-                    studyInfo.getFailedSOPInstanceUIDList());
-        if (studyInfo.getFailedRetrieves() != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
-                    studyInfo.getFailedRetrieves());
         if (studyInfo.getAccessControlID() != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
                     studyInfo.getAccessControlID());
@@ -90,21 +84,16 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
         if (seriesInfo.getExpirationDate() != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesExpirationDate, VR.DA,
                     seriesInfo.getExpirationDate());
-        if (seriesInfo.getFailedSOPInstanceUIDList() != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
-                    seriesInfo.getFailedSOPInstanceUIDList());
-        if (seriesInfo.getFailedRetrieves() != 0)
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
-                    seriesInfo.getFailedRetrieves());
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                 seriesInfo.getSourceAET());
 
-        if (inst.getExternalRetrieveAET() != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle, VR.AE,
-                    inst.getExternalRetrieveAET());
         if (inst.getRejectionCode() != null)
             attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1).
-                add(inst.getRejectionCode());
+                    add(inst.getRejectionCode());
+        if (inst.getExternalRetrieveAET() != null) {
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle, VR.AE,
+                    inst.getExternalRetrieveAET());
+        }
         for (Location location : inst.getLocations()) {
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID, VR.LO,

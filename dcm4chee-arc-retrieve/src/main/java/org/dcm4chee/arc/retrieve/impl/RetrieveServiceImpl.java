@@ -47,6 +47,7 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.BulkDataCreator;
 import org.dcm4che3.io.DicomInputStream;
@@ -54,6 +55,7 @@ import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
@@ -76,7 +78,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.stream.JsonParser;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
@@ -86,6 +87,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -110,8 +113,6 @@ public class RetrieveServiceImpl implements RetrieveService {
             QLocation.location.status,
             QSeries.series.pk,
             QInstance.instance.pk,
-            QInstance.instance.sopClassUID,
-            QInstance.instance.sopInstanceUID,
             QInstance.instance.retrieveAETs,
             QInstance.instance.externalRetrieveAET,
             QInstance.instance.availability,
@@ -143,6 +144,12 @@ public class RetrieveServiceImpl implements RetrieveService {
             QueryBuilder.seriesAttributesBlob.encodedAttributes,
             QueryBuilder.studyAttributesBlob.encodedAttributes,
             QueryBuilder.patientAttributesBlob.encodedAttributes
+    };
+
+    static final Expression<?>[] METADATA_STORAGE_PATH = {
+            QSeries.series.pk,
+            QMetadata.metadata.storageID,
+            QMetadata.metadata.storagePath,
     };
 
     @PersistenceContext(unitName = "dcm4chee-arc")
@@ -299,6 +306,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         for (SeriesInfo si : ctx.getSeriesInfos())
                 dates.add(si.getUpdatedTime());
         for (InstanceLocations il : ctx.getMatches())
+            if (il.getUpdatedTime() != null)
                 dates.add(il.getUpdatedTime());
         return Collections.max(dates);
     }
@@ -316,7 +324,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
 
     @Override
-    public boolean calculateMatches(RetrieveContext ctx)  {
+    public boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException {
         StatelessSession session = openStatelessSession();
         Collection<InstanceLocations> matches = ctx.getMatches();
         matches.clear();
@@ -334,33 +342,92 @@ public class RetrieveServiceImpl implements RetrieveService {
                         SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
                         studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
                         ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
-                        seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
                         ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
+                        seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
                     }
                     Attributes instAttrs = AttributesBlob.decodeAttributes(
                             tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
                     Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
                     instAttrs.addAll(seriesAttrs);
-                    match = newInstanceLocations(
-                            tuple.get(QInstance.instance.sopClassUID),
-                            tuple.get(QInstance.instance.sopInstanceUID),
-                            tuple.get(QInstance.instance.retrieveAETs),
-                            tuple.get(QInstance.instance.externalRetrieveAET),
-                            tuple.get(QInstance.instance.availability),
-                            tuple.get(QInstance.instance.updatedTime),
-                            instAttrs, rejectionCode(tuple));
+                    match = instanceLocationsFromDB(tuple, instAttrs);
                     matches.add(match);
                     instMap.put(instPk, match);
                 }
                 addLocation(match, tuple);
             }
+            if (ctx.isConsiderPurgedInstances()) {
+                for (Tuple tuple : queryMetadataStoragePath(ctx, session).fetch()) {
+                    Long seriesPk = tuple.get(QSeries.series.pk);
+                    SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
+                    studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
+                    ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
+                    ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
+                    addLocationsFromMetadata(ctx, tuple);
+                }
+            }
             ctx.setNumberOfMatches(matches.size());
             ctx.getStudyInfos().addAll(studyInfoMap.values());
             updateStudyAccessTime(ctx);
             return !matches.isEmpty();
+        } catch (IOException e) {
+            throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
         } finally {
             session.close();
         }
+    }
+
+    private InstanceLocations instanceLocationsFromDB(Tuple tuple, Attributes instAttrs) {
+        InstanceLocationsImpl inst = new InstanceLocationsImpl(instAttrs);
+        inst.setRetrieveAETs(tuple.get(QInstance.instance.retrieveAETs));
+        inst.setExternalRetrieveAET(tuple.get(QInstance.instance.externalRetrieveAET));
+        inst.setAvailability(tuple.get(QInstance.instance.availability));
+        inst.setUpdatedTime(tuple.get(QInstance.instance.updatedTime));
+        inst.setRejectionCode(rejectionCode(tuple));
+        return inst;
+    }
+
+    private void addLocationsFromMetadata(RetrieveContext ctx, Tuple tuple)
+            throws IOException {
+        Storage storage = getStorage(tuple.get(QMetadata.metadata.storageID), ctx);
+        try (InputStream in = storage.openInputStream(
+                createReadContext(storage, tuple.get(QMetadata.metadata.storagePath), null))) {
+            ZipInputStream zip = new ZipInputStream(in);
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                if (isEmptyOrContains(ctx.getSopInstanceUIDs(), entry.getName())) {
+                    ctx.getMatches().add(instanceLocationsFromMetadata(parseJSON(zip, true)));
+                }
+                zip.closeEntry();
+            }
+        }
+    }
+
+    private static boolean isEmptyOrContains(String[] ss, String s) {
+        if (ss.length == 0)
+            return true;
+
+        for (String s1 : ss) {
+            if (s1.equals(s))
+                return true;
+        }
+        return false;
+    }
+
+    private InstanceLocations instanceLocationsFromMetadata(Attributes attrs) {
+        InstanceLocationsImpl inst = new InstanceLocationsImpl(attrs);
+        inst.setRetrieveAETs(StringUtils.concat(attrs.getStrings(Tag.RetrieveAETitle), '\\'));
+        inst.setAvailability(Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
+        inst.setRejectionCode(attrs.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence));
+        inst.setExternalRetrieveAET(
+                attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle));
+        inst.getLocations().add(new Location.Builder()
+                .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
+                .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))
+                .transferSyntaxUID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID))
+                .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
+                .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
+                .build());
+        return inst;
     }
 
     private Attributes rejectionCode(Tuple tuple) {
@@ -397,15 +464,12 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public InstanceLocationsImpl newInstanceLocations(
-            String sopClassUID, String sopInstanceUID, String retrieveAETs, String extRetrieveAET,
-            Availability availability, Date updatedTime, Attributes attrs, Attributes rejectionCode) {
-        return new InstanceLocationsImpl(sopClassUID, sopInstanceUID, retrieveAETs, extRetrieveAET, availability,
-                updatedTime, attrs, rejectionCode);
+    public InstanceLocations newInstanceLocations(Attributes attrs) {
+        return new InstanceLocationsImpl(attrs);
     }
 
     private void updateStudyAccessTime(RetrieveContext ctx) {
-        if (ctx.isSeriesMetadata())
+        if (ctx.isUpdateSeriesMetadata())
             return;
 
         Duration maxAccessTimeStaleness = getArchiveDeviceExtension().getMaxAccessTimeStaleness();
@@ -512,6 +576,27 @@ public class RetrieveServiceImpl implements RetrieveService {
                     ctx.isHideNotRejectedInstances()));
             predicate.and(QueryBuilder.hideRejectionNote(ctx.getHideRejectionNotesWithCode()));
         }
+        return query.where(predicate);
+    }
+
+    private HibernateQuery<Tuple> queryMetadataStoragePath(RetrieveContext ctx, StatelessSession session) {
+        HibernateQuery<Tuple> query = new HibernateQuery<Void>(session).select(METADATA_STORAGE_PATH)
+                .from(QSeries.series)
+                .join(QSeries.series.metadata, QMetadata.metadata)
+                .join(QSeries.series.study, QStudy.study);
+
+        IDWithIssuer[] pids = ctx.getPatientIDs();
+        if (pids.length > 0) {
+            query = query.join(QStudy.study.patient, QPatient.patient);
+            query = QueryBuilder.applyPatientIDJoins(query, pids);
+        }
+
+        BooleanBuilder predicate = new BooleanBuilder();
+        predicate.and(QueryBuilder.patientIDPredicate(pids));
+        predicate.and(QueryBuilder.accessControl(ctx.getAccessControlIDs()));
+        predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs()));
+        predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs()));
+        predicate.and(QSeries.series.instancePurgeState.eq(Series.InstancePurgeState.PURGED));
         return query.where(predicate);
     }
 
@@ -698,7 +783,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private AttributesCoercion coercion(RetrieveContext ctx, InstanceLocations inst) {
-        if (ctx.isSeriesMetadata())
+        if (ctx.isUpdateSeriesMetadata())
             return new SeriesMetadataAttributeCoercion(ctx, inst);
 
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
@@ -740,7 +825,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         for (Location location : inst.getLocations()) {
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
                 try {
-                    return openLocationInputStream(ctx, location, studyInstanceUID);
+                    return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
                 } catch (IOException e) {
                     ex = e;
                 }
@@ -750,12 +835,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private LocationDicomInputStream openLocationInputStream(
-            RetrieveContext ctx, Location location, String studyInstanceUID)
+            Storage storage, Location location, String studyInstanceUID)
             throws IOException {
-        Storage storage = getStorage(ctx, location.getStorageID());
-        ReadContext readContext = storage.createReadContext();
-        readContext.setStoragePath(location.getStoragePath());
-        readContext.setStudyInstanceUID(studyInstanceUID);
+        ReadContext readContext = createReadContext(storage, location.getStoragePath(), studyInstanceUID);
         InputStream stream = storage.openInputStream(readContext);
         try {
             return new LocationDicomInputStream(new DicomInputStream(stream), readContext, location);
@@ -765,16 +847,14 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
     }
 
-    private InputStream openInputStream(RetrieveContext ctx, Location location, String studyInstanceUID)
-            throws IOException {
-        Storage storage = getStorage(ctx, location.getStorageID());
+    private ReadContext createReadContext(Storage storage, String storagePath, String studyInstanceUID) {
         ReadContext readContext = storage.createReadContext();
-        readContext.setStoragePath(location.getStoragePath());
+        readContext.setStoragePath(storagePath);
         readContext.setStudyInstanceUID(studyInstanceUID);
-        return storage.openInputStream(readContext);
+        return readContext;
     }
 
-    private Storage getStorage(RetrieveContext ctx, String storageID) {
+    private Storage getStorage(String storageID, RetrieveContext ctx) {
         Storage storage = ctx.getStorage(storageID);
         if (storage == null) {
             ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
@@ -797,19 +877,23 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private Attributes loadMetadataFromJSONFile(RetrieveContext ctx, InstanceLocations inst) throws IOException {
-        IOException ex = null;
         String studyInstanceUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
         for (Location location : inst.getLocations()) {
-            if (location.getObjectType() == Location.ObjectType.METADATA)
-                try (JsonParser parser = Json.createParser(
-                        new InputStreamReader(openInputStream(ctx, location, studyInstanceUID), "UTF-8"))) {
-                    return new JSONReader(parser).readDataset(null);
-                } catch (IOException e) {
-                    ex = e;
+            if (location.getObjectType() == Location.ObjectType.METADATA) {
+                Storage storage = getStorage(location.getStorageID(), ctx);
+                try (InputStream in = storage.openInputStream(
+                        createReadContext(storage, location.getStoragePath(), studyInstanceUID))) {
+                    return parseJSON(in, false);
                 }
+            }
         }
-        if (ex != null) throw ex;
         return null;
+    }
+
+    private Attributes parseJSON(InputStream in, boolean skipBulkDataURI) throws IOException {
+        JSONReader jsonReader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        jsonReader.setSkipBulkDataURI(skipBulkDataURI);
+        return jsonReader.readDataset(null);
     }
 
     private Attributes loadMetadataFromDicomFile(RetrieveContext ctx, InstanceLocations inst) throws IOException {

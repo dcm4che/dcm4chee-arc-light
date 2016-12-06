@@ -46,6 +46,7 @@ import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.Availability;
 
@@ -80,11 +81,9 @@ public interface RetrieveService {
 
     RetrieveContext newRetrieveContextSeriesMetadata(Long seriesPk);
 
-    boolean calculateMatches(RetrieveContext ctx);
+    boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException;
 
-    InstanceLocations newInstanceLocations(
-            String sopClassUID, String sopInstanceUID, String retrieveAETs, String extRetrieveAET,
-            Availability availability, Date updatedTime, Attributes attrs, Attributes rejectionCode);
+    InstanceLocations newInstanceLocations(Attributes attrs);
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException;

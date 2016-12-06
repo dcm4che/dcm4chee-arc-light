@@ -625,7 +625,14 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public boolean isSeriesMetadata() {
+    public boolean isUpdateSeriesMetadata() {
         return arcAE == null;
+    }
+
+    @Override
+    public boolean isConsiderPurgedInstances() {
+        return arcAE != null
+                && arcAE.getArchiveDeviceExtension().getPurgeInstanceRecordsPollingInterval() != null
+                && (qrLevel != QueryRetrieveLevel2.IMAGE || seriesInstanceUIDs.length != 0);
     }
 }

@@ -313,7 +313,8 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public Collection<InstanceLocations> queryInstances(
-            StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap) {
+            StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap)
+            throws IOException {
         String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
         uidMap.put(sourceStudyUID, targetStudyIUID);
         Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
