@@ -31,6 +31,10 @@
       "description": "Export Entity"
     },
     {
+      "name": "STGCMT-RS",
+      "description": "Storage Commitment"
+    },
+    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -978,7 +982,8 @@
           "CONFIG-RS",
           "IOCM-RS",
           "ECHO-RS",
-          "EXPORT-RS"
+          "EXPORT-RS",
+          "STGCMT-RS"
         ],
         "summary": "List Archive AE Titles",
         "operationId": "listArchiveAETs",
@@ -1151,7 +1156,7 @@
         "operationId": "SearchForSPS",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "application/json"
         ],
         "parameters": [
           {
@@ -1680,6 +1685,171 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgcmt": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Storage Commitment of Study",
+        "operationId": "StorageCommitmentStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "indicates that Storage Commitment for all Instances was successful.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "202": {
+            "description": "indicates that Storage Commitment for some Instances fails.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no Study with specified UIDs found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Storage Commitment of Series",
+        "operationId": "StorageCommitmentSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single series",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "indicates that Storage Commitment for all Instances was successful.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "202": {
+            "description": "indicates that Storage Commitment for some Instances fails.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no Series with specified UID found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt": {
+      "post": {
+        "tags": [
+          "STGCMT-RS"
+        ],
+        "summary": "Storage Commitment of Instance",
+        "operationId": "StorageCommitmentInstance",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SOPInstanceUID",
+            "in": "path",
+            "description": "SOP Instance UID for a single SOP Instance",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "indicates that Storage Commitment for all Instances was successful.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "202": {
+            "description": "indicates that Storage Commitment for some Instances fails.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no object with specified UIDs found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
       "post": {
         "tags": [
@@ -2055,7 +2225,7 @@
     "/stgcmt": {
       "get": {
         "tags": [
-          "EXPORT-RS"
+          "STGCMT-RS"
         ],
         "summary": "List Storage Commitment Results",
         "operationId": "listStgCmts",
@@ -2114,7 +2284,7 @@
       },
       "delete": {
         "tags": [
-          "EXPORT-RS"
+          "STGCMT-RS"
         ],
         "summary": "Delete Storage Commitment Results",
         "operationId": "deleteStgCmts",
@@ -2158,7 +2328,7 @@
     "/stgcmt/{transactionUID}": {
       "delete": {
         "tags": [
-          "EXPORT-RS"
+          "STGCMT-RS"
         ],
         "summary": "Delete Storage Commitment Result",
         "operationId": "deleteStgCmt",

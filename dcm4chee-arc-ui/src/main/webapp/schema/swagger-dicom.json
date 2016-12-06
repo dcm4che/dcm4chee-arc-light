@@ -53,7 +53,7 @@
         "operationId": "SearchForPatients",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "type=application/json"
         ],
         "parameters": [
           {
@@ -147,7 +147,7 @@
         "operationId": "SearchForStudies",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "application/json"
         ],
         "parameters": [
           {
@@ -313,7 +313,7 @@
         "operationId": "SearchForStudySeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "application/json"
         ],
         "parameters": [
           {
@@ -326,7 +326,7 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
@@ -441,7 +441,7 @@
         "operationId": "SearchForSeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "application/json"
         ],
         "parameters": [
           {
@@ -562,7 +562,7 @@
         "operationId": "SearchForStudySeriesInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "application/json"
         ],
         "parameters": [
           {
@@ -575,14 +575,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -663,7 +663,7 @@
         "operationId": "SearchForStudyInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "application/json"
         ],
         "parameters": [
           {
@@ -676,14 +676,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -764,7 +764,7 @@
         "operationId": "SearchForInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "application/json"
         ],
         "parameters": [
           {
@@ -777,14 +777,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -887,7 +887,7 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           }
@@ -933,7 +933,7 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "Study Instance UID",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           }
@@ -985,14 +985,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           }
@@ -1005,7 +1005,7 @@
             }
           },
           "404": {
-            "description": "no series with specified UIDs found"
+            "description": "no Study with specified UID found"
           },
           "default": {
             "description": "unexpected error"
@@ -1044,14 +1044,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -1105,14 +1105,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -1176,7 +1176,7 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
@@ -1285,14 +1285,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -1401,14 +1401,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -1520,14 +1520,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -1644,14 +1644,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -1694,8 +1694,8 @@
         "summary": "Retrieve Study Metadata",
         "operationId": "RetrieveStudyMetadata",
         "produces": [
-          "application/dicom+xml",
-          "multipart/related;type=application/json"
+          "multipart/related;type=application/dicom+xml",
+          "application/json"
         ],
         "parameters": [
           {
@@ -1708,7 +1708,7 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
@@ -1727,7 +1727,7 @@
             }
           },
           "404": {
-            "description": "no series with specified UIDs found"
+            "description": "no Study with specified UID found"
           },
           "default": {
             "description": "unexpected error"
@@ -1744,7 +1744,7 @@
         "operationId": "RetrieveSeriesMetadata",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "application/json"
         ],
         "parameters": [
           {
@@ -1757,14 +1757,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
@@ -1799,8 +1799,8 @@
         "summary": "Retrieve Instance Metadata",
         "operationId": "RetrieveInstanceMetadata",
         "produces": [
-          "application/dicom+xml",
-          "multipart/related;type=application/json"
+          "multipart/related;type=application/dicom+xml",
+          "application/json"
         ],
         "parameters": [
           {
@@ -1813,14 +1813,14 @@
           {
             "name": "StudyInstanceUID",
             "in": "path",
-            "description": "study instance UID for a single study",
+            "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
           },
           {
             "name": "SeriesInstanceUID",
             "in": "path",
-            "description": "series instance UID for a single series",
+            "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
           },
