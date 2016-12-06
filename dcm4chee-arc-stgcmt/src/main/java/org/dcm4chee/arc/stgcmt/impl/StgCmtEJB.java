@@ -165,23 +165,38 @@ public class StgCmtEJB implements StgCmtManager {
         HashMap<String,Storage> storageMap = new HashMap<>();
         try {
             byte[] buffer = new byte[BUFFER_SIZE];
-            for (Attributes refSOP : refSopSeq) {
-                String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
-                String cuid = refSOP.getString(Tag.ReferencedSOPClassUID);
-                List<Tuple> tuples = instances.get(iuid);
+            if (refSopSeq == null) {
+                List<Tuple> tuples = instances.get(sopIUID);
                 if (tuples == null)
-                    failedSeq.add(refSOP(iuid, cuid, Status.NoSuchObjectInstance));
+                    failedSeq.add(refSOP("", sopIUID, Status.NoSuchObjectInstance));
                 else {
                     Tuple tuple = tuples.get(0);
-                    if (!cuid.equals(tuple.get(QInstance.instance.sopClassUID)))
-                        failedSeq.add(refSOP(iuid, cuid, Status.ClassInstanceConflict));
-                    else if (validateLocations(tuples, storageMap, buffer))
-                        successSeq.add(refSOP(cuid, iuid,
+                    String cuid = tuple.get(QInstance.instance.sopClassUID);
+                    if (validateLocations(tuples, storageMap, buffer))
+                        successSeq.add(refSOP(cuid, sopIUID,
                                 commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
                     else
-                        failedSeq.add(refSOP(iuid, cuid, Status.ProcessingFailure));
+                        failedSeq.add(refSOP(cuid, sopIUID, Status.ProcessingFailure));
                 }
             }
+            else
+                for (Attributes refSOP : refSopSeq) {
+                    String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
+                    String cuid = refSOP.getString(Tag.ReferencedSOPClassUID);
+                    List<Tuple> tuples = instances.get(iuid);
+                    if (tuples == null)
+                        failedSeq.add(refSOP(cuid, iuid, Status.NoSuchObjectInstance));
+                    else {
+                        Tuple tuple = tuples.get(0);
+                        if (!cuid.equals(tuple.get(QInstance.instance.sopClassUID)))
+                            failedSeq.add(refSOP(cuid, iuid, Status.ClassInstanceConflict));
+                        else if (validateLocations(tuples, storageMap, buffer))
+                            successSeq.add(refSOP(cuid, iuid,
+                                    commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
+                        else
+                            failedSeq.add(refSOP(iuid, cuid, Status.ProcessingFailure));
+                    }
+                }
         } finally {
             for (Storage storage : storageMap.values())
                 SafeClose.close(storage);

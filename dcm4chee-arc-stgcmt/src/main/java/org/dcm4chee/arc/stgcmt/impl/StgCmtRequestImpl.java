@@ -94,9 +94,12 @@ public class StgCmtRequestImpl implements StgCmtRequest {
         if (refSopSeq != null)
             return createPredicate(refSopSeq);
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(QStudy.study.studyInstanceUID.eq(studyUID));
-        builder.and(QSeries.series.seriesInstanceUID.eq(seriesUID));
-        builder.and(QInstance.instance.sopInstanceUID.eq(sopUID));
+        if (studyUID != null)
+            builder.and(QStudy.study.studyInstanceUID.eq(studyUID));
+        if (seriesUID != null)
+            builder.and(QSeries.series.seriesInstanceUID.eq(seriesUID));
+        if (sopUID != null)
+            builder.and(QInstance.instance.sopInstanceUID.eq(sopUID));
         return builder;
     }
 
