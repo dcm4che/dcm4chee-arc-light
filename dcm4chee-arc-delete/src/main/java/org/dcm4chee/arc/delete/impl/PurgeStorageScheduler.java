@@ -127,15 +127,12 @@ public class PurgeStorageScheduler extends Scheduler {
                             : deleteObjectsOfStudies(desc, deleteStudyBatchSize)) == 0)
                         deleteSize = 0L;
                 }
-                try {
-                    while (deleteSeriesMetadata(desc, fetchSize)) ;
-                    while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
-                } catch (IOException e) {
-                    LOG.error("Failed to delete objects from {}", desc.getStorageURI(), e);
-                }
-                if (deleteSize > 0L)
+                while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
+                if (deleteSize > 0L) {
                     deleteSize = deleteSize(desc, minUsableSpace);
+                }
             } while (deleteSize > 0L);
+            while (deleteSeriesMetadata(desc, fetchSize));
         }
     }
 
@@ -209,7 +206,7 @@ public class PurgeStorageScheduler extends Scheduler {
         return removed;
     }
 
-    private boolean deleteSeriesMetadata(StorageDescriptor desc, int fetchSize) throws IOException {
+    private boolean deleteSeriesMetadata(StorageDescriptor desc, int fetchSize) {
         List<Metadata> metadata = ejb.findMetadataToDelete(desc.getStorageID(), fetchSize);
         if (metadata.isEmpty())
             return false;
@@ -225,11 +222,13 @@ public class PurgeStorageScheduler extends Scheduler {
                     LOG.warn("Failed to delete {} from {}", m, desc.getStorageURI(), e);
                 }
             }
+        } catch (IOException e) {
+            LOG.warn("Failed to access {}", desc.getStorageURI(), e);
         }
         return metadata.size() == fetchSize;
     }
 
-    private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) throws IOException {
+    private boolean deleteNextObjectsFromStorage(StorageDescriptor desc, int fetchSize) {
         List<Location> locations = ejb.findLocationsToDelete(desc.getStorageID(), fetchSize);
         if (locations.isEmpty())
             return false;
@@ -245,6 +244,8 @@ public class PurgeStorageScheduler extends Scheduler {
                     LOG.warn("Failed to delete {} from {}", location, desc.getStorageURI(), e);
                 }
             }
+        } catch (IOException e) {
+            LOG.warn("Failed to access {}", desc.getStorageURI(), e);
         }
         return locations.size() == fetchSize;
     }
