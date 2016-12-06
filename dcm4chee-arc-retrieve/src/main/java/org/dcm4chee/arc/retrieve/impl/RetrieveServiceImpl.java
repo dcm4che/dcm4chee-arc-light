@@ -395,7 +395,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (isEmptyOrContains(ctx.getSopInstanceUIDs(), entry.getName())) {
-                    ctx.getMatches().add(instanceLocationsFromMetadata(parseJSON(zip, true)));
+                    ctx.getMatches().add(instanceLocationsFromMetadata(parseJSON(zip, !ctx.isRetrieveMetadata())));
                 }
                 zip.closeEntry();
             }
@@ -420,6 +420,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         inst.setRejectionCode(attrs.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence));
         inst.setExternalRetrieveAET(
                 attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle));
+        inst.setContainsMetadata(true);
         inst.getLocations().add(new Location.Builder()
                 .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
                 .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))

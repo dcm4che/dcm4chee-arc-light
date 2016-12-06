@@ -788,7 +788,7 @@ public class WadoRS {
     }
 
     private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {
-        Attributes metadata = service.loadMetadata(ctx, inst);
+        Attributes metadata = inst.isContainsMetadata() ? inst.getAttributes() : service.loadMetadata(ctx, inst);
         StringBuffer sb = request.getRequestURL();
         sb.setLength(sb.lastIndexOf("/metadata"));
         mkInstanceURL(sb, inst);

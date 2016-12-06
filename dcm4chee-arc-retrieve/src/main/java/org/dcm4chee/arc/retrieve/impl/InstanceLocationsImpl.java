@@ -64,6 +64,7 @@ public class InstanceLocationsImpl implements InstanceLocations {
     private String extRetrieveAET;
     private Availability availability;
     private Date updatedTime;
+    private boolean containsMetadata;
     private final ArrayList<Location> locations = new ArrayList<>(1);
 
     public InstanceLocationsImpl(Attributes attrs) {
@@ -90,6 +91,10 @@ public class InstanceLocationsImpl implements InstanceLocations {
 
     public void setUpdatedTime(Date updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public void setContainsMetadata(boolean containsMetadata) {
+        this.containsMetadata = containsMetadata;
     }
 
     @Override
@@ -138,5 +143,10 @@ public class InstanceLocationsImpl implements InstanceLocations {
     @Override
     public Attributes getRejectionCode() {
         return rejectionCode;
+    }
+
+    @Override
+    public boolean isContainsMetadata() {
+        return containsMetadata;
     }
 }

@@ -70,4 +70,6 @@ public interface InstanceLocations {
     Date getUpdatedTime();
 
     Attributes getRejectionCode();
+
+    boolean isContainsMetadata();
 }

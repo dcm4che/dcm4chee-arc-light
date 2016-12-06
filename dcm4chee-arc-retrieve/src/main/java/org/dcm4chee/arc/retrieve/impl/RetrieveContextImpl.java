@@ -635,4 +635,9 @@ class RetrieveContextImpl implements RetrieveContext {
                 && arcAE.getArchiveDeviceExtension().getPurgeInstanceRecordsPollingInterval() != null
                 && (qrLevel != QueryRetrieveLevel2.IMAGE || seriesInstanceUIDs.length != 0);
     }
+
+    @Override
+    public boolean isRetrieveMetadata() {
+        return objectType == null;
+    }
 }

@@ -255,4 +255,6 @@ public interface RetrieveContext extends Closeable {
     boolean isUpdateSeriesMetadata();
 
     boolean isConsiderPurgedInstances();
+
+    boolean isRetrieveMetadata();
 }
