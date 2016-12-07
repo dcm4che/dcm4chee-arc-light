@@ -124,8 +124,9 @@ public class StgCmtSCPMDB implements MessageListener {
             return;
         try {
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
-            Attributes eventInfo = ejb.calculateResult(null, null, null,
-                    actionInfo.getSequence(Tag.ReferencedSOPSequence), actionInfo.getString(Tag.TransactionUID));
+            Attributes eventInfo = ejb.calculateResult(
+                    actionInfo.getSequence(Tag.ReferencedSOPSequence),
+                    actionInfo.getString(Tag.TransactionUID));
             Outcome outcome = stgCmtSCP.sendNEventReport(
                     msg.getStringProperty("LocalAET"),
                     msg.getStringProperty("RemoteAET"),

@@ -64,5 +64,7 @@ public interface StgCmtManager {
 
     int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore);
 
-    Attributes calculateResult(String studyIUID, String seriesIUID, String sopIUID, Sequence refSopSeq, String transactionUID);
+    Attributes calculateResult(Sequence refSopSeq, String transactionUID);
+
+    Attributes calculateResult(String studyIUID, String seriesIUID, String sopIUID);
 }

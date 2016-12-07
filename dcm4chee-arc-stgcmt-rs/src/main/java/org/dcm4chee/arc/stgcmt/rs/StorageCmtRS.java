@@ -106,7 +106,7 @@ public class StorageCmtRS {
 
     private void storageCommit(String studyUID, String seriesUID, String sopUID) {
         //TODO
-        Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID, null, null);
+        Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID);
         
     }
 

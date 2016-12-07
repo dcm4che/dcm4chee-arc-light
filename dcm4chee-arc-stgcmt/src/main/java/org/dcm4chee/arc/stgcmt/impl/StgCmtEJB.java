@@ -54,7 +54,6 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.StgCmtRequest;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -137,12 +136,102 @@ public class StgCmtEJB implements StgCmtManager {
     }
 
     @Override
-    public Attributes calculateResult(String studyIUID, String seriesIUID, String sopIUID,
-                                      Sequence refSopSeq, String transactionUID) {
-        int size = refSopSeq != null ? refSopSeq.size() : 10;
-        HashMap<String,List<Tuple>> instances = new HashMap<>(size * 4 / 3);
+    public Attributes calculateResult(Sequence refSopSeq, String transactionUID) {
+        int size = refSopSeq.size();
+        Map<String,List<Tuple>> instances = new HashMap<>(size * 4 / 3);
+        String commonRetrieveAETs = queryInstances(createPredicate(refSopSeq), instances);
+        Attributes eventInfo = new Attributes(4);
+        if (commonRetrieveAETs != null)
+            eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAETs);
+        eventInfo.setString(Tag.TransactionUID, VR.UI, transactionUID);
+        Sequence successSeq = eventInfo.newSequence(Tag.ReferencedSOPSequence, size);
+        Sequence failedSeq = eventInfo.newSequence(Tag.FailedSOPSequence, size);
+        HashMap<String,Storage> storageMap = new HashMap<>();
+        try {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            for (Attributes refSOP : refSopSeq) {
+                String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
+                String cuid = refSOP.getString(Tag.ReferencedSOPClassUID);
+                List<Tuple> tuples = instances.get(iuid);
+                if (tuples == null)
+                    failedSeq.add(refSOP(cuid, iuid, Status.NoSuchObjectInstance));
+                else {
+                    Tuple tuple = tuples.get(0);
+                    if (!cuid.equals(tuple.get(QInstance.instance.sopClassUID)))
+                        failedSeq.add(refSOP(cuid, iuid, Status.ClassInstanceConflict));
+                    else if (validateLocations(tuples, storageMap, buffer))
+                        successSeq.add(refSOP(cuid, iuid,
+                                commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
+                    else
+                        failedSeq.add(refSOP(iuid, cuid, Status.ProcessingFailure));
+                }
+            }
+        } finally {
+            for (Storage storage : storageMap.values())
+                SafeClose.close(storage);
+        }
+        if (failedSeq.isEmpty())
+            eventInfo.remove(Tag.FailedSOPSequence);
+        return eventInfo;
+    }
+
+    @Override
+    public Attributes calculateResult(String studyIUID, String seriesIUID, String sopIUID) {
+        HashMap<String,List<Tuple>> instances = new HashMap<>();
+        String commonRetrieveAETs = queryInstances(createPredicate(studyIUID, seriesIUID, sopIUID), instances);
+        Attributes eventInfo = new Attributes(3);
+        if (commonRetrieveAETs != null)
+            eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAETs);
+        int size = instances.size();
+        Sequence successSeq = eventInfo.newSequence(Tag.ReferencedSOPSequence, size);
+        Sequence failedSeq = eventInfo.newSequence(Tag.FailedSOPSequence, size);
+        HashMap<String,Storage> storageMap = new HashMap<>();
+        try {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            for (List<Tuple> tuples : instances.values()) {
+                Tuple tuple = tuples.get(0);
+                String cuid = tuple.get(QInstance.instance.sopClassUID);
+                String iuid = tuple.get(QInstance.instance.sopInstanceUID);
+                if (validateLocations(tuples, storageMap, buffer))
+                    successSeq.add(refSOP(cuid,iuid,
+                            commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
+                else
+                    failedSeq.add(refSOP(cuid, iuid, Status.ProcessingFailure));
+            }
+        } finally {
+            for (Storage storage : storageMap.values())
+                SafeClose.close(storage);
+        }
+        if (failedSeq.isEmpty())
+            eventInfo.remove(Tag.FailedSOPSequence);
+        return eventInfo;
+    }
+
+    private Predicate createPredicate(Sequence refSopSeq) {
+        BooleanBuilder builder = new BooleanBuilder();
+        int size = refSopSeq.size();
+        String[] sopIUIDs = new String[size];
+        for (int i = 0; i < size; i++)
+            sopIUIDs[i] = refSopSeq.get(i).getString(Tag.ReferencedSOPInstanceUID);
+        builder.and(QInstance.instance.sopInstanceUID.in(sopIUIDs));
+        builder.and(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
+        return builder;
+    }
+
+    private Predicate createPredicate(String studyIUID, String seriesIUID, String sopIUID) {
+        BooleanBuilder builder = new BooleanBuilder(QStudy.study.studyInstanceUID.eq(studyIUID));
+        if (seriesIUID != null) {
+            builder.and(QSeries.series.seriesInstanceUID.eq(seriesIUID));
+            if (sopIUID != null)
+                builder.and(QInstance.instance.sopInstanceUID.eq(sopIUID));
+        }
+        builder.and(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
+        return builder;
+    }
+
+    private String queryInstances(Predicate predicate, Map<String, List<Tuple>> instances) {
         String commonRetrieveAETs = null;
-        for (Tuple location : queryLocations(new StgCmtRequestImpl(studyIUID, seriesIUID, sopIUID, refSopSeq))) {
+        for (Tuple location : queryLocations(predicate)) {
             String iuid = location.get(QInstance.instance.sopInstanceUID);
             List<Tuple> list = instances.get(iuid);
             if (list == null) {
@@ -155,67 +244,18 @@ public class StgCmtEJB implements StgCmtManager {
             }
             list.add(location);
         }
-        Attributes eventInfo = new Attributes(4);
-        if (commonRetrieveAETs != null)
-            eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAETs);
-        if (transactionUID != null)
-            eventInfo.setString(Tag.TransactionUID, VR.UI, transactionUID);
-        Sequence successSeq = eventInfo.newSequence(Tag.ReferencedSOPSequence, size);
-        Sequence failedSeq = eventInfo.newSequence(Tag.FailedSOPSequence, size);
-        HashMap<String,Storage> storageMap = new HashMap<>();
-        try {
-            byte[] buffer = new byte[BUFFER_SIZE];
-            if (refSopSeq == null) {
-                List<Tuple> tuples = instances.get(sopIUID);
-                if (tuples == null)
-                    failedSeq.add(refSOP("", sopIUID, Status.NoSuchObjectInstance));
-                else {
-                    Tuple tuple = tuples.get(0);
-                    String cuid = tuple.get(QInstance.instance.sopClassUID);
-                    if (validateLocations(tuples, storageMap, buffer))
-                        successSeq.add(refSOP(cuid, sopIUID,
-                                commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
-                    else
-                        failedSeq.add(refSOP(cuid, sopIUID, Status.ProcessingFailure));
-                }
-            }
-            else
-                for (Attributes refSOP : refSopSeq) {
-                    String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
-                    String cuid = refSOP.getString(Tag.ReferencedSOPClassUID);
-                    List<Tuple> tuples = instances.get(iuid);
-                    if (tuples == null)
-                        failedSeq.add(refSOP(cuid, iuid, Status.NoSuchObjectInstance));
-                    else {
-                        Tuple tuple = tuples.get(0);
-                        if (!cuid.equals(tuple.get(QInstance.instance.sopClassUID)))
-                            failedSeq.add(refSOP(cuid, iuid, Status.ClassInstanceConflict));
-                        else if (validateLocations(tuples, storageMap, buffer))
-                            successSeq.add(refSOP(cuid, iuid,
-                                    commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
-                        else
-                            failedSeq.add(refSOP(iuid, cuid, Status.ProcessingFailure));
-                    }
-                }
-        } finally {
-            for (Storage storage : storageMap.values())
-                SafeClose.close(storage);
-        }
-        if (failedSeq.isEmpty())
-            eventInfo.remove(Tag.FailedSOPSequence);
-        return eventInfo;
+        return commonRetrieveAETs;
     }
 
-    private List<Tuple> queryLocations(StgCmtRequest req) {
-        HibernateQuery<Tuple> query = new HibernateQuery<Void>(em.unwrap(Session.class))
+    private List<Tuple> queryLocations(Predicate predicate) {
+        return new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(SELECT)
                 .from(QLocation.location)
                 .join(QLocation.location.instance, QInstance.instance)
                 .join(QInstance.instance.series, QSeries.series)
-                .join(QSeries.series.study, QStudy.study);
-
-        BooleanBuilder builder = req.createPredicate();
-        return query.where(builder).fetch();
+                .join(QSeries.series.study, QStudy.study)
+                .where(predicate)
+                .fetch();
     }
 
     private boolean validateLocations(List<Tuple> tuples, HashMap<String, Storage> storageMap, byte[] buffer) {
