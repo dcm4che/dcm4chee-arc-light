@@ -384,7 +384,7 @@ public class QidoRS {
             if (maxResults > 0 && (limitInt == 0 || limitInt >  maxResults)) {
                 int numResults = (int) (query.count() - offsetInt);
                 if (numResults == 0)
-                    return Response.ok().build();
+                    return Response.noContent().build();
 
                 if (numResults > maxResults) {
                     limitInt = maxResults;
@@ -401,7 +401,7 @@ public class QidoRS {
 
             query.executeQuery();
             if (!query.hasMoreMatches())
-                return Response.ok().build();
+                return Response.noContent().build();
 
             return Response.status(status).entity(output.entity(this, method, query, model)).build();
         } finally {
