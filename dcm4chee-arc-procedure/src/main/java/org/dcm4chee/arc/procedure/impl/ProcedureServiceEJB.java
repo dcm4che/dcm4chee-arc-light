@@ -112,8 +112,13 @@ public class ProcedureServiceEJB {
                 mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
             }
         }
-        for (Attributes mwlAttrs : mwlAttrsMap.values())
-            persistMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber, null);
+        for (Attributes mwlAttrs : mwlAttrsMap.values()) {
+            Set<String> scheduledStationAETitles = null;
+            Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
+            for (Attributes item : spsSeq)
+                scheduledStationAETitles = getSPSStationAETs(item.getStrings(Tag.ScheduledStationAETitle));
+            persistMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber, scheduledStationAETitles);
+        }
         ctx.setEventActionCode(prevMWLItems.isEmpty()
                 ? AuditMessages.EventActionCode.Create
                 : AuditMessages.EventActionCode.Update);
