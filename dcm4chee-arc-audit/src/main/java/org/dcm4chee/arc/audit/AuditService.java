@@ -592,8 +592,11 @@ public class AuditService {
             String pName = eventType == AuditServiceUtils.EventType.PAT_DELETE && ctx.getPreviousAttributes() != null
                     ? StringUtils.maskEmpty(pName(ctx.getPreviousAttributes()), null)
                     : StringUtils.maskEmpty(pName(ctx.getAttributes()), null);
-            BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest() != null
-                                ? ctx.getHttpRequest().getRemoteAddr() : ctx.getRemoteHostName())
+            String callingHost = ctx.getHttpRequest() != null
+                                ? ctx.getHttpRequest().getRemoteAddr()
+                                : msh != null || ctx.getAssociation() != null
+                                ? ctx.getRemoteHostName() : null;
+            BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(callingHost)
                                 .callingAET(source).calledAET(dest).pID(pID).pName(pName)
                                 .outcome(getOD(ctx.getException())).hl7MessageType(hl7MessageType).build();
             obj.add(new AuditInfo(i));

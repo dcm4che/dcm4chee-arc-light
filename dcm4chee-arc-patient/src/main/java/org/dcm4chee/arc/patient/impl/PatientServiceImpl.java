@@ -91,8 +91,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientMgtContext createPatientMgtContextScheduler(ApplicationEntity ae) {
-        return new PatientMgtContextImpl(device, null, null, ae, null, null);
+    public PatientMgtContext createPatientMgtContextScheduler() {
+        return new PatientMgtContextImpl(device, null, null, null, null, null);
     }
 
     @Override

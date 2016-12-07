@@ -266,7 +266,7 @@ public class DeletionServiceEJB {
         }
         em.remove(study);
         if (ctx.isDeletePatientOnDeleteLastStudy() && countStudiesOfPatient(patient) == 0) {
-            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler(getApplicationEntity());
+            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler();
             patMgtCtx.setPatient(patient);
             patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Delete);
             patMgtCtx.setAttributes(patient.getAttributes());
@@ -311,16 +311,6 @@ public class DeletionServiceEJB {
     private int deleteSeriesQueryAttributes(Series series) {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
-
-    private ApplicationEntity getApplicationEntity() {
-        String[] aets = device.getApplicationAETitles().toArray(new String[device.getApplicationAETitles().size()]);
-        StringBuilder b = new StringBuilder();
-        b.append(aets[0]);
-        for (int i = 1; i < aets.length; i++)
-            b.append(';').append(aets[i]);
-        return device.getApplicationEntity(b.toString(), true);
-    }
-
 
     public List<Long> findSeriesToPurgeInstances(int fetchSize) {
         return em.createNamedQuery(Series.SCHEDULED_PURGE_INSTANCES, Long.class)

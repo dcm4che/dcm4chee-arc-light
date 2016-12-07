@@ -64,7 +64,7 @@ public interface PatientService {
 
     PatientMgtContext createPatientMgtContextHL7(Socket socket, HL7Segment msh);
 
-    PatientMgtContext createPatientMgtContextScheduler(ApplicationEntity ae);
+    PatientMgtContext createPatientMgtContextScheduler();
 
     List<Patient> findPatients(IDWithIssuer pid);
 

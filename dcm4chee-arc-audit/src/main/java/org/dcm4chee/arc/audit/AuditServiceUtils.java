@@ -118,7 +118,7 @@ class AuditServiceUtils {
         PAT_DELETE(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
         PAT_DLT_SC(EventClass.HL7, AuditMessages.EventID.PatientRecord, AuditMessages.EventActionCode.Delete,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, false, null),
+                null, null, false, true, false, null),
 
         PROC_STD_C(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Create,
                 null, null, true, false, false, null),
