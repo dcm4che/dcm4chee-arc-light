@@ -41,26 +41,19 @@
 package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.entity.StgCmtResult;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.jboss.resteasy.annotations.cache.NoCache;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -82,33 +75,44 @@ public class StorageCmtRS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}/stgcmt")
-    public void studyStorageCommit(
+    public StreamingOutput studyStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID) {
-        storageCommit(studyUID, null, null);
+        return storageCommit(studyUID, null, null);
     }
 
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt")
-    public void seriesStorageCommit(
+    public StreamingOutput seriesStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID) {
-        storageCommit(studyUID, seriesUID, null);
+        return storageCommit(studyUID, seriesUID, null);
     }
 
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt")
-    public void instanceStorageCommit(
+    public StreamingOutput instanceStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID,
             @PathParam("SOPInstanceUID") String sopUID) {
-        storageCommit(studyUID, seriesUID, sopUID);
+        return storageCommit(studyUID, seriesUID, sopUID);
     }
 
-    private void storageCommit(String studyUID, String seriesUID, String sopUID) {
-        //TODO
+    private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
         Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID);
-        
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                try (JsonGenerator gen = Json.createGenerator(out)) {
+                    JSONWriter writer = new JSONWriter(gen);
+                    gen.writeStartArray();
+                    for (Attributes item : eventInfo.getSequence(Tag.ReferencedSOPSequence))
+                        writer.write(item);
+                    if (eventInfo.getSequence(Tag.FailedSOPSequence) != null)
+                        for (Attributes item : eventInfo.getSequence(Tag.FailedSOPSequence))
+                            writer.write(item);
+                    gen.writeEnd();
+                }
+            }
+        };
     }
-
-
 }

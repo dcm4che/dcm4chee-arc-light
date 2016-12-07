@@ -40,28 +40,13 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.Status;
-import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StreamUtils;
-import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgCmtSCP;
-import org.dcm4chee.arc.storage.ReadContext;
-import org.dcm4chee.arc.storage.Storage;
-import org.dcm4chee.arc.storage.StorageFactory;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,11 +61,6 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -107,7 +87,7 @@ public class StgCmtSCPMDB implements MessageListener {
     private StgCmtSCP stgCmtSCP;
 
     @Inject
-    private StgCmtEJB ejb;
+    private StgCmtManager stgCmtMgr;
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -124,7 +104,7 @@ public class StgCmtSCPMDB implements MessageListener {
             return;
         try {
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
-            Attributes eventInfo = ejb.calculateResult(
+            Attributes eventInfo = stgCmtMgr.calculateResult(
                     actionInfo.getSequence(Tag.ReferencedSOPSequence),
                     actionInfo.getString(Tag.TransactionUID));
             Outcome outcome = stgCmtSCP.sendNEventReport(

@@ -63,7 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -80,7 +79,7 @@ import com.querydsl.core.types.Predicate;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2016
  */
-@ApplicationScoped
+@Stateless
 public class StgCmtEJB implements StgCmtManager {
 
     private final Logger LOG = LoggerFactory.getLogger(StgCmtEJB.class);
@@ -391,8 +390,7 @@ public class StgCmtEJB implements StgCmtManager {
     @Override
     public List<StgCmtResult> listStgCmts(
             StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit) {
-        StatelessSession session = openStatelessSession();
-        HibernateQuery<StgCmtResult> query = getStgCmtResults(session, status, studyUID, exporterID);
+        HibernateQuery<StgCmtResult> query = getStgCmtResults(status, studyUID, exporterID);
         List<StgCmtResult> results = query.fetch();
         if (results.isEmpty())
             return Collections.emptyList();
@@ -432,10 +430,10 @@ public class StgCmtEJB implements StgCmtManager {
         return results.size();
     }
 
-    private HibernateQuery<StgCmtResult> getStgCmtResults(
-            StatelessSession session, StgCmtResult.Status status, String studyUID, String exporterId) {
+    private HibernateQuery<StgCmtResult> getStgCmtResults(StgCmtResult.Status status, String studyUID, String exporterId) {
         Predicate predicate = getPredicates(status, studyUID, exporterId);
-        HibernateQuery<StgCmtResult> query = new HibernateQuery<Void>(session).select(QStgCmtResult.stgCmtResult).from(QStgCmtResult.stgCmtResult);
+        HibernateQuery<StgCmtResult> query = new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(QStgCmtResult.stgCmtResult).from(QStgCmtResult.stgCmtResult);
         return query.where(predicate);
     }
 
