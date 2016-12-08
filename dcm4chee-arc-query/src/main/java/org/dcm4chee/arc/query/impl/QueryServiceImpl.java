@@ -177,6 +177,13 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
+        return ejb.calculateSeriesQueryAttributes(seriesPk, qrView,
+                codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()),
+                codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
+    }
+
+    @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);

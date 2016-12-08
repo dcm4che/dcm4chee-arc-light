@@ -46,10 +46,12 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.impl.StoreServiceEJB;
 
 import javax.ejb.Stateless;
@@ -57,10 +59,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -86,6 +85,9 @@ public class DeletionServiceEJB {
 
     @Inject
     private StoreServiceEJB storeEjb;
+
+    @Inject
+    private QueryService queryService;
 
     public List<Location> findLocationsToDelete(String storageID, int limit) {
         return em.createNamedQuery(Location.FIND_BY_STORAGE_ID_AND_STATUS, Location.class)
@@ -326,6 +328,7 @@ public class DeletionServiceEJB {
         if (locations.isEmpty())
             return;
 
+        calculateMissingSeriesQueryAttributes(seriesPk);
         Series series = locations.get(0).getInstance().getSeries();
         for (Location location : locations) {
             switch (location.getObjectType()) {
@@ -345,5 +348,16 @@ public class DeletionServiceEJB {
             storeEjb.removeOrphaned(uidMap);
         series.setInstancePurgeState(Series.InstancePurgeState.PURGED);
         series.setInstancePurgeTime(null);
+    }
+
+    private void calculateMissingSeriesQueryAttributes(Long seriesPk) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
+        viewIDs.removeAll(em.createNamedQuery(SeriesQueryAttributes.VIEW_IDS_FOR_SERIES_PK, String.class)
+                .setParameter(1, seriesPk)
+                .getResultList());
+        for (String viewID : viewIDs) {
+            queryService.calculateSeriesQueryAttributes(seriesPk, arcDev.getQueryRetrieveView(viewID));
+        }
     }
 }

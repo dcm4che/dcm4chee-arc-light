@@ -157,7 +157,7 @@ class SeriesQuery extends AbstractQuery {
             if (numberOfSeriesRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
                 return null;
             }
-            retrieveAETs = seriesView.getRawRetrieveAETs();
+            retrieveAETs = seriesView.getRetrieveAETs();
             availability = seriesView.getAvailability();
         }
 
@@ -215,8 +215,8 @@ class SeriesQuery extends AbstractQuery {
                     .calculateStudyQueryAttributes(studyPk, context.getQueryParam());
             numberOfStudyRelatedInstances = studyView.getNumberOfInstances();
             numberOfStudyRelatedSeries = studyView.getNumberOfSeries();
-            modalitiesInStudy = studyView.getRawModalitiesInStudy();
-            sopClassesInStudy = studyView.getRawSOPClassesInStudy();
+            modalitiesInStudy = studyView.getModalitiesInStudy();
+            sopClassesInStudy = studyView.getSOPClassesInStudy();
         }
 
         Attributes patAttrs = AttributesBlob.decodeAttributes(

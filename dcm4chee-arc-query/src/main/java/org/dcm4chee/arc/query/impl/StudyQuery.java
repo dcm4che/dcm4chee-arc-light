@@ -146,9 +146,9 @@ class StudyQuery extends AbstractQuery {
                 return null;
             }
             numberOfStudyRelatedSeries = studyView.getNumberOfSeries();
-            modalitiesInStudy = studyView.getRawModalitiesInStudy();
-            sopClassesInStudy = studyView.getRawSOPClassesInStudy();
-            retrieveAETs = studyView.getRawRetrieveAETs();
+            modalitiesInStudy = studyView.getModalitiesInStudy();
+            sopClassesInStudy = studyView.getSOPClassesInStudy();
+            retrieveAETs = studyView.getRetrieveAETs();
             availability = studyView.getAvailability();
         }
         Attributes studyAttrs = AttributesBlob.decodeAttributes(

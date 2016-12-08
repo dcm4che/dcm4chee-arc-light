@@ -718,10 +718,6 @@ class ArchiveDeviceFactory {
                     REJECTION_CODES,
                     new Code[0],
                     true);
-    static final QueryRetrieveView[] QUERY_RETRIEVE_VIEWS = {
-            HIDE_REJECTED_VIEW,
-            REGULAR_USE_VIEW,
-            TRASH_VIEW};
 
     static final String[] MPPS_FORWARD_DESTINATIONS = {
             "MPPSCP",
@@ -1151,7 +1147,10 @@ class ArchiveDeviceFactory {
             ext.setDeletePatientOnDeleteLastStudy(true);
             ext.setMaxAccessTimeStaleness(MAX_ACCESS_TIME_STALENESS);
         }
-        ext.setQueryRetrieveViews(QUERY_RETRIEVE_VIEWS);
+        ext.addQueryRetrieveView(HIDE_REJECTED_VIEW);
+        ext.addQueryRetrieveView(REGULAR_USE_VIEW);
+        ext.addQueryRetrieveView(TRASH_VIEW);
+
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
         ext.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);
         ext.setWadoSupportedSRClasses(SR_CUIDS);

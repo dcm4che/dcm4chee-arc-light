@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.entity;
 
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 
 import javax.persistence.*;
@@ -49,16 +48,24 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  *
  */
+@NamedQueries({
 @NamedQuery(
     name = SeriesQueryAttributes.DELETE_FOR_SERIES,
     query = "delete from SeriesQueryAttributes a where a.series = ?1"
+),
+@NamedQuery(
+    name = SeriesQueryAttributes.VIEW_IDS_FOR_SERIES_PK,
+    query = "select a.viewID from SeriesQueryAttributes a where a.series.pk = ?1"
 )
+})
 @Entity
 @Table(name = "series_query_attrs", uniqueConstraints =
     @UniqueConstraint(columnNames = { "view_id", "series_fk" }))
 public class SeriesQueryAttributes {
 
     public static final String DELETE_FOR_SERIES = "SeriesQueryAttributes.deleteForSeries";
+    public static final String VIEW_IDS_FOR_SERIES_PK = "SeriesQueryAttributes.viewIDsForSeriesPk";
+
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pk")
@@ -69,6 +76,9 @@ public class SeriesQueryAttributes {
 
     @Column(name = "num_instances")
     private int numberOfInstances;
+
+    @Column(name = "cuids_in_series")
+    private String sopClassesInSeries;
 
     @Column(name = "retrieve_aets")
     private String retrieveAETs;
@@ -100,16 +110,20 @@ public class SeriesQueryAttributes {
         this.numberOfInstances = numberOfInstances;
     }
 
-    public String getRawRetrieveAETs() {
+    public String getSOPClassesInSeries() {
+        return sopClassesInSeries;
+    }
+
+    public void setSOPClassesInSeries(String sopClassesInSeries) {
+        this.sopClassesInSeries = sopClassesInSeries;
+    }
+
+    public String getRetrieveAETs() {
         return retrieveAETs;
     }
 
-    public String[] getRetrieveAETs() {
-        return StringUtils.split(retrieveAETs, '\\');
-    }
-
-    public void setRetrieveAETs(String... retrieveAETs) {
-        this.retrieveAETs = StringUtils.concat(retrieveAETs, '\\');
+    public void setRetrieveAETs(String retrieveAETs) {
+        this.retrieveAETs = retrieveAETs;
     }
 
     public Availability getAvailability() {

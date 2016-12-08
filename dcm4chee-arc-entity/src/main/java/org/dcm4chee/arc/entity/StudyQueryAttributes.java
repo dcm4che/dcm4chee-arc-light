@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.entity;
 
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 
 import javax.persistence.*;
@@ -118,40 +117,28 @@ public class StudyQueryAttributes {
         this.numberOfInstances = numberOfInstances;
     }
 
-    public String getRawModalitiesInStudy() {
+    public String getModalitiesInStudy() {
         return modalitiesInStudy;
     }
 
-    public String[] getModalitiesInStudy() {
-        return StringUtils.split(modalitiesInStudy, '\\');
+    public void setModalitiesInStudy(String modalitiesInStudy) {
+        this.modalitiesInStudy = modalitiesInStudy;
     }
 
-    public void setModalitiesInStudy(String... modalitiesInStudy) {
-        this.modalitiesInStudy = StringUtils.concat(modalitiesInStudy, '\\');
-    }
-
-    public String getRawSOPClassesInStudy() {
+    public String getSOPClassesInStudy() {
         return sopClassesInStudy;
     }
 
-    public String[] getSOPClassesInStudy() {
-        return StringUtils.split(sopClassesInStudy, '\\');
+    public void setSOPClassesInStudy(String sopClassesInStudy) {
+        this.sopClassesInStudy = sopClassesInStudy;
     }
 
-    public void setSOPClassesInStudy(String... sopClassesInStudy) {
-        this.sopClassesInStudy = StringUtils.concat(sopClassesInStudy, '\\');
-    }
-
-    public String getRawRetrieveAETs() {
+    public String getRetrieveAETs() {
         return retrieveAETs;
     }
 
-    public String[] getRetrieveAETs() {
-        return StringUtils.split(retrieveAETs, '\\');
-    }
-
-    public void setRetrieveAETs(String... retrieveAETs) {
-        this.retrieveAETs = StringUtils.concat(retrieveAETs, '\\');
+    public void setRetrieveAETs(String retrieveAETs) {
+        this.retrieveAETs = retrieveAETs;
     }
 
     public Availability getAvailability() {

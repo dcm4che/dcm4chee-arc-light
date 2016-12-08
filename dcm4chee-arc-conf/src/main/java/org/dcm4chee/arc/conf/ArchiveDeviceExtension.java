@@ -143,7 +143,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
     private final Map<String,MetadataFilter> metadataFilters = new HashMap<>();
     private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
-    private QueryRetrieveView[] queryRetrieveViews = {};
+    private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
@@ -919,20 +919,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return idGenerators;
     }
 
-    public QueryRetrieveView[] getQueryRetrieveViews() {
-        return queryRetrieveViews;
-    }
-
-    public void setQueryRetrieveViews(QueryRetrieveView... queryRetrieveViews) {
-        this.queryRetrieveViews = queryRetrieveViews;
-    }
-
     public QueryRetrieveView getQueryRetrieveView(String viewID) {
-        for (QueryRetrieveView view : queryRetrieveViews) {
-            if (view.getViewID().equals(viewID))
-                return view;
-        }
-        return null;
+        return queryRetrieveViewMap.get(viewID);
     }
 
     public QueryRetrieveView getQueryRetrieveViewNotNull(String viewID) {
@@ -940,6 +928,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         if (view == null)
             throw new IllegalArgumentException("No Query Retrieve View configured with ID:" + viewID);
         return view;
+    }
+
+    public QueryRetrieveView removeQueryRetrieveView(String viewID) {
+        return queryRetrieveViewMap.remove(viewID);
+    }
+
+    public void addQueryRetrieveView(QueryRetrieveView view) {
+        queryRetrieveViewMap.put(view.getViewID(), view);
+    }
+
+    public Collection<QueryRetrieveView> getQueryRetrieveViews() {
+        return queryRetrieveViewMap.values();
+    }
+
+    public Collection<String> getQueryRetrieveViewIDs() {
+        return queryRetrieveViewMap.keySet();
     }
 
     public StorageDescriptor getStorageDescriptor(String storageID) {
@@ -1209,7 +1213,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         importReportTemplateURI = arcdev.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
-        queryRetrieveViews = arcdev.queryRetrieveViews;
+        queryRetrieveViewMap.clear();
+        queryRetrieveViewMap.putAll(arcdev.queryRetrieveViewMap);
         mppsForwardDestinations = arcdev.mppsForwardDestinations;
         ianDestinations = arcdev.ianDestinations;
         ianDelay = arcdev.ianDelay;

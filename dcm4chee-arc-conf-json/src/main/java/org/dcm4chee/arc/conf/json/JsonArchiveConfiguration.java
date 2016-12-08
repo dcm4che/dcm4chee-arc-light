@@ -171,7 +171,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
-        writeQueryRetrieve(writer, arcDev.getQueryRetrieveViews());
+        writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
         writeQueue(writer, arcDev.getQueueDescriptors());
         writeExporterDescriptor(writer, arcDev.getExporterDescriptors());
         writeExportRule(writer, arcDev.getExportRules());
@@ -247,7 +247,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return ss;
     }
 
-    protected void writeQueryRetrieve(JsonWriter writer, QueryRetrieveView[] queryRetrieveViewList) {
+    protected void writeQueryRetrieveView(JsonWriter writer, Collection<QueryRetrieveView> queryRetrieveViewList) {
         writer.writeStartArray("dcmQueryRetrieveView");
         for (QueryRetrieveView qrv : queryRetrieveViewList) {
             writer.writeStartObject();
@@ -928,7 +928,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadQueryRetrieveViewFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
-        Collection<QueryRetrieveView> qrviews = new ArrayList<>();
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -953,9 +952,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            qrviews.add(qrv);
+            arcDev.addQueryRetrieveView(qrv);
         }
-        arcDev.setQueryRetrieveViews(qrviews.toArray(new QueryRetrieveView[0]));
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 

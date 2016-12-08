@@ -1635,7 +1635,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private void loadQueryRetrieveViews(ArchiveDeviceExtension arcdev, String deviceDN) throws NamingException {
-        ArrayList<QueryRetrieveView> views = new ArrayList<>();
         NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmQueryRetrieveView)");
         try {
             while (ne.hasMore()) {
@@ -1649,12 +1648,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.codeArray(attrs.get("dcmHideRejectionNoteWithCode")));
                 view.setHideNotRejectedInstances(
                         LdapUtils.booleanValue(attrs.get("dcmHideNotRejectedInstances"), false));
-                views.add(view);
+                arcdev.addQueryRetrieveView(view);
             }
         } finally {
             LdapUtils.safeClose(ne);
         }
-        arcdev.setQueryRetrieveViews(views.toArray(new QueryRetrieveView[views.size()]));
     }
 
     private void mergeQueryRetrieveViews(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
