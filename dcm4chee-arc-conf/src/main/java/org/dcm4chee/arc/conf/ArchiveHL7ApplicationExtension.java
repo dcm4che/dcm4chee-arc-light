@@ -45,9 +45,7 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,6 +62,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String hl7ErrorLogFilePattern;
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<ScheduledStation> scheduledStations = new ArrayList<>();
+    private final EnumMap<SPSStatus,HL7Order2SPSStatus> hl7Order2SPSStatuses = new EnumMap<>(SPSStatus.class);
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -82,6 +81,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
         scheduledStations.clear();
         scheduledStations.addAll(arcapp.scheduledStations);
+        hl7Order2SPSStatuses.clear();
+        hl7Order2SPSStatuses.putAll(arcapp.hl7Order2SPSStatuses);
     }
 
     public String getAETitle() {
@@ -216,4 +217,26 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                     }
         return scheduledStations;
     }
+    public void removeHL7Order2SPSStatus(HL7Order2SPSStatus rule) {
+        hl7Order2SPSStatuses.remove(rule.getSpsStatus());
+    }
+
+    public void clearHL7Order2SPSStatuses() {
+        hl7Order2SPSStatuses.clear();
+    }
+
+    public void addHL7Order2SPSStatus(HL7Order2SPSStatus rule) {
+        hl7Order2SPSStatuses.put(rule.getSpsStatus(), rule);
+    }
+
+    public Map<SPSStatus, HL7Order2SPSStatus> getHL7Order2SPSStatuses() {
+        return hl7Order2SPSStatuses;
+    }
+
+    public Collection<HL7Order2SPSStatus> hl7Order2SPSStatuses() {
+        return (hl7Order2SPSStatuses.isEmpty()
+                ? getArchiveDeviceExtension().getHL7Order2SPSStatuses()
+                : hl7Order2SPSStatuses).values();
+    }
+
 }

@@ -1,0 +1,55 @@
+{
+  "title": "SPS Status for HL7 Order",
+  "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages",
+  "type": "object",
+  "required": [
+    "dcmSPSStatus",
+    "hl7OrderControlCode",
+    "hl7OrderStatus"
+  ],
+  "properties": {
+    "dcmSPSStatus": {
+      "title": "Scheduled Procedure Step Status code",
+      "description": "Scheduled Procedure Step Status code",
+      "type": "string",
+      "enum": [
+        "SCHEDULED",
+        "ARRIVED",
+        "READY",
+        "STARTED",
+        "DEPARTED",
+        "CANCELLED",
+        "DISCONTINUED",
+        "COMPLETED"
+      ]
+    },
+    "hl7OrderControlCode": {
+      "title": "HL7 Order Control Code",
+      "description": "HL7 Order Control Code",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "NW",
+          "CA",
+          "DC",
+          "XO"
+        ]
+      }
+    },
+    "hl7OrderStatus": {
+      "title": "HL7 Order Status",
+      "description": "HL7 Order Status",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "SC",
+          "IP",
+          "CA",
+          "CM"
+        ]
+      }
+    }
+  }
+}

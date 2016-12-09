@@ -48,6 +48,14 @@
       "items" : {
         "$ref": "scheduledStation.schema.json"
       }
+    },
+    "hl7Order2SPSStatus": {
+      "title": "SPS Status for HL7 Order",
+      "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages",
+      "type": "array",
+      "items" : {
+        "$ref": "hl7Order2SPSStatus.schema.json"
+      }
     }
   }
 }

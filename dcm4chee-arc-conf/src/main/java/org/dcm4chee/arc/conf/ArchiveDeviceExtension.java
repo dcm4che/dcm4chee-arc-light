@@ -42,6 +42,8 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
 import java.time.LocalTime;
+
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
@@ -152,6 +154,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<ScheduledStation> scheduledStations = new ArrayList<>();
+    private final EnumMap<SPSStatus,HL7Order2SPSStatus> hl7Order2SPSStatuses = new EnumMap<>(SPSStatus.class);
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -1086,6 +1089,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return scheduledStations;
     }
 
+    public void removeHL7Order2SPSStatus(HL7Order2SPSStatus rule) {
+        hl7Order2SPSStatuses.remove(rule.getSpsStatus());
+    }
+
+    public void clearHL7Order2SPSStatuses() {
+        hl7Order2SPSStatuses.clear();
+    }
+
+    public void addHL7Order2SPSStatus(HL7Order2SPSStatus rule) {
+        hl7Order2SPSStatuses.put(rule.getSpsStatus(), rule);
+    }
+
+    public Map<SPSStatus, HL7Order2SPSStatus> getHL7Order2SPSStatuses() {
+        return hl7Order2SPSStatuses;
+    }
+
     public void removeCompressionRule(ArchiveCompressionRule rule) {
         compressionRules.remove(rule);
     }
@@ -1308,6 +1327,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ForwardRules.addAll(arcdev.hl7ForwardRules);
         scheduledStations.clear();
         scheduledStations.addAll(arcdev.scheduledStations);
+        hl7Order2SPSStatuses.clear();
+        hl7Order2SPSStatuses.putAll(arcdev.hl7Order2SPSStatuses);
         compressionRules.clear();
         compressionRules.addAll(arcdev.compressionRules);
         studyRetentionPolicies.clear();

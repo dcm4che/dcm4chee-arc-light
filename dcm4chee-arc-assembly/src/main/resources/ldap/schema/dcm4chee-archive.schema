@@ -827,6 +827,22 @@ attributetype ( 1.2.40.0.13.1.15.110.3.138 NAME 'dcmScheduledStationDeviceRefere
    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
    SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.139 NAME 'dcmSPSStatus'
+  DESC 'Scheduled Procedure Step Status code. Enumerated values: SCHEDULED, ARRIVED, READY, STARTED, DEPARTED, CANCELLED, DISCONTINUED, COMPLETED'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.140 NAME 'hl7OrderControlCode'
+  DESC 'HL7 Order Control Code. Enumerated values: NW, CA, DC, XO'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.141 NAME 'hl7OrderStatus'
+  DESC 'HL7 Order Status. Enumerated values: SC, IP, CA, CM'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1165,3 +1181,11 @@ objectclass ( 1.2.40.0.13.1.15.110.4.27 NAME 'dcmScheduledStation'
   MAY (
     dcmRulePriority $
     dcmProperty ) )
+
+objectclass ( 1.2.40.0.13.1.15.110.4.28 NAME 'hl7Order2SPSStatus'
+  DESC 'Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages.'
+  SUP top STRUCTURAL
+  MUST (
+    dcmSPSStatus $
+    hl7OrderControlCode $
+    hl7OrderStatus ) )
