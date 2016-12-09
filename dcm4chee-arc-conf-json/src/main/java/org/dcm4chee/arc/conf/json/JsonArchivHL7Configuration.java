@@ -1,5 +1,7 @@
 package org.dcm4chee.arc.conf.json;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.conf.json.hl7.JsonHL7ConfigurationExtension;
@@ -29,24 +31,27 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNull("hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern());
         writer.writeNotNull("dicomAETitle", ext.getAETitle());
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
+        JsonArchiveConfiguration.writeScheduledStations(writer, ext.getScheduledStations());
         writer.writeEnd();
     }
 
     @Override
-    public boolean loadHL7ApplicationExtension(Device device, HL7Application hl7App, JsonReader reader) {
+    public boolean loadHL7ApplicationExtension(Device device, HL7Application hl7App, JsonReader reader,
+                                               ConfigurationDelegate config) throws ConfigurationException {
         if (!reader.getString().equals("dcmArchiveHL7Application"))
             return false;
 
         reader.next();
         reader.expect(JsonParser.Event.START_OBJECT);
         ArchiveHL7ApplicationExtension ext = new ArchiveHL7ApplicationExtension();
-        loadFrom(ext, reader);
+        loadFrom(ext, reader, config);
         hl7App.addHL7ApplicationExtension(ext);
         reader.expect(JsonParser.Event.END_OBJECT);
         return true;
     }
 
-    private void loadFrom(ArchiveHL7ApplicationExtension ext, JsonReader reader) {
+    private void loadFrom(ArchiveHL7ApplicationExtension ext, JsonReader reader, ConfigurationDelegate config)
+            throws ConfigurationException {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
                 case "hl7PatientUpdateTemplateURI":
@@ -69,6 +74,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);
+                    break;
+                case "dcmScheduledStation":
+                    JsonArchiveConfiguration.loadScheduledStations(ext.getScheduledStations(), reader, config);
                     break;
                 default:
                     reader.skipUnknownProperty();

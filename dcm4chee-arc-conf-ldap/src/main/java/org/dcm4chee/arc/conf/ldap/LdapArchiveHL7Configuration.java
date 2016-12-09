@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf.ldap;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.conf.ldap.hl7.LdapHL7ConfigurationExtension;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -79,6 +80,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
             return;
 
         LdapArchiveConfiguration.storeHL7ForwardRules(ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.storeScheduledStations(ext.getScheduledStations(), appDN, getDicomConfiguration());
     }
 
     @Override
@@ -98,13 +100,14 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
     }
 
     @Override
-    public void loadChilds(HL7Application hl7App, String appDN) throws NamingException {
+    public void loadChilds(HL7Application hl7App, String appDN) throws NamingException, ConfigurationException {
         ArchiveHL7ApplicationExtension ext =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         if (ext == null)
             return;
 
         LdapArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.loadScheduledStations(ext.getScheduledStations(), appDN, getDicomConfiguration());
     }
 
     @Override
@@ -138,6 +141,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
 
         LdapArchiveConfiguration.mergeHL7ForwardRules(
                 aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.mergeScheduledStations(
+                aa.getScheduledStations(), bb.getScheduledStations(), appDN, getDicomConfiguration());
     }
 
 }

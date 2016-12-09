@@ -205,15 +205,16 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     public Collection<Device> scheduledStations(String hostName, HL7Segment msh, Attributes attrs) {
         ArrayList<Device> scheduledStations = new ArrayList<>();
         int priority = 0;
-        for (Collection<ScheduledStation> rules
+        for (Collection<ScheduledStation> stations
                 : new Collection[]{scheduledStations, getArchiveDeviceExtension().getScheduledStations() })
-            for (ScheduledStation rule : rules)
-                if (rule.match(hostName, msh, attrs))
-                    if (priority <= rule.getPriority()) {
-                        if (priority < rule.getPriority()) {
-                            priority = rule.getPriority();
+            for (ScheduledStation station : stations)
+                if (station.match(hostName, msh, attrs))
+                    if (priority <= station.getPriority()) {
+                        if (priority < station.getPriority()) {
+                            priority = station.getPriority();
                             scheduledStations.clear();
                         }
+                        scheduledStations.add(station.getDevice());
                     }
         return scheduledStations;
     }

@@ -151,12 +151,12 @@
       </xsl:choose>
     </xsl:variable>
     <Item number="1">
-      <!-- Scheduled Station AE Title -->
+      <!-- Scheduled Station AE Title
       <xsl:call-template name="attr">
         <xsl:with-param name="tag" select="'00400001'"/>
         <xsl:with-param name="vr" select="'AE'"/>
         <xsl:with-param name="val" select="string(field[18]/text())"/>
-      </xsl:call-template>
+      </xsl:call-template>-->
       <!-- Scheduled Procedure Step Start Date/Time -->
       <xsl:call-template name="attrDATM">
         <xsl:with-param name="datag" select="'00400002'"/>

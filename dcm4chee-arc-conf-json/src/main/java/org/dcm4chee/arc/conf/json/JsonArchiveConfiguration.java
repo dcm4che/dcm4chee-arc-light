@@ -184,6 +184,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeHL7ForwardRules(writer, arcDev.getHL7ForwardRules());
         writeRSForwardRules(writer, arcDev.getRSForwardRules());
         writeMetadataFilters(writer, arcDev);
+        writeScheduledStations(writer, arcDev.getScheduledStations());
         writer.writeEnd();
     }
 
@@ -415,6 +416,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
+    protected static void writeScheduledStations(JsonWriter writer, Collection<ScheduledStation> stations) {
+        writer.writeStartArray("dcmScheduledStation");
+        for (ScheduledStation station : stations) {
+            writer.writeStartObject();
+            writer.writeNotNull("cn", station.getCommonName());
+            writer.writeNotNull("dcmScheduledStationDeviceReference", station.getDeviceName());
+            writer.writeNotDef("dcmRulePriority", station.getPriority(), 0);
+            writer.writeNotEmpty("dcmProperty", toStrings(station.getConditions().getMap()));
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
     protected static void writeRSForwardRules(JsonWriter writer, Collection<RSForwardRule> rules) {
         writer.writeStartArray("dcmRSForwardRule");
         for (RSForwardRule rule : rules) {
@@ -514,13 +528,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.next();
         reader.expect(JsonParser.Event.START_OBJECT);
         ArchiveDeviceExtension arcDev = new ArchiveDeviceExtension();
-        loadFrom(arcDev, reader, device.listConnections());
+        loadFrom(arcDev, reader, device.listConnections(), config);
         device.addDeviceExtension(arcDev);
         reader.expect(JsonParser.Event.END_OBJECT);
         return true;
     }
 
-    private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader, List<Connection> conns) {
+    private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader, List<Connection> conns,
+                          ConfigurationDelegate config) throws ConfigurationException {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
                 case "dcmFuzzyAlgorithmClass":
@@ -817,6 +832,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMetadataFilter":
                     loadMetadataFilterListFrom(arcDev, reader);
+                    break;
+                case "dcmScheduledStation":
+                    loadScheduledStations(arcDev.getScheduledStations(), reader, config);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -1321,6 +1339,37 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             rules.add(rule);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    static void loadScheduledStations(Collection<ScheduledStation> stations, JsonReader reader,
+                                      ConfigurationDelegate config) throws ConfigurationException {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            ScheduledStation station = new ScheduledStation();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "cn":
+                        station.setCommonName(reader.stringValue());
+                        break;
+                    case "dcmScheduledStationDeviceReference":
+                        station.setDevice(config.findDevice(reader.stringValue()));
+                        break;
+                    case "dcmRulePriority":
+                        station.setPriority(reader.intValue());
+                        break;
+                    case "dcmProperty":
+                        station.setConditions(new HL7Conditions(reader.stringArray()));
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            stations.add(station);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

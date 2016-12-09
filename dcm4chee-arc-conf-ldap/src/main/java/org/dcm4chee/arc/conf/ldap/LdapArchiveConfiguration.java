@@ -446,6 +446,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN, config);
         storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
         storeMetadataFilter(deviceDN, arcDev);
+        storeScheduledStations(arcDev.getScheduledStations(), deviceDN, config);
     }
 
     @Override
@@ -470,6 +471,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN, config);
         loadRSForwardRules(arcdev.getRSForwardRules(), deviceDN);
         loadMetadataFilters(arcdev, deviceDN);
+        loadScheduledStations(arcdev.getScheduledStations(), deviceDN, config);
     }
 
     @Override
@@ -497,6 +499,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
         mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
         mergeMetadataFilters(aa, bb, deviceDN);
+        mergeScheduledStations(aa.getScheduledStations(), bb.getScheduledStations(), deviceDN, config);
     }
 
     @Override
@@ -1278,6 +1281,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    protected static void storeScheduledStations(
+            Collection<ScheduledStation> stations, String parentDN, LdapDicomConfiguration config)
+            throws NamingException{
+        for (ScheduledStation station : stations) {
+            String cn = station.getCommonName();
+            config.createSubcontext(
+                    LdapUtils.dnOf("cn", cn, parentDN),
+                    storeTo(station, new BasicAttributes(true)));
+        }
+    }
+
     private void storeRSForwardRules(Collection<RSForwardRule> rules, String parentDN)
             throws NamingException {
         for (RSForwardRule rule : rules) {
@@ -1322,6 +1336,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotEmpty(attrs, "hl7FwdApplicationName", rule.getDestinations());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        return attrs;
+    }
+
+    private static Attributes storeTo(ScheduledStation station, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmScheduledStation");
+        attrs.put("cn", station.getCommonName());
+        LdapUtils.storeNotNull(attrs, "dcmScheduledStationDeviceReference", station.getDeviceName());
+        LdapUtils.storeNotDef(attrs, "dcmRulePriority", station.getPriority(), 0);
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(station.getConditions().getMap()));
         return attrs;
     }
 
@@ -1401,6 +1424,26 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setDestinations(LdapUtils.stringArray(attrs.get("hl7FwdApplicationName")));
                 rule.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 rules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    protected static void loadScheduledStations(
+            Collection<ScheduledStation> stations, String parentDN, LdapDicomConfiguration config)
+            throws NamingException, ConfigurationException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmScheduledStation)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                ScheduledStation station = new ScheduledStation(LdapUtils.stringValue(attrs.get("cn"), null));
+                station.setDevice(config.loadDevice(
+                        LdapUtils.stringValue(attrs.get("dcmScheduledStationDeviceReference"), null)));
+                station.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                station.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                stations.add(station);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -1500,6 +1543,25 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    protected static void mergeScheduledStations(Collection<ScheduledStation> prevStations, Collection<ScheduledStation> stations,
+                                               String parentDN, LdapDicomConfiguration config)
+            throws NamingException {
+        for (ScheduledStation prevRule : prevStations) {
+            String cn = prevRule.getCommonName();
+            if (findScheduledStationByCN(stations, cn) == null)
+                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+        }
+        for (ScheduledStation station : stations) {
+            String cn = station.getCommonName();
+            String dn = LdapUtils.dnOf("cn", cn, parentDN);
+            ScheduledStation prevStation = findScheduledStationByCN(prevStations, cn);
+            if (prevStation == null)
+                config.createSubcontext(dn, storeTo(station, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prevStation, station, new ArrayList<ModificationItem>()));
+        }
+    }
+
     private void mergeAttributeCoercions(
             Collection<ArchiveAttributeCoercion> prevCoercions,
             Collection<ArchiveAttributeCoercion> coercions,
@@ -1574,6 +1636,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private static List<ModificationItem> storeDiffs(
+            ScheduledStation prev, ScheduledStation station, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "dcmScheduledStationDeviceReference", prev.getDeviceName(), station.getDeviceName());
+        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), station.getPriority(), 0);
+
+        return mods;
+    }
+
     private List<ModificationItem> storeDiffs(
             RSForwardRule prev, RSForwardRule rule, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(mods, "dcmURI", prev.getBaseURI(), rule.getBaseURI());
@@ -1607,6 +1677,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (HL7ForwardRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
+        return null;
+    }
+
+    private static ScheduledStation findScheduledStationByCN(Collection<ScheduledStation> stations, String cn) {
+        for (ScheduledStation station : stations)
+            if (station.getCommonName().equals(cn))
+                return station;
         return null;
     }
 
