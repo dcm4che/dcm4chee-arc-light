@@ -112,13 +112,8 @@ public class ProcedureServiceEJB {
                 mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
             }
         }
-        for (Attributes mwlAttrs : mwlAttrsMap.values()) {
-            Set<String> scheduledStationAETitles = null;
-            Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
-            for (Attributes item : spsSeq)
-                scheduledStationAETitles = getSPSStationAETs(item.getStrings(Tag.ScheduledStationAETitle));
-            persistMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber, scheduledStationAETitles);
-        }
+        for (Attributes mwlAttrs : mwlAttrsMap.values())
+            persistMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber);
         ctx.setEventActionCode(prevMWLItems.isEmpty()
                 ? AuditMessages.EventActionCode.Create
                 : AuditMessages.EventActionCode.Update);
@@ -126,91 +121,31 @@ public class ProcedureServiceEJB {
 
     private void updateProcedureForWeb(ProcedureContext ctx, Patient patient, Attributes attrs,
                                        IssuerEntity issuerOfAccessionNumber) {
-        Set<String> scheduledStationAETitles = null;
         Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
         String spsID = null;
-        for (Attributes item : spsSeq) {
+        for (Attributes item : spsSeq)
             spsID = item.getString(Tag.ScheduledProcedureStepID);
-            scheduledStationAETitles = getSPSStationAETs(item.getStrings(Tag.ScheduledStationAETitle));
-        }
         try {
             MWLItem mwlItem = em.createNamedQuery(MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID, MWLItem.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .setParameter(2, spsID).getSingleResult();
             mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
             mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-            processScheduledStationAETitles(mwlItem, scheduledStationAETitles);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         } catch (NoResultException e) {
-            persistMWL(ctx, patient, attrs, issuerOfAccessionNumber, scheduledStationAETitles);
+            persistMWL(ctx, patient, attrs, issuerOfAccessionNumber);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         }
     }
 
-    private Set<String> getSPSStationAETs(String... ssAETs) {
-        Set<String> scheduledStationAETitles = new HashSet<>();
-        if (ssAETs != null)
-            for (String s : ssAETs)
-                if (!s.equals(""))
-                    scheduledStationAETitles.add(s);
-        return scheduledStationAETitles;
-    }
-
-    private enum SPSStationAETEvent {
-        NONE, ADD_ALL, MODIFY, CLEAR_ALL
-    }
-
-    private void processScheduledStationAETitles(MWLItem mwlItem, Set<String> ssAETsFromUser) {
-        Set<String> ssAETsFromMWL = mwlItem.getScheduledStationAETs();
-        SPSStationAETEvent event = ssAETsFromUser.isEmpty()
-                                    ? ssAETsFromMWL.isEmpty()
-                                        ? SPSStationAETEvent.NONE : SPSStationAETEvent.CLEAR_ALL
-                                    : ssAETsFromMWL.isEmpty()
-                                        ? SPSStationAETEvent.ADD_ALL : SPSStationAETEvent.MODIFY;
-        switch (event) {
-            case ADD_ALL:
-                addAllScheduledStationAETsToMWL(ssAETsFromUser, mwlItem);
-                break;
-            case MODIFY:
-                modifyMWLScheduledStationAETs(mwlItem, ssAETsFromUser, ssAETsFromMWL);
-                break;
-            case CLEAR_ALL:
-                mwlItem.getScheduledStationAETs().clear();
-                break;
-            case NONE:
-                break;
-        }
-    }
-
-    private void modifyMWLScheduledStationAETs(MWLItem mwlItem, Set<String> ssAETsFromUser, Set<String> ssAETsFromMWL) {
-        Set<String> temp = new HashSet<>();
-        Iterator<String> iter = ssAETsFromMWL.iterator();
-        while (iter.hasNext()) {
-            String ssAET = iter.next();
-            if (!ssAETsFromUser.contains(ssAET))
-                iter.remove();
-            temp.add(ssAET);
-        }
-        for (String s : ssAETsFromUser)
-            if (!temp.contains(s))
-                mwlItem.addScheduledStationAETs(s);
-    }
-
     private void persistMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
-                            IssuerEntity issuerOfAccessionNumber, Set<String> scheduledStationAETitles) {
+                            IssuerEntity issuerOfAccessionNumber) {
         MWLItem mwlItem = new MWLItem();
         mwlItem.setPatient(patient);
         mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-        if (scheduledStationAETitles != null)
-            addAllScheduledStationAETsToMWL(scheduledStationAETitles, mwlItem);
         em.persist(mwlItem);
         LOG.info("{}: Create {}", ctx, mwlItem);
-    }
-
-    private void addAllScheduledStationAETsToMWL(Set<String> scheduledStationAETitles, MWLItem mwlItem) {
-        for (String s : scheduledStationAETitles)
-            mwlItem.addScheduledStationAETs(s);
     }
 
     private IssuerEntity findOrCreateIssuer(Attributes item) {

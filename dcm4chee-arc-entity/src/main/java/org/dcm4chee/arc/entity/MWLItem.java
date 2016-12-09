@@ -235,16 +235,6 @@ public class MWLItem {
         return status;
     }
 
-    public Set<String> getScheduledStationAETs() {
-        if (scheduledStationAETs == null)
-            scheduledStationAETs = new HashSet<>();
-
-        return scheduledStationAETs;
-    }
-
-    public boolean addScheduledStationAETs(String spsAET) {
-        return getScheduledStationAETs().add(spsAET);
-    }
 
     public void setPatient(Patient patient) {
         this.patient = patient;
@@ -314,6 +304,18 @@ public class MWLItem {
         requestedProcedureID = attrs.getString(Tag.RequestedProcedureID);
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");
+        String[] ssAETs = spsItem.getStrings(Tag.ScheduledStationAETitle);
+        if (ssAETs != null && ssAETs.length != 0) {
+            if (scheduledStationAETs == null)
+                scheduledStationAETs = new HashSet<>();
+            if (!scheduledStationAETs.isEmpty())
+                scheduledStationAETs.clear();
+            for (String s : ssAETs)
+                scheduledStationAETs.add(s);
+        } else {
+            if (scheduledStationAETs != null && !scheduledStationAETs.isEmpty())
+                scheduledStationAETs.clear();
+        }
 
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
