@@ -151,6 +151,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
+    private final ArrayList<ScheduledStation> scheduledStations = new ArrayList<>();
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -1069,6 +1070,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return hl7ForwardRules;
     }
 
+    public void removeScheduledStation(ScheduledStation rule) {
+        scheduledStations.remove(rule);
+    }
+
+    public void clearScheduledStations() {
+        scheduledStations.clear();
+    }
+
+    public void addScheduledStation(ScheduledStation rule) {
+        scheduledStations.add(rule);
+    }
+
+    public Collection<ScheduledStation> getScheduledStations() {
+        return scheduledStations;
+    }
+
     public void removeCompressionRule(ArchiveCompressionRule rule) {
         compressionRules.remove(rule);
     }
@@ -1289,6 +1306,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         rsForwardRules.addAll(arcdev.rsForwardRules);
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcdev.hl7ForwardRules);
+        scheduledStations.clear();
+        scheduledStations.addAll(arcdev.scheduledStations);
         compressionRules.clear();
         compressionRules.addAll(arcdev.compressionRules);
         studyRetentionPolicies.clear();

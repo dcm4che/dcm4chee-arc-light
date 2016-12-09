@@ -40,7 +40,9 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
 
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
+    private final ArrayList<ScheduledStation> scheduledStations = new ArrayList<>();
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -77,6 +80,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ErrorLogFilePattern = arcapp.hl7ErrorLogFilePattern;
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
+        scheduledStations.clear();
+        scheduledStations.addAll(arcapp.scheduledStations);
     }
 
     public String getAETitle() {
@@ -178,5 +183,37 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                         dests.add(dest);
                     }
         return dests;
+    }
+
+    public void removeScheduledStation(ScheduledStation rule) {
+        scheduledStations.remove(rule);
+    }
+
+    public void clearScheduledStations() {
+        scheduledStations.clear();
+    }
+
+    public void addScheduledStation(ScheduledStation rule) {
+        scheduledStations.add(rule);
+    }
+
+    public Collection<ScheduledStation> getScheduledStations() {
+        return scheduledStations;
+    }
+
+    public Collection<Device> scheduledStations(String hostName, HL7Segment msh, Attributes attrs) {
+        ArrayList<Device> scheduledStations = new ArrayList<>();
+        int priority = 0;
+        for (Collection<ScheduledStation> rules
+                : new Collection[]{scheduledStations, getArchiveDeviceExtension().getScheduledStations() })
+            for (ScheduledStation rule : rules)
+                if (rule.match(hostName, msh, attrs))
+                    if (priority <= rule.getPriority()) {
+                        if (priority < rule.getPriority()) {
+                            priority = rule.getPriority();
+                            scheduledStations.clear();
+                        }
+                    }
+        return scheduledStations;
     }
 }

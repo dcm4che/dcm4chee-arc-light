@@ -687,6 +687,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.137 NAME 'dcmPurgeInstanceRecordsFetchS
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.138 NAME 'dcmScheduledStationDeviceReference'
+   DESC 'The DN of a dicomDeviceObject referenced by dcmScheduledStation'
+   EQUALITY distinguishedNameMatch
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+   SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -998,3 +1003,12 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.26 NAME 'dcmMetadataFilter'
   MUST (
     dcmMetadataFilterName $
     dcmTag ) )
+objectClasses: ( 1.2.40.0.13.1.15.110.4.27 NAME 'dcmScheduledStation'
+  DESC 'Scheduled Station selected on MWL HL7 Order Feed'
+  SUP top STRUCTURAL
+  MUST (
+    cn $
+    dcmScheduledStationDeviceReference )
+  MAY (
+    dcmRulePriority $
+    dcmProperty ) )

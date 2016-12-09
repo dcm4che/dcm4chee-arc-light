@@ -626,6 +626,14 @@
       "items" : {
         "$ref": "hl7ForwardRule.schema.json"
       }
+    },
+    "dcmScheduledStation": {
+      "title": "Scheduled Station",
+      "description": "Scheduled Station selected on MWL HL7 Order Feed",
+      "type": "array",
+      "items" : {
+        "$ref": "scheduledStation.schema.json"
+      }
     }
   }
 }

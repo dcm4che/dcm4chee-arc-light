@@ -40,7 +40,10 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.util.TagUtils;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -81,7 +84,7 @@ public class HL7Conditions {
         return map;
     }
 
-    public boolean match(String hostName, HL7Segment msh) {
+    public boolean match(String hostName, HL7Segment msh, Attributes attrs) {
         for (Map.Entry<String, Pattern> entry : map.entrySet()) {
             String hl7Field = entry.getKey();
             Pattern pattern = entry.getValue();
@@ -92,8 +95,11 @@ public class HL7Conditions {
                 if (ne ? (hostName != null && pattern.matcher(hostName).matches())
                         : (hostName == null || !pattern.matcher(hostName).matches()))
                     return false;
-            } else {
+            } else if (hl7Field.startsWith("MSH-")) {
                 if (!match(msh, hl7Field, pattern, ne))
+                    return false;
+            } else if (attrs != null) {
+                if (!match(attrs, TagUtils.parseTagPath(hl7Field), pattern, 0, ne))
                     return false;
             }
         }
@@ -111,5 +117,30 @@ public class HL7Conditions {
                 }
             } catch (NumberFormatException ignore) {}
         return true;
+    }
+
+    private boolean match(Attributes attrs, int[] tagPath, Pattern pattern, int level, boolean ne) {
+        if (level < tagPath.length-1) {
+            Sequence seq = attrs.getSequence(tagPath[level]);
+            if (seq != null)
+                for (Attributes item : seq)
+                    if (match(item, tagPath, pattern, level+1, false))
+                        return true;
+        } else {
+            String[] ss = attrs.getStrings(tagPath[level]);
+            if (ss != null)
+                for (String s : ss)
+                    if (pattern != null && s != null && pattern.matcher(s).matches() && !ne)
+                        return true;
+                    else if (pattern == null || s == null)
+                        return false;
+                    else if (ne && !pattern.matcher(s).matches())
+                        return true;
+            if (ss == null && ne)
+                return true;
+            if (ss == null && !ne)
+                return false;
+        }
+        return false;
     }
 }

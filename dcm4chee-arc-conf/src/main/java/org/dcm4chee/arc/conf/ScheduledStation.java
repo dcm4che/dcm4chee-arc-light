@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2016
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,40 +35,61 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** END LICENSE BLOCK *****
  */
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
-
-import java.util.Arrays;
+import org.dcm4che3.net.Device;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jul 2016
+ * @since Dec 2016
  */
-public class HL7ForwardRule {
+public class ScheduledStation {
 
     private String commonName;
+    private int priority;
+    private Device device;
+    private HL7Conditions conditions;
 
-    private HL7Conditions conditions = new HL7Conditions();
-
-    private String[] destinations = {};
-
-    public HL7ForwardRule() {
+    public ScheduledStation() {
     }
 
-    public HL7ForwardRule(String commonName) {
+    public ScheduledStation(String commonName) {
         setCommonName(commonName);
     }
 
-    public final String getCommonName() {
+    public String getCommonName() {
         return commonName;
     }
 
     public void setCommonName(String commonName) {
         this.commonName = commonName;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public String getDeviceName() {
+        if (device == null)
+            throw new IllegalStateException("Device not initalized");
+        return device.getDeviceName();
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
     }
 
     public HL7Conditions getConditions() {
@@ -79,24 +100,20 @@ public class HL7ForwardRule {
         this.conditions = conditions;
     }
 
-    public String[] getDestinations() {
-        return destinations;
-    }
-
-    public void setDestinations(String... destinations) {
-        this.destinations = destinations;
-    }
-
-    public boolean match(String hostName, HL7Segment msh) {
-        return conditions.match(hostName, msh, null);
+    public boolean match(String hostName, HL7Segment msh, Attributes attrs) {
+        return conditions.match(hostName, msh, attrs);
     }
 
     @Override
     public String toString() {
-        return "HL7ForwardRule{" +
-                "cn=" + commonName +
+        return "ScheduledStation{" +
+                "commonName='" + commonName + '\'' +
+                ", priority=" + priority +
+                (device == null ? ", device=null" :
+                    ", deviceName=" + device.getDeviceName() +
+                    ", stationName=" + device.getStationName() +
+                    ", aeTitles=" + device.getApplicationAETitles()) +
                 ", conditions=" + conditions +
-                ", destinations=" + Arrays.toString(destinations) +
                 '}';
     }
 }
