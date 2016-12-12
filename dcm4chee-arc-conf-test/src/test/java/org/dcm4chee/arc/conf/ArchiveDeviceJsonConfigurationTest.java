@@ -99,14 +99,13 @@ public class ArchiveDeviceJsonConfigurationTest {
     private final ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
         public Device findDevice(String name) throws ConfigurationException {
-            if (!name.equals("logstash") || !name.equals("unknown"))
-                throw new ConfigurationNotFoundException("Unknown Device: " + name);
             if (name.equals("logstash"))
                 return ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
                     ArchiveDeviceFactory.ConfigType.TEST);
             if (name.equals("unknown"))
                 return ArchiveDeviceFactory.createUnknownDevice("unknown", "UNKNOWN", "localhost", 104);
-            return null;
+            else
+                throw new ConfigurationNotFoundException("Unknown Device: " + name);
         }
     };
 }
