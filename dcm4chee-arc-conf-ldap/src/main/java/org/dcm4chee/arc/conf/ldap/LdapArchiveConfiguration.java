@@ -1288,7 +1288,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             String cn = station.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(station, new BasicAttributes(true)));
+                    storeTo(station, new BasicAttributes(true), config));
         }
     }
 
@@ -1339,10 +1339,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private static Attributes storeTo(ScheduledStation station, BasicAttributes attrs) {
+    private static Attributes storeTo(ScheduledStation station, BasicAttributes attrs, LdapDicomConfiguration config) {
         attrs.put("objectclass", "dcmScheduledStation");
         attrs.put("cn", station.getCommonName());
-        LdapUtils.storeNotNull(attrs, "dcmScheduledStationDeviceReference", station.getDeviceName());
+        LdapUtils.storeNotNull(attrs, "dcmScheduledStationDeviceReference", config.deviceRef(station.getDeviceName()));
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", station.getPriority(), 0);
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(station.getConditions().getMap()));
         return attrs;
@@ -1556,7 +1556,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             ScheduledStation prevStation = findScheduledStationByCN(prevStations, cn);
             if (prevStation == null)
-                config.createSubcontext(dn, storeTo(station, new BasicAttributes(true)));
+                config.createSubcontext(dn, storeTo(station, new BasicAttributes(true), config));
             else
                 config.modifyAttributes(dn, storeDiffs(prevStation, station, new ArrayList<ModificationItem>()));
         }

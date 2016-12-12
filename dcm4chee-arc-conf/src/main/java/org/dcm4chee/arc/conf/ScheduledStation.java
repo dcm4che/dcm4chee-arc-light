@@ -53,7 +53,7 @@ public class ScheduledStation {
     private String commonName;
     private int priority;
     private Device device;
-    private HL7Conditions conditions;
+    private HL7Conditions conditions = new HL7Conditions();
 
     public ScheduledStation() {
     }

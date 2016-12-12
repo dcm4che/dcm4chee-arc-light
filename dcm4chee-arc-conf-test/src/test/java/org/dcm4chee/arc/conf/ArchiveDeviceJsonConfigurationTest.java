@@ -80,7 +80,8 @@ public class ArchiveDeviceJsonConfigurationTest {
     public void testJsonPersist() throws Exception {
         Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
                 ArchiveDeviceFactory.ConfigType.TEST);
-        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice,
+        Device unknownDevice = ArchiveDeviceFactory.createUnknownDevice("unknown", "UNKNOWN", "localhost", 104);
+        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, unknownDevice,
                 ArchiveDeviceFactory.ConfigType.TEST);
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
         Path path = Paths.get("target/device.json");
@@ -98,10 +99,14 @@ public class ArchiveDeviceJsonConfigurationTest {
     private final ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
         public Device findDevice(String name) throws ConfigurationException {
-            if (!name.equals("logstash"))
+            if (!name.equals("logstash") || !name.equals("unknown"))
                 throw new ConfigurationNotFoundException("Unknown Device: " + name);
-            return ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
-                ArchiveDeviceFactory.ConfigType.TEST);
+            if (name.equals("logstash"))
+                return ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
+                    ArchiveDeviceFactory.ConfigType.TEST);
+            if (name.equals("unknown"))
+                return ArchiveDeviceFactory.createUnknownDevice("unknown", "UNKNOWN", "localhost", 104);
+            return null;
         }
     };
 }
