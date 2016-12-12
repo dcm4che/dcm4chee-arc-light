@@ -84,7 +84,8 @@ class ArchiveDeviceFactory {
             "findscu",
             "getscu",
             "movescu",
-            "hl7snd"
+            "hl7snd",
+            "unknown"
     };
     static final String[] OTHER_AES = {
             "DCMQRSCP",
@@ -95,7 +96,8 @@ class ArchiveDeviceFactory {
             "STORESCU",
             "MPPSSCU",
             "FINDSCU",
-            "GETSCU"
+            "GETSCU",
+            "UNKNOWN"
     };
     static final Issuer SITE_A =
             new Issuer("Site A", "1.2.40.0.13.1.1.999.111.1111", "ISO");
@@ -113,6 +115,7 @@ class ArchiveDeviceFactory {
             SITE_A, // MPPSSCU
             SITE_A, // FINDSCU
             SITE_A, // GETSCU
+            null, // UNKNOWN
     };
     static final Code INST_A =
             new Code("111.1111", "99DCM4CHEE", null, "Site A");
@@ -126,6 +129,7 @@ class ArchiveDeviceFactory {
             null, // MPPSSCU
             null, // FINDSCU
             null, // GETSCU
+            null, // UNKNOWN
     };
     static final int[] OTHER_PORTS = {
             11113, 2763, // DCMQRSCP
@@ -137,6 +141,7 @@ class ArchiveDeviceFactory {
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // MPPSSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // FINDSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // GETSCU
+            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // UNKNOWN
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
@@ -161,6 +166,13 @@ class ArchiveDeviceFactory {
         desc.setMaxRetryDelay(Duration.parse("PT10M"));
         desc.setPurgeQueueMessageCompletedDelay(Duration.parse("P1D"));
         return desc;
+    }
+
+    static ScheduledStation newScheduledStation(Device d) {
+        ScheduledStation ss = new ScheduledStation();
+        ss.setCommonName("Default Scheduled Station");
+        ss.setDevice(d);
+        return ss;
     }
 
     static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {

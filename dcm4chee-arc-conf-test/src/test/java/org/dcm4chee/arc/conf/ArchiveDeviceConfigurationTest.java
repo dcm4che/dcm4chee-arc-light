@@ -119,10 +119,13 @@ public class ArchiveDeviceConfigurationTest {
 
         Device arc = setThisNodeCertificates(
                 ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, configType));
-        if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE) {
+        if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE)
             setAuthorizedNodeCertificates(arc);
-        }
+        if (configType == ArchiveDeviceFactory.ConfigType.DEFAULT)
+            arc.getDeviceExtension(ArchiveDeviceExtension.class).addScheduledStation(
+                    ArchiveDeviceFactory.newScheduledStation(config.findDevice("unknown")));
         config.persist(arc);
+
         Device keycloak = ArchiveDeviceFactory.createKeycloakDevice("keycloak", arrDevice, configType);
         config.persist(keycloak);
         ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
