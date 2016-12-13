@@ -140,23 +140,7 @@
     </xsl:call-template>
   </xsl:template>
   <xsl:template match="ORC" mode="sps">
-   <!-- <xsl:variable name="spsStatus">
-      <xsl:choose>
-        <xsl:when test="field[1]='NW' and field[5]='SC'">SCHEDULED</xsl:when>
-        <xsl:when test="field[1]='NW' and field[5]='IP'">SCHEDULED</xsl:when>
-        <xsl:when test="field[1]='CA' and field[5]='CA'">CANCELLED</xsl:when>
-        <xsl:when test="field[1]='DC' and field[5]='CA'">DISCONTINUED</xsl:when>
-        <xsl:when test="field[1]='XO' and field[5]='SC'">SCHEDULED</xsl:when>
-        <xsl:when test="field[1]='XO' and field[5]='CM'">COMPLETED</xsl:when>
-      </xsl:choose>
-    </xsl:variable>-->
     <Item number="1">
-      <!-- Scheduled Station AE Title
-      <xsl:call-template name="attr">
-        <xsl:with-param name="tag" select="'00400001'"/>
-        <xsl:with-param name="vr" select="'AE'"/>
-        <xsl:with-param name="val" select="string(field[18]/text())"/>
-      </xsl:call-template>-->
       <!-- Scheduled Procedure Step Start Date/Time -->
       <xsl:call-template name="attrDATM">
         <xsl:with-param name="datag" select="'00400002'"/>

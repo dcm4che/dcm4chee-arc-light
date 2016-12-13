@@ -132,12 +132,11 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         if (!ssAETs.isEmpty())
             sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
         String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
-        for (HL7Order2SPSStatus hl7Order2SPSStatus : arcHL7App.hl7Order2SPSStatuses()) {
+        for (HL7Order2SPSStatus hl7Order2SPSStatus : arcHL7App.hl7Order2SPSStatuses())
             if (Arrays.asList(hl7Order2SPSStatus.getOrderControlStatusCodes()).contains(orderControlStatus)) {
                 sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7Order2SPSStatus.getSpsStatus().toString());
                 return true;
             }
-        }
         return false;
     }
 }
