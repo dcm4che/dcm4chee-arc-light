@@ -834,7 +834,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.139 NAME 'dcmSPSStatus'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.140 NAME 'hl7OrderControlStatus'
-  DESC 'HL7 Order Control Code. Enumerated values: NW_SC, NW_IP, CA_CA, DC_CA, XO_SC, XO_CM'
+  DESC 'HL7 Order Control Status Code. Enumerated values: NW_SC, NW_IP, CA_CA, DC_CA, XO_SC, XO_CM, SC_CM, SC_DC, SC_IP, SC_A'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 

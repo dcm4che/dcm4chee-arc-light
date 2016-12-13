@@ -34,7 +34,11 @@
           "CA_CA",
           "DC_CA",
           "XO_SC",
-          "XO_CM"
+          "XO_CM",
+          "SC_CM",
+          "SC_DC",
+          "SC_IP",
+          "SC_A"
         ]
       }
     }
