@@ -931,7 +931,6 @@ class ArchiveDeviceFactory {
         Connection dicom = new Connection("dicom", host, port);
         device.addConnection(dicom);
         ae.addConnection(dicom);
-        device.setPrimaryDeviceTypes("DSS");
         return device;
     }
 
