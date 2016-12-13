@@ -101,8 +101,11 @@ public class IANSCUImpl implements IANSCU {
         AAssociateRQ aarq = new AAssociateRQ();
         TransferCapability tc = localAE.getTransferCapabilityFor(UID.InstanceAvailabilityNotificationSOPClass,
                 TransferCapability.Role.SCU);
+        if (tc == null)
+            LOG.warn("No Transfer Capability for Instance Availability Notification SOP Class as SCU configured for {}",
+                    localAE.getAETitle());
         aarq.addPresentationContext(new PresentationContext(1, UID.InstanceAvailabilityNotificationSOPClass,
-                tc.getTransferSyntaxes()));
+                tc != null ? tc.getTransferSyntaxes() : new String[] { UID.ImplicitVRLittleEndian }));
         return aarq;
     }
 }
