@@ -57,6 +57,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 import javax.naming.directory.Attributes;
+import javax.persistence.Basic;
 import java.net.URI;
 import java.security.cert.CertificateException;
 import java.time.LocalTime;
@@ -447,6 +448,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
         storeMetadataFilter(deviceDN, arcDev);
         storeScheduledStations(arcDev.getScheduledStations(), deviceDN, config);
+        storeHL7Order2SPSStatus(arcDev.getHL7Order2SPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -472,6 +474,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadRSForwardRules(arcdev.getRSForwardRules(), deviceDN);
         loadMetadataFilters(arcdev, deviceDN);
         loadScheduledStations(arcdev.getScheduledStations(), deviceDN, config);
+        loadHL7Order2SPSStatus(arcdev.getHL7Order2SPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -500,6 +503,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
         mergeMetadataFilters(aa, bb, deviceDN);
         mergeScheduledStations(aa.getScheduledStations(), bb.getScheduledStations(), deviceDN, config);
+        mergeHL7Order2SPSStatus(aa.getHL7Order2SPSStatuses(), bb.getHL7Order2SPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -753,6 +757,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
+    private static Attributes storeTo(HL7Order2SPSStatus hl7Order2SPSStatus, SPSStatus spsStatus, BasicAttributes attrs) {
+        attrs.put("objectclass", "hl7Order2SPSStatus");
+        attrs.put("dcmSPSStatus", spsStatus);
+        attrs.put("hl7OrderControlStatus", hl7Order2SPSStatus.getOrderControlStatusCodes());
+        return attrs;
+    }
+
     private static Attribute tagsAttr(String attrID, int[] tags) {
         Attribute attr = new BasicAttribute(attrID);
         for (int tag : tags)
@@ -801,6 +812,24 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    protected static void loadHL7Order2SPSStatus(
+            Map<SPSStatus, HL7Order2SPSStatus> hl7Order2SPSStatusMap, String deviceDN, LdapDicomConfiguration config)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=hl7Order2SPSStatus)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                HL7Order2SPSStatus hl7Order2SPSStatus = new HL7Order2SPSStatus();
+                hl7Order2SPSStatus.setSpsStatus(SPSStatus.valueOf(LdapUtils.stringValue(attrs.get("dcmSPSStatus"), null)));
+                hl7Order2SPSStatus.setOrderControlStatusCodes(LdapUtils.stringArray(attrs.get("hl7OrderControlStatus")));
+                hl7Order2SPSStatusMap.put(hl7Order2SPSStatus.getSpsStatus(), hl7Order2SPSStatus);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
     private static ValueSelector valueSelector(Attribute attr)
             throws NamingException {
         return attr != null ? ValueSelector.valueOf((String) attr.get()) : null;
@@ -816,10 +845,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void mergeAttributeFilters(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
                                        String deviceDN) throws NamingException {
-        for (Entity entity : prev.getAttributeFilters().keySet()) {
+        for (Entity entity : prev.getAttributeFilters().keySet())
             if (!arcDev.getAttributeFilters().containsKey(entity))
                 config.destroySubcontext(LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN));
-        }
         for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
             Entity entity = entry.getKey();
             String dn = LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN);
@@ -835,10 +863,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void mergeMetadataFilters(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
                                        String deviceDN) throws NamingException {
-        for (String filterName : prev.getMetadataFilters().keySet()) {
+        for (String filterName : prev.getMetadataFilters().keySet())
             if (!arcDev.getMetadataFilters().containsKey(filterName))
                 config.destroySubcontext(LdapUtils.dnOf("dcmMetadataFilterName", filterName, deviceDN));
-        }
         for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
             String filterName = entry.getKey();
             String dn = LdapUtils.dnOf("dcmMetadataFilterName", filterName, deviceDN);
@@ -849,6 +876,23 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             else
                 config.modifyAttributes(dn,
                         storeDiffs(prevFilter, entry.getValue(), new ArrayList<ModificationItem>()));
+        }
+    }
+
+    protected static void mergeHL7Order2SPSStatus(
+            Map<SPSStatus, HL7Order2SPSStatus> prev, Map<SPSStatus, HL7Order2SPSStatus> hl7Order2SPSStatusMap, String deviceDN,
+            LdapDicomConfiguration config) throws NamingException {
+        for (SPSStatus spsStatus : prev.keySet())
+            if (!hl7Order2SPSStatusMap.containsKey(spsStatus))
+                config.destroySubcontext(LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN));
+        for (Map.Entry<SPSStatus, HL7Order2SPSStatus> entry : hl7Order2SPSStatusMap.entrySet()) {
+            SPSStatus spsStatus = entry.getKey();
+            String dn = LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN);
+            HL7Order2SPSStatus prevHL7Order2SPSStatus = prev.get(spsStatus);
+            if (prevHL7Order2SPSStatus == null)
+                config.createSubcontext(dn, storeTo(entry.getValue(), spsStatus, new BasicAttributes(true)));
+            else
+                config.modifyAttributes(dn, storeDiffs(prevHL7Order2SPSStatus, entry.getValue(), new ArrayList<ModificationItem>()));
         }
     }
 
@@ -1292,6 +1336,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    protected static void storeHL7Order2SPSStatus(
+            Map<SPSStatus, HL7Order2SPSStatus> hl7Order2SPSStatusMap, String parentDN, LdapDicomConfiguration config)
+            throws NamingException {
+        for (Map.Entry<SPSStatus, HL7Order2SPSStatus> entry : hl7Order2SPSStatusMap.entrySet()) {
+            config.createSubcontext(
+                    LdapUtils.dnOf("dcmSPSStatus", entry.getKey().toString(), parentDN),
+                    storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
+        }
+    }
+
     private void storeRSForwardRules(Collection<RSForwardRule> rules, String parentDN)
             throws NamingException {
         for (RSForwardRule rule : rules) {
@@ -1640,7 +1694,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             ScheduledStation prev, ScheduledStation station, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(mods, "dcmScheduledStationDeviceReference", prev.getDeviceName(), station.getDeviceName());
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), station.getPriority(), 0);
+        return mods;
+    }
 
+    private static List<ModificationItem> storeDiffs(
+            HL7Order2SPSStatus prev, HL7Order2SPSStatus hl7Order2SPSStatus, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(mods, "hl7OrderControlStatus", prev.getOrderControlStatusCodes(), hl7Order2SPSStatus.getOrderControlStatusCodes());
         return mods;
     }
 

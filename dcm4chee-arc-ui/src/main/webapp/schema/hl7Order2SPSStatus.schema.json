@@ -4,8 +4,7 @@
   "type": "object",
   "required": [
     "dcmSPSStatus",
-    "hl7OrderControlCode",
-    "hl7OrderStatus"
+    "hl7OrderControlCode"
   ],
   "properties": {
     "dcmSPSStatus": {
@@ -23,31 +22,19 @@
         "COMPLETED"
       ]
     },
-    "hl7OrderControlCode": {
-      "title": "HL7 Order Control Code",
-      "description": "HL7 Order Control Code",
+    "hl7OrderControlStatus": {
+      "title": "HL7 Order Control Status",
+      "description": "HL7 Order Control Status Code combinations",
       "type": "array",
       "items": {
         "type": "string",
         "enum": [
-          "NW",
-          "CA",
-          "DC",
-          "XO"
-        ]
-      }
-    },
-    "hl7OrderStatus": {
-      "title": "HL7 Order Status",
-      "description": "HL7 Order Status",
-      "type": "array",
-      "items": {
-        "type": "string",
-        "enum": [
-          "SC",
-          "IP",
-          "CA",
-          "CM"
+          "NW_SC",
+          "NW_IP",
+          "CA_CA",
+          "DC_CA",
+          "XO_SC",
+          "XO_CM"
         ]
       }
     }

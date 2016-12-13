@@ -185,6 +185,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeRSForwardRules(writer, arcDev.getRSForwardRules());
         writeMetadataFilters(writer, arcDev);
         writeScheduledStations(writer, arcDev.getScheduledStations());
+        writeHL7Order2SPSStatus(writer, arcDev.getHL7Order2SPSStatuses());
         writer.writeEnd();
     }
 
@@ -424,6 +425,17 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmScheduledStationDeviceReference", station.getDeviceName());
             writer.writeNotDef("dcmRulePriority", station.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(station.getConditions().getMap()));
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    protected static void writeHL7Order2SPSStatus(JsonWriter writer, Map<SPSStatus, HL7Order2SPSStatus> hl7Order2SPSStatusMap) {
+        writer.writeStartArray("hl7Order2SPSStatus");
+        for (Map.Entry<SPSStatus, HL7Order2SPSStatus> entry : hl7Order2SPSStatusMap.entrySet()) {
+            writer.writeStartObject();
+            writer.writeNotNull("dcmSPSStatus", entry.getKey());
+            writer.writeNotEmpty("hl7OrderControlStatus", entry.getValue().getOrderControlStatusCodes());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -835,6 +847,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmScheduledStation":
                     loadScheduledStations(arcDev.getScheduledStations(), reader, config);
+                    break;
+                case "hl7Order2SPSStatus":
+                    loadHL7Order2SPSStatus(arcDev.getHL7Order2SPSStatuses(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -1370,6 +1385,30 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             stations.add(station);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    static void loadHL7Order2SPSStatus(Map<SPSStatus, HL7Order2SPSStatus> hl7Order2SPSStatusMap, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            HL7Order2SPSStatus hl7Order2SPSStatus = new HL7Order2SPSStatus();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmSPSStatus":
+                        hl7Order2SPSStatus.setSpsStatus(SPSStatus.valueOf(reader.stringValue()));
+                        break;
+                    case "hl7OrderControlStatus":
+                        hl7Order2SPSStatus.setOrderControlStatusCodes(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            hl7Order2SPSStatusMap.put(hl7Order2SPSStatus.getSpsStatus(), hl7Order2SPSStatus);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

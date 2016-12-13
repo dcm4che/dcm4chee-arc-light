@@ -53,11 +53,15 @@ import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.HL7Order2SPSStatus;
+import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.conf.ScheduledStation;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -66,10 +70,7 @@ import javax.inject.Inject;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -79,7 +80,7 @@ import java.util.List;
 @ApplicationScoped
 @Typed(HL7Service.class)
 public class ProcedureUpdateService extends AbstractHL7Service {
-
+    private final Logger LOG = LoggerFactory.getLogger(ProcedureUpdateService.class);
     @Inject
     private PatientService patientService;
 
@@ -104,14 +105,19 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
                 msg.data(), hl7cs, arcHL7App.scheduleProcedureTemplateURI(), null);
-        adjust(attrs, arcHL7App, msh, s);
+        boolean result = adjust(attrs, arcHL7App, msh, s);
+        if (!result) {
+            LOG.info("MWL item not created/updated for " + msh.getMessageType()
+                    + " as no mapping to a Scheduled Procedure Step Status is configured with (ORC-1, ORC-5)");
+            return;
+        }
         ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msh);
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);
         procedureService.updateProcedure(ctx);
     }
 
-    private void adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh, Socket s) {
+    private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh, Socket socket) {
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
         Attributes sps = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
@@ -119,11 +125,19 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                 && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
             sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
         List<String> ssAETs = new ArrayList<>();
-        Collection<Device> devices = arcHL7App.scheduledStations(s.getLocalAddress().getHostName(), msh, attrs);
+        Collection<Device> devices = arcHL7App.scheduledStations(socket.getLocalAddress().getHostName(), msh, attrs);
         for (Device device : devices)
             for (String ae : device.getApplicationAETitles())
                 ssAETs.add(ae);
         if (!ssAETs.isEmpty())
             sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
+        String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
+        for (HL7Order2SPSStatus hl7Order2SPSStatus : arcHL7App.hl7Order2SPSStatuses()) {
+            if (Arrays.asList(hl7Order2SPSStatus.getOrderControlStatusCodes()).contains(orderControlStatus)) {
+                sps.setString(Tag.ScheduledProcedureStepSequence, VR.CS, hl7Order2SPSStatus.getSpsStatus().toString());
+                return true;
+            }
+        }
+        return false;
     }
 }

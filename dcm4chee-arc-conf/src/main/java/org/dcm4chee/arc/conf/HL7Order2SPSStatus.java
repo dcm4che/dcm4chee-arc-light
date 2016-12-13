@@ -44,13 +44,13 @@ import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Dec 2016
  */
 public class HL7Order2SPSStatus {
 
     private SPSStatus spsStatus;
-    private String[] orderControlCodes = {};
-    private String[] orderStatuses = {};
+    private String[] orderControlStatusCodes = {};
 
     public SPSStatus getSpsStatus() {
         return spsStatus;
@@ -60,28 +60,19 @@ public class HL7Order2SPSStatus {
         this.spsStatus = spsStatus;
     }
 
-    public String[] getOrderControlCodes() {
-        return orderControlCodes;
+    public String[] getOrderControlStatusCodes() {
+        return orderControlStatusCodes;
     }
 
-    public void setOrderControlCodes(String... orderControlCodes) {
-        this.orderControlCodes = orderControlCodes;
-    }
-
-    public String[] getOrderStatuses() {
-        return orderStatuses;
-    }
-
-    public void setOrderStatuses(String... orderStatuses) {
-        this.orderStatuses = orderStatuses;
+    public void setOrderControlStatusCodes(String... orderControlStatusCodes) {
+        this.orderControlStatusCodes = orderControlStatusCodes;
     }
 
     @Override
     public String toString() {
         return "HL7Order2SPSStatus{" +
                 "spsStatus=" + spsStatus +
-                ", orderControlCodes=" + Arrays.toString(orderControlCodes) +
-                ", orderStatuses=" + Arrays.toString(orderStatuses) +
+                ", orderControlStatusCodes=" + Arrays.toString(orderControlStatusCodes) +
                 '}';
     }
 }

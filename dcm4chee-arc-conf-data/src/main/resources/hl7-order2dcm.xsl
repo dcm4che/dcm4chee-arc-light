@@ -140,7 +140,7 @@
     </xsl:call-template>
   </xsl:template>
   <xsl:template match="ORC" mode="sps">
-    <xsl:variable name="spsStatus">
+   <!-- <xsl:variable name="spsStatus">
       <xsl:choose>
         <xsl:when test="field[1]='NW' and field[5]='SC'">SCHEDULED</xsl:when>
         <xsl:when test="field[1]='NW' and field[5]='IP'">SCHEDULED</xsl:when>
@@ -149,7 +149,7 @@
         <xsl:when test="field[1]='XO' and field[5]='SC'">SCHEDULED</xsl:when>
         <xsl:when test="field[1]='XO' and field[5]='CM'">COMPLETED</xsl:when>
       </xsl:choose>
-    </xsl:variable>
+    </xsl:variable>-->
     <Item number="1">
       <!-- Scheduled Station AE Title
       <xsl:call-template name="attr">
@@ -167,7 +167,7 @@
       <xsl:call-template name="attr">
         <xsl:with-param name="tag" select="'00400020'"/>
         <xsl:with-param name="vr" select="'CS'"/>
-        <xsl:with-param name="val" select="$spsStatus"/>
+        <xsl:with-param name="val" select="concat(string(field[1]), '_', string(field[5]))"/>
       </xsl:call-template>
       <xsl:apply-templates select="following-sibling::OBR[1]" mode="sps"/>
     </Item>

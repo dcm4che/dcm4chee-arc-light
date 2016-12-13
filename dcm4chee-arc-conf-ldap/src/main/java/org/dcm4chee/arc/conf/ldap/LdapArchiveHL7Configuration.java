@@ -81,6 +81,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
 
         LdapArchiveConfiguration.storeHL7ForwardRules(ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
         LdapArchiveConfiguration.storeScheduledStations(ext.getScheduledStations(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.storeHL7Order2SPSStatus(ext.getHL7Order2SPSStatuses(), appDN, getDicomConfiguration());
     }
 
     @Override
@@ -108,6 +109,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
 
         LdapArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
         LdapArchiveConfiguration.loadScheduledStations(ext.getScheduledStations(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.loadHL7Order2SPSStatus(ext.getHL7Order2SPSStatuses(), appDN, getDicomConfiguration());
     }
 
     @Override
@@ -143,6 +145,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), appDN, getDicomConfiguration());
         LdapArchiveConfiguration.mergeScheduledStations(
                 aa.getScheduledStations(), bb.getScheduledStations(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.mergeHL7Order2SPSStatus(
+                aa.getHL7Order2SPSStatuses(), bb.getHL7Order2SPSStatuses(), appDN, getDicomConfiguration());
     }
 
 }
