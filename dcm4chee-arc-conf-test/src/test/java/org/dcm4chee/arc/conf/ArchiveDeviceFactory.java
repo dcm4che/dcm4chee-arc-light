@@ -84,8 +84,7 @@ class ArchiveDeviceFactory {
             "findscu",
             "getscu",
             "movescu",
-            "hl7snd",
-            "unknown"
+            "hl7snd"
     };
     static final String[] OTHER_AES = {
             "DCMQRSCP",
@@ -96,8 +95,7 @@ class ArchiveDeviceFactory {
             "STORESCU",
             "MPPSSCU",
             "FINDSCU",
-            "GETSCU",
-            "UNKNOWN"
+            "GETSCU"
     };
     static final Issuer SITE_A =
             new Issuer("Site A", "1.2.40.0.13.1.1.999.111.1111", "ISO");
@@ -115,7 +113,6 @@ class ArchiveDeviceFactory {
             SITE_A, // MPPSSCU
             SITE_A, // FINDSCU
             SITE_A, // GETSCU
-            null, // UNKNOWN
     };
     static final Code INST_A =
             new Code("111.1111", "99DCM4CHEE", null, "Site A");
@@ -129,7 +126,6 @@ class ArchiveDeviceFactory {
             null, // MPPSSCU
             null, // FINDSCU
             null, // GETSCU
-            null, // UNKNOWN
     };
     static final int[] OTHER_PORTS = {
             11113, 2763, // DCMQRSCP
@@ -141,7 +137,6 @@ class ArchiveDeviceFactory {
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // MPPSSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // FINDSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // GETSCU
-            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // UNKNOWN
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
