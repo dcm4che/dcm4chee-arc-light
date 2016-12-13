@@ -163,6 +163,9 @@ public class ArchiveDeviceConfigurationTest {
             config.removeDevice("keycloak");
         } catch (ConfigurationNotFoundException e) {}
         try {
+            config.removeDevice("unknown");
+        } catch (ConfigurationNotFoundException e) {}
+        try {
             config.removeDevice("hl7rcv");
         } catch (ConfigurationNotFoundException e) {}
         for (String name : ArchiveDeviceFactory.OTHER_DEVICES)
