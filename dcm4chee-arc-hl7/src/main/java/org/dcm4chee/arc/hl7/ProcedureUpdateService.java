@@ -50,7 +50,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.HL7Order2SPSStatus;
+import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -127,7 +127,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         if (!ssAETs.isEmpty())
             sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
         String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
-        for (HL7Order2SPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
+        for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
             if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(orderControlStatus)) {
                 sps.setString(Tag.ScheduledProcedureStepSequence, VR.CS, hl7OrderSPSStatus.getSpsStatus().toString());
                 return true;

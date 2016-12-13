@@ -447,7 +447,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
         storeMetadataFilter(deviceDN, arcDev);
         storeScheduledStations(arcDev.getHL7OrderScheduledStations(), deviceDN, config);
-        storeHL7Order2SPSStatus(arcDev.getHL7Order2SPSStatuses(), deviceDN, config);
+        storeHL7OrderSPSStatus(arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -473,7 +473,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadRSForwardRules(arcdev.getRSForwardRules(), deviceDN);
         loadMetadataFilters(arcdev, deviceDN);
         loadScheduledStations(arcdev.getHL7OrderScheduledStations(), deviceDN, config);
-        loadHL7Order2SPSStatus(arcdev.getHL7Order2SPSStatuses(), deviceDN, config);
+        loadHL7OrderSPSStatus(arcdev.getHL7OrderSPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -502,7 +502,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
         mergeMetadataFilters(aa, bb, deviceDN);
         mergeScheduledStations(aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), deviceDN, config);
-        mergeHL7Order2SPSStatus(aa.getHL7Order2SPSStatuses(), bb.getHL7Order2SPSStatuses(), deviceDN, config);
+        mergeHL7OrderSPSStatus(aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -756,7 +756,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private static Attributes storeTo(HL7Order2SPSStatus hl7OrderSPSStatus, SPSStatus spsStatus, BasicAttributes attrs) {
+    private static Attributes storeTo(HL7OrderSPSStatus hl7OrderSPSStatus, SPSStatus spsStatus, BasicAttributes attrs) {
         attrs.put("objectclass", "hl7OrderSPSStatus");
         attrs.put("dcmSPSStatus", spsStatus);
         attrs.put("hl7OrderControlStatus", hl7OrderSPSStatus.getOrderControlStatusCodes());
@@ -811,15 +811,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void loadHL7Order2SPSStatus(
-            Map<SPSStatus, HL7Order2SPSStatus> hl7OrderSPSStatusMap, String deviceDN, LdapDicomConfiguration config)
+    protected static void loadHL7OrderSPSStatus(
+            Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN, LdapDicomConfiguration config)
             throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=hl7OrderSPSStatus)");
         try {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                HL7Order2SPSStatus hl7OrderSPSStatus = new HL7Order2SPSStatus();
+                HL7OrderSPSStatus hl7OrderSPSStatus = new HL7OrderSPSStatus();
                 hl7OrderSPSStatus.setSpsStatus(SPSStatus.valueOf(LdapUtils.stringValue(attrs.get("dcmSPSStatus"), null)));
                 hl7OrderSPSStatus.setOrderControlStatusCodes(LdapUtils.stringArray(attrs.get("hl7OrderControlStatus")));
                 hl7OrderSPSStatusMap.put(hl7OrderSPSStatus.getSpsStatus(), hl7OrderSPSStatus);
@@ -878,20 +878,20 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void mergeHL7Order2SPSStatus(
-            Map<SPSStatus, HL7Order2SPSStatus> prev, Map<SPSStatus, HL7Order2SPSStatus> hl7OrderSPSStatusMap, String deviceDN,
+    protected static void mergeHL7OrderSPSStatus(
+            Map<SPSStatus, HL7OrderSPSStatus> prev, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN,
             LdapDicomConfiguration config) throws NamingException {
         for (SPSStatus spsStatus : prev.keySet())
             if (!hl7OrderSPSStatusMap.containsKey(spsStatus))
                 config.destroySubcontext(LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN));
-        for (Map.Entry<SPSStatus, HL7Order2SPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
+        for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
             SPSStatus spsStatus = entry.getKey();
             String dn = LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN);
-            HL7Order2SPSStatus prevHL7Order2SPSStatus = prev.get(spsStatus);
-            if (prevHL7Order2SPSStatus == null)
+            HL7OrderSPSStatus prevHL7OrderSPSStatus = prev.get(spsStatus);
+            if (prevHL7OrderSPSStatus == null)
                 config.createSubcontext(dn, storeTo(entry.getValue(), spsStatus, new BasicAttributes(true)));
             else
-                config.modifyAttributes(dn, storeDiffs(prevHL7Order2SPSStatus, entry.getValue(), new ArrayList<ModificationItem>()));
+                config.modifyAttributes(dn, storeDiffs(prevHL7OrderSPSStatus, entry.getValue(), new ArrayList<ModificationItem>()));
         }
     }
 
@@ -1335,10 +1335,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void storeHL7Order2SPSStatus(
-            Map<SPSStatus, HL7Order2SPSStatus> hl7OrderSPSStatusMap, String parentDN, LdapDicomConfiguration config)
+    protected static void storeHL7OrderSPSStatus(
+            Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
-        for (Map.Entry<SPSStatus, HL7Order2SPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
+        for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
             config.createSubcontext(
                     LdapUtils.dnOf("dcmSPSStatus", entry.getKey().toString(), parentDN),
                     storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
@@ -1697,7 +1697,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static List<ModificationItem> storeDiffs(
-            HL7Order2SPSStatus prev, HL7Order2SPSStatus hl7OrderSPSStatus, ArrayList<ModificationItem> mods) {
+            HL7OrderSPSStatus prev, HL7OrderSPSStatus hl7OrderSPSStatus, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(mods, "hl7OrderControlStatus", prev.getOrderControlStatusCodes(), hl7OrderSPSStatus.getOrderControlStatusCodes());
         return mods;
     }

@@ -32,7 +32,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNull("dicomAETitle", ext.getAETitle());
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeScheduledStations(writer, ext.getHL7OrderScheduledStations());
-        JsonArchiveConfiguration.writeHL7Order2SPSStatus(writer, ext.getHL7Order2SPSStatuses());
+        JsonArchiveConfiguration.writeHL7OrderSPSStatus(writer, ext.getHL7OrderSPSStatuses());
         writer.writeEnd();
     }
 
@@ -80,7 +80,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     JsonArchiveConfiguration.loadScheduledStations(ext.getHL7OrderScheduledStations(), reader, config);
                     break;
                 case "hl7OrderSPSStatus":
-                    JsonArchiveConfiguration.loadHL7Order2SPSStatus(ext.getHL7Order2SPSStatuses(), reader);
+                    JsonArchiveConfiguration.loadHL7OrderSPSStatus(ext.getHL7OrderSPSStatuses(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();

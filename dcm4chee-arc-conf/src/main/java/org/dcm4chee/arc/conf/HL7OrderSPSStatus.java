@@ -47,7 +47,7 @@ import java.util.Arrays;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Dec 2016
  */
-public class HL7Order2SPSStatus {
+public class HL7OrderSPSStatus {
 
     private SPSStatus spsStatus;
     private String[] orderControlStatusCodes = {};
@@ -70,7 +70,7 @@ public class HL7Order2SPSStatus {
 
     @Override
     public String toString() {
-        return "HL7Order2SPSStatus{" +
+        return "HL7OrderSPSStatus{" +
                 "spsStatus=" + spsStatus +
                 ", orderControlStatusCodes=" + Arrays.toString(orderControlStatusCodes) +
                 '}';

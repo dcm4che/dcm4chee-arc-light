@@ -153,7 +153,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
-    private final EnumMap<SPSStatus,HL7Order2SPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
+    private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
     private final ArrayList<ArchiveCompressionRule> compressionRules = new ArrayList<>();
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
@@ -1088,19 +1088,19 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return hl7OrderScheduledStations;
     }
 
-    public void removeHL7Order2SPSStatus(HL7Order2SPSStatus rule) {
+    public void removeHL7OrderSPSStatus(HL7OrderSPSStatus rule) {
         hl7OrderSPSStatuses.remove(rule.getSpsStatus());
     }
 
-    public void clearHL7Order2SPSStatuses() {
+    public void clearHL7OrderSPSStatuses() {
         hl7OrderSPSStatuses.clear();
     }
 
-    public void addHL7Order2SPSStatus(HL7Order2SPSStatus rule) {
+    public void addHL7OrderSPSStatus(HL7OrderSPSStatus rule) {
         hl7OrderSPSStatuses.put(rule.getSpsStatus(), rule);
     }
 
-    public Map<SPSStatus, HL7Order2SPSStatus> getHL7Order2SPSStatuses() {
+    public Map<SPSStatus, HL7OrderSPSStatus> getHL7OrderSPSStatuses() {
         return hl7OrderSPSStatuses;
     }
 
