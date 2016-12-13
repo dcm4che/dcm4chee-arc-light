@@ -151,6 +151,13 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("RSClient", "RESTful Forward Tasks")
     };
 
+    static final HL7OrderSPSStatus[] HL7_ORDER_SPS_STATUSES = {
+            newHL7OrderSPSStatus("SCHEDULED", "NW_SC", "NW_IP", "XO_SC"),
+            newHL7OrderSPSStatus("CANCELLED", "CA_CA"),
+            newHL7OrderSPSStatus("DISCONTINUED", "DC_CA"),
+            newHL7OrderSPSStatus("COMPLETED", "XO_CM")
+    };
+
     static QueueDescriptor newQueueDescriptor(String name, String description) {
         QueueDescriptor desc = new QueueDescriptor(name);
         desc.setDescription(description);
@@ -161,6 +168,13 @@ class ArchiveDeviceFactory {
         desc.setMaxRetryDelay(Duration.parse("PT10M"));
         desc.setPurgeQueueMessageCompletedDelay(Duration.parse("P1D"));
         return desc;
+    }
+
+    static HL7OrderSPSStatus newHL7OrderSPSStatus(String spsStatus, String... orderStatuses) {
+        HL7OrderSPSStatus hl7OrderSPSStatus = new HL7OrderSPSStatus();
+        hl7OrderSPSStatus.setSpsStatus(SPSStatus.valueOf(spsStatus));
+        hl7OrderSPSStatus.setOrderControlStatusCodes(orderStatuses);
+        return hl7OrderSPSStatus;
     }
 
     static IDGenerator newIDGenerator(IDGenerator.Name name, String format) {
@@ -1117,7 +1131,6 @@ class ArchiveDeviceFactory {
         return ss;
     }
 
-
     private static void addHL7DeviceExtension(Device device, ConfigType configType, String archiveHost) {
         HL7DeviceExtension ext = new HL7DeviceExtension();
         device.addDeviceExtension(ext);
@@ -1246,6 +1259,9 @@ class ArchiveDeviceFactory {
 
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
             ext.addQueueDescriptor(descriptor);
+
+        for (HL7OrderSPSStatus hl7OrderSPSStatus : HL7_ORDER_SPS_STATUSES)
+            ext.addHL7OrderSPSStatus(hl7OrderSPSStatus);
 
         ext.addMetadataFilter(createMetadataFilter());
 
