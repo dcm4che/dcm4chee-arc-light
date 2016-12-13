@@ -82,6 +82,21 @@ dcmHideSPSWithStatusFromMWL: COMPLETED
 dcmAuditAggregateDuration: PT1M
 userCertificate;binary:: MIIDdTCCAl2gAwIBAgIEH7QN4zANBgkqhkiG9w0BAQsFADBrMQswCQYDVQQGEwJBVDEPMA0GA1UECBMGVmllbm5hMQ8wDQYDVQQHEwZWaWVubmExEDAOBgNVBAoTB2RjbTRjaGUxETAPBgNVBAsTCGRjbTRjaGVlMRUwEwYDVQQDEwxkY200Y2hlZS1hcmMwHhcNMTYwODI5MDkxNDMxWhcNMTcwODI5MDkxNDMxWjBrMQswCQYDVQQGEwJBVDEPMA0GA1UECBMGVmllbm5hMQ8wDQYDVQQHEwZWaWVubmExEDAOBgNVBAoTB2RjbTRjaGUxETAPBgNVBAsTCGRjbTRjaGVlMRUwEwYDVQQDEwxkY200Y2hlZS1hcmMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDpXVCMnRe76zB19reYN55ikWWP3cO6FEutj+OvTi0XM0SCV0ENI3ULM5BIpRvIH9A02yGD+kik19jX1uuyahGZEkV4zTf+7N2eHmvggphGBCzSTdh4kfkAa57H6sd8FrUU+3LnM8LO/9idsuokmMm+l0xRIQdrQ6utHe/FvVaIrR67jImonkfnZqu8+nHcEJaN3wYPjJh3HyY5hC4d6s8XNHS1OqfYuZf3J4u+M6dHAQFudJpIbVS+UCz7OKqDTEv54BSxIInTyt3mFslIQlVJ8FtFEA14c70t8lKwrlD0lr1Fi2+uSu7gfbh43aAOhdC+qRl06Vh1qqH5OEIVWFPjAgMBAAGjITAfMB0GA1UdDgQWBBTclT+53oKl5N4+oSIYxW3iSKmICjANBgkqhkiG9w0BAQsFAAOCAQEAG0oJzkF4n72AMepNM612dVXUlPzuYh3s1hUvGgANpup+qxs4Owr1REkrDGLJ5isIUgjwMzCeNyv9DOY4BM4UnKCpYEpTERYFJu2gkEmkQHlBhMm0RjicbkZptymcJ5/gvd5XCK6nTiYLPB87qZWzBT0hYv/uyQ8uCl5IQauRcpQNR0SddsWEy3j5ZTBUO1l04ICa1MEJntnNtp2obQhrTMt9H2AaA3wltw8fCqPkdxQHHo8vVLwkW3KS8VBFgbuxS8tU4WnJS7ZkITIcn7jck2yMeuAZkKT9XG0SH38i2o06lsdVrR8yU15jEDHWDS8kU+758gDSk4u2NBdtKMKmnw==
 
+dn: cn=dicom,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+dicomPort: 104
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+cn: dicom
+
+dn: dicomAETitle=UNKNOWN,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAssociationInitiator: TRUE
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: UNKNOWN
+dicomAssociationAcceptor: TRUE
+
 dn: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
 objectClass: dicomNetworkConnection
@@ -583,6 +598,11 @@ objectClass: dcmArchiveNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: DCM4CHEE_TRASH
 dicomAssociationAcceptor: TRUE
+
+dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+hl7OrderScheduledStationDeviceReference: dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: hl7OrderScheduledStation
+cn: Default Scheduled Station
 
 dn: dcmIDGeneratorName=PatientID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: PatientID
@@ -8526,6 +8546,10 @@ dcmCombinedDateTimeMatching: TRUE
 dcmRelationalQueries: TRUE
 cn: Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP
 dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: dicomAETitle=UNKNOWN,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitle
+dicomAETitle: UNKNOWN
 
 dn: dicomAETitle=DCM4CHEE,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle

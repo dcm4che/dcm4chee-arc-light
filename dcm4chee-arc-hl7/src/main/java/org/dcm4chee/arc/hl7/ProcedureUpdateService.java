@@ -43,19 +43,14 @@ package org.dcm4chee.arc.hl7;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
-import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Order2SPSStatus;
-import org.dcm4chee.arc.conf.SPSStatus;
-import org.dcm4chee.arc.conf.ScheduledStation;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -125,16 +120,16 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                 && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
             sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
         List<String> ssAETs = new ArrayList<>();
-        Collection<Device> devices = arcHL7App.scheduledStations(socket.getLocalAddress().getHostName(), msh, attrs);
+        Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
         for (Device device : devices)
             for (String ae : device.getApplicationAETitles())
                 ssAETs.add(ae);
         if (!ssAETs.isEmpty())
             sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
         String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
-        for (HL7Order2SPSStatus hl7Order2SPSStatus : arcHL7App.hl7Order2SPSStatuses())
-            if (Arrays.asList(hl7Order2SPSStatus.getOrderControlStatusCodes()).contains(orderControlStatus)) {
-                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7Order2SPSStatus.getSpsStatus().toString());
+        for (HL7Order2SPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
+            if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(orderControlStatus)) {
+                sps.setString(Tag.ScheduledProcedureStepSequence, VR.CS, hl7OrderSPSStatus.getSpsStatus().toString());
                 return true;
             }
         return false;

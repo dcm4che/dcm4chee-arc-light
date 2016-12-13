@@ -1,10 +1,10 @@
 {
-  "title": "Scheduled Station",
+  "title": "Scheduled Station for HL7 Order",
   "description": "Scheduled Station selected on MWL HL7 Order Feed",
   "type": "object",
   "required": [
     "cn",
-    "dcmScheduledStationDeviceName"
+    "hl7OrderScheduledStationDeviceName"
   ],
   "properties": {
     "cn": {
@@ -12,7 +12,7 @@
       "description": "Arbitrary/Meaningful name for the Scheduled Station Order Mapping",
       "type": "string"
     },
-    "dcmScheduledStationDeviceName": {
+    "hl7OrderScheduledStationDeviceName": {
       "title": "Scheduled Station Device Name",
       "description": "Device Name of Scheduled Station",
       "type": "string"

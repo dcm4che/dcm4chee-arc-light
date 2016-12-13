@@ -61,8 +61,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
-    private final ArrayList<ScheduledStation> scheduledStations = new ArrayList<>();
-    private final EnumMap<SPSStatus,HL7Order2SPSStatus> hl7Order2SPSStatuses = new EnumMap<>(SPSStatus.class);
+    private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
+    private final EnumMap<SPSStatus,HL7Order2SPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -79,10 +79,10 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ErrorLogFilePattern = arcapp.hl7ErrorLogFilePattern;
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
-        scheduledStations.clear();
-        scheduledStations.addAll(arcapp.scheduledStations);
-        hl7Order2SPSStatuses.clear();
-        hl7Order2SPSStatuses.putAll(arcapp.hl7Order2SPSStatuses);
+        hl7OrderScheduledStations.clear();
+        hl7OrderScheduledStations.addAll(arcapp.hl7OrderScheduledStations);
+        hl7OrderSPSStatuses.clear();
+        hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
     }
 
     public String getAETitle() {
@@ -186,28 +186,28 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return dests;
     }
 
-    public void removeScheduledStation(ScheduledStation rule) {
-        scheduledStations.remove(rule);
+    public void removeHL7OrderScheduledStation(HL7OrderScheduledStation rule) {
+        hl7OrderScheduledStations.remove(rule);
     }
 
-    public void clearScheduledStations() {
-        scheduledStations.clear();
+    public void clearHL7OrderScheduledStations() {
+        hl7OrderScheduledStations.clear();
     }
 
-    public void addScheduledStation(ScheduledStation rule) {
-        scheduledStations.add(rule);
+    public void addHL7OrderScheduledStation(HL7OrderScheduledStation rule) {
+        hl7OrderScheduledStations.add(rule);
     }
 
-    public Collection<ScheduledStation> getScheduledStations() {
-        return scheduledStations;
+    public Collection<HL7OrderScheduledStation> getHL7OrderScheduledStations() {
+        return hl7OrderScheduledStations;
     }
 
-    public Collection<Device> scheduledStations(String hostName, HL7Segment msh, Attributes attrs) {
+    public Collection<Device> hl7OrderScheduledStation(String hostName, HL7Segment msh, Attributes attrs) {
         ArrayList<Device> scheduledStations = new ArrayList<>();
         int priority = 0;
-        for (Collection<ScheduledStation> stations
-                : new Collection[]{scheduledStations, getArchiveDeviceExtension().getScheduledStations() })
-            for (ScheduledStation station : stations)
+        for (Collection<HL7OrderScheduledStation> stations
+                : new Collection[]{scheduledStations, getArchiveDeviceExtension().getHL7OrderScheduledStations() })
+            for (HL7OrderScheduledStation station : stations)
                 if (station.match(hostName, msh, attrs))
                     if (priority <= station.getPriority()) {
                         if (priority < station.getPriority()) {
@@ -218,26 +218,27 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                     }
         return scheduledStations;
     }
+
     public void removeHL7Order2SPSStatus(HL7Order2SPSStatus rule) {
-        hl7Order2SPSStatuses.remove(rule.getSpsStatus());
+        hl7OrderSPSStatuses.remove(rule.getSpsStatus());
     }
 
     public void clearHL7Order2SPSStatuses() {
-        hl7Order2SPSStatuses.clear();
+        hl7OrderSPSStatuses.clear();
     }
 
     public void addHL7Order2SPSStatus(HL7Order2SPSStatus rule) {
-        hl7Order2SPSStatuses.put(rule.getSpsStatus(), rule);
+        hl7OrderSPSStatuses.put(rule.getSpsStatus(), rule);
     }
 
     public Map<SPSStatus, HL7Order2SPSStatus> getHL7Order2SPSStatuses() {
-        return hl7Order2SPSStatuses;
+        return hl7OrderSPSStatuses;
     }
 
-    public Collection<HL7Order2SPSStatus> hl7Order2SPSStatuses() {
-        return (hl7Order2SPSStatuses.isEmpty()
+    public Collection<HL7Order2SPSStatus> hl7OrderSPSStatuses() {
+        return (hl7OrderSPSStatuses.isEmpty()
                 ? getArchiveDeviceExtension().getHL7Order2SPSStatuses()
-                : hl7Order2SPSStatuses).values();
+                : hl7OrderSPSStatuses).values();
     }
 
 }

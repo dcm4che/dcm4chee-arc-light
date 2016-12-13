@@ -821,8 +821,8 @@ attributetype ( 1.2.40.0.13.1.15.110.3.137 NAME 'dcmPurgeInstanceRecordsFetchSiz
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.138 NAME 'dcmScheduledStationDeviceReference'
-   DESC 'The DN of a dicomDeviceObject referenced by dcmScheduledStation'
+attributetype ( 1.2.40.0.13.1.15.110.3.138 NAME 'hl7OrderScheduledStationDeviceReference'
+   DESC 'The DN of a dicomDeviceObject referenced by hl7OrderScheduledStation'
    EQUALITY distinguishedNameMatch
    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
    SINGLE-VALUE )
@@ -1167,17 +1167,17 @@ objectclass ( 1.2.40.0.13.1.15.110.4.26 NAME 'dcmMetadataFilter'
     dcmMetadataFilterName $
     dcmTag ) )
 
-objectclass ( 1.2.40.0.13.1.15.110.4.27 NAME 'dcmScheduledStation'
+objectclass ( 1.2.40.0.13.1.15.110.4.27 NAME 'hl7OrderScheduledStation'
   DESC 'Scheduled Station selected on MWL HL7 Order Feed'
   SUP top STRUCTURAL
   MUST (
     cn $
-    dcmScheduledStationDeviceReference )
+    hl7OrderScheduledStationDeviceReference )
   MAY (
     dcmRulePriority $
     dcmProperty ) )
 
-objectclass ( 1.2.40.0.13.1.15.110.4.28 NAME 'hl7Order2SPSStatus'
+objectclass ( 1.2.40.0.13.1.15.110.4.28 NAME 'hl7OrderSPSStatus'
   DESC 'Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages.'
   SUP top STRUCTURAL
   MUST (

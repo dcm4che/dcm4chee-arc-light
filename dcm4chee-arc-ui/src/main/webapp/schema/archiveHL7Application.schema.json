@@ -41,20 +41,20 @@
         "$ref": "hl7ForwardRule.schema.json"
       }
     },
-    "dcmScheduledStation": {
-      "title": "Scheduled Station",
+    "hl7OrderScheduledStation": {
+      "title": "Scheduled Station for HL7 Order",
       "description": "Scheduled Station selected on MWL HL7 Order Feed",
       "type": "array",
       "items" : {
-        "$ref": "scheduledStation.schema.json"
+        "$ref": "hl7OrderScheduledStation.schema.json"
       }
     },
-    "hl7Order2SPSStatus": {
+    "hl7OrderSPSStatus": {
       "title": "SPS Status for HL7 Order",
       "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages",
       "type": "array",
       "items" : {
-        "$ref": "hl7Order2SPSStatus.schema.json"
+        "$ref": "hl7OrderSPSStatus.schema.json"
       }
     }
   }

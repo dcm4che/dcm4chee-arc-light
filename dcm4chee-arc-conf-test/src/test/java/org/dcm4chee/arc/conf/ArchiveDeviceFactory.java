@@ -1115,8 +1115,8 @@ class ArchiveDeviceFactory {
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
     }
 
-    static ScheduledStation newScheduledStation(Device unknown) {
-        ScheduledStation ss = new ScheduledStation();
+    static HL7OrderScheduledStation newScheduledStation(Device unknown) {
+        HL7OrderScheduledStation ss = new HL7OrderScheduledStation();
         ss.setCommonName("Default Scheduled Station");
         ss.setDevice(unknown);
         return ss;
@@ -1213,7 +1213,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
 
 
-        ext.addScheduledStation(newScheduledStation(unknown));
+        ext.addHL7OrderScheduledStation(newScheduledStation(unknown));
 
         if (configType == configType.TEST) {
             ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));

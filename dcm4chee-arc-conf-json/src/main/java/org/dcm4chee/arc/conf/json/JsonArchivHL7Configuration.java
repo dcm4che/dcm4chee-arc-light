@@ -31,7 +31,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNull("hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern());
         writer.writeNotNull("dicomAETitle", ext.getAETitle());
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
-        JsonArchiveConfiguration.writeScheduledStations(writer, ext.getScheduledStations());
+        JsonArchiveConfiguration.writeScheduledStations(writer, ext.getHL7OrderScheduledStations());
         JsonArchiveConfiguration.writeHL7Order2SPSStatus(writer, ext.getHL7Order2SPSStatuses());
         writer.writeEnd();
     }
@@ -76,10 +76,10 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);
                     break;
-                case "dcmScheduledStation":
-                    JsonArchiveConfiguration.loadScheduledStations(ext.getScheduledStations(), reader, config);
+                case "hl7OrderScheduledStation":
+                    JsonArchiveConfiguration.loadScheduledStations(ext.getHL7OrderScheduledStations(), reader, config);
                     break;
-                case "hl7Order2SPSStatus":
+                case "hl7OrderSPSStatus":
                     JsonArchiveConfiguration.loadHL7Order2SPSStatus(ext.getHL7Order2SPSStatuses(), reader);
                     break;
                 default:

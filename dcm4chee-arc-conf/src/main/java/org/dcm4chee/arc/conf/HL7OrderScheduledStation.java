@@ -48,17 +48,17 @@ import org.dcm4che3.net.Device;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Dec 2016
  */
-public class ScheduledStation {
+public class HL7OrderScheduledStation {
 
     private String commonName;
     private int priority;
     private Device device;
     private HL7Conditions conditions = new HL7Conditions();
 
-    public ScheduledStation() {
+    public HL7OrderScheduledStation() {
     }
 
-    public ScheduledStation(String commonName) {
+    public HL7OrderScheduledStation(String commonName) {
         setCommonName(commonName);
     }
 
@@ -106,7 +106,7 @@ public class ScheduledStation {
 
     @Override
     public String toString() {
-        return "ScheduledStation{" +
+        return "HL7OrderScheduledStation{" +
                 "commonName='" + commonName + '\'' +
                 ", priority=" + priority +
                 (device == null ? ", device=null" :
