@@ -120,16 +120,21 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                 && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
             sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
         List<String> ssAETs = new ArrayList<>();
+        List<String> ssNames = new ArrayList<>();
         Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
-        for (Device device : devices)
+        for (Device device : devices) {
+            ssNames.add(device.getDeviceName());
             for (String ae : device.getApplicationAETitles())
                 ssAETs.add(ae);
-        if (!ssAETs.isEmpty())
+        }
+        if (!ssAETs.isEmpty()) {
+            sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
             sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
+        }
         String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
         for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
             if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(orderControlStatus)) {
-                sps.setString(Tag.ScheduledProcedureStepSequence, VR.CS, hl7OrderSPSStatus.getSpsStatus().toString());
+                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSpsStatus().toString());
                 return true;
             }
         return false;
