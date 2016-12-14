@@ -758,8 +758,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private static Attributes storeTo(HL7OrderSPSStatus hl7OrderSPSStatus, SPSStatus spsStatus, BasicAttributes attrs) {
         attrs.put("objectclass", "hl7OrderSPSStatus");
-        attrs.put("dcmSPSStatus", spsStatus);
-        attrs.put("hl7OrderControlStatus", hl7OrderSPSStatus.getOrderControlStatusCodes());
+        attrs.put("dcmSPSStatus", spsStatus.name());
+        LdapUtils.storeNotEmpty(attrs, "hl7OrderControlStatus", hl7OrderSPSStatus.getOrderControlStatusCodes());
         return attrs;
     }
 
@@ -820,9 +820,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 HL7OrderSPSStatus hl7OrderSPSStatus = new HL7OrderSPSStatus();
-                hl7OrderSPSStatus.setSpsStatus(SPSStatus.valueOf(LdapUtils.stringValue(attrs.get("dcmSPSStatus"), null)));
+                hl7OrderSPSStatus.setSPSStatus(SPSStatus.valueOf(LdapUtils.stringValue(attrs.get("dcmSPSStatus"), null)));
                 hl7OrderSPSStatus.setOrderControlStatusCodes(LdapUtils.stringArray(attrs.get("hl7OrderControlStatus")));
-                hl7OrderSPSStatusMap.put(hl7OrderSPSStatus.getSpsStatus(), hl7OrderSPSStatus);
+                hl7OrderSPSStatusMap.put(hl7OrderSPSStatus.getSPSStatus(), hl7OrderSPSStatus);
             }
         } finally {
             LdapUtils.safeClose(ne);

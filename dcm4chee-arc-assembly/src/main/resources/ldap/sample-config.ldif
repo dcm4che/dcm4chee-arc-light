@@ -90,6 +90,12 @@ dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomThisNodeCertificateReference: dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 userCertificate;binary:: MIIDczCCAlugAwIBAgIEDqkVzTANBgkqhkiG9w0BAQsFADBqMQswCQYDVQQGEwJBVDEPMA0GA1UECBMGVmllbm5hMQ8wDQYDVQQHEwZWaWVubmExEDAOBgNVBAoTB2RjbTRjaGUxFTATBgNVBAsTDGRjbTRjaGUtdG9vbDEQMA4GA1UEAxMHbXBwc3NjdTAeFw0xNjA4MjkwOTE0MjVaFw0xNzA4MjkwOTE0MjVaMGoxCzAJBgNVBAYTAkFUMQ8wDQYDVQQIEwZWaWVubmExDzANBgNVBAcTBlZpZW5uYTEQMA4GA1UEChMHZGNtNGNoZTEVMBMGA1UECxMMZGNtNGNoZS10b29sMRAwDgYDVQQDEwdtcHBzc2N1MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgKKhWeRZYebOtzQ99r5nk/D+PSvRlWp7W96rr4SZbGSaUwixA+vvUI2xQucNYpzIksmfx7M7q1WeBjCLqjdG63JaQuRW1Hnb8CBD7iWe4nQbeRsJvljDKvkItAZEmxxv3IYSxHezp0Lxho96Z56LTCCOjoOwnR+WCCZaxaIXou+eBgJMKPvObM3exXSoVInaJFpqbck/+Eca0sBEyLklrOdEYoy36wJDKXRXKcAksJBqIKX67Jwk/9u4/BxCGDXJX71Y41gJPQQiZ7yyVt1laJEMQuj7DD8n9gB1lsk+c1K+y+dx14mEkbOpqX+jlb3l+9TVL8E+clI9UuzquTw57QIDAQABoyEwHzAdBgNVHQ4EFgQU8/iV6POTrfkx+RbXai7UTlATzyIwDQYJKoZIhvcNAQELBQADggEBAA6R3PKt1GSaSa5FLvxgT11Mt/BD4j+gy5MkM8ZzbaYZe2kOBHStDRfI0KFKP7Wb41lA7n8DtGR0ZwQEa1A7+DiHkDS786e2qna4S7g76BjwPEfkXd4kzood7CIWMyGkUvWHpeXcq8Prt0s3ifD5QqFCDGFYajS1K3BfMJuRFRzV+bftvIXCM3Ejdw+ayepXIkaUmaVw34ZpqRbO/qW/eAfbhVFjd2zFx1PNaz8lEhled0s0kJkBeCecbIIMbAIbykTRawHuSBXKIz2tpe+6CZV8Rm4D+3ANXU9bWhk5QbS65s+FnnvojigLuFsA09xPHzE03nOr6sAXou+PYeIzZrE=
 
+dn: dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: TRUE
+dicomDeviceName: unknown
+objectClass: dicomDevice
+objectClass: dcmDevice
+
 dn: dicomDeviceName=dcmqrscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomIssuerOfPatientID: Site B&1.2.40.0.13.1.1.999.222.2222&ISO
@@ -219,7 +225,7 @@ dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
-dicomSoftwareVersion: 5.7.2
+dicomSoftwareVersion: 5.8.0
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
@@ -390,6 +396,21 @@ objectClass: dcmNetworkAE
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: MPPSSCU
+dicomAssociationAcceptor: TRUE
+
+dn: cn=dicom,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+dicomPort: 104
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+cn: dicom
+
+dn: dicomAETitle=UNKNOWN,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAssociationInitiator: TRUE
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: UNKNOWN
 dicomAssociationAcceptor: TRUE
 
 dn: cn=dicom,dicomDeviceName=dcmqrscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -1143,6 +1164,23 @@ dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/StgCmtSCU
 
+dn: dcmSPSStatus=CANCELLED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmSPSStatus: CANCELLED
+hl7OrderControlStatus: CA_CA
+objectClass: hl7OrderSPSStatus
+
+dn: dcmSPSStatus=COMPLETED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmSPSStatus: COMPLETED
+hl7OrderControlStatus: XO_CM
+objectClass: hl7OrderSPSStatus
+
+dn: dcmSPSStatus=SCHEDULED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmSPSStatus: SCHEDULED
+hl7OrderControlStatus: NW_SC
+hl7OrderControlStatus: NW_IP
+hl7OrderControlStatus: XO_SC
+objectClass: hl7OrderSPSStatus
+
 dn: dcmStorageID=wado-jpeg,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: pathFormat={0020000D}/{0020000E}/{00080018}/{00081160}.jpeg
 dcmProperty: checkMountFile=NO_MOUNT
@@ -1164,6 +1202,11 @@ cn: Image Reader Factory
 dn: cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmImageWriterFactory
 cn: Image Writer Factory
+
+dn: dcmSPSStatus=DISCONTINUED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmSPSStatus: DISCONTINUED
+hl7OrderControlStatus: DC_CA
+objectClass: hl7OrderSPSStatus
 
 dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAssociationInitiator: TRUE
@@ -1190,6 +1233,11 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomAETitle: DCM4CHEE_TRASH
 dicomAssociationAcceptor: TRUE
+
+dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+hl7OrderScheduledStationDeviceReference: dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: hl7OrderScheduledStation
+cn: Default Scheduled Station
 
 dn: cn=StoreAccessControlIDRule1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmStoreAccessControlID: ACCESS_CONTROL_ID
@@ -9172,6 +9220,10 @@ dicomAETitle: MPPSSCP
 dn: dicomAETitle=MPPSSCU,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle
 dicomAETitle: MPPSSCU
+
+dn: dicomAETitle=UNKNOWN,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitle
+dicomAETitle: UNKNOWN
 
 dn: dicomAETitle=DCM4CHEE,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle

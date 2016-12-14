@@ -52,11 +52,11 @@ public class HL7OrderSPSStatus {
     private SPSStatus spsStatus;
     private String[] orderControlStatusCodes = {};
 
-    public SPSStatus getSpsStatus() {
+    public SPSStatus getSPSStatus() {
         return spsStatus;
     }
 
-    public void setSpsStatus(SPSStatus spsStatus) {
+    public void setSPSStatus(SPSStatus spsStatus) {
         this.spsStatus = spsStatus;
     }
 

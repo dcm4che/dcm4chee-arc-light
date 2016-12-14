@@ -135,7 +135,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
         for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
             if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(orderControlStatus)) {
-                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSpsStatus().toString());
+                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSPSStatus().toString());
                 return true;
             }
         return false;

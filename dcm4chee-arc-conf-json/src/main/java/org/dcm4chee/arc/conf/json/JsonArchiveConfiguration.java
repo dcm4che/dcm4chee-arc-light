@@ -1398,7 +1398,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmSPSStatus":
-                        hl7OrderSPSStatus.setSpsStatus(SPSStatus.valueOf(reader.stringValue()));
+                        hl7OrderSPSStatus.setSPSStatus(SPSStatus.valueOf(reader.stringValue()));
                         break;
                     case "hl7OrderControlStatus":
                         hl7OrderSPSStatus.setOrderControlStatusCodes(reader.stringArray());
@@ -1408,7 +1408,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            hl7OrderSPSStatusMap.put(hl7OrderSPSStatus.getSpsStatus(), hl7OrderSPSStatus);
+            hl7OrderSPSStatusMap.put(hl7OrderSPSStatus.getSPSStatus(), hl7OrderSPSStatus);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

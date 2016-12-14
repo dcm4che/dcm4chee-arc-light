@@ -220,7 +220,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public void removeHL7OrderSPSStatus(HL7OrderSPSStatus rule) {
-        hl7OrderSPSStatuses.remove(rule.getSpsStatus());
+        hl7OrderSPSStatuses.remove(rule.getSPSStatus());
     }
 
     public void clearHL7OrderSPSStatuses() {
@@ -228,7 +228,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     }
 
     public void addHL7OrderSPSStatus(HL7OrderSPSStatus rule) {
-        hl7OrderSPSStatuses.put(rule.getSpsStatus(), rule);
+        hl7OrderSPSStatuses.put(rule.getSPSStatus(), rule);
     }
 
     public Map<SPSStatus, HL7OrderSPSStatus> getHL7OrderSPSStatuses() {

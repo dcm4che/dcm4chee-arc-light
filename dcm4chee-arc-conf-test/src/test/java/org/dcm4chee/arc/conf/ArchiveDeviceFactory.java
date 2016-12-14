@@ -172,7 +172,7 @@ class ArchiveDeviceFactory {
 
     static HL7OrderSPSStatus newHL7OrderSPSStatus(String spsStatus, String... orderStatuses) {
         HL7OrderSPSStatus hl7OrderSPSStatus = new HL7OrderSPSStatus();
-        hl7OrderSPSStatus.setSpsStatus(SPSStatus.valueOf(spsStatus));
+        hl7OrderSPSStatus.setSPSStatus(SPSStatus.valueOf(spsStatus));
         hl7OrderSPSStatus.setOrderControlStatusCodes(orderStatuses);
         return hl7OrderSPSStatus;
     }
@@ -853,7 +853,7 @@ class ArchiveDeviceFactory {
             "DSS"
     };
 
-    static final String DCM4CHEE_ARC_VERSION = "5.7.2";
+    static final String DCM4CHEE_ARC_VERSION = "5.8.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
