@@ -102,8 +102,9 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                 msg.data(), hl7cs, arcHL7App.scheduleProcedureTemplateURI(), null);
         boolean result = adjust(attrs, arcHL7App, msh, s);
         if (!result) {
-            LOG.info("MWL item not created/updated for " + msh.getMessageType()
-                    + " as no mapping to a Scheduled Procedure Step Status is configured with (ORC-1, ORC-5)");
+            LOG.info("MWL item not created/updated for HL7 message : " + msh.getMessageType()
+                    + " as no mapping to a Scheduled Procedure Step Status is configured with ORC-1_ORC-5 : "
+                    + attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence).getString(Tag.ScheduledProcedureStepStatus));
             return;
         }
         ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msh);
