@@ -1171,6 +1171,15 @@
             "description": "Patient ID and Issuer of the dominant Patient encoded as HL7 CX",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "mergePatientIDs",
+            "in": "body",
+            "description": "Patient ID and Issuer of the merged Patient encoded as JSON Dataset",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatientIDs"
+            }
           }
         ],
         "responses": {
@@ -2627,6 +2636,38 @@
                     }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "PatientIDs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "PatientID"
+        ],
+        "properties": {
+          "PatientID": {
+            "type": "string"
+          },
+          "IssuerOfPatientID": {
+            "type": "string"
+          },
+          "IssuerOfPatientIDQualifiers": {
+            "type": "object",
+            "required": [
+              "UniversalEntityID",
+              "UniversalEntityIDType"
+            ],
+            "properties": {
+              "UniversalEntityID": {
+                "type": "string"
+              },
+              "UniversalEntityIDType": {
+                "type": "string"
               }
             }
           }
