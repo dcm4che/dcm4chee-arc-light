@@ -42,6 +42,7 @@ package org.dcm4chee.arc.qido;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import org.apache.http.client.methods.HttpHead;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
@@ -377,24 +378,23 @@ public class QidoRS {
         Query query = model.createQuery(service, ctx);
         try {
             query.initQuery();
-            Response.Status status = Response.Status.OK;
             int maxResults = ctx.getArchiveAEExtension().qidoMaxNumberOfResults();
             int offsetInt = parseInt(offset);
             int limitInt = parseInt(limit);
+            int remaining = 0;
             if (maxResults > 0 && (limitInt == 0 || limitInt >  maxResults)) {
                 int numResults = (int) (query.count() - offsetInt);
-                if (numResults == 0)
+                if (numResults <= 0)
                     return Response.noContent().build();
 
-                if (numResults > maxResults) {
-                    limitInt = maxResults;
-                    status = Response.Status.PARTIAL_CONTENT;
-                }
+                remaining = numResults - maxResults;
             }
             if (offsetInt > 0)
                 query.offset(offsetInt);
 
-            if (limitInt > 0)
+            if (remaining > 0)
+                query.limit(maxResults);
+            else if (limitInt > 0)
                 query.limit(limitInt);
 
             query.orderBy(queryAttrs.getOrderSpecifiers(model));
@@ -403,10 +403,19 @@ public class QidoRS {
             if (!query.hasMoreMatches())
                 return Response.noContent().build();
 
-            return Response.status(status).entity(output.entity(this, method, query, model)).build();
+            Response.ResponseBuilder builder = Response.ok();
+            if (remaining > 0)
+                builder.header("Warning", warning(remaining));
+
+            return builder.entity(output.entity(this, method, query, model)).build();
         } finally {
             query.close();
         }
+    }
+
+    private String warning(int remaining) {
+        return "299 " + request.getServerName() + ':' + request.getServerPort()
+                + " \"There are " + remaining + " additional results that can be requested\"";
     }
 
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
