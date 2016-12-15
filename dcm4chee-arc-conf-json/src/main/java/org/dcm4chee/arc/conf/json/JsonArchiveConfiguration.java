@@ -169,6 +169,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getStorePermissionServiceErrorCodePattern());
         writer.writeNotEmpty("dcmRetrieveAET", arcDev.getRetrieveAETitles());
         writer.writeNotNull("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination());
+        writer.writeNotNull("dcmBaseRetrieveURL", arcDev.getBaseRetrieveURL());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -799,6 +800,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmExternalRetrieveAEDestination":
                     arcDev.setExternalRetrieveAEDestination(reader.stringValue());
+                    break;
+                case "dcmBaseRetrieveURL":
+                    arcDev.setBaseRetrieveURL(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

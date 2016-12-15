@@ -163,6 +163,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern());
         LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination());
+        LdapUtils.storeNotNull(attrs, "dcmBaseRetrieveURL", ext.getBaseRetrieveURL());
     }
 
     @Override
@@ -261,6 +262,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
         ext.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
+        ext.setBaseRetrieveURL(LdapUtils.stringValue(attrs.get("dcmBaseRetrieveURL"), null));
     }
 
     @Override
@@ -421,6 +423,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmRetrieveAET", aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
         LdapUtils.storeDiff(mods, "dcmExternalRetrieveAEDestination",
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination());
+        LdapUtils.storeDiff(mods, "dcmBaseRetrieveURL", aa.getBaseRetrieveURL(), bb.getBaseRetrieveURL());
     }
 
     @Override

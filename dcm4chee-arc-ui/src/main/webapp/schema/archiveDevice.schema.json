@@ -507,6 +507,11 @@
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
       "type": "string"
     },
+    "dcmBaseRetrieveURL": {
+      "title": "Base Retrieve URL",
+      "description": "BaseRetrieve URL",
+      "type": "string"
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",
