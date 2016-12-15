@@ -49,6 +49,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.util.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
@@ -407,7 +408,7 @@ public class QidoRS {
             if (remaining > 0)
                 builder.header("Warning", warning(remaining));
 
-            return builder.entity(output.entity(this, method, query, model)).build();
+            return builder.entity(output.entity(this, method, query, model, ctx)).build();
         } finally {
             query.close();
         }
@@ -628,21 +629,21 @@ public class QidoRS {
     private enum Output {
         DICOM_XML {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model) {
-                return service.writeXML(method, query, model);
+            Object entity(QidoRS service, String method, Query query, Model model, QueryContext ctx) {
+                return service.writeXML(method, query, model, ctx);
             }
         },
         JSON {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model) {
-                return service.writeJSON(method, query, model);
+            Object entity(QidoRS service, String method, Query query, Model model, QueryContext ctx) {
+                return service.writeJSON(method, query, model, ctx);
             }
         };
 
-        abstract Object entity(QidoRS service, String method, Query query, Model model);
+        abstract Object entity(QidoRS service, String method, Query query, Model model, QueryContext ctx);
     }
 
-    private Object writeXML(String method, Query query, Model model) {
+    private Object writeXML(String method, Query query, Model model, QueryContext ctx) {
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         int count = 0;
         while (query.hasMoreMatches()) {
@@ -650,7 +651,7 @@ public class QidoRS {
             if (tmp == null)
                 continue;
 
-            final Attributes match = adjust(tmp, model, query);
+            final Attributes match = adjust(tmp, model, query, ctx);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
             output.addPart(
                     new StreamingOutput() {
@@ -670,14 +671,14 @@ public class QidoRS {
         return output;
     }
 
-    private Object writeJSON(String method, Query query, Model model) {
+    private Object writeJSON(String method, Query query, Model model, QueryContext ctx) {
         final ArrayList<Attributes> matches = new ArrayList<>();
         int count = 0;
         while (query.hasMoreMatches()) {
             Attributes tmp = query.nextMatch();
             if (tmp == null)
                 continue;
-            Attributes match = adjust(tmp, model, query);
+            Attributes match = adjust(tmp, model, query, ctx);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
             matches.add(match);
         }
@@ -697,20 +698,22 @@ public class QidoRS {
         };
     }
 
-    private Attributes adjust(Attributes match, Model model, Query query) {
+    private Attributes adjust(Attributes match, Model model, Query query, QueryContext ctx) {
         match = query.adjust(match);
         switch(model) {
             case STUDY:
             case SERIES:
             case INSTANCE:
-                match.setString(Tag.RetrieveURL, VR.UR, retrieveURL(match, model));
+                match.setString(Tag.RetrieveURL, VR.UR, retrieveURL(match, model, ctx));
         }
         return match;
     }
 
-    private String retrieveURL(Attributes match, Model model) {
+    private String retrieveURL(Attributes match, Model model, QueryContext ctx) {
         StringBuilder sb = new StringBuilder(256);
-        sb.append(uriInfo.getBaseUri())
+        String uriInfoBaseUri = uriInfo.getBaseUri().toString();
+        String configBaseUri = ctx.getLocalApplicationEntity().getDevice().getDeviceExtension(ArchiveDeviceExtension.class).getBaseRetrieveURL();
+        sb.append(configBaseUri != null ? configBaseUri : uriInfoBaseUri)
                 .append("aets/")
                 .append(aet)
                 .append("/rs/studies/")
