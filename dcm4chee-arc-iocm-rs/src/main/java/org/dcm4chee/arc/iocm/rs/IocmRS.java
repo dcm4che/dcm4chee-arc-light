@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
@@ -268,6 +269,28 @@ public class IocmRS {
                 patientService.changePatientID(ctx);
             }
             forwardRS(HttpMethod.PUT, newPatient ? RSOperation.CreatePatient : RSOperation.UpdatePatient, arcAE, attrs);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @POST
+    @Path("/patients/{patientID}/merge")
+    @Consumes("application/json")
+    public void mergePatient(@PathParam("patientID") IDWithIssuer patientID, InputStream in) throws Exception {
+        logRequest();
+        try {
+            final Attributes attrs = parseOtherPatientIDs(in);
+            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request, getArchiveAE().getApplicationEntity());
+            patMgtCtx.setPatientID(patientID);
+            Attributes patAttr = new Attributes(2);
+            patAttr.setString(Tag.PatientID, VR.LO, patientID.toString());
+            patMgtCtx.setAttributes(patAttr);
+            for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence)) {
+                patMgtCtx.setPreviousAttributes(otherPID);
+                patientService.mergePatient(patMgtCtx);
+            }
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -539,6 +562,60 @@ public class IocmRS {
         JsonParser.Event next = parser.next();
         if (next != expected)
             throw new WebApplicationException(getResponse("Unexpected " + next, Response.Status.BAD_REQUEST));
+    }
+
+    private Attributes parseOtherPatientIDs(InputStream in) throws IOException {
+        JsonParser parser = Json.createParser(new InputStreamReader(in, "UTF-8"));
+        Attributes attrs = new Attributes(10);
+        expect(parser, JsonParser.Event.START_ARRAY);
+        Sequence otherPIDseq = attrs.newSequence(Tag.OtherPatientIDsSequence, 10);
+        while (parser.next() == JsonParser.Event.START_OBJECT) {
+            Attributes otherPID = new Attributes(5);
+            while (parser.next() == JsonParser.Event.KEY_NAME) {
+                switch (parser.getString()) {
+                    case "PatientID":
+                        expect(parser, JsonParser.Event.VALUE_STRING);
+                        otherPID.setString(Tag.PatientID, VR.LO, parser.getString());
+                        break;
+                    case "IssuerOfPatientID":
+                        expect(parser, JsonParser.Event.VALUE_STRING);
+                        otherPID.setString(Tag.IssuerOfPatientID, VR.LO, parser.getString());
+                        break;
+                    case "IssuerOfPatientIDQualifiers":
+                        expect(parser, JsonParser.Event.START_OBJECT);
+                        otherPID.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 2).add(parseIssuerOfPIDQualifier(parser));
+                        break;
+                    default:
+                        throw new WebApplicationException(
+                                getResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
+                }
+            }
+            otherPIDseq.add(otherPID);
+        }
+        if (otherPIDseq.isEmpty())
+            throw new WebApplicationException(
+                    getResponse("Patients to be merged not sent in the request.", Response.Status.BAD_REQUEST));
+        return attrs;
+    }
+
+    private Attributes parseIssuerOfPIDQualifier(JsonParser parser) {
+        Attributes attr = new Attributes(2);
+        while (parser.next() == JsonParser.Event.KEY_NAME) {
+            switch (parser.getString()) {
+                case "UniversalEntityID":
+                    expect(parser, JsonParser.Event.VALUE_STRING);
+                    attr.setString(Tag.UniversalEntityID, VR.UT, parser.getString());
+                    break;
+                case "UniversalEntityIDType":
+                    expect(parser, JsonParser.Event.VALUE_STRING);
+                    attr.setString(Tag.UniversalEntityIDType, VR.CS, parser.getString());
+                    break;
+                default:
+                    throw new WebApplicationException(
+                            getResponse("Unexpected Key name", Response.Status.BAD_REQUEST));
+            }
+        }
+        return attr;
     }
 
     private Attributes parseSOPInstanceReferences(InputStream in) throws IOException {

@@ -1186,9 +1186,6 @@
           "204": {
             "description": "successful operation"
           },
-          "404": {
-            "description": "no such dominant Patient"
-          },
           "default": {
             "description": "unexpected error"
           }

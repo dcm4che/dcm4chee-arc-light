@@ -41,9 +41,7 @@
 package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Issuer;
+import org.dcm4che3.data.*;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -183,6 +181,12 @@ public class PatientServiceEJB {
         } else {
             moveStudies(prev, pat);
             moveMPPS(prev, pat);
+        }
+        if (ctx.getHttpRequest() != null) {
+            if (pat.getPatientName() != null)
+                ctx.getAttributes().setString(Tag.PatientName, VR.PN, pat.getPatientName().toString());
+            if (prev.getPatientName() != null)
+                ctx.getPreviousAttributes().setString(Tag.PatientName, VR.PN, prev.getPatientName().toString());
         }
         prev.setMergedWith(pat);
         return pat;
