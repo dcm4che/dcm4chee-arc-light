@@ -789,12 +789,19 @@ public class WadoRS {
 
     private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException {
         Attributes metadata = inst.isContainsMetadata() ? inst.getAttributes() : service.loadMetadata(ctx, inst);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String confBaseRetrieveURI = arcDev.getBaseRetrieveURL();
         StringBuffer sb = request.getRequestURL();
         sb.setLength(sb.lastIndexOf("/metadata"));
         mkInstanceURL(sb, inst);
         if (ctx.getMetadataFilter() != null)
             metadata = new Attributes(metadata, ctx.getMetadataFilter().getSelection());
-        setBulkdataURI(metadata, sb.toString());
+        String retrieveURL = confBaseRetrieveURI != null
+                                ? confBaseRetrieveURI.lastIndexOf("dcm4chee-arc/") == -1
+                                    ? confBaseRetrieveURI + "/" + sb.substring(sb.indexOf("aets"))
+                                    : confBaseRetrieveURI + sb.substring(sb.indexOf("aets"))
+                                : sb.toString();
+        setBulkdataURI(metadata, retrieveURL);
         return metadata;
     }
 

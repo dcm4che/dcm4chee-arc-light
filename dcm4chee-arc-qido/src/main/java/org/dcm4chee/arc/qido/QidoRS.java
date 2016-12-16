@@ -712,8 +712,12 @@ public class QidoRS {
     private String retrieveURL(Attributes match, Model model, QueryContext ctx) {
         StringBuilder sb = new StringBuilder(256);
         String uriInfoBaseUri = uriInfo.getBaseUri().toString();
-        String configBaseUri = ctx.getLocalApplicationEntity().getDevice().getDeviceExtension(ArchiveDeviceExtension.class).getBaseRetrieveURL();
-        sb.append(configBaseUri != null ? configBaseUri : uriInfoBaseUri)
+        String confBaseRetrieveUri = ctx.getLocalApplicationEntity().getDevice().getDeviceExtension(ArchiveDeviceExtension.class).getBaseRetrieveURL();
+        String retrieveURL = confBaseRetrieveUri != null
+                            ? confBaseRetrieveUri.lastIndexOf("dcm4chee-arc/") == -1
+                                ? confBaseRetrieveUri + "/" : confBaseRetrieveUri
+                            : uriInfoBaseUri;
+        sb.append(retrieveURL)
                 .append("aets/")
                 .append(aet)
                 .append("/rs/studies/")
