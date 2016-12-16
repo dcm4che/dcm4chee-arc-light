@@ -32,12 +32,10 @@ export class ContentDescriptionPipe implements PipeTransform {
                   valueOf(code,"0080104")  // CodeMeaning
               ].filter(function (obj) { return obj }).join(" ");
       };
-      return function(value) {
-          return valueOf(value,"00700081") // ContentDescription
+      return valueOf(value,"00700081") // ContentDescription
               || imageDescriptionOf(value)
               || srDescriptionOf(value)
               || valueOf(value,"00420010"); // Document Title
-      };
   }
 
 }

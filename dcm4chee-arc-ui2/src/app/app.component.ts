@@ -4,6 +4,8 @@ import {TestdialogComponent} from "./widgets/dialogs/testdialog.component";
 import {MessagingComponent} from "./widgets/messaging/messaging.component";
 import {AppService} from "./app.service";
 import {ViewChild} from "@angular/core/src/metadata/di";
+import {User} from "./models/user";
+import 'rxjs/add/operator/catch';
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -16,14 +18,50 @@ declare var DCM4CHE: any;
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'app works2!';
     progressValue = 30;
+    //Detect witch header should be shown.
 
     dialogRef: MdDialogRef<any>;
 
     @ViewChild(MessagingComponent) msg;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
-    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging:MessagingComponent){
+    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging:MessagingComponent,public mainservice:AppService){
+        if(!this.mainservice.user){
+            this.mainservice.user = this.mainservice.getUserInfo().share();
+            this.mainservice.user
+                .subscribe(
+                    (response) => {
+                        this.mainservice.user.user = response.user;
+                        this.mainservice.user.roles = response.roles;
+                        this.mainservice.isRole = function(role){
+                            if(response.user === null && response.roles.length === 0){
+                                return true;
+                            }else{
+                                if(response.roles && response.roles.indexOf(role) > -1){
+                                    return true;
+                                }else{
+                                    return false;
+                                }
+                            }
+                        };
+                    },
+                    (response) => {
+                        // this.user = this.user || {};
+                        this.mainservice.user.user = "user";
+                        this.mainservice.user.roles = ["user","admin"];
+                        this.mainservice.user.isRole = (role)=>{
+                            if(role === "admin"){
+                                return false;
+                            }else{
+                                return true;
+                            }
+                        };
+                    }
+                );
+        }
+
+
+
     }
 
     progress(){
@@ -47,6 +85,7 @@ export class AppComponent {
             }
         }
     };
+
 
     onClick() {
         // this.dcm4che.elementName.forTag()

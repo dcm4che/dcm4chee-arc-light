@@ -6,6 +6,8 @@ import { TestdialogComponent } from './dialogs/testdialog.component';
 import {FormsModule} from "@angular/forms";
 import {MdDialogConfig} from "@angular/material";
 import { MessagingComponent } from './messaging/messaging.component';
+import {EditPatientComponent} from "./dialogs/edit-patient/edit-patient.component";
+
 
 @NgModule({
     imports: [
@@ -19,4 +21,4 @@ import { MessagingComponent } from './messaging/messaging.component';
     providers: [MdDialogConfig]
 })
 export class WidgetsModule { }
-export const WidgetsComponents = [TestdialogComponent, MessagingComponent];
+export const WidgetsComponents = [TestdialogComponent, MessagingComponent,EditPatientComponent];

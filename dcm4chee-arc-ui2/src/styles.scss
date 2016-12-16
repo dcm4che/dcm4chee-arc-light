@@ -68,3 +68,126 @@ md-progress-circle, [_nghost-nyg-8]{
     }
   }
 }
+.ui-datepicker {
+
+  select.ui-datepicker-month{
+    width:56%;
+    font-size:13px;
+  }
+  select.ui-datepicker-year{
+    width:33%;
+    font-size:13px;
+  }
+}
+.md-overlay-pane{
+  width:90%;
+  .addPatientAttribut{
+    margin-bottom: 20px;
+    padding-left:7px;
+  }
+  md-dialog-container{
+    overflow:visible;
+  }
+  .dropdown{
+    max-height: 300px;
+    overflow-y:scroll;
+    width: 34%;
+    -moz-box-shadow: 4px 6px 16px 5px #ccc;
+    -webkit-box-shadow: 4px 6px 16px 5px #ccc;
+    box-shadow: 4px 6px 16px 5px #ccc;
+    z-index: 99999;
+    position:absolute;
+    background:white;
+    margin-top: -20px;
+    .dropdown_element{
+      padding-left:7px;
+      display: inline-block;
+      width: 100%;
+      color:black;
+      &.selected{
+        background:rgba(3, 0, 255, 0.5);
+      }
+      &:hover{
+        background:#ccc;
+        cursor: pointer;
+        text-decoration: none;
+      }
+    }
+  }
+  .item1,.item1first {
+    min-height: 35px;
+    line-height: 35px;
+    vertical-align: middle;
+  }
+  .item1,.item1input{
+    margin-left: 20px;
+  }
+  .item2input{
+    margin-left: 20px;
+  }
+  .item1input:nth-of-type(1){
+    margin-top: 35px;
+  }
+  .item2input:nth-of-type(1){
+    float: left;
+    margin-left: 2%;
+    padding-top: 35px;
+    width: 98%;
+  }
+  select{
+    height: 30px;
+    margin: 2px 0;
+  }
+  table{
+    tr{
+      &:hover{
+        background: rgba(0, 0, 0, 0.3) none repeat scroll 0 0;
+        color: black;
+      }
+      td{
+        input, textarea, select{
+          float: left;
+          width: 97%;
+        }
+        select{
+          background: #ffffff;
+          border:1px solid #ccc;
+        }
+        p-calendar{
+          width:97%;
+          float: left;
+          span{
+            width:100%;
+            input{
+              width:100%;
+
+            }
+          }
+        }
+        span.glyphicon-remove{
+          float: right;
+          height: 33px;
+          line-height: 33px;
+          text-align: center;
+          width: 3%;
+          display: none;
+          &:hover{
+            cursor: pointer;
+          }
+        }
+        &.datepicker{
+          .original{
+            display: none;
+          }
+        }
+      }
+      td.first_td{
+        padding-left:5%;
+      }
+      td:hover span{
+        color:#7e7b7b;
+        display: inline-block;
+      }
+    }
+  }
+}

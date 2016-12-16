@@ -619,7 +619,7 @@ table{
 	    // position: fixed;
 	    // top: 113px;
 	    // top:0px;
-	    z-index: 99;
+	    z-index: 1;
 	    left: 44px;
 	    right: 36px;
 	    padding-left: 29px;
@@ -1071,7 +1071,7 @@ table{
 					.tr_row > .td_cell{
 					    font-weight: bold;
 					    height: 25px;
-					    line-height: 25px;
+					    line-height: 24px;
 					    padding-left: 7px;
 					    border-bottom:1px solid #aaa;
 					    &.attribute_list{
@@ -1161,7 +1161,7 @@ table{
 									border-bottom: 1px solid #aaa;
 									color: black;
 									width:14.5%;
-									height: 25px;
+									height: 26px;
 									&.attribute_list{
 										width: 100%;
 										height: auto;

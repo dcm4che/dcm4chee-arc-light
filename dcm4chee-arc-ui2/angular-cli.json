@@ -18,9 +18,12 @@
       "prefix": "app",
       "mobile": false,
       "styles": [
+        "../node_modules/animate.css/animate.min.css",
+        "../node_modules/primeng/resources/primeng.min.css",
+        "../node_modules/primeng/resources/themes/omega/theme.css",
+        "../node_modules/font-awesome/css/font-awesome.min.css",
         "styles.scss",
-        "assets/scss/old_style.scss",
-        "../node_modules/animate.css/animate.min.css"
+        "assets/scss/old_style.scss"
       ],
       "scripts": [
         "../node_modules/hammerjs/hammer.min.js",
@@ -39,7 +42,9 @@
       }
     }
   ],
-  "addons": [],
+  "addons": [
+    "../node_modules/font-awesome/fonts/*.+(otf|eot|svg|ttf|woff|woff2)"
+  ],
   "packages": [],
   "e2e": {
     "protractor": {

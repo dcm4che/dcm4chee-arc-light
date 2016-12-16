@@ -13,7 +13,7 @@ import {SlimLoadingBarModule} from "ng2-slim-loading-bar";
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { GetKeyPipe } from './pipes/get-key.pipe';
 import {WidgetsModule, WidgetsComponents} from "./widgets/widgets.module";
-import {CommonModule} from "@angular/common";
+import {CommonModule, DatePipe} from "@angular/common";
 import { FormatDAPipe } from './pipes/format-da.pipe';
 import { FormatTMPipe } from './pipes/format-tm.pipe';
 import { FormatTagPipe } from './pipes/format-tag.pipe';
@@ -21,6 +21,16 @@ import { ContentDescriptionPipe } from './pipes/content-description.pipe';
 import { FormatAttributeValuePipe } from './pipes/format-attribute-value.pipe';
 import { AttributeNameOfPipe } from './pipes/attribute-name-of.pipe';
 import { RemovedotsPipe } from './pipes/removedots.pipe';
+import {StudiesService} from "./studies/studies.service";
+import {AppService} from "./app.service";
+import { AttributeListComponent } from './attribute-list/attribute-list.component';
+import { FileAttributeListComponent } from './file-attribute-list/file-attribute-list.component';
+import {CalendarModule} from "primeng/components/calendar/calendar";
+import {SelectItem} from "primeng/components/common/api";
+import {DropdownModule} from "primeng/components/dropdown/dropdown";
+import { TrimPipe } from './pipes/trim.pipe';
+import { SearchPipe } from './pipes/search.pipe';
+import { KeysPipe } from './pipes/keys.pipe';
 
 @NgModule({
     declarations: [
@@ -38,8 +48,12 @@ import { RemovedotsPipe } from './pipes/removedots.pipe';
         ContentDescriptionPipe,
         FormatAttributeValuePipe,
         AttributeNameOfPipe,
-        RemovedotsPipe
-
+        RemovedotsPipe,
+        AttributeListComponent,
+        FileAttributeListComponent,
+        TrimPipe,
+        SearchPipe,
+        KeysPipe
     ],
     imports: [
         BrowserModule,
@@ -49,6 +63,8 @@ import { RemovedotsPipe } from './pipes/removedots.pipe';
         SlimLoadingBarModule.forRoot(),
         WidgetsModule,
         CommonModule,
+        CalendarModule,
+        DropdownModule,
         RouterModule.forRoot([
             {
               path: '',
@@ -61,7 +77,7 @@ import { RemovedotsPipe } from './pipes/removedots.pipe';
       ])
     ],
     entryComponents:[WidgetsComponents],
-    providers: [MdDialogConfig, WidgetsComponents],
+    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, DatePipe, CalendarModule, DropdownModule],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

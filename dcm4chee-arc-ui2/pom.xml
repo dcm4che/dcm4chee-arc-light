@@ -45,7 +45,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.7.2</version>
+    <version>5.8.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -85,13 +85,15 @@
             </configuration>
           </execution>
             <execution>
-                <id>npm run-script prod</id>
+                <!--<id>npm run-script prod</id>-->
+                <id>npm run-script dev</id>
                 <phase>prepare-package</phase>
                 <goals>
                     <goal>npm</goal>
                 </goals>
                 <configuration>
-                    <arguments>run-script prod</arguments>
+                    <!--<arguments>run-script prod</arguments> //use this for production-->
+                    <arguments>run-script dev</arguments>
                 </configuration>
             </execution>
         </executions>

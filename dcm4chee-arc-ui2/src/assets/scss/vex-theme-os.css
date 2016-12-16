@@ -1,0 +1,192 @@
+@keyframes vex-flyin {
+    0% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+@keyframes vex-flyin {
+    0% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+@keyframes vex-flyout {
+    0% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+}
+@keyframes vex-flyout {
+    0% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+}
+@keyframes vex-pulse {
+    0% {
+        box-shadow: 0 0 0 300px transparent inset;
+    }
+    70% {
+        box-shadow: 0 0 0 300px rgba(255, 255, 255, 0.25) inset;
+    }
+    100% {
+        box-shadow: 0 0 0 300px transparent inset;
+    }
+}
+@keyframes vex-pulse {
+    0% {
+        box-shadow: 0 0 0 300px transparent inset;
+    }
+    70% {
+        box-shadow: 0 0 0 300px rgba(255, 255, 255, 0.25) inset;
+    }
+    100% {
+        box-shadow: 0 0 0 300px transparent inset;
+    }
+}
+.vex.vex-theme-os {
+    padding-bottom: 160px;
+    padding-top: 160px;
+}
+.vex.vex-theme-os.vex-closing .vex-content {
+    animation: 0.5s ease 0s normal none 1 running vex-flyout;
+}
+.vex.vex-theme-os .vex-content {
+    animation: 0.5s ease 0s normal none 1 running vex-flyin;
+}
+.vex.vex-theme-os .vex-content {
+    background: #f0f0f0 none repeat scroll 0 0;
+    border-radius: 5px;
+    border-top: 20px solid #bbb;
+    box-shadow: 0 1px #a6a6a6 inset, 0 0 0 1px rgba(0, 0, 0, 0.08);
+    color: #444;
+    font-family: "Helvetica Neue",sans-serif;
+    font-size: 1.1em;
+    line-height: 1.5em;
+    margin: 0 auto;
+    max-width: 100%;
+    padding: 1em;
+    position: relative;
+    width: 450px;
+}
+.vex.vex-theme-os .vex-content h1, .vex.vex-theme-os .vex-content h2, .vex.vex-theme-os .vex-content h3, .vex.vex-theme-os .vex-content h4, .vex.vex-theme-os .vex-content h5, .vex.vex-theme-os .vex-content h6, .vex.vex-theme-os .vex-content p, .vex.vex-theme-os .vex-content ul, .vex.vex-theme-os .vex-content li {
+    color: inherit;
+}
+.vex.vex-theme-os .vex-close {
+    border-radius: 0 5px 0 0;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.vex.vex-theme-os .vex-close::before {
+    background: transparent none repeat scroll 0 0;
+    border-radius: 3px;
+    color: #bbb;
+    content: "×";
+    font-size: 26px;
+    font-weight: normal;
+    height: 30px;
+    line-height: 31px;
+    position: absolute;
+    right: 3px;
+    text-align: center;
+    top: 3px;
+    width: 30px;
+}
+.vex.vex-theme-os .vex-close:hover::before, .vex.vex-theme-os .vex-close:active::before {
+    background: #e0e0e0 none repeat scroll 0 0;
+    color: #777;
+}
+.vex.vex-theme-os .vex-dialog-form .vex-dialog-message {
+    margin-bottom: 0.5em;
+}
+.vex.vex-theme-os .vex-dialog-form .vex-dialog-input {
+    margin-bottom: 1em;
+}
+.vex.vex-theme-os .vex-dialog-form .vex-dialog-input textarea, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="date"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="datetime"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="datetime-local"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="email"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="month"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="number"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="password"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="search"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="tel"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="text"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="time"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="url"], .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="week"] {
+    background: #fff none repeat scroll 0 0;
+    border: 0 none;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    margin: 0 0 0.25em;
+    min-height: 2.5em;
+    padding: 0.25em 0.67em;
+    width: 100%;
+}
+.vex.vex-theme-os .vex-dialog-form .vex-dialog-input textarea:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="date"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="datetime"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="datetime-local"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="email"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="month"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="number"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="password"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="search"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="tel"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="text"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="time"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="url"]:focus, .vex.vex-theme-os .vex-dialog-form .vex-dialog-input input[type="week"]:focus {
+    box-shadow: 0 0 0 1px #3288e6 inset;
+    outline: medium none;
+}
+.vex.vex-theme-os .vex-dialog-form .vex-dialog-buttons {
+}
+.vex.vex-theme-os .vex-dialog-form .vex-dialog-buttons::after {
+    clear: both;
+    content: "";
+    display: table;
+}
+.vex.vex-theme-os .vex-dialog-button {
+    border: 0 none;
+    border-radius: 3px;
+    float: right;
+    font-family: inherit;
+    font-size: 0.8em;
+    letter-spacing: 0.1em;
+    line-height: 1em;
+    margin: 0 0 0 0.5em;
+    padding: 0.75em 2em;
+    text-transform: uppercase;
+}
+.vex.vex-theme-os .vex-dialog-button.vex-last {
+    margin-left: 0;
+}
+.vex.vex-theme-os .vex-dialog-button:focus {
+    animation: 1.1s ease 0s normal none infinite running vex-pulse;
+    outline: medium none;
+}
+@media (max-width: 568px) {
+    .vex.vex-theme-os .vex-dialog-button:focus {
+        animation: 0s ease 0s normal none 1 running none;
+    }
+}
+.vex.vex-theme-os .vex-dialog-button.vex-dialog-button-primary {
+    background: #3288e6 none repeat scroll 0 0;
+    color: #fff;
+}
+.vex.vex-theme-os .vex-dialog-button.vex-dialog-button-secondary {
+    background: #e0e0e0 none repeat scroll 0 0;
+    color: #777;
+}
+.vex-loading-spinner.vex-theme-os {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background: rgba(255, 255, 255, 0.2) none repeat scroll 0 0;
+    border-color: #f0f0f0 #bbb;
+    border-image: none;
+    border-radius: 100%;
+    border-style: solid;
+    border-width: 1.2em;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 0.5em rgba(0, 0, 0, 0.2);
+    height: 0;
+    width: 0;
+}

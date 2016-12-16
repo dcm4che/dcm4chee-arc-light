@@ -6,9 +6,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class FormatTagPipe implements PipeTransform {
 
   transform(value: any, args?: any): any {
-      return function (value) {
-          return "(" + value.slice(0,4) + "," + value.slice(4, 8) + ")";
-      };
+      return "(" + value.slice(0,4) + "," + value.slice(4, 8) + ")";
   }
 
 }

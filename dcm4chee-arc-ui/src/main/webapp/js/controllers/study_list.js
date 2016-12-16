@@ -3117,7 +3117,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         return instance.showAttributes ? 2 : 1;
     };
     function rsURL() {
-        console.log("$scope.aet",$scope.aet);
         return "../aets/" + $scope.aet + "/rs";
     }
     function studyURL(attrs) {

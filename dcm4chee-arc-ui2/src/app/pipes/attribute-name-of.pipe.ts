@@ -8,10 +8,7 @@ export class AttributeNameOfPipe implements PipeTransform {
 
     }
   transform(value: any, args?: any): any {
-      return function (value) {
-
-          return DCM4CHE.elementName.forTag(value);
-      };
+     return DCM4CHE.elementName.forTag(value);
   }
 
 }
