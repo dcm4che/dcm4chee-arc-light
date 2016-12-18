@@ -631,66 +631,58 @@ public class QidoRS {
     private enum Output {
         DICOM_XML {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model) {
+            Object entity(QidoRS service, String method, Query query, Model model) throws DicomServiceException {
                 return service.writeXML(method, query, model);
             }
         },
         JSON {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model) {
+            Object entity(QidoRS service, String method, Query query, Model model) throws DicomServiceException {
                 return service.writeJSON(method, query, model);
             }
         };
 
-        abstract Object entity(QidoRS service, String method, Query query, Model model);
+        abstract Object entity(QidoRS service, String method, Query query, Model model) throws DicomServiceException;
     }
 
-    private Object writeXML(String method, Query query, Model model) {
+    private Object writeXML(String method, Query query, Model model) throws DicomServiceException {
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         int count = 0;
-        try {
-            while (query.hasMoreMatches()) {
-                Attributes tmp = query.nextMatch();
-                if (tmp == null)
-                    continue;
+        while (query.hasMoreMatches()) {
+            Attributes tmp = query.nextMatch();
+            if (tmp == null)
+                continue;
 
-                final Attributes match = adjust(tmp, model, query);
-                LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
-                output.addPart(
-                        new StreamingOutput() {
-                            @Override
-                            public void write(OutputStream out) throws IOException,
-                                    WebApplicationException {
-                                try {
-                                    SAXTransformer.getSAXWriter(new StreamResult(out)).write(match);
-                                } catch (Exception e) {
-                                    throw new WebApplicationException(e);
-                                }
+            final Attributes match = adjust(tmp, model, query);
+            LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
+            output.addPart(
+                    new StreamingOutput() {
+                        @Override
+                        public void write(OutputStream out) throws IOException,
+                                WebApplicationException {
+                            try {
+                                SAXTransformer.getSAXWriter(new StreamResult(out)).write(match);
+                            } catch (Exception e) {
+                                throw new WebApplicationException(e);
                             }
-                        },
-                        MediaTypes.APPLICATION_DICOM_XML_TYPE);
-            }
-        } catch (DicomServiceException e) {
-            e.printStackTrace(); //TODOD
+                        }
+                    },
+                    MediaTypes.APPLICATION_DICOM_XML_TYPE);
         }
         LOG.info("{}: {} Matches", method, count);
         return output;
     }
 
-    private Object writeJSON(String method, Query query, Model model) {
+    private Object writeJSON(String method, Query query, Model model) throws DicomServiceException {
         final ArrayList<Attributes> matches = new ArrayList<>();
         int count = 0;
-        try {
-            while (query.hasMoreMatches()) {
-                Attributes tmp = query.nextMatch();
-                if (tmp == null)
-                    continue;
-                Attributes match = adjust(tmp, model, query);
-                LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
-                matches.add(match);
-            }
-        } catch (DicomServiceException e) {
-            e.printStackTrace(); //TODOD
+        while (query.hasMoreMatches()) {
+            Attributes tmp = query.nextMatch();
+            if (tmp == null)
+                continue;
+            Attributes match = adjust(tmp, model, query);
+            LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
+            matches.add(match);
         }
         LOG.info("{}: {} Matches", method, count);
         return new StreamingOutput() {
