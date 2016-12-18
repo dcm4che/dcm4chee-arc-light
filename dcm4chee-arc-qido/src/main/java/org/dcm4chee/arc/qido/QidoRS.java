@@ -408,7 +408,7 @@ public class QidoRS {
             if (remaining > 0)
                 builder.header("Warning", warning(remaining));
 
-            return builder.entity(output.entity(this, method, query, model, ctx)).build();
+            return builder.entity(output.entity(this, method, query, model)).build();
         } finally {
             query.close();
         }
@@ -629,21 +629,21 @@ public class QidoRS {
     private enum Output {
         DICOM_XML {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model, QueryContext ctx) {
-                return service.writeXML(method, query, model, ctx);
+            Object entity(QidoRS service, String method, Query query, Model model) {
+                return service.writeXML(method, query, model);
             }
         },
         JSON {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model, QueryContext ctx) {
-                return service.writeJSON(method, query, model, ctx);
+            Object entity(QidoRS service, String method, Query query, Model model) {
+                return service.writeJSON(method, query, model);
             }
         };
 
-        abstract Object entity(QidoRS service, String method, Query query, Model model, QueryContext ctx);
+        abstract Object entity(QidoRS service, String method, Query query, Model model);
     }
 
-    private Object writeXML(String method, Query query, Model model, QueryContext ctx) {
+    private Object writeXML(String method, Query query, Model model) {
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         int count = 0;
         while (query.hasMoreMatches()) {
@@ -651,7 +651,7 @@ public class QidoRS {
             if (tmp == null)
                 continue;
 
-            final Attributes match = adjust(tmp, model, query, ctx);
+            final Attributes match = adjust(tmp, model, query);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
             output.addPart(
                     new StreamingOutput() {
@@ -671,14 +671,14 @@ public class QidoRS {
         return output;
     }
 
-    private Object writeJSON(String method, Query query, Model model, QueryContext ctx) {
+    private Object writeJSON(String method, Query query, Model model) {
         final ArrayList<Attributes> matches = new ArrayList<>();
         int count = 0;
         while (query.hasMoreMatches()) {
             Attributes tmp = query.nextMatch();
             if (tmp == null)
                 continue;
-            Attributes match = adjust(tmp, model, query, ctx);
+            Attributes match = adjust(tmp, model, query);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
             matches.add(match);
         }
@@ -698,42 +698,26 @@ public class QidoRS {
         };
     }
 
-    private Attributes adjust(Attributes match, Model model, Query query, QueryContext ctx) {
+    private Attributes adjust(Attributes match, Model model, Query query) {
         match = query.adjust(match);
         switch(model) {
             case STUDY:
             case SERIES:
             case INSTANCE:
-                match.setString(Tag.RetrieveURL, VR.UR, retrieveURL(match, model, ctx));
+                match.setString(Tag.RetrieveURL, VR.UR, retrieveURL(match, model));
         }
         return match;
     }
 
-    private String retrieveURL(Attributes match, Model model, QueryContext ctx) {
-        StringBuilder sb = new StringBuilder(256);
-        String uriInfoBaseUri = uriInfo.getBaseUri().toString();
-        String confBaseRetrieveUri = ctx.getLocalApplicationEntity().getDevice().getDeviceExtension(ArchiveDeviceExtension.class).getBaseRetrieveURL();
-        String retrieveURL = confBaseRetrieveUri != null
-                            ? confBaseRetrieveUri.lastIndexOf("dcm4chee-arc/") == -1
-                                ? confBaseRetrieveUri + "/" : confBaseRetrieveUri
-                            : uriInfoBaseUri;
-        sb.append(retrieveURL)
-                .append("aets/")
-                .append(aet)
-                .append("/rs/studies/")
-                .append(match.getString(Tag.StudyInstanceUID));
-
-        if (model == Model.STUDY)
-            return sb.toString();
-
-        sb.append("/series/")
-                .append(match.getString(Tag.SeriesInstanceUID));
-
-        if (model == Model.SERIES)
-            return sb.toString();
-
-        sb.append("/instances/")
-                .append(match.getString(Tag.SOPInstanceUID));
+    private String retrieveURL(Attributes match, Model model) {
+        StringBuffer sb = device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request);
+        sb.setLength(sb.lastIndexOf("/rs/"));
+        sb.append("/rs/studies/").append(match.getString(Tag.StudyInstanceUID));
+        if (model != Model.STUDY) {
+            sb.append("/series/").append(match.getString(Tag.SeriesInstanceUID));
+            if (model != Model.SERIES)
+                sb.append("/instances/").append(match.getString(Tag.SOPInstanceUID));
+        }
         return sb.toString();
     }
 }

@@ -700,6 +700,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.140 NAME 'hl7OrderControlStatus'
   DESC 'HL7 Order Control Status Code. Enumerated values: NW_SC, NW_IP, CA_CA, DC_CA, XO_SC, XO_CM, SC_CM, SC_DC, SC_IP, SC_A'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.141 NAME 'dcmRemapRetrieveURL'
+  DESC 'Remap Retrieve URL used in QIDO-RS and WADO-RS Metadata responses. Optionally prefixed with "[<http-client-host>]". E.g.: "[cache-proxy]http://cache-proxy:8080". If absent or if the specified <http-client-host> does not match, scheme and server authority of the QIDO-RS or WADO-RS request URL are used.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -790,7 +795,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmMergeMWLCacheSize $
     dcmStoreUpdateDBMaxRetries $
     dcmAllowRejectionForDataRetentionPolicyExpired $
-    dcmAllowDeleteStudyPermanently ))
+    dcmAllowDeleteStudyPermanently $
+    dcmRemapRetrieveURL ))
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY

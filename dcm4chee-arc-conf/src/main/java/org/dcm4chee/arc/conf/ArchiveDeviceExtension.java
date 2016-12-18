@@ -41,12 +41,16 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
+
+import java.net.InetAddress;
+import java.net.URI;
 import java.time.LocalTime;
 
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -139,7 +143,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private String[] retrieveAETitles = {};
-    private String baseRetrieveURL;
+    private String remapRetrieveURL;
+    private String remapRetrieveURLClientHost;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -871,12 +876,41 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.allowRejectionForDataRetentionPolicyExpired = allowRejectionForDataRetentionPolicyExpired;
     }
 
-    public String getBaseRetrieveURL() {
-        return baseRetrieveURL;
+    public String getRemapRetrieveURL() {
+        return remapRetrieveURLClientHost != null
+                ? ('[' + remapRetrieveURLClientHost + ']' + remapRetrieveURL)
+                : remapRetrieveURL;
     }
 
-    public void setBaseRetrieveURL(String baseRetrieveURL) {
-        this.baseRetrieveURL = baseRetrieveURL;
+    public void setRemapRetrieveURL(String remapRetrieveURL) {
+        if (remapRetrieveURL == null || remapRetrieveURL.charAt(0) != '[') {
+            this.remapRetrieveURL = remapRetrieveURL;
+            this.remapRetrieveURLClientHost = null;
+        } else {
+            String[] ss = StringUtils.split(remapRetrieveURL.substring(1), ']');
+            if (ss.length != 2)
+                throw new IllegalArgumentException(remapRetrieveURL);
+
+            this.remapRetrieveURL = ss[1];
+            this.remapRetrieveURLClientHost = ss[0];
+        }
+    }
+
+    public StringBuffer remapRetrieveURL(HttpServletRequest request) {
+        StringBuffer sb = request.getRequestURL();
+        if (remap(request)) {
+            sb.setLength(0);
+            sb.append(remapRetrieveURL).append(request.getRequestURI());
+        }
+        return sb;
+    }
+
+    private boolean remap(HttpServletRequest request) {
+        return remapRetrieveURL != null
+                && (remapRetrieveURLClientHost == null || remapRetrieveURLClientHost.equals(
+                        Character.isDigit(remapRetrieveURLClientHost.charAt(0))
+                                ? request.getRemoteAddr()
+                                : request.getRemoteHost()));
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {
@@ -1315,7 +1349,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
         retrieveAETitles = arcdev.retrieveAETitles;
-        baseRetrieveURL = arcdev.baseRetrieveURL;
+        remapRetrieveURL = arcdev.remapRetrieveURL;
+        remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();
