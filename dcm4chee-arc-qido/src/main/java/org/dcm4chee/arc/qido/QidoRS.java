@@ -48,6 +48,7 @@ import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.util.*;
@@ -383,7 +384,7 @@ public class QidoRS {
             int offsetInt = parseInt(offset);
             int limitInt = parseInt(limit);
             int remaining = 0;
-            if (maxResults > 0 && (limitInt == 0 || limitInt >  maxResults)) {
+            if (maxResults > 0 && (limitInt == 0 || limitInt >  maxResults) && !ctx.isConsiderPurgedInstances()) {
                 int numResults = (int) (query.count() - offsetInt);
                 if (numResults <= 0)
                     return Response.noContent().build();
@@ -434,6 +435,7 @@ public class QidoRS {
         queryParam.setSendingApplicationEntityTitleOfSeries(sendingApplicationEntityTitleOfSeries);
         queryParam.setStudyReceiveDateTime(studyReceiveDateTime);
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
+        ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)
@@ -618,7 +620,7 @@ public class QidoRS {
         }
 
         Query createQuery(QueryService service, QueryContext ctx) {
-            return service.createQuery(ctx, qrLevel);
+            return service.createQuery(ctx);
         }
 
         boolean addOrderSpecifier(int tag, Order order, List<OrderSpecifier<?>> result) {
@@ -646,26 +648,30 @@ public class QidoRS {
     private Object writeXML(String method, Query query, Model model) {
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         int count = 0;
-        while (query.hasMoreMatches()) {
-            Attributes tmp = query.nextMatch();
-            if (tmp == null)
-                continue;
+        try {
+            while (query.hasMoreMatches()) {
+                Attributes tmp = query.nextMatch();
+                if (tmp == null)
+                    continue;
 
-            final Attributes match = adjust(tmp, model, query);
-            LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
-            output.addPart(
-                    new StreamingOutput() {
-                        @Override
-                        public void write(OutputStream out) throws IOException,
-                                WebApplicationException {
-                            try {
-                                SAXTransformer.getSAXWriter(new StreamResult(out)).write(match);
-                            } catch (Exception e) {
-                                throw new WebApplicationException(e);
+                final Attributes match = adjust(tmp, model, query);
+                LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
+                output.addPart(
+                        new StreamingOutput() {
+                            @Override
+                            public void write(OutputStream out) throws IOException,
+                                    WebApplicationException {
+                                try {
+                                    SAXTransformer.getSAXWriter(new StreamResult(out)).write(match);
+                                } catch (Exception e) {
+                                    throw new WebApplicationException(e);
+                                }
                             }
-                        }
-                    },
-                    MediaTypes.APPLICATION_DICOM_XML_TYPE);
+                        },
+                        MediaTypes.APPLICATION_DICOM_XML_TYPE);
+            }
+        } catch (DicomServiceException e) {
+            e.printStackTrace(); //TODOD
         }
         LOG.info("{}: {} Matches", method, count);
         return output;
@@ -674,13 +680,17 @@ public class QidoRS {
     private Object writeJSON(String method, Query query, Model model) {
         final ArrayList<Attributes> matches = new ArrayList<>();
         int count = 0;
-        while (query.hasMoreMatches()) {
-            Attributes tmp = query.nextMatch();
-            if (tmp == null)
-                continue;
-            Attributes match = adjust(tmp, model, query);
-            LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
-            matches.add(match);
+        try {
+            while (query.hasMoreMatches()) {
+                Attributes tmp = query.nextMatch();
+                if (tmp == null)
+                    continue;
+                Attributes match = adjust(tmp, model, query);
+                LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
+                matches.add(match);
+            }
+        } catch (DicomServiceException e) {
+            e.printStackTrace(); //TODOD
         }
         LOG.info("{}: {} Matches", method, count);
         return new StreamingOutput() {

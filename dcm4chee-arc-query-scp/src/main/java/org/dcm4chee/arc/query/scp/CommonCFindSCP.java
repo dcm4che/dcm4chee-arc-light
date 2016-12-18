@@ -78,12 +78,13 @@ class CommonCFindSCP extends BasicCFindSCP {
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);
+        ctx.setQueryRetrieveLevel(qrLevel);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
-        return new ArchiveQueryTask(as, pc, rq, keys, queryService.createQuery(ctx, qrLevel), qrLevel);
+        return new ArchiveQueryTask(as, pc, rq, keys, queryService.createQuery(ctx), qrLevel);
     }
 
     private Attributes createReturnKeys(Attributes keys) {

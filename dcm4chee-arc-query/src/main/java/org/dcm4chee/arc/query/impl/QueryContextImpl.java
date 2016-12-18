@@ -42,19 +42,24 @@ package org.dcm4chee.arc.query.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryParam;
+import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.EnumSet;
+import java.util.HashMap;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -66,12 +71,14 @@ class QueryContextImpl implements QueryContext {
     private final ApplicationEntity ae;
     private final QueryParam queryParam;
     private final QueryService queryService;
+    private QueryRetrieveLevel2 qrLevel;
     private IDWithIssuer[] patientIDs = {};
     private Attributes queryKeys;
     private Attributes returnKeys;
     private boolean orderByPatientName;
     private String sopClassUID;
     private String searchMethod;
+    private final HashMap<String, Storage> storageMap = new HashMap<>();
 
     public QueryContextImpl(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
                             QueryParam queryParam, QueryService queryService) {
@@ -91,6 +98,16 @@ class QueryContextImpl implements QueryContext {
         this(ae, queryParam, queryService);
         this.as = as;
         this.sopClassUID = sopClassUID;
+    }
+
+    @Override
+    public QueryRetrieveLevel2 getQueryRetrieveLevel() {
+        return qrLevel;
+    }
+
+    @Override
+    public void setQueryRetrieveLevel(QueryRetrieveLevel2 qrLevel) {
+        this.qrLevel = qrLevel;
     }
 
     @Override
@@ -186,5 +203,32 @@ class QueryContextImpl implements QueryContext {
     @Override
     public void setOrderByPatientName(boolean orderByPatientName) {
         this.orderByPatientName = orderByPatientName;
+    }
+
+    @Override
+    public boolean isConsiderPurgedInstances() {
+        return qrLevel == QueryRetrieveLevel2.IMAGE
+                && getArchiveDeviceExtension().getPurgeInstanceRecordsPollingInterval() != null
+                && queryKeys.containsValue(Tag.SeriesInstanceUID);
+    }
+
+    private ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+    }
+
+    @Override
+    public Storage getStorage(String storageID) {
+        return storageMap.get(storageID);
+    }
+
+    @Override
+    public void putStorage(String storageID, Storage storage) {
+        storageMap.put(storageID, storage);
+    }
+
+    @Override
+    public void close() {
+        for (Storage storage : storageMap.values())
+            SafeClose.close(storage);
     }
 }

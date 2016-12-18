@@ -82,6 +82,8 @@ public class ArchiveQueryTask extends BasicQueryTask {
     protected boolean hasMoreMatches() throws DicomServiceException {
         try {
             return query.hasMoreMatches();
+        }  catch (DicomServiceException e) {
+            throw e;
         }  catch (Exception e) {
             throw new DicomServiceException(Status.UnableToProcess, e);
         }

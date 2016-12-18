@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicQueryTask;
+import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryTask;
 import org.dcm4chee.arc.query.Query;
@@ -79,6 +80,8 @@ public class MWLQueryTask extends BasicQueryTask {
     protected boolean hasMoreMatches() throws DicomServiceException {
         try {
             return query.hasMoreMatches();
+        }  catch (DicomServiceException e) {
+            throw e;
         }  catch (Exception e) {
             throw new DicomServiceException(Status.UnableToProcess, e);
         }

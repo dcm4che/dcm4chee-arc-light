@@ -49,14 +49,25 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.json.JSONReader;
+import org.dcm4che3.net.Status;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.hibernate.StatelessSession;
+
+import javax.json.Json;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -83,8 +94,20 @@ class InstanceQuery extends AbstractQuery {
             QInstance.instance.attributesBlob.encodedAttributes
     };
 
+    private static final Expression<?>[] METADATA_STORAGE_PATH = {
+            QSeries.series.pk,
+            QMetadata.metadata.storageID,
+            QMetadata.metadata.storagePath,
+    };
+
     private Long seriesPk;
     private Attributes seriesAttrs;
+    private List<Tuple> seriesMetadataStoragePaths;
+    private ZipInputStream seriesMetadataStream;
+    private Attributes nextMatchFromMetadata;
+    private String[] sopInstanceUIDs;
+    private int[] instTags;
+    private Attributes instQueryKeys;
 
     public InstanceQuery(QueryContext context, StatelessSession session) {
         super(context, session);
@@ -126,6 +149,21 @@ class InstanceQuery extends AbstractQuery {
         return q.where(predicates);
     }
 
+    private HibernateQuery<Tuple> queryMetadataStoragePath() {
+        HibernateQuery<Tuple> query = new HibernateQuery<Void>(session).select(METADATA_STORAGE_PATH)
+                .from(QSeries.series)
+                .join(QSeries.series.metadata, QMetadata.metadata)
+                .join(QSeries.series.study, QStudy.study);
+
+        Attributes keys = context.getQueryKeys();
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(QueryBuilder.accessControl(context.getQueryParam().getAccessControlIDs()));
+        builder.and(QStudy.study.studyInstanceUID.eq(keys.getString(Tag.StudyInstanceUID)));
+        builder.and(QSeries.series.seriesInstanceUID.eq(keys.getString(Tag.SeriesInstanceUID)));
+        builder.and(QSeries.series.instancePurgeState.eq(Series.InstancePurgeState.PURGED));
+        return query.where(builder);
+    }
+
     @Override
     protected Attributes toAttributes(Tuple results) {
         Long seriesPk = results.get(QSeries.series.pk);
@@ -139,7 +177,7 @@ class InstanceQuery extends AbstractQuery {
         Attributes instAtts = AttributesBlob.decodeAttributes(
                 results.get(QInstance.instance.attributesBlob.encodedAttributes), null);
         Attributes.unifyCharacterSets(seriesAttrs, instAtts);
-        Attributes attrs = new Attributes(seriesAttrs.size() + instAtts.size() + 2);
+        Attributes attrs = new Attributes(seriesAttrs.size() + instAtts.size() + 10);
         attrs.addAll(seriesAttrs);
         attrs.addAll(instAtts);
         String externalRetrieveAET = results.get(QInstance.instance.externalRetrieveAET);
@@ -180,5 +218,99 @@ class InstanceQuery extends AbstractQuery {
     public boolean isOptionalKeysNotSupported() {
         //TODO
         return false;
+    }
+
+    @Override
+    public boolean hasMoreMatches() throws DicomServiceException {
+        if (nextMatchFromMetadata != null)
+            return true;
+        try {
+            if (seriesMetadataStoragePaths == null) {
+                boolean hasMoreMatches = super.hasMoreMatches();
+                if (hasMoreMatches || !context.isConsiderPurgedInstances())
+                    return hasMoreMatches;
+
+
+                seriesMetadataStoragePaths = queryMetadataStoragePath().fetch();
+                if (!nextSeriesMetadataStream())
+                    return false;
+
+                instTags = context.getArchiveAEExtension().getArchiveDeviceExtension()
+                        .getAttributeFilter(Entity.Instance).getSelection();
+                Attributes queryKeys = context.getQueryKeys();
+                instQueryKeys = new Attributes(queryKeys, instTags);
+                sopInstanceUIDs = queryKeys.getStrings(Tag.SOPInstanceUID);
+            }
+            nextMatchFromMetadata = nextMatchFromMetadata();
+        } catch (IOException e) {
+            throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
+        }
+        return nextMatchFromMetadata != null;
+    }
+
+    private boolean nextSeriesMetadataStream() throws IOException {
+        SafeClose.close(seriesMetadataStream);
+        seriesMetadataStream = null;
+        if (seriesMetadataStoragePaths.isEmpty())
+            return false;
+
+        Tuple tuple = seriesMetadataStoragePaths.remove(0);
+        this.seriesAttrs = context.getQueryService()
+                .getSeriesAttributes(tuple.get(QSeries.series.pk), context.getQueryParam());
+        seriesMetadataStream = context.getQueryService().openZipInputStream(context,
+                tuple.get(QMetadata.metadata.storageID), tuple.get(QMetadata.metadata.storagePath));
+        return true;
+    }
+
+    private Attributes nextMatchFromMetadata() throws IOException {
+        ZipEntry entry;
+        do {
+            while ((entry = seriesMetadataStream.getNextEntry()) != null) {
+                if (matchSOPInstanceUID(entry.getName())) {
+                    JSONReader jsonReader = new JSONReader(Json.createParser(
+                            new InputStreamReader(seriesMetadataStream, "UTF-8")));
+                    jsonReader.setSkipBulkDataURI(true);
+                    Attributes metadata = jsonReader.readDataset(null);
+                    if (metadata.matches(instQueryKeys, false, false)) {
+                        seriesMetadataStream.closeEntry();
+                        Attributes instAtts = new Attributes(metadata, instTags);
+                        Attributes.unifyCharacterSets(seriesAttrs, instAtts);
+                        Attributes attrs = new Attributes(seriesAttrs.size() + instAtts.size());
+                        attrs.addAll(seriesAttrs);
+                        attrs.addAll(instAtts);
+                        return attrs;
+                    }
+                }
+                seriesMetadataStream.closeEntry();
+            }
+        } while (nextSeriesMetadataStream());
+        return null;
+    }
+
+    private boolean matchSOPInstanceUID(String iuid) {
+        if (sopInstanceUIDs == null || sopInstanceUIDs.length == 0)
+            return true;
+
+        for (String sopInstanceUID : sopInstanceUIDs)
+            if (sopInstanceUID.equals(iuid))
+                return true;
+
+        return false;
+    }
+
+    @Override
+    public Attributes nextMatch() {
+        if (seriesMetadataStoragePaths == null)
+            return super.nextMatch();
+
+        Attributes tmp = nextMatchFromMetadata;
+        nextMatchFromMetadata = null;
+        return tmp;
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        SafeClose.close(seriesMetadataStream);
     }
 }

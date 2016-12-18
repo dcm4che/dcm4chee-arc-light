@@ -53,9 +53,11 @@ import org.dcm4chee.arc.entity.StudyQueryAttributes;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -69,7 +71,7 @@ public interface QueryService {
     QueryContext newQueryContextQIDO(
             HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam);
 
-    Query createQuery(QueryContext ctx, QueryRetrieveLevel2 qrLevel);
+    Query createQuery(QueryContext ctx);
 
     Query createPatientQuery(QueryContext ctx);
 
@@ -107,4 +109,6 @@ public interface QueryService {
     List<Object[]> getSOPInstanceUIDs(String studyUID);
 
     List<Object[]> getSOPInstanceUIDs(String studyUID, String seriesUID);
+
+    ZipInputStream openZipInputStream(QueryContext ctx, String storageID, String storagePath) throws IOException;
 }

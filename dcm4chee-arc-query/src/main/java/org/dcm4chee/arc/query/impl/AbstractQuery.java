@@ -44,6 +44,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.hibernate.StatelessSession;
@@ -118,7 +119,7 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public boolean hasMoreMatches() {
+    public boolean hasMoreMatches() throws DicomServiceException {
         boolean hasNext = results.hasNext();
         if (hasNext || rejected == 0 || limit != matches)
             return hasNext;
@@ -155,5 +156,6 @@ abstract class AbstractQuery implements Query {
     @Override
     public void close() {
         session.close();
+        context.close();
     }
 }

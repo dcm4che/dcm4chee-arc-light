@@ -42,6 +42,7 @@ package org.dcm4chee.arc.query;
 
 import com.querydsl.core.types.OrderSpecifier;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.service.DicomServiceException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,7 +65,7 @@ public interface Query {
 
     void orderBy(OrderSpecifier<?>... orderSpecifiers);
 
-    boolean hasMoreMatches();
+    boolean hasMoreMatches() throws DicomServiceException;
 
     Attributes nextMatch();
 

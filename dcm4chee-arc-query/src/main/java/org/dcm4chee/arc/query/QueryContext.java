@@ -47,14 +47,20 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.query.util.QueryParam;
+import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.Closeable;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 public interface QueryContext {
+    QueryRetrieveLevel2 getQueryRetrieveLevel();
+
+    void setQueryRetrieveLevel(QueryRetrieveLevel2 qrLevel);
+
     Association getAssociation();
 
     HttpServletRequest getHttpRequest();
@@ -92,4 +98,12 @@ public interface QueryContext {
     boolean isOrderByPatientName();
 
     void setOrderByPatientName(boolean orderByPatientName);
+
+    boolean isConsiderPurgedInstances();
+
+    Storage getStorage(String storageID);
+
+    void putStorage(String storageID, Storage storage);
+
+    void close();
 }

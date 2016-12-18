@@ -45,19 +45,22 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
-import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.query.Query;
+import org.dcm4chee.arc.storage.ReadContext;
+import org.dcm4chee.arc.storage.Storage;
+import org.dcm4chee.arc.storage.StorageFactory;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 
@@ -67,10 +70,12 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -88,6 +93,9 @@ class QueryServiceImpl implements QueryService {
 
     @Inject
     private CodeCache codeCache;
+
+    @Inject
+    private StorageFactory storageFactory;
 
     @Inject
     private Event<QueryContext> queryEvent;
@@ -121,9 +129,9 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Query createQuery(QueryContext ctx, QueryRetrieveLevel2 qrLevel) {
+    public Query createQuery(QueryContext ctx) {
         queryEvent.fire(ctx);
-        switch (qrLevel) {
+        switch (ctx.getQueryRetrieveLevel()) {
             case PATIENT:
                 return createPatientQuery(ctx);
             case STUDY:
@@ -257,6 +265,31 @@ class QueryServiceImpl implements QueryService {
         return em.createNamedQuery(Instance.IUIDS_OF_SERIES, Object[].class)
                     .setParameter(1, studyUID)
                     .setParameter(2, seriesUID).getResultList();
+    }
+
+    @Override
+    public ZipInputStream openZipInputStream(QueryContext ctx, String storageID, String storagePath)
+            throws IOException {
+        Storage storage = getStorage(storageID, ctx);
+        return new ZipInputStream(storage.openInputStream(
+                createReadContext(storage, storagePath, ctx.getQueryKeys().getString(Tag.StudyInstanceUID))));
+    }
+
+    private Storage getStorage(String storageID, QueryContext ctx) {
+        Storage storage = ctx.getStorage(storageID);
+        if (storage == null) {
+            ArchiveDeviceExtension arcDev = ctx.getArchiveAEExtension().getArchiveDeviceExtension();
+            storage = storageFactory.getStorage(arcDev.getStorageDescriptorNotNull(storageID));
+            ctx.putStorage(storageID, storage);
+        }
+        return storage;
+    }
+
+    private ReadContext createReadContext(Storage storage, String storagePath, String studyInstanceUID) {
+        ReadContext readContext = storage.createReadContext();
+        readContext.setStoragePath(storagePath);
+        readContext.setStudyInstanceUID(studyInstanceUID);
+        return readContext;
     }
 
     private void mkKOS(Attributes attrs, RejectionNote rjNote) {
