@@ -103,7 +103,8 @@ import java.util.*;
                 "JOIN st.patient p " +
                 "where st.studyInstanceUID = ?1 " +
                 "and se.seriesInstanceUID = ?2 " +
-                "and i.sopInstanceUID in ?3"
+                "and i.sopInstanceUID in ?3 " +
+                "GROUP BY p, st, se"
 ),
 @NamedQuery(
     name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID_EAGER,
