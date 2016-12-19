@@ -47,6 +47,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.QInstance;
 import org.dcm4chee.arc.entity.QSeries;
 import org.dcm4chee.arc.entity.QStudy;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
@@ -87,6 +88,10 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                 seriesInfo.getSourceAET());
 
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime, VR.DT,
+                inst.getCreatedTime());
+        attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime, VR.DT,
+                inst.getUpdatedTime());
         if (inst.getRejectionCode() != null)
             attrs.newSequence(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence, 1).
                     add(inst.getRejectionCode());

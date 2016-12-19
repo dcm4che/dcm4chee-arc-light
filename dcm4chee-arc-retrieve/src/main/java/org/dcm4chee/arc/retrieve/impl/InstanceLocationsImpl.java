@@ -63,6 +63,7 @@ public class InstanceLocationsImpl implements InstanceLocations {
     private String retrieveAETs;
     private String extRetrieveAET;
     private Availability availability;
+    private Date createdTime;
     private Date updatedTime;
     private boolean containsMetadata;
     private final ArrayList<Location> locations = new ArrayList<>(1);
@@ -87,6 +88,10 @@ public class InstanceLocationsImpl implements InstanceLocations {
 
     public void setAvailability(Availability availability) {
         this.availability = availability;
+    }
+
+    public void setCreatedTime(Date createdTime) {
+        this.createdTime = createdTime;
     }
 
     public void setUpdatedTime(Date updatedTime) {
@@ -136,6 +141,9 @@ public class InstanceLocationsImpl implements InstanceLocations {
     public Availability getAvailability() {
         return availability;
     }
+
+    @Override
+    public Date getCreatedTime() { return createdTime; }
 
     @Override
     public Date getUpdatedTime() { return updatedTime; }

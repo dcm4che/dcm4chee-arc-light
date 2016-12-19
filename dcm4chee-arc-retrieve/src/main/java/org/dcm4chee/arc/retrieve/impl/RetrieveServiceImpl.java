@@ -116,6 +116,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             QInstance.instance.retrieveAETs,
             QInstance.instance.externalRetrieveAET,
             QInstance.instance.availability,
+            QInstance.instance.createdTime,
             QInstance.instance.updatedTime,
             QCodeEntity.codeEntity.codeValue,
             QCodeEntity.codeEntity.codingSchemeDesignator,
@@ -387,6 +388,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         inst.setRetrieveAETs(tuple.get(QInstance.instance.retrieveAETs));
         inst.setExternalRetrieveAET(tuple.get(QInstance.instance.externalRetrieveAET));
         inst.setAvailability(tuple.get(QInstance.instance.availability));
+        inst.setCreatedTime(tuple.get(QInstance.instance.createdTime));
         inst.setUpdatedTime(tuple.get(QInstance.instance.updatedTime));
         inst.setRejectionCode(rejectionCode(tuple));
         return inst;
@@ -423,6 +425,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         InstanceLocationsImpl inst = new InstanceLocationsImpl(attrs);
         inst.setRetrieveAETs(StringUtils.concat(attrs.getStrings(Tag.RetrieveAETitle), '\\'));
         inst.setAvailability(Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
+        inst.setCreatedTime(attrs.getDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime));
+        inst.setUpdatedTime(attrs.getDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime));
         inst.setRejectionCode(attrs.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence));
         inst.setExternalRetrieveAET(
                 attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle));
@@ -564,7 +568,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         query = query.leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
 
         if (ctx.getSeriesPk() != null)
-            return query.where(QSeries.series.pk.eq(ctx.getSeriesPk()));
+            return query.where(QSeries.series.pk.eq(ctx.getSeriesPk()))
+                    .orderBy(QInstance.instance.instanceNumber.asc());
 
         IDWithIssuer[] pids = ctx.getPatientIDs();
         if (pids.length > 0) {
