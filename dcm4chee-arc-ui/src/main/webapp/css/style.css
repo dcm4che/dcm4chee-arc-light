@@ -227,6 +227,69 @@ device and create an other one with the new name*/
       .main_select .more_menu .delete_create_buttons > div:hover {
         color: #547CD0; }
 
+.repeat0 > .more_menu_content > .more_menu_study {
+  box-shadow: none; }
+
+.more_menu_content {
+  display: block;
+  float: left;
+  height: 26px;
+  left: -122px;
+  overflow: hidden;
+  position: absolute;
+  width: 177px; }
+  .more_menu_content .more_menu_study {
+    background: rgba(231, 231, 231, 0.31) none repeat scroll 0 0;
+    box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.18) inset;
+    float: left;
+    height: 26px;
+    position: absolute;
+    right: -195px;
+    width: 250px; }
+    .more_menu_content .more_menu_study > .colcell > .table_btn {
+      display: block;
+      float: left;
+      height: 100%;
+      text-align: center;
+      vertical-align: middle;
+      width: 100%; }
+    .more_menu_content .more_menu_study .colcell {
+      display: block;
+      float: left !important;
+      height: 26px !important;
+      width: 26px !important; }
+    .more_menu_content .more_menu_study .exeq_buttons {
+      float: left;
+      height: 25px;
+      width: 180px; }
+      .more_menu_content .more_menu_study .exeq_buttons:hover {
+        cursor: pointer; }
+      .more_menu_content .more_menu_study .exeq_buttons > a {
+        color: black;
+        display: block;
+        float: left;
+        height: 26px;
+        line-height: 26px;
+        text-align: center;
+        width: 26px; }
+      .more_menu_content .more_menu_study .exeq_buttons > div {
+        width: 33%;
+        font-size: 22px;
+        padding-top: 4px;
+        text-align: center;
+        color: #878A84; }
+        .more_menu_content .more_menu_study .exeq_buttons > div:hover {
+          color: #547CD0; }
+        .more_menu_content .more_menu_study .exeq_buttons > div.morefunction {
+          background-image: url("../img/ic_more_vert_black_24.png");
+          background-position: 2px center;
+          background-repeat: no-repeat;
+          background-size: 23px auto;
+          display: block;
+          float: left;
+          height: 26px;
+          width: 26px; }
+
 #add_dropdowns {
   overflow: hidden; }
   #add_dropdowns .ng-scope > div {
@@ -565,11 +628,16 @@ table.subtable_1, table.subtable_2 {
         color: white;
         padding-left: 7px;
         width: 10%;
+        overflow: hidden;
         border-right: 1px solid #dddddd; }
       .headerblock > .header_block > .thead.header2 > .tr_row, .headerblock > .header_block > .thead.header5 > .tr_row {
         padding-left: 3%; }
         .headerblock > .header_block > .thead.header2 > .tr_row .th:first-child, .headerblock > .header_block > .thead.header5 > .tr_row .th:first-child {
           border: none; }
+      .headerblock > .header_block > .thead.header2 > .tr_row .th:first-child {
+        margin-left: 1%; }
+      .headerblock > .header_block > .thead.header2 > .tr_row .th:last-child {
+        border-right: 0; }
       .headerblock > .header_block > .thead.header3 > .tr_row {
         padding-left: 6%; }
         .headerblock > .header_block > .thead.header3 > .tr_row .th {
@@ -639,10 +707,11 @@ table.subtable_1, table.subtable_2 {
 .repeat0 {
   border-left: 1px solid #ccc;
   border-right: 1px solid #ccc;
-  float: left;
+  float: right;
   width: 100%;
   position: relative;
-  min-height: 10px; }
+  min-height: 10px;
+  position: relative; }
   .repeat0 > .arrows {
     border-bottom: 1px solid #ddd; }
   .repeat0 .close_patient {
@@ -673,7 +742,7 @@ table.subtable_1, table.subtable_2 {
           float: left;
           height: 27px;
           text-align: center;
-          width: 20%; }
+          width: 40%; }
           .repeat0 > .thead > .tr_row .th .table_btn:hover {
             background: #C2C2C2;
             text-decoration: none;
@@ -694,7 +763,7 @@ table.subtable_1, table.subtable_2 {
         .repeat0 > .thead > .tr_row .th a {
           color: black; }
         .repeat0 > .thead > .tr_row .th:first-child {
-          padding-left: 16px; }
+          padding-left: 54px; }
   .repeat0 .repeat1 {
     -moz-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.2) inset;
     -webkit-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.2) inset;
@@ -712,6 +781,8 @@ table.subtable_1, table.subtable_2 {
       color: black; }
       .repeat0 .repeat1 > .thead > .tr_row .th {
         background: rgba(159, 159, 159, 0.55); }
+    .repeat0 .repeat1 > .tbody > .tr_row {
+      position: relative; }
     .repeat0 .repeat1 .tbody {
       float: left;
       width: 100%;
@@ -724,7 +795,7 @@ table.subtable_1, table.subtable_2 {
       .repeat0 .repeat1 .tr_row .td_row .td_cell .th {
         float: left; }
     .repeat0 .repeat1 .colcell {
-      width: 3%;
+      width: 2%;
       float: left;
       text-align: center;
       height: 25px;
@@ -734,10 +805,10 @@ table.subtable_1, table.subtable_2 {
       height: 25px;
       line-height: 25px;
       padding-left: 0;
-      width: 7%; }
+      width: 8%; }
     .repeat0 .repeat1 .subblock {
       display: inline-block;
-      float: left;
+      float: right;
       width: 97%; }
       .repeat0 .repeat1 .subblock .td_cell.table_btn > a {
         float: left;
@@ -797,85 +868,88 @@ table.subtable_1, table.subtable_2 {
           color: black; }
         .repeat0 .repeat1 .subblock .thead3 .th:first-child {
           border-left: 2px solid rgba(0, 0, 0, 0.55); }
-      .repeat0 .repeat1 .subblock .repeat2 .td_cell.colcell {
-        width: 3%;
-        height: 25px;
-        line-height: 25px; }
-      .repeat0 .repeat1 .subblock .repeat2 > .arrows {
-        margin-left: 50px; }
-      .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row > .td_cell {
-        font-weight: bold;
-        height: 25px;
-        line-height: 25px;
-        padding-left: 7px;
-        border-bottom: 1px solid #aaa; }
-        .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row > .td_cell.attribute_list {
-          height: auto;
-          color: black;
-          font-weight: normal; }
-      .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row .td_cell {
-        width: 11.4%; }
-        .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row .td_cell.table_btn {
-          width: 8%;
-          padding-left: 0; }
-      .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row .td_cell.attribute_list {
-        width: 100%; }
-      .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 {
-        -moz-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
-        -webkit-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
-        box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
-        display: block;
-        float: left;
-        width: 100%; }
-        .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .td_cell.colcell {
+      .repeat0 .repeat1 .subblock .repeat2 {
+        position: relative; }
+        .repeat0 .repeat1 .subblock .repeat2 .td_cell.colcell {
           width: 3%;
-          height: 25px; }
-        .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .attribute_list {
-          overflow-x: scroll; }
-        .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock {
-          background: rgba(191, 190, 191, 0.39); }
-          .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn > a {
-            width: 12%; }
-          .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta {
-            float: left;
-            width: 14%; }
-            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta > span {
-              text-align: center;
-              width: 100%; }
-              .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta > span:hover {
-                cursor: pointer; }
-            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block {
-              background: white none repeat scroll 0 0;
-              height: 220px;
-              overflow-y: scroll;
-              position: relative;
-              width: 35px;
-              z-index: 999999999; }
-              .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block a {
-                color: black;
-                float: left;
-                height: 23px;
-                line-height: 23px;
-                text-align: center;
-                vertical-align: middle;
-                width: 100%; }
-                .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block a:hover {
-                  cursor: pointer;
-                  background: #ddd; }
-          .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active {
-            background: #999; }
-          .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active:hover {
-            background: #888; }
-          .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell {
-            border-bottom: 1px solid #aaa;
+          height: 25px;
+          line-height: 25px; }
+        .repeat0 .repeat1 .subblock .repeat2 > .arrows {
+          margin-left: 50px; }
+        .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row > .td_cell {
+          font-weight: bold;
+          height: 25px;
+          line-height: 25px;
+          padding-left: 7px;
+          border-bottom: 1px solid #aaa; }
+          .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row > .td_cell.attribute_list {
+            height: auto;
             color: black;
-            width: 14.5%;
+            font-weight: normal; }
+        .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row .td_cell {
+          width: 11.4%; }
+          .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row .td_cell.table_btn {
+            width: 8%;
+            padding-left: 0; }
+        .repeat0 .repeat1 .subblock .repeat2 .subblock .tr_row .td_cell.attribute_list {
+          width: 100%; }
+        .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 {
+          -moz-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
+          -webkit-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
+          box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.19) inset;
+          display: block;
+          float: left;
+          width: 100%;
+          position: relative; }
+          .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .td_cell.colcell {
+            width: 3%;
             height: 25px; }
-            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell.attribute_list {
-              width: 100%;
-              height: auto; }
-            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell.table_btn {
-              width: 11.3%; }
+          .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .attribute_list {
+            overflow-x: scroll; }
+          .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock {
+            background: rgba(191, 190, 191, 0.39); }
+            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn > a {
+              width: 12%; }
+            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta {
+              float: left;
+              width: 14%; }
+              .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta > span {
+                text-align: center;
+                width: 100%; }
+                .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta > span:hover {
+                  cursor: pointer; }
+              .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block {
+                background: white none repeat scroll 0 0;
+                height: 220px;
+                overflow-y: scroll;
+                position: relative;
+                width: 35px;
+                z-index: 999999999; }
+                .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block a {
+                  color: black;
+                  float: left;
+                  height: 23px;
+                  line-height: 23px;
+                  text-align: center;
+                  vertical-align: middle;
+                  width: 100%; }
+                  .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .td_cell.table_btn .selecta .select_block a:hover {
+                    cursor: pointer;
+                    background: #ddd; }
+            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active {
+              background: #999; }
+            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock a.active:hover {
+              background: #888; }
+            .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell {
+              border-bottom: 1px solid #aaa;
+              color: black;
+              width: 14.5%;
+              height: 25px; }
+              .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell.attribute_list {
+                width: 100%;
+                height: auto; }
+              .repeat0 .repeat1 .subblock .repeat2 .subblock .repeat3 .subblock .tr_row .td_cell.table_btn {
+                width: 11.3%; }
 
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
   box-shadow: none;
@@ -2411,5 +2485,30 @@ input.ng-invalid, .has-error .form-control {
 input.disabled {
   cursor: not-allowed !important;
   background: #eee !important; }
+
+@media (max-width: 1700px) {
+  .repeat0 .repeat1 .subblock {
+    width: 96.5%; } }
+@media (max-width: 1500px) {
+  .repeat0 .repeat1 .subblock {
+    width: 96%; } }
+@media (max-width: 1400px) {
+  .repeat0 .repeat1 .subblock {
+    width: 95.5%; } }
+@media (max-width: 1300px) {
+  .repeat0 .repeat1 .subblock {
+    width: 95%; }
+
+  .hideonmobile {
+    display: none; } }
+@media (max-width: 1300px) {
+  .filter .buttons_block {
+    width: 19%; }
+    .filter .buttons_block .orderbyblock > .btn-group {
+      width: 100%; }
+      .filter .buttons_block .orderbyblock > .btn-group .selectedorder {
+        width: 80%; }
+    .filter .buttons_block .orderbyblock span {
+      width: 20%; } }
 
 /*# sourceMappingURL=style.css.map */

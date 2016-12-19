@@ -289,6 +289,82 @@ device and create an other one with the new name*/
 		}
 	}
 }
+.repeat0 > .more_menu_content > .more_menu_study{
+  box-shadow:none;
+}
+.more_menu_content{
+  display: block;
+  float: left;
+  height: 26px;
+  left: -122px;
+  overflow: hidden;
+  position: absolute;
+  width: 177px;
+  .more_menu_study{
+    background: rgba(231, 231, 231, 0.31) none repeat scroll 0 0;
+    box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.18) inset;
+    float: left;
+    height: 26px;
+    position: absolute;
+    right: -195px;
+    width: 250px;
+    & > .colcell > .table_btn {
+      display: block;
+      float: left;
+      height: 100%;
+      text-align: center;
+      vertical-align: middle;
+      width: 100%;
+    }
+    .colcell{
+      display: block;
+      float: left !important;
+      height: 26px !important;
+      width: 26px !important;
+    }
+    .exeq_buttons{
+
+        float: left;
+        height: 25px;
+        //padding-left: 25px;
+        width: 180px;
+
+        &:hover{
+          cursor: pointer;
+        }
+        &>a{
+          color: black;
+          display: block;
+          float: left;
+          height: 26px;
+          line-height: 26px;
+          text-align: center;
+          width: 26px;
+        }
+        &>div{
+          width:33%;
+          font-size: 22px;
+          padding-top:4px;
+          text-align: center;
+          color:#878A84;
+          &:hover{
+            color:#547CD0;
+          }
+          &.morefunction {
+            background-image: url("../img/ic_more_vert_black_24.png");
+            background-position: 2px center;
+            background-repeat: no-repeat;
+            background-size: 23px auto;
+            display: block;
+            float: left;
+            height: 26px;
+            width: 26px;
+          }
+        }
+    }
+
+  }
+}
 #add_dropdowns{
 	overflow:hidden;
 	 .ng-scope > div{
@@ -688,6 +764,7 @@ table{
 				    color: white;
 				    padding-left: 7px;
 				    width: 10%;
+                    overflow:hidden;
 				    // border-bottom: 1px solid rgb(221, 221, 221);
 				    border-right: 1px solid rgb(221, 221, 221);
 			    }
@@ -711,6 +788,17 @@ table{
 					}
 				}
 			}
+            &.header2{
+              & > .tr_row{
+                .th:first-child{
+                  margin-left:1%;
+                }
+
+                .th:last-child{
+                  border-right:0;
+                }
+              }
+            }
 			&.header3 {
 				& > .tr_row{
 					// top:58px;
@@ -814,10 +902,11 @@ table{
 .repeat0{
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
-    float: left;
+    float: right;
     width: 100%;
 	position:relative;
 	min-height:10px;
+    position: relative;
 	&>.arrows{
 		border-bottom:1px solid #ddd;
 	}
@@ -845,6 +934,7 @@ table{
 			height: 27px;
 			background:rgba(254, 254, 254, 0.56);
 			color: black;
+
 			&.hover{
 				// background:$hoverBlue;
 				// color:white;
@@ -860,7 +950,7 @@ table{
 				    float: left;
 				    height: 27px;
 				    text-align: center;
-				    width: 20%;
+				    width: 40%;
 
 				    &:hover{
 						background:#C2C2C2;
@@ -888,7 +978,7 @@ table{
 				    color: black;
 				}
 				&:first-child{
-					padding-left:16px;
+					padding-left:54px;
 				}
 			}
 		}
@@ -928,6 +1018,11 @@ table{
 				}
 			}
 		}
+        & > .tbody{
+           & > .tr_row{
+             position: relative;
+           }
+        }
 		.tbody{
 			float: left;
     		width: 100%;
@@ -946,7 +1041,7 @@ table{
 		    }
 		}
 		.colcell{
-			width: 3%;
+			width: 2%;
 			float:left;
 			text-align: center;
 			height: 25px;
@@ -958,11 +1053,11 @@ table{
 		    height: 25px;
 		    line-height: 25px;
 		    padding-left: 0;
-		    width: 7%;
+		    width: 8%;
 		}
 		.subblock {
 		    display: inline-block;
-		    float: left;
+		    float: right;
 		    width: 97%;
 		    // border-left:1px solid #aaa;
 		    // border-bottom:1px solid #aaa;
@@ -1058,6 +1153,7 @@ table{
 		    	}
 		    }
 			.repeat2{
+                position:relative;
 				.td_cell{
 					&.colcell{
 						width: 3%;
@@ -1101,6 +1197,7 @@ table{
 					    display: block;
 					    float: left;
 					    width: 100%;
+                        position: relative;
 						.td_cell{
 						
 							&.colcell{
@@ -3274,4 +3371,44 @@ input.ng-invalid, .has-error .form-control{
 input.disabled{
 	cursor:not-allowed !important;
 	background:#eee !important;
+}
+@media (max-width: 1700px) {
+  .repeat0 .repeat1 .subblock{
+    width:96.5%;
+  }
+}
+@media (max-width: 1500px) {
+  .repeat0 .repeat1 .subblock{
+    width:96%;
+  }
+}
+@media (max-width: 1400px) {
+  .repeat0 .repeat1 .subblock{
+    width:95.5%;
+  }
+}
+@media (max-width: 1300px) {
+  .repeat0 .repeat1 .subblock{
+    width:95%;
+  }
+  .hideonmobile{
+    display: none;
+  }
+}
+@media (max-width: 1300px) {
+  .filter .buttons_block{
+    width: 19%;
+    .orderbyblock {
+        &> .btn-group{
+
+          width: 100%;
+          .selectedorder{
+            width:80%;
+          }
+        }
+      span{
+        width:20%;
+      }
+    }
+  }
 }

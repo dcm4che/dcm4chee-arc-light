@@ -126,7 +126,7 @@
             </div>
             <div class="col-md-6">
                 <label>
-                    <input type="checkbox" ng-model="filter.fuzzymatching"> Fuzzy Matching
+                    <input type="checkbox" ng-model="filter.fuzzymatching"> Fuzzy <span class="hideonmobile">Matching</span>
                 </label>
             </div>
         </div>
@@ -637,7 +637,7 @@
                 <div class="th" title="Referring Physician's Name">R. Physician's Name</div>
                 <div class="th">Accession Number</div>
                 <div style="width:5%" class="th">Modalities</div>
-                <div style="width:17.3%" class="th">Study Description</div>
+                <div style="width:16.3%" class="th">Study Description</div>
                 <div style="width:3%" class="th">#S</div>
                 <div style="width:3%" class="th">#I</div>
             </div>
@@ -728,34 +728,45 @@
 
     <div class="repeat0" contextmenu-item='patient' ng-repeat="(patientkey, patient) in patients" ng-init="patient.hide=false;patient.modus = 'patient'"  ng-click='select(patient,"patient",{"patientkey":patientkey})'>
 <!--         <span ng-show="!patient.hide" class="glyphicon glyphicon-triangle-bottom close_patient" title="Hide this patient" ng-click="patient.hide=true"></span>        
-        <span ng-show="patient.hide" class="glyphicon glyphicon-triangle-right open_patient" title="Show {{patient.attrs['00100010'].Value[0].Alphabetic}}" ng-click="patient.hide=false"></span> -->
-        <div class="thead" ng-class="{hide:patient.hide}">
-            <div class="tr_row" ng-class="{selected: patient.selected}">
-                <div class="th" style="width:10%">   
-                    <div ng-show="patientmode" class="table_btn" ng-bind="patient.offset+1+'.'"> </div>          
-                    <a class="table_btn" ng-click="patient.showAttributes = !patient.showAttributes" href="" title="Show Attributes">
-                        <span class="glyphicon glyphicon-th-list"></span>
-                    </a>               
-                    <a class="table_btn" ng-show="user.isRole('admin')" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
+        <span ng-show="patient.hide" class="glyphicon glyphicon-triangle-right open_patient" tiFftle="Show {{patient.attrs['00100010'].Value[0].Alphabetic}}" ng-click="patient.hide=false"></span> -->
+        <div class="more_menu_content">
+            <div class="more_menu_study">
+                <div class="colcell">
+                    <div ng-show="patientmode" class="table_btn" ng-bind="patient.offset+1+'.'"> </div>
+                </div>
+                <div class="exeq_buttons">
+                    <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event)"></div>
+                    <a class="hiddenbuttons"  class="table_btn" ng-show="user.isRole('admin')" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
                         <span class="glyphicon glyphicon-pencil"></span>
-                    </a> 
-<!--                     <div class="table_btn create" ng-init="patient.createButtons = false">
-                        <span class="glyphicon glyphicon-plus" ng-click="patient.createButtons = !patient.createButtons"></span>
-                        <div class="createButtons" ng-show="patient.createButtons">
-                            <a class="" ng-click="patient.createButtons = false;createStudy(patient)" href="" title="Create study">
-                                Create study
-                            </a>               
-                            <a class="" ng-click="patient.createButtons = false;createMWL(patient)" href="" title="Create MWL">
-                                Create MWL
-                            </a>
-                        </div>            
-                    </div > -->
-                    <a class="table_btn" ng-show="user.isRole('admin')" ng-click="patient.createButtons = false;createMWL(patient)" href="" title="Create MWL">
+                    </a>
+                    <!--<div class="table_btn create" ng-init="patient.createButtons = false">-->
+                    <!--<span class="glyphicon glyphicon-plus" ng-click="patient.createButtons = !patient.createButtons"></span>-->
+                    <!--<div class="createButtons" ng-show="patient.createButtons">-->
+                    <!--<a class="" ng-click="patient.createButtons = false;createStudy(patient)" href="" title="Create study">-->
+                    <!--Create study-->
+                    <!--</a>-->
+                    <!--<a class="" ng-click="patient.createButtons = false;createMWL(patient)" href="" title="Create MWL">-->
+                    <!--Create MWL-->
+                    <!--</a>-->
+                    <!--</div>-->
+                    <!--</div >-->
+                    <a class="hiddenbuttons"  class="table_btn" ng-show="user.isRole('admin')" ng-click="patient.createButtons = false;createMWL(patient)" href="" title="Create MWL">
                         <span class="glyphicon glyphicon-plus" ></span>
-                    </a>   
-                    <a class="table_btn"  ng-show="user.isRole('admin') && patient.attrs['00201200'].Value[0] === 0" ng-click="deletePatient(patient, patients, patientkey)" href="" title="Delete Patient">
+                    </a>
+                    <a class="hiddenbuttons"  class="table_btn"  ng-show="user.isRole('admin') && patient.attrs['00201200'].Value[0] === 0" ng-click="deletePatient(patient, patients, patientkey)" href="" title="Delete Patient">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>
+                </div>
+            </div>
+        </div>
+        <div class="thead" ng-class="{hide:patient.hide}">
+            <div class="tr_row" ng-class="{selected: patient.selected}">
+
+                <div class="th" style="width:10%">   
+                    <a class="table_btn" ng-click="patient.showAttributes = !patient.showAttributes" href="" title="Show Attributes">
+                        <span class="glyphicon glyphicon-th-list"></span>
+                    </a>
+
                     <a ng-if="!(user.isRole('admin') && patient.attrs['00201200'].Value[0] === 0)" class="table_btn" ng-hide="patient.studies || patient.mwls" ng-click="queryAllStudiesOfPatient(patient,0)" href="" title="Show Studies">&#9658;</a>
                     <a ng-if="!(user.isRole('admin') && patient.attrs['00201200'].Value[0] === 0)" class="table_btn" ng-show="patient.studies" ng-click="patient.studies = null" href="" title="Hide Studies">&#9660;</a>
                     <a ng-init="patient.showmwls = true" class="table_btn" ng-show="!patient.showmwls && patient.mwls" ng-click="patient.showmwls = true" href="" title="Show MWLs">&#9658;</a>
@@ -806,29 +817,41 @@
             </div> -->
             <div class="tbody">
                 <div class="tr_row">
-                    <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
+                    <div class="more_menu_content">
+                        <div class="more_menu_study">
+                            <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
+                            <div class="exeq_buttons">
+                                <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event)"></div>
+                                <a class="hiddenbuttons" ng-show="user.isRole('admin')" ng-click="editStudy(patients[patientkey], patientkey, studykey, study)" href="" title="Edit Study">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </a>
+                                <a class="hiddenbuttons" ng-click="exportStudy(study)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Study">
+                                    <span class="glyphicon glyphicon-export"></span>
+                                </a>
+                                <a class="hiddenbuttons" ng-click="storageCommitmen('study',study)" ng-show="user.isRole('admin')" href="" title="Verify storage commitmen">
+                                    <span class="glyphicon glyphicon-ok"></span>
+                                </a>
+                                <a class="hiddenbuttons" ng-hide="trashaktive || !user.isRole('admin') || study.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(study)" href="" title="Reject Study">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                                <a class="hiddenbuttons" ng-show="trashaktive && user.isRole('admin')" ng-click="deleteStudy(study)" href="" title="Delete Study permanently">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </a>
+                                <a class="hiddenbuttons" ng-show="trashaktive && user.isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
+                                    <span class="glyphicon glyphicon-repeat"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="subblock">
                         <div class="td_row thead repeat1_hover" ng-click='select(study,"study", {"patientkey":patientkey,"studykey":studykey})' ng-class="{selected: study.selected, trash:trashaktive}" ng-init="study.selected = false">
                             <!-- <input type="checkbox" ng-model="study.selected" class="selectcheckboxes" /> -->
                             <div class="td_cell table_btn">
+
                                 <a ng-click="study.showAttributes = !study.showAttributes" href="" title="Show Attributes">
                                     <span class="glyphicon glyphicon-th-list"></span>
                                 </a>
-                                <a ng-show="user.isRole('admin')" ng-click="editStudy(patients[patientkey], patientkey, studykey, study)" href="" title="Edit Study">
-                                    <span class="glyphicon glyphicon-pencil"></span>
-                                </a>
-                                <a ng-click="exportStudy(study)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Study">
-                                    <span class="glyphicon glyphicon-export"></span>
-                                </a>
-                                <a ng-hide="trashaktive || !user.isRole('admin') || study.attrs['00201208'].Value[0] === 0" ng-click="rejectStudy(study)" href="" title="Reject Study">
-                                    <span class="glyphicon glyphicon-trash"></span>
-                                </a>
-                                <a ng-show="trashaktive && user.isRole('admin')" ng-click="deleteStudy(study)" href="" title="Delete Study permanently">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </a>
-                                <a ng-show="trashaktive && user.isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
-                                    <span class="glyphicon glyphicon-repeat"></span>
-                                </a>
+
 <!--                                 <a ng-show="user.isRole('admin') && study.attrs['00201208'].Value[0] === 0" ng-click="deleteStudy(study)" href="" title="Delete Study">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </a> -->
@@ -855,7 +878,7 @@
                             <div style="width:10.2%" class="td_cell txt hover_cell"  tooltip="{{study.attrs['00080090'].Value[0].Alphabetic}}">{{(study.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'}}</div>
                             <div class="td_cell txt hover_cell" tooltip="{{study.attrs['00080050'].Value[0]}}" >{{(study.attrs['00080050'].Value[0]) || '&nbsp;'}}</div>
                             <div style="width:5.2%" class="td_cell hover_cell" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'">&nbsp;</div>
-                            <div style="width:18%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00081030'].Value[0]}}">{{(study.attrs['00081030'].Value[0]) || '&nbsp;'}}</div>
+                            <div style="width:17%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00081030'].Value[0]}}">{{(study.attrs['00081030'].Value[0]) || '&nbsp;'}}</div>
                             <div style="width:3%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00201206'].Value[0]}}" >{{(study.attrs['00201206'].Value[0]) || '&nbsp;'}}</div>
                             <div style="width:3%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00201208'].Value[0]}}">{{(study.attrs['00201208'].Value[0]) || '&nbsp;'}}</div>
                         </div>
@@ -879,23 +902,36 @@
                                 <div style="width:2%" class="th">#I</div>
                             </div> -->
                             <div class="repeat2" ng-repeat="(serieskey,series) in study.series" contextmenu-item="series" ng-init="series.modus = 'series'">
-                                    <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
+                                    <!--<div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>-->
+
                             <div class="subblock">
+                                <div class="more_menu_content">
+                                    <div class="more_menu_study">
+                                        <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
+                                        <div class="exeq_buttons" >
+                                            <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event)"></div>
+                                            <a class="hiddenbuttons" ng-click="exportSeries(series)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Series">
+                                                <span class="glyphicon glyphicon-export"></span>
+                                            </a>
+                                            <a class="hiddenbuttons" ng-hide="trashaktive || !user.isRole('admin') ||  series.attrs['00201209'].Value[0] === 0" ng-click="rejectSeries(series)" href="" title="Reject Series">
+                                                <span  class="glyphicon glyphicon-trash"></span>
+                                            </a>
+                                            <a class="hiddenbuttons" ng-show="trashaktive && user.isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
+                                                <span class="glyphicon glyphicon-repeat"></span>
+                                            </a>
+                                            <a class="hiddenbuttons" ng-click="storageCommitmen('series', series)" ng-show="user.isRole('admin')" href="" title="Verify storage commitmen">
+                                                <span class="glyphicon glyphicon-ok"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="tr_row repeat2_hover" ng-click='select(series,"series", {"patientkey":patientkey,"studykey":studykey, "serieskey":serieskey})' ng-class="{selected: series.selected}" ng-init="series.selected = false">
                                     <div class="td_cell table_btn">
                                         <!-- <input type="checkbox" ng-model="series.selected" class="selectcheckboxes" /> -->
                                         <a ng-click="series.showAttributes = !series.showAttributes" href="" title="Show Attributes">
                                             <span class="glyphicon glyphicon-th-list"></span>
                                         </a>
-                                        <a ng-click="exportSeries(series)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Series">
-                                            <span class="glyphicon glyphicon-export"></span>
-                                        </a>
-                                        <a ng-hide="trashaktive || !user.isRole('admin') ||  series.attrs['00201209'].Value[0] === 0" ng-click="rejectSeries(series)" href="" title="Reject Series">
-                                            <span  class="glyphicon glyphicon-trash"></span>
-                                        </a>
-                                        <a ng-show="trashaktive && user.isRole('admin')" ng-click="rejectSeries(series)" href="" title="Restore Series">
-                                            <span class="glyphicon glyphicon-repeat"></span>
-                                        </a>
+
                                         <!--
                                         <a ng-href="{{series.attrs['00081190'].Value[0]}}" tooltip="Download Series">
                                             <span class="glyphicon glyphicon-save"></span>
@@ -941,7 +977,45 @@
                                     <div style="width:2%" class="th">#F</div>
                                 </div> -->
                                 <div class="repeat3"  ng-repeat="(key,instance) in series.instances" contextmenu-item="instance" ng-init="instance.modus='instance'">
-                                    <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
+                                    <div class="more_menu_content">
+                                        <div class="more_menu_study">
+                                            <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
+                                            <div class="exeq_buttons">
+                                                <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event)"></div>
+                                                <a class="hiddenbuttons" ng-click="exportInstance(instance)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Instance">
+                                                    <span class="glyphicon glyphicon-export"></span>
+                                                </a>
+                                                <a class="hiddenbuttons" ng-hide="trashaktive || !user.isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
+                                                    <span  class="glyphicon glyphicon-trash"></span>
+                                                </a>
+                                                <a class="hiddenbuttons" ng-show="trashaktive && user.isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
+                                                    <span class="glyphicon glyphicon-repeat"></span>
+                                                </a>
+                                                <a class="hiddenbuttons" ng-click="storageCommitmen('instance', instance)" ng-show="user.isRole('admin')" href="" title="Verify storage commitmen">
+                                                    <span class="glyphicon glyphicon-ok"></span>
+                                                </a>
+                                                <a class="hiddenbuttons" ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
+                                                    <span class="glyphicon glyphicon-save"></span>
+                                                </a>
+                                                <a class="hiddenbuttons" ng-href="{{downloadURL(instance, '*')}}" title="Download DICOM Object">
+                                                    <span class="glyphicon glyphicon-download-alt"></span>
+                                                </a>
+                                                <a class="hiddenbuttons" ng-hide="instance.views.length > 1" ng-click="viewInstance(instance)" href="" title="View DICOM Object">
+                                                    <span class="glyphicon glyphicon-picture"></span>
+                                                </a>
+                                                <span class="hiddenbuttons" ng-init="select_show=false" class="selecta" ng-show="instance.views.length > 1" href="" title="View DICOM Object">
+                                                    <span class="glyphicon glyphicon-picture" ng-click="select_show = !select_show"></span>
+                                                    <div ng-show="select_show" class="select_block" ng-click="select_show = false">
+                                                        <a ng-model="instance.view" ng-repeat="(key, value) in instance.views" ng-click="(instance.view=value);viewInstance(instance)">{{value}}</a>
+                                                    </div>
+                                                    <!--                                                 <select ng-show="instance.views.length > 1"
+                                                                                                            ng-options="view for view in instance.views"
+                                                                                                            ng-model="instance.view">
+                                                                                                    </select> -->
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="subblock">
                                         <div class="tr_row repeat3_hover" ng-click='select(instance,"instance", {"patientkey":patientkey,"studykey":studykey, "serieskey":serieskey, "instancekey":key})' ng-class="{selected: instance.selected}" ng-init="instance.selected = false">
                                             <div class="td_cell table_btn">   
@@ -952,34 +1026,7 @@
                                                 <a ng-click="toggleAttributs(series.instances[key],'fileattributs');addFileAttribute(instance)" href="" title="Show Attributes from file" ng-class="{active:instance.showFileAttributes}">
                                                     <span class="glyphicon glyphicon-list"></span>
                                                 </a>
-                                                <a ng-click="exportInstance(instance)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Instance">
-                                                    <span class="glyphicon glyphicon-export"></span>
-                                                </a>
-                                                <a ng-hide="trashaktive || !user.isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Reject Instance">
-                                                    <span  class="glyphicon glyphicon-trash"></span>
-                                                </a>
-                                                <a ng-show="trashaktive && user.isRole('admin')" ng-click="rejectInstance(instance)" href="" title="Restore Instance">
-                                                    <span class="glyphicon glyphicon-repeat"></span>
-                                                </a>
-                                                <a ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
-                                                    <span class="glyphicon glyphicon-save"></span>
-                                                </a>
-                                                <a ng-href="{{downloadURL(instance, '*')}}" title="Download DICOM Object">
-                                                    <span class="glyphicon glyphicon-download-alt"></span>
-                                                </a>
-                                                <a ng-hide="instance.views.length > 1" ng-click="viewInstance(instance)" href="" title="View DICOM Object">
-                                                    <span class="glyphicon glyphicon-picture"></span>
-                                                </a>
-                                                <span ng-init="select_show=false" class="selecta" ng-show="instance.views.length > 1" href="" title="View DICOM Object">
-                                                    <span class="glyphicon glyphicon-picture" ng-click="select_show = !select_show"></span>
-                                                    <div ng-show="select_show" class="select_block" ng-click="select_show = false">
-                                                        <a ng-model="instance.view" ng-repeat="(key, value) in instance.views" ng-click="(instance.view=value);viewInstance(instance)">{{value}}</a>
-                                                    </div>
-    <!--                                                 <select ng-show="instance.views.length > 1"
-                                                            ng-options="view for view in instance.views"
-                                                            ng-model="instance.view">
-                                                    </select> -->
-                                                </span>
+
                                             </div>
                                             <div class="td_cell txt hover_cell"  tooltip="{{instance.attrs['00080016'].Value[0]}}" >{{(instance.attrs['00080016'].Value[0]) || '&nbsp;'}}</div>
                                             <div class="td_cell txt hover_cell"  tooltip="{{instance.attrs['00200013'].Value[0]}}" >{{(instance.attrs['00200013'].Value[0]) || '&nbsp;'}}</div>

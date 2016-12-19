@@ -1085,6 +1085,345 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         });
         });
     };
+    $scope.storageCommitmen = function(mode, object){
+        var url = '../aets/'+$scope.aet+'/rs/studies/';
+        switch(mode) {
+            case "study":
+                url += object.attrs["0020000D"].Value[0]+"/stgcmt";
+                break;
+            case "series":
+                url += object.attrs["0020000D"].Value[0]+"/series/"+object.attrs["0020000E"].Value[0]+"/stgcmt";
+                break;
+            default:
+            case "instance":
+                url += object.attrs["0020000D"].Value[0]+"/series/"+object.attrs["0020000E"].Value[0]+"/instances/"+object.attrs["00080018"].Value[0]+"/stgcmt";
+                break;
+        }
+        $http({
+            method: 'POST',
+            url: url,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'text/plain'
+            }
+        }).then(
+            function successCallback(response) {
+                console.log("response",response);
+                var dummy = [
+                    {
+                        "00081199":{
+                            "vr":"SQ",
+                            "Value":[
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.2"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762181052.1371.802255747.69"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.2"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762181052.1371.802255783.80"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.7"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762134868.1613.807382784.5"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.7"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762181052.1020.802195588.5"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.2"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762181052.1371.802255921.94"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.7"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762134868.1602.807382633.4"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.7"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762134868.1602.807382664.5"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                        ,
+                        "00081198":{
+                            "vr":"SQ",
+                            "Value":[
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.2"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762181052.1371.802255747.69"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.2"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762181052.1371.802255783.80"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.7"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762134868.1613.807382784.5"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080054":{
+                                        "vr":"AE",
+                                        "Value":[
+                                            "DCM4CHEE"
+                                        ]
+                                    },
+                                    "00081150":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.10008.5.1.4.1.1.7"
+                                        ]
+                                    },
+                                    "00081155":{
+                                        "vr":"UI",
+                                        "Value":[
+                                            "1.2.840.113704.7.7.1.1762181052.1020.802195588.5"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ];
+
+                var faild = (dummy[0]["00081198"] && dummy[0]["00081198"].Value) ? dummy[0]["00081198"].Value.length : 0;
+                var success = (dummy[0]["00081199"] && dummy[0]["00081199"].Value) ? dummy[0]["00081199"].Value.length : 0;
+                // var modeString = mode.charAt(0).toUpperCase() + mode.slice(1);
+                console.log("dummy",dummy);
+                var msgStatus = "Info";
+                if(faild > 0 && success > 0){
+                    msgStatus = "Warning";
+                    // var msg = $compile(faild+' of '+success+' faild! <a ng-click="'+$scope.generateCsvFromFaildVerification()+'">test</a>')($scope);
+                    DeviceService.msg($scope, {
+                        "title": msgStatus,
+                        "text": faild+' of '+success+'faild!',
+                        "status": msgStatus.toLowerCase(),
+                        "timeout":20000
+                    });
+                }
+                if(faild > 0 && success === 0){
+                    msgStatus = "Error";
+                    DeviceService.msg($scope, {
+                        "title": msgStatus,
+                        "text": "all "+ faild+ "faild!",
+                        "status": msgStatus.toLowerCase()
+                    });
+                }
+                if(faild === 0){
+                    DeviceService.msg($scope, {
+                        "title": msgStatus,
+                        "text": success+ " verified successfully, 0 faild!",
+                        "status": msgStatus.toLowerCase()
+                    });
+                }
+            },
+            function errorCallback(response) {
+                DeviceService.msg($scope, {
+                    // "title": "Error",
+                    // "text": "Error saving patient!",
+                    // "status": "error"
+                    "title": "Error "+response.status,
+                    "text": response.data.errorMessage,
+                    "status": "error"
+                });
+            }
+        );
+    };
+    $scope.generateCsvFromFaildVerification = function(){
+        var csv = "test, test2,test3\n testb1,testb2,testb3";
+
+        var file = new File([csv], "associacions.csv", {type: "text/csv;charset=utf-8"});
+        saveAs(file);
+    };
+    $scope.showMoreFunction = function(e){
+
+        var duration = 200;
+        var visibleElements = $(e.target).siblings(".hiddenbuttons").size()-$(e.target).siblings(".hiddenbuttons.ng-hide").size();
+        var variationvalue = visibleElements * 26;
+        var element = $(e.target).closest(".more_menu_study");
+
+        if(element.hasClass("open")){
+            element.animate({
+                right: "-="+variationvalue
+            }, duration, function() {
+                element.removeClass("open");
+            });
+            // setTimeout(function(){
+            //     $(".more_menu_study.open").each(function(i,m){
+            //         $(m).css("right","-195px").removeClass("open");
+            //     });
+            // },duration+10);
+        }else{
+            $(".more_menu_study.open").each(function(i,m){
+                $(m).css("right","-195px").removeClass("open");
+            });
+            element.animate({
+                right: "+="+variationvalue
+            }, duration, function() {
+                element.addClass("open");
+            });
+        }
+    };
+
     $scope.editMWL = function(patient, patientkey, mwlkey, mwl){
         modifyMWL(patient, "edit", patientkey, mwlkey, mwl);
     };
@@ -1197,6 +1536,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 break;
             }
         };
+
         $http.get('iod/patient.iod.json',{ cache: true}).then(function (res) {
             var dropdown                = StudiesService.getArrayFromIod(res);
             res.data = StudiesService.replaceKeyInJson(res.data, "items", "Value");
