@@ -18,15 +18,15 @@ ou: dcm4che
 dn: cn=admin,ou=master,ou=realms,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: admin
-member: uid=admin1,ou=master,ou=realms,dc=dcm4che,dc=org
+member: uid=admin,ou=master,ou=realms,dc=dcm4che,dc=org
 
-dn: uid=admin1,ou=master,ou=realms,dc=dcm4che,dc=org
+dn: uid=admin,ou=master,ou=realms,dc=dcm4che,dc=org
 objectClass: organizationalPerson
 objectClass: inetOrgPerson
 cn:: IA==
 sn:: IA==
-uid: admin1
-userPassword:: YWRtaW4x
+uid: admin
+userPassword:: YWRtaW4=
 
 dn: uid=admin,ou=dcm4che,ou=realms,dc=dcm4che,dc=org
 uid: admin
