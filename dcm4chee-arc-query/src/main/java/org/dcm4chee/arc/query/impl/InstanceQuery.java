@@ -55,6 +55,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
@@ -65,6 +66,7 @@ import org.hibernate.StatelessSession;
 import javax.json.Json;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -98,6 +100,19 @@ class InstanceQuery extends AbstractQuery {
             QSeries.series.pk,
             QMetadata.metadata.storageID,
             QMetadata.metadata.storagePath,
+    };
+
+    private static final int[] ARCHIVE_INST_TAGS = {
+            (ArchiveTag.InstanceReceiveDateTime & 0xffff0000) | 0x0010,
+            ArchiveTag.InstanceReceiveDateTime | 0x1000,
+            ArchiveTag.InstanceUpdateDateTime | 0x1000,
+            ArchiveTag.RejectionCodeSequence | 0x1000,
+            ArchiveTag.InstanceExternalRetrieveAETitle | 0x1000,
+            ArchiveTag.StorageID | 0x1000,
+            ArchiveTag.StoragePath | 0x1000,
+            ArchiveTag.StorageTransferSyntaxUID | 0x1000,
+            ArchiveTag.StorageObjectSize | 0x1000,
+            ArchiveTag.StorageObjectDigest | 0x1000
     };
 
     private Long seriesPk;
@@ -235,10 +250,13 @@ class InstanceQuery extends AbstractQuery {
                 if (!nextSeriesMetadataStream())
                     return false;
 
-                instTags = context.getArchiveAEExtension().getArchiveDeviceExtension()
+                int[] tags = context.getArchiveAEExtension().getArchiveDeviceExtension()
                         .getAttributeFilter(Entity.Instance).getSelection();
+                instTags = new int[tags.length + ARCHIVE_INST_TAGS.length];
+                System.arraycopy(tags, 0, instTags, 0, tags.length);
+                System.arraycopy(ARCHIVE_INST_TAGS, 0, instTags, tags.length, ARCHIVE_INST_TAGS.length);
                 Attributes queryKeys = context.getQueryKeys();
-                instQueryKeys = new Attributes(queryKeys, instTags);
+                instQueryKeys = new Attributes(queryKeys, tags);
                 sopInstanceUIDs = queryKeys.getStrings(Tag.SOPInstanceUID);
             }
             nextMatchFromMetadata = nextMatchFromMetadata();
