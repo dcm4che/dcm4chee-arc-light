@@ -95,6 +95,9 @@ public class QueryServiceEJB {
         QSeries.series.failedSOPInstanceUIDList,
         QSeries.series.failedRetrieves,
         QSeries.series.sourceAET,
+        QSeries.series.metadataScheduledUpdateTime,
+        QSeries.series.instancePurgeTime,
+        QSeries.series.instancePurgeState,
         QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -242,6 +245,14 @@ public class QueryServiceEJB {
                     result.get(QSeries.series.failedRetrieves));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                 result.get(QSeries.series.sourceAET));
+        if (result.get(QSeries.series.metadataScheduledUpdateTime) != null)
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledMetadataUpdateDateTimeOfSeries, VR.DT,
+                    result.get(QSeries.series.metadataScheduledUpdateTime));
+        if (result.get(QSeries.series.instancePurgeTime) != null)
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledInstanceRecordPurgeDateTimeOfSeries, VR.DT,
+                    result.get(QSeries.series.instancePurgeTime));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
+                result.get(QSeries.series.instancePurgeState).name());
         return attrs;
     }
 

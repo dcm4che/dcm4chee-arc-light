@@ -87,6 +87,9 @@ class SeriesQuery extends AbstractQuery {
             QSeries.series.failedRetrieves,
             QSeries.series.sourceAET,
             QSeries.series.externalRetrieveAET,
+            QSeries.series.metadataScheduledUpdateTime,
+            QSeries.series.instancePurgeTime,
+            QSeries.series.instancePurgeState,
             QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -196,6 +199,14 @@ class SeriesQuery extends AbstractQuery {
                     results.get(QSeries.series.failedRetrieves));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                 results.get(QSeries.series.sourceAET));
+        if (results.get(QSeries.series.metadataScheduledUpdateTime) != null)
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledMetadataUpdateDateTimeOfSeries, VR.DT,
+                    results.get(QSeries.series.metadataScheduledUpdateTime));
+        if (results.get(QSeries.series.instancePurgeTime) != null)
+            attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.ScheduledInstanceRecordPurgeDateTimeOfSeries, VR.DT,
+                    results.get(QSeries.series.instancePurgeTime));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
+                results.get(QSeries.series.instancePurgeState).name());
         return attrs;
     }
 
