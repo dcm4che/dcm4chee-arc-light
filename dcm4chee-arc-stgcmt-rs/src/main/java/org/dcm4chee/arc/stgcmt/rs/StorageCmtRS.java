@@ -105,11 +105,7 @@ public class StorageCmtRS {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
-                    for (Attributes item : eventInfo.getSequence(Tag.ReferencedSOPSequence))
-                        writer.write(item);
-                    if (eventInfo.getSequence(Tag.FailedSOPSequence) != null)
-                        for (Attributes item : eventInfo.getSequence(Tag.FailedSOPSequence))
-                            writer.write(item);
+                    writer.write(eventInfo);
                     gen.writeEnd();
                 }
             }
