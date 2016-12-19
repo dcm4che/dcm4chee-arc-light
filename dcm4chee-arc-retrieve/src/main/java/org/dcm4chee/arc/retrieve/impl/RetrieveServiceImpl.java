@@ -287,41 +287,47 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public Date getLastModified(RetrieveContext ctx) {
-        List<Object[]> dates = getDates(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUIDs());
-        if(dates.isEmpty())
-            return null;
-        List<Date> dts = new ArrayList<>();
-        for (Object[] o : dates) {
-            for (Object obj : o)
-                dts.add((Date) obj);
+        List<Object[]> dates = queryLastModified(
+                ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUIDs());
+        Date lastModified = null;
+        for (Object[] objs : dates) {
+            for (Object obj : objs) {
+                Date date = (Date) obj;
+                if (lastModified == null || lastModified.compareTo(date) < 0)
+                    lastModified = date;
+            }
         }
-        return Collections.max(dts);
+        return lastModified;
     }
 
     @Override
     public Date getLastModifiedFromMatches(RetrieveContext ctx) {
-        List<Date> dates = new ArrayList<>();
-        dates.add(ctx.getPatientUpdatedTime());
-        dates.add(ctx.getStudyInfos().iterator().next().getModifiedTime());
+        Date lastModified = ctx.getStudyInfos().iterator().next().getModifiedTime();
+        if (lastModified.compareTo(ctx.getPatientUpdatedTime()) < 0)
+            lastModified = ctx.getPatientUpdatedTime();
         for (SeriesInfo si : ctx.getSeriesInfos())
-                dates.add(si.getUpdatedTime());
+            if (lastModified.compareTo(si.getUpdatedTime()) < 0)
+                lastModified = si.getUpdatedTime();
         for (InstanceLocations il : ctx.getMatches())
-            if (il.getUpdatedTime() != null)
-                dates.add(il.getUpdatedTime());
-        return Collections.max(dates);
+            if (il.getUpdatedTime() != null && lastModified.compareTo(il.getUpdatedTime()) < 0)
+                lastModified = il.getUpdatedTime();
+        return lastModified;
     }
 
-    private List<Object[]> getDates(String studyIUID, String seriesIUID, String[] sopIUIDs) {
-        return sopIUIDs.length > 0
+    private List<Object[]> queryLastModified(String studyIUID, String seriesIUID, String[] sopIUIDs) {
+        return (sopIUIDs.length > 0
                     ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
-                    .setParameter(1, studyIUID).setParameter(2, seriesIUID).setParameter(3, sopIUIDs[0]).getResultList()
+                        .setParameter(1, studyIUID)
+                        .setParameter(2, seriesIUID)
+                        .setParameter(3, Arrays.asList(sopIUIDs))
                     : seriesIUID != null
                     ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
-                    .setParameter(1, studyIUID).setParameter(2, seriesIUID).getResultList()
+                        .setParameter(1, studyIUID)
+                        .setParameter(2, seriesIUID)
                     : em.createNamedQuery(Instance.FIND_LAST_MODIFIED_STUDY_LEVEL, Object[].class)
-                    .setParameter(1, studyIUID).getResultList();
+                        .setParameter(1, studyIUID)
+        ).getResultList();
     }
-
 
     @Override
     public boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException {

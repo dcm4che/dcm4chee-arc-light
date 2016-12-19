@@ -97,13 +97,13 @@ import java.util.*;
 ),
 @NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL,
-        query="SELECT p.updatedTime, st.modifiedTime, se.updatedTime, i.updatedTime from Instance i " +
+        query="SELECT p.updatedTime, st.modifiedTime, se.updatedTime, MAX(i.updatedTime) from Instance i " +
                 "JOIN i.series se " +
                 "JOIN se.study st " +
                 "JOIN st.patient p " +
                 "where st.studyInstanceUID = ?1 " +
                 "and se.seriesInstanceUID = ?2 " +
-                "and i.sopInstanceUID = ?3"
+                "and i.sopInstanceUID in ?3"
 ),
 @NamedQuery(
     name=Instance.FIND_BY_STUDY_SERIES_SOP_IUID_EAGER,
