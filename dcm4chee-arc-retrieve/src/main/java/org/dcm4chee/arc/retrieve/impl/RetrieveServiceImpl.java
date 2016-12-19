@@ -315,11 +315,11 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     private List<Object[]> queryLastModified(String studyIUID, String seriesIUID, String[] sopIUIDs) {
-        return (sopIUIDs.length > 0
+        return (sopIUIDs.length > 0 // sopIUIDs.length == 1, because WADO-RS does not support multiple sopIUIDs
                     ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_INSTANCE_LEVEL, Object[].class)
                         .setParameter(1, studyIUID)
                         .setParameter(2, seriesIUID)
-                        .setParameter(3, Arrays.asList(sopIUIDs))
+                        .setParameter(3, sopIUIDs[0])
                     : seriesIUID != null
                     ? em.createNamedQuery(Instance.FIND_LAST_MODIFIED_SERIES_LEVEL, Object[].class)
                         .setParameter(1, studyIUID)
