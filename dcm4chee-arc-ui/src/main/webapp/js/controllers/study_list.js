@@ -1109,256 +1109,20 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }).then(
             function successCallback(response) {
                 console.log("response",response);
-                var dummy = response.data;
-                // var dummy = [
-                //     {
-                //         "00081199":{
-                //             "vr":"SQ",
-                //             "Value":[
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.2"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762181052.1371.802255747.69"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.2"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762181052.1371.802255783.80"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.7"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762134868.1613.807382784.5"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.7"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762181052.1020.802195588.5"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.2"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762181052.1371.802255921.94"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.7"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762134868.1602.807382633.4"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.7"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762134868.1602.807382664.5"
-                //                         ]
-                //                     }
-                //                 }
-                //             ]
-                //         }
-                //         ,
-                //         "00081198":{
-                //             "vr":"SQ",
-                //             "Value":[
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.2"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762181052.1371.802255747.69"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.2"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762181052.1371.802255783.80"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.7"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762134868.1613.807382784.5"
-                //                         ]
-                //                     }
-                //                 },
-                //                 {
-                //                     "00080054":{
-                //                         "vr":"AE",
-                //                         "Value":[
-                //                             "DCM4CHEE"
-                //                         ]
-                //                     },
-                //                     "00081150":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.10008.5.1.4.1.1.7"
-                //                         ]
-                //                     },
-                //                     "00081155":{
-                //                         "vr":"UI",
-                //                         "Value":[
-                //                             "1.2.840.113704.7.7.1.1762181052.1020.802195588.5"
-                //                         ]
-                //                     }
-                //                 }
-                //             ]
-                //         }
-                //     }
-                // ];
+                var data = response.data;
 
-                var faild = (dummy[0]["00081198"] && dummy[0]["00081198"].Value) ? dummy[0]["00081198"].Value.length : 0;
-                var success = (dummy[0]["00081199"] && dummy[0]["00081199"].Value) ? dummy[0]["00081199"].Value.length : 0;
+                var faild = (data[0]["00081198"] && data[0]["00081198"].Value) ? data[0]["00081198"].Value.length : 0;
+                var success = (data[0]["00081199"] && data[0]["00081199"].Value) ? data[0]["00081199"].Value.length : 0;
                 // var modeString = mode.charAt(0).toUpperCase() + mode.slice(1);
-                console.log("dummy",dummy);
+                console.log("data",data);
                 var msgStatus = "Info";
                 if(faild > 0 && success > 0){
                     msgStatus = "Warning";
-                    // var msg = $compile(faild+' of '+success+' faild! <a ng-click="'+$scope.generateCsvFromFaildVerification()+'">test</a>')($scope);
+                    // var msgTest = $compile('<a ng-click="generateCsvFromFaildVerification()">test</a>')($scope);
                     DeviceService.msg($scope, {
                         "title": msgStatus,
                         "text": faild+' of '+success+' faild!',
-                        "status": msgStatus.toLowerCase(),
-                        "timeout":20000
+                        "status": msgStatus.toLowerCase()
                     });
                 }
                 if(faild > 0 && success === 0){
@@ -1389,12 +1153,12 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         );
     };
-    $scope.generateCsvFromFaildVerification = function(){
-        var csv = "test, test2,test3\n testb1,testb2,testb3";
-
-        var file = new File([csv], "associacions.csv", {type: "text/csv;charset=utf-8"});
-        saveAs(file);
-    };
+    // $scope.generateCsvFromFaildVerification = function(){
+    //     var csv = "test, test2,test3\n testb1,testb2,testb3";
+    //
+    //     var file = new File([csv], "associacions.csv", {type: "text/csv;charset=utf-8"});
+    //     saveAs(file);
+    // };
     $scope.showMoreFunction = function(e){
 
         var duration = 200;
@@ -2187,6 +1951,10 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             rsURL(),
             createQueryParams(offset, $scope.limit+1, createStudyFilterParams())
         ).then(function (res) {
+            // console.log("res.data",JSON.stringify(res.data[0]["00100010"].Value[0]["Alphabetic"]));
+            // res.data.map(function(m){
+            //     console.log("m in map",m["00100010"].Value[0]["Alphabetic"]);
+            // });
             $scope.patients = [];
  //           $scope.studies = [];
             $scope.morePatients = undefined;
