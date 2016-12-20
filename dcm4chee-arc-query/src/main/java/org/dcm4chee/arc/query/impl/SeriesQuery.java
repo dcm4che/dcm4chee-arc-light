@@ -90,6 +90,10 @@ class SeriesQuery extends AbstractQuery {
             QSeries.series.metadataScheduledUpdateTime,
             QSeries.series.instancePurgeTime,
             QSeries.series.instancePurgeState,
+            QMetadata.metadata.storageID,
+            QMetadata.metadata.storagePath,
+            QMetadata.metadata.digest,
+            QMetadata.metadata.size,
             QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -123,6 +127,7 @@ class SeriesQuery extends AbstractQuery {
                 context.getQueryKeys(),
                 context.getQueryParam(),
                 context.isOrderByPatientName());
+        q = q.leftJoin(QSeries.series.metadata, QMetadata.metadata);
         BooleanBuilder predicates = new BooleanBuilder();
         QueryBuilder.addPatientLevelPredicates(predicates,
                 context.getPatientIDs(),
@@ -207,6 +212,17 @@ class SeriesQuery extends AbstractQuery {
                     results.get(QSeries.series.instancePurgeTime));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
                 results.get(QSeries.series.instancePurgeState).name());
+        if (results.get(QMetadata.metadata.storageID) != null) {
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,
+                    results.get(QMetadata.metadata.storageID));
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStoragePath, VR.LO,
+                    StringUtils.split(results.get(QMetadata.metadata.storagePath), '/'));
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectSize, VR.UL,
+                    results.get(QMetadata.metadata.size).intValue());
+            if (results.get(QMetadata.metadata.digest) != null)
+                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
+                        results.get(QMetadata.metadata.digest));
+        }
         return attrs;
     }
 
