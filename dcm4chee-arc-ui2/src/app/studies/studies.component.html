@@ -661,6 +661,25 @@
     <!--</div>-->
 <!--</pre>-->
         <div class="repeat0" contextmenu-item='patient._VALUE' *ngFor="let patient of patients | getKey" (click)='select(patient._VALUE,"patient",{patientkey:patient._KEY})'>
+            <div class="more_menu_content">
+                <div class="more_menu_study">
+                    <div class="colcell">
+                        <div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>
+                    </div>
+                    <div class="exeq_buttons">
+                        <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event)"></div>
+                        <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>
+                        <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
+                            <span class="glyphicon glyphicon-plus" ></span>
+                        </a>
+                        <a class="table_btn hiddenbuttons"  *ngIf="isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
             <div class="thead" [ngClass]="{hide:patient._VALUE.hide}">
                 <div class="tr_row" [ngClass]="{selected: patient._VALUE.selected}">
                     <div class="th" style="width:10%">
@@ -668,15 +687,7 @@
                         <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">
                             <span class="glyphicon glyphicon-th-list"></span>
                         </a>
-                        <a class="table_btn" *ngIf="isRole('admin')" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </a>
-                        <a class="table_btn" *ngIf="isRole('admin')" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
-                            <span class="glyphicon glyphicon-plus" ></span>
-                        </a>
-                        <a class="table_btn"  *ngIf="isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient">
-                            <span class="glyphicon glyphicon-remove"></span>
-                        </a>
+
                         <a *ngIf="!(isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0) && !(patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
                         <a *ngIf="!(isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0) && (patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
                         <a class="table_btn" *ngIf="!patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = true" href="" title="Show MWLs">&#9658;</a>
@@ -699,28 +710,39 @@
             <div class="repeat1" *ngFor="let study of patients[patient._KEY].studies | getKey" contextmenu-item="study">
                 <div class="tbody">
                     <div class="tr_row">
-                        <div class="colcell" [innerHtml]="study._VALUE.offset+1+'.'"> </div>
+                        <div class="more_menu_content">
+                            <div class="more_menu_study">
+                                <div class="colcell" [innerHtml]="study._VALUE.offset+1+'.'"> </div>
+                                <div class="exeq_buttons">
+                                    <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event)"></div>
+                                    <a class="hiddenbuttons" *ngIf="isRole('admin')" (click)="editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                    </a>
+                                    <a class="hiddenbuttons" (click)="exportStudy(study._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export study">
+                                        <span class="glyphicon glyphicon-export"></span>
+                                    </a>
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
+                                        <span class="glyphicon glyphicon-ok"></span>
+                                    </a>
+                                    <a class="hiddenbuttons" [hidden]="trashaktive || !isRole('admin') || study._VALUE.attrs['00201208'].Value[0] === 0" (click)="rejectStudy(study._VALUE)" href="" title="Reject study">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </a>
+                                    <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="deleteStudy(study._VALUE)" href="" title="Delete study permanently">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </a>
+                                    <a class="hiddenbuttons"  *ngIf="trashaktive && isRole('admin')" (click)="rejectStudy(study._VALUE)" href="" title="Restore study">
+                                        <span class="glyphicon glyphicon-repeat"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                         <div class="subblock">
                             <div class="td_row thead repeat1_hover" (click)='select(study._VALUE,"study", {"patientkey":patient._KEY,"study":study._KEY})' [ngClass]="{selected: study._VALUE.selected, trash:trashaktive}">
                                 <div class="td_cell table_btn">
                                     <a (click)="$event.preventDefault();study._VALUE.showAttributes = !study._VALUE.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>
-                                    <a *ngIf="isRole('admin')" (click)="editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study">
-                                        <span class="glyphicon glyphicon-pencil"></span>
-                                    </a>
-                                    <a (click)="exportStudy(study._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export study">
-                                        <span class="glyphicon glyphicon-export"></span>
-                                    </a>
-                                    <a [hidden]="trashaktive || !isRole('admin') || study._VALUE.attrs['00201208'].Value[0] === 0" (click)="rejectStudy(study._VALUE)" href="" title="Reject study">
-                                        <span class="glyphicon glyphicon-trash"></span>
-                                    </a>
-                                    <a *ngIf="trashaktive && isRole('admin')" (click)="deleteStudy(study._VALUE)" href="" title="Delete study permanently">
-                                        <span class="glyphicon glyphicon-remove"></span>
-                                    </a>
-                                    <a *ngIf="trashaktive && isRole('admin')" (click)="rejectStudy(study._VALUE)" href="" title="Restore study">
-                                        <span class="glyphicon glyphicon-repeat"></span>
-                                    </a>
+
                                     <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && !(study._VALUE.series)" (click)="$event.preventDefault();querySeries(study._VALUE,0)" href="" title="Show Series">&#9658;</a>
                                     <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && study._VALUE.series" (click)="$event.preventDefault();study._VALUE.series = null" href="" title="Hide Series">&#9660;</a>
                                 </div>
@@ -745,7 +767,7 @@
                                 <div style="width:5.2%" class="td_cell hover_cell">
                                     <div [innerHtml]="(study._VALUE.attrs['00080061'].Value) || '&nbsp;'" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
                                 </div>
-                                <div style="width:18%" class="td_cell txt hover_cell" ><div md-tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div style="width:17%" class="td_cell txt hover_cell" ><div md-tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div style="width:3%" class="td_cell txt hover_cell"  ><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" md-tooltip="{{study._VALUE.attrs['00201206'].Value[0]}}">{{(study._VALUE.attrs['00201206'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div style="width:3%" class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" md-tooltip="{{study._VALUE.attrs['00201208'].Value[0]}}">{{(study._VALUE.attrs['00201208'].Value[0]) || '&nbsp;'}}</div></div>
                             </div>
@@ -756,22 +778,36 @@
                                     </div>
                                 </div>
                                 <div class="repeat2" *ngFor="let series of study._VALUE.series | getKey" contextmenu-item="series" >
-                                    <div class="td_cell colcell" [innerHtml]="series._VALUE.offset+1+'.'"> </div>
                                     <div class="subblock">
+                                        <div class="more_menu_content">
+                                            <div class="more_menu_study">
+                                                <div class="td_cell colcell" [innerHtml]="series._VALUE.offset+1+'.'"> </div>
+                                                <div class="exeq_buttons" >
+                                                    <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event)"></div>
+                                                    <a class="hiddenbuttons" (click)="exportSeries(series._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export Series">
+                                                        <span class="glyphicon glyphicon-export"></span>
+                                                    </a>
+                                                    <a class="hiddenbuttons" [hidden]="trashaktive || !isRole('admin') ||  series._VALUE.attrs['00201209'].Value[0] === 0" (click)="rejectSeries(series._VALUE)" href="" title="Reject Series">
+                                                        <span  class="glyphicon glyphicon-trash"></span>
+                                                    </a>
+                                                    <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="rejectSeries(series._VALUE)" href="" title="Restore Series">
+                                                        <span class="glyphicon glyphicon-repeat"></span>
+                                                    </a>
+                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('series', series._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
+                                                        <span class="glyphicon glyphicon-ok"></span>
+                                                    </a>
+                                                    <!--<a class="hiddenbuttons" ng-click="storageCommitmen('series', series)" ng-show="user.isRole('admin')" href="" title="Verify storage commitmen">-->
+                                                        <!--<span class="glyphicon glyphicon-ok"></span>-->
+                                                    <!--</a>-->
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="tr_row repeat2_hover" (click)='select(series._VALUE,"series", {patientkey:patient._KEY,"study._KEY":study._KEY, "serieskey":series._KEY})' [ngClass]="{selected: series._VALUE.selected}">
                                             <div class="td_cell table_btn">
                                                 <a (click)="$event.preventDefault();series._VALUE.showAttributes = !series._VALUE.showAttributes" href="" title="Show Attributes">
                                                     <span class="glyphicon glyphicon-th-list"></span>
                                                 </a>
-                                                <a (click)="exportSeries(series._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export Series">
-                                                    <span class="glyphicon glyphicon-export"></span>
-                                                </a>
-                                                <a [hidden]="trashaktive || !isRole('admin') ||  series._VALUE.attrs['00201209'].Value[0] === 0" (click)="rejectSeries(series._VALUE)" href="" title="Reject Series">
-                                                    <span  class="glyphicon glyphicon-trash"></span>
-                                                </a>
-                                                <a *ngIf="trashaktive && isRole('admin')" (click)="rejectSeries(series._VALUE)" href="" title="Restore Series">
-                                                    <span class="glyphicon glyphicon-repeat"></span>
-                                                </a>
+
                                                 <a *ngIf="!series._VALUE.instances" (click)="$event.preventDefault();queryInstances(series._VALUE,0)" href="" title="Show Instances">&#9658;</a>
                                                 <a *ngIf="series._VALUE.instances" (click)="$event.preventDefault();series._VALUE.instances = null" href="" title="Hide Instances">&#9660;</a>
                                             </div>
@@ -790,7 +826,41 @@
                                             </div>
                                         </div>
                                         <div class="repeat3" *ngFor="let instance of series._VALUE.instances | getKey" contextmenu-item="instance">
-                                            <div class="td_cell colcell" [innerHtml]="instance._VALUE.offset+1+'.'"> </div>
+                                            <div class="more_menu_content">
+                                                <div class="more_menu_study">
+                                                    <div class="td_cell colcell" [innerHtml]="instance._VALUE.offset+1+'.'"> </div>
+                                                    <div class="exeq_buttons">
+                                                        <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event)"></div>
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export instance">
+                                                            <span class="glyphicon glyphicon-export"></span>
+                                                        </a>
+                                                        <a class="hiddenbuttons" [hidden]="trashaktive || !isRole('admin')" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" href="" title="Reject instance">
+                                                            <span  class="glyphicon glyphicon-trash"></span>
+                                                        </a>
+                                                        <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" href="" title="Restore instance">
+                                                            <span class="glyphicon glyphicon-repeat"></span>
+                                                        </a>
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('instance', instance._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
+                                                            <span class="glyphicon glyphicon-ok"></span>
+                                                        </a>
+                                                        <a class="hiddenbuttons" href="{{downloadURL(instance._VALUE)}}" title="Download Uncompressed DICOM Object">
+                                                            <span class="glyphicon glyphicon-save"></span>
+                                                        </a>
+                                                        <a class="hiddenbuttons" href="{{downloadURL(instance._VALUE, '*')}}" title="Download DICOM Object">
+                                                            <span class="glyphicon glyphicon-download-alt"></span>
+                                                        </a>
+                                                        <a class="hiddenbuttons" [hidden]="instance._VALUE.views.length > 1" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" title="View DICOM Object">
+                                                            <span class="glyphicon glyphicon-picture"></span>
+                                                        </a>
+                                                        <span class="selecta hiddenbuttons" *ngIf="instance._VALUE.views.length > 1" href="" title="View DICOM Object">
+                                                            <span class="glyphicon glyphicon-picture" (click)="select_show = !select_show"></span>
+                                                            <div *ngIf="select_show" class="select_block" (click)="select_show = false">
+                                                                <a [(ngModel)]="instance._VALUE.view" *ngFor="let value of instance._VALUE.views" (click)="(instance._VALUE.view=value);viewInstance(instance._VALUE)">{{value}}</a>
+                                                            </div>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="subblock">
                                                 <div class="tr_row repeat3_hover" (click)='select(instance._VALUE,"instance", {patientkey:patient._KEY,"study._KEY":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY})' [ngClass]="{selected: instance._VALUE.selected}" >
                                                     <div class="td_cell table_btn">
@@ -801,30 +871,7 @@
                                                         <a (click)="$event.preventDefault();toggleAttributs(series._VALUE.instances[instance._KEY],'fileattributs')" href="" title="Show Attributes from file" [ngClass]="{active:instance._VALUE.showFileAttributes}">
                                                             <span class="glyphicon glyphicon-list"></span>
                                                         </a>
-                                                        <a (click)="exportInstance(instance._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export instance">
-                                                            <span class="glyphicon glyphicon-export"></span>
-                                                        </a>
-                                                        <a [hidden]="trashaktive || !isRole('admin')" (click)="rejectInstance(instance._VALUE)" href="" title="Reject instance">
-                                                            <span  class="glyphicon glyphicon-trash"></span>
-                                                        </a>
-                                                        <a *ngIf="trashaktive && isRole('admin')" (click)="rejectInstance(instance._VALUE)" href="" title="Restore instance">
-                                                            <span class="glyphicon glyphicon-repeat"></span>
-                                                        </a>
-                                                        <a href="{{downloadURL(instance._VALUE)}}" title="Download Uncompressed DICOM Object">
-                                                            <span class="glyphicon glyphicon-save"></span>
-                                                        </a>
-                                                        <a href="{{downloadURL(instance._VALUE, '*')}}" title="Download DICOM Object">
-                                                            <span class="glyphicon glyphicon-download-alt"></span>
-                                                        </a>
-                                                        <a [hidden]="instance._VALUE.views.length > 1" (click)="viewInstance(instance._VALUE)" href="" title="View DICOM Object">
-                                                            <span class="glyphicon glyphicon-picture"></span>
-                                                        </a>
-                                                        <span class="selecta" *ngIf="instance._VALUE.views.length > 1" href="" title="View DICOM Object">
-                                                            <span class="glyphicon glyphicon-picture" (click)="select_show = !select_show"></span>
-                                                            <div *ngIf="select_show" class="select_block" (click)="select_show = false">
-                                                                <a [(ngModel)]="instance._VALUE.view" *ngFor="let value of instance._VALUE.views" (click)="(instance._VALUE.view=value);viewInstance(instance._VALUE)">{{value}}</a>
-                                                            </div>
-                                                        </span>
+
                                                     </div>
                                                     <div class="td_cell txt hover_cell"  ><div *ngIf="instance._VALUE.attrs['00080016'] && instance._VALUE.attrs['00080016'].Value && instance._VALUE.attrs['00080016'].Value[0]" md-tooltip="{{instance._VALUE.attrs['00080016'].Value[0]}}" >{{(instance._VALUE.attrs['00080016'].Value[0]) || '&nbsp;'}}</div></div>
                                                     <div class="td_cell txt hover_cell"  ><div *ngIf="instance._VALUE.attrs['00200013'] && instance._VALUE.attrs['00200013'].Value && instance._VALUE.attrs['00200013'].Value[0]" md-tooltip="{{instance._VALUE.attrs['00200013'].Value[0]}}" >{{(instance._VALUE.attrs['00200013'].Value[0]) || '&nbsp;'}}</div></div>

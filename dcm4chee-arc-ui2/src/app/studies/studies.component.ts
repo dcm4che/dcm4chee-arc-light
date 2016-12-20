@@ -1294,7 +1294,103 @@ export class StudiesComponent{
                     if (retries)
                         $this.initAttributeFilter(entity, retries-1);
             });
-    }
+    };
+    storageCommitmen(mode, object){
+        console.log("object",object);
+        let url = '../aets/'+this.aet+'/rs/studies/';
+        switch(mode) {
+            case "study":
+                url += object.attrs["0020000D"].Value[0]+"/stgcmt";
+                break;
+            case "series":
+                url += object.attrs["0020000D"].Value[0]+"/series/"+object.attrs["0020000E"].Value[0]+"/stgcmt";
+                break;
+            default:
+            case "instance":
+                url += object.attrs["0020000D"].Value[0]+"/series/"+object.attrs["0020000E"].Value[0]+"/instances/"+object.attrs["00080018"].Value[0]+"/stgcmt";
+                break;
+        }
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+            this.$http.post(
+                url,
+                {},
+                headers
+            )
+            .map(response => response.json())
+            .subscribe(
+            (response) => {
+                let data = response;
+
+                let faild = (data[0]["00081198"] && data[0]["00081198"].Value) ? data[0]["00081198"].Value.length : 0;
+                let success = (data[0]["00081199"] && data[0]["00081199"].Value) ? data[0]["00081199"].Value.length : 0;
+                let msgStatus = "Info";
+                if(faild > 0 && success > 0){
+                    msgStatus = "Warning";
+                    // DeviceService.msg(this, {
+                    //     "title": msgStatus,
+                    //     "text": faild+' of '+success+' faild!',
+                    //     "status": msgStatus.toLowerCase()
+                    // });
+                    console.log(faild+' of '+(success+faild)+' faild!');
+                }
+                if(faild > 0 && success === 0){
+                    msgStatus = "Error";
+                    // DeviceService.msg(this, {
+                    //     "title": msgStatus,
+                    //     "text": "all "+ faild+ "faild!",
+                    //     "status": msgStatus.toLowerCase()
+                    // });
+                    console.log("all "+ faild+ "faild!");
+                }
+                if(faild === 0){
+                    console.log(success+ " verified successfully, 0 faild!");
+                    // DeviceService.msg(this, {
+                    //     "title": msgStatus,
+                    //     "text": success+ " verified successfully, 0 faild!",
+                    //     "status": msgStatus.toLowerCase()
+                    // });
+                }
+            },
+            (response) => {
+                // DeviceService.msg(this, {
+                //     // "title": "Error",
+                //     // "text": "Error saving patient!",
+                //     // "status": "error"
+                //     "title": "Error "+response.status,
+                //     "text": response.data.errorMessage,
+                //     "status": "error"
+                // });
+            }
+        );
+    };
+    showMoreFunction(e){
+        let duration = 200;
+        let visibleElements = $(e.target).siblings(".hiddenbuttons").length-$(e.target).siblings(".hiddenbuttons.ng-hide").length;
+        let variationvalue = visibleElements * 26;
+        let element = $(e.target).closest(".more_menu_study");
+
+        if(element.hasClass("open")){
+            element.animate({
+                right: "-="+variationvalue
+            }, duration, function() {
+                element.removeClass("open");
+            });
+            // setTimeout(function(){
+            //     $(".more_menu_study.open").each(function(i,m){
+            //         $(m).css("right","-195px").removeClass("open");
+            //     });
+            // },duration+10);
+        }else{
+            $(".more_menu_study.open").each(function(i,m){
+                $(m).css("right","-195px").removeClass("open");
+            });
+            element.animate({
+                right: "+="+variationvalue
+            }, duration, function() {
+                element.addClass("open");
+            });
+        }
+    };
     initExporters(retries) {
        this.$http.get("../export")
             .map(response => response.json())

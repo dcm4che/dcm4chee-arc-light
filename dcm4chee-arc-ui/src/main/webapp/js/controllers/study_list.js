@@ -1117,7 +1117,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     msgStatus = "Warning";
                     DeviceService.msg($scope, {
                         "title": msgStatus,
-                        "text": faild+' of '+success+' faild!',
+                        "text": faild+' of '+(success+faild)+' faild!',
                         "status": msgStatus.toLowerCase()
                     });
                 }
@@ -1125,7 +1125,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                     msgStatus = "Error";
                     DeviceService.msg($scope, {
                         "title": msgStatus,
-                        "text": "all "+ faild+ "faild!",
+                        "text": "all "+ faild+ " faild!",
                         "status": msgStatus.toLowerCase()
                     });
                 }

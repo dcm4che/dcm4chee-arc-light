@@ -23,7 +23,8 @@
         "../node_modules/primeng/resources/themes/omega/theme.css",
         "../node_modules/font-awesome/css/font-awesome.min.css",
         "styles.scss",
-        "assets/scss/old_style.scss"
+        "assets/scss/old_style.scss",
+        "assets/scss/old_mobile.scss"
       ],
       "scripts": [
         "../node_modules/hammerjs/hammer.min.js",

@@ -187,7 +187,7 @@ ul.nav#mainmenu {
 	    float: right;
 	    margin-top: 20px;
 	}
-	
+
 	.btn-group{
 		.btn{
 			background:white;
@@ -207,8 +207,8 @@ ul.nav#mainmenu {
 	float: left;
 	width: 100%;
 }
-/*Disable device Name field until the functionality is not implemented, 
-so that if the device name is changed, the application shuld delete the 
+/*Disable device Name field until the functionality is not implemented,
+so that if the device name is changed, the application shuld delete the
 device and create an other one with the new name*/
 
 /* #dicomDeviceName{
@@ -288,6 +288,82 @@ device and create an other one with the new name*/
 			}
 		}
 	}
+}
+.repeat0 > .more_menu_content > .more_menu_study{
+  box-shadow:none;
+}
+.more_menu_content{
+  display: block;
+  float: left;
+  height: 26px;
+  left: -122px;
+  overflow: hidden;
+  position: absolute;
+  width: 177px;
+  .more_menu_study{
+    background: rgba(231, 231, 231, 0.31) none repeat scroll 0 0;
+    box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.18) inset;
+    float: left;
+    height: 26px;
+    position: absolute;
+    right: -195px;
+    width: 250px;
+    & > .colcell > .table_btn {
+      display: block;
+      float: left;
+      height: 100%;
+      text-align: center;
+      vertical-align: middle;
+      width: 100%;
+    }
+    .colcell{
+      display: block;
+      float: left !important;
+      height: 26px !important;
+      width: 26px !important;
+    }
+    .exeq_buttons{
+
+      float: left;
+      height: 25px;
+      //padding-left: 25px;
+      width: 180px;
+
+      &:hover{
+        cursor: pointer;
+      }
+      &>a{
+        color: black;
+        display: block;
+        float: left;
+        height: 26px;
+        line-height: 26px;
+        text-align: center;
+        width: 26px;
+      }
+      &>div{
+        width:33%;
+        font-size: 22px;
+        padding-top:4px;
+        text-align: center;
+        color:#878A84;
+        &:hover{
+          color:#547CD0;
+        }
+        &.morefunction {
+          background-image: url("../img/ic_more_vert_black_24.png");
+          background-position: 2px center;
+          background-repeat: no-repeat;
+          background-size: 23px auto;
+          display: block;
+          float: left;
+          height: 26px;
+          width: 26px;
+        }
+      }
+    }
+
+  }
 }
 #add_dropdowns{
 	overflow:hidden;
@@ -438,7 +514,7 @@ device and create an other one with the new name*/
     		transition: width 0.1s;
 		}
     	h4{
-    		// float: left; 
+    		// float: left;
     		display: inline-block;
     		// width: 90%;
     	}
@@ -680,13 +756,14 @@ table{
 			& > .tr_row{
 			    .th{
 			    	height: 30px;
-			    	line-height: 30px; 
+			    	line-height: 30px;
 			    	float: left;
 				    //height: 25px;
 				    // line-height: 25px;
 				    color: white;
 				    padding-left: 7px;
 				    width: 10%;
+          overflow:hidden;
 				    // border-bottom: 1px solid rgb(221, 221, 221);
 				    border-right: 1px solid rgb(221, 221, 221);
 			    }
@@ -703,13 +780,24 @@ table{
 			&.header2, &.header5 {
 				& > .tr_row{
 					// top:29px;
-					// top:0px;/		
-					padding-left: 3%;	
+					// top:0px;/
+					padding-left: 3%;
 					.th:first-child{
-						border:none;
-					}
-				}
-			}
+            border:none;
+          }
+        }
+      }
+      &.header2{
+        & > .tr_row{
+          .th:first-child{
+            margin-left:1%;
+          }
+
+          .th:last-child{
+            border-right:0;
+          }
+        }
+      }
 			&.header3 {
 				& > .tr_row{
 					// top:58px;
@@ -800,7 +888,7 @@ table{
 		    }
 		}
 	}
-} 
+}
 .tbody {
     border: 1px solid #ddd;
     float: left;
@@ -813,7 +901,7 @@ table{
 .repeat0{
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
-    float: left;
+  float: right;
     width: 100%;
 	position:relative;
 	min-height:10px;
@@ -859,7 +947,7 @@ table{
 				    float: left;
 				    height: 27px;
 				    text-align: center;
-				    width: 20%;
+          width: 40%;
 
 				    &:hover{
 						background:#C2C2C2;
@@ -887,11 +975,11 @@ table{
 				    color: black;
 				}
 				&:first-child{
-					padding-left:16px;
-				}
-			}
-		}
-	}
+          padding-left:54px;
+        }
+      }
+    }
+  }
 	.repeat1 {
 		// box-shadow: 0px 0px 10px 5px rgba(55, 54, 54, 0.47) inset;
 		  -moz-box-shadow: 0 0 10px 5px rgba(55, 54, 54, 0.20) inset;
@@ -927,7 +1015,12 @@ table{
 				}
 			}
 		}
-		.tbody{
+    & > .tbody{
+      & > .tr_row{
+        position: relative;
+      }
+    }
+    .tbody{
 			float: left;
     		width: 100%;
     		border:none;
@@ -945,7 +1038,7 @@ table{
 		    }
 		}
 		.colcell{
-			width: 3%;
+      width: 2%;
 			float:left;
 			text-align: center;
 			height: 25px;
@@ -957,11 +1050,11 @@ table{
 		    height: 25px;
 		    line-height: 25px;
 		    padding-left: 0;
-		    width: 7%;
-		}
+      width: 8%;
+    }
 		.subblock {
 		    display: inline-block;
-		    float: left;
+      float: right;
 		    width: 97%;
 		    // border-left:1px solid #aaa;
 		    // border-bottom:1px solid #aaa;
@@ -1057,6 +1150,7 @@ table{
 		    	}
 		    }
 			.repeat2{
+        position:relative;
 				.td_cell{
 					&.colcell{
 						width: 3%;
@@ -1071,7 +1165,7 @@ table{
 					.tr_row > .td_cell{
 					    font-weight: bold;
 					    height: 25px;
-					    line-height: 24px;
+            line-height: 25px;
 					    padding-left: 7px;
 					    border-bottom:1px solid #aaa;
 					    &.attribute_list{
@@ -1100,8 +1194,9 @@ table{
 					    display: block;
 					    float: left;
 					    width: 100%;
+            position: relative;
 						.td_cell{
-						
+
 							&.colcell{
 								width: 3%;
 								height: 25px;
@@ -1161,7 +1256,7 @@ table{
 									border-bottom: 1px solid #aaa;
 									color: black;
 									width:14.5%;
-									height: 26px;
+                  height: 25px;
 									&.attribute_list{
 										width: 100%;
 										height: auto;
@@ -1204,16 +1299,16 @@ table{
 
 }
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-  font-style:italic; 
+  font-style:italic;
 }
 ::-moz-placeholder { /* Firefox 19+ */
-  font-style:italic; 
+  font-style:italic;
 }
 :-ms-input-placeholder { /* IE 10+ */
-  font-style:italic; 
+  font-style:italic;
 }
 :-moz-placeholder { /* Firefox 18- */
-  font-style:italic; 
+  font-style:italic;
 }
 
 .arrows{
@@ -1919,7 +2014,7 @@ div[tooltip]{
 }
 .hover, .hover .td_cell, .hover .td_cell a, .hover .tr_row, .hover .th .table_btn{
 	// background:$hoverBlue !important;
-	// color:white !important; 
+	// color:white !important;
 	display:block;
 	// display: table;
  //    width: 100%;
@@ -1976,7 +2071,7 @@ div[tooltip]{
 	}
 	.monitor{
 		// code{
-		// 	color:#303030;	
+		// 	color:#303030;
 		// 	th {
 		//     	padding: 2px 40px 2px 0;
 		//     	border-bottom: 1px solid black;
@@ -2347,7 +2442,7 @@ input.ng-invalid, .has-error .form-control{
 				    margin-top: 0px;
 				    color: #777;
 				}
-		    } 
+		    }
 		    & > .schema-form-textarea{
 		    	float: left;
 			    margin: 0;
@@ -2742,7 +2837,7 @@ input.ng-invalid, .has-error .form-control{
 							// margin: 0;
 				    	}
 				    }
-				} 
+				}
 			}
 
 		}
@@ -2902,9 +2997,9 @@ input.ng-invalid, .has-error .form-control{
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4f88b0', endColorstr='#376e95',GradientType=0 ) !important;
     color: white !important;
 }
- .repeat0 .thead .tr_row.selected, 
- .repeat2 .subblock .tr_row.selected .td_cell, 
- .repeat2 .subblock .tr_row.selected .td_cell.table_btn, 
+ .repeat0 .thead .tr_row.selected,
+ .repeat2 .subblock .tr_row.selected .td_cell,
+ .repeat2 .subblock .tr_row.selected .td_cell.table_btn,
  .repeat3 .subblock .tr_row.selected .td_cell,
  .repeat3 .subblock .tr_row.selected .td_cell.table_btn {
 	background: #4f88b0;
@@ -3094,7 +3189,7 @@ input.ng-invalid, .has-error .form-control{
 			&> div {
 			    padding: 1px 15px;
 			}
-		} 
+		}
 
 	}
 }

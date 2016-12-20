@@ -1,23 +1,23 @@
 @media screen and (max-width: 1710px) {
-	.deviceedit_block {
-		.active_border.col-md-8{
-			width: 73%;
-		}
-		bootstrap-decorator {
-			& > .schema-form-array {
-					& > ol{
-						& > li.list-group-item sf-decorator .schema-form-text .input{
-							width: 44%;
-						} 
-					}
-				}
-			}
-	}
-	.row.filter{
-		label{
-			font-size: 12px;
-		}
-	}
+  .deviceedit_block {
+    .active_border.col-md-8{
+      width: 73%;
+    }
+    bootstrap-decorator {
+      & > .schema-form-array {
+        & > ol{
+          & > li.list-group-item sf-decorator .schema-form-text .input{
+            width: 44%;
+          }
+        }
+      }
+    }
+  }
+  .row.filter{
+    label{
+      font-size: 12px;
+    }
+  }
 }
 
 
