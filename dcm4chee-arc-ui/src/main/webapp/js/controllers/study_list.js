@@ -1108,17 +1108,13 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         }).then(
             function successCallback(response) {
-                console.log("response",response);
                 var data = response.data;
 
                 var faild = (data[0]["00081198"] && data[0]["00081198"].Value) ? data[0]["00081198"].Value.length : 0;
                 var success = (data[0]["00081199"] && data[0]["00081199"].Value) ? data[0]["00081199"].Value.length : 0;
-                // var modeString = mode.charAt(0).toUpperCase() + mode.slice(1);
-                console.log("data",data);
                 var msgStatus = "Info";
                 if(faild > 0 && success > 0){
                     msgStatus = "Warning";
-                    // var msgTest = $compile('<a ng-click="generateCsvFromFaildVerification()">test</a>')($scope);
                     DeviceService.msg($scope, {
                         "title": msgStatus,
                         "text": faild+' of '+success+' faild!',
