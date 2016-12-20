@@ -98,6 +98,10 @@ public class QueryServiceEJB {
         QSeries.series.metadataScheduledUpdateTime,
         QSeries.series.instancePurgeTime,
         QSeries.series.instancePurgeState,
+        QMetadata.metadata.storageID,
+        QMetadata.metadata.storagePath,
+        QMetadata.metadata.digest,
+        QMetadata.metadata.size,
         QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -149,6 +153,7 @@ public class QueryServiceEJB {
                 .join(QSeries.series.attributesBlob, QueryBuilder.seriesAttributesBlob)
                 .leftJoin(QSeries.series.queryAttributes, QSeriesQueryAttributes.seriesQueryAttributes)
                 .on(QSeriesQueryAttributes.seriesQueryAttributes.viewID.eq(viewID))
+                .leftJoin(QSeries.series.metadata, QMetadata.metadata)
                 .join(QSeries.series.study, QStudy.study)
                 .join(QStudy.study.attributesBlob, QueryBuilder.studyAttributesBlob)
                 .leftJoin(QStudy.study.queryAttributes, QStudyQueryAttributes.studyQueryAttributes)
@@ -253,6 +258,17 @@ public class QueryServiceEJB {
                     result.get(QSeries.series.instancePurgeTime));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceRecordPurgeStateOfSeries, VR.CS,
                 result.get(QSeries.series.instancePurgeState).name());
+        if (result.get(QMetadata.metadata.storageID) != null) {
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageID, VR.LO,
+                    result.get(QMetadata.metadata.storageID));
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStoragePath, VR.LO,
+                    StringUtils.split(result.get(QMetadata.metadata.storagePath), '/'));
+            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectSize, VR.UL,
+                    result.get(QMetadata.metadata.size).intValue());
+            if (result.get(QMetadata.metadata.digest) != null)
+                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
+                        result.get(QMetadata.metadata.digest));
+        }
         return attrs;
     }
 

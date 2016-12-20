@@ -57,6 +57,7 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -279,6 +280,7 @@ class InstanceQuery extends AbstractQuery {
     }
 
     private Attributes nextMatchFromMetadata() throws IOException {
+        QueryRetrieveView qrView = context.getQueryParam().getQueryRetrieveView();
         ZipEntry entry;
         do {
             while ((entry = seriesMetadataStream.getNextEntry()) != null) {
@@ -287,7 +289,10 @@ class InstanceQuery extends AbstractQuery {
                             new InputStreamReader(seriesMetadataStream, "UTF-8")));
                     jsonReader.setSkipBulkDataURI(true);
                     Attributes metadata = jsonReader.readDataset(null);
-                    if (metadata.matches(instQueryKeys, false, false)) {
+                    if (!qrView.hideRejectedInstance(
+                            metadata.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence))
+                            && !qrView.hideRejectionNote(metadata)
+                            && metadata.matches(instQueryKeys, false, false)) {
                         seriesMetadataStream.closeEntry();
                         Attributes instAtts = new Attributes(metadata, instTags);
                         Attributes.unifyCharacterSets(seriesAttrs, instAtts);

@@ -396,6 +396,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private void addLocationsFromMetadata(RetrieveContext ctx, Tuple tuple)
             throws IOException {
+        QueryRetrieveView qrView = ctx.getQueryRetrieveView();
         Storage storage = getStorage(tuple.get(QMetadata.metadata.storageID), ctx);
         try (InputStream in = storage.openInputStream(
                 createReadContext(storage, tuple.get(QMetadata.metadata.storagePath), null))) {
@@ -403,7 +404,11 @@ public class RetrieveServiceImpl implements RetrieveService {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (isEmptyOrContains(ctx.getSopInstanceUIDs(), entry.getName())) {
-                    ctx.getMatches().add(instanceLocationsFromMetadata(parseJSON(zip, !ctx.isRetrieveMetadata())));
+                    Attributes metadata = parseJSON(zip, !ctx.isRetrieveMetadata());
+                    if (!qrView.hideRejectedInstance(
+                            metadata.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence))
+                            && !qrView.hideRejectionNote(metadata))
+                        ctx.getMatches().add(instanceLocationsFromMetadata(metadata));
                 }
                 zip.closeEntry();
             }
