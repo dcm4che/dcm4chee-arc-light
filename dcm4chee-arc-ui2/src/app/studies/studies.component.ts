@@ -8,7 +8,7 @@ import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import * as _ from "lodash";
 import {MessagingComponent} from "../widgets/messaging/messaging.component";
 import {SelectItem} from "primeng/components/common/api";
-import {ViewChild} from "@angular/core/src/metadata/di";
+import { ViewChildren} from "@angular/core/src/metadata/di";
 import {MdDialogConfig, MdDialog, MdDialogRef} from "@angular/material";
 import {EditPatientComponent} from "../widgets/dialogs/edit-patient/edit-patient.component";
 import {map} from "rxjs/operator/map";
@@ -19,6 +19,8 @@ import {map} from "rxjs/operator/map";
     styleUrls: ['./studies.component.css']
 })
 export class StudiesComponent{
+
+    // @ViewChildren(MessagingComponent) msg;
 
     orderby = Globalvar.ORDERBY;
     limit = 20;
@@ -60,6 +62,7 @@ export class StudiesComponent{
     clipBoardNotEmpty(){
         return false; //TODO
     }
+
     clearForm(){
         _.forEach(this.filter,(m,i)=>{
             if(i != "orderby"){
@@ -175,8 +178,6 @@ export class StudiesComponent{
     };
 
     dialogRef: MdDialogRef<any>;
-
-    @ViewChild(MessagingComponent) msg;
 
     constructor(public $http: Http, public service:StudiesService, public mainservice:AppService,public cfpLoadingBar:SlimLoadingBarService, public messaging:MessagingComponent, public viewContainerRef: ViewContainerRef ,public dialog: MdDialog, public config: MdDialogConfig,) {
         // $('.clockpicker').clockpicker()
@@ -307,6 +308,7 @@ export class StudiesComponent{
             });
         });
     }
+
     // initAETs(retries) {
     //
     //     this.$http.get("/dcm4chee-arc/aets")
@@ -1310,6 +1312,12 @@ export class StudiesComponent{
                 url += object.attrs["0020000D"].Value[0]+"/series/"+object.attrs["0020000E"].Value[0]+"/instances/"+object.attrs["00080018"].Value[0]+"/stgcmt";
                 break;
         }
+        this.mainservice.setMsg({
+            "title": "Warning",
+            "text": "Attribute already exists!",
+            "status": "warning"
+        });
+        let $this = this;
         let headers = new Headers({ 'Content-Type': 'application/json' });
             this.$http.post(
                 url,
@@ -1326,11 +1334,11 @@ export class StudiesComponent{
                 let msgStatus = "Info";
                 if(faild > 0 && success > 0){
                     msgStatus = "Warning";
-                    // DeviceService.msg(this, {
-                    //     "title": msgStatus,
-                    //     "text": faild+' of '+success+' faild!',
-                    //     "status": msgStatus.toLowerCase()
-                    // });
+/*                    $this.msg.setMsg({
+                        "title": msgStatus,
+                        "text": faild+' of '+(success+faild)+' faild!',
+                        "status": msgStatus.toLowerCase()
+                    });*/
                     console.log(faild+' of '+(success+faild)+' faild!');
                 }
                 if(faild > 0 && success === 0){

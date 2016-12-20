@@ -4,12 +4,14 @@ import {Http} from "@angular/http";
 import {Observer, Observable} from "rxjs";
 import {User} from "./models/user";
 import * as _ from "lodash";
+import {ViewChildren, ViewChild} from "@angular/core/src/metadata/di";
 
 @Injectable()
 export class AppService implements OnInit{
     private _user:User;
+    // @ViewChild(MessagingComponent) msg;
 
-    constructor(public $http:Http) {
+    constructor(public $http:Http, public msg:MessagingComponent) {
     }
     private _isRole = function(role){
         if(this.user){
@@ -31,6 +33,10 @@ export class AppService implements OnInit{
         }
     };
 
+    setMsg(msg){
+        console.log("in appservice",msg);
+        this.msg.setMsg(msg);
+    }
     getUserInfo():Observable<User>{
         return this.$http.get("/dcm4chee-arc/ui/rs/realm")
             .map((response) => response.json());

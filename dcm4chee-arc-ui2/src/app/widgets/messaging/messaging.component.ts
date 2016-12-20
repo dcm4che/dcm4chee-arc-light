@@ -14,7 +14,7 @@ import {Component} from '@angular/core';
 })
 export class MessagingComponent{
     private msgTimeout = 10000;
-    private msg:Array<any> = [];
+    public msg:Array<any> = [];
 
     setMsg(msg:any){
         let timeout = msg.timeout || this.msgTimeout;
