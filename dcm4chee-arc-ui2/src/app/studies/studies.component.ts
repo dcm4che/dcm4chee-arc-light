@@ -519,19 +519,19 @@ export class StudiesComponent{
                                 // }
                                 // fireRightQuery();
                             }
-                            // DeviceService.msg($scope, {
-                            //     "title": "Info",
-                            //     "text": "Study saved successfully!",
-                            //     "status": "info"
-                            // });
+                            this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Study saved successfully!",
+                                "status": "info"
+                            });
                         },
                         (response) => {
 
-                            // DeviceService.msg($scope, {
-                            //     "title": "Error "+response.status,
-                            //     "text": response.data.errorMessage,
-                            //     "status": "error"
-                            // });
+                            this.mainservice.setMessage( {
+                                "title": "Error "+response.status,
+                                "text": response.data.errorMessage,
+                                "status": "error"
+                            });
                             console.log("response",response);
                         }
                     );
@@ -596,21 +596,21 @@ export class StudiesComponent{
                         // $this.studies.pop();
                     }
                 } else {
-                    // DeviceService.msg({
-                    //     "title": "Info",
-                    //     "text": "No matching Modality Worklist Entries found!",
-                    //     "status": "info"
-                    // });
+                    this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "No matching Modality Worklist Entries found!",
+                        "status": "info"
+                    });
                 }
                 // console.log("$this.patients",$this.patients);
                 $this.cfpLoadingBar.complete();
             },
             (err) => {
-                // DeviceService.msg($this, {
-                //     "title": "Error",
-                //     "text": "Error saving study!",
-                //     "status": "error"
-                // });
+                this.mainservice.setMessage({
+                    "title": "Error",
+                    "text": "Error saving study!",
+                    "status": "error"
+                });
             }
         );
     };
@@ -647,11 +647,11 @@ export class StudiesComponent{
         ).subscribe(function (res) {
             if(res){
                 if(res.length === 0){
-                    // DeviceService.msg(this, {
-                    //     "title": "Info",
-                    //     "text": "No matching series found!",
-                    //     "status": "info"
-                    // });
+                    this.mainservice.setMessage( {
+                        "title": "Info",
+                        "text": "No matching series found!",
+                        "status": "info"
+                    });
                     console.log("in reslength 0");
                 }else{
 
@@ -672,11 +672,11 @@ export class StudiesComponent{
                 }
                 $this.cfpLoadingBar.complete();
             }else{
-                // DeviceService.msg(this, {
-                //     "title": "Info",
-                //     "text": "No matching series found!",
-                //     "status": "info"
-                // });
+                this.mainservice.setMessage( {
+                    "title": "Info",
+                    "text": "No matching series found!",
+                    "status": "info"
+                });
             }
         });
     };
@@ -756,7 +756,7 @@ export class StudiesComponent{
                 // StudiesService.trim($this);
                 // console.log("patient",patient);
             }else{
-                // DeviceService.msg($this, {
+                // this.mainservice.setMessage( {
                 //     "title": "Info",
                 //     "text": "No matching Studies found!",
                 //     "status": "info"
@@ -793,7 +793,7 @@ export class StudiesComponent{
                 }
             } else {
                 $this.patients = [];
-                // DeviceService.msg($this, {
+                // this.mainservice.setMessage( {
                 //     "title": "Info",
                 //     "text": "No matching Patients found!",
                 //     "status": "info"
@@ -1312,11 +1312,6 @@ export class StudiesComponent{
                 url += object.attrs["0020000D"].Value[0]+"/series/"+object.attrs["0020000E"].Value[0]+"/instances/"+object.attrs["00080018"].Value[0]+"/stgcmt";
                 break;
         }
-        this.mainservice.setMsg({
-            "title": "Warning",
-            "text": "Attribute already exists!",
-            "status": "warning"
-        });
         let $this = this;
         let headers = new Headers({ 'Content-Type': 'application/json' });
             this.$http.post(
@@ -1334,40 +1329,37 @@ export class StudiesComponent{
                 let msgStatus = "Info";
                 if(faild > 0 && success > 0){
                     msgStatus = "Warning";
-/*                    $this.msg.setMsg({
+                    this.mainservice.setMessage({
                         "title": msgStatus,
                         "text": faild+' of '+(success+faild)+' faild!',
                         "status": msgStatus.toLowerCase()
-                    });*/
+                    });
                     console.log(faild+' of '+(success+faild)+' faild!');
                 }
                 if(faild > 0 && success === 0){
                     msgStatus = "Error";
-                    // DeviceService.msg(this, {
-                    //     "title": msgStatus,
-                    //     "text": "all "+ faild+ "faild!",
-                    //     "status": msgStatus.toLowerCase()
-                    // });
+                    this.mainservice.setMessage( {
+                        "title": msgStatus,
+                        "text": "all "+ faild+ "faild!",
+                        "status": msgStatus.toLowerCase()
+                    });
                     console.log("all "+ faild+ "faild!");
                 }
                 if(faild === 0){
                     console.log(success+ " verified successfully, 0 faild!");
-                    // DeviceService.msg(this, {
-                    //     "title": msgStatus,
-                    //     "text": success+ " verified successfully, 0 faild!",
-                    //     "status": msgStatus.toLowerCase()
-                    // });
+                    this.mainservice.setMessage( {
+                        "title": msgStatus,
+                        "text": success+ " verified successfully, 0 faild!",
+                        "status": msgStatus.toLowerCase()
+                    });
                 }
             },
             (response) => {
-                // DeviceService.msg(this, {
-                //     // "title": "Error",
-                //     // "text": "Error saving patient!",
-                //     // "status": "error"
-                //     "title": "Error "+response.status,
-                //     "text": response.data.errorMessage,
-                //     "status": "error"
-                // });
+                this.mainservice.setMessage( {
+                    "title": "Error "+response.status,
+                    "text": response.data.errorMessage,
+                    "status": "error"
+                });
             }
         );
     };

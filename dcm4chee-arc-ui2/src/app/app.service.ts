@@ -1,7 +1,7 @@
 import {Injectable, OnInit} from '@angular/core';
 import {MessagingComponent} from "./widgets/messaging/messaging.component";
 import {Http} from "@angular/http";
-import {Observer, Observable} from "rxjs";
+import {Observer, Observable, Subject} from "rxjs";
 import {User} from "./models/user";
 import * as _ from "lodash";
 import {ViewChildren, ViewChild} from "@angular/core/src/metadata/di";
@@ -11,7 +11,7 @@ export class AppService implements OnInit{
     private _user:User;
     // @ViewChild(MessagingComponent) msg;
 
-    constructor(public $http:Http, public msg:MessagingComponent) {
+    constructor(public $http:Http) {
     }
     private _isRole = function(role){
         if(this.user){
@@ -33,10 +33,20 @@ export class AppService implements OnInit{
         }
     };
 
-    setMsg(msg){
-        console.log("in appservice",msg);
-        this.msg.setMsg(msg);
+    // Observable string sources
+    private setMessageSource = new Subject<string>();
+
+    // Observable string streams
+    messageSet$ = this.setMessageSource.asObservable();
+    // Service message commands
+    setMessage(msg: any) {
+        this.setMessageSource.next(msg);
     }
+
+    // setMsg(msg){
+    //     console.log("in appservice",msg);
+    //     this.msg.setMsg(msg);
+    // }
     getUserInfo():Observable<User>{
         return this.$http.get("/dcm4chee-arc/ui/rs/realm")
             .map((response) => response.json());

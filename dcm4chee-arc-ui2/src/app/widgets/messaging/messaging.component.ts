@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {AppService} from "../../app.service";
 @Component({
   selector: 'app-messaging',
   template: `
@@ -16,6 +17,12 @@ export class MessagingComponent{
     private msgTimeout = 10000;
     public msg:Array<any> = [];
 
+    constructor(private mainservice:AppService){
+        this.mainservice.messageSet$.subscribe(msg => {
+            console.log("msg in subscribe messagecomponent ",msg);
+            this.setMsg(msg);
+        });
+    }
     setMsg(msg:any){
         let timeout = msg.timeout || this.msgTimeout;
         let isInArray = false;
