@@ -42,7 +42,7 @@ package org.dcm4chee.arc.qido;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import org.apache.http.client.methods.HttpHead;
+import com.querydsl.core.types.dsl.NumberPath;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
@@ -51,6 +51,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.*;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
@@ -399,7 +400,7 @@ public class QidoRS {
             else if (limitInt > 0)
                 query.limit(limitInt);
 
-            query.orderBy(queryAttrs.getOrderSpecifiers(model));
+            query.orderBy(queryAttrs.getOrderSpecifiers(model, limitInt));
 
             query.executeQuery();
             if (!query.hasMoreMatches())
@@ -541,12 +542,15 @@ public class QidoRS {
             }
         }
 
-        public OrderSpecifier<?>[] getOrderSpecifiers(Model model) {
+        public OrderSpecifier<?>[] getOrderSpecifiers(Model model, int limit) {
             if (orderByTags.isEmpty())
                 return EMPTY_ORDER_SPECIFIERS;
-            ArrayList<OrderSpecifier<?>> list = new ArrayList<>(orderByTags.size());
+            ArrayList<OrderSpecifier<?>> list = limit > 0
+                    ? new ArrayList<>(orderByTags.size()+1) : new ArrayList<>(orderByTags.size());
             for (OrderByTag orderByTag : orderByTags)
                 model.addOrderSpecifier(orderByTag.tag, orderByTag.order, list);
+            if (limit > 0)
+                list.add(model.getPk().asc());
             return list.toArray(EMPTY_ORDER_SPECIFIERS);
         }
 
@@ -593,11 +597,11 @@ public class QidoRS {
     }
 
     private enum Model {
-        PATIENT(QueryRetrieveLevel2.PATIENT),
-        STUDY(QueryRetrieveLevel2.STUDY),
-        SERIES(QueryRetrieveLevel2.SERIES),
-        INSTANCE(QueryRetrieveLevel2.IMAGE),
-        MWL(null) {
+        PATIENT(QueryRetrieveLevel2.PATIENT, QPatient.patient.pk),
+        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk),
+        SERIES(QueryRetrieveLevel2.SERIES, QSeries.series.pk),
+        INSTANCE(QueryRetrieveLevel2.IMAGE, QInstance.instance.pk),
+        MWL(null, QMWLItem.mWLItem.pk) {
             @Override
             Query createQuery(QueryService service, QueryContext ctx) {
                 return service.createMWLQuery(ctx);
@@ -610,13 +614,19 @@ public class QidoRS {
         };
 
         final QueryRetrieveLevel2 qrLevel;
+        final NumberPath<Long> pk;
 
-        Model(QueryRetrieveLevel2 qrLevel) {
+        Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk) {
             this.qrLevel = qrLevel;
+            this.pk = pk;
         }
 
         QueryRetrieveLevel2 getQueryRetrieveLevel() {
             return qrLevel;
+        }
+
+        NumberPath<Long> getPk() {
+            return pk;
         }
 
         Query createQuery(QueryService service, QueryContext ctx) {
