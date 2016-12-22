@@ -1,34 +1,11 @@
 version: 1
 
-dn: ou=realms,dc=dcm4che,dc=org
-objectClass: top
+dn: ou=users,dc=dcm4che,dc=org
+ou: users
 objectClass: organizationalUnit
-ou: realms
-
-dn: ou=master,ou=realms,dc=dcm4che,dc=org
 objectClass: top
-objectClass: organizationalUnit
-ou: master
 
-dn: ou=dcm4che,ou=realms,dc=dcm4che,dc=org
-objectClass: top
-objectClass: organizationalUnit
-ou: dcm4che
-
-dn: cn=admin,ou=master,ou=realms,dc=dcm4che,dc=org
-objectClass: groupOfNames
-cn: admin
-member: uid=admin,ou=master,ou=realms,dc=dcm4che,dc=org
-
-dn: uid=admin,ou=master,ou=realms,dc=dcm4che,dc=org
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-cn:: IA==
-sn:: IA==
-uid: admin
-userPassword:: YWRtaW4=
-
-dn: uid=admin,ou=dcm4che,ou=realms,dc=dcm4che,dc=org
+dn: uid=admin,ou=users,dc=dcm4che,dc=org
 uid: admin
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -36,7 +13,7 @@ sn:: IA==
 cn:: IA==
 userPassword:: YWRtaW4=
 
-dn: uid=user,ou=dcm4che,ou=realms,dc=dcm4che,dc=org
+dn: uid=user,ou=users,dc=dcm4che,dc=org
 uid: user
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -44,13 +21,93 @@ sn:: IA==
 cn:: IA==
 userPassword:: dXNlcg==
 
-dn: cn=admin,ou=dcm4che,ou=realms,dc=dcm4che,dc=org
+dn: cn=admin,ou=users,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: admin
-member: uid=admin,ou=dcm4che,ou=realms,dc=dcm4che,dc=org
+member: uid=admin,ou=users,dc=dcm4che,dc=org
 
-dn: cn=user,ou=dcm4che,ou=realms,dc=dcm4che,dc=org
+dn: cn=user,ou=users,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: user
-member: uid=admin,ou=dcm4che,ou=realms,dc=dcm4che,dc=org
-member: uid=user,ou=dcm4che,ou=realms,dc=dcm4che,dc=org
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+member: uid=user,ou=users,dc=dcm4che,dc=org
+
+dn: ou=realm-management,dc=dcm4che,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: realm-management
+
+dn: cn=create-client,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: create-client
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=impersonation,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: impersonation
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-authorization,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-authorization
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-clients,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-clients
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-events,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-events
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-identity-providers,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-identity-providers
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-realm,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-realm
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-users,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-users
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=realm-admin,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: realm-admin
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-authorization,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-authorization
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-clients,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-clients
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-events,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-events
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-identity-providers,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-identity-providers
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-realm,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-realm
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-users,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-users
+member: uid=admin,ou=users,dc=dcm4che,dc=org
