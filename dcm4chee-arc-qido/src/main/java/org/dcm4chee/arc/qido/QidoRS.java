@@ -531,9 +531,9 @@ public class QidoRS {
                 try {
                     for (String field : StringUtils.split(s, ',')) {
                         boolean desc = field.charAt(0) == '-';
-                        int tag = TagUtils.forName(desc ? field.substring(1) : field);
-                        orderByTags.add(new OrderByTag(tag, desc ? Order.DESC : Order.ASC));
-                        if (tag == Tag.PatientName)
+                        int tags[] = TagUtils.parseTagPath(desc ? field.substring(1) : field);
+                        orderByTags.add(new OrderByTag(tags[tags.length-1], desc ? Order.DESC : Order.ASC));
+                        if (tags[0] == Tag.PatientName)
                             orderByPatientName = true;
                     }
                 } catch (IllegalArgumentException e) {
