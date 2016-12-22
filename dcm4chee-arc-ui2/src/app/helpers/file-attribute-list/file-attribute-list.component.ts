@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import {Input} from "@angular/core/src/metadata/directives";
 import {Http} from "@angular/http";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
-import {AppService} from "../app.service";
 import * as _ from "lodash";
+import {AppService} from "../../app.service";
 
 @Component({
   selector: 'file-attribute-list',
-  templateUrl: './file-attribute-list.component.html',
-  styleUrls: ['./file-attribute-list.component.css']
+  templateUrl: './file-attribute-list.component.html'
 })
 export class FileAttributeListComponent implements OnInit {
 
@@ -46,7 +45,12 @@ export class FileAttributeListComponent implements OnInit {
                 $this.cfpLoadingBar.complete();
             }, (err) => {
                 // vex.dialog.alert("Error loading Attributes!");
-                console.error("error loading file attribute", err);
+                $this.mainservice.setMessage({
+                    "title": "Error "+err.status,
+                    "text": err.statusText,
+                    "status": "error"
+                });
+                $this.cfpLoadingBar.complete();
             });
     };
 

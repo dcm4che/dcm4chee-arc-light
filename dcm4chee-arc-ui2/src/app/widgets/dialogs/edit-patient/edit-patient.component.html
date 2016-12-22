@@ -1,6 +1,6 @@
 <div class="vex vex-theme-os edit-patient" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
-        <h3>Edit patient</h3>
+        <h3>{{titleLabel}}</h3>
         <!--<pre>-->
             <!--testarray1:{{testarray | json}}-->
             <!--testarray2:{{testarray2 | json}}-->
@@ -15,7 +15,7 @@
         <!--<div *ngFor="let p of testarray2.attr">-->
            <!--vr= {{p}}-->
         <!--</div>-->
-        <input autocomplete="off" id="addPatientAttribut" class="addPatientAttribut" [(ngModel)]="addPatientAttribut" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown" />
+        <input autocomplete="off" id="addPatientAttribut" class="addPatientAttribut" [(ngModel)]="addPatientAttribut" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keypress)="pressedKey($event)"/>
         <div class="dropdown" *ngIf="opendropdown">
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut" (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
         </div>
@@ -82,8 +82,10 @@
                 </td>
             </tr>
         </table>
-
-        <button type="button" (click)="dialogRef.close(patient)">Yes</button>
-        <button type="button" (click)="dialogRef.close(null)">No</button>
+        <div class="dialogbuttons">
+            <button class="save" type="button" (click)="dialogRef.close(patient)">{{saveLabel}}</button>
+            <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>
+        </div>
     </div>
 </div>
+<!--<app-edit-patient></app-edit-patient>-->

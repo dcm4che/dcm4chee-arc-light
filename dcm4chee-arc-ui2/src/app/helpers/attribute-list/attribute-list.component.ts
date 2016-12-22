@@ -5,8 +5,7 @@ import {Input} from "@angular/core/src/metadata/directives";
 
 @Component({
   selector: 'attribute-list',
-  templateUrl: './attribute-list.component.html',
-  styleUrls: ['./attribute-list.component.css']
+  templateUrl: './attribute-list.component.html'
 })
 export class AttributeListComponent implements OnInit {
 

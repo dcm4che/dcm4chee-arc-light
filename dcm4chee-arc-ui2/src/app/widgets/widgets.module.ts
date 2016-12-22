@@ -7,6 +7,7 @@ import {FormsModule} from "@angular/forms";
 import {MdDialogConfig} from "@angular/material";
 import { MessagingComponent } from './messaging/messaging.component';
 import {EditPatientComponent} from "./dialogs/edit-patient/edit-patient.component";
+import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
 
 
 @NgModule({
@@ -16,7 +17,7 @@ import {EditPatientComponent} from "./dialogs/edit-patient/edit-patient.componen
         FormsModule,
 
     ],
-    declarations: [WidgetsComponent],
+    declarations: [WidgetsComponent, EditMwlComponent],
     exports:[WidgetsComponent],
     providers: [MdDialogConfig]
 })

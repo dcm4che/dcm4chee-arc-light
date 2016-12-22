@@ -1,6 +1,6 @@
 <!--<pre style="position: absolute;width:50%;top:0;z-index: 9999999;">-->
 
-                        <!--studyTime={{studyTime | json}}-->
+                        <!--<button (click)="createPatient(null)">createpatient</button>-->
                         <!--</pre>-->
 <div class="main_content studies">
     <div *ngIf="user">
@@ -683,7 +683,7 @@
             <div class="thead" [ngClass]="{hide:patient._VALUE.hide}">
                 <div class="tr_row" [ngClass]="{selected: patient._VALUE.selected}">
                     <div class="th" style="width:10%">
-                        <div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>
+                        <!--<div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>-->
                         <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">
                             <span class="glyphicon glyphicon-th-list"></span>
                         </a>

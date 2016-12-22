@@ -87,6 +87,8 @@ md-progress-circle, [_nghost-nyg-8]{
   }
   md-dialog-container{
     overflow:visible;
+    float: left;
+    width: 100%;
   }
   .dropdown{
     max-height: 300px;
@@ -188,6 +190,28 @@ md-progress-circle, [_nghost-nyg-8]{
         color:#7e7b7b;
         display: inline-block;
       }
+    }
+  }
+}
+.dialogbuttons{
+  //float:right;
+  button{
+    border: 0 none;
+    border-radius: 3px;
+    float: right;
+    font-family: inherit;
+    font-size: 0.8em;
+    letter-spacing: 0.1em;
+    line-height: 1em;
+    margin: 0 0 0 0.5em;
+    padding: 0.75em 2em;
+    text-transform: uppercase;
+    &.save{
+      background: #3288e6 none repeat scroll 0 0;
+      color: #fff;
+    }
+    &.cancle{
+
     }
   }
 }

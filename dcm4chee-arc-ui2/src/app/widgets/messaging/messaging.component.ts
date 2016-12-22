@@ -1,5 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {AppService} from "../../app.service";
+import {Subscribable} from "rxjs/Observable";
+import {Subscription} from "rxjs";
 @Component({
   selector: 'app-messaging',
   template: `
@@ -13,12 +15,13 @@ import {AppService} from "../../app.service";
     </div>
   `
 })
-export class MessagingComponent{
+export class MessagingComponent implements OnDestroy{
     private msgTimeout = 10000;
     public msg:Array<any> = [];
+    subscription:Subscription;
 
     constructor(private mainservice:AppService){
-        this.mainservice.messageSet$.subscribe(msg => {
+        this.subscription = this.mainservice.messageSet$.subscribe(msg => {
             console.log("msg in subscribe messagecomponent ",msg);
             this.setMsg(msg);
         });
@@ -101,5 +104,10 @@ export class MessagingComponent{
         } else {
             return Math.floor((Math.random() * 100) + 1); //Render int between 1 and 100
         }
+    }
+
+    ngOnDestroy() {
+        // prevent memory leak when component destroyed
+        this.subscription.unsubscribe();
     }
 }

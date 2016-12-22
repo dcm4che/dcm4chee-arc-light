@@ -29,6 +29,8 @@ export class StudiesComponent{
         "series":false,
         "instance":false
     };
+    saveLabel = "SAVE";
+    titleLabel = "Edit patient";
     rjcode = null;
     trashaktive = false;
     clipboard;
@@ -58,6 +60,10 @@ export class StudiesComponent{
     moreMWL;
     morePatients;
     moreStudies;
+    opendropdown = false;
+    addPatientAttribut = "";
+    lastPressedCode;
+
     // birthDate;
     clipBoardNotEmpty(){
         return false; //TODO
@@ -368,7 +374,7 @@ export class StudiesComponent{
         this.queryMode = "queryStudies";
         this.moreMWL = undefined;
         this.morePatients = undefined;
-        //this.cfpLoadingBar.start();//TODO
+        this.cfpLoadingBar.start();
         if (offset < 0 || offset === undefined) offset = 0;
         let $this = this;
         this.service.queryStudies(
@@ -423,20 +429,22 @@ export class StudiesComponent{
                     // this.studies.pop();
                 }
                 console.log("patients=",$this.patients[0]);
-                $this.messaging.setMsg({
-                    "title": "Info",
-                    "text": "Test",
-                    "status": "info"
-                });
+                // $this.mainservice.setMessage({
+                //     "title": "Info",
+                //     "text": "Test",
+                //     "status": "info"
+                // });
+                $this.cfpLoadingBar.complete();
             } else {
                 console.log("in else setmsg");
                 $this.patients = [];
 
-                $this.messaging.setMsg({
+                $this.mainservice.setMessage({
                     "title": "Info",
                     "text": "No matching Studies found!",
                     "status": "info"
                 });
+                $this.cfpLoadingBar.complete();
             }
             // setTimeout(function(){
             //     togglePatientsHelper("hide");
@@ -446,101 +454,255 @@ export class StudiesComponent{
             (err)=>{
                 console.log("in error",err);
                 $this.patients = [];
-                $this.messaging.setMsg({
+                $this.mainservice.setMessage({
                     "title": "Info",
                     "text": "No matching Studies found!",
                     "status": "info"
                 });
+                $this.cfpLoadingBar.complete();
             }
         );
     };
-    opendropdown = false;
-    addPatientAttribut = "";
+    editMWL(patient, patientkey, mwlkey, mwl){
+        this.modifyMWL(patient, "edit", patientkey, mwlkey, mwl);
+    };
+    createMWL(patient){
+        let mwl:any = {
+            "attrs":{
+                "00400100": {
+                    "vr": "SQ",
+                    "Value": [{
+                        "00400001": { "vr": "AE","Value":[""]}
+                    }]
+                },
+                "0020000D": { "vr": "UI", "Value":[""]},
+                "00400009": { "vr": "SH", "Value":[""]},
+                "00080050": { "vr": "SH", "Value":[""]},
+                "00401001": { "vr": "SH", "Value":[""]}
+            }
+        };
+        // modifyStudy(patient, "create");
+        this.modifyMWL(patient, "create", "", "", mwl);
+    };
+    modifyMWL(patient, mode, patientkey, mwlkey, mwl){
 
+    }
     editPatient(patient, patientkey){
+        this.modifyPatient(patient, "edit", patientkey);
+    };
+    createPatient(patient){
+        this.saveLabel = "CREATE";
+        this.titleLabel = "Create new patient";
+        let newPatient:any = {
+            "attrs":{
+                "00100010": { "vr": "PN", "Value":[{
+                    Alphabetic:""
+                }]},
+                "00100020": { "vr": "LO", "Value":[""]},
+                "00100021": { "vr": "LO", "Value":[""]},
+                "00100030": { "vr": "DA", "Value":[""]},
+                "00100040": { "vr": "CS", "Value":[""]}
+            }
+        };
+        this.modifyPatient(newPatient, "create", null);
+    };
+
+    modifyPatient(patient, mode ,patientkey){
         let originalPatientObject = _.cloneDeep(patient);
         this.config.viewContainerRef = this.viewContainerRef;
+        let oldPatientID;
+        let oldIssuer;
+        let oldUniversalEntityId;
+        let oldUniversalEntityType;
+        this.lastPressedCode = 0;
+        if(mode === "edit"){
+            _.forEach(patient.attrs,function(value, index) {
+                var checkValue = "";
+                if(value.Value && value.Value.length){
+                    checkValue = value.Value.join("");
+                }
+                if(!(value.Value && checkValue != "")){
+                    delete patient.attrs[index];
+                }
+                if(index === "00100040" && patient.attrs[index] && patient.attrs[index].Value && patient.attrs[index].Value[0]){
+                    patient.attrs[index].Value[0] = patient.attrs[index].Value[0].toUpperCase();
+                }
+                // console.log("value.vr",value.vr);
+                // console.log("value",value);
+/*                if(value.vr === "DA" && value.Value && value.Value[0]){
+                    var string = value.Value[0];
+                    string = string.replace(/\./g,"");
+                    var yyyy = string.substring(0,4);
+                    var MM = string.substring(4,6);
+                    var dd = string.substring(6,8);
+                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                    var date          = new Date(timestampDate);
+                    $scope.dateplaceholder[index] = date;
+                }*/
+            });
+            if(patient.attrs["00100020"] && patient.attrs["00100020"].Value && patient.attrs["00100020"].Value[0]){
+                oldPatientID            = patient.attrs["00100020"].Value[0];
+            }
+            if(patient.attrs["00100021"] && patient.attrs["00100021"].Value && patient.attrs["00100021"].Value[0]){
+                oldIssuer               = patient.attrs["00100021"].Value[0];
+            }
+            if(
+                patient.attrs["00100024"] &&
+                patient.attrs["00100024"].Value &&
+                patient.attrs["00100024"].Value[0] &&
+                patient.attrs["00100024"].Value[0]["00400032"] &&
+                patient.attrs["00100024"].Value[0]["00400032"].Value &&
+                patient.attrs["00100024"].Value[0]["00400032"].Value[0]
+            ){
+                oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                console.log("set oldUniversalEntityId",oldUniversalEntityId);
+            }
+            if(
+                patient.attrs["00100024"] &&
+                patient.attrs["00100024"].Value &&
+                patient.attrs["00100024"].Value[0] &&
+                patient.attrs["00100024"].Value[0]["00400033"] &&
+                patient.attrs["00100024"].Value[0]["00400033"].Value &&
+                patient.attrs["00100024"].Value[0]["00400033"].Value[0]
+            ){
+                oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                console.log("set oldUniversalEntityType",oldUniversalEntityType);
+            }
+        }
+
         // this.config.width = "800";
 
-        // let $this = this;
+        let $this = this;
         this.service.getPatientIod().subscribe((res)=>{
-            this.service.patientIod = res;
+            $this.service.patientIod = res;
 
-            console.log("res",res);
-            console.log("patientkey",patientkey);
-            // console.log("patient",patient);
-            this.service.initEmptyValue(patient.attrs);
-            console.log("patient2",patient);
-            this.dialogRef = this.dialog.open(EditPatientComponent, this.config);
-            this.dialogRef.componentInstance.patient = patient;
-            this.dialogRef.componentInstance.patientkey = patientkey;
-            this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(res);
-            this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(res, "items", "Value");
-            this.dialogRef.afterClosed().subscribe(result => {
-                console.log('result: ', result);
+            $this.service.initEmptyValue(patient.attrs);
+            $this.dialogRef = $this.dialog.open(EditPatientComponent, $this.config);
+            $this.dialogRef.componentInstance.patient = patient;
+            $this.dialogRef.componentInstance.patientkey = patientkey;
+            $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
+            $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(res, "items", "Value");
+            console.log("$this.savelabel",$this.saveLabel);
+            $this.dialogRef.componentInstance.saveLabel = $this.saveLabel;
+            $this.dialogRef.componentInstance.titleLabel = $this.titleLabel;
+            $this.dialogRef.afterClosed().subscribe(result => {
+                //If user clicked save
                 if(result){
                     let headers = new Headers({ 'Content-Type': 'application/json' });
-                    console.log("yes");
-                        this.$http.post(
-                            "../aets/"+this.aet+"/rs/studies",
-                            patient.attrs,
-                            headers
-                        )
-                            // .map(response => response.json())
-                        .subscribe(
-                        (response) => {
-                            let mode = "edit";
+                    console.log("patient for clear",patient);
+                    $this.service.clearPatientObject(patient.attrs);
+                    $this.service.convertStringToNumber(patient.attrs);
+                    console.log("patient after clear",patient);
+                    // $this.service.convertDateToString($scope, "editpatient");
+                    if(patient.attrs["00100020"] && patient.attrs["00100020"].Value[0]){
+                        _.forEach(patient.attrs, function(m, i){
+                            if(res && res[i] && res[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
+                                delete patient.attrs[i];
+                            }
+                        });
+                        // patient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
+                        oldPatientID = oldPatientID || patient.attrs["00100020"].Value[0];
+                        var issuer =                oldIssuer != undefined;
+                        var universalEntityId =     oldUniversalEntityId != undefined;
+                        var universalEntityType =   oldUniversalEntityType != undefined;
+
+                        if(issuer){
+                            oldPatientID += "^^^"+oldIssuer;
+                        }
+                        if(universalEntityId || universalEntityType){
+                            // if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
+                            //     oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                            // }
+                            // if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
+                            //     oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                            // }
+                            if(!issuer){
+                                oldPatientID += "^^^";
+                            }
+
+                            if(universalEntityId && oldUniversalEntityId){
+                                oldPatientID += "&"+ oldUniversalEntityId;
+                            }
+                            if(universalEntityType && oldUniversalEntityType){
+                                oldPatientID += "&"+ oldUniversalEntityType;
+                            }
+                        }
+                        // console.log("patient.attrs",patient.attrs);
+                        $this.$http.put(
+                            "../aets/"+$this.aet+"/rs/patients/"+oldPatientID,
+                            patient.attrs
+                        ).subscribe(function successCallback(response) {
                             if(mode === "edit"){
                                 //Update changes on the patient list
-                                // angular.forEach(study.attrs, function(m, i){
-                                //     if($scope.editstudy.attrs[i]){
-                                //         study.attrs[i] = $scope.editstudy.attrs[i];
-                                //     }
-                                // });
-                                // study.attrs = $scope.editstudy.attrs;
-                                // $scope.patients[patientkey].studies[studykey].attrs = $scope.editstudy.attrs;
+                                // patient.attrs = patient.attrs;
                                 //Force rerendering the directive attribute-list
-                                // var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editstudy.attrs['0020000D'].Value[0];
-                                // id = id.replace(/\./g, '');
-                                // // var id = "#"+$scope.editstudy.attrs["0020000D"].Value;
-                                // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studykey+'].attrs"></attribute-list>')($scope);
+                                var id = "#"+patient.attrs["00100020"].Value;
+                                // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
                                 // $(id).html(attribute);
                             }else{
-                                // if($scope.patientmode){
-                                //     $timeout(function() {
-                                //         angular.element("#querypatients").trigger('click');
-                                //     }, 0);
-                                //     // $scope.queryPatients(0);
-                                // }else{
-                                //     // $scope.queryStudies(0);
-                                //     $timeout(function() {
-                                //         angular.element("#querystudies").trigger('click');
-                                //     }, 0);
-                                // }
-                                // fireRightQuery();
+
+                                $this.fireRightQuery();
                             }
-                            this.mainservice.setMessage({
+                            // $scope.dateplaceholder = {};
+                            // console.log("data",data);
+                            // console.log("datepicker",$(".datepicker .no-close-button"));
+                            $this.mainservice.setMessage( {
                                 "title": "Info",
-                                "text": "Study saved successfully!",
+                                "text": "Patient saved successfully!",
                                 "status": "info"
                             });
-                        },
-                        (response) => {
-
-                            this.mainservice.setMessage( {
+                        }, function errorCallback(response) {
+                            $this.mainservice.setMessage( {
+                                // "title": "Error",
+                                // "text": "Error saving patient!",
+                                // "status": "error"
                                 "title": "Error "+response.status,
-                                "text": response.data.errorMessage,
+                                "text": response.statusText,
                                 "status": "error"
                             });
-                            console.log("response",response);
+                        });
+                        ////
+                    }else{
+                        if(mode === "create"){
+                                $this.$http.post(
+                                    "../aets/"+$this.aet+"/rs/patients/",
+                                    patient.attrs,
+                                    headers
+                                )
+                                    //.map(response => response.json())
+                                .subscribe(
+                                (response) => {
+                                    console.log("response",response);
+                                    $this.mainservice.setMessage( {
+                                        "title": "Info",
+                                        "text": "Patient created successfully!",
+                                        "status": "info"
+                                    });
+                                },
+                                (response) => {
+                                    console.log("response",response);
+                                    $this.mainservice.setMessage( {
+                                        "title": "Error "+response.status,
+                                        "text": response.errorMessage,
+                                        "status": "error"
+                                    });
+                                }
+                            );
+                        }else{
+                            $this.mainservice.setMessage( {
+                                "title": "Error",
+                                "text": "Patient ID is required!",
+                                "status": "error"
+                            });
                         }
-                    );
+                        // $scope.dateplaceholder = {};
+                    }
                 }else{
                     console.log("no", originalPatientObject);
                     // patient = originalPatient;
                     _.assign(patient, originalPatientObject);
                 }
-                this.dialogRef = null;
+                $this.dialogRef = null;
             });
         },(err)=>{
             console.log("error",err);
@@ -1299,6 +1461,7 @@ export class StudiesComponent{
     };
     storageCommitmen(mode, object){
         console.log("object",object);
+        this.cfpLoadingBar.start();
         let url = '../aets/'+this.aet+'/rs/studies/';
         switch(mode) {
             case "study":
@@ -1322,10 +1485,9 @@ export class StudiesComponent{
             .map(response => response.json())
             .subscribe(
             (response) => {
-                let data = response;
-
-                let faild = (data[0]["00081198"] && data[0]["00081198"].Value) ? data[0]["00081198"].Value.length : 0;
-                let success = (data[0]["00081199"] && data[0]["00081199"].Value) ? data[0]["00081199"].Value.length : 0;
+                // console.log("response",response);
+                let faild = (response[0]["00081198"] && response[0]["00081198"].Value) ? response[0]["00081198"].Value.length : 0;
+                let success = (response[0]["00081199"] && response[0]["00081199"].Value) ? response[0]["00081199"].Value.length : 0;
                 let msgStatus = "Info";
                 if(faild > 0 && success > 0){
                     msgStatus = "Warning";
@@ -1353,13 +1515,15 @@ export class StudiesComponent{
                         "status": msgStatus.toLowerCase()
                     });
                 }
+                this.cfpLoadingBar.complete();
             },
             (response) => {
                 this.mainservice.setMessage( {
                     "title": "Error "+response.status,
-                    "text": response.data.errorMessage,
+                    "text": response.errorMessage,
                     "status": "error"
                 });
+                this.cfpLoadingBar.complete();
             }
         );
     };

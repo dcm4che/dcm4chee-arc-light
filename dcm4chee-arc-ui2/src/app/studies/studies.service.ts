@@ -8,6 +8,7 @@ declare var DCM4CHE: any;
 @Injectable()
 export class StudiesService {
     private _patientIod:any;
+    integerVr = ["DS","FL","FD","IS","SL","SS","UL", "US"];
 
     get patientIod(): any {
         return this._patientIod;
@@ -181,6 +182,41 @@ export class StudiesService {
                         });
                     }
                 });
+            }
+        });
+    };
+
+    clearPatientObject(object){
+        let $this = this;
+        _.forEach(object, function(m,i){
+            if(typeof(m) === "object" && i != "vr"){
+                $this.clearPatientObject(m);
+            }else{
+                var check = typeof(i) === "number" || i === "vr" || i === "Value" || i === "Alphabetic" || i === "Ideographic" || i === "Phonetic" || i === "items";
+                if(!check){
+                    delete object[i];
+                }
+            }
+        });
+    };
+    convertStringToNumber(object){
+        let $this = this;
+        _.forEach(object, function(m,i){
+            if(typeof(m) === "object" && i != "vr"){
+                $this.convertStringToNumber(m);
+            }else{
+                if(i === "vr"){
+                    if(($this.integerVr.indexOf(object.vr) > -1 && object.Value && object.Value.length > 0)){
+                        if(object.Value.length > 1){
+                            _.forEach(object.Value,(k, j) =>{
+                                object.Value[j] = Number(object.Value[j]);
+                            });
+                        }else{
+                            object.Value[0] = Number(object.Value[0]);
+                        }
+                    }
+
+                }
             }
         });
     };

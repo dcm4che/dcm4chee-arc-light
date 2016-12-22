@@ -23,14 +23,15 @@ import { AttributeNameOfPipe } from './pipes/attribute-name-of.pipe';
 import { RemovedotsPipe } from './pipes/removedots.pipe';
 import {StudiesService} from "./studies/studies.service";
 import {AppService} from "./app.service";
-import { AttributeListComponent } from './attribute-list/attribute-list.component';
-import { FileAttributeListComponent } from './file-attribute-list/file-attribute-list.component';
+import { AttributeListComponent } from './helpers/attribute-list/attribute-list.component';
+import { FileAttributeListComponent } from './helpers/file-attribute-list/file-attribute-list.component';
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import {SelectItem} from "primeng/components/common/api";
 import {DropdownModule} from "primeng/components/dropdown/dropdown";
 import { TrimPipe } from './pipes/trim.pipe';
 import { SearchPipe } from './pipes/search.pipe';
 import { KeysPipe } from './pipes/keys.pipe';
+import { IodFormGeneratorComponent } from './helpers/iod-form-generator/iod-form-generator.component';
 
 @NgModule({
     declarations: [
@@ -53,7 +54,8 @@ import { KeysPipe } from './pipes/keys.pipe';
         FileAttributeListComponent,
         TrimPipe,
         SearchPipe,
-        KeysPipe
+        KeysPipe,
+        IodFormGeneratorComponent
     ],
     imports: [
         BrowserModule,
