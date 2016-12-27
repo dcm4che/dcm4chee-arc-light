@@ -48,6 +48,7 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Availability;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,10 +63,10 @@ import java.util.Map;
  * @since Aug 2015
  */
 public interface RetrieveService {
-    RetrieveContext newRetrieveContextGET(
+    RetrieveContext newRetrieveContextGET(ArchiveAEExtension arcAE,
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
 
-    RetrieveContext newRetrieveContextMOVE(
+    RetrieveContext newRetrieveContextMOVE(ArchiveAEExtension arcAE,
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
             throws ConfigurationException;
 

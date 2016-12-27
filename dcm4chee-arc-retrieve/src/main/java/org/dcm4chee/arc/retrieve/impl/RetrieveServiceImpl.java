@@ -186,19 +186,19 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public RetrieveContext newRetrieveContextGET(
+    public RetrieveContext newRetrieveContextGET(ArchiveAEExtension arcAE,
             Association as, Attributes rqCmd, QueryRetrieveLevel2 qrLevel, Attributes keys) {
-        RetrieveContext ctx = newRetrieveContext(as, qrLevel, keys);
+        RetrieveContext ctx = newRetrieveContext(arcAE, as, qrLevel, keys);
         ctx.setPriority(rqCmd.getInt(Tag.Priority, 0));
         ctx.setDestinationAETitle(as.getRemoteAET());
         return ctx;
     }
 
     @Override
-    public RetrieveContext newRetrieveContextMOVE(
+    public RetrieveContext newRetrieveContextMOVE(ArchiveAEExtension arcAE,
             Association as, Attributes rqCmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
             throws ConfigurationException {
-        RetrieveContext ctx = newRetrieveContext(as, qrLevel, keys);
+        RetrieveContext ctx = newRetrieveContext(arcAE, as, qrLevel, keys);
         ctx.setPriority(rqCmd.getInt(Tag.Priority, 0));
         ctx.setDestinationAETitle(rqCmd.getString(Tag.MoveDestination));
         ctx.setMoveOriginatorMessageID(rqCmd.getInt(Tag.MessageID, 0));
@@ -249,8 +249,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
-    private RetrieveContext newRetrieveContext(Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
-        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+    private RetrieveContext newRetrieveContext(ArchiveAEExtension arcAE, Association as, QueryRetrieveLevel2 qrLevel, Attributes keys) {
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, as.getLocalAET(), arcAE.getQueryRetrieveView());
         ctx.setRequestAssociation(as);
         ctx.setQueryRetrieveLevel(qrLevel);

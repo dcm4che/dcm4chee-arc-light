@@ -65,6 +65,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
 class CommonCMoveSCP extends BasicCMoveSCP {
@@ -87,6 +88,14 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         this.qrLevels = qrLevels;
     }
 
+    private void validateMoveDest(ArchiveAEExtension arcAE, String moveDest) throws DicomServiceException {
+        if (arcAE.getAcceptedMoveDestinations().length == 0)
+            return;
+        List<String> acceptedMoveDests = Arrays.asList(arcAE.getAcceptedMoveDestinations());
+        if (!acceptedMoveDests.contains(moveDest))
+            throw new DicomServiceException(Status.MoveDestinationNotAllowed, "Move destination is not allowed.");
+    }
+
     @Override
     protected RetrieveTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
@@ -94,8 +103,9 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
-        RetrieveContext ctx = newRetrieveContext(as, rq, qrLevel, keys);
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        validateMoveDest(arcAE, rq.getString(Tag.MoveDestination));
+        RetrieveContext ctx = newRetrieveContext(arcAE, as, rq, qrLevel, keys);
         String fallbackCMoveSCP = arcAE.fallbackCMoveSCP();
         String fallbackCMoveSCPDestination = arcAE.fallbackCMoveSCPDestination();
         if (!retrieveService.calculateMatches(ctx)) {
@@ -154,10 +164,10 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         return storeSCU.newRetrieveTaskMOVE(as, pc, rq, ctx);
     }
 
-    private RetrieveContext newRetrieveContext(Association as, Attributes rq, QueryRetrieveLevel2 qrLevel,
-                                               Attributes keys) throws DicomServiceException {
+    private RetrieveContext newRetrieveContext(ArchiveAEExtension arcAE,
+           Association as, Attributes rq, QueryRetrieveLevel2 qrLevel, Attributes keys) throws DicomServiceException {
         try {
-            return retrieveService.newRetrieveContextMOVE(as, rq, qrLevel, keys);
+            return retrieveService.newRetrieveContextMOVE(arcAE, as, rq, qrLevel, keys);
         } catch (ConfigurationNotFoundException e) {
             throw new DicomServiceException(Status.MoveDestinationUnknown, e.getMessage());
         } catch (ConfigurationException e) {

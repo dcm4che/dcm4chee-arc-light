@@ -523,6 +523,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmRetrieveAET", arcAE.getRetrieveAETitles());
         writer.writeNotNull("dcmExternalRetrieveAEDestination",
                 arcAE.getExternalRetrieveAEDestination());
+        writer.writeNotEmpty("dcmAcceptedMoveDestination", arcAE.getAcceptedMoveDestinations());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -1605,6 +1606,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmExternalRetrieveAEDestination":
                     arcAE.setExternalRetrieveAEDestination(reader.stringValue());
+                    break;
+                case "dcmAcceptedMoveDestination":
+                    arcAE.setAcceptedMoveDestinations(reader.stringArray());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
