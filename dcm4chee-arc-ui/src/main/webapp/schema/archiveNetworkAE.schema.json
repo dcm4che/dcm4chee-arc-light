@@ -100,6 +100,11 @@
         ]
       }
     },
+    "dcmValidateCallingAEHostname": {
+      "title": "Validate Calling AE Hostname",
+      "description": "Validate Calling AE Hostname or IP Address of Association requestors for this AE; use value configured on Device level, if absent",
+      "type": "boolean"
+    },
     "dcmPersonNameComponentOrderInsensitiveMatching": {
       "title": "Person Name Component Order Insensitive Matching",
       "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names; disabled if absent",

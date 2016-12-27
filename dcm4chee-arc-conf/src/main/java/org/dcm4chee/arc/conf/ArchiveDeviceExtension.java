@@ -77,6 +77,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private ShowPatientInfo showPatientInfoInAuditLog;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
+    private boolean validateCallingAEHostname = false;
     private boolean sendPendingCGet = false;
     private Duration sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching = false;
@@ -337,6 +338,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPersonNameComponentOrderInsensitiveMatching(boolean personNameComponentOrderInsensitiveMatching) {
         this.personNameComponentOrderInsensitiveMatching = personNameComponentOrderInsensitiveMatching;
+    }
+
+    public boolean isValidateCallingAEHostname() {
+        return validateCallingAEHostname;
+    }
+
+    public void setValidateCallingAEHostname(boolean validateCallingAEHostname) {
+        this.validateCallingAEHostname = validateCallingAEHostname;
     }
 
     public boolean isSendPendingCGet() {
@@ -908,7 +917,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean remap(HttpServletRequest request) {
         return remapRetrieveURL != null
                 && (remapRetrieveURLClientHost == null || remapRetrieveURLClientHost.equals(
-                        Character.isDigit(remapRetrieveURLClientHost.charAt(0))
+                        StringUtils.isIPAddr(remapRetrieveURLClientHost)
                                 ? request.getRemoteAddr()
                                 : request.getRemoteHost()));
     }
@@ -1281,6 +1290,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         queryRetrieveViewID = arcdev.queryRetrieveViewID;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
+        validateCallingAEHostname = arcdev.validateCallingAEHostname;
         sendPendingCGet = arcdev.sendPendingCGet;
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         wadoSupportedSRClasses.clear();

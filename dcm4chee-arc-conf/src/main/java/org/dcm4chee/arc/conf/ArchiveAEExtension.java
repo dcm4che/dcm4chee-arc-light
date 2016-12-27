@@ -67,6 +67,7 @@ public class ArchiveAEExtension extends AEExtension {
     private OverwritePolicy overwritePolicy;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
+    private Boolean validateCallingAEHostname;
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
     private Duration sendPendingCMoveInterval;
@@ -249,6 +250,20 @@ public class ArchiveAEExtension extends AEExtension {
         return queryRetrieveViewID != null
                 ? queryRetrieveViewID
                 : getArchiveDeviceExtension().getQueryRetrieveViewID();
+    }
+
+    public Boolean getValidateCallingAEHostname() {
+        return validateCallingAEHostname;
+    }
+
+    public void setValidateCallingAEHostname(Boolean validateCallingAEHostname) {
+        this.validateCallingAEHostname = validateCallingAEHostname;
+    }
+
+    public boolean validateCallingAEHostname() {
+        return validateCallingAEHostname != null
+                ? validateCallingAEHostname.booleanValue()
+                : getArchiveDeviceExtension().isValidateCallingAEHostname();
     }
 
     public Boolean getPersonNameComponentOrderInsensitiveMatching() {
@@ -778,6 +793,7 @@ public class ArchiveAEExtension extends AEExtension {
         overwritePolicy = aeExt.overwritePolicy;
         bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;
         queryRetrieveViewID = aeExt.queryRetrieveViewID;
+        validateCallingAEHostname = aeExt.validateCallingAEHostname;
         personNameComponentOrderInsensitiveMatching = aeExt.personNameComponentOrderInsensitiveMatching;
         sendPendingCGet = aeExt.sendPendingCGet;
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
