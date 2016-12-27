@@ -44,6 +44,7 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.AssociationHandler;
 import org.dcm4che3.net.pdu.AAssociateAC;
+import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.UserIdentityAC;
 
@@ -64,8 +65,16 @@ public class ArchiveAssociationHandler extends AssociationHandler {
     @Override
     protected AAssociateAC makeAAssociateAC(Association as, AAssociateRQ rq, UserIdentityAC userIdentity)
             throws IOException {
-        //TODO
+        if (!validateCallingAEHostname(as))
+            throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
+                AAssociateRJ.SOURCE_SERVICE_USER,
+                AAssociateRJ.REASON_CALLING_AET_NOT_RECOGNIZED);
         return super.makeAAssociateAC(as, rq, userIdentity);
+    }
+
+    private boolean validateCallingAEHostname(Association as) {
+        //TODO
+        return true;
     }
 
 }
