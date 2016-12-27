@@ -95,6 +95,7 @@ public class ArchiveAEExtension extends AEExtension {
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private String[] retrieveAETitles = {};
+    private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
@@ -605,6 +606,20 @@ public class ArchiveAEExtension extends AEExtension {
                     AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
     }
 
+    public String[] getAcceptedMoveDestinations() {
+        return acceptedMoveDestinations.toArray(new String[acceptedMoveDestinations.size()]);
+    }
+
+    public void setAcceptedMoveDestinations(String... aets) {
+        acceptedMoveDestinations.clear();
+        for (String name : aets)
+            acceptedMoveDestinations.add(name);
+    }
+
+    public boolean isAcceptedMoveDestination(String aet) {
+        return acceptedMoveDestinations.isEmpty() || acceptedMoveDestinations.contains(aet);
+    }
+
     public String[] getAcceptedUserRoles() {
         return acceptedUserRoles.toArray(
                 new String[acceptedUserRoles.size()]);
@@ -791,6 +806,10 @@ public class ArchiveAEExtension extends AEExtension {
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         retrieveAETitles = aeExt.retrieveAETitles;
+        acceptedMoveDestinations.clear();
+        acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
+        acceptedUserRoles.clear();
+        acceptedUserRoles.addAll(aeExt.acceptedUserRoles);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         rsForwardRules.clear();

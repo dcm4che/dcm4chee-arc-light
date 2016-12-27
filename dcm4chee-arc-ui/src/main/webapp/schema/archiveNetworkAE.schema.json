@@ -42,6 +42,14 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "dcmAcceptedMoveDestination": {
+      "title": "Accepted Move Destination",
+      "description": "Accepted Move Destination in C-MOVE requests; any if absent.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
       "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.",
