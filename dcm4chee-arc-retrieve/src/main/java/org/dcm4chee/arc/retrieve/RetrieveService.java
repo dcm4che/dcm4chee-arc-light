@@ -63,6 +63,11 @@ import java.util.Map;
  * @since Aug 2015
  */
 public interface RetrieveService {
+
+    int MOVE_DESTINATION_NOT_ALLOWED = 0xC801;
+
+    String MOVE_DESTINATION_NOT_ALLOWED_MSG = "Move Destination not allowed";
+
     RetrieveContext newRetrieveContextGET(ArchiveAEExtension arcAE,
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
 

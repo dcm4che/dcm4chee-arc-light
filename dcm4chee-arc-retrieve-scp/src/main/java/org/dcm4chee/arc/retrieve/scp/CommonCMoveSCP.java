@@ -44,7 +44,6 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.Status;
@@ -88,14 +87,6 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         this.qrLevels = qrLevels;
     }
 
-    private void validateMoveDest(ArchiveAEExtension arcAE, String moveDest) throws DicomServiceException {
-        if (arcAE.getAcceptedMoveDestinations().length == 0)
-            return;
-        List<String> acceptedMoveDests = Arrays.asList(arcAE.getAcceptedMoveDestinations());
-        if (!acceptedMoveDests.contains(moveDest))
-            throw new DicomServiceException(Status.MoveDestinationNotAllowed, "Move destination is not allowed.");
-    }
-
     @Override
     protected RetrieveTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
@@ -104,7 +95,10 @@ class CommonCMoveSCP extends BasicCMoveSCP {
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
         ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
-        validateMoveDest(arcAE, rq.getString(Tag.MoveDestination));
+        if (!arcAE.isAcceptedMoveDestination(rq.getString(Tag.MoveDestination)))
+            throw new DicomServiceException(RetrieveService.MOVE_DESTINATION_NOT_ALLOWED,
+                    RetrieveService.MOVE_DESTINATION_NOT_ALLOWED_MSG);
+
         RetrieveContext ctx = newRetrieveContext(arcAE, as, rq, qrLevel, keys);
         String fallbackCMoveSCP = arcAE.fallbackCMoveSCP();
         String fallbackCMoveSCPDestination = arcAE.fallbackCMoveSCPDestination();
