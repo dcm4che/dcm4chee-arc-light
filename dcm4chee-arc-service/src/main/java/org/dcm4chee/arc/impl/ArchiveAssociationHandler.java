@@ -47,6 +47,7 @@ import org.dcm4che3.net.pdu.AAssociateAC;
 import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.UserIdentityAC;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -82,23 +83,21 @@ public class ArchiveAssociationHandler extends AssociationHandler {
         if (arcAE.validateCallingAEHostname()) {
             try {
                 ApplicationEntity ae = aeCache.findApplicationEntity(as.getAAssociateRQ().getCallingAET());
-                List<String> hosts = new ArrayList<>();
-                for (Connection c : ae.getConnections())
-                    hosts.add(c.getHostname());
                 InetAddress remote = as.getSocket().getInetAddress();
-                return (hosts.contains(remote.getHostAddress()) || hosts.contains(remote.getHostName())
-                        || validate(hosts, remote.getHostName()));
+                for (Connection c : ae.getConnections()) {
+                    if (StringUtils.isIPAddr(c.getHostname()) && c.getHostname().equals(remote.getHostAddress()))
+                        return true;
+                    else {
+                            String[] ss = StringUtils.split(c.getHostname(), '.');
+                            String[] ss1 = StringUtils.split(remote.getCanonicalHostName(), '.');
+                            return ((ss.length == 1 || ss1.length == 1) && ss[0].equalsIgnoreCase(ss1[0]))
+                                    || (c.getHostname().equalsIgnoreCase(remote.getCanonicalHostName()));
+                        }
+                }
             } catch (ConfigurationException e) {
                 return false;
             }
         }
         return true;
-    }
-
-    private boolean validate(List<String> hosts, String remoteHostname) {
-        for (String host : hosts)
-            if (host.equals(remoteHostname.substring(0, remoteHostname.indexOf("."))))
-                return true;
-        return false;
     }
 }
