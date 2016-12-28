@@ -40,20 +40,25 @@
 
 package org.dcm4chee.arc.impl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.AssociationHandler;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateAC;
 import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.UserIdentityAC;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Dec 2016
  */
 @ApplicationScoped
@@ -73,8 +78,27 @@ public class ArchiveAssociationHandler extends AssociationHandler {
     }
 
     private boolean validateCallingAEHostname(Association as) {
-        //TODO
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        if (arcAE.validateCallingAEHostname()) {
+            try {
+                ApplicationEntity ae = aeCache.findApplicationEntity(as.getAAssociateRQ().getCallingAET());
+                List<String> hosts = new ArrayList<>();
+                for (Connection c : ae.getConnections())
+                    hosts.add(c.getHostname());
+                InetAddress remote = as.getSocket().getInetAddress();
+                return (hosts.contains(remote.getHostAddress()) || hosts.contains(remote.getHostName())
+                        || validate(hosts, remote.getHostName()));
+            } catch (ConfigurationException e) {
+                return false;
+            }
+        }
         return true;
     }
 
+    private boolean validate(List<String> hosts, String remoteHostname) {
+        for (String host : hosts)
+            if (host.equals(remoteHostname.substring(0, remoteHostname.indexOf("."))))
+                return true;
+        return false;
+    }
 }

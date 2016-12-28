@@ -559,7 +559,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination());
         LdapUtils.storeNotEmpty(attrs, "dcmAcceptedMoveDestination", ext.getAcceptedMoveDestinations());
-        LdapUtils.storeNotEmpty(attrs, "dcmValidateCallingAEHostname", ext.getValidateCallingAEHostname());
+        LdapUtils.storeNotNull(attrs, "dcmValidateCallingAEHostname", ext.getValidateCallingAEHostname());
     }
 
     @Override
@@ -613,7 +613,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
         ext.setAcceptedMoveDestinations(LdapUtils.stringArray(attrs.get("dcmAcceptedMoveDestination")));
-        ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), false));
+        ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), null));
     }
 
     @Override
