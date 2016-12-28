@@ -49,13 +49,13 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.UserIdentityAC;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -65,13 +65,16 @@ import java.util.List;
 @ApplicationScoped
 public class ArchiveAssociationHandler extends AssociationHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveAssociationHandler.class);
+
     @Inject
     private IApplicationEntityCache aeCache;
 
     @Override
     protected AAssociateAC makeAAssociateAC(Association as, AAssociateRQ rq, UserIdentityAC userIdentity)
             throws IOException {
-        if (!validateCallingAEHostname(as))
+        if (as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class).validateCallingAEHostname()
+                && !validateCallingAEHostname(as))
             throw new AAssociateRJ(AAssociateRJ.RESULT_REJECTED_PERMANENT,
                 AAssociateRJ.SOURCE_SERVICE_USER,
                 AAssociateRJ.REASON_CALLING_AET_NOT_RECOGNIZED);
@@ -79,25 +82,32 @@ public class ArchiveAssociationHandler extends AssociationHandler {
     }
 
     private boolean validateCallingAEHostname(Association as) {
-        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
-        if (arcAE.validateCallingAEHostname()) {
-            try {
-                ApplicationEntity ae = aeCache.findApplicationEntity(as.getAAssociateRQ().getCallingAET());
+        try {
+            ApplicationEntity ae = aeCache.get(as.getAAssociateRQ().getCallingAET());
+            if (ae != null) {
                 InetAddress remote = as.getSocket().getInetAddress();
                 for (Connection c : ae.getConnections()) {
-                    if (StringUtils.isIPAddr(c.getHostname()) && c.getHostname().equals(remote.getHostAddress()))
+                    if (equalsHost(c.getHostname(), remote))
                         return true;
-                    else {
-                            String[] ss = StringUtils.split(c.getHostname(), '.');
-                            String[] ss1 = StringUtils.split(remote.getCanonicalHostName(), '.');
-                            return ((ss.length == 1 || ss1.length == 1) && ss[0].equalsIgnoreCase(ss1[0]))
-                                    || (c.getHostname().equalsIgnoreCase(remote.getCanonicalHostName()));
-                        }
                 }
-            } catch (ConfigurationException e) {
-                return false;
+                LOG.info("{}: Host {} of Calling AE does not match configuration", as, remote);
+            } else {
+                LOG.info("{}: Calling AE not configured", as);
             }
+        } catch (ConfigurationException e) {
+            LOG.warn("{}: Failed to lookup configuration for Calling AE:\\n{}", as, e);
         }
-        return true;
+        return false;
+    }
+
+    private boolean equalsHost(String configuredHostname, InetAddress addr) {
+        if (StringUtils.isIPAddr(configuredHostname))
+            return configuredHostname.equals(addr.getHostAddress());
+
+        String canonicalHostName = addr.getCanonicalHostName();
+        return configuredHostname.equalsIgnoreCase(
+                configuredHostname.indexOf('.') < 0
+                        ? StringUtils.split(canonicalHostName, '.')[0]
+                        : canonicalHostName);
     }
 }
