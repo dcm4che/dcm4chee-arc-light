@@ -3,6 +3,7 @@
   "description": "Audit Logger related information",
   "type": "object",
   "required": [
+    "cn",
     "dicomNetworkConnectionReference",
     "dcmAuditRecordRepositoryDeviceReference"
   ],

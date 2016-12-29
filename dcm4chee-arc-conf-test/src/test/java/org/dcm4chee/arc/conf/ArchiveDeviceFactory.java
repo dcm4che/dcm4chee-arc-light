@@ -45,6 +45,7 @@ import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.audit.AuditLogger;
+import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.net.audit.AuditRecordRepository;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
@@ -1008,7 +1009,7 @@ class ArchiveDeviceFactory {
         String keycloakHost = configType == ConfigType.DOCKER ? "keycloak-host" : "localhost";
         device.setInstalled(true);
         device.setPrimaryDeviceTypes("AUTH");
-        addAuditLogger(device, arrDevice, keycloakHost);
+        addAuditLoggerDeviceExtension(device, arrDevice, keycloakHost);
         return device;
     }
 
@@ -1037,7 +1038,7 @@ class ArchiveDeviceFactory {
 
         addArchiveDeviceExtension(device, unknown, configType);
         addHL7DeviceExtension(device, configType, archiveHost);
-        addAuditLogger(device, arrDevice, archiveHost);
+        addAuditLoggerDeviceExtension(device, arrDevice, archiveHost);
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
 
@@ -1111,17 +1112,18 @@ class ArchiveDeviceFactory {
         return coercion;
     }
 
-    private static void addAuditLogger(Device device, Device arrDevice, String archiveHost) {
+    private static void addAuditLoggerDeviceExtension(Device device, Device arrDevice, String archiveHost) {
         Connection syslog = new Connection("syslog", archiveHost);
         syslog.setClientBindAddress("0.0.0.0");
         syslog.setProtocol(Connection.Protocol.SYSLOG_UDP);
         device.addConnection(syslog);
-
-        AuditLogger auditLogger = new AuditLogger();
-        device.addDeviceExtension(auditLogger);
+        AuditLoggerDeviceExtension ext = new AuditLoggerDeviceExtension();
+        AuditLogger auditLogger = new AuditLogger("Audit Logger");
         auditLogger.addConnection(syslog);
         auditLogger.setAuditSourceTypeCodes("4");
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
+        ext.addAuditLogger(auditLogger);
+        device.addDeviceExtension(ext);
     }
 
     static HL7OrderScheduledStation newScheduledStation(Device unknown) {
