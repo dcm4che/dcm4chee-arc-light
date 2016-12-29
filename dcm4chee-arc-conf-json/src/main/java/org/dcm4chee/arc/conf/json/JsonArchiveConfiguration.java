@@ -172,6 +172,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination());
         writer.writeNotNull("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL());
         writer.writeNotDef("dcmValidateCallingAEHostname", arcDev.isValidateCallingAEHostname(), false);
+        writer.writeNotEmpty("dcmHL7PSUDestination", arcDev.getHl7psuDestinations());
+        writer.writeNotNull("dcmHL7PSUDelay", arcDev.getHl7psuDelay());
+        writer.writeNotNull("dcmHL7PSUTimeout", arcDev.getHl7psuTimeout());
+        writer.writeNotDef("dcmHL7PSUOnTimeout", arcDev.isHl7psuOnTimeout(), false);
+        writer.writeNotNull("dcmHL7PSUTaskPollingInterval", arcDev.getHl7psuTaskPollingInterval());
+        writer.writeNotDef("dcmHL7PSUTaskFetchSize", arcDev.getHl7psuTaskFetchSize(), 100);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -527,6 +533,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getExternalRetrieveAEDestination());
         writer.writeNotEmpty("dcmAcceptedMoveDestination", arcAE.getAcceptedMoveDestinations());
         writer.writeNotNull("dcmValidateCallingAEHostname", arcAE.getValidateCallingAEHostname());
+        writer.writeNotEmpty("dcmHL7PSUDestination", arcAE.getHl7psuDestinations());
+        writer.writeNotNull("dcmHL7PSUDelay", arcAE.getHl7psuDelay());
+        writer.writeNotNull("dcmHL7PSUTimeout", arcAE.getHl7psuTimeout());
+        writer.writeNotNull("dcmHL7PSUOnTimeout", arcAE.getHl7psuOnTimeout());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -813,6 +823,24 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmValidateCallingAEHostname":
                     arcDev.setValidateCallingAEHostname(reader.booleanValue());
+                    break;
+                case "dcmHL7PSUDestination":
+                    arcDev.setHl7psuDestinations(reader.stringArray());
+                    break;
+                case "dcmHL7PSUDelay":
+                    arcDev.setHl7psuDelay(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmHL7PSUTimeout":
+                    arcDev.setHl7psuTimeout(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmHL7PSUOnTimeout":
+                    arcDev.setHl7psuOnTimeout(reader.booleanValue());
+                    break;
+                case "dcmHL7PSUTaskPollingInterval":
+                    arcDev.setHl7psuTaskPollingInterval(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmHL7PSUTaskFetchSize":
+                    arcDev.setHl7psuTaskFetchSize(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1621,6 +1649,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmValidateCallingAEHostname":
                     arcAE.setValidateCallingAEHostname(reader.booleanValue());
+                    break;
+                case "dcmHL7PSUDestination":
+                    arcAE.setHl7psuDestinations(reader.stringArray());
+                    break;
+                case "dcmHL7PSUDelay":
+                    arcAE.setHl7psuDelay(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmHL7PSUTimeout":
+                    arcAE.setHl7psuTimeout(Duration.parse(reader.stringValue()));
+                    break;
+                case "dcmHL7PSUOnTimeout":
+                    arcAE.setHl7psuOnTimeout(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

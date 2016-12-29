@@ -539,6 +539,39 @@
       "description": "Remap Retrieve URL used in QIDO-RS and WADO-RS Metadata responses. Optionally prefixed with \"[<http-client-host>]\". E.g.: \"[cache-proxy]http://cache-proxy:8080\". If absent or if the specified <http-client-host> does not match, scheme and server authority of the QIDO-RS or WADO-RS request URL are used.",
       "type": "string"
     },
+    "dcmHL7PSUDestination": {
+      "title": "HL7 Procedure Status Update Destination",
+      "description": "Destination to send HL7 Procedure Status Update message.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmHL7PSUDelay": {
+      "title": "HL7 Procedure Status Update Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.",
+      "type": "string"
+    },
+    "dcmHL7PSUTimeout": {
+      "title": "HL7 Procedure Status Update Timeout",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.",
+      "type": "string"
+    },
+    "dcmHL7PSUOnTimeout": {
+      "title": "HL7 Procedure Status Update On Timeout",
+      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.",
+      "type": "boolean"
+    },
+    "dcmHL7PSUTaskPollingInterval": {
+      "title": "HL7 Procedure Status Update Task Polling Interval",
+      "description": "Polling Interval for HL7 Procedure Status Update Tasks in ISO-8601 duration format PnDTnHnMn.nS. Disabled, if absent.",
+      "type": "string"
+    },
+    "dcmHL7PSUTaskFetchSize": {
+      "title": "HL7 Procedure Status Update Tasks Fetch Size",
+      "description": "Maximal number of HL7 Procedure Status Update Tasks fetched in one query; 100 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
     "dcmStorage": {
       "title": "Storage Descriptor",
       "description": "Specifies Storage System",

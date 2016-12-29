@@ -147,6 +147,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] retrieveAETitles = {};
     private String remapRetrieveURL;
     private String remapRetrieveURLClientHost;
+    private String[] hl7psuDestinations = {};
+    private Duration hl7psuDelay;
+    private Duration hl7psuTimeout;
+    private boolean hl7psuOnTimeout;
+    private int hl7psuTaskFetchSize = 100;
+    private Duration hl7psuTaskPollingInterval;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -931,6 +937,54 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                                 : request.getRemoteHost()));
     }
 
+    public Duration getHl7psuTaskPollingInterval() {
+        return hl7psuTaskPollingInterval;
+    }
+
+    public void setHl7psuTaskPollingInterval(Duration hl7psuTaskPollingInterval) {
+        this.hl7psuTaskPollingInterval = hl7psuTaskPollingInterval;
+    }
+
+    public String[] getHl7psuDestinations() {
+        return hl7psuDestinations;
+    }
+
+    public void setHl7psuDestinations(String[] hl7psuDestinations) {
+        this.hl7psuDestinations = hl7psuDestinations;
+    }
+
+    public Duration getHl7psuDelay() {
+        return hl7psuDelay;
+    }
+
+    public void setHl7psuDelay(Duration hl7psuDelay) {
+        this.hl7psuDelay = hl7psuDelay;
+    }
+
+    public Duration getHl7psuTimeout() {
+        return hl7psuTimeout;
+    }
+
+    public void setHl7psuTimeout(Duration hl7psuTimeout) {
+        this.hl7psuTimeout = hl7psuTimeout;
+    }
+
+    public boolean isHl7psuOnTimeout() {
+        return hl7psuOnTimeout;
+    }
+
+    public void setHl7psuOnTimeout(boolean hl7psuOnTimeout) {
+        this.hl7psuOnTimeout = hl7psuOnTimeout;
+    }
+
+    public int getHl7psuTaskFetchSize() {
+        return hl7psuTaskFetchSize;
+    }
+
+    public void setHl7psuTaskFetchSize(int hl7psuTaskFetchSize) {
+        this.hl7psuTaskFetchSize = hl7psuTaskFetchSize;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -1371,6 +1425,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         retrieveAETitles = arcdev.retrieveAETitles;
         remapRetrieveURL = arcdev.remapRetrieveURL;
         remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;
+        hl7psuDestinations = arcdev.hl7psuDestinations;
+        hl7psuDelay = arcdev.hl7psuDelay;
+        hl7psuTimeout = arcdev.hl7psuTimeout;
+        hl7psuOnTimeout = arcdev.hl7psuOnTimeout;
+        hl7psuTaskPollingInterval = arcdev.hl7psuTaskPollingInterval;
+        hl7psuTaskFetchSize = arcdev.hl7psuTaskFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

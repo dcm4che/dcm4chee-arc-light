@@ -96,6 +96,10 @@ public class ArchiveAEExtension extends AEExtension {
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private String[] retrieveAETitles = {};
+    private String[] hl7psuDestinations = {};
+    private Duration hl7psuDelay;
+    private Duration hl7psuTimeout;
+    private Boolean hl7psuOnTimeout;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -780,6 +784,62 @@ public class ArchiveAEExtension extends AEExtension {
         return retrieveAETitles.length > 0 ? retrieveAETitles : getArchiveDeviceExtension().getRetrieveAETitles();
     }
 
+    public String[] getHl7psuDestinations() {
+        return hl7psuDestinations;
+    }
+
+    public void setHl7psuDestinations(String[] hl7psuDestinations) {
+        this.hl7psuDestinations = hl7psuDestinations;
+    }
+
+    public String[] hl7psuDestinations() {
+        return hl7psuDestinations.length > 0
+                ? hl7psuDestinations
+                : getArchiveDeviceExtension().getHl7psuDestinations();
+    }
+
+    public Duration getHl7psuDelay() {
+        return hl7psuDelay;
+    }
+
+    public void setHl7psuDelay(Duration hl7psuDelay) {
+        this.hl7psuDelay = hl7psuDelay;
+    }
+
+    public Duration hl7psuDelay() {
+        return hl7psuDelay != null
+                ? hl7psuDelay
+                : getArchiveDeviceExtension().getHl7psuDelay();
+    }
+
+    public Duration getHl7psuTimeout() {
+        return hl7psuTimeout;
+    }
+
+    public void setHl7psuTimeout(Duration hl7psuTimeout) {
+        this.hl7psuTimeout = hl7psuTimeout;
+    }
+
+    public Duration hl7psuTimeout() {
+        return hl7psuTimeout != null
+                ? hl7psuTimeout
+                : getArchiveDeviceExtension().getHl7psuTimeout();
+    }
+
+    public Boolean getHl7psuOnTimeout() {
+        return hl7psuOnTimeout;
+    }
+
+    public void setHl7psuOnTimeout(Boolean hl7psuOnTimeout) {
+        this.hl7psuOnTimeout = hl7psuOnTimeout;
+    }
+
+    public boolean hl7psuOnTimeout() {
+        return hl7psuOnTimeout != null
+                ? hl7psuOnTimeout.booleanValue()
+                : getArchiveDeviceExtension().isHl7psuOnTimeout();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -822,6 +882,10 @@ public class ArchiveAEExtension extends AEExtension {
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         retrieveAETitles = aeExt.retrieveAETitles;
+        hl7psuDestinations = aeExt.hl7psuDestinations;
+        hl7psuDelay = aeExt.hl7psuDelay;
+        hl7psuTimeout = aeExt.hl7psuTimeout;
+        hl7psuOnTimeout = aeExt.hl7psuOnTimeout;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

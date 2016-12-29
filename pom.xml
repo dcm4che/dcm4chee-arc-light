@@ -405,6 +405,7 @@
     <module>dcm4chee-arc-ui</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
+    <module>dcm4chee-arc-hl7-psu</module>
   </modules>
 
   <build>
