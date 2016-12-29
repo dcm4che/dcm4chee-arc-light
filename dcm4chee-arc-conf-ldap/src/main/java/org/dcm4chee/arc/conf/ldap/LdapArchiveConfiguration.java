@@ -150,6 +150,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmMergeMWLCacheStaleTimeout", ext.getMergeMWLCacheStaleTimeout());
         LdapUtils.storeNotDef(attrs, "dcmMergeMWLCacheSize", ext.getMergeMWLCacheSize(), 10);
         LdapUtils.storeNotDef(attrs, "dcmStoreUpdateDBMaxRetries", ext.getStoreUpdateDBMaxRetries(), 1);
+        LdapUtils.storeNotDef(attrs, "dcmStoreUpdateDBMaxRetryDelay", ext.getStoreUpdateDBMaxRetryDelay(), 1000);
         LdapUtils.storeNotNull(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired());
         LdapUtils.storeNotNull(attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID());
         LdapUtils.storeNotNull(attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently());
@@ -247,6 +248,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setMergeMWLCacheStaleTimeout(toDuration(attrs.get("dcmMergeMWLCacheStaleTimeout")));
         ext.setMergeMWLCacheSize(LdapUtils.intValue(attrs.get("dcmMergeMWLCacheSize"), 10));
         ext.setStoreUpdateDBMaxRetries(LdapUtils.intValue(attrs.get("dcmStoreUpdateDBMaxRetries"), 1));
+        ext.setStoreUpdateDBMaxRetryDelay(LdapUtils.intValue(attrs.get("dcmStoreUpdateDBMaxRetryDelay"), 1000));
         ext.setAllowRejectionForDataRetentionPolicyExpired(
                 LdapUtils.enumValue(AllowRejectionForDataRetentionPolicyExpired.class,
                         attrs.get("dcmAllowRejectionForDataRetentionPolicyExpired"), null));
@@ -407,6 +409,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMergeMWLCacheSize(), bb.getMergeMWLCacheSize(), 10);
         LdapUtils.storeDiff(mods, "dcmStoreUpdateDBMaxRetries",
                 aa.getStoreUpdateDBMaxRetries(), bb.getStoreUpdateDBMaxRetries(), 1);
+        LdapUtils.storeDiff(mods, "dcmStoreUpdateDBMaxRetryDelay",
+                aa.getStoreUpdateDBMaxRetryDelay(), bb.getStoreUpdateDBMaxRetryDelay(), 1000);
         LdapUtils.storeDiff(mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired());
         LdapUtils.storeDiff(mods, "dcmAcceptMissingPatientID", aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID());

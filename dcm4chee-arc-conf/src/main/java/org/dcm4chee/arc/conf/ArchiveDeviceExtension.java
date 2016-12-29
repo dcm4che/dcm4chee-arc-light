@@ -140,6 +140,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration mergeMWLCacheStaleTimeout;
     private int mergeMWLCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
+    private int storeUpdateDBMaxRetryDelay = 1000;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
@@ -876,6 +877,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storeUpdateDBMaxRetries = storeUpdateDBMaxRetries;
     }
 
+    public int getStoreUpdateDBMaxRetryDelay() {
+        return storeUpdateDBMaxRetryDelay;
+    }
+
+    public void setStoreUpdateDBMaxRetryDelay(int storeUpdateDBMaxRetryDelay) {
+        this.storeUpdateDBMaxRetryDelay = storeUpdateDBMaxRetryDelay;
+    }
+
     public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {
         return allowRejectionForDataRetentionPolicyExpired;
     }
@@ -1355,6 +1364,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         mergeMWLCacheStaleTimeout = arcdev.mergeMWLCacheStaleTimeout;
         mergeMWLCacheSize = arcdev.mergeMWLCacheSize;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
+        storeUpdateDBMaxRetryDelay = arcdev.storeUpdateDBMaxRetryDelay;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;

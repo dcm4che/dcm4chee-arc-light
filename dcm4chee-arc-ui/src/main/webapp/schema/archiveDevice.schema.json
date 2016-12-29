@@ -430,6 +430,12 @@
       "type": "integer",
       "minimum": 0
     },
+    "dcmStoreUpdateDBMaxRetryDelay": {
+      "title": "Store Update DB Maximum Delay of Retry",
+      "description": "Maximum delay in ms of retry to update the database on storage; 1000 if absent",
+      "type": "integer",
+      "minimum": 0
+    },
     "dcmAllowRejectionForDataRetentionPolicyExpired": {
       "title": "Allow Rejection For Data Retention Policy Expired",
       "description": "Allow Rejection For Data Retention Policy Expired : NEVER, ALWAYS, STUDY_RETENTION_POLICY. If absent, STUDY_RETENTION_POLICY will be applied.",

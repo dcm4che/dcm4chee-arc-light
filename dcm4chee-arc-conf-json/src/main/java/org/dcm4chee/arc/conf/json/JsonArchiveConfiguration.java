@@ -152,6 +152,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmMergeMWLCacheSize",
                 arcDev.getMergeMWLCacheSize(), 10);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 1);
+        writer.writeNotDef("dcmStoreUpdateDBMaxRetryDelay", arcDev.getStoreUpdateDBMaxRetryDelay(), 1000);
         writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired",
                 arcDev.getAllowRejectionForDataRetentionPolicyExpired());
         writer.writeNotNull("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID());
@@ -763,6 +764,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmStoreUpdateDBMaxRetries":
                     arcDev.setStoreUpdateDBMaxRetries(reader.intValue());
+                    break;
+                case "dcmStoreUpdateDBMaxRetryDelay":
+                    arcDev.setStoreUpdateDBMaxRetryDelay(reader.intValue());
                     break;
                 case "dcmAllowRejectionForDataRetentionPolicyExpired":
                     arcDev.setAllowRejectionForDataRetentionPolicyExpired(
