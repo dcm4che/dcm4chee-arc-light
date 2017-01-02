@@ -172,6 +172,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination());
         writer.writeNotNull("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL());
         writer.writeNotDef("dcmValidateCallingAEHostname", arcDev.isValidateCallingAEHostname(), false);
+        writer.writeNotNull("dcmHL7PSUSendingApplication", arcDev.getHl7psuSendingApplication());
         writer.writeNotEmpty("dcmHL7PSUDestination", arcDev.getHl7psuDestinations());
         writer.writeNotNull("dcmHL7PSUDelay", arcDev.getHl7psuDelay());
         writer.writeNotNull("dcmHL7PSUTimeout", arcDev.getHl7psuTimeout());
@@ -533,6 +534,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getExternalRetrieveAEDestination());
         writer.writeNotEmpty("dcmAcceptedMoveDestination", arcAE.getAcceptedMoveDestinations());
         writer.writeNotNull("dcmValidateCallingAEHostname", arcAE.getValidateCallingAEHostname());
+        writer.writeNotNull("dcmHL7PSUSendingApplication", arcAE.getHl7psuSendingApplication());
         writer.writeNotEmpty("dcmHL7PSUDestination", arcAE.getHl7psuDestinations());
         writer.writeNotNull("dcmHL7PSUDelay", arcAE.getHl7psuDelay());
         writer.writeNotNull("dcmHL7PSUTimeout", arcAE.getHl7psuTimeout());
@@ -823,6 +825,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmValidateCallingAEHostname":
                     arcDev.setValidateCallingAEHostname(reader.booleanValue());
+                    break;
+                case "dcmHL7PSUSendingApplication":
+                    arcDev.setHl7psuSendingApplication(reader.stringValue());
                     break;
                 case "dcmHL7PSUDestination":
                     arcDev.setHl7psuDestinations(reader.stringArray());
@@ -1649,6 +1654,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmValidateCallingAEHostname":
                     arcAE.setValidateCallingAEHostname(reader.booleanValue());
+                    break;
+                case "dcmHL7PSUSendingApplication":
+                    arcAE.setHl7psuSendingApplication(reader.stringValue());
                     break;
                 case "dcmHL7PSUDestination":
                     arcAE.setHl7psuDestinations(reader.stringArray());

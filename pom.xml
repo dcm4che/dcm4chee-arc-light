@@ -362,6 +362,7 @@
     <module>dcm4chee-arc-export-rs</module>
     <module>dcm4chee-arc-export-wado</module>
     <module>dcm4chee-arc-hl7</module>
+    <module>dcm4chee-arc-hl7-psu</module>
     <module>dcm4chee-arc-ian-scu</module>
     <module>dcm4chee-arc-id</module>
     <module>dcm4chee-arc-iocm-rs</module>
@@ -405,7 +406,6 @@
     <module>dcm4chee-arc-ui</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
-    <module>dcm4chee-arc-hl7-psu</module>
   </modules>
 
   <build>

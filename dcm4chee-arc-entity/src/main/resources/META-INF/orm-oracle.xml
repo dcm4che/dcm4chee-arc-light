@@ -111,6 +111,16 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.HL7PSUTask">
+    <sequence-generator name="hl7psu_task_pk_seq" sequence-name="hl7psu_task_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="hl7psu_task_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.Instance">
     <sequence-generator name="instance_pk_seq" sequence-name="instance_pk_seq" allocation-size="1"/>
     <attributes>

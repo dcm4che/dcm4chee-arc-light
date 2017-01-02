@@ -263,6 +263,11 @@
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
       "type": "string"
     },
+    "dcmHL7PSUSendingApplication": {
+      "title": "HL7 Procedure Status Update Sending Application",
+      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. Disabled, if absent",
+      "type": "string"
+    },
     "dcmHL7PSUDestination": {
       "title": "HL7 Procedure Status Update Destination",
       "description": "Destination to send HL7 Procedure Status Update message.",

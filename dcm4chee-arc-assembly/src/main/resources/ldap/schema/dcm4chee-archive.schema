@@ -893,9 +893,15 @@ attributetype ( 1.2.40.0.13.1.15.110.3.149 NAME 'dcmHL7PSUOnTimeout'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.150 NAME 'dcmHL7PSUDestination'
-  DESC 'Destination to send HL7 Procedure Status Update message.'
+  DESC 'Destination to send HL7 Procedure Status Update message. Disabled, if absent'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.151 NAME 'dcmHL7PSUSendingApplication'
+  DESC 'Application|Facility name of Sending Application for HL7 Procedure Status Update. Disabled, if absent'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -992,6 +998,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAllowDeleteStudyPermanently $
     dcmRemapRetrieveURL $
     dcmHL7PSUDestination $
+    dcmHL7PSUSendingApplication $
     dcmHL7PSUDelay $
     dcmHL7PSUTimeout $
     dcmHL7PSUOnTimeout $
@@ -1048,7 +1055,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmHL7PSUDelay $
     dcmHL7PSUTimeout $
     dcmHL7PSUOnTimeout $
-    dcmHL7PSUDestination ))
+    dcmHL7PSUDestination $
+    dcmHL7PSUSendingApplication ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'

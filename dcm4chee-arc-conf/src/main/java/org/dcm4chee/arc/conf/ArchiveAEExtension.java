@@ -96,6 +96,7 @@ public class ArchiveAEExtension extends AEExtension {
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private String[] retrieveAETitles = {};
+    private String hl7psuSendingApplication;
     private String[] hl7psuDestinations = {};
     private Duration hl7psuDelay;
     private Duration hl7psuTimeout;
@@ -784,6 +785,20 @@ public class ArchiveAEExtension extends AEExtension {
         return retrieveAETitles.length > 0 ? retrieveAETitles : getArchiveDeviceExtension().getRetrieveAETitles();
     }
 
+    public String getHl7psuSendingApplication() {
+        return hl7psuSendingApplication;
+    }
+
+    public void setHl7psuSendingApplication(String hl7psuSendingApplication) {
+        this.hl7psuSendingApplication = hl7psuSendingApplication;
+    }
+
+    public String hl7psuSendingApplication() {
+        return hl7psuSendingApplication != null
+                ? hl7psuSendingApplication
+                : getArchiveDeviceExtension().getHl7psuSendingApplication();
+    }
+
     public String[] getHl7psuDestinations() {
         return hl7psuDestinations;
     }
@@ -882,6 +897,7 @@ public class ArchiveAEExtension extends AEExtension {
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         retrieveAETitles = aeExt.retrieveAETitles;
+        hl7psuSendingApplication = aeExt.hl7psuSendingApplication;
         hl7psuDestinations = aeExt.hl7psuDestinations;
         hl7psuDelay = aeExt.hl7psuDelay;
         hl7psuTimeout = aeExt.hl7psuTimeout;

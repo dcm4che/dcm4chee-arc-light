@@ -147,6 +147,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] retrieveAETitles = {};
     private String remapRetrieveURL;
     private String remapRetrieveURLClientHost;
+    private String hl7psuSendingApplication;
     private String[] hl7psuDestinations = {};
     private Duration hl7psuDelay;
     private Duration hl7psuTimeout;
@@ -937,6 +938,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                                 : request.getRemoteHost()));
     }
 
+    public String getHl7psuSendingApplication() {
+        return hl7psuSendingApplication;
+    }
+
+    public void setHl7psuSendingApplication(String hl7psuSendingApplication) {
+        this.hl7psuSendingApplication = hl7psuSendingApplication;
+    }
+
     public Duration getHl7psuTaskPollingInterval() {
         return hl7psuTaskPollingInterval;
     }
@@ -1425,6 +1434,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         retrieveAETitles = arcdev.retrieveAETitles;
         remapRetrieveURL = arcdev.remapRetrieveURL;
         remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;
+        hl7psuSendingApplication = arcdev.hl7psuSendingApplication;
         hl7psuDestinations = arcdev.hl7psuDestinations;
         hl7psuDelay = arcdev.hl7psuDelay;
         hl7psuTimeout = arcdev.hl7psuTimeout;

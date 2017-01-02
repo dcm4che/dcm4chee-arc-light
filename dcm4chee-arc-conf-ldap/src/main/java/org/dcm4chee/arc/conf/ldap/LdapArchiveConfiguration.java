@@ -166,6 +166,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination());
         LdapUtils.storeNotNull(attrs, "dcmRemapRetrieveURL", ext.getRemapRetrieveURL());
         LdapUtils.storeNotDef(attrs, "dcmValidateCallingAEHostname", ext.isValidateCallingAEHostname(), false);
+        LdapUtils.storeNotNull(attrs, "dcmHL7PSUSendingApplication", ext.getHl7psuSendingApplication());
         LdapUtils.storeNotEmpty(attrs, "dcmHL7PSUDestination", ext.getHl7psuDestinations());
         LdapUtils.storeNotNull(attrs, "dcmHL7PSUDelay", ext.getHl7psuDelay());
         LdapUtils.storeNotNull(attrs, "dcmHL7PSUTimeout", ext.getHl7psuTimeout());
@@ -273,6 +274,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
         ext.setRemapRetrieveURL(LdapUtils.stringValue(attrs.get("dcmRemapRetrieveURL"), null));
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), false));
+        ext.setHl7psuSendingApplication(LdapUtils.stringValue(attrs.get("dcmHL7PSUSendingApplication"), null));
         ext.setHl7psuDestinations(LdapUtils.stringArray(attrs.get("dcmHL7PSUDestination")));
         ext.setHl7psuDelay(toDuration(attrs.get("dcmHL7PSUDelay")));
         ext.setHl7psuTimeout(toDuration(attrs.get("dcmHL7PSUTimeout")));
@@ -443,6 +445,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination());
         LdapUtils.storeDiff(mods, "dcmRemapRetrieveURL", aa.getRemapRetrieveURL(), bb.getRemapRetrieveURL());
         LdapUtils.storeDiff(mods, "dcmValidateCallingAEHostname", aa.isValidateCallingAEHostname(), bb.isValidateCallingAEHostname());
+        LdapUtils.storeDiff(mods, "dcmHL7PSUSendingApplication", aa.getHl7psuSendingApplication(), bb.getHl7psuSendingApplication());
         LdapUtils.storeDiff(mods, "dcmHL7PSUDestination", aa.getHl7psuDestinations(), bb.getHl7psuDestinations());
         LdapUtils.storeDiff(mods, "dcmHL7PSUDelay", aa.getHl7psuDelay(), bb.getHl7psuDelay());
         LdapUtils.storeDiff(mods, "dcmHL7PSUTimeout", aa.getHl7psuTimeout(), bb.getHl7psuTimeout());
@@ -583,6 +586,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination());
         LdapUtils.storeNotEmpty(attrs, "dcmAcceptedMoveDestination", ext.getAcceptedMoveDestinations());
         LdapUtils.storeNotNull(attrs, "dcmValidateCallingAEHostname", ext.getValidateCallingAEHostname());
+        LdapUtils.storeNotNull(attrs, "dcmHL7PSUSendingApplication", ext.getHl7psuSendingApplication());
         LdapUtils.storeNotEmpty(attrs, "dcmHL7PSUDestination", ext.getHl7psuDestinations());
         LdapUtils.storeNotNull(attrs, "dcmHL7PSUDelay", ext.getHl7psuDelay());
         LdapUtils.storeNotNull(attrs, "dcmHL7PSUTimeout", ext.getHl7psuTimeout());
@@ -641,6 +645,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
         ext.setAcceptedMoveDestinations(LdapUtils.stringArray(attrs.get("dcmAcceptedMoveDestination")));
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), null));
+        ext.setHl7psuSendingApplication(LdapUtils.stringValue(attrs.get("dcmHL7PSUSendingApplication"), null));
         ext.setHl7psuDestinations(LdapUtils.stringArray(attrs.get("dcmHL7PSUDestination")));
         ext.setHl7psuDelay(toDuration(attrs.get("dcmHL7PSUDelay")));
         ext.setHl7psuTimeout(toDuration(attrs.get("dcmHL7PSUTimeout")));
@@ -718,6 +723,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination());
         LdapUtils.storeDiff(mods, "dcmAcceptedMoveDestination", aa.getAcceptedMoveDestinations(), bb.getAcceptedMoveDestinations());
         LdapUtils.storeDiff(mods, "dcmValidateCallingAEHostname", aa.getValidateCallingAEHostname(), bb.getValidateCallingAEHostname());
+        LdapUtils.storeDiff(mods, "dcmHL7PSUSendingApplication", aa.getHl7psuSendingApplication(), bb.getHl7psuSendingApplication());
         LdapUtils.storeDiff(mods, "dcmHL7PSUDestination", aa.getHl7psuDestinations(), bb.getHl7psuDestinations());
         LdapUtils.storeDiff(mods, "dcmHL7PSUDelay", aa.getHl7psuDelay(), bb.getHl7psuDelay());
         LdapUtils.storeDiff(mods, "dcmHL7PSUTimeout", aa.getHl7psuTimeout(), bb.getHl7psuTimeout());
