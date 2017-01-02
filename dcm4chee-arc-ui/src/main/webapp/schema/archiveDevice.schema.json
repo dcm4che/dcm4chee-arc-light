@@ -97,6 +97,16 @@
         "CREATE"
       ]
     },
+    "dcmAcceptConflictingPatientID": {
+      "title": "Accept Conflicting Patient ID",
+      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs). If absent, MERGED will be applied.",
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "MERGED"
+      ]
+    },
     "dcmBulkDataSpoolDirectory": {
       "title": "Bulk Data Spool Directory",
       "description": "Path to Bulk Data Spool Directory",
