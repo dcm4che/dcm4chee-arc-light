@@ -3,4 +3,7 @@ alter table hl7psu_task add constraint UK_p5fraoqdbaywmlyumaeo16t56  unique (stu
 create index UK_t0y05h07d9dagn9a4a9s4a5a4 on hl7psu_task (device_name);
 alter table hl7psu_task add constraint FK_pev4urgkk7id2h1ijhv8domjx foreign key (mpps_fk) references mpps;
 alter table hl7psu_task add constraint FK_2wwvkvaqkua4ljwt40oa3warw foreign key (mwl_fk) references mwl_item;
+create index FK_pev4urgkk7id2h1ijhv8domjx on hl7psu_task (mpps_fk) ;
+create index FK_2wwvkvaqkua4ljwt40oa3warw on hl7psu_task (mwl_fk) ;
+
 create sequence hl7psu_task_pk_seq;
