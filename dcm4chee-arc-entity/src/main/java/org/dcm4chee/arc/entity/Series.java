@@ -45,6 +45,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.DateUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4chee.arc.conf.Duration;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -134,14 +135,29 @@ import java.util.Date;
                 "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
-        query = "select se.pk from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+                "left join se.metadata metadata " +
                 "where se.metadataScheduledUpdateTime < current_timestamp " +
                 "order by se.metadataScheduledUpdateTime"),
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
         query = "select se.pk from Series se " +
-                "where se.instancePurgeTime < current_timestamp and se.metadata is not null " +
+                "where se.instancePurgeTime < current_timestamp " +
+                "and se.metadata is not null " +
+                "and se.metadataScheduledUpdateTime is null " +
                 "order by se.instancePurgeTime"),
+@NamedQuery(
+        name=Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT,
+        query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
+                "where se.study.patient = ?1 " +
+                "and se.metadata is not null " +
+                "and se.metadataScheduledUpdateTime is null"),
+@NamedQuery(
+        name=Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY,
+        query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
+                "where se.study = ?1 " +
+                "and se.metadata is not null " +
+                "and se.metadataScheduledUpdateTime is null"),
 })
 @Entity
 @Table(name = "series",
@@ -185,8 +201,24 @@ public class Series {
     public static final String SERIES_IUIDS_OF_STUDY = "Series.seriesIUIDsOfStudy";
     public static final String SCHEDULED_METADATA_UPDATE = "Series.scheduledMetadataUpdate";
     public static final String SCHEDULED_PURGE_INSTANCES = "Series.scheduledPurgeInstances";
+    public static final String SCHEDULE_METADATA_UPDATE_FOR_PATIENT = "Series.scheduleMetadataUpdateForPatient";
+    public static final String SCHEDULE_METADATA_UPDATE_FOR_STUDY = "Series.scheduleMetadataUpdateForStudy";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
+
+    public static class MetadataUpdate {
+        public final Long seriesPk;
+        public final InstancePurgeState instancePurgeState;
+        public final String storageID;
+        public final String storagePath;
+
+        public MetadataUpdate(Long seriesPk, InstancePurgeState instancePurgeState, String storageID, String storagePath) {
+            this.seriesPk = seriesPk;
+            this.instancePurgeState = instancePurgeState;
+            this.storageID = storageID;
+            this.storagePath = storagePath;
+        }
+    }
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -479,12 +511,22 @@ public class Series {
         this.metadataScheduledUpdateTime = metadataScheduledUpdateTime;
     }
 
+    public void scheduleMetadataUpdate(Duration delay) {
+        if (delay != null && metadataScheduledUpdateTime == null)
+            metadataScheduledUpdateTime = new Date(System.currentTimeMillis() + delay.getSeconds() * 1000L);
+    }
+
     public Date getInstancePurgeTime() {
         return instancePurgeTime;
     }
 
     public void setInstancePurgeTime(Date instancePurgeTime) {
         this.instancePurgeTime = instancePurgeTime;
+    }
+
+    public void scheduleInstancePurge(Duration delay) {
+        if (delay != null && instancePurgeTime == null)
+            instancePurgeTime = new Date(System.currentTimeMillis() + delay.getSeconds() * 1000L);
     }
 
     public InstancePurgeState getInstancePurgeState() {

@@ -130,7 +130,8 @@ public class StoreServiceEJB {
             Collection<Location> locations = prevInstance.getLocations();
             result.setPreviousInstance(prevInstance);
             LOG.info("{}: Found previous received {}", session, prevInstance);
-            Study prevStudy = prevInstance.getSeries().getStudy();
+            Series prevSeries = prevInstance.getSeries();
+            Study prevStudy = prevSeries.getStudy();
             if (session.getCallingAET().equals(prevInstance.getExternalRetrieveAET())) {
                 if (containsDicomFile(locations)) {
                     logInfo(IGNORE, ctx);
@@ -179,6 +180,7 @@ public class StoreServiceEJB {
                     prevInstance.setRejectionNoteCode(null);
                     result.setStoredInstance(prevInstance);
                     deleteQueryAttributes(prevInstance);
+                    prevSeries.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
                     prevStudy.setExternalRetrieveAET(null);
                     prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                     logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
@@ -217,15 +219,8 @@ public class StoreServiceEJB {
         if(rjNote == null || !rjNote.isDataRetentionPolicyExpired()) {
             Series series = instance.getSeries();
             series.getStudy().setExternalRetrieveAET(null);
-            Duration seriesMetadataDelay = arcAE.seriesMetadataDelay();
-            if (seriesMetadataDelay != null && series.getMetadataScheduledUpdateTime() == null) {
-                long now = System.currentTimeMillis();
-                series.setMetadataScheduledUpdateTime(new Date(now + seriesMetadataDelay.getSeconds() * 1000));
-                Duration purgeInstanceRecordsDelay = arcAE.purgeInstanceRecordsDelay();
-                if (purgeInstanceRecordsDelay != null) {
-                    series.setInstancePurgeTime(new Date(now + purgeInstanceRecordsDelay.getSeconds() * 1000));
-                }
-            }
+            series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
+            series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
         }
         return result;
     }
@@ -233,6 +228,7 @@ public class StoreServiceEJB {
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode,
                                  AllowRejectionForDataRetentionPolicyExpired policy)
             throws DicomServiceException {
+        Duration seriesMetadataDelay = ctx.getStoreSession().getArchiveAEExtension().seriesMetadataDelay();
         for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
             Series series = null;
             String studyUID = studyRef.getString(Tag.StudyInstanceUID);
@@ -256,6 +252,7 @@ public class StoreServiceEJB {
                     if (rejectionState == RejectionState.COMPLETE)
                         series.setExpirationDate(null);
                     deleteSeriesQueryAttributes(series);
+                    series.scheduleMetadataUpdate(seriesMetadataDelay);
                 }
             }
             if (series != null) {
@@ -411,8 +408,10 @@ public class StoreServiceEJB {
         boolean sameSeries = sameStudy && ctx.getSeriesInstanceUID().equals(series.getSeriesInstanceUID());
         if (!sameSeries) {
             deleteQueryAttributes(instance);
-            if (deleteSeriesIfEmpty(series, ctx) && !sameStudy)
+            if (deleteSeriesIfEmpty(series, ctx))
                 deleteStudyIfEmpty(study, ctx);
+            else
+                series.scheduleMetadataUpdate(ctx.getStoreSession().getArchiveAEExtension().seriesMetadataDelay());
         }
     }
 
@@ -569,6 +568,9 @@ public class StoreServiceEJB {
                 issuerEntity.getIssuer().merge(issuer);
         }
         pat.setAttributes(attrs, filter, arcDev.getFuzzyStr());
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
+                .setParameter(1, pat)
+                .executeUpdate();
         return pat;
     }
 
@@ -591,6 +593,9 @@ public class StoreServiceEJB {
         study.setAttributes(attrs, filter, arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                .setParameter(1, study)
+                .executeUpdate();
         return study;
     }
 

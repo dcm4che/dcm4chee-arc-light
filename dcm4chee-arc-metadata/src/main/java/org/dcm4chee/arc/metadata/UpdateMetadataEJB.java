@@ -42,8 +42,6 @@ package org.dcm4chee.arc.metadata;
 
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.storage.WriteContext;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -60,15 +58,18 @@ public class UpdateMetadataEJB {
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
-    public List<Long> findSeriesForScheduledMetadataUpdate(int fetchSize) {
-        return em.createNamedQuery(Series.SCHEDULED_METADATA_UPDATE, Long.class)
+    public List<Series.MetadataUpdate> findSeriesForScheduledMetadataUpdate(int fetchSize) {
+        return em.createNamedQuery(Series.SCHEDULED_METADATA_UPDATE, Series.MetadataUpdate.class)
                 .setMaxResults(fetchSize)
                 .getResultList();
     }
 
-    public void updateDB(RetrieveContext ctx, Metadata metadata) {
-        Series series = em.find(Series.class, ctx.getSeriesPk());
+    public void updateDB(Long seriesPk, Metadata metadata) {
+        Series series = em.find(Series.class, seriesPk);
         em.persist(metadata);
+        Metadata prev = series.getMetadata();
+        if (prev != null)
+            prev.setStatus(Metadata.Status.TO_DELETE);
         series.setMetadata(metadata);
         series.setMetadataScheduledUpdateTime(null);
     }

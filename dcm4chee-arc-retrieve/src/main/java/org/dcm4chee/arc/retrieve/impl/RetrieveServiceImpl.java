@@ -269,10 +269,10 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public RetrieveContext newRetrieveContextSeriesMetadata(Long seriesPk) {
+    public RetrieveContext newRetrieveContextSeriesMetadata(Series.MetadataUpdate metadataUpdate) {
         RetrieveContext ctx = new RetrieveContextImpl(this, null, null, null);
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.SERIES);
-        ctx.setSeriesPk(seriesPk);
+        ctx.setSeriesMetadataUpdate(metadataUpdate);
         ctx.setObjectType(null);
         return ctx;
     }
@@ -338,37 +338,51 @@ public class RetrieveServiceImpl implements RetrieveService {
             HashMap<Long,InstanceLocations> instMap = new HashMap<>();
             HashMap<Long,Attributes> seriesAttrsMap = new HashMap<>();
             HashMap<Long,StudyInfo> studyInfoMap = new HashMap<>();
-            for (Tuple tuple : createQuery(ctx, session).fetch()) {
-                Long instPk = tuple.get(QInstance.instance.pk);
-                InstanceLocations match = instMap.get(instPk);
-                if (match == null) {
-                    Long seriesPk = tuple.get(QSeries.series.pk);
-                    Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
-                    if (seriesAttrs == null) {
+            Series.MetadataUpdate metadataUpdate = ctx.getSeriesMetadataUpdate();
+            if (metadataUpdate != null && metadataUpdate.instancePurgeState == Series.InstancePurgeState.PURGED) {
+                SeriesAttributes seriesAttributes = getSeriesAttributes(session, metadataUpdate.seriesPk);
+                studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
+                ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
+                addLocationsFromMetadata(ctx,
+                        metadataUpdate.storageID,
+                        metadataUpdate.storagePath,
+                        seriesAttributes.attrs);
+            } else {
+                for (Tuple tuple : createQuery(ctx, session).fetch()) {
+                    Long instPk = tuple.get(QInstance.instance.pk);
+                    InstanceLocations match = instMap.get(instPk);
+                    if (match == null) {
+                        Long seriesPk = tuple.get(QSeries.series.pk);
+                        Attributes seriesAttrs = seriesAttrsMap.get(seriesPk);
+                        if (seriesAttrs == null) {
+                            SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
+                            studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
+                            ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
+                            ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
+                            seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
+                        }
+                        Attributes instAttrs = AttributesBlob.decodeAttributes(
+                                tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
+                        Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
+                        instAttrs.addAll(seriesAttrs);
+                        match = instanceLocationsFromDB(tuple, instAttrs);
+                        matches.add(match);
+                        instMap.put(instPk, match);
+                    }
+                    addLocation(match, tuple);
+                }
+                if (ctx.isConsiderPurgedInstances()) {
+                    for (Tuple tuple : queryMetadataStoragePath(ctx, session).fetch()) {
+                        Long seriesPk = tuple.get(QSeries.series.pk);
                         SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
                         studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
                         ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
                         ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
-                        seriesAttrsMap.put(seriesPk, seriesAttrs = seriesAttributes.attrs);
+                        addLocationsFromMetadata(ctx,
+                                tuple.get(QMetadata.metadata.storageID),
+                                tuple.get(QMetadata.metadata.storagePath),
+                                seriesAttributes.attrs);
                     }
-                    Attributes instAttrs = AttributesBlob.decodeAttributes(
-                            tuple.get(QueryBuilder.instanceAttributesBlob.encodedAttributes), null);
-                    Attributes.unifyCharacterSets(seriesAttrs, instAttrs);
-                    instAttrs.addAll(seriesAttrs);
-                    match = instanceLocationsFromDB(tuple, instAttrs);
-                    matches.add(match);
-                    instMap.put(instPk, match);
-                }
-                addLocation(match, tuple);
-            }
-            if (ctx.isConsiderPurgedInstances()) {
-                for (Tuple tuple : queryMetadataStoragePath(ctx, session).fetch()) {
-                    Long seriesPk = tuple.get(QSeries.series.pk);
-                    SeriesAttributes seriesAttributes = getSeriesAttributes(session, seriesPk);
-                    studyInfoMap.put(seriesAttributes.studyInfo.getStudyPk(), seriesAttributes.studyInfo);
-                    ctx.getSeriesInfos().add(seriesAttributes.seriesInfo);
-                    ctx.setPatientUpdatedTime(seriesAttributes.patientUpdatedTime);
-                    addLocationsFromMetadata(ctx, tuple);
                 }
             }
             ctx.setNumberOfMatches(matches.size());
@@ -393,21 +407,26 @@ public class RetrieveServiceImpl implements RetrieveService {
         return inst;
     }
 
-    private void addLocationsFromMetadata(RetrieveContext ctx, Tuple tuple)
+    private void addLocationsFromMetadata(
+            RetrieveContext ctx, String storageID, String storagePath, Attributes seriesAttrs)
             throws IOException {
         QueryRetrieveView qrView = ctx.getQueryRetrieveView();
-        Storage storage = getStorage(tuple.get(QMetadata.metadata.storageID), ctx);
+        Storage storage = getStorage(storageID, ctx);
         try (InputStream in = storage.openInputStream(
-                createReadContext(storage, tuple.get(QMetadata.metadata.storagePath), null))) {
+                createReadContext(storage, storagePath, null))) {
             ZipInputStream zip = new ZipInputStream(in);
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (isEmptyOrContains(ctx.getSopInstanceUIDs(), entry.getName())) {
                     Attributes metadata = parseJSON(zip, !ctx.isRetrieveMetadata());
-                    if (!qrView.hideRejectedInstance(
-                            metadata.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence))
-                            && !qrView.hideRejectionNote(metadata))
+                    if (qrView == null
+                            || !qrView.hideRejectedInstance(
+                                metadata.getNestedDataset(ArchiveTag.PrivateCreator, ArchiveTag.RejectionCodeSequence))
+                            && !qrView.hideRejectionNote(metadata)) {
+                        Attributes.unifyCharacterSets(seriesAttrs, metadata);
+                        metadata.addAll(seriesAttrs);
                         ctx.getMatches().add(instanceLocationsFromMetadata(metadata));
+                    }
                 }
                 zip.closeEntry();
             }
@@ -571,8 +590,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
         query = query.leftJoin(QLocation.location.uidMap, QUIDMap.uIDMap);
 
-        if (ctx.getSeriesPk() != null)
-            return query.where(QSeries.series.pk.eq(ctx.getSeriesPk()))
+        if (ctx.getSeriesMetadataUpdate() != null)
+            return query.where(QSeries.series.pk.eq(ctx.getSeriesMetadataUpdate().seriesPk))
                     .orderBy(QInstance.instance.instanceNumber.asc());
 
         IDWithIssuer[] pids = ctx.getPatientIDs();

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.metadata;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
@@ -47,6 +48,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Metadata;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -115,14 +117,14 @@ public class UpdateMetadataScheduler extends Scheduler {
         StorageDescriptor storageDesc = arcDev.getStorageDescriptor(arcDev.getSeriesMetadataStorageID());
         int fetchSize = arcDev.getSeriesMetadataFetchSize();
         try (Storage storage = storageFactory.getStorage(storageDesc)) {
-            List<Long> seriesPks;
+            List<Series.MetadataUpdate> metadataUpdates;
             do {
-                seriesPks = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
-                for (Long seriesPk : seriesPks) {
-                    updateMetadata(retrieveService.newRetrieveContextSeriesMetadata(seriesPk), storage);
+                metadataUpdates = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
+                for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
+                    updateMetadata(retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate), storage);
                 }
             }
-            while (seriesPks.size() == fetchSize);
+            while (metadataUpdates.size() == fetchSize);
         } catch (IOException e) {
             LOG.error("Failed to store Series Metadata to {}:\n", storageDesc.getStorageURI(), e);
         }
@@ -137,7 +139,7 @@ public class UpdateMetadataScheduler extends Scheduler {
             for (InstanceLocations match : ctx.getMatches()) {
                 out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
                 JsonGenerator gen = Json.createGenerator(out);
-                new JSONWriter(gen).write(retrieveService.loadMetadata(ctx, match));
+                new JSONWriter(gen).write(loadMetadata(ctx, match));
                 gen.flush();
                 out.closeEntry();
             }
@@ -152,7 +154,11 @@ public class UpdateMetadataScheduler extends Scheduler {
             storage.revokeStorage(writeCtx);
             throw e;
         }
-        ejb.updateDB(ctx, createMetadata(writeCtx));
+        ejb.updateDB(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));
+    }
+
+    private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations match) throws IOException {
+        return match.isContainsMetadata() ? match.getAttributes() : retrieveService.loadMetadata(ctx, match);
     }
 
     private Metadata createMetadata(WriteContext writeContext) {

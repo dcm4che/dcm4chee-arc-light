@@ -49,7 +49,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.entity.Series;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -85,7 +85,7 @@ public interface RetrieveService {
     RetrieveContext newRetrieveContextIOCM(
             HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs);
 
-    RetrieveContext newRetrieveContextSeriesMetadata(Long seriesPk);
+    RetrieveContext newRetrieveContextSeriesMetadata(Series.MetadataUpdate metadataUpdate);
 
     boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException;
 
