@@ -96,11 +96,11 @@ public class ArchiveAEExtension extends AEExtension {
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private String[] retrieveAETitles = {};
-    private String hl7psuSendingApplication;
-    private String[] hl7psuDestinations = {};
-    private Duration hl7psuDelay;
-    private Duration hl7psuTimeout;
-    private Boolean hl7psuOnTimeout;
+    private String hl7PSUSendingApplication;
+    private String[] hl7PSUReceivingApplications = {};
+    private Duration hl7PSUDelay;
+    private Duration hl7PSUTimeout;
+    private Boolean hl7PSUOnTimeout;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -785,74 +785,82 @@ public class ArchiveAEExtension extends AEExtension {
         return retrieveAETitles.length > 0 ? retrieveAETitles : getArchiveDeviceExtension().getRetrieveAETitles();
     }
 
-    public String getHl7psuSendingApplication() {
-        return hl7psuSendingApplication;
+    public String getHl7PSUSendingApplication() {
+        return hl7PSUSendingApplication;
     }
 
-    public void setHl7psuSendingApplication(String hl7psuSendingApplication) {
-        this.hl7psuSendingApplication = hl7psuSendingApplication;
+    public void setHl7PSUSendingApplication(String hl7PSUSendingApplication) {
+        this.hl7PSUSendingApplication = hl7PSUSendingApplication;
     }
 
-    public String hl7psuSendingApplication() {
-        return hl7psuSendingApplication != null
-                ? hl7psuSendingApplication
-                : getArchiveDeviceExtension().getHl7psuSendingApplication();
+    public String hl7PSUSendingApplication() {
+        return hl7PSUSendingApplication != null
+                ? hl7PSUSendingApplication
+                : getArchiveDeviceExtension().getHl7PSUSendingApplication();
     }
 
-    public String[] getHl7psuDestinations() {
-        return hl7psuDestinations;
+    public String[] getHl7PSUReceivingApplications() {
+        return hl7PSUReceivingApplications;
     }
 
-    public void setHl7psuDestinations(String[] hl7psuDestinations) {
-        this.hl7psuDestinations = hl7psuDestinations;
+    public void setHl7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
+        this.hl7PSUReceivingApplications = hl7PSUReceivingApplications;
     }
 
-    public String[] hl7psuDestinations() {
-        return hl7psuDestinations.length > 0
-                ? hl7psuDestinations
-                : getArchiveDeviceExtension().getHl7psuDestinations();
+    public String[] hl7PSUReceivingApplications() {
+        return hl7PSUReceivingApplications.length > 0
+                ? hl7PSUReceivingApplications
+                : getArchiveDeviceExtension().getHl7PSUReceivingApplications();
     }
 
-    public Duration getHl7psuDelay() {
-        return hl7psuDelay;
+    public Duration getHl7PSUDelay() {
+        return hl7PSUDelay;
     }
 
-    public void setHl7psuDelay(Duration hl7psuDelay) {
-        this.hl7psuDelay = hl7psuDelay;
+    public void setHl7PSUDelay(Duration hl7PSUDelay) {
+        this.hl7PSUDelay = hl7PSUDelay;
     }
 
-    public Duration hl7psuDelay() {
-        return hl7psuDelay != null
-                ? hl7psuDelay
-                : getArchiveDeviceExtension().getHl7psuDelay();
+    public Duration hl7PSUDelay() {
+        return hl7PSUDelay != null
+                ? hl7PSUDelay
+                : getArchiveDeviceExtension().getHl7PSUDelay();
     }
 
-    public Duration getHl7psuTimeout() {
-        return hl7psuTimeout;
+    public Duration getHl7PSUTimeout() {
+        return hl7PSUTimeout;
     }
 
-    public void setHl7psuTimeout(Duration hl7psuTimeout) {
-        this.hl7psuTimeout = hl7psuTimeout;
+    public void setHl7PSUTimeout(Duration hl7PSUTimeout) {
+        this.hl7PSUTimeout = hl7PSUTimeout;
     }
 
-    public Duration hl7psuTimeout() {
-        return hl7psuTimeout != null
-                ? hl7psuTimeout
-                : getArchiveDeviceExtension().getHl7psuTimeout();
+    public Duration hl7PSUTimeout() {
+        return hl7PSUTimeout != null
+                ? hl7PSUTimeout
+                : getArchiveDeviceExtension().getHl7PSUTimeout();
     }
 
-    public Boolean getHl7psuOnTimeout() {
-        return hl7psuOnTimeout;
+    public Boolean getHl7PSUOnTimeout() {
+        return hl7PSUOnTimeout;
     }
 
-    public void setHl7psuOnTimeout(Boolean hl7psuOnTimeout) {
-        this.hl7psuOnTimeout = hl7psuOnTimeout;
+    public void setHl7PSUOnTimeout(Boolean hl7PSUOnTimeout) {
+        this.hl7PSUOnTimeout = hl7PSUOnTimeout;
     }
 
-    public boolean hl7psuOnTimeout() {
-        return hl7psuOnTimeout != null
-                ? hl7psuOnTimeout.booleanValue()
-                : getArchiveDeviceExtension().isHl7psuOnTimeout();
+    public boolean hl7PSUOnTimeout() {
+        return hl7PSUOnTimeout != null
+                ? hl7PSUOnTimeout.booleanValue()
+                : getArchiveDeviceExtension().isHl7PSUOnTimeout();
+    }
+
+    public boolean hl7PSUOnStudy() {
+        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() == null;
+    }
+
+    public boolean hl7PSUOnMPPS() {
+        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null;
     }
 
     @Override
@@ -897,11 +905,11 @@ public class ArchiveAEExtension extends AEExtension {
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         retrieveAETitles = aeExt.retrieveAETitles;
-        hl7psuSendingApplication = aeExt.hl7psuSendingApplication;
-        hl7psuDestinations = aeExt.hl7psuDestinations;
-        hl7psuDelay = aeExt.hl7psuDelay;
-        hl7psuTimeout = aeExt.hl7psuTimeout;
-        hl7psuOnTimeout = aeExt.hl7psuOnTimeout;
+        hl7PSUSendingApplication = aeExt.hl7PSUSendingApplication;
+        hl7PSUReceivingApplications = aeExt.hl7PSUReceivingApplications;
+        hl7PSUDelay = aeExt.hl7PSUDelay;
+        hl7PSUTimeout = aeExt.hl7PSUTimeout;
+        hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

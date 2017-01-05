@@ -42,8 +42,6 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
 
-import java.net.InetAddress;
-import java.net.URI;
 import java.time.LocalTime;
 
 import org.dcm4che3.net.DeviceExtension;
@@ -147,13 +145,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] retrieveAETitles = {};
     private String remapRetrieveURL;
     private String remapRetrieveURLClientHost;
-    private String hl7psuSendingApplication;
-    private String[] hl7psuDestinations = {};
-    private Duration hl7psuDelay;
-    private Duration hl7psuTimeout;
-    private boolean hl7psuOnTimeout;
-    private int hl7psuTaskFetchSize = 100;
-    private Duration hl7psuTaskPollingInterval;
+    private String hl7PSUSendingApplication;
+    private String[] hl7PSUReceivingApplications = {};
+    private Duration hl7PSUDelay;
+    private Duration hl7PSUTimeout;
+    private boolean hl7PSUOnTimeout;
+    private int hl7PSUTaskFetchSize = 100;
+    private Duration hl7PSUTaskPollingInterval;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -938,60 +936,60 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                                 : request.getRemoteHost()));
     }
 
-    public String getHl7psuSendingApplication() {
-        return hl7psuSendingApplication;
+    public String getHl7PSUSendingApplication() {
+        return hl7PSUSendingApplication;
     }
 
-    public void setHl7psuSendingApplication(String hl7psuSendingApplication) {
-        this.hl7psuSendingApplication = hl7psuSendingApplication;
+    public void setHl7PSUSendingApplication(String hl7PSUSendingApplication) {
+        this.hl7PSUSendingApplication = hl7PSUSendingApplication;
     }
 
-    public Duration getHl7psuTaskPollingInterval() {
-        return hl7psuTaskPollingInterval;
+    public Duration getHl7PSUTaskPollingInterval() {
+        return hl7PSUTaskPollingInterval;
     }
 
-    public void setHl7psuTaskPollingInterval(Duration hl7psuTaskPollingInterval) {
-        this.hl7psuTaskPollingInterval = hl7psuTaskPollingInterval;
+    public void setHl7PSUTaskPollingInterval(Duration hl7PSUTaskPollingInterval) {
+        this.hl7PSUTaskPollingInterval = hl7PSUTaskPollingInterval;
     }
 
-    public String[] getHl7psuDestinations() {
-        return hl7psuDestinations;
+    public String[] getHl7PSUReceivingApplications() {
+        return hl7PSUReceivingApplications;
     }
 
-    public void setHl7psuDestinations(String[] hl7psuDestinations) {
-        this.hl7psuDestinations = hl7psuDestinations;
+    public void setHl7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
+        this.hl7PSUReceivingApplications = hl7PSUReceivingApplications;
     }
 
-    public Duration getHl7psuDelay() {
-        return hl7psuDelay;
+    public Duration getHl7PSUDelay() {
+        return hl7PSUDelay;
     }
 
-    public void setHl7psuDelay(Duration hl7psuDelay) {
-        this.hl7psuDelay = hl7psuDelay;
+    public void setHl7PSUDelay(Duration hl7PSUDelay) {
+        this.hl7PSUDelay = hl7PSUDelay;
     }
 
-    public Duration getHl7psuTimeout() {
-        return hl7psuTimeout;
+    public Duration getHl7PSUTimeout() {
+        return hl7PSUTimeout;
     }
 
-    public void setHl7psuTimeout(Duration hl7psuTimeout) {
-        this.hl7psuTimeout = hl7psuTimeout;
+    public void setHl7PSUTimeout(Duration hl7PSUTimeout) {
+        this.hl7PSUTimeout = hl7PSUTimeout;
     }
 
-    public boolean isHl7psuOnTimeout() {
-        return hl7psuOnTimeout;
+    public boolean isHl7PSUOnTimeout() {
+        return hl7PSUOnTimeout;
     }
 
-    public void setHl7psuOnTimeout(boolean hl7psuOnTimeout) {
-        this.hl7psuOnTimeout = hl7psuOnTimeout;
+    public void setHl7PSUOnTimeout(boolean hl7PSUOnTimeout) {
+        this.hl7PSUOnTimeout = hl7PSUOnTimeout;
     }
 
-    public int getHl7psuTaskFetchSize() {
-        return hl7psuTaskFetchSize;
+    public int getHl7PSUTaskFetchSize() {
+        return hl7PSUTaskFetchSize;
     }
 
-    public void setHl7psuTaskFetchSize(int hl7psuTaskFetchSize) {
-        this.hl7psuTaskFetchSize = hl7psuTaskFetchSize;
+    public void setHl7PSUTaskFetchSize(int hl7PSUTaskFetchSize) {
+        this.hl7PSUTaskFetchSize = hl7PSUTaskFetchSize;
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {
@@ -1434,13 +1432,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         retrieveAETitles = arcdev.retrieveAETitles;
         remapRetrieveURL = arcdev.remapRetrieveURL;
         remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;
-        hl7psuSendingApplication = arcdev.hl7psuSendingApplication;
-        hl7psuDestinations = arcdev.hl7psuDestinations;
-        hl7psuDelay = arcdev.hl7psuDelay;
-        hl7psuTimeout = arcdev.hl7psuTimeout;
-        hl7psuOnTimeout = arcdev.hl7psuOnTimeout;
-        hl7psuTaskPollingInterval = arcdev.hl7psuTaskPollingInterval;
-        hl7psuTaskFetchSize = arcdev.hl7psuTaskFetchSize;
+        hl7PSUSendingApplication = arcdev.hl7PSUSendingApplication;
+        hl7PSUReceivingApplications = arcdev.hl7PSUReceivingApplications;
+        hl7PSUDelay = arcdev.hl7PSUDelay;
+        hl7PSUTimeout = arcdev.hl7PSUTimeout;
+        hl7PSUOnTimeout = arcdev.hl7PSUOnTimeout;
+        hl7PSUTaskPollingInterval = arcdev.hl7PSUTaskPollingInterval;
+        hl7PSUTaskFetchSize = arcdev.hl7PSUTaskFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

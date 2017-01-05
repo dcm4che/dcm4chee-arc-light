@@ -263,28 +263,28 @@
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
       "type": "string"
     },
-    "dcmHL7PSUSendingApplication": {
+    "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
-      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. Disabled, if absent",
+      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent.",
       "type": "string"
     },
-    "dcmHL7PSUDestination": {
-      "title": "HL7 Procedure Status Update Destination",
-      "description": "Destination to send HL7 Procedure Status Update message.",
+    "hl7PSUReceivingApplication": {
+      "title": "HL7 Procedure Status Update Receiving Application",
+      "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update.",
       "type": "array",
       "items" : { "type": "string" }
     },
-    "dcmHL7PSUDelay": {
+    "hl7PSUDelay": {
       "title": "HL7 Procedure Status Update Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.",
       "type": "string"
     },
-    "dcmHL7PSUTimeout": {
+    "hl7PSUTimeout": {
       "title": "HL7 Procedure Status Update Timeout",
       "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.",
       "type": "string"
     },
-    "dcmHL7PSUOnTimeout": {
+    "hl7PSUOnTimeout": {
       "title": "HL7 Procedure Status Update On Timeout",
       "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.",
       "type": "boolean"

@@ -40,29 +40,28 @@
 
 package org.dcm4chee.arc.entity;
 
-import org.dcm4che3.util.StringUtils;
-
 import javax.persistence.*;
 import java.util.Date;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2017
  */
 @NamedQueries({
         @NamedQuery(name = HL7PSUTask.FIND_WITH_MPPS_BY_DEVICE_NAME,
                 query = "select o from HL7PSUTask o " +
-                        "join fetch o.mwl mwl " +
-                        "join fetch mwl.attributesBlob " +
+                        "join fetch o.mpps mpps " +
+                        "join fetch mpps.attributesBlob " +
                         "where o.mpps is not null and o.deviceName=?1 and o.pk>?2 " +
                         "order by o.pk"),
         @NamedQuery(name = HL7PSUTask.FIND_SCHEDULED_BY_DEVICE_NAME,
                 query = "select o from HL7PSUTask o " +
-                        "join fetch o.mwl mwl " +
-                        "join fetch mwl.attributesBlob " +
+                        "left join fetch o.mpps mpps " +
+                        "left join fetch mpps.attributesBlob " +
                         "where o.deviceName=?1 and o.scheduledTime < current_timestamp"),
         @NamedQuery(name = HL7PSUTask.FIND_BY_STUDY_IUID,
-                query = "select o from HL7PSUTask o where o.studyInstanceUID=?1 and o.mwl=?2"),
+                query = "select o from HL7PSUTask o where o.studyInstanceUID=?1"),
 
 })
 @Entity
@@ -81,16 +80,17 @@ public class HL7PSUTask {
     private long pk;
 
     @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_time", updatable = false)
+    private Date createdTime;
+
+    @Basic(optional = false)
     @Column(name = "device_name", updatable = false)
     private String deviceName;
 
     @Basic(optional = false)
-    @Column(name = "called_aet", updatable = false)
-    private String calledAET;
-
-    @Basic(optional = false)
-    @Column(name = "hl7psu_dests", updatable = false)
-    private String hl7psuDestinations;
+    @Column(name = "aet", updatable = false)
+    private String aeTitle;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "scheduled_time")
@@ -103,12 +103,17 @@ public class HL7PSUTask {
     @JoinColumn(name = "mpps_fk", updatable = false)
     private MPPS mpps;
 
-    @OneToOne
-    @JoinColumn(name = "mwl_fk", updatable = false)
-    private MWLItem mwl;
+    @PrePersist
+    public void onPrePersist() {
+        createdTime = new Date();
+    }
 
     public long getPk() {
         return pk;
+    }
+
+    public Date getCreatedTime() {
+        return createdTime;
     }
 
     public String getDeviceName() {
@@ -119,20 +124,12 @@ public class HL7PSUTask {
         this.deviceName = deviceName;
     }
 
-    public String getCalledAET() {
-        return calledAET;
+    public String getAETitle() {
+        return aeTitle;
     }
 
-    public void setCalledAET(String calledAET) {
-        this.calledAET = calledAET;
-    }
-
-    public String[] getHl7psuDestinations() {
-        return StringUtils.split(hl7psuDestinations, '\\');
-    }
-
-    public void setHl7psuDestinations(String... hl7psuDestinations) {
-        this.hl7psuDestinations = StringUtils.concat(hl7psuDestinations, '\\');
+    public void setAETitle(String aeTitle) {
+        this.aeTitle = aeTitle;
     }
 
     public Date getScheduledTime() {
@@ -157,14 +154,6 @@ public class HL7PSUTask {
 
     public void setMpps(MPPS mpps) {
         this.mpps = mpps;
-    }
-
-    public MWLItem getMwl() {
-        return mwl;
-    }
-
-    public void setMwl(MWLItem mwl) {
-        this.mwl = mwl;
     }
 
     @Override

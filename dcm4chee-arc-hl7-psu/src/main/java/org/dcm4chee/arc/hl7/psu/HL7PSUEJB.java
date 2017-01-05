@@ -40,16 +40,14 @@
 
 package org.dcm4chee.arc.hl7.psu;
 
-import org.dcm4che3.hl7.HL7Message;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.mpps.MPPSContext;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.store.StoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,65 +62,67 @@ import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2017
  */
 @Stateless
-public class HL7ProcedureStatusUpdateEJB {
-    private static final Logger LOG = LoggerFactory.getLogger(HL7ProcedureStatusUpdateEJB.class);
+public class HL7PSUEJB {
+    private static final Logger LOG = LoggerFactory.getLogger(HL7PSUEJB.class);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
 
     @Inject
-    private QueueManager queueManager;
+    private Device device;
 
     @Inject
     private HL7Sender hl7Sender;
 
     public void createHL7PSUTaskForMPPS(ArchiveAEExtension arcAE, MPPSContext ctx) {
-        List<MWLItem> mwlItems = findMWLItems(ctx.getMPPS().getStudyInstanceUID());
-        for (MWLItem mwl : mwlItems) {
-            ApplicationEntity ae = arcAE.getApplicationEntity();
+        HL7PSUTask task = new HL7PSUTask();
+        task.setDeviceName(device.getDeviceName());
+        task.setAETitle(arcAE.getApplicationEntity().getAETitle());
+        task.setScheduledTime(scheduledTime(arcAE.hl7PSUTimeout()));
+        task.setStudyInstanceUID(ctx.getMPPS().getStudyInstanceUID());
+        task.setMpps(ctx.getMPPS());
+        em.persist(task);
+        LOG.info("{}: Created {}", ctx, task);
+    }
+
+    public boolean createOrUpdateHL7PSUTaskForStudy(ArchiveAEExtension arcAE, StoreContext ctx) {
+        if (!hasMWLItems(ctx.getStudyInstanceUID()))
+            return false;
+
+        try {
+            HL7PSUTask task = em.createNamedQuery(HL7PSUTask.FIND_BY_STUDY_IUID, HL7PSUTask.class)
+                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .getSingleResult();
+            task.setScheduledTime(scheduledTime(arcAE.hl7PSUDelay()));
+            LOG.info("{}: Updated {}", ctx, task);
+        } catch (NoResultException nre) {
             HL7PSUTask task = new HL7PSUTask();
-            task.setDeviceName(ae.getDevice().getDeviceName());
-            task.setCalledAET(ctx.getCalledAET());
-            task.setHl7psuDestinations(arcAE.hl7psuDestinations());
-            task.setScheduledTime(scheduledTime(arcAE.hl7psuTimeout()));
-            task.setStudyInstanceUID(ctx.getMPPS().getStudyInstanceUID());
-            task.setMpps(ctx.getMPPS());
-            task.setMwl(mwl);
+            task.setDeviceName(device.getDeviceName());
+            task.setAETitle(arcAE.getApplicationEntity().getAETitle());
+            task.setStudyInstanceUID(ctx.getStudyInstanceUID());
+            task.setScheduledTime(scheduledTime(arcAE.hl7PSUDelay()));
             em.persist(task);
             LOG.info("{}: Created {}", ctx, task);
         }
+        return true;
+    }
+
+    private boolean hasMWLItems(String studyIUID) {
+        return em.createNamedQuery(MWLItem.COUNT_BY_STUDY_IUID, Long.class)
+                .setParameter(1, studyIUID)
+                .getSingleResult() > 0;
     }
 
     private List<MWLItem> findMWLItems(String studyIUID) {
-        return em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID, MWLItem.class)
-                .setParameter(1, studyIUID).getResultList();
+        return em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
+                .setParameter(1, studyIUID)
+                .getResultList();
     }
 
-    public void createOrUpdateHL7PSUTaskForStudy(ArchiveAEExtension arcAE, StoreContext ctx) {
-        List<MWLItem> mwlItems = findMWLItems(ctx.getStudyInstanceUID());
-        for (MWLItem mwl : mwlItems) {
-            try {
-                HL7PSUTask task = em.createNamedQuery(HL7PSUTask.FIND_BY_STUDY_IUID, HL7PSUTask.class)
-                        .setParameter(1, ctx.getStudyInstanceUID()).setParameter(2, mwl)
-                        .getSingleResult();
-                task.setScheduledTime(scheduledTime(arcAE.hl7psuDelay()));
-                LOG.info("{}: Updated {}", ctx, task);
-            } catch (NoResultException nre) {
-                HL7PSUTask task = new HL7PSUTask();
-                task.setDeviceName(arcAE.getApplicationEntity().getDevice().getDeviceName());
-                task.setCalledAET(ctx.getStoreSession().getCalledAET());
-                task.setHl7psuDestinations(arcAE.hl7psuDestinations());
-                task.setStudyInstanceUID(ctx.getStudyInstanceUID());
-                task.setScheduledTime(scheduledTime(arcAE.hl7psuDelay()));
-                task.setMwl(mwl);
-                em.persist(task);
-                LOG.info("{}: Created {}", ctx, task);
-            }
-        }
-    }
 
     private Date scheduledTime(Duration duration) {
         return duration != null ? new Date(System.currentTimeMillis() + duration.getSeconds() * 1000L) : null;
@@ -141,16 +141,26 @@ public class HL7ProcedureStatusUpdateEJB {
                 .setParameter(1, deviceName).setMaxResults(fetchSize).getResultList();
     }
 
-    public void scheduleHL7PSUTask(HL7PSUTask task, HL7Message hl7msg) {
-        HL7Segment msh = hl7msg.get(0);
-        hl7Sender.scheduleMessage(msh.getField(2, ""), msh.getField(3, ""),
-                msh.getField(4, ""), msh.getField(5, ""),
-                msh.getMessageType(), "1111", hl7msg.getBytes(null));
-        removeHL7PSUTask(task);
-    }
-
     public void removeHL7PSUTask(HL7PSUTask task) {
         em.remove(em.getReference(task.getClass(), task.getPk()));
     }
 
+    public void scheduleHL7PSUTask(HL7PSUTask task) {
+        ApplicationEntity ae = device.getApplicationEntity(task.getAETitle());
+        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        HL7PSUMessage msg = new HL7PSUMessage(task);
+        msg.setSendingApplicationWithFacility(arcAE.hl7PSUSendingApplication());
+        if (task.getMpps() == null) {
+            List<MWLItem> mwlItems = findMWLItems(task.getStudyInstanceUID());
+            if (mwlItems.isEmpty()) {
+                LOG.warn("No MWL for {} - no HL7 Procedure Status Update", task);
+                return;
+            }
+            msg.setMWLItem(mwlItems.get(0).getAttributes());
+        }
+        for (String receivingApp : arcAE.hl7PSUReceivingApplications()) {
+            msg.setReceivingApplicationWithFacility(receivingApp);
+            hl7Sender.scheduleMessage(msg.getHL7Message());
+        }
+    }
 }
