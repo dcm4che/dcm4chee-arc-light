@@ -877,7 +877,7 @@
                             <div style="width:5.1%" class="td_cell hover_cell" ng-bind="(study.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'">&nbsp;</div>
                             <div style="width:10.2%" class="td_cell txt hover_cell"  tooltip="{{study.attrs['00080090'].Value[0].Alphabetic}}">{{(study.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'}}</div>
                             <div class="td_cell txt hover_cell" tooltip="{{study.attrs['00080050'].Value[0]}}" >{{(study.attrs['00080050'].Value[0]) || '&nbsp;'}}</div>
-                            <div style="width:5.2%" class="td_cell hover_cell" ng-bind="(study.attrs['00080061'].Value) || '&nbsp;'">&nbsp;</div>
+                            <div style="width:5.2%" class="td_cell hover_cell" ng-bind="(study.attrs['00080061'] | formatAttributeValue) || '&nbsp;'">&nbsp;</div>
                             <div style="width:17%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00081030'].Value[0]}}">{{(study.attrs['00081030'].Value[0]) || '&nbsp;'}}</div>
                             <div style="width:3%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00201206'].Value[0]}}" >{{(study.attrs['00201206'].Value[0]) || '&nbsp;'}}</div>
                             <div style="width:3%" class="td_cell txt hover_cell" tooltip="{{study.attrs['00201208'].Value[0]}}">{{(study.attrs['00201208'].Value[0]) || '&nbsp;'}}</div>

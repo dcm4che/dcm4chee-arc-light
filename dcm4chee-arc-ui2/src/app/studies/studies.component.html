@@ -765,7 +765,7 @@
                                 </div>
                                 <div class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" tooltip="{{study._VALUE.attrs['00080050'].Value[0]}}"  >{{(study._VALUE.attrs['00080050'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div style="width:5.2%" class="td_cell hover_cell">
-                                    <div [innerHtml]="(study._VALUE.attrs['00080061'].Value) || '&nbsp;'" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
+                                    <div [innerHtml]="(study._VALUE.attrs['00080061'] | formatAttributeValue) || '&nbsp;'" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
                                 </div>
                                 <div style="width:17%" class="td_cell txt hover_cell" ><div tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div style="width:3%" class="td_cell txt hover_cell"  ><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" tooltip="{{study._VALUE.attrs['00201206'].Value[0]}}">{{(study._VALUE.attrs['00201206'].Value[0]) || '&nbsp;'}}</div></div>
