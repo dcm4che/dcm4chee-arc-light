@@ -1161,7 +1161,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.showMoreFunction = function(e){
 
         var duration = 200;
-        var visibleElements = $(e.target).siblings(".hiddenbuttons").size()-$(e.target).siblings(".hiddenbuttons.ng-hide").size();
+        var visibleElements = $(e.target).siblings(".hiddenbuttons").length-$(e.target).siblings(".hiddenbuttons.ng-hide").length;
         var variationvalue = visibleElements * 26;
         var element = $(e.target).closest(".more_menu_study");
 

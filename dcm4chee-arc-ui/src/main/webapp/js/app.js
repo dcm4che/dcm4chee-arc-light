@@ -3,7 +3,8 @@
 var myApp = angular.module('myApp', ['ngRoute','schemaForm','angular-loading-bar', 'angular-clockpicker', 'ui.bootstrap',
   'io.dennis.contextmenu']);
 
-myApp.config(function ($routeProvider) {
+myApp.config(function ($routeProvider,$locationProvider) {
+    $locationProvider.hashPrefix('');
     $routeProvider.when('/studies', {
         templateUrl: 'templates/study_list.html',
         controller: 'StudyListCtrl'
