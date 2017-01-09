@@ -155,8 +155,15 @@ public class HL7PSUScheduler extends Scheduler {
         }
     }
 
+    private boolean createHL7PSUOnMPPS(MPPSContext ctx) {
+        Attributes ssaAttrs = ctx.getMPPS().getAttributes().getNestedDataset(Tag.ScheduledStepAttributesSequence);
+        return ctx.getMPPS().getStatus() == MPPS.Status.COMPLETED
+                && ssaAttrs.getString(Tag.PlacerOrderNumberImagingServiceRequest) != null
+                && ssaAttrs.getString(Tag.FillerOrderNumberImagingServiceRequest) != null;
+    }
+
     void onMPPSReceive(@Observes MPPSContext ctx) {
-        if (ctx.getMPPS().getStatus() == MPPS.Status.COMPLETED) {
+        if (createHL7PSUOnMPPS(ctx)) {
             ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
             if (arcAE.hl7PSUOnMPPS()) {
                 try {

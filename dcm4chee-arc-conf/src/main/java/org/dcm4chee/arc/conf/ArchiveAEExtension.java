@@ -856,11 +856,11 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public boolean hl7PSUOnStudy() {
-        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() == null;
+        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null;
     }
 
     public boolean hl7PSUOnMPPS() {
-        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null;
+        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() == null;
     }
 
     @Override

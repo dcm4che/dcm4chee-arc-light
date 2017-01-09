@@ -162,5 +162,6 @@ public class HL7PSUEJB {
             msg.setReceivingApplicationWithFacility(receivingApp);
             hl7Sender.scheduleMessage(msg.getHL7Message());
         }
+        removeHL7PSUTask(task);
     }
 }
