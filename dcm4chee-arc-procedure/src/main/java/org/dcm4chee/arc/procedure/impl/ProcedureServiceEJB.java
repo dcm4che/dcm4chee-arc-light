@@ -186,15 +186,14 @@ public class ProcedureServiceEJB {
         List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
         for (MWLItem mwl : mwlItems) {
-            Attributes attr = mwl.getAttributes();
-            Sequence seq = attr.getSequence(Tag.ScheduledProcedureStepSequence);
-            for (Attributes item : seq) {
-                String status = item.getString(Tag.ScheduledProcedureStepStatus);
-                if (!status.equals(ctx.getSpsStatus())) {
-                    item.setString(Tag.ScheduledProcedureStepStatus, VR.CS, ctx.getSpsStatus());
-                    ctx.setAttributes(attr);
-                    ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-                }
+            Attributes spsItemMWL = mwl.getAttributes()
+                    .getNestedDataset(Tag.ScheduledProcedureStepSequence);
+            Attributes spsItemMPPS = ctx.getAttributes()
+                    .getNestedDataset(Tag.ScheduledProcedureStepSequence);
+            if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus)
+                    .equals(spsItemMPPS.getString(Tag.ScheduledProcedureStepStatus))) {
+                mwl.setAttributes(ctx.getAttributes(), ctx.getAttributeFilter(), ctx.getFuzzyStr());
+                ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             }
         }
     }

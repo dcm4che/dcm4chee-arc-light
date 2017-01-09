@@ -48,7 +48,6 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -87,14 +86,6 @@ public interface ProcedureContext {
     void setException(Exception exception);
 
     void setStudyInstanceUID(String studyUID);
-
-    List<String> getSPSIDs();
-
-    void setSPSIDs(List<String> spsIDs);
-
-    String getSpsStatus();
-
-    void setSpsStatus(String spsStatus);
 
     Association getAssociation();
 

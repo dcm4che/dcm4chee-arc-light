@@ -40,23 +40,19 @@
 
 package org.dcm4chee.arc.procedure.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.MPPS;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.dcm4che3.data.Tag;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -64,8 +60,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -130,20 +125,14 @@ public class ProcedureServiceImpl implements ProcedureService {
         if (mppsStatus != null) {
             MPPS mergedMPPS = ctx.getMPPS();
             Attributes mergedMppsAttr = mergedMPPS.getAttributes();
-            Sequence seq = mergedMppsAttr.getSequence(Tag.ScheduledStepAttributesSequence);
+            Attributes ssaAttr = mergedMppsAttr.getNestedDataset(Tag.ScheduledStepAttributesSequence);
             ProcedureContext pCtx = createProcedureContextAssociation(ctx.getAssociation());
-            if (mppsStatus.equals("IN PROGRESS"))
-                pCtx.setSpsStatus(SPSStatus.STARTED.toString());
-            else
-                pCtx.setSpsStatus(mppsStatus);
-            List<String> spsIDs = new ArrayList<>();
-            for (Attributes item : seq) {
-                spsIDs.add(item.getString(Tag.ScheduledProcedureStepID));
-                pCtx.setStudyInstanceUID(item.getString(Tag.StudyInstanceUID));
-                pCtx.setPatient(mergedMPPS.getPatient());
-            }
-            pCtx.setSPSIDs(spsIDs);
-            if (!pCtx.getSPSIDs().isEmpty()) {
+            mppsStatus = mppsStatus.equals("IN PROGRESS") ? SPSStatus.STARTED.toString() : mppsStatus;
+            pCtx.setPatient(mergedMPPS.getPatient());
+            Attributes attrTest = createMWLAttr(mergedMppsAttr, mppsStatus);
+            attrTest.setString(Tag.StudyInstanceUID, VR.UI, ssaAttr.getString(Tag.StudyInstanceUID));
+            pCtx.setAttributes(attrTest);
+            if (ssaAttr.getString(Tag.ScheduledProcedureStepID) != null) {
                 try {
                     ejb.updateSPSStatus(pCtx);
                 } catch (RuntimeException e) {
@@ -155,5 +144,18 @@ public class ProcedureServiceImpl implements ProcedureService {
                 }
             }
         }
+    }
+
+    private Attributes createMWLAttr(Attributes mergedMppsAttr, String mppsStatus) {
+        Iterator<Attributes> spsItems = mergedMppsAttr.getSequence(Tag.ScheduledStepAttributesSequence).iterator();
+        Attributes mwlAttrs = new Attributes();
+        while (spsItems.hasNext()) {
+            Attributes sps = spsItems.next();
+            spsItems.remove();
+            sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, mppsStatus);
+            mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
+            mwlAttrs.setString(Tag.RequestedProcedureID, VR.SH, sps.getString(Tag.RequestedProcedureID));
+        }
+        return mwlAttrs;
     }
 }

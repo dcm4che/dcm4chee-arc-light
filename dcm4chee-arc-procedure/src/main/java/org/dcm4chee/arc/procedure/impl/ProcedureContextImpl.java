@@ -180,26 +180,6 @@ public class ProcedureContextImpl implements ProcedureContext {
     }
 
     @Override
-    public List<String> getSPSIDs() {
-        return spsIDs;
-    }
-
-    @Override
-    public void setSPSIDs(List<String> spsIDs) {
-        this.spsIDs = spsIDs;
-    }
-
-    @Override
-    public String getSpsStatus() {
-        return spsStatus;
-    }
-
-    @Override
-    public void setSpsStatus(String spsStatus) {
-        this.spsStatus = spsStatus;
-    }
-
-    @Override
     public Association getAssociation() {
         return as;
     }
