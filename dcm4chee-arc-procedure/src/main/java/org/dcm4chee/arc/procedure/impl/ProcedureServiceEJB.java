@@ -47,12 +47,9 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMismatchException;
-import org.dcm4chee.arc.patient.impl.PatientServiceEJB;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +94,7 @@ public class ProcedureServiceEJB {
     private void updateProcedureForHL7(ProcedureContext ctx, Patient patient, Attributes attrs,
                                        IssuerEntity issuerOfAccessionNumber) {
         Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(attrs);
-        List<MWLItem> prevMWLItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID, MWLItem.class)
+        List<MWLItem> prevMWLItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID())
                 .getResultList();
         for (MWLItem mwlItem : prevMWLItems) {
@@ -126,7 +123,7 @@ public class ProcedureServiceEJB {
         for (Attributes item : spsSeq)
             spsID = item.getString(Tag.ScheduledProcedureStepID);
         try {
-            MWLItem mwlItem = em.createNamedQuery(MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID, MWLItem.class)
+            MWLItem mwlItem = em.createNamedQuery(MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER, MWLItem.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .setParameter(2, spsID).getSingleResult();
             mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
@@ -168,7 +165,7 @@ public class ProcedureServiceEJB {
     }
 
     public void deleteProcedure(ProcedureContext ctx) {
-        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID, MWLItem.class)
+        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
         if (mwlItems.isEmpty())
             return;
@@ -186,7 +183,7 @@ public class ProcedureServiceEJB {
     }
 
     public void updateSPSStatus(ProcedureContext ctx) {
-        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID, MWLItem.class)
+        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
         for (MWLItem mwl : mwlItems) {
             Attributes attr = mwl.getAttributes();

@@ -77,10 +77,7 @@ import javax.ws.rs.core.*;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -400,7 +397,12 @@ public class QidoRS {
             else if (limitInt > 0)
                 query.limit(limitInt);
 
-            query.orderBy(queryAttrs.getOrderSpecifiers(model, limitInt));
+            List<OrderSpecifier<?>> orderSpecifiers = queryAttrs.getOrderSpecifiers(model);
+            if (!orderSpecifiers.isEmpty()) {
+                if (limitInt > 0)
+                    orderSpecifiers.add(model.getPk().asc());
+                query.orderBy(orderSpecifiers.toArray(new OrderSpecifier<?>[orderSpecifiers.size()]));
+            }
 
             query.executeQuery();
             if (!query.hasMoreMatches())
@@ -474,7 +476,6 @@ public class QidoRS {
     }
 
     public static class QueryAttributes {
-        private static final OrderSpecifier<?>[] EMPTY_ORDER_SPECIFIERS = new OrderSpecifier<?>[]{};
         private final Attributes keys = new Attributes();
         private final AttributesBuilder builder = new AttributesBuilder(keys);
         private boolean includeAll;
@@ -531,9 +532,9 @@ public class QidoRS {
                 try {
                     for (String field : StringUtils.split(s, ',')) {
                         boolean desc = field.charAt(0) == '-';
-                        int tag = TagUtils.forName(desc ? field.substring(1) : field);
-                        orderByTags.add(new OrderByTag(tag, desc ? Order.DESC : Order.ASC));
-                        if (tag == Tag.PatientName)
+                        int tags[] = TagUtils.parseTagPath(desc ? field.substring(1) : field);
+                        orderByTags.add(new OrderByTag(tags[tags.length-1], desc ? Order.DESC : Order.ASC));
+                        if (tags[0] == Tag.PatientName)
                             orderByPatientName = true;
                     }
                 } catch (IllegalArgumentException e) {
@@ -542,16 +543,13 @@ public class QidoRS {
             }
         }
 
-        public OrderSpecifier<?>[] getOrderSpecifiers(Model model, int limit) {
+        public List<OrderSpecifier<?>> getOrderSpecifiers(Model model) {
             if (orderByTags.isEmpty())
-                return EMPTY_ORDER_SPECIFIERS;
-            ArrayList<OrderSpecifier<?>> list = limit > 0
-                    ? new ArrayList<>(orderByTags.size()+1) : new ArrayList<>(orderByTags.size());
+                return Collections.emptyList();
+            ArrayList<OrderSpecifier<?>> list = new ArrayList<>(orderByTags.size()+1);
             for (OrderByTag orderByTag : orderByTags)
                 model.addOrderSpecifier(orderByTag.tag, orderByTag.order, list);
-            if (limit > 0)
-                list.add(model.getPk().asc());
-            return list.toArray(EMPTY_ORDER_SPECIFIERS);
+            return list;
         }
 
         public Attributes getQueryKeys() {

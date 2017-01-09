@@ -53,6 +53,7 @@ import org.dcm4chee.arc.conf.MetadataFilter;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.Storage;
 
@@ -87,7 +88,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
     private String[] seriesInstanceUIDs = {};
-    private Long seriesPk;
+    private Series.MetadataUpdate metadataUpdate;
     private String[] sopInstanceUIDs = {};
     private Location.ObjectType objectType = Location.ObjectType.DICOM_FILE;
     private int numberOfMatches;
@@ -351,14 +352,13 @@ class RetrieveContextImpl implements RetrieveContext {
         this.seriesInstanceUIDs = seriesInstanceUIDs != null ? seriesInstanceUIDs : StringUtils.EMPTY_STRING;
     }
 
-    @Override
-    public Long getSeriesPk() {
-        return seriesPk;
+    public Series.MetadataUpdate getSeriesMetadataUpdate() {
+        return metadataUpdate;
     }
 
     @Override
-    public void setSeriesPk(Long seriesPk) {
-        this.seriesPk = seriesPk;
+    public void setSeriesMetadataUpdate(Series.MetadataUpdate metadataUpdate) {
+        this.metadataUpdate = metadataUpdate;
     }
 
     @Override
@@ -626,7 +626,7 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public boolean isUpdateSeriesMetadata() {
-        return arcAE == null;
+        return metadataUpdate != null;
     }
 
     @Override

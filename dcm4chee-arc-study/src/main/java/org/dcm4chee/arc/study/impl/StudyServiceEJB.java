@@ -97,6 +97,9 @@ public class StudyServiceEJB {
             study.setIssuerOfAccessionNumber(
                     findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
             setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
+            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                    .setParameter(1, study)
+                    .executeUpdate();
         } catch (NoResultException e) {
             ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
             Study study = new Study();

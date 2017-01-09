@@ -42,6 +42,14 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "dcmAcceptedMoveDestination": {
+      "title": "Accepted Move Destination",
+      "description": "Accepted Move Destination in C-MOVE requests; any if absent.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
       "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.",
@@ -91,6 +99,11 @@
           "COMPLETED"
         ]
       }
+    },
+    "dcmValidateCallingAEHostname": {
+      "title": "Validate Calling AE Hostname",
+      "description": "Validate Calling AE Hostname or IP Address of Association requestors for this AE; use value configured on Device level, if absent",
+      "type": "boolean"
     },
     "dcmPersonNameComponentOrderInsensitiveMatching": {
       "title": "Person Name Component Order Insensitive Matching",
@@ -249,6 +262,32 @@
       "title": "External Retrieve AE Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
       "type": "string"
+    },
+    "hl7PSUSendingApplication": {
+      "title": "HL7 Procedure Status Update Sending Application",
+      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent.",
+      "type": "string"
+    },
+    "hl7PSUReceivingApplication": {
+      "title": "HL7 Procedure Status Update Receiving Application",
+      "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "hl7PSUDelay": {
+      "title": "HL7 Procedure Status Update Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.",
+      "type": "string"
+    },
+    "hl7PSUTimeout": {
+      "title": "HL7 Procedure Status Update Timeout",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.",
+      "type": "string"
+    },
+    "hl7PSUOnTimeout": {
+      "title": "HL7 Procedure Status Update On Timeout",
+      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.",
+      "type": "boolean"
     },
     "dcmExportRule": {
       "title": "Export Rule",

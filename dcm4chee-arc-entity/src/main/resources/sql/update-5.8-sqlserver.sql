@@ -1,12 +1,13 @@
-alter table study add modified_time datetime2;
+alter table study add modified_time datetime2 not null;
 update study set modified_time = updated_time;
-alter table study alter modified_time set not null;
-
 create table metadata (pk bigint identity not null, digest varchar(255), object_size bigint not null, status int not null, storage_id varchar(255) not null, storage_path varchar(255) not null, primary key (pk));
 
-alter table series add metadata_update_time datetime2, add metadata_fk bigint, add inst_purge_time datetime2, add inst_purge_state int;
+alter table series add metadata_update_time datetime2;
+alter table series add metadata_fk bigint;
+alter table series add inst_purge_time datetime2;
+alter table series add inst_purge_state int;
 update series set inst_purge_state = 0;
-alter table series alter inst_purge_state int not null;
+alter table series alter column inst_purge_state int not null;
 alter table series add constraint FK_pu4p7k1o9hleuk9rmxvw2ybj6 foreign key (metadata_fk) references metadata;
 
 delete from series_query_attrs;

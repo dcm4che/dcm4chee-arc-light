@@ -49,6 +49,7 @@ import org.dcm4chee.arc.conf.MetadataFilter;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
@@ -152,9 +153,9 @@ public interface RetrieveContext extends Closeable {
 
     void setSeriesInstanceUIDs(String... seriesInstanceUIDs);
 
-    Long getSeriesPk();
+    Series.MetadataUpdate getSeriesMetadataUpdate();
 
-    void setSeriesPk(Long seriesPk);
+    void setSeriesMetadataUpdate(Series.MetadataUpdate metadataUpdate);
 
     String[] getSopInstanceUIDs();
 

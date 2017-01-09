@@ -67,6 +67,7 @@ public class ArchiveAEExtension extends AEExtension {
     private OverwritePolicy overwritePolicy;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
+    private Boolean validateCallingAEHostname;
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
     private Duration sendPendingCMoveInterval;
@@ -95,6 +96,12 @@ public class ArchiveAEExtension extends AEExtension {
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private String[] retrieveAETitles = {};
+    private String hl7PSUSendingApplication;
+    private String[] hl7PSUReceivingApplications = {};
+    private Duration hl7PSUDelay;
+    private Duration hl7PSUTimeout;
+    private Boolean hl7PSUOnTimeout;
+    private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
@@ -248,6 +255,20 @@ public class ArchiveAEExtension extends AEExtension {
         return queryRetrieveViewID != null
                 ? queryRetrieveViewID
                 : getArchiveDeviceExtension().getQueryRetrieveViewID();
+    }
+
+    public Boolean getValidateCallingAEHostname() {
+        return validateCallingAEHostname;
+    }
+
+    public void setValidateCallingAEHostname(Boolean validateCallingAEHostname) {
+        this.validateCallingAEHostname = validateCallingAEHostname;
+    }
+
+    public boolean validateCallingAEHostname() {
+        return validateCallingAEHostname != null
+                ? validateCallingAEHostname.booleanValue()
+                : getArchiveDeviceExtension().isValidateCallingAEHostname();
     }
 
     public Boolean getPersonNameComponentOrderInsensitiveMatching() {
@@ -605,6 +626,20 @@ public class ArchiveAEExtension extends AEExtension {
                     AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
     }
 
+    public String[] getAcceptedMoveDestinations() {
+        return acceptedMoveDestinations.toArray(new String[acceptedMoveDestinations.size()]);
+    }
+
+    public void setAcceptedMoveDestinations(String... aets) {
+        acceptedMoveDestinations.clear();
+        for (String name : aets)
+            acceptedMoveDestinations.add(name);
+    }
+
+    public boolean isAcceptedMoveDestination(String aet) {
+        return acceptedMoveDestinations.isEmpty() || acceptedMoveDestinations.contains(aet);
+    }
+
     public String[] getAcceptedUserRoles() {
         return acceptedUserRoles.toArray(
                 new String[acceptedUserRoles.size()]);
@@ -750,6 +785,84 @@ public class ArchiveAEExtension extends AEExtension {
         return retrieveAETitles.length > 0 ? retrieveAETitles : getArchiveDeviceExtension().getRetrieveAETitles();
     }
 
+    public String getHl7PSUSendingApplication() {
+        return hl7PSUSendingApplication;
+    }
+
+    public void setHl7PSUSendingApplication(String hl7PSUSendingApplication) {
+        this.hl7PSUSendingApplication = hl7PSUSendingApplication;
+    }
+
+    public String hl7PSUSendingApplication() {
+        return hl7PSUSendingApplication != null
+                ? hl7PSUSendingApplication
+                : getArchiveDeviceExtension().getHl7PSUSendingApplication();
+    }
+
+    public String[] getHl7PSUReceivingApplications() {
+        return hl7PSUReceivingApplications;
+    }
+
+    public void setHl7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
+        this.hl7PSUReceivingApplications = hl7PSUReceivingApplications;
+    }
+
+    public String[] hl7PSUReceivingApplications() {
+        return hl7PSUReceivingApplications.length > 0
+                ? hl7PSUReceivingApplications
+                : getArchiveDeviceExtension().getHl7PSUReceivingApplications();
+    }
+
+    public Duration getHl7PSUDelay() {
+        return hl7PSUDelay;
+    }
+
+    public void setHl7PSUDelay(Duration hl7PSUDelay) {
+        this.hl7PSUDelay = hl7PSUDelay;
+    }
+
+    public Duration hl7PSUDelay() {
+        return hl7PSUDelay != null
+                ? hl7PSUDelay
+                : getArchiveDeviceExtension().getHl7PSUDelay();
+    }
+
+    public Duration getHl7PSUTimeout() {
+        return hl7PSUTimeout;
+    }
+
+    public void setHl7PSUTimeout(Duration hl7PSUTimeout) {
+        this.hl7PSUTimeout = hl7PSUTimeout;
+    }
+
+    public Duration hl7PSUTimeout() {
+        return hl7PSUTimeout != null
+                ? hl7PSUTimeout
+                : getArchiveDeviceExtension().getHl7PSUTimeout();
+    }
+
+    public Boolean getHl7PSUOnTimeout() {
+        return hl7PSUOnTimeout;
+    }
+
+    public void setHl7PSUOnTimeout(Boolean hl7PSUOnTimeout) {
+        this.hl7PSUOnTimeout = hl7PSUOnTimeout;
+    }
+
+    public boolean hl7PSUOnTimeout() {
+        return hl7PSUOnTimeout != null
+                ? hl7PSUOnTimeout.booleanValue()
+                : getArchiveDeviceExtension().isHl7PSUOnTimeout();
+    }
+
+    public boolean hl7PSUOnStudy() {
+        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() == null;
+    }
+
+    public boolean hl7PSUOnMPPS() {
+        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null;
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -763,6 +876,7 @@ public class ArchiveAEExtension extends AEExtension {
         overwritePolicy = aeExt.overwritePolicy;
         bulkDataSpoolDirectory = aeExt.bulkDataSpoolDirectory;
         queryRetrieveViewID = aeExt.queryRetrieveViewID;
+        validateCallingAEHostname = aeExt.validateCallingAEHostname;
         personNameComponentOrderInsensitiveMatching = aeExt.personNameComponentOrderInsensitiveMatching;
         sendPendingCGet = aeExt.sendPendingCGet;
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
@@ -791,6 +905,15 @@ public class ArchiveAEExtension extends AEExtension {
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         retrieveAETitles = aeExt.retrieveAETitles;
+        hl7PSUSendingApplication = aeExt.hl7PSUSendingApplication;
+        hl7PSUReceivingApplications = aeExt.hl7PSUReceivingApplications;
+        hl7PSUDelay = aeExt.hl7PSUDelay;
+        hl7PSUTimeout = aeExt.hl7PSUTimeout;
+        hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
+        acceptedMoveDestinations.clear();
+        acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
+        acceptedUserRoles.clear();
+        acceptedUserRoles.addAll(aeExt.acceptedUserRoles);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         rsForwardRules.clear();

@@ -1,0 +1,81 @@
+version: 1
+
+dn: ou=realm-management,dc=dcm4che,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: realm-management
+
+dn: cn=create-client,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: create-client
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=impersonation,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: impersonation
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-authorization,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-authorization
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-clients,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-clients
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-events,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-events
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-identity-providers,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-identity-providers
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-realm,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-realm
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=manage-users,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: manage-users
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=realm-admin,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: realm-admin
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-authorization,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-authorization
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-clients,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-clients
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-events,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-events
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-identity-providers,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-identity-providers
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-realm,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-realm
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=view-users,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: view-users
+member: uid=admin,ou=users,dc=dcm4che,dc=org

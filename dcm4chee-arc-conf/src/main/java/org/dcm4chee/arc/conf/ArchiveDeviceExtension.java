@@ -42,8 +42,6 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Code;
 
-import java.net.InetAddress;
-import java.net.URI;
 import java.time.LocalTime;
 
 import org.dcm4che3.net.DeviceExtension;
@@ -77,6 +75,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private ShowPatientInfo showPatientInfoInAuditLog;
     private String bulkDataSpoolDirectory;
     private String queryRetrieveViewID;
+    private boolean validateCallingAEHostname = false;
     private boolean sendPendingCGet = false;
     private Duration sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching = false;
@@ -139,12 +138,20 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration mergeMWLCacheStaleTimeout;
     private int mergeMWLCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
+    private int storeUpdateDBMaxRetryDelay = 1000;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private String[] retrieveAETitles = {};
     private String remapRetrieveURL;
     private String remapRetrieveURLClientHost;
+    private String hl7PSUSendingApplication;
+    private String[] hl7PSUReceivingApplications = {};
+    private Duration hl7PSUDelay;
+    private Duration hl7PSUTimeout;
+    private boolean hl7PSUOnTimeout;
+    private int hl7PSUTaskFetchSize = 100;
+    private Duration hl7PSUTaskPollingInterval;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -337,6 +344,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setPersonNameComponentOrderInsensitiveMatching(boolean personNameComponentOrderInsensitiveMatching) {
         this.personNameComponentOrderInsensitiveMatching = personNameComponentOrderInsensitiveMatching;
+    }
+
+    public boolean isValidateCallingAEHostname() {
+        return validateCallingAEHostname;
+    }
+
+    public void setValidateCallingAEHostname(boolean validateCallingAEHostname) {
+        this.validateCallingAEHostname = validateCallingAEHostname;
     }
 
     public boolean isSendPendingCGet() {
@@ -867,6 +882,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.storeUpdateDBMaxRetries = storeUpdateDBMaxRetries;
     }
 
+    public int getStoreUpdateDBMaxRetryDelay() {
+        return storeUpdateDBMaxRetryDelay;
+    }
+
+    public void setStoreUpdateDBMaxRetryDelay(int storeUpdateDBMaxRetryDelay) {
+        this.storeUpdateDBMaxRetryDelay = storeUpdateDBMaxRetryDelay;
+    }
+
     public AllowRejectionForDataRetentionPolicyExpired getAllowRejectionForDataRetentionPolicyExpired() {
         return allowRejectionForDataRetentionPolicyExpired;
     }
@@ -908,9 +931,65 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean remap(HttpServletRequest request) {
         return remapRetrieveURL != null
                 && (remapRetrieveURLClientHost == null || remapRetrieveURLClientHost.equals(
-                        Character.isDigit(remapRetrieveURLClientHost.charAt(0))
+                        StringUtils.isIPAddr(remapRetrieveURLClientHost)
                                 ? request.getRemoteAddr()
                                 : request.getRemoteHost()));
+    }
+
+    public String getHl7PSUSendingApplication() {
+        return hl7PSUSendingApplication;
+    }
+
+    public void setHl7PSUSendingApplication(String hl7PSUSendingApplication) {
+        this.hl7PSUSendingApplication = hl7PSUSendingApplication;
+    }
+
+    public Duration getHl7PSUTaskPollingInterval() {
+        return hl7PSUTaskPollingInterval;
+    }
+
+    public void setHl7PSUTaskPollingInterval(Duration hl7PSUTaskPollingInterval) {
+        this.hl7PSUTaskPollingInterval = hl7PSUTaskPollingInterval;
+    }
+
+    public String[] getHl7PSUReceivingApplications() {
+        return hl7PSUReceivingApplications;
+    }
+
+    public void setHl7PSUReceivingApplications(String[] hl7PSUReceivingApplications) {
+        this.hl7PSUReceivingApplications = hl7PSUReceivingApplications;
+    }
+
+    public Duration getHl7PSUDelay() {
+        return hl7PSUDelay;
+    }
+
+    public void setHl7PSUDelay(Duration hl7PSUDelay) {
+        this.hl7PSUDelay = hl7PSUDelay;
+    }
+
+    public Duration getHl7PSUTimeout() {
+        return hl7PSUTimeout;
+    }
+
+    public void setHl7PSUTimeout(Duration hl7PSUTimeout) {
+        this.hl7PSUTimeout = hl7PSUTimeout;
+    }
+
+    public boolean isHl7PSUOnTimeout() {
+        return hl7PSUOnTimeout;
+    }
+
+    public void setHl7PSUOnTimeout(boolean hl7PSUOnTimeout) {
+        this.hl7PSUOnTimeout = hl7PSUOnTimeout;
+    }
+
+    public int getHl7PSUTaskFetchSize() {
+        return hl7PSUTaskFetchSize;
+    }
+
+    public void setHl7PSUTaskFetchSize(int hl7PSUTaskFetchSize) {
+        this.hl7PSUTaskFetchSize = hl7PSUTaskFetchSize;
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {
@@ -1281,6 +1360,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         queryRetrieveViewID = arcdev.queryRetrieveViewID;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
+        validateCallingAEHostname = arcdev.validateCallingAEHostname;
         sendPendingCGet = arcdev.sendPendingCGet;
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         wadoSupportedSRClasses.clear();
@@ -1345,12 +1425,20 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         mergeMWLCacheStaleTimeout = arcdev.mergeMWLCacheStaleTimeout;
         mergeMWLCacheSize = arcdev.mergeMWLCacheSize;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
+        storeUpdateDBMaxRetryDelay = arcdev.storeUpdateDBMaxRetryDelay;
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
         retrieveAETitles = arcdev.retrieveAETitles;
         remapRetrieveURL = arcdev.remapRetrieveURL;
         remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;
+        hl7PSUSendingApplication = arcdev.hl7PSUSendingApplication;
+        hl7PSUReceivingApplications = arcdev.hl7PSUReceivingApplications;
+        hl7PSUDelay = arcdev.hl7PSUDelay;
+        hl7PSUTimeout = arcdev.hl7PSUTimeout;
+        hl7PSUOnTimeout = arcdev.hl7PSUOnTimeout;
+        hl7PSUTaskPollingInterval = arcdev.hl7PSUTaskPollingInterval;
+        hl7PSUTaskFetchSize = arcdev.hl7PSUTaskFetchSize;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

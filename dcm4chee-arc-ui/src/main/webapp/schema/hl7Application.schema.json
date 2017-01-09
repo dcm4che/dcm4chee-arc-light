@@ -22,7 +22,7 @@
     },
     "hl7AcceptedSendingApplication": {
       "title": "Accepted Sending Application",
-      "description": "Application^Facility name of accepted Sending Application(s); any if absent",
+      "description": "Application|Facility name of accepted Sending Application(s); any if absent",
       "type": "array",
       "items": {
         "type": "string"

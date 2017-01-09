@@ -49,6 +49,7 @@ import org.dcm4che3.net.service.BasicCGetSCP;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
@@ -81,7 +82,8 @@ class CommonCGetSCP extends BasicCGetSCP {
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
-        RetrieveContext ctx = retrieveService.newRetrieveContextGET(as, rq, qrLevel, keys);
+        ArchiveAEExtension arcAE = as.getApplicationEntity().getAEExtension(ArchiveAEExtension.class);
+        RetrieveContext ctx = retrieveService.newRetrieveContextGET(arcAE, as, rq, qrLevel, keys);
         if (!retrieveService.calculateMatches(ctx))
             return null;
 

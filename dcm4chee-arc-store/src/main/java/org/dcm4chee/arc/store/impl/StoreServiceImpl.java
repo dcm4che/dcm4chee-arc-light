@@ -86,6 +86,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -159,10 +160,10 @@ class StoreServiceImpl implements StoreService {
                 transcoder.transcode(new TranscoderHandler(ctx));
                 bulkDataFiles = transcoder.getBulkDataFiles();
             } catch (StorageException e) {
-                LOG.warn("{}: Failed to store received object:", ctx.getStoreSession(), e);
+                LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.OutOfResources, e);
             } catch (Throwable e) {
-                LOG.warn("{}: Failed to parse received object:", ctx.getStoreSession(), e);
+                LOG.warn("{}: Failed to parse received object:\n", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
             if (ctx.getAcceptedStudyInstanceUID() != null
@@ -197,19 +198,25 @@ class StoreServiceImpl implements StoreService {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         int retries = arcDev.getStoreUpdateDBMaxRetries();
-        for (;;)
+        for (;;) {
             try {
                 UpdateDBResult result = new UpdateDBResult();
                 ejb.updateDB(ctx, result);
                 return result;
             } catch (EJBException e) {
                 if (retries-- > 0) {
-                    LOG.info("Failed to update DB - retry:\n", e);
+                    LOG.info("{}: Failed to update DB - retry:\n", session, e);
                 } else {
-                    LOG.warn("Failed to update DB:\n", e);
+                    LOG.warn("{}: Failed to update DB:\n", session, e);
                     throw e;
                 }
             }
+            try {
+                Thread.sleep(ThreadLocalRandom.current().nextInt(arcDev.getStoreUpdateDBMaxRetryDelay()));
+            } catch (InterruptedException e) {
+                LOG.info("{}: Failed to delay retry to update DB:\n", session, e);
+            }
+        }
     }
 
     private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
@@ -220,7 +227,7 @@ class StoreServiceImpl implements StoreService {
                     try {
                         ejb.checkDuplicatePatientCreated(ctx, result);
                     } catch (Exception e) {
-                        LOG.warn("{}: Failed to remove duplicate created {}",
+                        LOG.warn("{}: Failed to remove duplicate created {}:\n",
                                 ctx.getStoreSession(), result.getCreatedPatient(), e);
                     }
                 }

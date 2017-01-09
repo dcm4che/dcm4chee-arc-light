@@ -48,7 +48,8 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.entity.Series;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -62,10 +63,15 @@ import java.util.Map;
  * @since Aug 2015
  */
 public interface RetrieveService {
-    RetrieveContext newRetrieveContextGET(
+
+    int MOVE_DESTINATION_NOT_ALLOWED = 0xC801;
+
+    String MOVE_DESTINATION_NOT_ALLOWED_MSG = "Move Destination not allowed";
+
+    RetrieveContext newRetrieveContextGET(ArchiveAEExtension arcAE,
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
 
-    RetrieveContext newRetrieveContextMOVE(
+    RetrieveContext newRetrieveContextMOVE(ArchiveAEExtension arcAE,
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
             throws ConfigurationException;
 
@@ -79,7 +85,7 @@ public interface RetrieveService {
     RetrieveContext newRetrieveContextIOCM(
             HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs);
 
-    RetrieveContext newRetrieveContextSeriesMetadata(Long seriesPk);
+    RetrieveContext newRetrieveContextSeriesMetadata(Series.MetadataUpdate metadataUpdate);
 
     boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException;
 

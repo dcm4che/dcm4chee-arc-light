@@ -844,6 +844,65 @@ attributetype ( 1.2.40.0.13.1.15.110.3.141 NAME 'dcmRemapRetrieveURL'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.142 NAME 'dcmAcceptedMoveDestination'
+  DESC 'Accepted Move Destination in C-MOVE requests; any if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.143 NAME 'dcmValidateCallingAEHostname'
+  DESC 'Validate Calling AE Hostname or IP Address of Association requestors; disabled if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+
+attributetype ( 1.2.40.0.13.1.15.110.3.144 NAME 'dcmStoreUpdateDBMaxRetryDelay'
+  DESC 'Maximum delay in ms of retry to update the database on storage; 1000 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.145 NAME 'hl7PSUTaskPollingInterval'
+  DESC 'Polling Interval for HL7 Procedure Status Update Tasks in ISO-8601 duration format PnDTnHnMn.nS. Disabled, if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.146 NAME 'hl7PSUTaskFetchSize'
+  DESC 'Maximal number of HL7 Procedure Status Update Tasks fetched in one query; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.147 NAME 'hl7PSUDelay'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.148 NAME 'hl7PSUTimeout'
+  DESC 'Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.149 NAME 'hl7PSUOnTimeout'
+  DESC 'Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.150 NAME 'hl7PSUReceivingApplication'
+  DESC 'Application|Facility name of Receiving Application for HL7 Procedure Status Update.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.151 NAME 'hl7PSUSendingApplication'
+  DESC 'Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -867,6 +926,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
     dcmHideSPSWithStatusFromMWL $
+    dcmValidateCallingAEHostname $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $
@@ -933,9 +993,17 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmMergeMWLCacheStaleTimeout $
     dcmMergeMWLCacheSize $
     dcmStoreUpdateDBMaxRetries $
+    dcmStoreUpdateDBMaxRetryDelay $
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAllowDeleteStudyPermanently $
-    dcmRemapRetrieveURL ))
+    dcmRemapRetrieveURL $
+    hl7PSUReceivingApplication $
+    hl7PSUSendingApplication $
+    hl7PSUDelay $
+    hl7PSUTimeout $
+    hl7PSUOnTimeout $
+    hl7PSUTaskPollingInterval $
+    hl7PSUTaskFetchSize ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
@@ -949,12 +1017,14 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmPurgeInstanceRecordsDelay $
     dcmStoreAccessControlID $
     dcmAccessControlID $
+    dcmAcceptedMoveDestination $
     dcmOverwritePolicy $
     dcmAcceptMissingPatientID $
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
     dcmHideSPSWithStatusFromMWL $
+    dcmValidateCallingAEHostname $
     dcmPersonNameComponentOrderInsensitiveMatching $
     dcmSendPendingCGet $
     dcmSendPendingCMoveInterval $
@@ -981,7 +1051,12 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmStorePermissionServiceErrorCodePattern $
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAcceptedUserRole $
-    dcmAllowDeleteStudyPermanently ))
+    dcmAllowDeleteStudyPermanently $
+    hl7PSUDelay $
+    hl7PSUTimeout $
+    hl7PSUOnTimeout $
+    hl7PSUReceivingApplication $
+    hl7PSUSendingApplication ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'

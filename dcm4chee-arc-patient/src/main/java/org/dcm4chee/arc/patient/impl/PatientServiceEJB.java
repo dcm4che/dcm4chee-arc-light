@@ -162,6 +162,9 @@ public class PatientServiceEJB {
             return false;
         }
         pat.setAttributes(attrs, filter, ctx.getFuzzyStr());
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
+                .setParameter(1, pat)
+                .executeUpdate();
         return true;
     }
 

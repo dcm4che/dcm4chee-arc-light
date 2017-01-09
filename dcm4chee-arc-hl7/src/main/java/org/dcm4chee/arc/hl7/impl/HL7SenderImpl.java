@@ -126,9 +126,23 @@ public class HL7SenderImpl implements HL7Sender {
     }
 
     @Override
+    public void scheduleMessage(HL7Message hl7Message) {
+        HL7Segment msh = hl7Message.get(0);
+        scheduleMessage(
+                msh.getField(2, ""),
+                msh.getField(3, ""),
+                msh.getField(4, ""),
+                msh.getField(5, ""),
+                msh.getField(8, ""),
+                msh.getField(9, ""),
+                hl7Message.getBytes(null));
+    }
+
+    @Override
     public Outcome sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                                String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
             throws Exception {
+        LOG.warn("HL7 message being sent is : ", hl7msg);
         HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
         HL7Application sender = hl7Dev.getHL7Application(sendingApplication + '|' + sendingFacility);
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);

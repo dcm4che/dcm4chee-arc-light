@@ -97,6 +97,16 @@
         "CREATE"
       ]
     },
+    "dcmAcceptConflictingPatientID": {
+      "title": "Accept Conflicting Patient ID",
+      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs). If absent, MERGED will be applied.",
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "MERGED"
+      ]
+    },
     "dcmBulkDataSpoolDirectory": {
       "title": "Bulk Data Spool Directory",
       "description": "Path to Bulk Data Spool Directory",
@@ -119,6 +129,11 @@
           "COMPLETED"
         ]
       }
+    },
+    "dcmValidateCallingAEHostname": {
+      "title": "Validate Calling AE Hostname",
+      "description": "Validate Calling AE Hostname or IP Address of Association requestors; disabled if absent",
+      "type": "boolean"
     },
     "dcmPersonNameComponentOrderInsensitiveMatching": {
       "title": "Person Name Component Order Insensitive Matching",
@@ -425,6 +440,12 @@
       "type": "integer",
       "minimum": 0
     },
+    "dcmStoreUpdateDBMaxRetryDelay": {
+      "title": "Store Update DB Maximum Delay of Retry",
+      "description": "Maximum delay in ms of retry to update the database on storage; 1000 if absent",
+      "type": "integer",
+      "minimum": 0
+    },
     "dcmAllowRejectionForDataRetentionPolicyExpired": {
       "title": "Allow Rejection For Data Retention Policy Expired",
       "description": "Allow Rejection For Data Retention Policy Expired : NEVER, ALWAYS, STUDY_RETENTION_POLICY. If absent, STUDY_RETENTION_POLICY will be applied.",
@@ -527,6 +548,44 @@
       "title": "Remap Retrieve URL",
       "description": "Remap Retrieve URL used in QIDO-RS and WADO-RS Metadata responses. Optionally prefixed with \"[<http-client-host>]\". E.g.: \"[cache-proxy]http://cache-proxy:8080\". If absent or if the specified <http-client-host> does not match, scheme and server authority of the QIDO-RS or WADO-RS request URL are used.",
       "type": "string"
+    },
+    "hl7PSUSendingApplication": {
+      "title": "HL7 Procedure Status Update Sending Application",
+      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled.",
+      "type": "string"
+    },
+    "hl7PSUReceivingApplication": {
+      "title": "HL7 Procedure Status Update Receiving Application",
+      "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "hl7PSUDelay": {
+      "title": "HL7 Procedure Status Update Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.",
+      "type": "string"
+    },
+    "hl7PSUTimeout": {
+      "title": "HL7 Procedure Status Update Timeout",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.",
+      "type": "string"
+    },
+    "hl7PSUOnTimeout": {
+      "title": "HL7 Procedure Status Update On Timeout",
+      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.",
+      "type": "boolean"
+    },
+    "hl7PSUTaskPollingInterval": {
+      "title": "HL7 Procedure Status Update Task Polling Interval",
+      "description": "Polling Interval for HL7 Procedure Status Update Tasks in ISO-8601 duration format PnDTnHnMn.nS. Disabled, if absent.",
+      "type": "string"
+    },
+    "hl7PSUTaskFetchSize": {
+      "title": "HL7 Procedure Status Update Tasks Fetch Size",
+      "description": "Maximal number of HL7 Procedure Status Update Tasks fetched in one query; 100 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "dcmStorage": {
       "title": "Storage Descriptor",
