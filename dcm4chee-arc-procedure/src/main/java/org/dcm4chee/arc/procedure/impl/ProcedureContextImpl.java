@@ -55,7 +55,6 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -75,9 +74,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private String eventActionCode;
     private Exception exception;
     private String spsID;
-    private List<String> spsIDs;
     private Association as;
-    private String spsStatus;
 
     ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Association as, Socket socket,
                          HL7Segment msh) {
