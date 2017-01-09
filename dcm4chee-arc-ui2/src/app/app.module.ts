@@ -32,6 +32,7 @@ import { TrimPipe } from './pipes/trim.pipe';
 import { SearchPipe } from './pipes/search.pipe';
 import { KeysPipe } from './pipes/keys.pipe';
 import { IodFormGeneratorComponent } from './helpers/iod-form-generator/iod-form-generator.component';
+import { TooltipDirective } from './helpers/tooltip/tooltip.directive';
 
 @NgModule({
     declarations: [
@@ -55,7 +56,8 @@ import { IodFormGeneratorComponent } from './helpers/iod-form-generator/iod-form
         TrimPipe,
         SearchPipe,
         KeysPipe,
-        IodFormGeneratorComponent
+        IodFormGeneratorComponent,
+        TooltipDirective
     ],
     imports: [
         BrowserModule,

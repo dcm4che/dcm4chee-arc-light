@@ -215,3 +215,18 @@ md-progress-circle, [_nghost-nyg-8]{
     }
   }
 }
+.tooltip_container{
+  display:none;
+  &.show{
+    display:block;
+  }
+}
+p-calendar{
+  span{
+    width:100%;
+    input{
+      width:100%;
+
+    }
+  }
+}

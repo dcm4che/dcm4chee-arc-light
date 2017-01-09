@@ -109,62 +109,62 @@ export class Globalvar {
             },
             {
 
-                value:"StudyDate,StudyTime",
+                value:"-StudyDate,-StudyTime",
                 label:"<label title=\"Study\">Study</label><span class=\"orderbydateasc\"></span>",
                 mode:"study"
             },
             {
-                value:"-StudyDate,-StudyTime",
+                value:"StudyDate,StudyTime",
                 label:"<label title=\"Study\">Study</label><span class=\"orderbydatedesc\"></span>",
                 mode:"study"
             },
             {
-                value:"PatientName,StudyDate,StudyTime",
+                value:"PatientName,-StudyDate,-StudyTime",
                 label:"<label title=\"Study\">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>",
                 mode:"study"
             },
             {
-                value:"-PatientName,StudyDate,StudyTime",
+                value:"-PatientName,-StudyDate,-StudyTime",
                 label:"<label title=\"Study\">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>",
                 mode:"study"
             },
             {
-                value:"PatientName,-StudyDate,-StudyTime",
+                value:"PatientName,StudyDate,StudyTime",
                 label:"<label title=\"Study\">Study</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>",
                 mode:"study"
             },
             {
-                value:"-PatientName,-StudyDate,-StudyTime",
+                value:"-PatientName,StudyDate,StudyTime",
                 label:"<label title=\"Study\">Study</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
                 mode:"study"
             },
             {
-                value:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+                value:"-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                 label:"<label title=\"Modality worklist\">MWL</label></span><span class=\"orderbydateasc\"></span>",
                 mode:"mwl"
             },
             {
-                value:"-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+                value:"ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                 label:"<label title=\"Modality worklist\">MWL</label><span class=\"orderbydatedesc\"></span>",
                 mode:"mwl"
             },
             {
-                value:"PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+                value:"PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                 label:"<label title=\"Modality worklist\">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydateasc\"></span>",
                 mode:"mwl"
             },
             {
-                value:"-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+                value:"-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                 label:"<label title=\"Modality worklist\">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydateasc\"></span>",
                 mode:"mwl"
             },
             {
-                value:"PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+                value:"PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                 label:"<label title=\"Modality worklist\">MWL</label><span class=\"glyphicon glyphicon-sort-by-alphabet\"></span><span class=\"orderbydatedesc\"></span>",
                 mode:"mwl"
             },
             {
-                value:"-PatientName,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,-ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
+                value:"-PatientName,ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate,ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime",
                 label:"<label title=\"Modality worklist\">MWL</label><span class=\"orderbynamedesc\"></span><span class=\"orderbydatedesc\"></span>",
                 mode:"mwl"
             }

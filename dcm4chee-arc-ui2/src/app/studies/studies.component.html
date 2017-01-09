@@ -473,10 +473,10 @@
                 <!--             <label for="reject" class="block_seid text-right">Reject:</label>
                             <div class="block_seid"> -->
                 <!--                 <select id="reject" [(ngModel)]="reject" class="col-md-9">
-                                    <option ng-repeat="rjn in rjnotes" md-tooltip="{{rjn.codeMeaning}}"
+                                    <option ng-repeat="rjn in rjnotes" tooltip="{{rjn.codeMeaning}}"
                                             value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
                                 </select> -->
-                <!--                 <a (click)="deleteRejectedInstances()" href="" md-tooltip="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
+                <!--                 <a (click)="deleteRejectedInstances()" href="" tooltip="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
                                     <span class="glyphicon glyphicon-remove"></span>
                                 </a> -->
                 <!-- </div> -->
@@ -694,11 +694,11 @@
                         <a class="table_btn" *ngIf="patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
                     </div>
                     <div style="width:14%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00100010'] && patient._VALUE.attrs['00100010'].Value && patient._VALUE.attrs['00100010'].Value[0]" >{{(patient._VALUE.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'}}</div></div>
-                    <div style="width:12%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00100020'] && patient._VALUE.attrs['00100020'].Value && patient._VALUE.attrs['00100020'].Value[0]" md-tooltip="{{(patient._VALUE.attrs['00100020'].Value[0]) || '&nbsp;'}}">{{(patient._VALUE.attrs['00100020'].Value[0]) || '&nbsp;'}}</div></div>
-                    <div style="width:12%" class="th" ><div *ngIf="patient._VALUE.attrs['00100021'] && patient._VALUE.attrs['00100021'].Value && patient._VALUE.attrs['00100021'].Value[0]" class="txt hover_cell" md-tooltip="{{(patient._VALUE.attrs['00100021'].Value[0])|| '&nbsp;'}}">{{(patient._VALUE.attrs['00100021'].Value[0]) || '&nbsp;'}}</div></div>
+                    <div style="width:12%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00100020'] && patient._VALUE.attrs['00100020'].Value && patient._VALUE.attrs['00100020'].Value[0]" tooltip="{{(patient._VALUE.attrs['00100020'].Value[0]) || '&nbsp;'}}">{{(patient._VALUE.attrs['00100020'].Value[0]) || '&nbsp;'}}</div></div>
+                    <div style="width:12%" class="th" ><div *ngIf="patient._VALUE.attrs['00100021'] && patient._VALUE.attrs['00100021'].Value && patient._VALUE.attrs['00100021'].Value[0]" class="txt hover_cell" tooltip="{{(patient._VALUE.attrs['00100021'].Value[0])|| '&nbsp;'}}">{{(patient._VALUE.attrs['00100021'].Value[0]) || '&nbsp;'}}</div></div>
                     <div style="width:8%"  class="th hover_cell" ><div *ngIf="patient._VALUE.attrs['00100030'] && patient._VALUE.attrs['00100030'].Value && patient._VALUE.attrs['00100030'].Value[0]">{{(patient._VALUE.attrs['00100030'].Value[0] | formatDA) || '&nbsp;'}}</div></div>
                     <div style="width:4%" class="th hover_cell" ><div *ngIf="patient._VALUE.attrs['00100040'] && patient._VALUE.attrs['00100040'].Value && patient._VALUE.attrs['00100040'].Value[0]"  [innerHtml]="(patient._VALUE.attrs['00100040'].Value[0]) || '&nbsp;'"></div></div>
-                    <div style="width:38%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00104000'] && patient._VALUE.attrs['00104000'].Value && patient._VALUE.attrs['00104000'].Value[0]" md-tooltip="{{(patient._VALUE.attrs['00104000'].Value[0]) || '&nbsp;'}}">{{(patient._VALUE.attrs['00104000'].Value[0]| trim:80) || '&nbsp;'}}</div></div>
+                    <div style="width:38%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00104000'] && patient._VALUE.attrs['00104000'].Value && patient._VALUE.attrs['00104000'].Value[0]" tooltip="{{(patient._VALUE.attrs['00104000'].Value[0]) || '&nbsp;'}}">{{(patient._VALUE.attrs['00104000'].Value[0]| trim:80) || '&nbsp;'}}</div></div>
                     <div style="width:2%" class="th hover_cell"><div *ngIf="patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0]" >{{(patient._VALUE.attrs['00201200'].Value[0]) || '&nbsp;'}}</div></div>
                 </div>
             </div>
@@ -746,10 +746,10 @@
                                     <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && !(study._VALUE.series)" (click)="$event.preventDefault();querySeries(study._VALUE,0)" href="" title="Show Series">&#9658;</a>
                                     <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && study._VALUE.series" (click)="$event.preventDefault();study._VALUE.series = null" href="" title="Hide Series">&#9660;</a>
                                 </div>
-                                <div style="width:10.4%" class="td_cell txt hover_cell"><div md-tooltip="{{study._VALUE.attrs['00200010'].Value[0]}}" *ngIf="study._VALUE.attrs['00200010'] && study._VALUE.attrs['00200010'].Value && study._VALUE.attrs['00200010'].Value[0]">{{(study._VALUE.attrs['00200010'].Value[0]) || '&nbsp;'}}</div></div>
-                                <div  style="width:17.3%" class="td_cell txt hover_cell"><div *ngIf="study._VALUE.attrs['0020000D'] && study._VALUE.attrs['0020000D'].Value && study._VALUE.attrs['0020000D'].Value[0]" md-tooltip="{{study._VALUE.attrs['0020000D'].Value[0]}}">{{study._VALUE.attrs['0020000D'].Value[0] | trim:30}}</div></div>
+                                <div style="width:10.4%" class="td_cell txt hover_cell"><div tooltip="{{study._VALUE.attrs['00200010'].Value[0]}}" *ngIf="study._VALUE.attrs['00200010'] && study._VALUE.attrs['00200010'].Value && study._VALUE.attrs['00200010'].Value[0]">{{(study._VALUE.attrs['00200010'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div  style="width:17.3%" class="td_cell txt hover_cell"><div *ngIf="study._VALUE.attrs['0020000D'] && study._VALUE.attrs['0020000D'].Value && study._VALUE.attrs['0020000D'].Value[0]" tooltip="{{study._VALUE.attrs['0020000D'].Value[0]}}">{{study._VALUE.attrs['0020000D'].Value[0] | trim:30}}</div></div>
                                 <div class="td_cell txt hover_cell" >
-                                    <div *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" md-tooltip="{{study._VALUE.attrs['00080020'].Value[0]}}">
+                                    <div *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" tooltip="{{study._VALUE.attrs['00080020'].Value[0]}}">
                                         {{(study._VALUE.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'}}
                                         <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)" title="Order study by Date (descending)">
                                             <span class="glyphicon glyphicon-triangle-top" aria-hidden="true" ></span>
@@ -761,15 +761,15 @@
                                 </div>
                                 <div style="width:5.1%" class="td_cell hover_cell" ><div *ngIf="study._VALUE.attrs['00080030'] && study._VALUE.attrs['00080030'].Value && study._VALUE.attrs['00080030'].Value[0]" [innerHtml]="(study._VALUE.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div></div>
                                 <div style="width:10.2%" class="td_cell txt hover_cell"  >
-                                    <div *ngIf="study._VALUE.attrs['00080090'] && study._VALUE.attrs['00080090'].Value && study._VALUE.attrs['00080090'].Value[0] && study._VALUE.attrs['00080090'].Value[0].Alphabetic" md-tooltip="{{study._VALUE.attrs['00080090'].Value[0].Alphabetic}}">{{(study._VALUE.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'}}</div>
+                                    <div *ngIf="study._VALUE.attrs['00080090'] && study._VALUE.attrs['00080090'].Value && study._VALUE.attrs['00080090'].Value[0] && study._VALUE.attrs['00080090'].Value[0].Alphabetic" tooltip="{{study._VALUE.attrs['00080090'].Value[0].Alphabetic}}">{{(study._VALUE.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'}}</div>
                                 </div>
-                                <div class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" md-tooltip="{{study._VALUE.attrs['00080050'].Value[0]}}"  >{{(study._VALUE.attrs['00080050'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" tooltip="{{study._VALUE.attrs['00080050'].Value[0]}}"  >{{(study._VALUE.attrs['00080050'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div style="width:5.2%" class="td_cell hover_cell">
                                     <div [innerHtml]="(study._VALUE.attrs['00080061'].Value) || '&nbsp;'" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
                                 </div>
-                                <div style="width:17%" class="td_cell txt hover_cell" ><div md-tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0]) || '&nbsp;'}}</div></div>
-                                <div style="width:3%" class="td_cell txt hover_cell"  ><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" md-tooltip="{{study._VALUE.attrs['00201206'].Value[0]}}">{{(study._VALUE.attrs['00201206'].Value[0]) || '&nbsp;'}}</div></div>
-                                <div style="width:3%" class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" md-tooltip="{{study._VALUE.attrs['00201208'].Value[0]}}">{{(study._VALUE.attrs['00201208'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div style="width:17%" class="td_cell txt hover_cell" ><div tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div style="width:3%" class="td_cell txt hover_cell"  ><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" tooltip="{{study._VALUE.attrs['00201206'].Value[0]}}">{{(study._VALUE.attrs['00201206'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div style="width:3%" class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" tooltip="{{study._VALUE.attrs['00201208'].Value[0]}}">{{(study._VALUE.attrs['00201208'].Value[0]) || '&nbsp;'}}</div></div>
                             </div>
                             <div class="td_row">
                                 <div class="tr_row"  *ngIf="study._VALUE.showAttributes">
@@ -811,13 +811,13 @@
                                                 <a *ngIf="!series._VALUE.instances" (click)="$event.preventDefault();queryInstances(series._VALUE,0)" href="" title="Show Instances">&#9658;</a>
                                                 <a *ngIf="series._VALUE.instances" (click)="$event.preventDefault();series._VALUE.instances = null" href="" title="Hide Instances">&#9660;</a>
                                             </div>
-                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00081010'] && series._VALUE.attrs['00081010'].Value && series._VALUE.attrs['00081010'].Value[0]" md-tooltip="{{series._VALUE.attrs['00081010'].Value[0]}}" >{{(series._VALUE.attrs['00081010'].Value[0]) || '&nbsp;'}}</div></div>
-                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00200011'] && series._VALUE.attrs['00200011'].Value && series._VALUE.attrs['00200011'].Value[0]" md-tooltip="{{series._VALUE.attrs['00200011'].Value[0]}}" >{{(series._VALUE.attrs['00200011'].Value[0]) || '&nbsp;'}}</div></div>
-                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00400244'] && series._VALUE.attrs['00400244'].Value && series._VALUE.attrs['00400244'].Value[0]" md-tooltip="{{series._VALUE.attrs['00400244'].Value[0]}}" >{{(series._VALUE.attrs['00400244'].Value[0] | formatDA) || '&nbsp;'}}</div></div>
-                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00400245'] && series._VALUE.attrs['00400245'].Value && series._VALUE.attrs['00400245'].Value[0]" md-tooltip="{{series._VALUE.attrs['00400245'].Value[0]}}" >{{(series._VALUE.attrs['00400245'].Value[0] | formatTM) || '&nbsp;'}}</div></div>
-                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00180015'] && series._VALUE.attrs['00180015'].Value && series._VALUE.attrs['00180015'].Value[0]" md-tooltip="{{series._VALUE.attrs['00180015'].Value[0]}}" >{{(series._VALUE.attrs['00180015'].Value[0]) || '&nbsp;'}}</div></div>
+                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00081010'] && series._VALUE.attrs['00081010'].Value && series._VALUE.attrs['00081010'].Value[0]" tooltip="{{series._VALUE.attrs['00081010'].Value[0]}}" >{{(series._VALUE.attrs['00081010'].Value[0]) || '&nbsp;'}}</div></div>
+                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00200011'] && series._VALUE.attrs['00200011'].Value && series._VALUE.attrs['00200011'].Value[0]" tooltip="{{series._VALUE.attrs['00200011'].Value[0]}}" >{{(series._VALUE.attrs['00200011'].Value[0]) || '&nbsp;'}}</div></div>
+                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00400244'] && series._VALUE.attrs['00400244'].Value && series._VALUE.attrs['00400244'].Value[0]" tooltip="{{series._VALUE.attrs['00400244'].Value[0]}}" >{{(series._VALUE.attrs['00400244'].Value[0] | formatDA) || '&nbsp;'}}</div></div>
+                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00400245'] && series._VALUE.attrs['00400245'].Value && series._VALUE.attrs['00400245'].Value[0]" tooltip="{{series._VALUE.attrs['00400245'].Value[0]}}" >{{(series._VALUE.attrs['00400245'].Value[0] | formatTM) || '&nbsp;'}}</div></div>
+                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00180015'] && series._VALUE.attrs['00180015'].Value && series._VALUE.attrs['00180015'].Value[0]" tooltip="{{series._VALUE.attrs['00180015'].Value[0]}}" >{{(series._VALUE.attrs['00180015'].Value[0]) || '&nbsp;'}}</div></div>
                                             <div class="td_cell hover_cell"><div *ngIf="series._VALUE.attrs['00080060'] && series._VALUE.attrs['00080060'].Value && series._VALUE.attrs['00080060'].Value[0]" [innerHtml]="(series._VALUE.attrs['00080060'].Value[0]) || '&nbsp;'" ></div></div>
-                                            <div style="width:21.5%" class="td_cell txt hover_cell" ><div *ngIf="series._VALUE.attrs['0008103E'] && series._VALUE.attrs['0008103E'].Value && series._VALUE.attrs['0008103E'].Value[0]" md-tooltip="{{(series._VALUE.attrs['0008103E'].Value[0]) || '&nbsp;'}}">{{(series._VALUE.attrs['0008103E'].Value[0]) || '&nbsp;'}}</div></div>
+                                            <div style="width:21.5%" class="td_cell txt hover_cell" ><div *ngIf="series._VALUE.attrs['0008103E'] && series._VALUE.attrs['0008103E'].Value && series._VALUE.attrs['0008103E'].Value[0]" tooltip="{{(series._VALUE.attrs['0008103E'].Value[0]) || '&nbsp;'}}">{{(series._VALUE.attrs['0008103E'].Value[0]) || '&nbsp;'}}</div></div>
                                             <div style="width:2.1%" class="td_cell txt hover_cell" ><div *ngIf="series._VALUE.attrs['00201209'] && series._VALUE.attrs['00201209'].Value && series._VALUE.attrs['00201209'].Value[0]">{{(series._VALUE.attrs['00201209'].Value[0]) || '&nbsp;'}}</div></div>
                                         </div>
                                         <div class="tr_row"  *ngIf="series._VALUE.showAttributes">
@@ -873,11 +873,11 @@
                                                         </a>
 
                                                     </div>
-                                                    <div class="td_cell txt hover_cell"  ><div *ngIf="instance._VALUE.attrs['00080016'] && instance._VALUE.attrs['00080016'].Value && instance._VALUE.attrs['00080016'].Value[0]" md-tooltip="{{instance._VALUE.attrs['00080016'].Value[0]}}" >{{(instance._VALUE.attrs['00080016'].Value[0]) || '&nbsp;'}}</div></div>
-                                                    <div class="td_cell txt hover_cell"  ><div *ngIf="instance._VALUE.attrs['00200013'] && instance._VALUE.attrs['00200013'].Value && instance._VALUE.attrs['00200013'].Value[0]" md-tooltip="{{instance._VALUE.attrs['00200013'].Value[0]}}" >{{(instance._VALUE.attrs['00200013'].Value[0]) || '&nbsp;'}}</div></div>
+                                                    <div class="td_cell txt hover_cell"  ><div *ngIf="instance._VALUE.attrs['00080016'] && instance._VALUE.attrs['00080016'].Value && instance._VALUE.attrs['00080016'].Value[0]" tooltip="{{instance._VALUE.attrs['00080016'].Value[0]}}" >{{(instance._VALUE.attrs['00080016'].Value[0]) || '&nbsp;'}}</div></div>
+                                                    <div class="td_cell txt hover_cell"  ><div *ngIf="instance._VALUE.attrs['00200013'] && instance._VALUE.attrs['00200013'].Value && instance._VALUE.attrs['00200013'].Value[0]" tooltip="{{instance._VALUE.attrs['00200013'].Value[0]}}" >{{(instance._VALUE.attrs['00200013'].Value[0]) || '&nbsp;'}}</div></div>
                                                     <div class="td_cell hover_cell" ><div *ngIf="(instance._VALUE.attrs['00080023'] && instance._VALUE.attrs['00080023'].Value && instance._VALUE.attrs['00080023'].Value[0]) || (instance._VALUE.attrs['00700082'] && instance._VALUE.attrs['00700082'].Value && instance._VALUE.attrs['00700082'].Value[0])">{{((instance._VALUE.attrs['00080023'] || instance._VALUE.attrs['00700082']).Value[0] | formatDA) || '&nbsp;'}}</div></div>
                                                     <div class="td_cell hover_cell" ><div *ngIf="(instance._VALUE.attrs['00080033'] && instance._VALUE.attrs['00080033'].Value && instance._VALUE.attrs['00080033'].Value[0]) || (instance._VALUE.attrs['00700083'] && instance._VALUE.attrs['00700083'].Value && instance._VALUE.attrs['00700083'].Value[0])">{{((instance._VALUE.attrs['00080033'] || instance._VALUE.attrs['00700083']).Value[0] | formatTM) || '&nbsp;'}}</div></div>
-                                                    <div style="width:28%" class="td_cell txt hover_cell" md-tooltip="{{(instance._VALUE.attrs | contentDescription)}}" [innerHtml]="instance._VALUE.attrs | contentDescription"></div>
+                                                    <div style="width:28%" class="td_cell txt hover_cell" tooltip="{{(instance._VALUE.attrs | contentDescription)}}" [innerHtml]="instance._VALUE.attrs | contentDescription"></div>
                                                     <div style="width:2.7%" class="td_cell hover_cell" ></div>
                                                 </div>
                                                 <div class="tr_row"  *ngIf="instance._VALUE.showAttributes">
@@ -949,10 +949,10 @@
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
                                 </div>
-                                <div style="width:10.4%" class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['00401001'] && mwl._VALUE.attrs['00401001'].Value && mwl._VALUE.attrs['00401001'].Value[0]" md-tooltip="{{mwl._VALUE.attrs['00401001'].Value[0]}}">{{(mwl._VALUE.attrs['00401001'].Value[0]) || '&nbsp;'}}</div></div>
-                                <div  style="width:17.3%"  class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['0020000D'] && mwl._VALUE.attrs['0020000D'].Value && mwl._VALUE.attrs['0020000D'].Value[0]" md-tooltip="{{mwl._VALUE.attrs['0020000D'].Value[0]}}">{{(mwl._VALUE.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div style="width:10.4%" class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['00401001'] && mwl._VALUE.attrs['00401001'].Value && mwl._VALUE.attrs['00401001'].Value[0]" tooltip="{{mwl._VALUE.attrs['00401001'].Value[0]}}">{{(mwl._VALUE.attrs['00401001'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div  style="width:17.3%"  class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['0020000D'] && mwl._VALUE.attrs['0020000D'].Value && mwl._VALUE.attrs['0020000D'].Value[0]" tooltip="{{mwl._VALUE.attrs['0020000D'].Value[0]}}">{{(mwl._VALUE.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div class="td_cell txt hover_cell"  >
-                                    <div *ngIf="mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400002'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value[0]" md-tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value[0]}}">
+                                    <div *ngIf="mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400002'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value[0]" tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value[0]}}">
                                         {{(mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value[0] | formatDA) || '&nbsp;'}}
                                     </div>
                                 </div>
@@ -962,12 +962,12 @@
                                     </div>
                                 </div>
                                 <div style="width:10.2%" class="td_cell txt hover_cell"  >
-                                    <div  *ngIf="mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400006'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value[0].Alphabetic" md-tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value[0].Alphabetic}}">
+                                    <div  *ngIf="mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400006'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value[0].Alphabetic" tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value[0].Alphabetic}}">
                                         {{(mwl._VALUE.attrs['00400100'].Value[0]['00400006'].Value[0].Alphabetic) || '&nbsp;'}}
                                     </div>
                                 </div>
                                 <div class="td_cell txt hover_cell" >
-                                    <div *ngIf="mwl._VALUE.attrs['00080050'] && mwl._VALUE.attrs['00080050'].Value && mwl._VALUE.attrs['00080050'].Value[0]" md-tooltip="{{mwl._VALUE.attrs['00080050'].Value[0]}}" >
+                                    <div *ngIf="mwl._VALUE.attrs['00080050'] && mwl._VALUE.attrs['00080050'].Value && mwl._VALUE.attrs['00080050'].Value[0]" tooltip="{{mwl._VALUE.attrs['00080050'].Value[0]}}" >
                                         {{(mwl._VALUE.attrs['00080050'].Value[0]) || '&nbsp;'}}
                                     </div>
                                 </div>
@@ -979,13 +979,13 @@
                                 <div style="width:18%" class="td_cell txt hover_cell" >
                                     <div  *ngIf="(mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400007'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400007'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400007'].Value[0]) ||
                                                    (mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400008'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'] && mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0])"
-                                            md-tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400007'].Value[0] || mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0]}}">
+                                            tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400007'].Value[0] || mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0]}}">
 
                                         {{(mwl._VALUE.attrs['00400100'].Value[0]['00400007'].Value[0]) || (mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0]) || '&nbsp;'}}
                                     </div>
                                 </div>
                                 <div style="width:6%" class="td_cell txt hover_cell" >
-                                    <div *ngIf="mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400001'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400001'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400001'].Value[0]" md-tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400001'].Value[0]}}">
+                                    <div *ngIf="mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400001'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400001'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400001'].Value[0]" tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400001'].Value[0]}}">
                                         {{(mwl._VALUE.attrs['00400100'].Value[0]['00400001'].Value[0]) || '&nbsp;'}}
                                     </div>
                                 </div>

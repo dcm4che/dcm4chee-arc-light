@@ -36,7 +36,7 @@ export class StudiesComponent{
     clipboard;
     disabled = {};
     filter = {
-        orderby: "StudyDate,StudyTime",
+        orderby: "-StudyDate,-StudyTime",
         ModalitiesInStudy:"",
         "ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate":"",
         "ScheduledProcedureStepSequence.ScheduledProcedureStepStatus":"",
@@ -191,6 +191,8 @@ export class StudiesComponent{
         //     // TODO: time changed
         //     console.log(this.value);
         // });
+
+
         this.cfpLoadingBar.interval = 200;
         this.modalities = Globalvar.MODALITIES;
         console.log("modalities",this.modalities);
