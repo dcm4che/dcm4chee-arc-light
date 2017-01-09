@@ -149,15 +149,15 @@ import java.util.Date;
 @NamedQuery(
         name=Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT,
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
-                "where se in (select se1 from Series se1 where se1.study.patient = ?1) " +
-                "and se.metadata is not null " +
-                "and se.metadataScheduledUpdateTime is null"),
+                "where se in (select se1 from Series se1 where se1.study.patient = ?1 " +
+                "and se1.metadata is not null " +
+                "and se1.metadataScheduledUpdateTime is null)"),
 @NamedQuery(
         name=Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY,
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
-                "where se in (select se1 from Series se1 where se1.study = ?1) " +
-                "and se.metadata is not null " +
-                "and se.metadataScheduledUpdateTime is null"),
+                "where se in (select se1 from Series se1 where se1.study = ?1 " +
+                "and se1.metadata is not null " +
+                "and se1.metadataScheduledUpdateTime is null)"),
 })
 @Entity
 @Table(name = "series",
