@@ -177,8 +177,8 @@ public class HL7PSUScheduler extends Scheduler {
             Attributes ianForSeries = queryService.createIAN(ae, studyInstanceUID, seriesInstanceUID, null);
             if (ianForSeries == null)
                 return false;
-            Attributes refStudy = ianForSeries.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
-            Attributes refSeries = refStudy.getSequence(Tag.ReferencedSeriesSequence).remove(0);
+
+            Attributes refSeries = ianForSeries.getSequence(Tag.ReferencedSeriesSequence).get(0);
             Sequence available = refSeries.getSequence(Tag.ReferencedSOPSequence);
             if (!allAvailable(perfSeries.getSequence(Tag.ReferencedImageSequence), available) ||
                     !allAvailable(perfSeries.getSequence(Tag.ReferencedNonImageCompositeSOPInstanceSequence), available))

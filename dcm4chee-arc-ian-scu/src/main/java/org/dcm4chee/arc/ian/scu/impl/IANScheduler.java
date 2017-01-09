@@ -214,8 +214,7 @@ public class IANScheduler extends Scheduler {
             if (ianForSeries == null)
                 return null;
 
-            Attributes refStudy = ianForSeries.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
-            Attributes refSeries = refStudy.getSequence(Tag.ReferencedSeriesSequence).remove(0);
+            Attributes refSeries = ianForSeries.getSequence(Tag.ReferencedSeriesSequence).remove(0);
             Sequence available = refSeries.getSequence(Tag.ReferencedSOPSequence);
             if (!allAvailable(perfSeries.getSequence(Tag.ReferencedImageSequence), available) ||
                 !allAvailable(perfSeries.getSequence(Tag.ReferencedNonImageCompositeSOPInstanceSequence), available))
