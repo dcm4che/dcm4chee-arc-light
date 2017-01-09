@@ -889,6 +889,7 @@ class ArchiveDeviceFactory {
     static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
+    static final Duration HL7PSU_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String DICOM_EXPORTER_ID = "STORESCP";
     static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
@@ -1194,6 +1195,7 @@ class ArchiveDeviceFactory {
         ext.setUnzipVendorDataToURI(UNZIP_VENDOR_DATA);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);
+        ext.setHl7PSUTaskPollingInterval(HL7PSU_TASK_POLLING_INTERVAL);
         ext.setPurgeQueueMessagePollingInterval(PURGE_QUEUE_MSG_POLLING_INTERVAL);
         ext.setExportTaskPollingInterval(EXPORT_TASK_POLLING_INTERVAL);
         ext.setPurgeStoragePollingInterval(PURGE_STORAGE_POLLING_INTERVAL);
