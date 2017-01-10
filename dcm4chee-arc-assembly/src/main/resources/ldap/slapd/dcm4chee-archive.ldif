@@ -753,6 +753,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.151 NAME 'hl7PSUSendingApplication'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.152 NAME 'hl7PSUMWL'
+  DESC 'Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Disabled, if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -850,6 +855,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
     hl7PSUDelay $
+    hl7PSUMWL $
     hl7PSUTimeout $
     hl7PSUOnTimeout $
     hl7PSUTaskPollingInterval $
@@ -902,6 +908,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmAcceptedUserRole $
     dcmAllowDeleteStudyPermanently $
     hl7PSUDelay $
+    hl7PSUMWL $
     hl7PSUTimeout $
     hl7PSUOnTimeout $
     hl7PSUReceivingApplication $

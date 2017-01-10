@@ -279,6 +279,11 @@
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.",
       "type": "string"
     },
+    "hl7PSUMWL": {
+      "title": "HL7 Procedure Status Update MWL",
+      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Disabled, if absent.",
+      "type": "boolean"
+    },
     "hl7PSUTimeout": {
       "title": "HL7 Procedure Status Update Timeout",
       "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.",
