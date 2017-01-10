@@ -2012,7 +2012,6 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             // }, 1000);
             cfpLoadingBar.complete();
         });
-        console.log("studies",$scope.patients);
     };
     $scope.queryAllStudiesOfPatient = function(patient, offset) {
         cfpLoadingBar.start();

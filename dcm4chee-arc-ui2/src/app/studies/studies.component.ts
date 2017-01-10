@@ -1541,11 +1541,6 @@ export class StudiesComponent{
             }, duration, function() {
                 element.removeClass("open");
             });
-            // setTimeout(function(){
-            //     $(".more_menu_study.open").each(function(i,m){
-            //         $(m).css("right","-195px").removeClass("open");
-            //     });
-            // },duration+10);
         }else{
             $(".more_menu_study.open").each(function(i,m){
                 $(m).css("right","-195px").removeClass("open");
