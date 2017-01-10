@@ -174,6 +174,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "hl7PSUTaskPollingInterval", ext.getHl7PSUTaskPollingInterval());
         LdapUtils.storeNotDef(attrs, "hl7PSUTaskFetchSize", ext.getHl7PSUTaskFetchSize(), 100);
         LdapUtils.storeNotDef(attrs, "hl7PSUMWL", ext.isHl7PSUMWL(), false);
+        LdapUtils.storeNotNull(attrs, "dcmAcceptConflictingPatientID", ext.getAcceptConflictingPatientID());
     }
 
     @Override
@@ -283,6 +284,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUTaskPollingInterval(toDuration(attrs.get("hl7PSUTaskPollingInterval")));
         ext.setHl7PSUTaskFetchSize(LdapUtils.intValue(attrs.get("hl7PSUTaskFetchSize"), 100));
         ext.setHl7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), false));
+        ext.setAcceptConflictingPatientID(
+                LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
     }
 
     @Override
@@ -456,6 +459,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHl7PSUTaskPollingInterval(), bb.getHl7PSUTaskPollingInterval());
         LdapUtils.storeDiff(mods, "hl7PSUTaskFetchSize", aa.getHl7PSUTaskFetchSize(), bb.getHl7PSUTaskFetchSize(), 100);
         LdapUtils.storeDiff(mods, "hl7PSUMWL", aa.isHl7PSUMWL(), bb.isHl7PSUMWL(), false);
+        LdapUtils.storeDiff(mods, "dcmAcceptConflictingPatientID", aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID());
     }
 
     @Override

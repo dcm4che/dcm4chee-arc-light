@@ -142,6 +142,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
+    private AcceptConflictingPatientID acceptConflictingPatientID;
     private String[] retrieveAETitles = {};
     private String remapRetrieveURL;
     private String remapRetrieveURLClientHost;
@@ -1340,6 +1341,20 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.allowDeleteStudyPermanently = allowDeleteStudyPermanently;
     }
 
+    public AcceptConflictingPatientID getAcceptConflictingPatientID() {
+        return acceptConflictingPatientID;
+    }
+
+    public void setAcceptConflictingPatientID(AcceptConflictingPatientID acceptConflictingPatientID) {
+        this.acceptConflictingPatientID = acceptConflictingPatientID;
+    }
+
+    public AcceptConflictingPatientID acceptConflictingPatientID() {
+        return acceptConflictingPatientID != null
+                ? acceptConflictingPatientID
+                : AcceptConflictingPatientID.MERGED;
+    }
+
     public String[] getRetrieveAETitles() {
         return retrieveAETitles;
     }
@@ -1449,6 +1464,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUTaskPollingInterval = arcdev.hl7PSUTaskPollingInterval;
         hl7PSUTaskFetchSize = arcdev.hl7PSUTaskFetchSize;
         hl7PSUMWL = arcdev.hl7PSUMWL;
+        acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

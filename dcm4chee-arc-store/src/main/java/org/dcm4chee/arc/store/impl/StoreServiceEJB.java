@@ -481,6 +481,14 @@ public class StoreServiceEJB {
     private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)
             throws DicomServiceException {
         Series series = findSeries(ctx, result);
+        StoreSession session = ctx.getStoreSession();
+        HttpServletRequest httpRequest = session.getHttpRequest();
+        Association as = session.getAssociation();
+        PatientMgtContext patMgtCtx = as != null ? patientService.createPatientMgtContextWEB(as)
+                : httpRequest != null
+                ? patientService.createPatientMgtContextWEB(httpRequest, session.getLocalApplicationEntity())
+                : patientService.createPatientMgtContextHL7(session.getSocket(), session.getHL7MessageHeader());
+        patMgtCtx.setAttributes(ctx.getAttributes());
         if (series == null) {
             Study study = findStudy(ctx, result);
             if (study == null) {
@@ -488,14 +496,6 @@ public class StoreServiceEJB {
                     throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
                             StoreService.PATIENT_ID_MISSING_IN_OBJECT_MSG);
 
-                StoreSession session = ctx.getStoreSession();
-                HttpServletRequest httpRequest = session.getHttpRequest();
-                Association as = session.getAssociation();
-                PatientMgtContext patMgtCtx = as != null ? patientService.createPatientMgtContextWEB(as)
-                        : httpRequest != null
-                        ? patientService.createPatientMgtContextWEB(httpRequest, session.getLocalApplicationEntity())
-                        : patientService.createPatientMgtContextHL7(session.getSocket(), session.getHL7MessageHeader());
-                patMgtCtx.setAttributes(ctx.getAttributes());
                 Patient pat = patientService.findPatient(patMgtCtx);
                 checkStorePermission(ctx, pat);
 
@@ -512,6 +512,7 @@ public class StoreServiceEJB {
             } else {
                 checkStorePermission(ctx, study.getPatient());
                 study = updateStudy(ctx, study);
+                acceptConflictingPID(patMgtCtx, ctx, study.getPatient());
                 updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study, result);
@@ -519,6 +520,7 @@ public class StoreServiceEJB {
             checkStorePermission(ctx, series.getStudy().getPatient());
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
+            acceptConflictingPID(patMgtCtx, ctx, series.getStudy().getPatient());
             updatePatient(ctx, series.getStudy().getPatient());
         }
         Instance instance = createInstance(ctx, series, conceptNameCode);
@@ -539,6 +541,30 @@ public class StoreServiceEJB {
 
         idService.newPatientID(ctx.getAttributes());
         return true;
+    }
+
+    private void acceptConflictingPID(PatientMgtContext patMgtCtx, StoreContext ctx, Patient associatedPat)
+            throws DicomServiceException {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AcceptConflictingPatientID acceptConflictingPID = arcDev.acceptConflictingPatientID();
+        switch (acceptConflictingPID) {
+            case YES:
+                break;
+            case NO:
+                if (!ctx.getAttributes().getString(Tag.PatientID).equals(associatedPat.getPatientID().getID()))
+                    throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
+                            StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
+                break;
+            case MERGED:
+                Patient p = patientService.findPatient(patMgtCtx);
+                if (p == null || (p.getPk() != associatedPat.getPk()))
+                    throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
+                            StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
+                break;
+        }
+        return;
     }
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {
