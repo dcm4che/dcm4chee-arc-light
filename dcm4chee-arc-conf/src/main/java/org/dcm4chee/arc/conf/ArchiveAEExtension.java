@@ -101,6 +101,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration hl7PSUDelay;
     private Duration hl7PSUTimeout;
     private Boolean hl7PSUOnTimeout;
+    private Boolean hl7PSUMWL;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -855,8 +856,23 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isHl7PSUOnTimeout();
     }
 
+    public Boolean getHl7PSUMWL() {
+        return hl7PSUMWL;
+    }
+
+    public void setHl7PSUMWL(Boolean hl7PSUMWL) {
+        this.hl7PSUMWL = hl7PSUMWL;
+    }
+
+    public boolean hl7PSUMWL() {
+        return hl7PSUMWL != null
+                ? hl7PSUMWL.booleanValue()
+                : getArchiveDeviceExtension().isHl7PSUMWL();
+    }
+
     public boolean hl7PSUOnStudy() {
-        return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null;
+        return (hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null)
+                || (hl7PSUDelay() != null && hl7PSUMWL());
     }
 
     public boolean hl7PSUOnMPPS() {

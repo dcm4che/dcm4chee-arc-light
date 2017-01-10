@@ -110,7 +110,7 @@ public class HL7PSUScheduler extends Scheduler {
                     LOG.info("Check availability of {}", hl7psuTask.getMpps());
                     if (checkAllRefInMpps(ae, hl7psuTask.getMpps())) {
                         LOG.info("Schedule {}", hl7psuTask);
-                        ejb.scheduleHL7PSUTask(hl7psuTask);
+                        ejb.scheduleHL7PSUTask(hl7psuTask, HL7PSU.HL7);
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to process {}:\n", hl7psuTask, e);
@@ -118,17 +118,18 @@ public class HL7PSUScheduler extends Scheduler {
         } while (hl7psuTasks.size() == fetchSize);
         do {
             hl7psuTasks = ejb.fetchHL7PSUTasksForStudy(device.getDeviceName(), fetchSize);
-            for (HL7PSUTask hl7psuTask : hl7psuTasks)
+            for (HL7PSUTask hl7psuTask : hl7psuTasks) {
+                ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
+                ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+                HL7PSU action = hl7PSUActionOnStudy(arcAE);
                 try {
                     if (hl7psuTask.getMpps() == null) {
                         LOG.info("Schedule {}", hl7psuTask);
-                        ejb.scheduleHL7PSUTask(hl7psuTask);
+                        ejb.scheduleHL7PSUTask(hl7psuTask, action);
                     } else {
-                        ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
-                        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
                         if (arcAE.hl7PSUOnTimeout()) {
                             LOG.warn("Timeout for {} exceeded - schedule HL7 Procedure Status Update anyway", hl7psuTask);
-                            ejb.scheduleHL7PSUTask(hl7psuTask);
+                            ejb.scheduleHL7PSUTask(hl7psuTask, action);
                         } else {
                             LOG.warn("Timeout for {} exceeded - no HL7 Procedure Status Update", hl7psuTask);
                             ejb.removeHL7PSUTask(hl7psuTask);
@@ -137,7 +138,20 @@ public class HL7PSUScheduler extends Scheduler {
                 } catch (Exception e) {
                     LOG.warn("Failed to process {}:\n", hl7psuTask, e);
                 }
+            }
         } while (hl7psuTasks.size() == fetchSize);
+    }
+
+    public HL7PSU hl7PSUActionOnStudy(ArchiveAEExtension arcAE) {
+        return arcAE.hl7PSUSendingApplication() != null && arcAE.hl7PSUReceivingApplications().length > 0
+                ? arcAE.hl7PSUMWL()
+                    ? HL7PSU.BOTH
+                    : HL7PSU.HL7
+                : HL7PSU.MWL;
+    }
+
+    public enum HL7PSU {
+        MWL, HL7, BOTH
     }
 
     public void onStore(@Observes StoreContext ctx) {

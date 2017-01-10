@@ -173,6 +173,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "hl7PSUOnTimeout", ext.isHl7PSUOnTimeout(), false);
         LdapUtils.storeNotNull(attrs, "hl7PSUTaskPollingInterval", ext.getHl7PSUTaskPollingInterval());
         LdapUtils.storeNotDef(attrs, "hl7PSUTaskFetchSize", ext.getHl7PSUTaskFetchSize(), 100);
+        LdapUtils.storeNotDef(attrs, "hl7PSUMWL", ext.isHl7PSUMWL(), false);
     }
 
     @Override
@@ -281,6 +282,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), false));
         ext.setHl7PSUTaskPollingInterval(toDuration(attrs.get("hl7PSUTaskPollingInterval")));
         ext.setHl7PSUTaskFetchSize(LdapUtils.intValue(attrs.get("hl7PSUTaskFetchSize"), 100));
+        ext.setHl7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), false));
     }
 
     @Override
@@ -453,6 +455,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7PSUTaskPollingInterval",
                 aa.getHl7PSUTaskPollingInterval(), bb.getHl7PSUTaskPollingInterval());
         LdapUtils.storeDiff(mods, "hl7PSUTaskFetchSize", aa.getHl7PSUTaskFetchSize(), bb.getHl7PSUTaskFetchSize(), 100);
+        LdapUtils.storeDiff(mods, "hl7PSUMWL", aa.isHl7PSUMWL(), bb.isHl7PSUMWL(), false);
     }
 
     @Override
@@ -591,6 +594,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "hl7PSUDelay", ext.getHl7PSUDelay());
         LdapUtils.storeNotNull(attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout());
         LdapUtils.storeNotNull(attrs, "hl7PSUOnTimeout", ext.getHl7PSUOnTimeout());
+        LdapUtils.storeNotNull(attrs, "hl7PSUMWL", ext.getHl7PSUMWL());
     }
 
     @Override
@@ -650,6 +654,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUDelay(toDuration(attrs.get("hl7PSUDelay")));
         ext.setHl7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout")));
         ext.setHl7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
+        ext.setHl7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
     }
 
     @Override
@@ -728,6 +733,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7PSUDelay", aa.getHl7PSUDelay(), bb.getHl7PSUDelay());
         LdapUtils.storeDiff(mods, "hl7PSUTimeout", aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout());
         LdapUtils.storeDiff(mods, "hl7PSUOnTimeout", aa.getHl7PSUOnTimeout(), bb.getHl7PSUOnTimeout());
+        LdapUtils.storeDiff(mods, "hl7PSUMWL", aa.getHl7PSUMWL(), bb.getHl7PSUMWL());
     }
 
     @Override

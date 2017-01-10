@@ -40,10 +40,12 @@
 
 package org.dcm4chee.arc.hl7.psu;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.hl7.HL7Sender;
@@ -58,6 +60,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -145,19 +148,37 @@ public class HL7PSUEJB {
         em.remove(em.getReference(task.getClass(), task.getPk()));
     }
 
-    public void scheduleHL7PSUTask(HL7PSUTask task) {
+    public void scheduleHL7PSUTask(HL7PSUTask task, HL7PSUScheduler.HL7PSU action) {
         ApplicationEntity ae = device.getApplicationEntity(task.getAETitle());
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         HL7PSUMessage msg = new HL7PSUMessage(task);
-        msg.setSendingApplicationWithFacility(arcAE.hl7PSUSendingApplication());
         if (task.getMpps() == null) {
             List<MWLItem> mwlItems = findMWLItems(task.getStudyInstanceUID());
             if (mwlItems.isEmpty()) {
                 LOG.warn("No MWL for {} - no HL7 Procedure Status Update", task);
                 return;
             }
+            if (action == HL7PSUScheduler.HL7PSU.MWL || action == HL7PSUScheduler.HL7PSU.BOTH) {
+                for (MWLItem mwl : mwlItems) {
+                    Attributes mwlAttrs = mwl.getAttributes();
+                    Iterator<Attributes> spsItems = mwlAttrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
+                    while (spsItems.hasNext()) {
+                        Attributes sps = spsItems.next();
+                        spsItems.remove();
+                        sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.COMPLETED.toString());
+                        mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
+                    }
+                    mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
+                }
+            }
             msg.setMWLItem(mwlItems.get(0).getAttributes());
         }
+        if (action == HL7PSUScheduler.HL7PSU.MWL) {
+            removeHL7PSUTask(task);
+            return;
+        }
+        msg.setSendingApplicationWithFacility(arcAE.hl7PSUSendingApplication());
         for (String receivingApp : arcAE.hl7PSUReceivingApplications()) {
             msg.setReceivingApplicationWithFacility(receivingApp);
             hl7Sender.scheduleMessage(msg.getHL7Message());

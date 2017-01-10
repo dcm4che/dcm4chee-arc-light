@@ -152,6 +152,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean hl7PSUOnTimeout;
     private int hl7PSUTaskFetchSize = 100;
     private Duration hl7PSUTaskPollingInterval;
+    private boolean hl7PSUMWL = false;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -992,6 +993,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7PSUTaskFetchSize = hl7PSUTaskFetchSize;
     }
 
+    public boolean isHl7PSUMWL() {
+        return hl7PSUMWL;
+    }
+
+    public void setHl7PSUMWL(boolean hl7PSUMWL) {
+        this.hl7PSUMWL = hl7PSUMWL;
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -1439,6 +1448,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUOnTimeout = arcdev.hl7PSUOnTimeout;
         hl7PSUTaskPollingInterval = arcdev.hl7PSUTaskPollingInterval;
         hl7PSUTaskFetchSize = arcdev.hl7PSUTaskFetchSize;
+        hl7PSUMWL = arcdev.hl7PSUMWL;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

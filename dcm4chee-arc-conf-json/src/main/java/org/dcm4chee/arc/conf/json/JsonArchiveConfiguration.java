@@ -179,6 +179,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("hl7PSUOnTimeout", arcDev.isHl7PSUOnTimeout(), false);
         writer.writeNotNull("hl7PSUTaskPollingInterval", arcDev.getHl7PSUTaskPollingInterval());
         writer.writeNotDef("hl7PSUTaskFetchSize", arcDev.getHl7PSUTaskFetchSize(), 100);
+        writer.writeNotDef("hl7PSUMWL", arcDev.isHl7PSUMWL(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -539,6 +540,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("hl7PSUDelay", arcAE.getHl7PSUDelay());
         writer.writeNotNull("hl7PSUTimeout", arcAE.getHl7PSUTimeout());
         writer.writeNotNull("hl7PSUOnTimeout", arcAE.getHl7PSUOnTimeout());
+        writer.writeNotNull("hl7PSUMWL", arcAE.getHl7PSUMWL());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -846,6 +848,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUTaskFetchSize":
                     arcDev.setHl7PSUTaskFetchSize(reader.intValue());
+                    break;
+                case "hl7PSUMWL":
+                    arcDev.setHl7PSUMWL(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1669,6 +1674,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUOnTimeout":
                     arcAE.setHl7PSUOnTimeout(reader.booleanValue());
+                    break;
+                case "hl7PSUMWL":
+                    arcAE.setHl7PSUMWL(reader.booleanValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
