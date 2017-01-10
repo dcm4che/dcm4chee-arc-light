@@ -758,6 +758,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.152 NAME 'hl7PSUMWL'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.153 NAME 'dcmExportPreviousEntity'
+  DESC 'Specifies if the previous Entity of a replaced Instance shall be also exported. Disabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -995,6 +1000,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.16 NAME 'dcmExportRule'
     dcmEntity $
     dcmExporterID )
   MAY (
+    dcmExportPreviousEntity $
     dcmProperty $
     dcmSchedule $
     dcmDuration ) )
