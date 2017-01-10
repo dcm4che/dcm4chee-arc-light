@@ -160,14 +160,11 @@ class StudyQuery extends AbstractQuery {
         attrs.addAll(patAttrs);
         attrs.addAll(studyAttrs);
         String externalRetrieveAET = results.get(QStudy.study.externalRetrieveAET);
-        if (externalRetrieveAET != null)
-            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs, externalRetrieveAET);
-        else
-            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+        attrs.setString(Tag.RetrieveAETitle, VR.AE, splitAndAppend(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS,
                 StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
-        attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
-        attrs.setString(Tag.SOPClassesInStudy, VR.UI, sopClassesInStudy);
+        attrs.setString(Tag.ModalitiesInStudy, VR.CS, StringUtils.split(modalitiesInStudy, '\\'));
+        attrs.setString(Tag.SOPClassesInStudy, VR.UI, StringUtils.split(sopClassesInStudy, '\\'));
         attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(QPatient.patient.numberOfStudies));
         attrs.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, numberOfStudyRelatedSeries);
         attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
@@ -196,7 +193,7 @@ class StudyQuery extends AbstractQuery {
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
                     results.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
-                results.get(QStudy.study.storageIDs));
+                StringUtils.split(results.get(QStudy.study.storageIDs), '\\'));
         return attrs;
     }
 

@@ -195,10 +195,7 @@ class InstanceQuery extends AbstractQuery {
         attrs.addAll(seriesAttrs);
         attrs.addAll(instAtts);
         String externalRetrieveAET = results.get(QInstance.instance.externalRetrieveAET);
-        if (externalRetrieveAET != null)
-            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs, externalRetrieveAET);
-        else
-            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+        attrs.setString(Tag.RetrieveAETitle, VR.AE, splitAndAppend(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime, VR.DT,
                 results.get(QInstance.instance.createdTime));

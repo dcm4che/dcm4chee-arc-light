@@ -44,11 +44,14 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.hibernate.StatelessSession;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -157,5 +160,16 @@ abstract class AbstractQuery implements Query {
     public void close() {
         session.close();
         context.close();
+    }
+
+    static String[] splitAndAppend(String s, String append) {
+        String[] ss = StringUtils.split(s, '\\');
+        if (append != null) {
+            String[] src = ss;
+            ss = new String[src.length+1];
+            System.arraycopy(src, 0, ss, 0, src.length);
+            ss[src.length] = append;
+        }
+        return ss;
     }
 }

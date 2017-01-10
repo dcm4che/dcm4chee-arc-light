@@ -180,10 +180,7 @@ class SeriesQuery extends AbstractQuery {
         attrs.addAll(studyAttrs);
         attrs.addAll(seriesAttrs);
         String externalRetrieveAET = results.get(QSeries.series.externalRetrieveAET);
-        if (externalRetrieveAET != null)
-            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs, externalRetrieveAET);
-        else
-            attrs.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+        attrs.setString(Tag.RetrieveAETitle, VR.AE, splitAndAppend(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS,
             StringUtils.maskNull(availability, Availability.UNAVAILABLE).toString());
         attrs.setInt(Tag.NumberOfSeriesRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
