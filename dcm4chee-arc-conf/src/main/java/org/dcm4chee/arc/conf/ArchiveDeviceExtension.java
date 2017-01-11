@@ -1349,12 +1349,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.acceptConflictingPatientID = acceptConflictingPatientID;
     }
 
-    public AcceptConflictingPatientID acceptConflictingPatientID() {
-        return acceptConflictingPatientID != null
-                ? acceptConflictingPatientID
-                : AcceptConflictingPatientID.MERGED;
-    }
-
     public String[] getRetrieveAETitles() {
         return retrieveAETitles;
     }

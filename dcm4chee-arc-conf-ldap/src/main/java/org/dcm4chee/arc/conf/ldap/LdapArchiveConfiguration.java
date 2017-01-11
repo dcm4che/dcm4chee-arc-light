@@ -599,6 +599,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout());
         LdapUtils.storeNotNull(attrs, "hl7PSUOnTimeout", ext.getHl7PSUOnTimeout());
         LdapUtils.storeNotNull(attrs, "hl7PSUMWL", ext.getHl7PSUMWL());
+        LdapUtils.storeNotNull(attrs, "dcmAcceptConflictingPatientID", ext.getAcceptConflictingPatientID());
     }
 
     @Override
@@ -659,6 +660,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUTimeout(toDuration(attrs.get("hl7PSUTimeout")));
         ext.setHl7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
         ext.setHl7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
+        ext.setAcceptConflictingPatientID(
+                LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
     }
 
     @Override
@@ -738,6 +741,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7PSUTimeout", aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout());
         LdapUtils.storeDiff(mods, "hl7PSUOnTimeout", aa.getHl7PSUOnTimeout(), bb.getHl7PSUOnTimeout());
         LdapUtils.storeDiff(mods, "hl7PSUMWL", aa.getHl7PSUMWL(), bb.getHl7PSUMWL());
+        LdapUtils.storeDiff(mods, "dcmAcceptConflictingPatientID", aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID());
     }
 
     @Override

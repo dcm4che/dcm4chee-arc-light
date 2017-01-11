@@ -1077,7 +1077,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     hl7PSUTimeout $
     hl7PSUOnTimeout $
     hl7PSUReceivingApplication $
-    hl7PSUSendingApplication ))
+    hl7PSUSendingApplication $
+    dcmAcceptConflictingPatientID ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'

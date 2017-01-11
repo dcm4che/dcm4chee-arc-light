@@ -543,6 +543,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("hl7PSUTimeout", arcAE.getHl7PSUTimeout());
         writer.writeNotNull("hl7PSUOnTimeout", arcAE.getHl7PSUOnTimeout());
         writer.writeNotNull("hl7PSUMWL", arcAE.getHl7PSUMWL());
+        writer.writeNotNull("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -1685,6 +1686,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUMWL":
                     arcAE.setHl7PSUMWL(reader.booleanValue());
+                    break;
+                case "dcmAcceptConflictingPatientID":
+                    arcAE.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

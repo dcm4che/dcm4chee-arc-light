@@ -547,8 +547,7 @@ public class StoreServiceEJB {
             throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        AcceptConflictingPatientID acceptConflictingPID = arcDev.acceptConflictingPatientID();
+        AcceptConflictingPatientID acceptConflictingPID = arcAE.acceptConflictingPatientID();
         switch (acceptConflictingPID) {
             case YES:
                 break;

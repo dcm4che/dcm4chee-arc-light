@@ -95,6 +95,7 @@ public class ArchiveAEExtension extends AEExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
+    private AcceptConflictingPatientID acceptConflictingPatientID;
     private String[] retrieveAETitles = {};
     private String hl7PSUSendingApplication;
     private String[] hl7PSUReceivingApplications = {};
@@ -879,6 +880,21 @@ public class ArchiveAEExtension extends AEExtension {
         return hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() == null;
     }
 
+    public AcceptConflictingPatientID getAcceptConflictingPatientID() {
+        return acceptConflictingPatientID;
+    }
+
+    public void setAcceptConflictingPatientID(AcceptConflictingPatientID acceptConflictingPatientID) {
+        this.acceptConflictingPatientID = acceptConflictingPatientID;
+    }
+
+    public AcceptConflictingPatientID acceptConflictingPatientID() {
+        return acceptConflictingPatientID != null
+                ? acceptConflictingPatientID
+                : StringUtils.maskNull(getArchiveDeviceExtension().getAcceptConflictingPatientID(),
+                AcceptConflictingPatientID.MERGED);
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -920,6 +936,7 @@ public class ArchiveAEExtension extends AEExtension {
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
+        acceptConflictingPatientID = aeExt.acceptConflictingPatientID;
         retrieveAETitles = aeExt.retrieveAETitles;
         hl7PSUSendingApplication = aeExt.hl7PSUSendingApplication;
         hl7PSUReceivingApplications = aeExt.hl7PSUReceivingApplications;
