@@ -7,6 +7,7 @@ import java.util.Calendar;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 public class ExportRule {
@@ -22,6 +23,8 @@ public class ExportRule {
     private Entity entity;
 
     private Duration exportDelay;
+
+    private boolean exportPreviousEntity;
 
     public ExportRule() {
     }
@@ -88,6 +91,14 @@ public class ExportRule {
 
     public boolean match(String hostName, String sendingAET, String receivingAET, Attributes attrs, Calendar cal) {
         return match(cal) && conditions.match(hostName, sendingAET, receivingAET, attrs);
+    }
+
+    public boolean isExportPreviousEntity() {
+        return exportPreviousEntity;
+    }
+
+    public void setExportPreviousEntity(boolean exportPreviousEntity) {
+        this.exportPreviousEntity = exportPreviousEntity;
     }
 
     private boolean match(Calendar cal) {

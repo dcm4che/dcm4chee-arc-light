@@ -1269,6 +1269,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(attrs, "dcmExporterID", rule.getExporterIDs());
         LdapUtils.storeNotNull(attrs, "dcmEntity", rule.getEntity());
         LdapUtils.storeNotNull(attrs, "dcmDuration", rule.getExportDelay());
+        LdapUtils.storeNotDef(attrs, "dcmExportPreviousEntity", rule.isExportPreviousEntity(), false);
         return attrs;
     }
 
@@ -1284,6 +1285,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setExporterIDs(LdapUtils.stringArray(attrs.get("dcmExporterID")));
                 rule.setEntity(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
                 rule.setExportDelay(toDuration(attrs.get("dcmDuration")));
+                rule.setExportPreviousEntity(LdapUtils.booleanValue(attrs.get("dcmExportPreviousEntity"), false));
                 exportRules.add(rule);
             }
         } finally {
@@ -1335,6 +1337,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
         LdapUtils.storeDiff(mods, "dcmEntity", prev.getEntity(), rule.getEntity());
         LdapUtils.storeDiff(mods, "dcmDuration", prev.getExportDelay(), rule.getExportDelay());
+        LdapUtils.storeDiff(mods, "dcmExportPreviousEntity",
+                prev.isExportPreviousEntity(), rule.isExportPreviousEntity(), false);
         return mods;
     }
 

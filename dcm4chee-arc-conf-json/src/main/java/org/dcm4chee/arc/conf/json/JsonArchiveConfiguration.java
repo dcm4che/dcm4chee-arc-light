@@ -322,6 +322,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmProperty", toStrings(er.getConditions().getMap()));
             writer.writeNotEmpty("dcmSchedule", er.getSchedules());
             writer.writeNotNull("dcmDuration", er.getExportDelay());
+            writer.writeNotDef("dcmExportPreviousEntity", er.isExportPreviousEntity(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1175,6 +1176,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmDuration":
                         er.setExportDelay(Duration.parse(reader.stringValue()));
+                        break;
+                    case "dcmExportPreviousEntity":
+                        er.setExportPreviousEntity(reader.booleanValue());
                         break;
                     default:
                         reader.skipUnknownProperty();
