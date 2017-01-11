@@ -76,7 +76,7 @@ public class PatientServiceImpl implements PatientService {
     private Event<PatientMgtContext> patientMgtEvent;
 
     @Override
-    public PatientMgtContext createPatientMgtContextWEB(Association as) {
+    public PatientMgtContext createPatientMgtContextDIMSE(Association as) {
         return new PatientMgtContextImpl(device, null, as, as.getApplicationEntity(), as.getSocket(), null);
     }
 

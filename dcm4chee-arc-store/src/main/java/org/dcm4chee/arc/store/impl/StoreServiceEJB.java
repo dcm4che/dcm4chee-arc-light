@@ -484,7 +484,8 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         HttpServletRequest httpRequest = session.getHttpRequest();
         Association as = session.getAssociation();
-        PatientMgtContext patMgtCtx = as != null ? patientService.createPatientMgtContextWEB(as)
+        PatientMgtContext patMgtCtx = as != null
+                ? patientService.createPatientMgtContextDIMSE(as)
                 : httpRequest != null
                 ? patientService.createPatientMgtContextWEB(httpRequest, session.getLocalApplicationEntity())
                 : patientService.createPatientMgtContextHL7(session.getSocket(), session.getHL7MessageHeader());
@@ -510,17 +511,17 @@ public class StoreServiceEJB {
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
             } else {
+                acceptConflictingPID(patMgtCtx, ctx, study.getPatient());
                 checkStorePermission(ctx, study.getPatient());
                 study = updateStudy(ctx, study);
-                acceptConflictingPID(patMgtCtx, ctx, study.getPatient());
                 updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study, result);
         } else {
+            acceptConflictingPID(patMgtCtx, ctx, series.getStudy().getPatient());
             checkStorePermission(ctx, series.getStudy().getPatient());
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
-            acceptConflictingPID(patMgtCtx, ctx, series.getStudy().getPatient());
             updatePatient(ctx, series.getStudy().getPatient());
         }
         Instance instance = createInstance(ctx, series, conceptNameCode);
@@ -548,22 +549,20 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         AcceptConflictingPatientID acceptConflictingPID = arcAE.acceptConflictingPatientID();
-        switch (acceptConflictingPID) {
-            case YES:
-                break;
-            case NO:
-                if (!ctx.getAttributes().getString(Tag.PatientID).equals(associatedPat.getPatientID().getID()))
-                    throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
-                            StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
-                break;
-            case MERGED:
-                Patient p = patientService.findPatient(patMgtCtx);
-                if (p == null || (p.getPk() != associatedPat.getPk()))
-                    throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
-                            StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
-                break;
+        if (acceptConflictingPID == AcceptConflictingPatientID.YES)
+            return;
+
+        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(associatedPat.getAttributes());
+        if (idWithIssuer.matches(patMgtCtx.getPatientID()))
+            return;
+
+        if (acceptConflictingPID == AcceptConflictingPatientID.MERGED) {
+            Patient p = patientService.findPatient(patMgtCtx);
+            if (p != null && p.getPk() == associatedPat.getPk())
+                return;
         }
-        return;
+        throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
+                            StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
     }
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {

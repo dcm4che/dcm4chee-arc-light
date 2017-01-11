@@ -58,7 +58,7 @@ import java.util.List;
  */
 public interface PatientService {
 
-    PatientMgtContext createPatientMgtContextWEB(Association as);
+    PatientMgtContext createPatientMgtContextDIMSE(Association as);
 
     PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
 

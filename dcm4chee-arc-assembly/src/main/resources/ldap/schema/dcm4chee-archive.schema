@@ -941,6 +941,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmPurgeInstanceRecordsFetchSize $
     dcmOverwritePolicy $
     dcmAcceptMissingPatientID $
+    dcmAcceptConflictingPatientID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
     dcmHideSPSWithStatusFromMWL $
@@ -1022,8 +1023,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PSUTimeout $
     hl7PSUOnTimeout $
     hl7PSUTaskPollingInterval $
-    hl7PSUTaskFetchSize $
-    dcmAcceptConflictingPatientID ))
+    hl7PSUTaskFetchSize ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
@@ -1040,6 +1040,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmAcceptedMoveDestination $
     dcmOverwritePolicy $
     dcmAcceptMissingPatientID $
+    dcmAcceptConflictingPatientID $
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $
     dcmQueryMatchUnknown $
@@ -1077,8 +1078,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     hl7PSUTimeout $
     hl7PSUOnTimeout $
     hl7PSUReceivingApplication $
-    hl7PSUSendingApplication $
-    dcmAcceptConflictingPatientID ))
+    hl7PSUSendingApplication ))
 
 objectclass ( 1.2.40.0.13.1.15.110.4.10 NAME 'dcmAttributeFilter'
   DESC 'Attributes stored in the database'

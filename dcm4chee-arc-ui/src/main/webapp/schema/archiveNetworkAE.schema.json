@@ -72,6 +72,16 @@
         "CREATE"
       ]
     },
+    "dcmAcceptConflictingPatientID": {
+      "title": "Accept Conflicting Patient ID",
+      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs). If absent, MERGED will be applied.",
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "MERGED"
+      ]
+    },
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
       "description": "Query/Retrieve View Identifier",
@@ -293,16 +303,6 @@
       "title": "HL7 Procedure Status Update On Timeout",
       "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.",
       "type": "boolean"
-    },
-    "dcmAcceptConflictingPatientID": {
-      "title": "Accept Conflicting Patient ID",
-      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs). If absent, MERGED will be applied.",
-      "type": "string",
-      "enum": [
-        "YES",
-        "NO",
-        "MERGED"
-      ]
     },
     "dcmExportRule": {
       "title": "Export Rule",
