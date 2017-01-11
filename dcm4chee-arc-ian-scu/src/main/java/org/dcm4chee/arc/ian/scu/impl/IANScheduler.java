@@ -159,7 +159,7 @@ public class IANScheduler extends Scheduler {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (ctx.getLocations().isEmpty())
+        if (ctx.getLocations().isEmpty() || ctx.getException() != null)
             return;
 
         StoreSession session = ctx.getStoreSession();
