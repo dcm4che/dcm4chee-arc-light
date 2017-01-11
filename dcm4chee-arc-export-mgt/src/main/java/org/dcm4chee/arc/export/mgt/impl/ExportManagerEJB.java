@@ -3,6 +3,8 @@ package org.dcm4chee.arc.export.mgt.impl;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExportTask;
+import org.dcm4chee.arc.entity.Instance;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.store.StoreContext;
@@ -60,27 +62,34 @@ public class ExportManagerEJB implements ExportManager {
             ExportRule rule = entry.getValue();
             ExporterDescriptor desc = arcDev.getExporterDescriptorNotNull(exporterID);
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
+            boolean exportPreviousEntity = rule.isExportPreviousEntity();
             switch (rule.getEntity()) {
                 case Study:
-                    createOrUpdateStudyExportTask(exporterID, ctx.getStudyInstanceUID(), scheduledTime);
+                    studyExportTaskPrevAndOrStoredInst(exporterID, ctx, scheduledTime, exportPreviousEntity);
                     break;
                 case Series:
-                    createOrUpdateSeriesExportTask(exporterID, ctx.getStudyInstanceUID(),
-                            ctx.getSeriesInstanceUID(), scheduledTime);
+                    seriesExportTaskPrevAndOrStoredInst(exporterID, ctx, scheduledTime, exportPreviousEntity);
                     break;
                 case Instance:
-                    createOrUpdateInstanceExportTask(exporterID, ctx.getStudyInstanceUID(),
-                            ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), scheduledTime);
+                    instanceExportTaskPrevAndOrStoredInst(exporterID, ctx, scheduledTime, exportPreviousEntity);
                     break;
             }
         }
     }
 
-    private void createOrUpdateStudyExportTask(String exporterID, String studyInstanceUID, Date scheduledTime) {
+    private void studyExportTaskPrevAndOrStoredInst(
+            String exporterID, StoreContext ctx, Date scheduledTime, boolean exportPreviousEntity) {
+        if (exportPreviousEntity && ctx.getPreviousInstance() != null)
+            createOrUpdateStudyExportTask(
+                    exporterID, ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(), scheduledTime);
+        createOrUpdateStudyExportTask(exporterID, ctx.getStudyInstanceUID(), scheduledTime);
+    }
+
+    private void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime) {
         try {
             ExportTask task = em.createNamedQuery(ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID, ExportTask.class)
                     .setParameter(1, exporterID)
-                    .setParameter(2, studyInstanceUID)
+                    .setParameter(2, studyIUID)
                     .getSingleResult();
             task.setSeriesInstanceUID("*");
             task.setSopInstanceUID("*");
@@ -89,12 +98,22 @@ public class ExportManagerEJB implements ExportManager {
             ExportTask task = new ExportTask();
             task.setDeviceName(device.getDeviceName());
             task.setExporterID(exporterID);
-            task.setStudyInstanceUID(studyInstanceUID);
+            task.setStudyInstanceUID(studyIUID);
             task.setSeriesInstanceUID("*");
             task.setSopInstanceUID("*");
             task.setScheduledTime(scheduledTime);
             em.persist(task);
         }
+    }
+
+    private void seriesExportTaskPrevAndOrStoredInst(
+            String exporterID, StoreContext ctx, Date scheduledTime, boolean exportPreviousEntity) {
+        if (exportPreviousEntity && ctx.getPreviousInstance() != null) {
+            Series prevSer = ctx.getPreviousInstance().getSeries();
+            createOrUpdateSeriesExportTask(
+                    exporterID, prevSer.getStudy().getStudyInstanceUID(), prevSer.getSeriesInstanceUID(), scheduledTime);
+        }
+        createOrUpdateSeriesExportTask(exporterID, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), scheduledTime);
     }
 
     private void createOrUpdateSeriesExportTask(
@@ -118,6 +137,17 @@ public class ExportManagerEJB implements ExportManager {
             task.setScheduledTime(scheduledTime);
             em.persist(task);
         }
+    }
+
+    private void instanceExportTaskPrevAndOrStoredInst(
+            String exporterID, StoreContext ctx, Date scheduledTime, boolean exportPreviousEntity) {
+        if (exportPreviousEntity && ctx.getPreviousInstance() != null) {
+            Instance i = ctx.getPreviousInstance();
+            createOrUpdateInstanceExportTask(exporterID, i.getSeries().getStudy().getStudyInstanceUID(),
+                    i.getSeries().getSeriesInstanceUID(), i.getSopInstanceUID(), scheduledTime);
+        }
+        createOrUpdateInstanceExportTask(
+                exporterID, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), scheduledTime);
     }
 
     private void createOrUpdateInstanceExportTask(
