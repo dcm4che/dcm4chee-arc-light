@@ -422,6 +422,7 @@ public class StoreServiceEJB {
             return false;
 
         LOG.info("{}: Delete {}", ctx.getStoreSession(), study);
+        study.getPatient().decrementNumberOfStudies();
         em.remove(study);
         return true;
     }
