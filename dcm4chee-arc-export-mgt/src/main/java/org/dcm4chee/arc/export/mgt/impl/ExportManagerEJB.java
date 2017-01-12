@@ -3,7 +3,6 @@ package org.dcm4chee.arc.export.mgt.impl;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -62,27 +61,28 @@ public class ExportManagerEJB implements ExportManager {
             ExportRule rule = entry.getValue();
             ExporterDescriptor desc = arcDev.getExporterDescriptorNotNull(exporterID);
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
-            boolean exportPreviousEntity = rule.isExportPreviousEntity();
             switch (rule.getEntity()) {
                 case Study:
-                    studyExportTaskPrevAndOrStoredInst(exporterID, ctx, scheduledTime, exportPreviousEntity);
+                    createOrUpdateStudyExportTask(exporterID, ctx.getStudyInstanceUID(), scheduledTime);
+                    if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentStudy())
+                        createOrUpdateStudyExportTask(exporterID,
+                                ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(), scheduledTime);
                     break;
                 case Series:
-                    seriesExportTaskPrevAndOrStoredInst(exporterID, ctx, scheduledTime, exportPreviousEntity);
+                    createOrUpdateSeriesExportTask(exporterID, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(),
+                            scheduledTime);
+                    if (rule.isExportPreviousEntity() && ctx.isPreviousDifferentSeries())
+                        createOrUpdateSeriesExportTask(exporterID,
+                                ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(),
+                                ctx.getPreviousInstance().getSeries().getSeriesInstanceUID(),
+                                scheduledTime);
                     break;
                 case Instance:
-                    instanceExportTaskPrevAndOrStoredInst(exporterID, ctx, scheduledTime, exportPreviousEntity);
+                    createOrUpdateInstanceExportTask(exporterID, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(),
+                            ctx.getSopInstanceUID(), scheduledTime);
                     break;
             }
         }
-    }
-
-    private void studyExportTaskPrevAndOrStoredInst(
-            String exporterID, StoreContext ctx, Date scheduledTime, boolean exportPreviousEntity) {
-        if (exportPreviousEntity && ctx.getPreviousInstance() != null)
-            createOrUpdateStudyExportTask(
-                    exporterID, ctx.getPreviousInstance().getSeries().getStudy().getStudyInstanceUID(), scheduledTime);
-        createOrUpdateStudyExportTask(exporterID, ctx.getStudyInstanceUID(), scheduledTime);
     }
 
     private void createOrUpdateStudyExportTask(String exporterID, String studyIUID, Date scheduledTime) {
@@ -106,16 +106,6 @@ public class ExportManagerEJB implements ExportManager {
         }
     }
 
-    private void seriesExportTaskPrevAndOrStoredInst(
-            String exporterID, StoreContext ctx, Date scheduledTime, boolean exportPreviousEntity) {
-        if (exportPreviousEntity && ctx.getPreviousInstance() != null) {
-            Series prevSer = ctx.getPreviousInstance().getSeries();
-            createOrUpdateSeriesExportTask(
-                    exporterID, prevSer.getStudy().getStudyInstanceUID(), prevSer.getSeriesInstanceUID(), scheduledTime);
-        }
-        createOrUpdateSeriesExportTask(exporterID, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), scheduledTime);
-    }
-
     private void createOrUpdateSeriesExportTask(
             String exporterID, String studyInstanceUID, String seriesInstanceUID, Date scheduledTime) {
         try {
@@ -137,17 +127,6 @@ public class ExportManagerEJB implements ExportManager {
             task.setScheduledTime(scheduledTime);
             em.persist(task);
         }
-    }
-
-    private void instanceExportTaskPrevAndOrStoredInst(
-            String exporterID, StoreContext ctx, Date scheduledTime, boolean exportPreviousEntity) {
-        if (exportPreviousEntity && ctx.getPreviousInstance() != null) {
-            Instance i = ctx.getPreviousInstance();
-            createOrUpdateInstanceExportTask(exporterID, i.getSeries().getStudy().getStudyInstanceUID(),
-                    i.getSeries().getSeriesInstanceUID(), i.getSopInstanceUID(), scheduledTime);
-        }
-        createOrUpdateInstanceExportTask(
-                exporterID, ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), scheduledTime);
     }
 
     private void createOrUpdateInstanceExportTask(

@@ -310,4 +310,16 @@ class StoreContextImpl implements StoreContext {
     public void setExpirationDate(LocalDate expirationDate) {
         this.expirationDate = expirationDate;
     }
+
+    @Override
+    public boolean isPreviousDifferentStudy() {
+        return previousInstance != null
+                && previousInstance.getSeries().getStudy().getPk() != storedInstance.getSeries().getStudy().getPk();
+    }
+
+    @Override
+    public boolean isPreviousDifferentSeries() {
+        return previousInstance != null
+                && previousInstance.getSeries().getPk() != storedInstance.getSeries().getPk();
+    }
 }

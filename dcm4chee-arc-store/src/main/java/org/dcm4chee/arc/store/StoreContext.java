@@ -95,4 +95,8 @@ public interface StoreContext {
     LocalDate getExpirationDate();
 
     void setExpirationDate(LocalDate expirationDate);
+
+    boolean isPreviousDifferentStudy();
+
+    boolean isPreviousDifferentSeries();
 }
