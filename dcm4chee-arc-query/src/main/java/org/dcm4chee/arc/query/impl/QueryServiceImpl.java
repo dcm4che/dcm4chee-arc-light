@@ -180,8 +180,8 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam) {
-        return ejb.calculateSeriesQueryAttributes(seriesPk, queryParam);
+    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryParam queryParam) {
+        return ejb.calculateSeriesQueryAttributesIfNotExists(seriesPk, queryParam);
     }
 
     @Override

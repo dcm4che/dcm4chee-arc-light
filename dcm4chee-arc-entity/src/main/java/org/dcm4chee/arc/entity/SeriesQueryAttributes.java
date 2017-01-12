@@ -50,6 +50,10 @@ import javax.persistence.*;
  */
 @NamedQueries({
 @NamedQuery(
+    name = SeriesQueryAttributes.FIND_BY_VIEW_ID_AND_SERIES_PK,
+    query = "select a from SeriesQueryAttributes a where a.viewID = ?1 and a.series.pk = ?2"
+),
+@NamedQuery(
     name = SeriesQueryAttributes.DELETE_FOR_SERIES,
     query = "delete from SeriesQueryAttributes a where a.series = ?1"
 ),
@@ -63,6 +67,7 @@ import javax.persistence.*;
     @UniqueConstraint(columnNames = { "view_id", "series_fk" }))
 public class SeriesQueryAttributes {
 
+    public static final String FIND_BY_VIEW_ID_AND_SERIES_PK = "SeriesQueryAttributes.findByViewIDAndSeriesPk";
     public static final String DELETE_FOR_SERIES = "SeriesQueryAttributes.deleteForSeries";
     public static final String VIEW_IDS_FOR_SERIES_PK = "SeriesQueryAttributes.viewIDsForSeriesPk";
 

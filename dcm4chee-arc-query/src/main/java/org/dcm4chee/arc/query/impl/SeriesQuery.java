@@ -160,7 +160,7 @@ class SeriesQuery extends AbstractQuery {
             availability = results.get(QSeriesQueryAttributes.seriesQueryAttributes.availability);
         } else {
             SeriesQueryAttributes seriesView = context.getQueryService()
-                    .calculateSeriesQueryAttributes(seriesPk, queryParam);
+                    .calculateSeriesQueryAttributesIfNotExists(seriesPk, queryParam);
             numberOfSeriesRelatedInstances = seriesView.getNumberOfInstances();
             if (numberOfSeriesRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
                 return null;

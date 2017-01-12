@@ -87,7 +87,7 @@ public interface QueryService {
 
     StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam);
 
-    SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam);
+    SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryParam queryParam);
 
     SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView);
 

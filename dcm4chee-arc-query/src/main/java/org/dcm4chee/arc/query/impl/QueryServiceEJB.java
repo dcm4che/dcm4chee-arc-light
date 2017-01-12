@@ -63,6 +63,7 @@ import org.hibernate.Session;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.*;
 
@@ -405,7 +406,19 @@ public class QueryServiceEJB {
         return queryAttrs;
     }
 
-    public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam) {
+    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryParam queryParam) {
+        try {
+            return em.createNamedQuery(
+                    SeriesQueryAttributes.FIND_BY_VIEW_ID_AND_SERIES_PK, SeriesQueryAttributes.class)
+                    .setParameter(1, queryParam.getViewID())
+                    .setParameter(2, seriesPk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return calculateSeriesQueryAttributes(seriesPk, queryParam);
+        }
+    }
+
+    private SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam) {
         return calculateSeriesQueryAttributes(seriesPk, queryParam.getQueryRetrieveView(),
                 queryParam.getHideRejectionNotesWithCode(), queryParam.getShowInstancesRejectedByCode());
     }
