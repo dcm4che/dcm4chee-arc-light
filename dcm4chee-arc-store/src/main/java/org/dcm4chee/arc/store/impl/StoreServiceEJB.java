@@ -550,12 +550,13 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         AcceptConflictingPatientID acceptConflictingPID = arcAE.acceptConflictingPatientID();
+        if (acceptConflictingPID == AcceptConflictingPatientID.YES)
+            return;
+
         if (patMgtCtx.getPatientID() == null || associatedPat.getPatientID() == null) {
             checkMissingConflicting(patMgtCtx, associatedPat, arcAE, acceptConflictingPID);
             return;
         }
-        if (acceptConflictingPID == AcceptConflictingPatientID.YES)
-            return;
 
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(associatedPat.getAttributes());
         if (idWithIssuer.matches(patMgtCtx.getPatientID()))
