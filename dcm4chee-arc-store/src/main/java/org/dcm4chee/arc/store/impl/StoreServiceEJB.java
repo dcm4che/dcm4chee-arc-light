@@ -512,14 +512,14 @@ public class StoreServiceEJB {
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
             } else {
-                acceptConflictingPID(patMgtCtx, ctx, study.getPatient());
+                checkConflictingPID(patMgtCtx, ctx, study.getPatient());
                 checkStorePermission(ctx, study.getPatient());
                 study = updateStudy(ctx, study);
                 updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study, result);
         } else {
-            acceptConflictingPID(patMgtCtx, ctx, series.getStudy().getPatient());
+            checkConflictingPID(patMgtCtx, ctx, series.getStudy().getPatient());
             checkStorePermission(ctx, series.getStudy().getPatient());
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
@@ -545,11 +545,15 @@ public class StoreServiceEJB {
         return true;
     }
 
-    private void acceptConflictingPID(PatientMgtContext patMgtCtx, StoreContext ctx, Patient associatedPat)
+    private void checkConflictingPID(PatientMgtContext patMgtCtx, StoreContext ctx, Patient associatedPat)
             throws DicomServiceException {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         AcceptConflictingPatientID acceptConflictingPID = arcAE.acceptConflictingPatientID();
+        if (patMgtCtx.getPatientID() == null || associatedPat.getPatientID() == null) {
+            checkMissingConflicting(patMgtCtx, associatedPat, arcAE, acceptConflictingPID);
+            return;
+        }
         if (acceptConflictingPID == AcceptConflictingPatientID.YES)
             return;
 
@@ -564,6 +568,16 @@ public class StoreServiceEJB {
         }
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
                             StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
+    }
+
+    private void checkMissingConflicting(PatientMgtContext patMgtCtx, Patient associatedPat, ArchiveAEExtension arcAE,
+                       AcceptConflictingPatientID acceptConflictingPID) throws DicomServiceException {
+        AcceptMissingPatientID acceptMissingPatientID = arcAE.acceptMissingPatientID();
+        if (acceptMissingPatientID != AcceptMissingPatientID.CREATE && acceptConflictingPID != AcceptConflictingPatientID.YES)
+            if ((associatedPat.getPatientID() != null && patMgtCtx.getPatientID() == null)
+                || (associatedPat.getPatientID() == null && patMgtCtx.getPatientID() != null))
+                throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
+                    StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
     }
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {
