@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Segment;
@@ -116,28 +117,37 @@ public class ProcedureUpdateService extends AbstractHL7Service {
     private boolean adjust(Attributes attrs, ArchiveHL7ApplicationExtension arcHL7App, HL7Segment msh, Socket socket) {
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
-        Attributes sps = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
-        if ("SCHEDULED".equals(sps.getString(Tag.ScheduledProcedureStepStatus))
-                && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
-            sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
-        List<String> ssAETs = new ArrayList<>();
-        List<String> ssNames = new ArrayList<>();
-        Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
-        for (Device device : devices) {
-            ssNames.add(device.getDeviceName());
-            for (String ae : device.getApplicationAETitles())
-                ssAETs.add(ae);
-        }
-        if (!ssAETs.isEmpty()) {
-            sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
-            sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
-        }
-        String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
-        for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses())
-            if (Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()).contains(orderControlStatus)) {
-                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSPSStatus().toString());
-                return true;
+        Sequence spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
+        boolean result = false;
+        for (Attributes sps : spsItems) {
+            if ("SCHEDULED".equals(sps.getString(Tag.ScheduledProcedureStepStatus))
+                    && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
+                sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
+            List<String> ssAETs = new ArrayList<>();
+            List<String> ssNames = new ArrayList<>();
+            Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
+            for (Device device : devices) {
+                ssNames.add(device.getDeviceName());
+                for (String ae : device.getApplicationAETitles())
+                    ssAETs.add(ae);
             }
-        return false;
+            if (!ssAETs.isEmpty()) {
+                sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
+                sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
+            }
+            String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
+            List<String> ordercontrolStatusCodes = new ArrayList<>();
+            for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses()) {
+                result = false;
+                ordercontrolStatusCodes.addAll(Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()));
+                if (ordercontrolStatusCodes.contains(orderControlStatus)) {
+                    sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSPSStatus().toString());
+                    result = true;
+                }
+                if (result)
+                    break;
+            }
+        }
+        return result;
     }
 }
