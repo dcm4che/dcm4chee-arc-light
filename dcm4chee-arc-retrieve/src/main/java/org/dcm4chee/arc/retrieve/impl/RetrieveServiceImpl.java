@@ -59,6 +59,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
@@ -461,6 +462,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
                 .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
                 .build());
+        attrs.removePrivateAttributes(ArchiveTag.PrivateCreator, 0x7777);
         return inst;
     }
 
