@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
+import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -94,15 +95,16 @@ public class AuditScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         String auditSpoolDir = arcDev.getAuditSpoolDirectory();
         Duration duration = arcDev.getAuditAggregateDuration();
+
         if (auditSpoolDir == null || duration == null)
             return;
 
-        HashMap<AuditLogger, Path> loggerDirectoryMap = service.getLoggerDirectoryMap();
-        for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet()) {
-            AuditLogger logger = entry.getKey();
-            Path dir = entry.getValue();
+        for (AuditLogger logger : ext.getAuditLoggers()) {
+            Path dir = Paths.get(StringUtils.replaceSystemProperties(
+                    auditSpoolDir + "/" + logger.getCommonName().replaceAll(" ", "_")));
             if (!Files.isDirectory(dir))
                 return;
 

@@ -98,17 +98,9 @@ public class AuditService {
     @Inject
     private Device device;
 
-    HashMap<AuditLogger, Path> getLoggerDirectoryMap() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
-        HashMap<AuditLogger, Path> loggerDirectoryMap = new HashMap<>();
+    boolean hasAuditLoggers() {
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        if (ext != null)
-            for (AuditLogger logger : ext.getAuditLoggers())
-                if (logger.isInstalled())
-                    loggerDirectoryMap.put(logger, Paths.get(StringUtils.replaceSystemProperties(
-                            auditAggregate ? arcDev.getAuditSpoolDirectory() + "/" + logger.getCommonName().replaceAll(" ", "_") : JBOSS_SERVER_TEMP)));
-        return loggerDirectoryMap;
+        return ext != null && !ext.getAuditLoggers().isEmpty();
     }
 
     void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws IOException {
@@ -144,25 +136,27 @@ public class AuditService {
         }
     }
 
-    void auditApplicationActivity(HashMap<AuditLogger, Path> loggerDirectoryMap, AuditServiceUtils.EventType eventType, HttpServletRequest req) {
+    void auditApplicationActivity(AuditServiceUtils.EventType eventType, HttpServletRequest req) {
         BuildActiveParticipant ap2 = null;
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         if (req != null) {
             ap2 = new BuildActiveParticipant.Builder(
                     req.getAttribute(keycloakClassName) != null
                             ? getPreferredUsername(req) : req.getRemoteAddr(), req.getRemoteAddr()).
                     requester(true).roleIDCode(AuditMessages.RoleIDCode.ApplicationLauncher).build();
         }
-        for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet()) {
-            AuditLogger auditLogger = entry.getKey();
-            EventIdentification ei = getEI(eventType, null, auditLogger.timeStamp());
-            BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(getAET(device),
-                    getLocalHostName(auditLogger)).altUserID(auditLogger.processID()).requester(false).
-                    roleIDCode(AuditMessages.RoleIDCode.Application).build();
-            emitAuditMessage(ei, req != null ? getApList(ap1, ap2) : getApList(ap1), null, auditLogger);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (auditLogger.isInstalled()) {
+                EventIdentification ei = getEI(eventType, null, auditLogger.timeStamp());
+                BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(getAET(device),
+                        getLocalHostName(auditLogger)).altUserID(auditLogger.processID()).requester(false)
+                        .roleIDCode(AuditMessages.RoleIDCode.Application).build();
+                emitAuditMessage(ei, req != null ? getApList(ap1, ap2) : getApList(ap1), null, auditLogger);
+            }
         }
     }
 
-    void spoolInstancesDeleted(HashMap<AuditLogger, Path> loggerDirectoryMap, StoreContext ctx) {
+    void spoolInstancesDeleted(StoreContext ctx) {
         Attributes attrs = ctx.getAttributes();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
@@ -180,11 +174,10 @@ public class AuditService {
         }
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx)));
         String eventType = String.valueOf(AuditServiceUtils.EventType.RJN_DELETE);
-        for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-            writeSpoolFile(entry.getKey(), entry.getValue(), eventType, deleteObjs);
+        writeSpoolFile(eventType, deleteObjs);
     }
 
-    void spoolStudyDeleted(HashMap<AuditLogger, Path> loggerDirectoryMap, StudyDeleteContext ctx) {
+    void spoolStudyDeleted(StudyDeleteContext ctx) {
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances()) {
             String cuid = i.getSopClassUID();
@@ -202,8 +195,7 @@ public class AuditService {
                 : buildPermDeletionAuditInfoForScheduler(ctx, s, p);
         String eventType = String.valueOf(request != null ? AuditServiceUtils.EventType.PRMDLT_WEB : AuditServiceUtils.EventType.PRMDLT_SCH);
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(i));
-        for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-            writeSpoolFile(entry.getKey(), entry.getValue(), eventType, deleteObjs);
+        writeSpoolFile(eventType, deleteObjs);
     }
 
     private BuildAuditInfo buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx, Study s, Patient p) {
@@ -251,14 +243,13 @@ public class AuditService {
                 getPoiList(poi1, poi2), auditLogger);
     }
 
-    void spoolConnectionRejected(HashMap<AuditLogger, Path> loggerDirectoryMap, Connection conn, Socket s, Throwable e) {
+    void spoolConnectionRejected(Connection conn, Socket s, Throwable e) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(s.getRemoteSocketAddress().toString())
                 .calledHost(conn.getHostname()).outcome(e.getMessage()).build();
         obj.add(new AuditInfo(i));
         String eventType = String.valueOf(AuditServiceUtils.EventType.CONN__RJCT);
-        for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-            writeSpoolFile(entry.getKey(), entry.getValue(), eventType, obj);
+        writeSpoolFile(eventType, obj);
     }
 
     private void auditConnectionRejected(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
@@ -275,29 +266,36 @@ public class AuditService {
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi), auditLogger);
     }
 
-    void spoolQuery(HashMap<AuditLogger, Path> loggerDirectoryMap, QueryContext ctx) {
+    void spoolQuery(QueryContext ctx) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        boolean auditAggregate = arcDev.isAuditAggregate();
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forQuery(ctx);
         AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
-        for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet()) {
-            Path directory = entry.getValue();
-            try {
-                Files.createDirectories(directory);
-                Path file = Files.createTempFile(directory, String.valueOf(eventType), null);
-                try (BufferedOutputStream out = new BufferedOutputStream(
-                        Files.newOutputStream(file, StandardOpenOption.APPEND))) {
-                    new DataOutputStream(out).writeUTF(auditInfo.toString());
-                    if (ctx.getAssociation() != null) {
-                        try (DicomOutputStream dos = new DicomOutputStream(out, UID.ImplicitVRLittleEndian)) {
-                            dos.writeDataset(null, ctx.getQueryKeys());
-                        } catch (Exception e) {
-                            LOG.warn("Failed to create DicomOutputStream : ", e);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (auditLogger.isInstalled()) {
+                Path directory = Paths.get(StringUtils.replaceSystemProperties(auditAggregate
+                                ? arcDev.getAuditSpoolDirectory() + "/" + auditLogger.getCommonName().replaceAll(" ", "_")
+                                : JBOSS_SERVER_TEMP));
+                try {
+                    Files.createDirectories(directory);
+                    Path file = Files.createTempFile(directory, String.valueOf(eventType), null);
+                    try (BufferedOutputStream out = new BufferedOutputStream(
+                            Files.newOutputStream(file, StandardOpenOption.APPEND))) {
+                        new DataOutputStream(out).writeUTF(auditInfo.toString());
+                        if (ctx.getAssociation() != null) {
+                            try (DicomOutputStream dos = new DicomOutputStream(out, UID.ImplicitVRLittleEndian)) {
+                                dos.writeDataset(null, ctx.getQueryKeys());
+                            } catch (Exception e) {
+                                LOG.warn("Failed to create DicomOutputStream : ", e);
+                            }
                         }
                     }
+                    if (!auditAggregate)
+                        auditAndProcessFile(auditLogger, file);
+                } catch (Exception e) {
+                    LOG.warn("Failed to write to Audit Spool File - {}", auditLogger.getCommonName(), e);
                 }
-                if (!device.getDeviceExtension(ArchiveDeviceExtension.class).isAuditAggregate())
-                    auditAndProcessFile(entry.getKey(), file);
-            } catch (Exception e) {
-                LOG.warn("Failed to write to Audit Spool File - {}", entry.getKey().getCommonName(), e);
             }
         }
     }
@@ -386,7 +384,7 @@ public class AuditService {
         emitAuditMessage(ei, apList, poiList, auditLogger);
     }
 
-    void spoolInstanceStoredOrWadoRetrieve(HashMap<AuditLogger, Path> loggerDirectoryMap, StoreContext sCtx, RetrieveContext rCtx) {
+    void spoolInstanceStoredOrWadoRetrieve(StoreContext sCtx, RetrieveContext rCtx) {
         if (sCtx != null) {
             AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(sCtx);
             if (eventType == null)
@@ -397,9 +395,7 @@ public class AuditService {
             BuildAuditInfo i = getAIStoreCtx(sCtx);
             BuildAuditInfo iI = new BuildAuditInfo.Builder().sopCUID(sCtx.getSopClassUID()).sopIUID(sCtx.getSopInstanceUID())
                     .mppsUID(StringUtils.maskNull(sCtx.getMppsInstanceUID(), " ")).build();
-            for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-                writeSpoolFileStoreOrWadoRetrieve(
-                        entry.getKey(), entry.getValue(), fileName, new AuditInfo(i), new AuditInfo(iI));
+            writeSpoolFileStoreOrWadoRetrieve(fileName, new AuditInfo(i), new AuditInfo(iI));
         }
         if (rCtx != null) {
             HttpServletRequest req = rCtx.getHttpRequest();
@@ -417,9 +413,7 @@ public class AuditService {
                     .outcome(null != rCtx.getException() ? rCtx.getException().getMessage() : null).build());
             AuditInfo iI = new AuditInfo(
                     new BuildAuditInfo.Builder().sopCUID(sopCUID(attrs)).sopIUID(rCtx.getSopInstanceUIDs()[0]).mppsUID(" ").build());
-            for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-                writeSpoolFileStoreOrWadoRetrieve(
-                        entry.getKey(), entry.getValue(), fileName, i, iI);
+            writeSpoolFileStoreOrWadoRetrieve(fileName, i, iI);
         }
     }
 
@@ -469,7 +463,7 @@ public class AuditService {
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), auditLogger);
     }
 
-    void spoolPartialRetrieve(HashMap<AuditLogger, Path> loggerDirectoryMap, RetrieveContext ctx, HashSet<AuditServiceUtils.EventType> et) {
+    void spoolPartialRetrieve(RetrieveContext ctx, HashSet<AuditServiceUtils.EventType> et) {
         List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
         Collection<InstanceLocations> instanceLocations = ctx.getMatches();
         HashSet<InstanceLocations> failed = new HashSet<>();
@@ -485,13 +479,13 @@ public class AuditService {
         for (AuditServiceUtils.EventType eventType : et) {
             etFile = String.valueOf(eventType);
             if (etFile.substring(9, 10).equals("E"))
-                spoolRetrieve(loggerDirectoryMap, etFile, ctx, failed);
+                spoolRetrieve(etFile, ctx, failed);
             if (etFile.substring(9, 10).equals("P"))
-                spoolRetrieve(loggerDirectoryMap, etFile, ctx, success);
+                spoolRetrieve(etFile, ctx, success);
         }
     }
 
-    void spoolRetrieve(HashMap<AuditLogger, Path> loggerDirectoryMap, String etFile, RetrieveContext ctx, Collection<InstanceLocations> il) {
+    void spoolRetrieve(String etFile, RetrieveContext ctx, Collection<InstanceLocations> il) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         HttpServletRequest req = ctx.getHttpRequest();
         String destAET = req != null ? req.getAttribute(keycloakClassName) != null
@@ -510,8 +504,7 @@ public class AuditService {
             addInstanceInfoForRetrieve(obj, instanceLocation);
         for (InstanceLocations instanceLocationCStoreForward : ctx.getCStoreForwards())
             addInstanceInfoForRetrieve(obj, instanceLocationCStoreForward);
-        for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-            writeSpoolFile(entry.getKey(), entry.getValue(), etFile, obj);
+        writeSpoolFile(etFile, obj);
     }
 
     private void addInstanceInfoForRetrieve(LinkedHashSet<Object> obj, InstanceLocations instanceLocation) {
@@ -582,7 +575,7 @@ public class AuditService {
                 getPoiList(pois.toArray(new BuildParticipantObjectIdentification[pois.size()])), auditLogger);
     }
 
-    void spoolPatientRecord(HashMap<AuditLogger, Path> loggerDirectoryMap, PatientMgtContext ctx) {
+    void spoolPatientRecord(PatientMgtContext ctx) {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forHL7(ctx);
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
@@ -619,8 +612,7 @@ public class AuditService {
                     .callingAET(source).calledAET(dest).pID(pID).pName(pName)
                     .outcome(getOD(ctx.getException())).hl7MessageType(hl7MessageType).build();
             obj.add(new AuditInfo(i));
-            for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-                writeSpoolFile(entry.getKey(), entry.getValue(), String.valueOf(eventType), obj);
+            writeSpoolFile(String.valueOf(eventType), obj);
         }
     }
 
@@ -643,7 +635,7 @@ public class AuditService {
         emitAuditMessage(ei, et.isSource ? getApList(ap1, ap2) : getApList(ap2), getPoiList(poi), auditLogger);
     }
 
-    void spoolProcedureRecord(HashMap<AuditLogger, Path> loggerDirectoryMap, ProcedureContext ctx) {
+    void spoolProcedureRecord(ProcedureContext ctx) {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
@@ -651,8 +643,7 @@ public class AuditService {
                     ? buildAuditInfoFORRestful(ctx)
                     : ctx.getAssociation() != null ? buildAuditInfoForAssociation(ctx) : buildAuditInfoFORHL7(ctx);
             obj.add(new AuditInfo(i));
-            for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-                writeSpoolFile(entry.getKey(), entry.getValue(), String.valueOf(eventType), obj);
+            writeSpoolFile(String.valueOf(eventType), obj);
         }
     }
 
@@ -688,7 +679,7 @@ public class AuditService {
         return i;
     }
 
-    void spoolProcedureRecord(HashMap<AuditLogger, Path> loggerDirectoryMap, StudyMgtContext ctx) {
+    void spoolProcedureRecord(StudyMgtContext ctx) {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
@@ -700,8 +691,7 @@ public class AuditService {
                     .calledAET(ctx.getApplicationEntity().getAETitle()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(sAttr))
                     .pID(getPID(pAttr)).pName(pName(pAttr)).outcome(getOD(ctx.getException())).studyDate(getSD(sAttr)).build();
             obj.add(new AuditInfo(i));
-            for (Map.Entry<AuditLogger, Path> entry : loggerDirectoryMap.entrySet())
-                writeSpoolFile(entry.getKey(), entry.getValue(), String.valueOf(eventType), obj);
+            writeSpoolFile(String.valueOf(eventType), obj);
         }
     }
 
@@ -869,48 +859,67 @@ public class AuditService {
         return log.getConnections().get(0).getHostname();
     }
 
-    private void writeSpoolFile(AuditLogger auditLogger, Path directory, String eventType, LinkedHashSet<Object> obj) {
+    private void writeSpoolFile(String eventType, LinkedHashSet<Object> obj) {
         if (obj.isEmpty()) {
             LOG.warn("Attempt to write empty file : " + eventType);
             return;
         }
-        try {
-            Files.createDirectories(directory);
-            Path file = Files.createTempFile(directory, eventType, null);
-            try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    StandardOpenOption.APPEND))) {
-                for (Object o : obj)
-                    writer.writeLine(o);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        boolean auditAggregate = arcDev.isAuditAggregate();
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (auditLogger.isInstalled()) {
+                Path dir = Paths.get(StringUtils.replaceSystemProperties(auditAggregate
+                        ? arcDev.getAuditSpoolDirectory() + "/" + auditLogger.getCommonName().replaceAll(" ", "_")
+                        : JBOSS_SERVER_TEMP));
+                try {
+                    Files.createDirectories(dir);
+                    Path file = Files.createTempFile(dir, eventType, null);
+                    try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                            StandardOpenOption.APPEND))) {
+                        for (Object o : obj)
+                            writer.writeLine(o);
+                    }
+                    if (!auditAggregate)
+                        auditAndProcessFile(auditLogger, file);
+                } catch (Exception e) {
+                    LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), e);
+                }
             }
-            if (!device.getDeviceExtension(ArchiveDeviceExtension.class).isAuditAggregate())
-                auditAndProcessFile(auditLogger, file);
-        } catch (Exception e) {
-            LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), e);
         }
     }
 
-    private void writeSpoolFileStoreOrWadoRetrieve(
-            AuditLogger auditLogger, Path directory, String fileName, Object patStudyInfo, Object instanceInfo) {
+    private void writeSpoolFileStoreOrWadoRetrieve(String fileName, Object patStudyInfo, Object instanceInfo) {
         if (patStudyInfo == null && instanceInfo == null) {
             LOG.warn("Attempt to write empty file : " + fileName);
             return;
         }
-        Path file = directory.resolve(fileName);
-        boolean append = Files.exists(file);
-        try {
-            if (!append)
-                Files.createDirectories(directory);
-            try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW))) {
-                if (!append) {
-                    writer.writeLine(patStudyInfo);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        boolean auditAggregate = arcDev.isAuditAggregate();
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (auditLogger.isInstalled()) {
+                Path dir = Paths.get(StringUtils.replaceSystemProperties(auditAggregate
+                        ? arcDev.getAuditSpoolDirectory() + "/" + auditLogger.getCommonName().replaceAll(" ", "_")
+                        : JBOSS_SERVER_TEMP));
+                Path file = dir.resolve(fileName);
+                boolean append = Files.exists(file);
+                try {
+                    if (!append)
+                        Files.createDirectories(dir);
+                    try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                            append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE_NEW))) {
+                        if (!append) {
+                            writer.writeLine(patStudyInfo);
+                        }
+                        writer.writeLine(instanceInfo);
+                    }
+                    if (!auditAggregate)
+                        auditAndProcessFile(auditLogger, file);
+                } catch (Exception e) {
+                    LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), file, e);
                 }
-                writer.writeLine(instanceInfo);
             }
-            if (!device.getDeviceExtension(ArchiveDeviceExtension.class).isAuditAggregate())
-                auditAndProcessFile(auditLogger, file);
-        } catch (Exception e) {
-            LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), file, e);
         }
     }
 

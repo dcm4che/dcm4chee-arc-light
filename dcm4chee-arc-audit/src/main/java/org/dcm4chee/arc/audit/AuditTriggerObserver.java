@@ -77,8 +77,7 @@ public class AuditTriggerObserver {
     private AuditService auditService;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        HashMap<AuditLogger, Path> directories = auditService.getLoggerDirectoryMap();
-        if (!directories.isEmpty()) {
+        if (auditService.hasAuditLoggers()) {
             AuditServiceUtils.EventType et = null;
             switch (event.getType()) {
                 case STARTED:
@@ -91,62 +90,56 @@ public class AuditTriggerObserver {
                     return;
             }
             HttpServletRequest request = event.getRequest();
-            auditService.auditApplicationActivity(directories, et, request);
+            auditService.auditApplicationActivity(et, request);
         }
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty()) {
+        if (auditService.hasAuditLoggers()) {
             if (ctx.getRejectionNote() != null)
-                auditService.spoolInstancesDeleted(loggerDirectoryMap, ctx);
+                auditService.spoolInstancesDeleted(ctx);
             else if (ctx.getStoredInstance() != null || ctx.getException() != null)
-                auditService.spoolInstanceStoredOrWadoRetrieve(loggerDirectoryMap, ctx, null);
+                auditService.spoolInstanceStoredOrWadoRetrieve(ctx, null);
         }
     }
 
     public void onQuery(@Observes QueryContext ctx) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty())
-            auditService.spoolQuery(loggerDirectoryMap, ctx);
+        if (auditService.hasAuditLoggers())
+            auditService.spoolQuery(ctx);
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty()) {
+        if (auditService.hasAuditLoggers()) {
             HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
             String etFile = null;
             for (AuditServiceUtils.EventType eventType : et)
                 etFile = String.valueOf(eventType);
-            auditService.spoolRetrieve(loggerDirectoryMap, etFile, ctx, ctx.getMatches());
+            auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
         }
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty()) {
+        if (auditService.hasAuditLoggers()) {
             HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
             if (ctx.failedSOPInstanceUIDs().length > 0)
-                auditService.spoolPartialRetrieve(loggerDirectoryMap, ctx, et);
+                auditService.spoolPartialRetrieve(ctx, et);
             else {
                 String etFile = null;
                 for (AuditServiceUtils.EventType eventType : et)
                     etFile = String.valueOf(eventType);
-                auditService.spoolRetrieve(loggerDirectoryMap, etFile, ctx, ctx.getMatches());
+                auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
             }
         }
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty())
-            auditService.spoolInstanceStoredOrWadoRetrieve(loggerDirectoryMap, null, ctx);
+        if (auditService.hasAuditLoggers())
+            auditService.spoolInstanceStoredOrWadoRetrieve(null, ctx);
     }
 
     public void onStudyDeleted(@Observes StudyDeleteContext ctx) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty())
-            auditService.spoolStudyDeleted(loggerDirectoryMap, ctx);
+        if (auditService.hasAuditLoggers())
+            auditService.spoolStudyDeleted(ctx);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
@@ -171,23 +164,21 @@ public class AuditTriggerObserver {
     }
 
     public void onPatientUpdate(@Observes PatientMgtContext ctx) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty())
-            auditService.spoolPatientRecord(loggerDirectoryMap, ctx);
+        if (auditService.hasAuditLoggers())
+            auditService.spoolPatientRecord(ctx);
     }
 
     public void onProcedureUpdate(@Observes ProcedureContext ctx) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty())
-            auditService.spoolProcedureRecord(loggerDirectoryMap, ctx);
+        if (auditService.hasAuditLoggers())
+            auditService.spoolProcedureRecord(ctx);
     }
 
     public void onStudyUpdate(@Observes StudyMgtContext ctx) {
         if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create))
             return;
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty())
-            auditService.spoolProcedureRecord(loggerDirectoryMap, ctx);
+
+        if (auditService.hasAuditLoggers())
+            auditService.spoolProcedureRecord(ctx);
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {
@@ -200,9 +191,8 @@ public class AuditTriggerObserver {
     }
 
     private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
-        HashMap<AuditLogger, Path> loggerDirectoryMap = auditService.getLoggerDirectoryMap();
-        if (!loggerDirectoryMap.isEmpty())
-            auditService.spoolConnectionRejected(loggerDirectoryMap, conn, s, e);
+        if (auditService.hasAuditLoggers())
+            auditService.spoolConnectionRejected(conn, s, e);
     }
 
     private void onConnectionAccepted(Connection conn, Socket s) {
