@@ -2,6 +2,7 @@ create table code (pk bigint not null auto_increment, code_meaning varchar(255) 
 create table content_item (pk bigint not null auto_increment, rel_type varchar(255) not null, text_value varchar(255), code_fk bigint, name_fk bigint not null, instance_fk bigint, primary key (pk));
 create table dicomattrs (pk bigint not null auto_increment, attrs longblob not null, primary key (pk));
 create table export_task (pk bigint not null auto_increment, device_name varchar(255) not null, exporter_id varchar(255) not null, scheduled_time datetime not null, series_iuid varchar(255) not null, sop_iuid varchar(255) not null, study_iuid varchar(255) not null, version bigint, primary key (pk));
+create table hl7psu_task (pk bigint not null auto_increment, aet varchar(255) not null, created_time datetime not null, device_name varchar(255) not null, scheduled_time datetime, study_iuid varchar(255), mpps_fk bigint, primary key (pk));
 create table ian_task (pk bigint not null auto_increment, calling_aet varchar(255) not null, device_name varchar(255) not null, ian_dests varchar(255) not null, scheduled_time datetime, study_iuid varchar(255), mpps_fk bigint, primary key (pk));
 create table id_sequence (name varchar(64) not null, next_value integer not null, version bigint, primary key (name));
 create table instance (pk bigint not null auto_increment, availability integer not null, sr_complete varchar(255) not null, content_date varchar(255) not null, content_time varchar(255) not null, created_time datetime not null, ext_retrieve_aet varchar(255), inst_custom1 varchar(255) not null, inst_custom2 varchar(255) not null, inst_custom3 varchar(255) not null, inst_no integer, num_frames integer, retrieve_aets varchar(255), sop_cuid varchar(255) not null, sop_iuid varchar(255) not null, updated_time datetime not null, sr_verified varchar(255) not null, version bigint, dicomattrs_fk bigint not null, srcode_fk bigint, reject_code_fk bigint, series_fk bigint not null, primary key (pk));
@@ -30,6 +31,8 @@ create index UK_i715nk4mi378f9bxflvfroa5a on content_item (rel_type(64));
 create index UK_6iism30y000w85v649ju968sv on content_item (text_value(64));
 alter table export_task add constraint UK_aoqbyfnen6evu73ltc1osexfr  unique (exporter_id, study_iuid, series_iuid, sop_iuid);
 create index UK_cxaqwh62doxvy1itpdi43c681 on export_task (device_name(64), scheduled_time);
+alter table hl7psu_task add constraint UK_p5fraoqdbaywmlyumaeo16t56  unique (study_iuid);
+create index UK_t0y05h07d9dagn9a4a9s4a5a4 on hl7psu_task (device_name(64));
 alter table ian_task add constraint UK_dq88edcjjxh7h92f89y5ueast  unique (study_iuid);
 create index UK_5shiir23exao1xpy2n5gvasrh on ian_task (device_name(64));
 alter table instance add constraint UK_jxfu47kwjk3kkkyrwewjw8a4n  unique (dicomattrs_fk);
@@ -48,7 +51,7 @@ alter table issuer add constraint UK_gknfxd1vh283cmbg8ymia9ms8  unique (entity_i
 alter table issuer add constraint UK_t1p7jajas0mu12sx8jvtp2y0f  unique (entity_uid, entity_uid_type);
 create index UK_r3oh859i9osv3aluoc8dcx9wk on location (storage_id(64), status);
 create index UK_i1lnahmehau3r3j9pdyxg3p3y on location (multi_ref);
-create index UK_f7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id,(64));
+create index UK_f7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id(64), status);
 alter table mpps add constraint UK_o49fec996jvdo31o7ysmsn9s2  unique (dicomattrs_fk);
 alter table mpps add constraint UK_cyqglxijg7kebbj6oj821yx4d  unique (sop_iuid);
 alter table mwl_item add constraint UK_6qj8tkh6ib9w2pjqwvqe23ko  unique (dicomattrs_fk);
@@ -145,6 +148,7 @@ create index UK_5btv5autls384ulwues8lym4p on verify_observer (verify_datetime(64
 alter table content_item add constraint FK_gudw6viy7lrf5t5hetw7mbgh5 foreign key (code_fk) references code (pk);
 alter table content_item add constraint FK_pyrd1nhijag5ct0ee9xqq4h78 foreign key (name_fk) references code (pk);
 alter table content_item add constraint FK_9kpe6whsov3ur9rph4ih2vi5a foreign key (instance_fk) references instance (pk);
+alter table hl7psu_task add constraint FK_pev4urgkk7id2h1ijhv8domjx foreign key (mpps_fk) references mpps (pk);
 alter table ian_task add constraint FK_1fuh251le2hid2byw90hd1mly foreign key (mpps_fk) references mpps (pk);
 alter table instance add constraint FK_jxfu47kwjk3kkkyrwewjw8a4n foreign key (dicomattrs_fk) references dicomattrs (pk);
 alter table instance add constraint FK_7w6f9bi2w91qr2abl6ddxnrwq foreign key (srcode_fk) references code (pk);

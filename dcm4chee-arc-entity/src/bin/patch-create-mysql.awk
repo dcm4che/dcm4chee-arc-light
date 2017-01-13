@@ -7,6 +7,8 @@ BEGIN { FS = "[ )]" }
             print "create index UK_cxaqwh62doxvy1itpdi43c681 on export_task (device_name(64), scheduled_time);"
     } else if ($3 == "UK_r3oh859i9osv3aluoc8dcx9wk") {
             print "create index UK_r3oh859i9osv3aluoc8dcx9wk on location (storage_id(64), status);"
+    } else if ($3 == "UK_f7c9hmq8pfypohkgkp5vkbhxp") {
+            print "create index UK_f7c9hmq8pfypohkgkp5vkbhxp on metadata (storage_id(64), status);"
     } else if ($2 == "index" \
             && $6 != "(inst_no" \
             && $6 != "(updated_time" \
