@@ -60,7 +60,12 @@ export class StudiesService {
                 delete object[k][key];
             }
             if(m.vr && m.vr !="SQ" && !m.Value){
-                object[k]["Value"] = [""];
+                if(m.vr === "PN"){
+                    object[k]["Value"] = object[k]["Value"] || [{Alphabetic:''}];
+                    object[k]["Value"] = [{Alphabetic:''}];
+                }else{
+                    object[k]["Value"] = [""];
+                }
             }
             if((Object.prototype.toString.call(m) === '[object Array]') || (object[k] !== null && typeof(object[k]) == "object")) {
                 $this.replaceKeyInJson(m, key, key2);

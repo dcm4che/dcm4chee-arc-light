@@ -14,7 +14,6 @@ export class AttributeListComponent implements OnInit {
 
     constructor() {
         console.log("attrs1",this.attrs);
-
     }
 
     ngOnInit() {
@@ -34,7 +33,6 @@ export class AttributeListComponent implements OnInit {
             }
             return undefined;
         }
-
         let $this = this;
         Object.keys(attrs).sort().forEach(function (tag) {
             let el = attrs[tag];

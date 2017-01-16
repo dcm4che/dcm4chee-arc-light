@@ -164,13 +164,19 @@ export class EditPatientComponent {
         }
     }
     addAttribute(attrcode, patient){
-        console.log("in addattribut",attrcode);
-        console.log("this iod",this._iod);
-
         if(patient.attrs[attrcode]){
             if(this._iod[attrcode].multi){
                         // this.patien.attrs[attrcode]  = this._iod.data[attrcode];
-                patient.attrs[attrcode]["Value"].push("");
+                console.log("multi",this._iod[attrcode]);
+                if(patient.attrs[attrcode].vr === "PN"){
+                    patient.attrs[attrcode]["Value"].push({Alphabetic:''});
+                }else{
+                    if(patient.attrs[attrcode].vr === "SQ"){
+                        patient.attrs[attrcode]["Value"].push(this._iod[attrcode].Value[0]);
+                    }else{
+                        patient.attrs[attrcode]["Value"].push("");
+                    }
+                }
                 this.addPatientAttribut           = "";
                 this.opendropdown                 = false;
             }else{
@@ -183,6 +189,7 @@ export class EditPatientComponent {
             }
         }else{
             // console.log("in else", this.dialogRef.componentInstance.patient);
+            console.log("this._iodattrcod",this._iod[attrcode]);
              patient.attrs[attrcode]  = this._iod[attrcode];
             // patient.attrs[attrcode].Value[0] = "";
             console.log("patient=",patient);

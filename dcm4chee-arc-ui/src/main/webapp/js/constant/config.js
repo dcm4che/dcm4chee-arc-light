@@ -126,10 +126,12 @@ myApp.constant("$select",
         "optionValue" : "dcmStorageID",
         "type": "object",
         "parentOf" : [
-          "dcmExportRule",
-          "dcmArchiveCompressionRule",
-          "dcmArchiveAttributeCoercion",
-          "dcmStudyRetentionPolicy"
+            "dcmStoreAccessControlIDRule",
+            "dcmExportRule",
+            "dcmArchiveCompressionRule",
+            "dcmArchiveAttributeCoercion",
+            "dcmRSForwardRule",
+            "dcmStudyRetentionPolicy"
         ],
       },
       // "dcmExportRule":{

@@ -46,6 +46,7 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                 cfpLoadingBar.set(cfpLoadingBar.status()+(0.2));
                 scope.dynamic_form = DeviceService.getDeviceForm();
             }else{
+                    console.log("");
                     DeviceService.getSchema(scope.selectedElement);
                     DeviceService.getForm(scope);
                     scope.form[scope.selectedElement] = scope.form[scope.selectedElement] || {};
@@ -75,7 +76,7 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                                 schemas[scope.selectedElement][scope.selectedElement] &&
                                 schemas[scope.selectedElement][scope.selectedElement]["properties"]
                             );
-                        if(checkItems || checkProp|| checkPropShort || checkItemsProperties){
+                        if(checkItems || checkProp || checkPropShort || checkItemsProperties){
                             clearInterval(wait);
                             if($select[scope.selectedElement].parentOf){
                                 angular.forEach($select[scope.selectedElement].parentOf,function(m,i){
@@ -119,7 +120,11 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                                 }
                             }
                             scope.dynamic_form = scope.form[scope.selectedElement]["form"];
+                            console.log("before addemptyarray",scope.dynamic_form);
+                            console.log("before dynamic_schema",scope.dynamic_schema);
+                            console.log("before schemas",schemas);
                             DeviceService.addEmptyArrayFields(scope);
+                            console.log("after addemptyarray",scope.dynamic_form);
                         }
                         if(timeout<0){
                             clearInterval(wait);
@@ -136,6 +141,7 @@ myApp.directive("editArea",function(cfpLoadingBar, $log, DeviceService, $compile
                     }else{
                         scope.dynamic_model = {};
                     }
+                    console.log("dynamic model",scope.dynamic_model);
                     if(($select[scope.selectedElement].optionRef.length > 1 && $select[$select[scope.selectedElement].optionRef[1]].type === "object") || ($select[scope.selectedElement].optionRef.length === 1 && $select[$select[scope.selectedElement].optionRef[0]].type === "object")){
                         DeviceService.createPart(scope);
                     }

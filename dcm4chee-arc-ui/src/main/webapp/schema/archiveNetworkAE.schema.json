@@ -303,7 +303,8 @@
       "title": "HL7 Procedure Status Update On Timeout",
       "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.",
       "type": "boolean"
-    },
+    }
+  ,
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rule",

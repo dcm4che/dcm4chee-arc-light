@@ -19,69 +19,71 @@
         <div class="dropdown" *ngIf="opendropdown">
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut" (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
         </div>
-        <table class="table">
-            <tr *ngFor="let p of getKeys(patient.attrs)">
-                <td *ngIf="patient.attrs[p].vr != 'SQ'" class="col-md-2 control-label first_td">{{p}}</td>
-                <td *ngIf="patient.attrs[p].vr === 'SQ'"  class="col-md-2 control-label first_td">
-                    <div class="item1first">{{p}}</div>
-                    <div class="item1" *ngFor="let item of getKeys(patient.attrs[p].Value[0])">
-                        >{{item}}
-                        <div *ngIf="patient.attrs[p].Value[0][item].vr === 'SQ'">
-                            <div class="item1" *ngFor="let item2 of getKeys(patient.attrs[p].Value[0][item].Value[0])">>>{{item2}}</div>
-                        </div>
-                    </div>
-                </td>
-                <td *ngIf="patient.attrs[p].vr != 'SQ'"  class="col-md-3 control-label">{{DCM4CHE.elementName.forTag(p)}}</td>
-                <td *ngIf="patient.attrs[p].vr === 'SQ'"  class="col-md-3 control-label">
-                    <div class="item1first">{{DCM4CHE.elementName.forTag(p)}}</div>
-                    <div class="item1" *ngFor="let item of getKeys(patient.attrs[p].Value[0])" >
-                        {{DCM4CHE.elementName.forTag(item)}}
-                        <div  *ngIf="patient.attrs[p].Value[0][item].vr === 'SQ'" >
-                            <div class="item1" *ngFor="let item2 of getKeys(patient.attrs[p].Value[0][item].Value[0])">{{DCM4CHE.elementName.forTag(item2)}}</div>
-                        </div>
-                    </div>
-                </td>
-                <td [ngClass]="{datepicker:(patient.attrs[p].vr === 'DA')}">
-                    <textarea *ngIf="p != '00100040' && p === '00104000' && patient.attrs[p].vr != 'SQ'" class="form-control" [(ngModel)]="patient.attrs[p].Value[0]"></textarea><span (click)="removeAttr(p)" *ngIf="p==='00104000'" class="glyphicon glyphicon-remove"></span>
-                    <template ngFor let-value [ngForOf]="patient.attrs[p].Value | getKey">
-                        <input *ngIf="p != '00100040' && p != '00104000' && patient.attrs[p].vr === 'PN' && patient.attrs[p].vr!='SQ'"  class="form-control" placeholder="{{DCM4CHE.elementName.forTag(p)}} Alphabetic" [(ngModel)]="patient.attrs[p].Value[value._KEY]['Alphabetic']"><span (click)="removeAttr(p,value._KEY)" *ngIf="p != '00104000' && patient.attrs[p].vr==='PN'" class="glyphicon glyphicon-remove"></span>
-                        <input *ngIf="p != '00100040' && p != '00104000' && patient.attrs[p].vr === 'PN' && patient.attrs[p].vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(p)}} Ideographic" [(ngModel)]="patient.attrs[p].Value[value._KEY]['Ideographic']">
-                        <input *ngIf="p != '00100040' && p != '00104000' && patient.attrs[p].vr === 'PN' && patient.attrs[p].vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(p)}} Phonetic" [(ngModel)]="patient.attrs[p].Value[value._KEY]['Phonetic']">
-                    </template>
-                    <template ngFor let-value [ngForOf]="patient.attrs[p].Value | getKey">
-                        <input *ngIf="p != '00100040' && p != '00104000' && patient.attrs[p].vr!='PN' && patient.attrs[p].vr!='SQ' && patient.attrs[p].vr != 'DA'" class="{{p}} form-control original"  [(ngModel)]="patient.attrs[p].Value[value._KEY]">
-                        <p-calendar *ngIf="patient.attrs[p].vr === 'DA'" dataType="string" [(ngModel)]="patient.attrs[p].Value[value._KEY]" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100"></p-calendar>
-                        <select *ngIf="p === '00100040'"
-                                [ngModel]="patient.attrs[p].Value[0]"
-                                (ngModelChange)="onChange($event, 'patient.attrs.'+p+'.Value[0]')"
-                        >
-                                <option [ngValue]="o.obj.Value[0]"  *ngFor="let o of options.genders" >{{o.title}}</option>
-                        </select>
-                        <span (click)="removeAttr(p,value._KEY)" *ngIf="p != '00104000' && patient.attrs[p].vr!='PN'" class="glyphicon glyphicon-remove"></span>
-                    </template>
-                    <div *ngIf="patient.attrs[p].vr === 'SQ' && patient.attrs[p].Value && patient.attrs[p].Value[0]">
-                        <div class="item1input" *ngFor="let item of getKeys(patient.attrs[p].Value[0])" >
-                            <span (click)="removeAttr(p)" *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr==='PN'" class="glyphicon glyphicon-remove"></span>
-                            <input *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr != 'PN' && patient.attrs[p].Value[0][item].vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(item)}}" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]"/>
-                            <textarea *ngIf="item === '00104000'" class=" form-control" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]"></textarea>
-                            <input *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr === 'PN' && patient.attrs[p].Value[0][item].vr!='SQ'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item)}} Alphabetic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]['Alphabetic']">
-                            <input *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr === 'PN' && patient.attrs[p].Value[0][item].vr!='SQ'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item)}} Ideographic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]['Ideographic']">
-                            <input *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr === 'PN' && patient.attrs[p].Value[0][item].vr!='SQ'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item)}} Phonetic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]['Phonetic']">
-                            <div *ngIf="patient.attrs[p].Value[0][item].vr === 'SQ'">
-                                <div class="item2input" *ngFor="let item2 of patient.attrs[p].Value[0][item].Value[0] | getKey">
-                                    <span (click)="removeAttr(p)" *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr==='PN'" class="glyphicon glyphicon-remove"></span>
-                                    <input *ngIf="item2._KEY != '00104000' && item2._VALUE.vr != 'PN'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(item2._KEY)}}" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]"/>
-                                    <textarea *ngIf="item2._KEY === '00104000'" class=" form-control" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]"></textarea>
-                                    <input *ngIf="item2._KEY != '00104000' && item2._VALUE.vr === 'PN'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item2._KEY)}} Alphabetic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]['Alphabetic']">
-                                    <input *ngIf="item2._KEY != '00104000' && item2._VALUE.vr === 'PN'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item2._KEY)}} Ideographic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]['Ideographic']">
-                                    <input *ngIf="item2._KEY != '00104000' && item2._VALUE.vr === 'PN'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item2._KEY)}} Phonetic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]['Phonetic']">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </table>
+        <iod-form-generator [object]="patient.attrs" [prefix]=""></iod-form-generator>
+
+        <!--<table class="table">-->
+            <!--<tr *ngFor="let p of getKeys(patient.attrs)">-->
+                <!--<td *ngIf="patient.attrs[p].vr != 'SQ'" class="col-md-2 control-label first_td">{{p}}</td>-->
+                <!--<td *ngIf="patient.attrs[p].vr === 'SQ'"  class="col-md-2 control-label first_td">-->
+                    <!--<div class="item1first">{{p}}</div>-->
+                    <!--<div class="item1" *ngFor="let item of getKeys(patient.attrs[p].Value[0])">-->
+                        <!--&gt;{{item}}-->
+                        <!--<div *ngIf="patient.attrs[p].Value[0][item].vr === 'SQ'">-->
+                            <!--<div class="item1" *ngFor="let item2 of getKeys(patient.attrs[p].Value[0][item].Value[0])">>>{{item2}}</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</td>-->
+                <!--<td *ngIf="patient.attrs[p].vr != 'SQ'"  class="col-md-3 control-label">{{DCM4CHE.elementName.forTag(p)}}</td>-->
+                <!--<td *ngIf="patient.attrs[p].vr === 'SQ'"  class="col-md-3 control-label">-->
+                    <!--<div class="item1first">{{DCM4CHE.elementName.forTag(p)}}</div>-->
+                    <!--<div class="item1" *ngFor="let item of getKeys(patient.attrs[p].Value[0])" >-->
+                        <!--{{DCM4CHE.elementName.forTag(item)}}-->
+                        <!--<div  *ngIf="patient.attrs[p].Value[0][item].vr === 'SQ'" >-->
+                            <!--<div class="item1" *ngFor="let item2 of getKeys(patient.attrs[p].Value[0][item].Value[0])">{{DCM4CHE.elementName.forTag(item2)}}</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</td>-->
+                <!--<td [ngClass]="{datepicker:(patient.attrs[p].vr === 'DA')}">-->
+                    <!--<textarea *ngIf="p != '00100040' && p === '00104000' && patient.attrs[p].vr != 'SQ'" class="form-control" [(ngModel)]="patient.attrs[p].Value[0]"></textarea><span (click)="removeAttr(p)" *ngIf="p==='00104000'" class="glyphicon glyphicon-remove"></span>-->
+                    <!--<template ngFor let-value [ngForOf]="patient.attrs[p].Value | getKey">-->
+                        <!--<input *ngIf="p != '00100040' && p != '00104000' && patient.attrs[p].vr === 'PN' && patient.attrs[p].vr!='SQ'"  class="form-control" placeholder="{{DCM4CHE.elementName.forTag(p)}} Alphabetic" [(ngModel)]="patient.attrs[p].Value[value._KEY]['Alphabetic']"><span (click)="removeAttr(p,value._KEY)" *ngIf="p != '00104000' && patient.attrs[p].vr==='PN'" class="glyphicon glyphicon-remove"></span>-->
+                        <!--<input *ngIf="p != '00100040' && p != '00104000' && patient.attrs[p].vr === 'PN' && patient.attrs[p].vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(p)}} Ideographic" [(ngModel)]="patient.attrs[p].Value[value._KEY]['Ideographic']">-->
+                        <!--<input *ngIf="p != '00100040' && p != '00104000' && patient.attrs[p].vr === 'PN' && patient.attrs[p].vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(p)}} Phonetic" [(ngModel)]="patient.attrs[p].Value[value._KEY]['Phonetic']">-->
+                    <!--</template>-->
+                    <!--<template ngFor let-value [ngForOf]="patient.attrs[p].Value | getKey">-->
+                        <!--<input *ngIf="p != '00100040' && p != '00104000' && patient.attrs[p].vr!='PN' && patient.attrs[p].vr!='SQ' && patient.attrs[p].vr != 'DA'" class="{{p}} form-control original"  [(ngModel)]="patient.attrs[p].Value[value._KEY]">-->
+                        <!--<p-calendar *ngIf="patient.attrs[p].vr === 'DA'" dataType="string" [(ngModel)]="patient.attrs[p].Value[value._KEY]" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100"></p-calendar>-->
+                        <!--<select *ngIf="p === '00100040'"-->
+                                <!--[ngModel]="patient.attrs[p].Value[0]"-->
+                                <!--(ngModelChange)="onChange($event, 'patient.attrs.'+p+'.Value[0]')"-->
+                        <!--&gt;-->
+                                <!--<option [ngValue]="o.obj.Value[0]"  *ngFor="let o of options.genders" >{{o.title}}</option>-->
+                        <!--</select>-->
+                        <!--<span (click)="removeAttr(p,value._KEY)" *ngIf="p != '00104000' && patient.attrs[p].vr!='PN'" class="glyphicon glyphicon-remove"></span>-->
+                    <!--</template>-->
+                    <!--<div *ngIf="patient.attrs[p].vr === 'SQ' && patient.attrs[p].Value && patient.attrs[p].Value[0]">-->
+                        <!--<div class="item1input" *ngFor="let item of getKeys(patient.attrs[p].Value[0])" >-->
+                            <!--<span (click)="removeAttr(p)" *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr==='PN'" class="glyphicon glyphicon-remove"></span>-->
+                            <!--<input *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr != 'PN' && patient.attrs[p].Value[0][item].vr!='SQ'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(item)}}" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]"/>-->
+                            <!--<textarea *ngIf="item === '00104000'" class=" form-control" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]"></textarea>-->
+                            <!--<input *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr === 'PN' && patient.attrs[p].Value[0][item].vr!='SQ'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item)}} Alphabetic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]['Alphabetic']">-->
+                            <!--<input *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr === 'PN' && patient.attrs[p].Value[0][item].vr!='SQ'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item)}} Ideographic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]['Ideographic']">-->
+                            <!--<input *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr === 'PN' && patient.attrs[p].Value[0][item].vr!='SQ'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item)}} Phonetic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0]['Phonetic']">-->
+                            <!--<div *ngIf="patient.attrs[p].Value[0][item].vr === 'SQ'">-->
+                                <!--<div class="item2input" *ngFor="let item2 of patient.attrs[p].Value[0][item].Value[0] | getKey">-->
+                                    <!--<span (click)="removeAttr(p)" *ngIf="item != '00104000' && patient.attrs[p].Value[0][item].vr==='PN'" class="glyphicon glyphicon-remove"></span>-->
+                                    <!--<input *ngIf="item2._KEY != '00104000' && item2._VALUE.vr != 'PN'" class="form-control" placeholder="{{DCM4CHE.elementName.forTag(item2._KEY)}}" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]"/>-->
+                                    <!--<textarea *ngIf="item2._KEY === '00104000'" class=" form-control" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]"></textarea>-->
+                                    <!--<input *ngIf="item2._KEY != '00104000' && item2._VALUE.vr === 'PN'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item2._KEY)}} Alphabetic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]['Alphabetic']">-->
+                                    <!--<input *ngIf="item2._KEY != '00104000' && item2._VALUE.vr === 'PN'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item2._KEY)}} Ideographic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]['Ideographic']">-->
+                                    <!--<input *ngIf="item2._KEY != '00104000' && item2._VALUE.vr === 'PN'" class=" form-control" placeholder="{{DCM4CHE.elementName.forTag(item2._KEY)}} Phonetic" [(ngModel)]="patient.attrs[p].Value[0][item].Value[0][item2._KEY].Value[0]['Phonetic']">-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</td>-->
+            <!--</tr>-->
+        <!--</table>-->
         <div class="dialogbuttons">
             <button class="save" type="button" (click)="dialogRef.close(patient)">{{saveLabel}}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>

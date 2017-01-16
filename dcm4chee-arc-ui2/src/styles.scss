@@ -233,3 +233,114 @@ p-calendar{
 .td_cell{
   overflow:hidden;
 }
+.listblock{
+  border-bottom:1px solid #ddd;
+}
+.input{
+  span{
+    top: 10px;
+  }
+}
+.listblock{
+  list-style: none;
+  display: block;
+  float: left;
+  position: relative;
+  width: 100%;
+  padding:3px 8px;
+  &.firstlevel{
+    padding-left:5%;
+    &>.glyphicon.glyphicon-remove{
+      right:15px;
+    }
+    &.sq{
+      .form_input{
+        input{
+          width:99%;
+          //float:right;
+        }
+      }
+      .listblock.sq{
+        input{
+          float:right;
+        }
+      }
+    }
+  }
+  &:hover{
+    background:#ddd;
+  }
+  & > .glyphicon.glyphicon-remove{
+    right: 15px;
+  }
+  input{
+    padding-left:7px;
+  }
+  .glyphicon.glyphicon-remove {
+    position: absolute;
+    right: 15px;
+    top: 9px;
+    display: none;
+    color: #CDCDCD;
+    &:hover{
+      color: #7B7B7B;
+      cursor: pointer;
+    }
+    &.sq{
+      right: 23px;
+    }
+  }
+  &:hover .glyphicon.glyphicon-remove {
+    display: inline-block;
+  }
+  .form_name.sq {
+    width: 84%;
+  }
+  .form_code {
+    float: left;
+    height: 30px;
+    width: 13%;
+    //padding-left:5%;
+  }
+  .form_name {
+    float: left;
+    height: 30px;
+    width: 27%;
+  }
+  .form_input {
+    float: left;
+    width: 59%;
+    // height: 30px;
+    .input input, input, .selectelement{
+       width: 98%;
+      min-height: 30px !important;
+      height: 30px;
+      margin: 1px 0 !important;
+    }
+    .multi_input{
+      position:relative;
+      .input,.no-close-button {
+        width: 97%;
+      }
+      &>.glyphicon.glyphicon-remove{
+        right:-10px;
+      }
+    }
+  }
+
+}
+.input p-calendar span{
+  top:0;
+}
+p-calendar select{
+
+}
+.md-overlay-backdrop{
+  position: fixed !important;
+}
+.md-overlay-container{
+  .md-overlay-pane{
+    top: 5% !important;
+    transform: translateX(-50%) translateX(0px) translateY(0px) !important;
+  }
+}

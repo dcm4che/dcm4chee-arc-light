@@ -1170,7 +1170,6 @@ export class StudiesComponent{
             this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || [];
             let SeriesInstanceUIDInArray = false;
             if(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){
-
                 _.forEach(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"], function(s,l){
                     console.log("s",s);
                     console.log("l",l);

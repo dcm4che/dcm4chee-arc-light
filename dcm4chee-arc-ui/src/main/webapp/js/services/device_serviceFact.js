@@ -1118,6 +1118,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                         console.log("in if 2");
                         if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
                             if ($select[$select[scope.selectedElement].optionRef[0]].type === "object") {
+                                console.log("1");
                                 angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]], function(k, j) {
                                     if (scope.selectedPart[$select[scope.selectedElement].optionRef[1]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][$select[scope.selectedElement].optionRef[1]][j][$select[scope.selectedElement].optionValue]) {
                                         if (!scope.form[scope.selectedElement]) {
@@ -1127,6 +1128,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                     }
                                 });
                             } else {
+                                console.log("2");
                                 angular.forEach(scope.wholeDevice[$select[scope.selectedElement].optionRef[0]], function(m, i) {
                                     if (scope.selectedPart[$select[scope.selectedElement].optionRef[0]] === scope.wholeDevice[$select[scope.selectedElement].optionRef[0]][i][$select[$select[scope.selectedElement].optionRef[0]].optionValue]) {
                                         if($select[$select[scope.selectedElement].optionRef[1]].type === "object"){
@@ -1147,14 +1149,18 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                         }
                                     }
                                 });
+                                console.log("set model",scope.form[scope.selectedElement]["model"]);
                             }
                         }else{
+                            console.log("in empty else!");
                         }
                     } else {
+                        console.log("3");
                         if (!scope.form[scope.selectedElement]) {
                             scope.form[scope.selectedElement] = {};
                         }
                         if (scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]) {
+                            console.log("4");
 
                                     console.log("scope.wholeDevice",scope.wholeDevice);
                                     console.log("scope.selectedElement",scope.selectedElement);
@@ -1167,15 +1173,19 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                     // scope.dynamic_model = angular.copy(getModelTestHelper(scope.wholeDevice, scope.selectedElement));
                                     console.log("1scope.dynamic_model",scope.dynamic_model);
                         }else{
-                        	scope.wholeDevice[$select[scope.selectedElement].optionRef[0]] = {};
+                            console.log("5");
+
+                            scope.wholeDevice[$select[scope.selectedElement].optionRef[0]] = {};
+                        	console.log("about to set model",scope.wholeDevice[$select[scope.selectedElement].optionRef[0]]);
                             scope.form[scope.selectedElement]["model"] = scope.wholeDevice[$select[scope.selectedElement].optionRef[0]];
+                            console.log("modelset",scope.form[scope.selectedElement]["model"]);
                         }
                     }
                 }
             }
-            // console.log("scope.wholeDevice",scope.wholeDevice);
-            // console.log("scope.dynamic_model",scope.dynamic_model);
-            // console.log("scope.form",scope.form);
+            console.log("scope.wholeDevice",scope.wholeDevice);
+            console.log("scope.dynamic_model",scope.dynamic_model);
+            console.log("scope.form",scope.form);
         },
         createPart: function($scope) {
             if ($select[$scope.selectedElement].optionRef.length > 1) {
