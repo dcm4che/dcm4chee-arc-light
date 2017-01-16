@@ -220,7 +220,8 @@ public class StoreServiceEJB {
             Series series = instance.getSeries();
             series.getStudy().setExternalRetrieveAET(null);
             series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
-            series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
+            if (series.getRejectionState() == RejectionState.NONE)
+                series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
         }
         return result;
     }
@@ -253,6 +254,7 @@ public class StoreServiceEJB {
                         series.setExpirationDate(null);
                     deleteSeriesQueryAttributes(series);
                     series.scheduleMetadataUpdate(seriesMetadataDelay);
+                    series.setInstancePurgeTime(null);
                 }
             }
             if (series != null) {
