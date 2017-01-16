@@ -195,10 +195,11 @@ public class IANScheduler extends Scheduler {
 
     private void sendIAN(ExportContext ctx, ExporterDescriptor descriptor) {
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
-        Attributes attrs = createIAN(ae, ctx.getStudyInstanceUID(), null,
+        Attributes ian = createIAN(ae, ctx.getStudyInstanceUID(), null,
                 descriptor.getInstanceAvailability(), descriptor.getRetrieveAETitles());
-        for (String remoteAET : descriptor.getIanDestinations())
-            ejb.scheduleMessage(ctx.getAETitle(), attrs, remoteAET);
+        if (ian != null)
+            for (String remoteAET : descriptor.getIanDestinations())
+                ejb.scheduleMessage(ctx.getAETitle(), ian, remoteAET);
     }
 
     private Attributes createIANForMPPS(ApplicationEntity ae, MPPS mpps) {
