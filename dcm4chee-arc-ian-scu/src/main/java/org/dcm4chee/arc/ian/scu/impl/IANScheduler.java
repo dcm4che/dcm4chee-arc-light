@@ -123,8 +123,14 @@ public class IANScheduler extends Scheduler {
                 try {
                     ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
                     if (ianTask.getMpps() == null) {
-                        LOG.info("Schedule {}", ianTask);
-                        ejb.scheduleIANTask(ianTask, createIAN(ae, ianTask.getStudyInstanceUID(), null, null));
+                        ian = createIAN(ae, ianTask.getStudyInstanceUID(), null, null);
+                        if (ian != null) {
+                            LOG.info("Schedule {}", ianTask);
+                            ejb.scheduleIANTask(ianTask, ian);
+                        } else {
+                            LOG.info("Ignore {} without referenced objects", ianTask);
+                            ejb.removeIANTask(ianTask);
+                        }
                     } else {
                         if (ae.getAEExtension(ArchiveAEExtension.class).ianOnTimeout()
                                 && (ian = createIAN(ae, ianTask.getMpps().getStudyInstanceUID(), null, null)) != null) {
