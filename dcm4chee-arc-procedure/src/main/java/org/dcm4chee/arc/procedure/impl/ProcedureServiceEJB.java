@@ -182,17 +182,16 @@ public class ProcedureServiceEJB {
             }
     }
 
-    public void updateSPSStatus(ProcedureContext ctx) {
+    public void updateSPSStatus(ProcedureContext ctx, String status) {
         List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
         for (MWLItem mwl : mwlItems) {
-            Attributes spsItemMWL = mwl.getAttributes()
+            Attributes mwlAttrs = mwl.getAttributes();
+            Attributes spsItemMWL = mwlAttrs
                     .getNestedDataset(Tag.ScheduledProcedureStepSequence);
-            Attributes spsItemMPPS = ctx.getAttributes()
-                    .getNestedDataset(Tag.ScheduledProcedureStepSequence);
-            if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus)
-                    .equals(spsItemMPPS.getString(Tag.ScheduledProcedureStepStatus))) {
-                mwl.setAttributes(ctx.getAttributes(), ctx.getAttributeFilter(), ctx.getFuzzyStr());
+            if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus).equals(status)) {
+                spsItemMWL.setString(Tag.ScheduledProcedureStepStatus, VR.CS, status);
+                mwl.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
                 ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             }
         }
