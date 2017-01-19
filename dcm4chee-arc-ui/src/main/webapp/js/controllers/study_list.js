@@ -3201,6 +3201,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.viewInstance = function (inst) {
         $window.open(renderURL(inst));
     };
+    $scope.clickLink = function(url){
+        $window.open(url);
+    };
     $scope.studyRowspan = function(study) {
         var span = study.showAttributes ? 2 : 1;
         return study.series

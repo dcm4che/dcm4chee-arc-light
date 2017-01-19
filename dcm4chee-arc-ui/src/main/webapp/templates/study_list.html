@@ -994,10 +994,10 @@
                                                 <a class="hiddenbuttons" ng-click="storageCommitmen('instance', instance)" ng-show="user.isRole('admin')" href="" title="Verify storage commitmen">
                                                     <span class="glyphicon glyphicon-ok"></span>
                                                 </a>
-                                                <a class="hiddenbuttons" ng-href="{{downloadURL(instance)}}" title="Download Uncompressed DICOM Object">
+                                                <a class="hiddenbuttons" ng-click="clickLink(downloadURL(instance))" title="Download Uncompressed DICOM Object">
                                                     <span class="glyphicon glyphicon-save"></span>
                                                 </a>
-                                                <a class="hiddenbuttons" ng-href="{{downloadURL(instance, '*')}}" title="Download DICOM Object">
+                                                <a class="hiddenbuttons" ng-click="clickLink(downloadURL(instance, '*'))" title="Download DICOM Object">
                                                     <span class="glyphicon glyphicon-download-alt"></span>
                                                 </a>
                                                 <a class="hiddenbuttons" ng-hide="instance.views.length > 1" ng-click="viewInstance(instance)" href="" title="View DICOM Object">
