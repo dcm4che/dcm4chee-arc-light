@@ -608,7 +608,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
         deleteDevice: function($scope) {
             cfpLoadingBar.start();
             $http.delete("../devices/" + $scope.devicename)
-                .success(function(data, status, headers, config) {
+                .then(function(data, status, headers, config) {
                     //Delete the device from the dropdown list to.
                     angular.forEach($scope.devices, function(value, key) {
                         if (value.dicomDeviceName === $scope.devicename) {
@@ -640,7 +640,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                     cfpLoadingBar.complete();
                     return true;
                 })
-                .error(function(data, status, headers, config) {
+                .catch(function(data, status, headers, config) {
                     $log.error("Error deleting device", status);
                     msg($scope, {
                         "title": "error",
@@ -654,9 +654,8 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
         save: function($scope) {
             if ($scope.wholeDevice.dicomDeviceName && $scope.wholeDevice.dicomDeviceName != undefined) {
                 if($scope.newDevice){
-
                 $http.post("../devices/" + $scope.wholeDevice.dicomDeviceName, $scope.wholeDevice)
-                    .success(function(data, status, headers, config) {
+                    .then(function(data, status, headers, config) {
                         $scope.saved = true;
                         cfpLoadingBar.complete();
                         $scope.showCancel = false;
@@ -674,7 +673,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                             });
                         });
                     })
-                    .error(function(data, status, headers, config) {
+                    .catch(function(data, status, headers, config) {
                         $log.error("Error sending data on put!", status);
                         addEmptyArrayFieldsPrivate($scope);
                         msg($scope, {
@@ -687,7 +686,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                 }else{
 
                 $http.put("../devices/" + $scope.wholeDevice.dicomDeviceName, $scope.wholeDevice)
-                    .success(function(data, status, headers, config) {
+                    .then(function(data, status, headers, config) {
                         $scope.saved = true;
                         cfpLoadingBar.complete();
                         $scope.showCancel = false;
@@ -705,7 +704,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                             });
                         });
                     })
-                    .error(function(data, status, headers, config) {
+                    .catch(function(data, status, headers, config) {
                         $log.error("Error sending data on put!", status);
                         addEmptyArrayFieldsPrivate($scope);
                         msg($scope, {
@@ -728,7 +727,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
             if ($scope.wholeDevice.dicomDeviceName != undefined) {
                 $http
                     .put("../devices/" + $scope.wholeDevice.dicomDeviceName, $scope.wholeDevice)
-                    .success(function(data, status, headers, config) {
+                    .then(function(data, status, headers, config) {
                         msg($scope, {
                             "title": "Info",
                             "text": "A new device with the name " + $scope.wholeDevice.dicomDeviceName + " created successfully!",
@@ -739,7 +738,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
 
                         $http
                         .delete("../devices/" + $scope.currentDevice)
-                            .success(function(data, status, headers, config) {
+                            .then(function(data, status, headers, config) {
                                 //Delete the device from the dropdown list to.
                                 angular.forEach($scope.devices, function(value, key) {
                                     if (value.dicomDeviceName === $scope.devicename) {
@@ -765,7 +764,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                     });
                                 });
                             })
-                            .error(function(data, status, headers, config) {
+                            .catch(function(data, status, headers, config) {
                                 $log.error("Error deleting device", status);
                                 msg($scope, {
                                     "title": "Error",
@@ -776,7 +775,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                                 return false;
                             });
                     })
-                    .error(function(data, status, headers, config) {
+                    .catch(function(data, status, headers, config) {
                         $log.error("Error sending data on put!", status);
                         msg($scope, {
                             "title": "Error",

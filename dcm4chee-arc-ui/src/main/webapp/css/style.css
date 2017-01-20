@@ -1230,6 +1230,10 @@ table.subtable_1, table.subtable_2 {
   margin-left: 0; }
 .filter.hidden_filters {
   width: 81%; }
+.filter input, .filter select {
+  border: 1px solid #ccc; }
+.filter input {
+  padding: 3px 7px; }
 .filter .col-md-3 input {
   padding-left: 7px;
   padding-right: 0; }

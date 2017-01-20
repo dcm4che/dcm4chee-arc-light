@@ -590,7 +590,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                         if($scope.deleteDeviceTo === true){
                             $http
                             .delete("../devices/" + device)
-                                .success(function(data, status, headers, config) {
+                                .then(function(data, status, headers, config) {
                                     DeviceService.msg($scope, {
                                         "title": "Info",
                                         "text": "Device deleted successfully!",
@@ -605,7 +605,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                     });
                                     $scope.searchAes();
                                 })
-                                .error(function(data, status, headers, config) {
+                                .catch(function(data, status, headers, config) {
                                     $log.error("Error deleting device", status);
                                     DeviceService.msg($scope, {
                                         "title": "Error",
@@ -630,7 +630,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                     }
                                 });
                                 $http.put("../devices/" + device, deviceObject)
-                                    .success(function(data, status, headers, config) {
+                                    .then(function(data, status, headers, config) {
                                         DeviceService.msg($scope, {
                                             "title": "Info",
                                             "text": "Ae removed from device successfully!",
@@ -645,7 +645,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                         });
                                         $scope.searchAes();
                                     })
-                                    .error(function(data, status, headers, config) {
+                                    .catch(function(data, status, headers, config) {
                                         $log.error("Error sending data on put!", status);
                                         addEmptyArrayFieldsPrivate($scope);
                                         DeviceService.msg($scope, {
@@ -1023,7 +1023,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                 $scope.newAetModel.dicomNetworkAE[0].dicomAssociationInitiator = true;
                                 $scope.newAetModel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
                                 $http.post("../devices/" + $scope.newAetModel.dicomDeviceName, $scope.newAetModel)
-                                .success(function(data, status, headers, config) {
+                                .then(function(data, status, headers, config) {
                                     DeviceService.msg($scope, {
                                         "title": "Info",
                                         "text": "Aet registered successfully!<br>Device created successfully!",
@@ -1038,7 +1038,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                     });
                                     $scope.searchAes();
                                 })
-                                .error(function(data, status, headers, config) {
+                                .catch(function(data, status, headers, config) {
                                     cfpLoadingBar.complete();
                                     $http.delete(
                                         "../unique/aets/"+$scope.netAEModel.dicomAETitle
@@ -1057,7 +1057,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                 $scope.netAEModel.dicomAssociationAcceptor = true;
                                 $scope.selctedDeviceObject.dicomNetworkAE.push($scope.netAEModel);
                                 $http.put("../devices/" + $scope.selctedDeviceObject.dicomDeviceName, $scope.selctedDeviceObject)
-                                .success(function(data, status, headers, config) {
+                                .then(function(data, status, headers, config) {
                                     DeviceService.msg($scope, {
                                         "title": "Info",
                                         "text": "Aet registered and added to device successfully!",
@@ -1072,7 +1072,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                     });
                                     $scope.searchAes();
                                 })
-                                .error(function(data, status, headers, config) {
+                                .catch(function(data, status, headers, config) {
                                     cfpLoadingBar.complete();
                                     $http.delete(
                                         "../unique/aets/"+$scope.netAEModel.dicomAETitle
@@ -1693,7 +1693,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                           var device = response.data;
                           device.dicomDeviceName = $scope.clonename;
                           $http.post("../devices/" + $scope.clonename, device)
-                              .success(function(data, status, headers, config) {
+                              .then(function(data, status, headers, config) {
                                   DeviceService.msg($scope, {
                                       "title": "Info",
                                       "text": "Clone created successfully!",
@@ -1707,7 +1707,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                   $scope.clonename = "";
                                   cfpLoadingBar.complete();
                               })
-                              .error(function(data, status, headers, config) {
+                              .catch(function(data, status, headers, config) {
                                   $log.error("Error sending data on put!", status);
                                   addEmptyArrayFieldsPrivate($scope);
                                   DeviceService.msg($scope, {
@@ -1844,7 +1844,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                           var device = response.data;
                           device.dicomDeviceName = $scope.clonename;
                           $http.post("../devices/" + $scope.clonename, device)
-                              .success(function(data, status, headers, config) {
+                              .then(function(data, status, headers, config) {
                                   DeviceService.msg($scope, {
                                       "title": "Info",
                                       "text": "Clone created successfully!",
@@ -1858,7 +1858,7 @@ myApp.controller("DeviceController", function($scope, $http, $timeout, $log, cfp
                                   $scope.clonename = "";
                                   cfpLoadingBar.complete();
                               })
-                              .error(function(data, status, headers, config) {
+                              .catch(function(data, status, headers, config) {
                                   $log.error("Error sending data on put!", status);
                                   addEmptyArrayFieldsPrivate($scope);
                                   DeviceService.msg($scope, {

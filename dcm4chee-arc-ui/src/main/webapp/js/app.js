@@ -4,7 +4,8 @@ var myApp = angular.module('myApp', ['ngRoute','schemaForm','angular-loading-bar
   'io.dennis.contextmenu']);
 
 myApp.config(function ($routeProvider,$locationProvider) {
-    $locationProvider.hashPrefix('');
+    // $locationProvider.hashPrefix('');
+    // $compileProvider.preAssignBindingsEnabled(true);
     $routeProvider.when('/studies', {
         templateUrl: 'templates/study_list.html',
         controller: 'StudyListCtrl'

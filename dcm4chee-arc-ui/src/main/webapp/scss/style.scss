@@ -1621,6 +1621,13 @@ table{
 	&.hidden_filters{
 		width: 81%;
 	}
+    input, select{
+      border:1px solid #ccc;
+    }
+    input{
+      padding: 3px 7px;
+
+    }
 	.col-md-3{
 		input{
 			padding-left:7px;

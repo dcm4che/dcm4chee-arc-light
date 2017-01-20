@@ -2167,6 +2167,8 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
         }
     }
     $scope.exportStudy = function(study) {
+        console.log("exportstudy,this",this.exporterID);
+           var exporid = $scope.exporterID;
             var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
             vex.dialog.open({
               message: 'Select Exporter',
@@ -2180,12 +2182,20 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
               ],
               callback: function(data) {
                 if (data === false) {
-                  return console.log('Cancelled');
+                    // console.log("exportstudy this",$scope.exporterID);
+                    // resetval($scope, exporid);
+                  return null;
                 }else{
                     $http.post(studyURL(study.attrs) + '/export/' + $scope.exporterID);
                 }
               }
             });
+        // var resetval = function(scope, localval){
+        //     setTimeout(function () {
+        //       console.log("scope.exportID",scope.exporterID,"exportloc",localval);
+        //         scope.exporterID = localval;
+        //     },500);
+        // }
     };
     $scope.exportSeries = function(series) {
             var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
