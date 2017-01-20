@@ -47,6 +47,8 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
@@ -61,6 +63,8 @@ import java.util.EnumSet;
 @Typed(DicomService.class)
 public class MWLCFindSCP extends BasicCFindSCP {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MWLCFindSCP.class);
+
     @Inject
     private QueryService queryService;
 
@@ -71,6 +75,7 @@ public class MWLCFindSCP extends BasicCFindSCP {
     @Override
     protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
+        LOG.debug("{}: Process MWL C-FIND RQ:\n{}", as, keys);
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
         QueryContext ctx = queryService.newQueryContextFIND(as, sopClassUID, queryOpts);

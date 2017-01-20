@@ -53,6 +53,8 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
@@ -62,6 +64,8 @@ import java.util.EnumSet;
  * @since Aug 2015
  */
 class CommonCGetSCP extends BasicCGetSCP {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommonCGetSCP.class);
 
     private final EnumSet<QueryRetrieveLevel2> qrLevels;
 
@@ -79,6 +83,7 @@ class CommonCGetSCP extends BasicCGetSCP {
     @Override
     protected RetrieveTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
+        LOG.debug("{}: Process C-GET RQ:\n{}", as, keys);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));

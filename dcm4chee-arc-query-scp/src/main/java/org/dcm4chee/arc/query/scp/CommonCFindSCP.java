@@ -50,6 +50,8 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.QueryTask;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
@@ -59,6 +61,8 @@ import java.util.EnumSet;
  * @since Aug 2015
  */
 class CommonCFindSCP extends BasicCFindSCP {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommonCFindSCP.class);
 
     private final EnumSet<QueryRetrieveLevel2> qrLevels;
 
@@ -73,6 +77,7 @@ class CommonCFindSCP extends BasicCFindSCP {
     @Override
     protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
+        LOG.debug("{}: Process C-FIND RQ:\n{}", as, keys);
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(
