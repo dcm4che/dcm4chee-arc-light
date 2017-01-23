@@ -47,7 +47,7 @@
   </welcome-file-list>
   <security-constraint>
     <web-resource-collection>
-      <web-resource-name>dcm4chee-arc-arr-ui</web-resource-name>
+      <web-resource-name>dcm4chee-arc-ui-arr</web-resource-name>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>

@@ -404,7 +404,7 @@
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
     <module>dcm4chee-arc-ui</module>
-    <module>dcm4chee-arc-arr-ui</module>
+    <module>dcm4chee-arc-ui-arr</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
   </modules>

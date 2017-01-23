@@ -306,7 +306,7 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-arr-ui</artifactId>
+      <artifactId>dcm4chee-arc-ui-arr</artifactId>
       <version>${project.version}</version>
       <classifier>${dcm4chee-arc-ui-classifier}</classifier>
       <type>war</type>
@@ -339,7 +339,7 @@
             </webModule>
             <webModule>
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
-              <artifactId>dcm4chee-arc-arr-ui</artifactId>
+              <artifactId>dcm4chee-arc-ui-arr</artifactId>
               <contextRoot>dcm4chee-arc/arr</contextRoot>
             </webModule>
           </modules>

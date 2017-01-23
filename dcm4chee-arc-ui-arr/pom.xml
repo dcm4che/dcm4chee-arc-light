@@ -39,28 +39,58 @@
   ~ *** END LICENSE BLOCK *****
   -->
 
-<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-  </welcome-file-list>
-  <!--
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>dcm4chee-arc-arr-ui</web-resource-name>
-      <url-pattern>/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>user</role-name>
-    </auth-constraint>
-  </security-constraint>
-  <login-config>
-    <auth-method>KEYCLOAK</auth-method>
-    <realm-name>dcm4che</realm-name>
-  </login-config>
-  <security-role>
-    <role-name>user</role-name>
-  </security-role>
-  -->
-</web-app>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>dcm4chee-arc-parent</artifactId>
+    <groupId>org.dcm4che.dcm4chee-arc</groupId>
+    <version>5.9.0</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>dcm4chee-arc-ui-arr</artifactId>
+  <packaging>war</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.1.1</version>
+        <configuration>
+           <classifier>${classifier}</classifier>
+          <webXml>${webXml}</webXml>
+          <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>unsecure</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
+        <classifier>unsecure</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>secure</id>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
+        <classifier>secure</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>secure-ui</id>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
+        <classifier>secure</classifier>
+      </properties>
+    </profile>
+  </profiles>
+
+</project>
