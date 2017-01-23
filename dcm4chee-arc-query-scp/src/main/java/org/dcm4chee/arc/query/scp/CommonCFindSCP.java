@@ -77,7 +77,7 @@ class CommonCFindSCP extends BasicCFindSCP {
     @Override
     protected QueryTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
-        LOG.debug("{}: Process C-FIND RQ:\n{}", as, keys);
+        LOG.info("{}: Process C-FIND RQ:\n{}", as, keys);
         String sopClassUID = rq.getString(Tag.AffectedSOPClassUID);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(sopClassUID);
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateQueryIdentifier(

@@ -90,7 +90,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
     @Override
     protected RetrieveTask calculateMatches(Association as, PresentationContext pc, Attributes rq, Attributes keys)
             throws DicomServiceException {
-        LOG.debug("{}: Process C-MOVE RQ:\n{}", as, keys);
+        LOG.info("{}: Process C-MOVE RQ:\n{}", as, keys);
         EnumSet<QueryOption> queryOpts = as.getQueryOptionsFor(rq.getString(Tag.AffectedSOPClassUID));
         QueryRetrieveLevel2 qrLevel = QueryRetrieveLevel2.validateRetrieveIdentifier(
                 keys, qrLevels, queryOpts.contains(QueryOption.RELATIONAL));
