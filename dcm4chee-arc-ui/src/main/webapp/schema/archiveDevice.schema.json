@@ -549,6 +549,11 @@
       "description": "Remap Retrieve URL used in QIDO-RS and WADO-RS Metadata responses. Optionally prefixed with \"[<http-client-host>]\". E.g.: \"[cache-proxy]http://cache-proxy:8080\". If absent or if the specified <http-client-host> does not match, scheme and server authority of the QIDO-RS or WADO-RS request URL are used.",
       "type": "string"
     },
+    "dcmAuditRecordRepositoryURL": {
+      "title": "Audit Record Repository URL",
+      "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
+      "type": "string"
+    },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled.",

@@ -921,6 +921,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.154 NAME 'dcmAcceptConflictingPatientID'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.155 NAME 'dcmAuditRecordRepositoryURL'
+  DESC 'Access URL of Audit Record Repository. E.g. http://kibana:5601'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1016,6 +1022,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAllowDeleteStudyPermanently $
     dcmRemapRetrieveURL $
+    dcmAuditRecordRepositoryURL $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
     hl7PSUDelay $
