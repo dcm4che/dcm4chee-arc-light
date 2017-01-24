@@ -42,30 +42,26 @@ package org.dcm4chee.arc.arr;
 
 import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.io.*;
+import java.io.InputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2017
  */
-@WebServlet("/servlet/*")
-public class ProxyServlet extends HttpServlet {
+@RequestScoped
+@Path("/{path: .*}")
+public class ProxyRS {
 
     @Inject
     private Device device;
@@ -73,39 +69,21 @@ public class ProxyServlet extends HttpServlet {
     @Inject
     private Event<AuditLogUsed> auditLogUsedEvent;
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String targetURL = createURL(req);
-        Client client = ClientBuilder.newBuilder().build();
-        WebTarget target = client.target(targetURL);
-        Response response = target.request().get();
-        byte[] buffer = new byte[10240];
-        try (
-                InputStream is = response.readEntity(InputStream.class);
-                OutputStream output = resp.getOutputStream();
-        ) {
-            for (int length = 0; (length = is.read(buffer)) > 0;) {
-                output.write(buffer, 0, length);
-            }
-        }
-        auditLogUsedEvent.fire(new AuditLogUsed(req));
+    @Context
+    private HttpServletRequest request;
+
+    @PathParam("path")
+    private String path;
+
+    @GET
+    public Response doGet(InputStream in) {
+        auditLogUsedEvent.fire(new AuditLogUsed(request));
+        return Response.ok("<html><head/><body><h1>TODO</h1></body></html>").build();
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    @POST
+    public Response doPost(InputStream in) {
         //TODO
-        super.doPost(req, resp);
+        return Response.noContent().build();
     }
-
-    private String createURL(HttpServletRequest req) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String arrURL = arcDev.getAuditRecordRepositoryURL();
-        StringBuffer sb = new StringBuffer();
-        sb = req.getRequestURI().lastIndexOf("arr/") == -1
-                ? sb.append(arrURL).append("/app/kibana")
-                : sb.append(arrURL).append(req.getRequestURI());
-        return sb.toString();
-    }
-
-
 }
