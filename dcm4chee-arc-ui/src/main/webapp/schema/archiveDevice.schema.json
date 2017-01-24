@@ -597,6 +597,11 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmAuditRecordRepositoryURL": {
+      "title": "Audit Record Repository URL",
+      "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
+      "type": "string"
+    },
     "dcmStorage": {
       "title": "Storage Descriptor",
       "description": "Specifies Storage System",

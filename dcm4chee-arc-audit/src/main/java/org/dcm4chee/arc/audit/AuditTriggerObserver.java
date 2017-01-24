@@ -180,7 +180,8 @@ public class AuditTriggerObserver {
     }
 
     public void onAuditLogUsed(@Observes AuditLogUsed auditLogUsed) {
-        //TODO
+        if (auditService.hasAuditLoggers())
+            auditService.spoolAuditLogUsed(auditLogUsed);
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {

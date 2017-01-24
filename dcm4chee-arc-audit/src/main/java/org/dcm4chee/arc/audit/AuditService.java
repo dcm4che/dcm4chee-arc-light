@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.audit;
 
+import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
@@ -714,6 +715,22 @@ public class AuditService {
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                 .name(prI.getField(AuditInfo.P_NAME)).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), auditLogger);
+    }
+
+    void spoolAuditLogUsed(AuditLogUsed auditLogUsed) {
+        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.AUD_LOG_US;
+        LinkedHashSet<Object> obj = new LinkedHashSet<>();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String callingAET = auditLogUsed.getHttpRequest().getAttribute(keycloakClassName) != null
+                ? getPreferredUsername(auditLogUsed.getHttpRequest()) : auditLogUsed.getHttpRequest().getRemoteAddr();
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(auditLogUsed.getHttpRequest().getRemoteHost())
+                .callingAET(callingAET).calledAET(arcDev.getAuditRecordRepositoryURL()).outcome(null).build();
+        obj.add(new AuditInfo(i));
+        writeSpoolFile(String.valueOf(et), obj);
+    }
+
+    private void auditLogUsed() {
+
     }
 
     private BuildAuditInfo getAIStoreCtx(StoreContext ctx) {

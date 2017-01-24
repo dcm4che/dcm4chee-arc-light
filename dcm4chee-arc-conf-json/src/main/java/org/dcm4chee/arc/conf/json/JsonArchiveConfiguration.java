@@ -181,6 +181,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("hl7PSUTaskFetchSize", arcDev.getHl7PSUTaskFetchSize(), 100);
         writer.writeNotDef("hl7PSUMWL", arcDev.isHl7PSUMWL(), false);
         writer.writeNotNull("dcmAcceptConflictingPatientID", arcDev.getAcceptConflictingPatientID());
+        writer.writeNotNull("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -857,6 +858,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcDev.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAuditRecordRepositoryURL":
+                    arcDev.setAuditRecordRepositoryURL(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

@@ -42,19 +42,28 @@ package org.dcm4chee.arc.arr;
 
 import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2017
  */
 @WebServlet("/*")
@@ -68,9 +77,13 @@ public class ProxyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //TODO
-        try (PrintWriter writer = resp.getWriter()) {
-            writer.println("<html><head/><body><h1>TODO</h1></body></html>");
+        String targetURL = createURL(req);
+        Client client = ClientBuilder.newBuilder().build();
+        WebTarget target = client.target(targetURL);
+        Response response = target.request().get();
+        InputStream is = response.readEntity(InputStream.class);
+        try (OutputStream out  = resp.getOutputStream()) {
+            out.write(is.read());
         }
         auditLogUsedEvent.fire(new AuditLogUsed(req));
     }
@@ -80,4 +93,14 @@ public class ProxyServlet extends HttpServlet {
         //TODO
         super.doPost(req, resp);
     }
+
+    private String createURL(HttpServletRequest req) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String arrURL = arcDev.getAuditRecordRepositoryURL();
+        StringBuffer sb = new StringBuffer();
+        sb.append(arrURL).append(req.getRequestURI());
+        return req.getRequestURI().lastIndexOf("/") == 13 ? arrURL : sb.toString();
+    }
+
+
 }

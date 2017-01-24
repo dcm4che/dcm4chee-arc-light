@@ -54,7 +54,7 @@ import java.util.*;
 
 class AuditServiceUtils {
     enum EventClass {
-        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY
+        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, AUDIT_LOG_USED
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -125,6 +125,9 @@ class AuditServiceUtils {
         PROC_STD_U(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Update,
                  null, null, true, false, false, null),
         PROC_STD_D(EventClass.PROC_STUDY, AuditMessages.EventID.ProcedureRecord, AuditMessages.EventActionCode.Delete,
+                 null, null, true, false, false, null),
+
+        AUD_LOG_US(EventClass.AUDIT_LOG_USED, AuditMessages.EventID.AuditLogUsed, AuditMessages.EventActionCode.Read,
                  null, null, true, false, false, null);
 
 
