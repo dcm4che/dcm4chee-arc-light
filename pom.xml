@@ -344,6 +344,7 @@
 
   <modules>
     <module>dcm4chee-arc-audit</module>
+    <module>dcm4chee-arc-audit-arr</module>
     <module>dcm4chee-arc-code</module>
     <module>dcm4chee-arc-common-rs</module>
     <module>dcm4chee-arc-conf</module>

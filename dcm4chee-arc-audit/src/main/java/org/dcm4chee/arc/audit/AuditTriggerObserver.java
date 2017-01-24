@@ -40,9 +40,9 @@
 
 package org.dcm4chee.arc.audit;
 
+import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.Connection;
-import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -61,8 +61,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
-import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.HashSet;
 
 
@@ -179,6 +177,10 @@ public class AuditTriggerObserver {
 
         if (auditService.hasAuditLoggers())
             auditService.spoolProcedureRecord(ctx);
+    }
+
+    public void onAuditLogUsed(@Observes AuditLogUsed auditLogUsed) {
+        //TODO
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {

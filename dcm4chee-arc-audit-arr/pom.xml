@@ -39,26 +39,17 @@
   ~ *** END LICENSE BLOCK *****
   -->
 
-<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
-                             http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
-  <!--
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>dcm4chee-arc-ui-arr</web-resource-name>
-      <url-pattern>/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>user</role-name>
-    </auth-constraint>
-  </security-constraint>
-  <login-config>
-    <auth-method>KEYCLOAK</auth-method>
-    <realm-name>dcm4che</realm-name>
-  </login-config>
-  <security-role>
-    <role-name>user</role-name>
-  </security-role>
-  -->
-</web-app>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>dcm4chee-arc-parent</artifactId>
+    <groupId>org.dcm4che.dcm4chee-arc</groupId>
+    <version>5.9.0</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>dcm4chee-arc-audit-arr</artifactId>
+
+
+</project>
