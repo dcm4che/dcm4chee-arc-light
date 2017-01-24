@@ -48,6 +48,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -56,10 +57,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -81,9 +79,14 @@ public class ProxyServlet extends HttpServlet {
         Client client = ClientBuilder.newBuilder().build();
         WebTarget target = client.target(targetURL);
         Response response = target.request().get();
-        InputStream is = response.readEntity(InputStream.class);
-        try (OutputStream out  = resp.getOutputStream()) {
-            out.write(is.read());
+        byte[] buffer = new byte[10240];
+        try (
+                InputStream is = response.readEntity(InputStream.class);
+                OutputStream output = resp.getOutputStream();
+        ) {
+            for (int length = 0; (length = is.read(buffer)) > 0;) {
+                output.write(buffer, 0, length);
+            }
         }
         auditLogUsedEvent.fire(new AuditLogUsed(req));
     }
@@ -98,8 +101,10 @@ public class ProxyServlet extends HttpServlet {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String arrURL = arcDev.getAuditRecordRepositoryURL();
         StringBuffer sb = new StringBuffer();
-        sb.append(arrURL).append(req.getRequestURI());
-        return req.getRequestURI().lastIndexOf("arr/") == -1 ? arrURL : sb.toString();
+        sb = req.getRequestURI().lastIndexOf("arr/") == -1
+                ? sb.append(arrURL).append("/app/kibana")
+                : sb.append(arrURL).append(req.getRequestURI());
+        return sb.toString();
     }
 
 
