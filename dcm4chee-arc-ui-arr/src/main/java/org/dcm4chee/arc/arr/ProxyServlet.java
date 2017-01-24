@@ -68,11 +68,11 @@ public class ProxyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        auditLogUsedEvent.fire(new AuditLogUsed(req));
         //TODO
         try (PrintWriter writer = resp.getWriter()) {
             writer.println("<html><head/><body><h1>TODO</h1></body></html>");
         }
+        auditLogUsedEvent.fire(new AuditLogUsed(req));
     }
 
     @Override
