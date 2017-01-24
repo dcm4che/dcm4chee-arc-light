@@ -99,7 +99,7 @@ public class ProxyServlet extends HttpServlet {
         String arrURL = arcDev.getAuditRecordRepositoryURL();
         StringBuffer sb = new StringBuffer();
         sb.append(arrURL).append(req.getRequestURI());
-        return req.getRequestURI().lastIndexOf("/") == 13 ? arrURL : sb.toString();
+        return req.getRequestURI().lastIndexOf("arr/") == -1 ? arrURL : sb.toString();
     }
 
 
