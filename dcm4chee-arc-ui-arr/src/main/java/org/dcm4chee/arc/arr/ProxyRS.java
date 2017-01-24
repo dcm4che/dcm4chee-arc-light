@@ -52,6 +52,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
@@ -70,14 +71,17 @@ public class ProxyRS {
     private Event<AuditLogUsed> auditLogUsedEvent;
 
     @Context
-    private HttpServletRequest request;
+    private HttpServletRequest httpRequest;
+
+    @Context
+    private Request request;
 
     @PathParam("path")
     private String path;
 
     @GET
     public Response doGet(InputStream in) {
-        auditLogUsedEvent.fire(new AuditLogUsed(request));
+        auditLogUsedEvent.fire(new AuditLogUsed(httpRequest));
         return Response.ok("<html><head/><body><h1>TODO</h1></body></html>").build();
     }
 
