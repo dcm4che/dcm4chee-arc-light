@@ -109,7 +109,7 @@ public class ProxyRS {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String arrURL = arcDev.getAuditRecordRepositoryURL();
         StringBuffer sb = new StringBuffer();
-        sb = req.getRequestURI().lastIndexOf("rs/") == -1
+        sb = req.getRequestURI().lastIndexOf("arr/") == -1
                 ? sb.append(arrURL).append("/app/kibana")
                 : sb.append(arrURL).append(req.getRequestURI());
         return sb.toString();
