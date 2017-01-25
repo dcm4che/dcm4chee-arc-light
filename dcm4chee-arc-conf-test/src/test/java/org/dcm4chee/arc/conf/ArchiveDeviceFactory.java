@@ -916,6 +916,7 @@ class ArchiveDeviceFactory {
     static final String REJECT_EXPIRED_STUDIES_AE_TITLE = "DCM4CHEE";
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.parse("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.parse("PT1H");
+    static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
 
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
@@ -1216,6 +1217,8 @@ class ArchiveDeviceFactory {
         ext.setRejectExpiredStudiesAETitle(REJECT_EXPIRED_STUDIES_AE_TITLE);
         ext.setRejectExpiredStudiesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
         ext.setRejectExpiredSeriesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
+
+        ext.setAuditRecordRepositoryURL(AUDIT_RECORD_REPOSITORY_URL);
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));

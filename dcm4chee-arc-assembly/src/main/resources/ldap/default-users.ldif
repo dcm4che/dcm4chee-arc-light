@@ -32,6 +32,11 @@ cn: user
 member: uid=admin,ou=users,dc=dcm4che,dc=org
 member: uid=user,ou=users,dc=dcm4che,dc=org
 
+dn: cn=auditlog,ou=users,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: auditlog
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
 dn: ou=realm-management,dc=dcm4che,dc=org
 objectClass: top
 objectClass: organizationalUnit

@@ -42,22 +42,26 @@ package org.dcm4chee.arc.arr;
 
 import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2017
  */
 @RequestScoped
@@ -81,13 +85,33 @@ public class ProxyRS {
 
     @GET
     public Response doGet(InputStream in) {
+        String targetURL = createURL(httpRequest);
+        Client client = ClientBuilder.newBuilder().build();
+        WebTarget target = client.target(targetURL);
+        Response response = target.request().get();
         auditLogUsedEvent.fire(new AuditLogUsed(httpRequest));
-        return Response.ok("<html><head/><body><h1>TODO</h1></body></html>").build();
+        ResponseDelegate resp = new ResponseDelegate(response);
+        return resp;
     }
 
     @POST
     public Response doPost(InputStream in) {
-        //TODO
-        return Response.noContent().build();
+        String targetURL = createURL(httpRequest);
+        Client client = ClientBuilder.newBuilder().build();
+        WebTarget target = client.target(targetURL);
+        Response response = target.request().post(Entity.entity(in, MediaType.TEXT_HTML_TYPE));
+        auditLogUsedEvent.fire(new AuditLogUsed(httpRequest));
+        ResponseDelegate resp = new ResponseDelegate(response);
+        return resp;
+    }
+
+    private String createURL(HttpServletRequest req) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String arrURL = arcDev.getAuditRecordRepositoryURL();
+        StringBuffer sb = new StringBuffer();
+        sb = req.getRequestURI().lastIndexOf("rs/") == -1
+                ? sb.append(arrURL).append("/app/kibana")
+                : sb.append(arrURL).append(req.getRequestURI());
+        return sb.toString();
     }
 }
