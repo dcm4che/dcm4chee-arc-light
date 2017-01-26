@@ -172,7 +172,7 @@ export class EditPatientComponent {
                     patient.attrs[attrcode]["Value"].push({Alphabetic:''});
                 }else{
                     if(patient.attrs[attrcode].vr === "SQ"){
-                        patient.attrs[attrcode]["Value"].push(this._iod[attrcode].Value[0]);
+                        patient.attrs[attrcode]["Value"].push(_.cloneDeep(this._iod[attrcode].Value[0]));
                     }else{
                         patient.attrs[attrcode]["Value"].push("");
                     }
@@ -190,7 +190,7 @@ export class EditPatientComponent {
         }else{
             // console.log("in else", this.dialogRef.componentInstance.patient);
             console.log("this._iodattrcod",this._iod[attrcode]);
-             patient.attrs[attrcode]  = this._iod[attrcode];
+             patient.attrs[attrcode]  = _.cloneDeep(this._iod[attrcode]);
             // patient.attrs[attrcode].Value[0] = "";
             console.log("patient=",patient);
         }

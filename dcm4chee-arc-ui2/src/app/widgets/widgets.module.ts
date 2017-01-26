@@ -17,9 +17,9 @@ import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
         FormsModule,
 
     ],
-    declarations: [WidgetsComponent, EditMwlComponent],
+    declarations: [WidgetsComponent],
     exports:[WidgetsComponent],
     providers: [MdDialogConfig]
 })
 export class WidgetsModule { }
-export const WidgetsComponents = [TestdialogComponent, MessagingComponent,EditPatientComponent];
+export const WidgetsComponents = [TestdialogComponent, MessagingComponent,EditPatientComponent, EditMwlComponent];

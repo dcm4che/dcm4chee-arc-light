@@ -667,7 +667,7 @@
                         <div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>
                     </div>
                     <div class="exeq_buttons">
-                        <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event)"></div>
+                        <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,3)"></div>
                         <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
@@ -714,7 +714,7 @@
                             <div class="more_menu_study">
                                 <div class="colcell" [innerHtml]="study._VALUE.offset+1+'.'"> </div>
                                 <div class="exeq_buttons">
-                                    <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event)"></div>
+                                    <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event, 5)"></div>
                                     <a class="hiddenbuttons" *ngIf="isRole('admin')" (click)="editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
@@ -783,7 +783,7 @@
                                             <div class="more_menu_study">
                                                 <div class="td_cell colcell" [innerHtml]="series._VALUE.offset+1+'.'"> </div>
                                                 <div class="exeq_buttons" >
-                                                    <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event)"></div>
+                                                    <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,6)"></div>
                                                     <a class="hiddenbuttons" (click)="exportSeries(series._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export Series">
                                                         <span class="glyphicon glyphicon-export"></span>
                                                     </a>
@@ -827,10 +827,10 @@
                                         </div>
                                         <div class="repeat3" *ngFor="let instance of series._VALUE.instances | getKey" contextmenu-item="instance">
                                             <div class="more_menu_content">
-                                                <div class="more_menu_study">
+                                                <div class="more_menu_study repeat3block">
                                                     <div class="td_cell colcell" [innerHtml]="instance._VALUE.offset+1+'.'"> </div>
                                                     <div class="exeq_buttons">
-                                                        <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event)"></div>
+                                                        <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,7)"></div>
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export instance">
                                                             <span class="glyphicon glyphicon-export"></span>
                                                         </a>
@@ -942,7 +942,7 @@
                                     <a (click)="$event.preventDefault();mwl._VALUE.showAttributes = !mwl._VALUE.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>
-                                    <a *ngIf="isRole('admin')" (click)="$event.preventDefault();editmwl(patients[patient._KEY], patient._KEY, mwl._KEY, mwl._VALUE)" href="" title="Edit mwl">
+                                    <a *ngIf="isRole('admin')" (click)="$event.preventDefault();editMWL(patients[patient._KEY], patient._KEY, mwl._KEY, mwl._VALUE)" href="" title="Edit mwl">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
                                     <a *ngIf="isRole('admin')" (click)="$event.preventDefault();deletemwl._VALUE(mwl._VALUE)" href="" title="Delete mwl._VALUE">

@@ -4,6 +4,9 @@
 @import "~@angular/material/core/theming/prebuilt/deeppurple-amber.css";
 
 $green :#2FA6C1;
+$lightBlue:rgba(6, 29, 47, 0.84);
+$blue:#061d2f;
+
 body{
     margin: 0;
     font-family: Robot, sans-serif;
@@ -136,6 +139,38 @@ md-progress-circle, [_nghost-nyg-8]{
     padding-top: 35px;
     width: 98%;
   }
+  .sqiod{
+    float: left;
+    width: 100%;
+    display: block;
+    position: relative;
+    & > .glyphicon.glyphicon-remove {
+      right: 6px !important;
+      z-index: 999;
+      &:hover{
+        display: inline-block;
+      }
+    }
+    &:hover .glyphicon.glyphicon-remove {
+      display: inline-block;
+    }
+  }
+  .ariod{
+    float: left;
+    width: 100%;
+    display: block;
+    position: relative;
+    & > .glyphicon.glyphicon-remove {
+      right: -10px !important;
+      z-index: 999;
+      &:hover{
+        display: inline-block;
+      }
+    }
+    &:hover .glyphicon.glyphicon-remove {
+      display: inline-block;
+    }
+  }
   select{
     height: 30px;
     margin: 2px 0;
@@ -195,9 +230,13 @@ md-progress-circle, [_nghost-nyg-8]{
 }
 .dialogbuttons{
   //float:right;
+  margin-top: 35px;
+  display: block;
+  float: left;
+  width: 100%;
   button{
     border: 0 none;
-    border-radius: 3px;
+    border-radius: 0px;
     float: right;
     font-family: inherit;
     font-size: 0.8em;
@@ -207,11 +246,17 @@ md-progress-circle, [_nghost-nyg-8]{
     padding: 0.75em 2em;
     text-transform: uppercase;
     &.save{
-      background: #3288e6 none repeat scroll 0 0;
-      color: #fff;
+      background: $lightBlue;
+      color: white;
+      &:hover{
+        background:$blue;
+      }
     }
     &.cancle{
-
+      &:hover{
+        background:#aaaaaa;
+        color:black;
+      }
     }
   }
 }
@@ -338,9 +383,14 @@ p-calendar select{
 .md-overlay-backdrop{
   position: fixed !important;
 }
+
 .md-overlay-container{
   .md-overlay-pane{
     top: 5% !important;
     transform: translateX(-50%) translateX(0px) translateY(0px) !important;
+    md-dialog-container{
+      border-top: 20px solid $lightBlue;
+      border-radius: 5px;
+    }
   }
 }

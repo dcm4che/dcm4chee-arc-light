@@ -12,6 +12,7 @@ export class IodFormGeneratorComponent implements OnInit {
     @Input() object;
     @Input() prefix;
     objectIsArray;
+    hasValue;
 
     constructor() { }
     privateCreator(tag) {
@@ -28,6 +29,15 @@ export class IodFormGeneratorComponent implements OnInit {
     ngOnInit() {
         console.log("attr=",this.object);
         console.log("oninit object",this.object);
+        console.log("prefix",this.prefix);
+        if(this.object.Value){
+            // console.log("has value",this.object);
+
+            this.hasValue = true;
+        }else{
+            this.hasValue = false;
+        }
+        // console.log("hasValue=",this.hasValue);
         if(_.isArray(this.object)){
             this.objectIsArray = true;
         }else{
@@ -38,6 +48,7 @@ export class IodFormGeneratorComponent implements OnInit {
         if(_.isArray(obj)){
             return obj;
         }else{
+            // console.log("objectkeys=",Object.keys(obj));
             return Object.keys(obj);
         }
     }
@@ -48,6 +59,7 @@ export class IodFormGeneratorComponent implements OnInit {
     }
     removeAttr(attrcode){
         console.log("attrcode",attrcode);
+        console.log("arguments",arguments);
         switch(arguments.length) {
             case 2:
                 if(this.object[arguments[0]].Value.length === 1){
@@ -61,4 +73,7 @@ export class IodFormGeneratorComponent implements OnInit {
                 break;
         }
     };
+    trackByFn(index, item) {
+        return index; // or item.id
+    }
 }

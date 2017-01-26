@@ -1158,14 +1158,28 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     //     var file = new File([csv], "associacions.csv", {type: "text/csv;charset=utf-8"});
     //     saveAs(file);
     // };
-    $scope.showMoreFunction = function(e){
+    $scope.showMoreFunction = function(e, elementLimit){
 
-        var duration = 200;
+        var duration = 300;
         var visibleElements = $(e.target).siblings(".hiddenbuttons").length-$(e.target).siblings(".hiddenbuttons.ng-hide").length;
+        var index = 1;
+        var cssClass = "block"+elementLimit;
+        while(index*elementLimit < visibleElements){
+            index++;
+        }
+        var height = 26 * index;
+
         var variationvalue = visibleElements * 26;
+        if(visibleElements > elementLimit){
+            variationvalue = elementLimit * 26;
+        }
         var element = $(e.target).closest(".more_menu_study");
 
         if(element.hasClass("open")){
+            $(e.target).closest(".more_menu_content").css("height",26);
+            if(visibleElements > elementLimit){
+                $(e.target).closest(".more_menu_content").removeClass("block").removeClass(cssClass);
+            }
             element.animate({
                 right: "-="+variationvalue
             }, duration, function() {
@@ -1177,8 +1191,23 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             //     });
             // },duration+10);
         }else{
+            $(e.target).closest(".more_menu_content").css("height",height);
+            if(visibleElements > elementLimit){
+                $(e.target).closest(".more_menu_content").addClass(cssClass).addClass("block");
+            }
             $(".more_menu_study.open").each(function(i,m){
-                $(m).css("right","-195px").removeClass("open");
+                $(m).removeClass("open");
+                if($(m).hasClass("repeat3block")){
+                    $(m).css("right","-249px");
+                }else{
+                    $(m).css("right","-195px");
+                }
+                $(m).closest(".more_menu_content")
+                    .removeClass("block")
+                    .removeClass("block3")
+                    .removeClass("block5")
+                    .removeClass("block7")
+                    .css("height",26);
             });
             element.animate({
                 right: "+="+variationvalue

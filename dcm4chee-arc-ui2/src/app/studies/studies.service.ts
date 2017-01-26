@@ -8,14 +8,21 @@ declare var DCM4CHE: any;
 @Injectable()
 export class StudiesService {
     private _patientIod:any;
+    private _mwlIod:any;
     integerVr = ["DS","FL","FD","IS","SL","SS","UL", "US"];
 
     get patientIod(): any {
         return this._patientIod;
     }
+    get mwlIod(): any {
+        return this._mwlIod;
+    }
 
     set patientIod(value: any) {
         this._patientIod = value;
+    }
+    set mwlIod(value: any) {
+        this._mwlIod = value;
     }
 
     constructor(public $http:Http, public datePipe:DatePipe) { }
@@ -138,6 +145,14 @@ export class StudiesService {
             return Observable.of(this._patientIod);
         } else {
             return this.$http.get('assets/iod/patient.iod.json').map(res => res.json());
+        }
+    };
+    getMwlIod(){
+        console.log("_mwlIod",this._mwlIod);
+        if (this._mwlIod) {
+            return Observable.of(this._mwlIod);
+        } else {
+            return this.$http.get('assets/iod/mwl.iod.json').map(res => res.json());
         }
     };
     getArrayFromIodHelper(data, dropdown){

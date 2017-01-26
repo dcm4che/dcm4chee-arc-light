@@ -735,7 +735,7 @@
                     <div ng-show="patientmode" class="table_btn" ng-bind="patient.offset+1+'.'"> </div>
                 </div>
                 <div class="exeq_buttons">
-                    <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event)"></div>
+                    <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event,3)"></div>
                     <a class="hiddenbuttons"  class="table_btn" ng-show="user.isRole('admin')" ng-click="editPatient(patients[patientkey], patientkey)" href="" title="Edit Patient">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a>
@@ -821,7 +821,7 @@
                         <div class="more_menu_study">
                             <div class="colcell" ng-bind="study.offset+1+'.'"> </div>
                             <div class="exeq_buttons">
-                                <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event)"></div>
+                                <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event,5)"></div>
                                 <a class="hiddenbuttons" ng-show="user.isRole('admin')" ng-click="editStudy(patients[patientkey], patientkey, studykey, study)" href="" title="Edit Study">
                                     <span class="glyphicon glyphicon-pencil"></span>
                                 </a>
@@ -909,7 +909,7 @@
                                     <div class="more_menu_study">
                                         <div class="td_cell colcell" ng-bind="series.offset+1+'.'"> </div>
                                         <div class="exeq_buttons" >
-                                            <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event)"></div>
+                                            <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event,6)"></div>
                                             <a class="hiddenbuttons" ng-click="exportSeries(series)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Series">
                                                 <span class="glyphicon glyphicon-export"></span>
                                             </a>
@@ -978,10 +978,10 @@
                                 </div> -->
                                 <div class="repeat3"  ng-repeat="(key,instance) in series.instances" contextmenu-item="instance" ng-init="instance.modus='instance'">
                                     <div class="more_menu_content">
-                                        <div class="more_menu_study">
+                                        <div class="more_menu_study repeat3block">
                                             <div class="td_cell colcell" ng-bind="instance.offset+1+'.'"> </div>
                                             <div class="exeq_buttons">
-                                                <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event)"></div>
+                                                <div class="morefunction" title="Show more functions" ng-click="showMoreFunction($event,7)"></div>
                                                 <a class="hiddenbuttons" ng-click="exportInstance(instance)" ng-show="exporterID && user.isRole('admin')" href="" title="Export Instance">
                                                     <span class="glyphicon glyphicon-export"></span>
                                                 </a>
@@ -1000,6 +1000,7 @@
                                                 <a class="hiddenbuttons" ng-click="clickLink(downloadURL(instance, '*'))" title="Download DICOM Object">
                                                     <span class="glyphicon glyphicon-download-alt"></span>
                                                 </a>
+
                                                 <a class="hiddenbuttons" ng-hide="instance.views.length > 1" ng-click="viewInstance(instance)" href="" title="View DICOM Object">
                                                     <span class="glyphicon glyphicon-picture"></span>
                                                 </a>

@@ -12,6 +12,7 @@ import { ViewChildren} from "@angular/core/src/metadata/di";
 import {MdDialogConfig, MdDialog, MdDialogRef} from "@angular/material";
 import {EditPatientComponent} from "../widgets/dialogs/edit-patient/edit-patient.component";
 import {map} from "rxjs/operator/map";
+import {EditMwlComponent} from "../widgets/dialogs/edit-mwl/edit-mwl.component";
 
 @Component({
     selector: 'app-studies',
@@ -466,6 +467,7 @@ export class StudiesComponent{
         );
     };
     editMWL(patient, patientkey, mwlkey, mwl){
+        this.titleLabel = "Edit MWL";
         this.modifyMWL(patient, "edit", patientkey, mwlkey, mwl);
     };
     createMWL(patient){
@@ -483,11 +485,215 @@ export class StudiesComponent{
                 "00401001": { "vr": "SH", "Value":[""]}
             }
         };
+        this.titleLabel = "Create new MWL";
         // modifyStudy(patient, "create");
         this.modifyMWL(patient, "create", "", "", mwl);
     };
     modifyMWL(patient, mode, patientkey, mwlkey, mwl){
+        console.log("patient",patient);
+        console.log("patientkey",patientkey);
+        console.log("mwl",mwl);
+        console.log("mwlkey",mwlkey);
 
+        let originalPatientObject = _.cloneDeep(mwl);
+        this.config.viewContainerRef = this.viewContainerRef;
+        let oldPatientID;
+        let oldIssuer;
+        let oldUniversalEntityId;
+        let oldUniversalEntityType;
+        this.lastPressedCode = 0;
+        if(mode === "edit"){
+            _.forEach(patient.attrs,function(value, index) {
+                var checkValue = "";
+                if(value.Value && value.Value.length){
+                    checkValue = value.Value.join("");
+                }
+                if(!(value.Value && checkValue != "")){
+                    delete patient.attrs[index];
+                }
+                if(index === "00100040" && patient.attrs[index] && patient.attrs[index].Value && patient.attrs[index].Value[0]){
+                    patient.attrs[index].Value[0] = patient.attrs[index].Value[0].toUpperCase();
+                }
+                // console.log("value.vr",value.vr);
+                // console.log("value",value);
+                /*                if(value.vr === "DA" && value.Value && value.Value[0]){
+                 var string = value.Value[0];
+                 string = string.replace(/\./g,"");
+                 var yyyy = string.substring(0,4);
+                 var MM = string.substring(4,6);
+                 var dd = string.substring(6,8);
+                 var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                 var date          = new Date(timestampDate);
+                 $scope.dateplaceholder[index] = date;
+                 }*/
+            });
+            if(patient.attrs["00100020"] && patient.attrs["00100020"].Value && patient.attrs["00100020"].Value[0]){
+                oldPatientID            = patient.attrs["00100020"].Value[0];
+            }
+            if(patient.attrs["00100021"] && patient.attrs["00100021"].Value && patient.attrs["00100021"].Value[0]){
+                oldIssuer               = patient.attrs["00100021"].Value[0];
+            }
+            if(
+                patient.attrs["00100024"] &&
+                patient.attrs["00100024"].Value &&
+                patient.attrs["00100024"].Value[0] &&
+                patient.attrs["00100024"].Value[0]["00400032"] &&
+                patient.attrs["00100024"].Value[0]["00400032"].Value &&
+                patient.attrs["00100024"].Value[0]["00400032"].Value[0]
+            ){
+                oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                console.log("set oldUniversalEntityId",oldUniversalEntityId);
+            }
+            if(
+                patient.attrs["00100024"] &&
+                patient.attrs["00100024"].Value &&
+                patient.attrs["00100024"].Value[0] &&
+                patient.attrs["00100024"].Value[0]["00400033"] &&
+                patient.attrs["00100024"].Value[0]["00400033"].Value &&
+                patient.attrs["00100024"].Value[0]["00400033"].Value[0]
+            ){
+                oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                console.log("set oldUniversalEntityType",oldUniversalEntityType);
+            }
+        }
+
+        // this.config.width = "800";
+
+        let $this = this;
+        this.service.getMwlIod().subscribe((res)=>{
+            $this.service.patientIod = res;
+
+            $this.service.initEmptyValue(patient.attrs);
+            $this.dialogRef = $this.dialog.open(EditMwlComponent, $this.config);
+            $this.dialogRef.componentInstance.patient = mwl;
+            $this.dialogRef.componentInstance.patientkey = mwlkey;
+            $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
+            $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(res, "items", "Value");
+            console.log("$this.savelabel",$this.saveLabel);
+            $this.dialogRef.componentInstance.saveLabel = $this.saveLabel;
+            $this.dialogRef.componentInstance.titleLabel = $this.titleLabel;
+            $this.dialogRef.afterClosed().subscribe(result => {
+                //If user clicked save
+                if(result){
+                    let headers = new Headers({ 'Content-Type': 'application/json' });
+                    console.log("patient for clear",patient);
+                    $this.service.clearPatientObject(patient.attrs);
+                    $this.service.convertStringToNumber(patient.attrs);
+                    console.log("patient after clear",patient);
+                    // $this.service.convertDateToString($scope, "editpatient");
+                    if(patient.attrs["00100020"] && patient.attrs["00100020"].Value[0]){
+                        _.forEach(patient.attrs, function(m, i){
+                            if(res && res[i] && res[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
+                                delete patient.attrs[i];
+                            }
+                        });
+                        // patient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
+                        oldPatientID = oldPatientID || patient.attrs["00100020"].Value[0];
+                        var issuer =                oldIssuer != undefined;
+                        var universalEntityId =     oldUniversalEntityId != undefined;
+                        var universalEntityType =   oldUniversalEntityType != undefined;
+
+                        if(issuer){
+                            oldPatientID += "^^^"+oldIssuer;
+                        }
+                        if(universalEntityId || universalEntityType){
+                            // if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
+                            //     oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                            // }
+                            // if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
+                            //     oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                            // }
+                            if(!issuer){
+                                oldPatientID += "^^^";
+                            }
+
+                            if(universalEntityId && oldUniversalEntityId){
+                                oldPatientID += "&"+ oldUniversalEntityId;
+                            }
+                            if(universalEntityType && oldUniversalEntityType){
+                                oldPatientID += "&"+ oldUniversalEntityType;
+                            }
+                        }
+                        // console.log("patient.attrs",patient.attrs);
+                        $this.$http.put(
+                            "../aets/"+$this.aet+"/rs/mwl/"+oldPatientID,
+                            patient.attrs
+                        ).subscribe(function successCallback(response) {
+                            if(mode === "edit"){
+                                //Update changes on the patient list
+                                // patient.attrs = patient.attrs;
+                                //Force rerendering the directive attribute-list
+                                var id = "#"+patient.attrs["00100020"].Value;
+                                // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
+                                // $(id).html(attribute);
+                            }else{
+
+                                $this.fireRightQuery();
+                            }
+                            // $scope.dateplaceholder = {};
+                            // console.log("data",data);
+                            // console.log("datepicker",$(".datepicker .no-close-button"));
+                            $this.mainservice.setMessage( {
+                                "title": "Info",
+                                "text": "Patient saved successfully!",
+                                "status": "info"
+                            });
+                        }, function errorCallback(response) {
+                            $this.mainservice.setMessage( {
+                                // "title": "Error",
+                                // "text": "Error saving patient!",
+                                // "status": "error"
+                                "title": "Error "+response.status,
+                                "text": response.statusText,
+                                "status": "error"
+                            });
+                        });
+                        ////
+                    }else{
+                        if(mode === "create"){
+                            $this.$http.post(
+                                "../aets/"+$this.aet+"/rs/mwl/",
+                                patient.attrs,
+                                headers
+                            )
+                            //.map(response => response.json())
+                                .subscribe(
+                                    (response) => {
+                                        console.log("response",response);
+                                        $this.mainservice.setMessage( {
+                                            "title": "Info",
+                                            "text": "Patient created successfully!",
+                                            "status": "info"
+                                        });
+                                    },
+                                    (response) => {
+                                        console.log("response",response);
+                                        $this.mainservice.setMessage( {
+                                            "title": "Error "+response.status,
+                                            "text": response.errorMessage,
+                                            "status": "error"
+                                        });
+                                    }
+                                );
+                        }else{
+                            $this.mainservice.setMessage( {
+                                "title": "Error",
+                                "text": "Patient ID is required!",
+                                "status": "error"
+                            });
+                        }
+                        // $scope.dateplaceholder = {};
+                    }
+                }else{
+                    console.log("no", originalPatientObject);
+                    // patient = originalPatient;
+                    _.assign(mwl, originalPatientObject);
+                }
+                $this.dialogRef = null;
+            });
+        },(err)=>{
+            console.log("error",err);
+        });
     }
     editPatient(patient, patientkey){
         this.modifyPatient(patient, "edit", patientkey);
@@ -1528,37 +1734,73 @@ export class StudiesComponent{
             }
         );
     };
-    showMoreFunction(e){
-        let duration = 200;
+    showMoreFunction(e, elementLimit){
+        console.log("e",e);
+        let duration = 300;
         let visibleElements = $(e.target).siblings(".hiddenbuttons").length-$(e.target).siblings(".hiddenbuttons.ng-hide").length;
+        console.log("visibleElements",visibleElements);
+        let index = 1;
+        let cssClass:string = "block"+elementLimit;
+        while(index*elementLimit < visibleElements){
+            index++;
+        }
+        let height = 26 * index;
+
         let variationvalue = visibleElements * 26;
+        if(visibleElements > elementLimit){
+            variationvalue = elementLimit * 26;
+        }
         let element = $(e.target).closest(".more_menu_study");
 
         if(element.hasClass("open")){
+            $(e.target).closest(".more_menu_content").css("height",26);
+            if(visibleElements > elementLimit){
+                $(e.target).closest(".more_menu_content").removeClass("block").removeClass(cssClass);
+            }
             element.animate({
                 right: "-="+variationvalue
             }, duration, function() {
                 element.removeClass("open");
             });
         }else{
+            $(e.target).closest(".more_menu_content").css("height",height);
+            if(visibleElements > elementLimit){
+                console.log("$(e.target).parent(.more_menu_content)",$(e.target).closest(".more_menu_content"));
+                $(e.target).closest(".more_menu_content").addClass(cssClass).addClass("block");
+                // $(e.target).closest(".more_menu_content").css("width",((elementLimit*26)+18));
+                // $(e.target).closest(".more_menu_content").css("left",-((elementLimit-1)*26));
+            }
             $(".more_menu_study.open").each(function(i,m){
-                $(m).css("right","-195px").removeClass("open");
+                $(m).removeClass("open");
+                if($(m).hasClass("repeat3block")){
+                    $(m).css("right","-249px");
+                }else{
+                    $(m).css("right","-195px");
+                }
+                $(m).closest(".more_menu_content")
+                    .removeClass("block")
+                    .removeClass("block3")
+                    .removeClass("block5")
+                    .removeClass("block7")
+                    .css("height",26);
             });
             element.animate({
                 right: "+="+variationvalue
             }, duration, function() {
                 element.addClass("open");
+
             });
         }
     };
     initExporters(retries) {
+        let $this = this;
        this.$http.get("../export")
             .map(response => response.json())
             .subscribe(
                 function (res) {
                     this.exporters = res;
                     if(res && res[0] && res[0].id){
-                        this.exporterID = res[0].id;
+                        $this.exporterID = res[0].id;
                     }
                 },
                 function (res) {
