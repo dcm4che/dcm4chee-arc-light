@@ -345,7 +345,7 @@
             <webModule>
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
               <artifactId>dcm4chee-arc-ui-arr</artifactId>
-              <contextRoot>dcm4chee-arc/arr</contextRoot>
+              <contextRoot>/</contextRoot>
             </webModule>
           </modules>
         </configuration>

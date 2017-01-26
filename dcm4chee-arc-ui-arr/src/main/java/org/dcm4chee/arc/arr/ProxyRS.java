@@ -43,6 +43,7 @@ package org.dcm4chee.arc.arr;
 import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.jclouds.rest.annotations.Headers;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
@@ -53,10 +54,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.io.InputStream;
 
 /**
@@ -80,6 +78,9 @@ public class ProxyRS {
     @Context
     private Request request;
 
+    @Context
+    private HttpHeaders httpHeaders;
+
     @PathParam("path")
     private String path;
 
@@ -99,7 +100,22 @@ public class ProxyRS {
         String targetURL = createURL(httpRequest);
         Client client = ClientBuilder.newBuilder().build();
         WebTarget target = client.target(targetURL);
-        Response response = target.request().post(Entity.entity(in, MediaType.TEXT_HTML_TYPE));
+        httpHeaders.getRequestHeaders().remove("Content-Length");
+        Response response = target.request().headers((MultivaluedMap) httpHeaders.getRequestHeaders())
+                .post(Entity.entity(in, httpHeaders.getMediaType()));
+        auditLogUsedEvent.fire(new AuditLogUsed(httpRequest));
+        ResponseDelegate resp = new ResponseDelegate(response);
+        return resp;
+    }
+
+    @PUT
+    public Response doPut(InputStream in) {
+        String targetURL = createURL(httpRequest);
+        Client client = ClientBuilder.newBuilder().build();
+        WebTarget target = client.target(targetURL);
+        httpHeaders.getRequestHeaders().remove("Content-Length");
+        Response response = target.request().headers((MultivaluedMap) httpHeaders.getRequestHeaders())
+                .put(Entity.entity(in, httpHeaders.getMediaType()));
         auditLogUsedEvent.fire(new AuditLogUsed(httpRequest));
         ResponseDelegate resp = new ResponseDelegate(response);
         return resp;
@@ -109,7 +125,7 @@ public class ProxyRS {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String arrURL = arcDev.getAuditRecordRepositoryURL();
         StringBuffer sb = new StringBuffer();
-        sb = req.getRequestURI().lastIndexOf("arr/") == -1
+        sb = req.getRequestURI().lastIndexOf("/") == -1
                 ? sb.append(arrURL).append("/app/kibana")
                 : sb.append(arrURL).append(req.getRequestURI());
         return sb.toString();

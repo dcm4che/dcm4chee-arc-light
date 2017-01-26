@@ -1,0 +1,4 @@
+<jboss-web>
+    <server-instance>kibana-server</server-instance>
+    <virtual-host>kibana</virtual-host>
+</jboss-web>
