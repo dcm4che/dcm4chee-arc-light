@@ -41,8 +41,6 @@
 package org.dcm4chee.arc.arr;
 
 import javax.ws.rs.core.*;
-import java.io.FilterInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.URI;
