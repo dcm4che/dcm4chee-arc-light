@@ -542,15 +542,20 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ZipInputStream openZipInputStream(StoreContext storeContext, String storageID, String storagePath)
+    public ZipInputStream openZipInputStream(
+            StoreSession session, String storageID, String storagePath, String studyUID)
             throws IOException {
-        StoreSession session = storeContext.getStoreSession();
         ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
         Storage storage = getStorage(session,  arcDev.getStorageDescriptor(storageID));
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(storagePath);
-        readContext.setStudyInstanceUID(storeContext.getStudyInstanceUID());
+        readContext.setStudyInstanceUID(studyUID);
         return new ZipInputStream(storage.openInputStream(readContext));
+    }
+
+    @Override
+    public void restoreInstances(StoreSession session, String studyUID, String seriesUID) throws IOException {
+        ejb.restoreInstances(session, studyUID, seriesUID);
     }
 
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {

@@ -424,12 +424,14 @@ public class IocmRS {
         if (rjNote == null)
             throw new WebApplicationException(getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
 
+        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+        storeService.restoreInstances(session, studyUID, seriesUID);
+
         Attributes attrs = queryService.createRejectionNote(
                 arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
         if (attrs == null)
             throw new WebApplicationException(getResponse("No Study with UID: " + studyUID, Response.Status.NOT_FOUND));
 
-        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         StoreContext ctx = storeService.newStoreContext(session);
         ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));

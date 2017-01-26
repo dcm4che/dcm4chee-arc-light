@@ -126,6 +126,19 @@ import java.util.Date;
         query = "select se from Series se " +
                 "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
+        name = Series.FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE,
+        query = "select se from Series se " +
+                "join fetch se.metadata " +
+                "where se.study.studyInstanceUID = ?1 " +
+                "and se.instancePurgeState = ?2"),
+@NamedQuery(
+        name = Series.FIND_BY_SERIES_IUID_AND_INSTANCE_PURGE_STATE,
+        query = "select se from Series se " +
+                "join fetch se.metadata " +
+                "where se.study.studyInstanceUID = ?1 " +
+                "and se.seriesInstanceUID = ?2 " +
+                "and se.instancePurgeState = ?3"),
+@NamedQuery(
         name=Series.COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE,
         query="select count(se) from Series se " +
                 "where se.study = ?1 and se.rejectionState <> ?2"),
@@ -186,10 +199,10 @@ import java.util.Date;
 })
 public class Series {
 
-    public static final java.lang.String FIND_BY_SERIES_IUID = "Series.findBySeriesIUID";
-    public static final java.lang.String FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER = "Series.findSeriesOfStudyByStudyIUIDEager";
-    public static final java.lang.String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
-    public static final java.lang.String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
+    public static final String FIND_BY_SERIES_IUID = "Series.findBySeriesIUID";
+    public static final String FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER = "Series.findSeriesOfStudyByStudyIUIDEager";
+    public static final String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
+    public static final String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
     public static final String SET_FAILED_SOP_INSTANCE_UID_LIST = "Series.SetFailedSOPInstanceUIDList";
     public static final String SET_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.SetFailedSOPInstanceUIDListOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
@@ -197,6 +210,8 @@ public class Series {
     public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY = "Series.ClearFailedSOPInstanceUIDListOfStudy";
     public static final String GET_EXPIRED_SERIES = "Series.GetExpiredSeries";
     public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
+    public static final String FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE = "Series.FindSeriesOfStudyByInstancePurgeState";
+    public static final String FIND_BY_SERIES_IUID_AND_INSTANCE_PURGE_STATE = "Series.FindBySeriesIUIDAndInstancePurgeState";
     public static final String COUNT_SERIES_OF_STUDY_WITH_OTHER_REJECTION_STATE = "Series.countSeriesOfStudyWithOtherRejectionState";
     public static final String SERIES_IUIDS_OF_STUDY = "Series.seriesIUIDsOfStudy";
     public static final String SCHEDULED_METADATA_UPDATE = "Series.scheduledMetadataUpdate";

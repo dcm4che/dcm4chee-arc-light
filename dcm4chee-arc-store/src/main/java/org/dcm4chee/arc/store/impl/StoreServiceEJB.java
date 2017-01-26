@@ -61,8 +61,6 @@ import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.retrieve.impl.InstanceLocationsImpl;
-import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -70,9 +68,6 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.text.MessageFormat;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -82,8 +77,13 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -132,7 +132,7 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        restoreInstances(ctx, findSeries(ctx));
+        restoreInstances(session, findSeries(ctx), ctx.getStudyInstanceUID());
         Instance prevInstance = findPreviousInstance(ctx);
         if (prevInstance != null) {
             Collection<Location> locations = prevInstance.getLocations();
@@ -238,14 +238,28 @@ public class StoreServiceEJB {
         return result;
     }
 
-    private void restoreInstances(StoreContext ctx, Series series) throws DicomServiceException {
+    public void restoreInstances(StoreSession session, String studyUID, String seriesUID) throws DicomServiceException {
+        List<Series> resultList = (seriesUID == null
+                ? em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE, Series.class)
+                    .setParameter(1, studyUID)
+                    .setParameter(2, Series.InstancePurgeState.PURGED)
+                : em.createNamedQuery(Series.FIND_BY_SERIES_IUID_AND_INSTANCE_PURGE_STATE, Series.class)
+                    .setParameter(1, studyUID)
+                    .setParameter(2, seriesUID)
+                    .setParameter(3, Series.InstancePurgeState.PURGED))
+                .getResultList();
+        for (Series series : resultList) {
+            restoreInstances(session, series, studyUID);
+        }
+    }
+
+    private void restoreInstances(StoreSession session, Series series, String studyUID) throws DicomServiceException {
         if (series == null || series.getInstancePurgeState() == Series.InstancePurgeState.NO)
             return;
 
         Metadata metadata = series.getMetadata();
-        StoreSession session = ctx.getStoreSession();
         try ( ZipInputStream zip = session.getStoreService()
-                .openZipInputStream(ctx, metadata.getStorageID(), metadata.getStoragePath())) {
+                .openZipInputStream(session, metadata.getStorageID(), metadata.getStoragePath(), studyUID)) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 JSONReader jsonReader = new JSONReader(Json.createParser(new InputStreamReader(zip, "UTF-8")));
@@ -276,20 +290,25 @@ public class StoreServiceEJB {
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode,
                                  AllowRejectionForDataRetentionPolicyExpired policy)
             throws DicomServiceException {
-        Duration seriesMetadataDelay = ctx.getStoreSession().getArchiveAEExtension().seriesMetadataDelay();
+        StoreSession session = ctx.getStoreSession();
+        Duration seriesMetadataDelay = session.getArchiveAEExtension().seriesMetadataDelay();
         for (Attributes studyRef : ctx.getAttributes().getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
-            Series series = null;
             String studyUID = studyRef.getString(Tag.StudyInstanceUID);
+            Series series = null;
             for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
                 Instance inst = null;
                 String seriesUID = seriesRef.getString(Tag.SeriesInstanceUID);
+                series = findSeries(studyUID, seriesUID);
+                if (series == null)
+                    throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
+                            MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_SERIES_MSG, seriesUID));
+                restoreInstances(session, series, studyUID);
                 for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
                     String classUID = sopRef.getString(Tag.ReferencedSOPClassUID);
                     String objectUID = sopRef.getString(Tag.ReferencedSOPInstanceUID);
-                    inst = rejectInstance(ctx, studyUID, seriesUID, objectUID, classUID, rjNote, rejectionCode);
+                    inst = rejectInstance(session, series, objectUID, classUID, rjNote, rejectionCode);
                 }
                 if (inst != null) {
-                    series = inst.getSeries();
                     if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED
                             && policy == AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY)
                         checkExpirationDate(series);
@@ -359,10 +378,10 @@ public class StoreServiceEJB {
                 .getSingleResult() > 0;
     }
 
-    private Instance rejectInstance(StoreContext ctx, String studyUID, String seriesUID,
+    private Instance rejectInstance(StoreSession session, Series series,
                                     String objectUID, String classUID, RejectionNote rjNote,
                                     CodeEntity rejectionCode) throws DicomServiceException {
-        Instance inst = findInstance(studyUID, seriesUID, objectUID);
+        Instance inst = findInstance(series, objectUID);
         if (inst == null)
             throw new DicomServiceException(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE,
                     MessageFormat.format(StoreService.REJECTION_FAILED_NO_SUCH_INSTANCE_MSG, objectUID));
@@ -379,9 +398,9 @@ public class StoreServiceEJB {
         }
         inst.setRejectionNoteCode(rjNote.isRevokeRejection() ? null : rejectionCode);
         if (!rjNote.isRevokeRejection())
-            LOG.info("{}: Reject {} by {}", ctx.getStoreSession(), inst, rejectionCode.getCode());
+            LOG.info("{}: Reject {} by {}", session, inst, rejectionCode.getCode());
         else if (prevRjNoteCode != null)
-            LOG.info("{}: Revoke Rejection of {} by {}", ctx.getStoreSession(), inst, prevRjNoteCode.getCode());
+            LOG.info("{}: Revoke Rejection of {} by {}", session, inst, prevRjNoteCode.getCode());
         return inst;
     }
 
@@ -798,16 +817,26 @@ public class StoreServiceEJB {
 
     private Series findSeries(StoreContext ctx) {
         StoreSession storeSession = ctx.getStoreSession();
-        Series series = storeSession.getCachedSeries(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID());
-        if (series == null)
-            try {
-                series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
-                        .setParameter(1, ctx.getStudyInstanceUID())
-                        .setParameter(2, ctx.getSeriesInstanceUID())
-                        .getSingleResult();
+        String studyInstanceUID = ctx.getStudyInstanceUID();
+        String seriesInstanceUID = ctx.getSeriesInstanceUID();
+        Series series = storeSession.getCachedSeries(studyInstanceUID, seriesInstanceUID);
+        if (series == null) {
+            series = findSeries(studyInstanceUID, seriesInstanceUID);
+            if (series != null)
                 storeSession.cacheSeries(series);
-            } catch (NoResultException e) {}
+        }
         return series;
+    }
+
+    private Series findSeries(String studyInstanceUID, String seriesInstanceUID) {
+        try {
+            return em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
+                    .setParameter(1, studyInstanceUID)
+                    .setParameter(2, seriesInstanceUID)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     private void updateSeriesRejectionState(StoreContext ctx, Series series) {
@@ -847,6 +876,17 @@ public class StoreServiceEJB {
                     .setParameter(1, studyUID)
                     .setParameter(2, seriesUID)
                     .setParameter(3, objectUID)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    private Instance findInstance(Series series, String objectUID) {
+        try {
+            return em.createNamedQuery(Instance.FIND_BY_SERIES_AND_SOP_IUID, Instance.class)
+                    .setParameter(1, series)
+                    .setParameter(2, objectUID)
                     .getSingleResult();
         } catch (NoResultException e) {
             return null;
