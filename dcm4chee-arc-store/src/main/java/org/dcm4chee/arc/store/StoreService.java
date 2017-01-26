@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -63,5 +64,8 @@ public interface StoreService {
 
     Collection<InstanceLocations> queryInstances(
             StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap)
+            throws IOException;
+
+    ZipInputStream openZipInputStream(StoreContext storeContext, String storageID, String storagePath)
             throws IOException;
 }

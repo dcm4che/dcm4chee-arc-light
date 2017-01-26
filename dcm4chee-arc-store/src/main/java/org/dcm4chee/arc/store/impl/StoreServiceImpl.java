@@ -60,10 +60,7 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.storage.Storage;
-import org.dcm4chee.arc.storage.StorageException;
-import org.dcm4chee.arc.storage.StorageFactory;
-import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.storage.*;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -87,6 +84,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.zip.ZipInputStream;
 
 
 /**
@@ -117,22 +115,22 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public StoreSession newStoreSession(Association as) {
-        return new StoreSessionImpl(null, null, as, as.getApplicationEntity(), as.getSocket(), null);
+        return new StoreSessionImpl(null, null, as, as.getApplicationEntity(), as.getSocket(), null, this);
     }
 
     @Override
     public StoreSession newStoreSession(HttpServletRequest httpRequest, String pathParam, ApplicationEntity ae) {
-        return new StoreSessionImpl(httpRequest, pathParam, null, ae, null, null);
+        return new StoreSessionImpl(httpRequest, pathParam, null, ae, null, null, this);
     }
 
     @Override
     public StoreSession newStoreSession(ApplicationEntity ae) {
-        return new StoreSessionImpl(null, null, null, ae, null, null);
+        return new StoreSessionImpl(null, null, null, ae, null, null, this);
     }
 
     @Override
     public StoreSession newStoreSession(Socket socket, HL7Segment msh, ApplicationEntity ae) {
-        return new StoreSessionImpl(null, null, null, ae, socket, msh);
+        return new StoreSessionImpl(null, null, null, ae, socket, msh, this);
     }
 
     @Override
@@ -541,6 +539,18 @@ class StoreServiceImpl implements StoreService {
         writeCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
         storeContext.setWriteContext(objectType, writeCtx);
         return storage.openOutputStream(writeCtx);
+    }
+
+    @Override
+    public ZipInputStream openZipInputStream(StoreContext storeContext, String storageID, String storagePath)
+            throws IOException {
+        StoreSession session = storeContext.getStoreSession();
+        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
+        Storage storage = getStorage(session,  arcDev.getStorageDescriptor(storageID));
+        ReadContext readContext = storage.createReadContext();
+        readContext.setStoragePath(storagePath);
+        readContext.setStudyInstanceUID(storeContext.getStudyInstanceUID());
+        return new ZipInputStream(storage.openInputStream(readContext));
     }
 
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {

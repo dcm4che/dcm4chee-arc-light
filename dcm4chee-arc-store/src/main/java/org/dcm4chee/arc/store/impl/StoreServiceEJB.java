@@ -41,12 +41,15 @@
 package org.dcm4chee.arc.store.impl;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StreamUtils;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.StorePermission;
@@ -58,6 +61,8 @@ import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.retrieve.impl.InstanceLocationsImpl;
+import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
@@ -65,18 +70,18 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.text.MessageFormat;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.json.Json;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
@@ -85,6 +90,8 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -125,6 +132,7 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        restoreInstances(ctx, findSeries(ctx));
         Instance prevInstance = findPreviousInstance(ctx);
         if (prevInstance != null) {
             Collection<Location> locations = prevInstance.getLocations();
@@ -216,14 +224,53 @@ public class StoreServiceEJB {
 
         result.setStoredInstance(instance);
         deleteQueryAttributes(instance);
-        if(rjNote == null || !rjNote.isDataRetentionPolicyExpired()) {
-            Series series = instance.getSeries();
-            series.getStudy().setExternalRetrieveAET(null);
-            series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
-            if (series.getRejectionState() == RejectionState.NONE)
+        Series series = instance.getSeries();
+        series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
+        if(rjNote == null) {
+            updateSeriesRejectionState(ctx, series);
+            if (series.getRejectionState() == RejectionState.NONE) {
                 series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
+            }
+            Study study = series.getStudy();
+            study.setExternalRetrieveAET(null);
+            study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
         }
         return result;
+    }
+
+    private void restoreInstances(StoreContext ctx, Series series) throws DicomServiceException {
+        if (series == null || series.getInstancePurgeState() == Series.InstancePurgeState.NO)
+            return;
+
+        Metadata metadata = series.getMetadata();
+        StoreSession session = ctx.getStoreSession();
+        try ( ZipInputStream zip = session.getStoreService()
+                .openZipInputStream(ctx, metadata.getStorageID(), metadata.getStoragePath())) {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                JSONReader jsonReader = new JSONReader(Json.createParser(new InputStreamReader(zip, "UTF-8")));
+                jsonReader.setSkipBulkDataURI(true);
+                restoreInstance(session, series, jsonReader.readDataset(null));
+            }
+        } catch (IOException e) {
+            throw new DicomServiceException(Status.ProcessingFailure, e);
+        }
+        series.setInstancePurgeState(Series.InstancePurgeState.NO);
+    }
+
+    private void restoreInstance(StoreSession session, Series series, Attributes attrs) {
+        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
+        Instance inst = createInstance(session, series, findOrCreateCode(attrs, Tag.ConceptNameCodeSequence), attrs,
+                attrs.getStrings(Tag.RetrieveAETitle), Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
+        Location location = new Location.Builder()
+                .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
+                .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))
+                .transferSyntaxUID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID))
+                .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
+                .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
+                .build();
+        location.setInstance(inst);
+        em.persist(location);
     }
 
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode,
@@ -483,8 +530,8 @@ public class StoreServiceEJB {
 
     private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)
             throws DicomServiceException {
-        Series series = findSeries(ctx, result);
         StoreSession session = ctx.getStoreSession();
+        Series series = session.getCachedSeries(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID());
         HttpServletRequest httpRequest = session.getHttpRequest();
         Association as = session.getAssociation();
         PatientMgtContext patMgtCtx = as != null
@@ -527,7 +574,8 @@ public class StoreServiceEJB {
             updateStudy(ctx, series.getStudy());
             updatePatient(ctx, series.getStudy().getPatient());
         }
-        Instance instance = createInstance(ctx, series, conceptNameCode);
+        Instance instance = createInstance(session, series, conceptNameCode,
+                ctx.getAttributes(), ctx.getRetrieveAETs(), ctx.getAvailability());
         result.setCreatedInstance(instance);
         return instance;
     }
@@ -748,22 +796,16 @@ public class StoreServiceEJB {
         }
     }
 
-    private Series findSeries(StoreContext ctx, UpdateDBResult result) {
+    private Series findSeries(StoreContext ctx) {
         StoreSession storeSession = ctx.getStoreSession();
         Series series = storeSession.getCachedSeries(ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID());
         if (series == null)
             try {
-                ArchiveAEExtension arcAE = storeSession.getArchiveAEExtension();
-                ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
                 series = em.createNamedQuery(Series.FIND_BY_SERIES_IUID_EAGER, Series.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .setParameter(2, ctx.getSeriesInstanceUID())
                         .getSingleResult();
-                Study study = series.getStudy();
-                study.addStorageID(storeSession.getArchiveAEExtension().storageID());
-                study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
-                if (result.getRejectionNote() == null)
-                    updateSeriesRejectionState(ctx, series);
+                storeSession.cacheSeries(series);
             } catch (NoResultException e) {}
         return series;
     }
@@ -1018,21 +1060,20 @@ public class StoreServiceEJB {
         series.setSourceAET(session.getCallingAET());
     }
 
-    private Instance createInstance(StoreContext ctx, Series series, CodeEntity conceptNameCode) {
-        StoreSession session = ctx.getStoreSession();
+    private Instance createInstance(StoreSession session, Series series, CodeEntity conceptNameCode, Attributes attrs,
+                                    String[] retrieveAETs, Availability availability) {
         ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
         FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
-        Attributes attrs = ctx.getAttributes();
         Instance instance = new Instance();
         instance.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Instance), fuzzyStr);
         setVerifyingObservers(instance, attrs, fuzzyStr);
         instance.setConceptNameCode(conceptNameCode);
         setContentItems(instance, attrs);
-        instance.setRetrieveAETs(ctx.getRetrieveAETs());
-        instance.setAvailability(ctx.getAvailability());
+        instance.setRetrieveAETs(retrieveAETs);
+        instance.setAvailability(availability);
         instance.setSeries(series);
         em.persist(instance);
-        LOG.info("{}: Create {}", ctx.getStoreSession(), instance);
+        LOG.info("{}: Create {}", session, instance);
         return instance;
     }
 
@@ -1061,14 +1102,19 @@ public class StoreServiceEJB {
         em.persist(location);
         result.getLocations().add(location);
         result.getWriteContexts().add(writeContext);
+        if (objectType == Location.ObjectType.DICOM_FILE)
+            instance.getSeries().getStudy().addStorageID(descriptor.getStorageID());
     }
 
     private void copyLocations(StoreContext ctx, Instance instance, UpdateDBResult result) {
         StoreSession session = ctx.getStoreSession();
         Map<Long, UIDMap> uidMapCache = session.getUIDMapCache();
         Map<String, String> uidMap = session.getUIDMap();
-        for (Location prevLocation : ctx.getLocations())
+        for (Location prevLocation : ctx.getLocations()) {
             result.getLocations().add(copyLocation(prevLocation, instance, uidMap, uidMapCache));
+            if (prevLocation.getObjectType() == Location.ObjectType.DICOM_FILE)
+                instance.getSeries().getStudy().addStorageID(prevLocation.getStorageID());
+        }
     }
 
     private Location copyLocation(

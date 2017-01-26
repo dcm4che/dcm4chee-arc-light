@@ -50,6 +50,7 @@ import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
 import org.dcm4chee.arc.storage.Storage;
+import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
 import javax.servlet.http.HttpServletRequest;
@@ -70,6 +71,7 @@ class StoreSessionImpl implements StoreSession {
     private final String calledAET;
     private final Socket socket;
     private final HL7Segment msh;
+    private final StoreService storeService;
     private final Map<String, Storage> storageMap = new HashMap<>();
     private Study cachedStudy;
     private final Map<String,Series> seriesCache = new HashMap<>();
@@ -77,12 +79,13 @@ class StoreSessionImpl implements StoreSession {
     private Map<String, String> uidMap;
 
     StoreSessionImpl(HttpServletRequest httpRequest, String pathParam, Association as, ApplicationEntity ae,
-                            Socket socket, HL7Segment msh) {
+                            Socket socket, HL7Segment msh, StoreService storeService) {
         this.httpRequest = httpRequest;
         this.as = as;
         this.ae = ae;
         this.socket = socket;
         this.msh = msh;
+        this.storeService = storeService;
         this.uidMapCache = new HashMap<>();
         this.calledAET = as != null ? as.getCalledAET() : httpRequest != null ? pathParam : ae.getAETitle();
     }
@@ -115,6 +118,11 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public ArchiveAEExtension getArchiveAEExtension() {
         return ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    @Override
+    public StoreService getStoreService() {
+        return storeService;
     }
 
     @Override
