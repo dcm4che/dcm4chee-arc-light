@@ -43,15 +43,7 @@ package org.dcm4chee.arc.arr;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
-import org.dcm4che3.data.UID;
-import org.dcm4che3.imageio.codec.ImageReaderFactory;
-import org.dcm4che3.imageio.codec.ImageWriterFactory;
-import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.imageio.ImageReaderExtension;
-import org.dcm4che3.net.imageio.ImageWriterExtension;
-import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,16 +52,6 @@ import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -106,14 +88,12 @@ public class ArchiveDeviceProducer {
     private Device findDevice() throws ConfigurationException {
         String key = appName + ".DeviceName";
         String name = System.getProperty(key, DEF_DEVICE_NAME);
-        Device arcDevice = null;
         try {
-            arcDevice = conf.findDevice(name);
+            return conf.findDevice(name);
         } catch (ConfigurationNotFoundException e) {
             LOG.error("Missing Configuration for Device '{}' - you may change the Device name by System Property '{}'",
                     name, key);
             throw e;
         }
-        return arcDevice;
     }
 }
