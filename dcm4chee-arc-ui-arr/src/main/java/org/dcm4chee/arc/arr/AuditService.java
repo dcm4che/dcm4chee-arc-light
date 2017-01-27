@@ -41,66 +41,41 @@
 package org.dcm4chee.arc.arr;
 
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.SyncInvoker;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jan 2017
  */
-@RequestScoped
-@Path("/{path: .*}")
-public class ProxyRS {
+public class AuditService {
+    private static final Map<String, Long> aggregate = new LinkedHashMap<>();
 
-    @Inject
-    private Device device;
+    public static void auditLogUsed(Device device, HttpServletRequest httpRequest) {
+        Duration auditAggregateDuration = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getAuditAggregateDuration();
+        if (auditAggregateDuration != null) {
+            long now = System.currentTimeMillis();
+            String remoteAddr = httpRequest.getRemoteAddr();
+            Long emitted = aggregate.get(remoteAddr);
+            if (emitted != null && now < emitted)
+                return;
 
-    @Context
-    private HttpServletRequest httpRequest;
+            for (Iterator<Long> iter = aggregate.values().iterator(); iter.hasNext() && iter.next() < now; )
+                iter.remove();
 
-    @Context
-    private HttpHeaders httpHeaders;
+            aggregate.put(remoteAddr, now + auditAggregateDuration.getSeconds() * 1000L);
+        }
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        if (ext == null || ext.getAuditLoggers().isEmpty())
+            return;
 
-    @PathParam("path")
-    private String path;
-
-    @GET
-    public Response doGet() {
-        AuditService.auditLogUsed(device, httpRequest);
-        return new ResponseDelegate(invoker().get());
+        //TODO
     }
-
-    @POST
-    public Response doPost(InputStream in) {
-        return new ResponseDelegate(invoker().post(Entity.entity(in, httpHeaders.getMediaType())));
-    }
-
-    @PUT
-    public Response doPut(InputStream in) {
-        return new ResponseDelegate(invoker().put(Entity.entity(in, httpHeaders.getMediaType())));
-    }
-
-    private SyncInvoker invoker() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String arrURL = arcDev.getAuditRecordRepositoryURL();
-        WebTarget target = ClientBuilder.newBuilder().build().target(arrURL + path);
-        MultivaluedMap<String, String> headers = httpHeaders.getRequestHeaders();
-        headers.remove("Content-Length");
-        return target.request().headers((MultivaluedMap) headers);
-    }
-
 }

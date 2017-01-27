@@ -1327,7 +1327,7 @@ m-oid: 1.2.40.0.13.1.15.110.3.102
 m-name: dcmStorePermissionServiceResponsePattern
 m-description: Regular Expression applied to responses from Store Permission Ser
  vice to determine agreement for storage. E.g. "validation"\s*:\s*"true" . If ab
- sent, every success response will be treated as agreement for storage.
+ sent, every success delegate will be treated as agreement for storage.
 m-equality: caseExactIA5Match
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.26
 m-singleValue: TRUE
