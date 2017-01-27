@@ -80,27 +80,47 @@ public class ProxyRS {
 
     @GET
     public Response doGet() {
+        Response resp = new ResponseDelegate(invoker(HttpRequest.GET).get());
+        if (resp == null)
+            throw new WebApplicationException(getResponse("Audit Record Repository URL configuration missing.",
+                    Response.Status.NOT_FOUND));
         AuditService.auditLogUsed(device, httpRequest);
-        return new ResponseDelegate(invoker().get());
+        return resp;
     }
 
     @POST
     public Response doPost(InputStream in) {
-        return new ResponseDelegate(invoker().post(Entity.entity(in, httpHeaders.getMediaType())));
+        return new ResponseDelegate(invoker(HttpRequest.POST).post(Entity.entity(in, httpHeaders.getMediaType())));
     }
 
     @PUT
     public Response doPut(InputStream in) {
-        return new ResponseDelegate(invoker().put(Entity.entity(in, httpHeaders.getMediaType())));
+        return new ResponseDelegate(invoker(HttpRequest.PUT).put(Entity.entity(in, httpHeaders.getMediaType())));
     }
 
-    private SyncInvoker invoker() {
+    enum HttpRequest {
+        GET, POST, PUT
+    }
+
+    private SyncInvoker invoker(HttpRequest reqType) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String arrURL = arcDev.getAuditRecordRepositoryURL();
-        WebTarget target = ClientBuilder.newBuilder().build().target(arrURL + path);
+        if (arrURL == null)
+            return null;
+        String targetURL = arrURL.charAt(arrURL.length()-1) != '/' ? arrURL + "/" + path : arrURL + path;
+        WebTarget target = ClientBuilder.newBuilder().build().target(targetURL);
         MultivaluedMap<String, String> headers = httpHeaders.getRequestHeaders();
-        headers.remove("Content-Length");
-        return target.request().headers((MultivaluedMap) headers);
+        if (reqType == HttpRequest.GET)
+            return target.request();
+        else {
+            headers.remove("Content-Length");
+            return target.request().headers((MultivaluedMap) headers);
+        }
     }
 
+
+    private Response getResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
+    }
 }

@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.audit;
 
-import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
@@ -177,11 +176,6 @@ public class AuditTriggerObserver {
 
         if (auditService.hasAuditLoggers())
             auditService.spoolProcedureRecord(ctx);
-    }
-
-    public void onAuditLogUsed(@Observes AuditLogUsed auditLogUsed) {
-        if (auditService.hasAuditLoggers())
-            auditService.spoolAuditLogUsed(auditLogUsed);
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {

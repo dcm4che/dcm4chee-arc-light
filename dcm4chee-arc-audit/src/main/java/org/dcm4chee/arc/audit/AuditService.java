@@ -135,9 +135,6 @@ public class AuditService {
             case PROC_STUDY:
                 auditProcedureRecord(auditLogger, readerObj, eventTime, eventType);
                 break;
-            case AUDIT_LOG_USED:
-                auditLogUsed(auditLogger, readerObj, eventTime, eventType);
-                break;
         }
     }
 
@@ -721,29 +718,6 @@ public class AuditService {
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), auditLogger);
     }
 
-    void spoolAuditLogUsed(AuditLogUsed auditLogUsed) {
-        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.AUD_LOG_US;
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String userId = auditLogUsed.getHttpRequest().getAttribute(keycloakClassName) != null
-                ? getPreferredUsername(auditLogUsed.getHttpRequest()) : auditLogUsed.getHttpRequest().getRemoteAddr();
-        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(auditLogUsed.getHttpRequest().getRemoteHost())
-                .userId(userId).calledHost(arcDev.getAuditRecordRepositoryURL()).outcome(null).build();
-        writeAuditLogUsedSpoolFile(String.valueOf(et), new AuditInfo(i));
-    }
-
-    private void auditLogUsed(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime,
-                              AuditServiceUtils.EventType et) {
-        AuditInfo prI = new AuditInfo(readerObj.getMainInfo());
-        EventIdentification ei = getEI(et, prI.getField(AuditInfo.OUTCOME), eventTime);
-        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(prI.getField(AuditInfo.USER_ID),
-                prI.getField(AuditInfo.CALLING_HOST)).requester(et.isSource).build();
-        BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
-                prI.getField(AuditInfo.CALLED_HOST), AuditMessages.ParticipantObjectIDTypeCode.URI,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.SecurityResource)
-                .name("Security Audit Log").build();
-        emitAuditMessage(ei, getApList(ap1), getPoiList(poi1), auditLogger);
-    }
-
     private BuildAuditInfo getAIStoreCtx(StoreContext ctx) {
         StoreSession ss = ctx.getStoreSession();
         HttpServletRequest req = ss.getHttpRequest();
@@ -946,40 +920,6 @@ public class AuditService {
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
                     LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), file, e);
-                }
-            }
-        }
-    }
-
-    private void writeAuditLogUsedSpoolFile(String eventType, AuditInfo i) {
-        if (i == null) {
-            LOG.warn("Attempt to write empty file : " + eventType);
-            return;
-        }
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
-        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
-            if (auditLogger.isInstalled()) {
-                String dirPath = StringUtils.replaceSystemProperties(auditAggregate
-                        ? arcDev.getAuditSpoolDirectory() + "/" + auditLogger.getCommonName().replaceAll(" ", "_")
-                        : JBOSS_SERVER_TEMP);
-                Path dir = Paths.get(dirPath);
-                Path filePath = Paths.get(dirPath, "/", eventType + "-" + i.getField(AuditInfo.USER_ID));
-                if (Files.exists(filePath))
-                    return;
-
-                try {
-                    Files.createDirectories(dir);
-                    Path file = Files.createFile(filePath);
-                    try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                            StandardOpenOption.APPEND))) {
-                        writer.writeLine(i);
-                    }
-                    if (!auditAggregate)
-                        auditAndProcessFile(auditLogger, file);
-                } catch (Exception e) {
-                    LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), e);
                 }
             }
         }
