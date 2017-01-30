@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.audit;
 
-import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
@@ -55,7 +54,6 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;

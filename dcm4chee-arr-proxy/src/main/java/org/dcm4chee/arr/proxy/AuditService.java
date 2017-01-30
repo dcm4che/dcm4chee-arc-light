@@ -38,7 +38,7 @@
  * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.arr;
+package org.dcm4chee.arr.proxy;
 
 import org.dcm4che3.audit.*;
 import org.dcm4che3.net.Device;
