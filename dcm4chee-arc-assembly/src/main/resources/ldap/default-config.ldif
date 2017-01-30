@@ -1,5 +1,11 @@
 version: 1
 
+dn: dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomInstalled: TRUE
+dicomDeviceName: unknown
+objectClass: dicomDevice
+objectClass: dcmDevice
+
 dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomDeviceName: keycloak
@@ -60,6 +66,7 @@ dcmStorageID: fs1
 dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
+dcmAuditRecordRepositoryURL: http://kibana:5601
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
