@@ -507,7 +507,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.101 NAME 'dcmStorePermissionServiceU
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.102 NAME 'dcmStorePermissionServiceResponsePattern'
-  DESC 'Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. "validation"\s*:\s*"true" . If absent, every success delegate will be treated as agreement for storage.'
+  DESC 'Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. "validation"\s*:\s*"true" . If absent, every success response will be treated as agreement for storage.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
