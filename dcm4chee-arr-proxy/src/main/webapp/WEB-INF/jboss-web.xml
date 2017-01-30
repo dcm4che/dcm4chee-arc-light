@@ -1,4 +1,4 @@
 <jboss-web>
-    <virtual-host>arr-proxy</virtual-host>
+    <virtual-host>kibana</virtual-host>
     <context-root>/</context-root>
 </jboss-web>
