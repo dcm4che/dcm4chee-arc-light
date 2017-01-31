@@ -94,12 +94,12 @@ class ImportReportService extends AbstractHL7Service {
     }
 
     private void importReport(HL7Application hl7App, Socket s, UnparsedHL7Message msg)
-            throws ConfigurationException, IOException, SAXException, TransformerConfigurationException {
+            throws ConfigurationException, HL7Exception, IOException, SAXException, TransformerConfigurationException {
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         String aet = arcHL7App.getAETitle();
         if (aet == null) {
-            throw new ConfigurationException("No AE Title associated with HL7 Application: "
+            throw new HL7Exception(HL7Exception.AE, "No AE Title associated with HL7 Application: "
                     + hl7App.getApplicationName());
         }
         ApplicationEntity ae = hl7App.getDevice().getApplicationEntity(aet);
