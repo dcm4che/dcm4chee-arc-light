@@ -48,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -62,9 +61,6 @@ public class ArchiveDeviceProducer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveDeviceProducer.class);
     private static final String DEF_DEVICE_NAME = "dcm4chee-arc";
-
-    @Resource(lookup="java:app/AppName")
-    private String appName;
 
     @Inject
     private DicomConfiguration conf;
@@ -86,7 +82,7 @@ public class ArchiveDeviceProducer {
     }
 
     private Device findDevice() throws ConfigurationException {
-        String key = appName + ".DeviceName";
+        String key = "dcm4chee-arc.DeviceName";
         String name = System.getProperty(key, DEF_DEVICE_NAME);
         try {
             return conf.findDevice(name);
