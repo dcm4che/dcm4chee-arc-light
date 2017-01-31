@@ -79,9 +79,6 @@ public class ProxyRS {
     @GET
     public Response doGet() {
         Response resp = new ResponseDelegate(invoker(false).get());
-        if (resp == null)
-            throw new WebApplicationException(getResponse("Audit Record Repository URL configuration missing.",
-                    Response.Status.NOT_FOUND));
         AuditService.auditLogUsed(device, httpRequest);
         return resp;
     }
@@ -113,19 +110,17 @@ public class ProxyRS {
     private SyncInvoker invoker(boolean removeContentLength) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String arrURL = arcDev.getAuditRecordRepositoryURL();
-        if (arrURL == null)
-            return null;
+        if (arrURL == null) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.NOT_FOUND)
+                            .entity("Audit Record Repository URL configuration missing.")
+                            .build());
+        }
         String targetURL = arrURL.charAt(arrURL.length()-1) != '/' ? arrURL + "/" + path : arrURL + path;
         WebTarget target = ClientBuilder.newBuilder().build().target(targetURL);
         MultivaluedMap<String, String> headers = httpHeaders.getRequestHeaders();
         if (removeContentLength)
             headers.remove("Content-Length");
         return target.request().headers((MultivaluedMap) headers);
-    }
-
-
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
     }
 }
