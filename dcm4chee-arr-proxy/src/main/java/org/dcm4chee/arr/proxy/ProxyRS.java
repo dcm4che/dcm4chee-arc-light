@@ -41,6 +41,7 @@
 package org.dcm4chee.arr.proxy;
 
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
 import javax.enterprise.context.RequestScoped;
@@ -51,10 +52,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.SyncInvoker;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.io.InputStream;
 
 /**
@@ -80,7 +78,7 @@ public class ProxyRS {
 
     @GET
     public Response doGet() {
-        Response resp = new ResponseDelegate(invoker(HttpRequest.GET).get());
+        Response resp = new ResponseDelegate(invoker(false).get());
         if (resp == null)
             throw new WebApplicationException(getResponse("Audit Record Repository URL configuration missing.",
                     Response.Status.NOT_FOUND));
@@ -90,26 +88,29 @@ public class ProxyRS {
 
     @POST
     public Response doPost(InputStream in) {
-        return httpHeaders.getMediaType() != null
-                ? new ResponseDelegate(invoker(HttpRequest.POST).post(Entity.entity(in, httpHeaders.getMediaType())))
-                : new ResponseDelegate(invoker(HttpRequest.POST).post(null));
+        return new ResponseDelegate(invoker(true).post(createEntity(in)));
     }
 
     @PUT
     public Response doPut(InputStream in) {
-        return new ResponseDelegate(invoker(HttpRequest.PUT).put(Entity.entity(in, httpHeaders.getMediaType())));
+        return new ResponseDelegate(invoker(true).put(createEntity(in)));
+    }
+
+    private Entity<InputStream> createEntity(InputStream in) {
+        MediaType mediaType = httpHeaders.getMediaType();
+        if (mediaType != null)
+            return Entity.entity(in, mediaType);
+
+        SafeClose.close(in);
+        return null;
     }
 
     @DELETE
     public Response doDelete() {
-        return new ResponseDelegate(invoker(HttpRequest.DELETE).delete());
+        return new ResponseDelegate(invoker(true).delete());
     }
 
-    enum HttpRequest {
-        GET, POST, PUT, DELETE
-    }
-
-    private SyncInvoker invoker(HttpRequest reqType) {
+    private SyncInvoker invoker(boolean removeContentLength) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         String arrURL = arcDev.getAuditRecordRepositoryURL();
         if (arrURL == null)
@@ -117,12 +118,9 @@ public class ProxyRS {
         String targetURL = arrURL.charAt(arrURL.length()-1) != '/' ? arrURL + "/" + path : arrURL + path;
         WebTarget target = ClientBuilder.newBuilder().build().target(targetURL);
         MultivaluedMap<String, String> headers = httpHeaders.getRequestHeaders();
-        if (reqType == HttpRequest.GET)
-            return target.request();
-        else {
+        if (removeContentLength)
             headers.remove("Content-Length");
-            return target.request().headers((MultivaluedMap) headers);
-        }
+        return target.request().headers((MultivaluedMap) headers);
     }
 
 
