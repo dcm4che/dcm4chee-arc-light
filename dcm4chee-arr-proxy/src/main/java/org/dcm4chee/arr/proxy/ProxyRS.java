@@ -90,7 +90,9 @@ public class ProxyRS {
 
     @POST
     public Response doPost(InputStream in) {
-        return new ResponseDelegate(invoker(HttpRequest.POST).post(Entity.entity(in, httpHeaders.getMediaType())));
+        return httpHeaders.getMediaType() != null
+                ? new ResponseDelegate(invoker(HttpRequest.POST).post(Entity.entity(in, httpHeaders.getMediaType())))
+                : new ResponseDelegate(invoker(HttpRequest.POST).post(null));
     }
 
     @PUT
@@ -98,8 +100,13 @@ public class ProxyRS {
         return new ResponseDelegate(invoker(HttpRequest.PUT).put(Entity.entity(in, httpHeaders.getMediaType())));
     }
 
+    @DELETE
+    public Response doDelete() {
+        return new ResponseDelegate(invoker(HttpRequest.DELETE).delete());
+    }
+
     enum HttpRequest {
-        GET, POST, PUT
+        GET, POST, PUT, DELETE
     }
 
     private SyncInvoker invoker(HttpRequest reqType) {
