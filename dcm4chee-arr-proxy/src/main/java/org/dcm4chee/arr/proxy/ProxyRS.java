@@ -78,9 +78,9 @@ public class ProxyRS {
 
     @GET
     public Response doGet() {
-        Response resp = new ResponseDelegate(invoker(false).get());
+        Response resp = invoker(false).get();
         AuditService.auditLogUsed(device, httpRequest);
-        return resp;
+        return new ResponseDelegate(resp);
     }
 
     @POST
