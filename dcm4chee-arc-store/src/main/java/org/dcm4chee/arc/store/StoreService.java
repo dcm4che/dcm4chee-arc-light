@@ -32,12 +32,12 @@ public interface StoreService {
     int PATIENT_ID_MISSING_IN_OBJECT = 0xA777;
     int CONFLICTING_PID_NOT_ACCEPTED = 0xA778;
 
-    String DUPLICATE_REJECTION_NOTE_MSG = "Rejection Note [uid={}] already received.";
-    String SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG = "Subsequent occurrence of rejected Object [uid={}, rejection={}]";
-    String REJECTION_FAILED_NO_SUCH_INSTANCE_MSG = "Failed to reject Instance[uid={}] - no such Instance.";
-    String REJECTION_FAILED_NO_SUCH_SERIES_MSG = "Failed to reject Instance of Series[uid={}] - no such Series.";
-    String REJECTION_FAILED_CLASS_INSTANCE_CONFLICT_MSG  = "Failed to reject Instance[uid={}] - class-instance conflict.";
-    String REJECTION_FAILED_ALREADY_REJECTED_MSG  = "Failed to reject Instance[uid={}] - already rejected.";
+    String DUPLICATE_REJECTION_NOTE_MSG = "Rejection Note [uid={0}] already received.";
+    String SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG = "Subsequent occurrence of rejected Object [uid={0}, rejection={1}]";
+    String REJECTION_FAILED_NO_SUCH_INSTANCE_MSG = "Failed to reject Instance[uid={0}] - no such Instance.";
+    String REJECTION_FAILED_NO_SUCH_SERIES_MSG = "Failed to reject Instance of Series[uid={0}] - no such Series.";
+    String REJECTION_FAILED_CLASS_INSTANCE_CONFLICT_MSG  = "Failed to reject Instance[uid={0}] - class-instance conflict.";
+    String REJECTION_FAILED_ALREADY_REJECTED_MSG  = "Failed to reject Instance[uid={0}] - already rejected.";
     String REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED_MSG = "Rejection for Retention Policy Expired not authorized.";
     String RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG = "Retention Period of Study not yet expired.";
     String PATIENT_ID_MISSING_IN_OBJECT_MSG = "Storage denied as Patient ID missing in object.";
