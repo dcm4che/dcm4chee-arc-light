@@ -721,7 +721,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setRejectExpiredStudiesFetchSize(int rejectExpiredStudiesFetchSize) {
         this.rejectExpiredStudiesFetchSize =
-                greaterZero(rejectExpiredStudiesFetchSize, "rejectExpiredStudiesFetchSize");
+                greaterOrEqualsZero(rejectExpiredStudiesFetchSize, "rejectExpiredStudiesFetchSize");
     }
 
     public int getRejectExpiredSeriesFetchSize() {
@@ -730,7 +730,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setRejectExpiredSeriesFetchSize(int rejectExpiredSeriesFetchSize) {
         this.rejectExpiredSeriesFetchSize =
-                greaterZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
+                greaterOrEqualsZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
     }
 
     public Duration getRejectExpiredStudiesPollingInterval() {
@@ -1149,6 +1149,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private int greaterZero(int i, String prompt) {
         if (i <= 0)
+            throw new IllegalArgumentException(prompt + ": " + i);
+        return i;
+    }
+
+    private int greaterOrEqualsZero(int i, String prompt) {
+        if (i < 0)
             throw new IllegalArgumentException(prompt + ": " + i);
         return i;
     }
