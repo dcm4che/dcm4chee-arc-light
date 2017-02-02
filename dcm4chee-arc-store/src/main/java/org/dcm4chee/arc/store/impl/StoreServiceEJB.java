@@ -619,7 +619,7 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         AcceptConflictingPatientID acceptConflictingPID = arcAE.acceptConflictingPatientID();
-        if (acceptConflictingPID == AcceptConflictingPatientID.YES)
+        if (acceptConflictingPID == AcceptConflictingPatientID.YES || ctx.isCopyOrMove())
             return;
 
         if (patMgtCtx.getPatientID() == null || associatedPat.getPatientID() == null) {

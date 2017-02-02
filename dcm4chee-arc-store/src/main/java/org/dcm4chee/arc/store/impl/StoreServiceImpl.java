@@ -298,6 +298,7 @@ class StoreServiceImpl implements StoreService {
                 ctx.setRetrieveAETs(il.getRetrieveAETs());
                 ctx.setAvailability(il.getAvailability());
                 try {
+                    ctx.setCopyOrMove(true);
                     store(ctx, attr);
                     populateResult(refSOPSeq, attr);
                 } catch (DicomServiceException e) {
