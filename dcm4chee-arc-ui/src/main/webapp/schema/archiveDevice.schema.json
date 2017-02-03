@@ -554,6 +554,16 @@
       "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
       "type": "string"
     },
+    "dcmCopyMoveUpdatePolicy": {
+      "title": "Copy Move Update Policy",
+      "description": "Indicates which policy will be used for updation of attributes for RESTful Copy/Move Instances service. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED. If absent, nothing will be done (target's attributes remain unchanged).",
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "OVERWRITE",
+        "MERGED"
+      ]
+    },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled.",
@@ -596,11 +606,6 @@
       "type": "integer",
       "minimum": 0,
       "exclusiveMinimum": true
-    },
-    "dcmAuditRecordRepositoryURL": {
-      "title": "Audit Record Repository URL",
-      "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
-      "type": "string"
     },
     "dcmStorage": {
       "title": "Storage Descriptor",

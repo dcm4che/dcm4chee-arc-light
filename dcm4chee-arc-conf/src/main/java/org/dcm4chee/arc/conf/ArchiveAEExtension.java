@@ -103,6 +103,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration hl7PSUTimeout;
     private Boolean hl7PSUOnTimeout;
     private Boolean hl7PSUMWL;
+    private CopyMoveUpdatePolicy copyMoveUpdatePolicy;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -895,6 +896,20 @@ public class ArchiveAEExtension extends AEExtension {
                 AcceptConflictingPatientID.MERGED);
     }
 
+    public CopyMoveUpdatePolicy getCopyMoveUpdatePolicy() {
+        return copyMoveUpdatePolicy;
+    }
+
+    public void setCopyMoveUpdatePolicy(CopyMoveUpdatePolicy copyMoveUpdatePolicy) {
+        this.copyMoveUpdatePolicy = copyMoveUpdatePolicy;
+    }
+
+    public CopyMoveUpdatePolicy copyMoveUpdatePolicy() {
+        return copyMoveUpdatePolicy != null
+                ? copyMoveUpdatePolicy
+                : getArchiveDeviceExtension().getCopyMoveUpdatePolicy();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -937,6 +952,7 @@ public class ArchiveAEExtension extends AEExtension {
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         acceptConflictingPatientID = aeExt.acceptConflictingPatientID;
+        copyMoveUpdatePolicy = aeExt.copyMoveUpdatePolicy;
         retrieveAETitles = aeExt.retrieveAETitles;
         hl7PSUSendingApplication = aeExt.hl7PSUSendingApplication;
         hl7PSUReceivingApplications = aeExt.hl7PSUReceivingApplications;

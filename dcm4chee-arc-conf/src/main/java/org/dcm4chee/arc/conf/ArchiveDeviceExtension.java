@@ -155,6 +155,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration hl7PSUTaskPollingInterval;
     private boolean hl7PSUMWL = false;
     private String auditRecordRepositoryURL;
+    private CopyMoveUpdatePolicy copyMoveUpdatePolicy;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1372,6 +1373,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditRecordRepositoryURL = auditRecordRepositoryURL;
     }
 
+    public CopyMoveUpdatePolicy getCopyMoveUpdatePolicy() {
+        return copyMoveUpdatePolicy;
+    }
+
+    public void setCopyMoveUpdatePolicy(CopyMoveUpdatePolicy copyMoveUpdatePolicy) {
+        this.copyMoveUpdatePolicy = copyMoveUpdatePolicy;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1475,6 +1484,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMWL = arcdev.hl7PSUMWL;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
+        copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

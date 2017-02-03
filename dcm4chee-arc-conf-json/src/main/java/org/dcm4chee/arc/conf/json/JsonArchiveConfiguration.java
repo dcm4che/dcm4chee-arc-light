@@ -182,6 +182,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("hl7PSUMWL", arcDev.isHl7PSUMWL(), false);
         writer.writeNotNull("dcmAcceptConflictingPatientID", arcDev.getAcceptConflictingPatientID());
         writer.writeNotNull("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL());
+        writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -545,6 +546,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("hl7PSUOnTimeout", arcAE.getHl7PSUOnTimeout());
         writer.writeNotNull("hl7PSUMWL", arcAE.getHl7PSUMWL());
         writer.writeNotNull("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID());
+        writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -861,6 +863,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAuditRecordRepositoryURL":
                     arcDev.setAuditRecordRepositoryURL(reader.stringValue());
+                    break;
+                case "dcmCopyMoveUpdatePolicy":
+                    arcDev.setCopyMoveUpdatePolicy(CopyMoveUpdatePolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1693,6 +1698,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcAE.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
+                    break;
+                case "dcmCopyMoveUpdatePolicy":
+                    arcAE.setCopyMoveUpdatePolicy(CopyMoveUpdatePolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
