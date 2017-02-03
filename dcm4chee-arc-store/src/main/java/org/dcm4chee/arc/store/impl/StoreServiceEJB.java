@@ -241,12 +241,12 @@ public class StoreServiceEJB {
     public void restoreInstances(StoreSession session, String studyUID, String seriesUID) throws DicomServiceException {
         List<Series> resultList = (seriesUID == null
                 ? em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE, Series.class)
-                    .setParameter(1, studyUID)
-                    .setParameter(2, Series.InstancePurgeState.PURGED)
+                .setParameter(1, studyUID)
+                .setParameter(2, Series.InstancePurgeState.PURGED)
                 : em.createNamedQuery(Series.FIND_BY_SERIES_IUID_AND_INSTANCE_PURGE_STATE, Series.class)
-                    .setParameter(1, studyUID)
-                    .setParameter(2, seriesUID)
-                    .setParameter(3, Series.InstancePurgeState.PURGED))
+                .setParameter(1, studyUID)
+                .setParameter(2, seriesUID)
+                .setParameter(3, Series.InstancePurgeState.PURGED))
                 .getResultList();
         for (Series series : resultList) {
             restoreInstances(session, series, studyUID);
@@ -426,7 +426,7 @@ public class StoreServiceEJB {
     private long countLocationsByMultiRef(Integer multiRef) {
         return multiRef != null
                 ? em.createNamedQuery(Location.COUNT_BY_MULTI_REF, Long.class)
-                    .setParameter(1, multiRef).getSingleResult()
+                .setParameter(1, multiRef).getSingleResult()
                 : 0L;
     }
 
@@ -637,17 +637,17 @@ public class StoreServiceEJB {
                 return;
         }
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
-                            StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
+                StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
     }
 
     private void checkMissingConflicting(PatientMgtContext patMgtCtx, Patient associatedPat, ArchiveAEExtension arcAE,
-                       AcceptConflictingPatientID acceptConflictingPID) throws DicomServiceException {
+                                         AcceptConflictingPatientID acceptConflictingPID) throws DicomServiceException {
         AcceptMissingPatientID acceptMissingPatientID = arcAE.acceptMissingPatientID();
         if (acceptMissingPatientID != AcceptMissingPatientID.CREATE && acceptConflictingPID != AcceptConflictingPatientID.YES)
             if ((associatedPat.getPatientID() != null && patMgtCtx.getPatientID() == null)
-                || (associatedPat.getPatientID() == null && patMgtCtx.getPatientID() != null))
+                    || (associatedPat.getPatientID() == null && patMgtCtx.getPatientID() != null))
                 throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
-                    StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
+                        StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
     }
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {
@@ -735,13 +735,13 @@ public class StoreServiceEJB {
         LOG.info("{}: Query for MWL Items with {}", ctx.getStoreSession(), queryParam);
         TypedQuery<byte[]> namedQuery = queryParam.accessionNumber != null
                 ? em.createNamedQuery(MWLItem.ATTRS_BY_ACCESSION_NO, byte[].class)
-                        .setParameter(1, queryParam.accessionNumber)
+                .setParameter(1, queryParam.accessionNumber)
                 : queryParam.spsID != null
-                    ? em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, byte[].class)
-                        .setParameter(1, queryParam.studyIUID)
-                        .setParameter(1, queryParam.spsID)
-                    : em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_IUID, byte[].class)
-                        .setParameter(1, queryParam.studyIUID);
+                ? em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_UID_AND_SPS_ID, byte[].class)
+                .setParameter(1, queryParam.studyIUID)
+                .setParameter(1, queryParam.spsID)
+                : em.createNamedQuery(MWLItem.ATTRS_BY_STUDY_IUID, byte[].class)
+                .setParameter(1, queryParam.studyIUID);
         List<byte[]> resultList = namedQuery.getResultList();
         if (resultList.isEmpty()) {
             LOG.info("{}: No matching MWL Items found", ctx.getStoreSession());
@@ -1075,7 +1075,7 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         StudyRetentionPolicy retentionPolicy = arcAE.findStudyRetentionPolicy(session.getRemoteHostName(),
-            session.getCallingAET(), session.getCalledAET(), ctx.getAttributes());
+                session.getCallingAET(), session.getCalledAET(), ctx.getAttributes());
         if (retentionPolicy == null)
             return;
 
@@ -1309,5 +1309,10 @@ public class StoreServiceEJB {
         em.merge(result.getCreatedStudy()).setPatient(otherPatient);
         em.remove(createdPatient);
         result.setCreatedPatient(null);
+    }
+
+    public List<Study> findStudiesByAccessionNo(String accNo) {
+        return em.createNamedQuery(Study.FIND_BY_ACCESSION_NUMBER, Study.class)
+                .setParameter(1, accNo).getResultList();
     }
 }

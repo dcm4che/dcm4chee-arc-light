@@ -167,7 +167,7 @@ class StoreServiceImpl implements StoreService {
             if (ctx.getAcceptedStudyInstanceUID() != null
                     && !ctx.getAcceptedStudyInstanceUID().equals(ctx.getStudyInstanceUID())) {
                 LOG.info("{}: Received Instance[studyUID={},seriesUID={},objectUID={}]" +
-                        " does not match requested studyUID={}", ctx.getStoreSession(), ctx.getStudyInstanceUID(),
+                                " does not match requested studyUID={}", ctx.getStoreSession(), ctx.getStudyInstanceUID(),
                         ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ctx.getAcceptedStudyInstanceUID());
                 throw new DicomServiceException(DIFF_STUDY_INSTANCE_UID);
             }
@@ -249,6 +249,10 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
+    public List<Study> findStudiesByAccessionNo(String accNo) {
+        return ejb.findStudiesByAccessionNo(accNo);
+    }
+
     @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
         ctx.setAttributes(attrs);
@@ -327,7 +331,7 @@ class StoreServiceImpl implements StoreService {
         Map<String, Set<String>> refIUIDsBySeriesIUID = new HashMap<>();
         RetrieveContext ctx;
         if (refSeriesSeq == null) {
-             ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
+            ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
                     sourceStudyUID);
         } else {
             for (Attributes item : refSeriesSeq) {
@@ -365,7 +369,7 @@ class StoreServiceImpl implements StoreService {
         String characterSet = session.getArchiveAEExtension().defaultCharacterSet();
         if (characterSet != null) {
             LOG.debug("{}: No Specific Character Set (0008,0005) in received data set - " +
-                            "supplement configured Default Character Set: {}", session, characterSet);
+                    "supplement configured Default Character Set: {}", session, characterSet);
             attrs.setString(Tag.SpecificCharacterSet, VR.CS, characterSet);
         }
     }

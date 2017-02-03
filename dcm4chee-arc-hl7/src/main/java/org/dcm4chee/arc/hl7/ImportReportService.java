@@ -41,10 +41,7 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -52,6 +49,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -60,7 +58,11 @@ import org.dcm4chee.arc.store.StoreSession;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -104,7 +106,16 @@ class ImportReportService extends AbstractHL7Service {
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
                 msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), null);
-        adjust(attrs);
+        if (attrs.getString(Tag.StudyInstanceUID) == null) {
+            if (!adjustForMultipleStudies(attrs, s, ae, msh)) {
+                adjust(attrs);
+                store(s, ae, msh, attrs);
+            }
+        } else
+            store(s, ae, msh, attrs);
+    }
+
+    private void store(Socket s, ApplicationEntity ae, HL7Segment msh, Attributes attrs) throws IOException {
         try (StoreSession session = storeService.newStoreSession(s, msh, ae)) {
             StoreContext ctx = storeService.newStoreContext(session);
             ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
@@ -115,12 +126,68 @@ class ImportReportService extends AbstractHL7Service {
     }
 
     private void adjust(Attributes attrs) {
-        if (attrs.getString(Tag.StudyInstanceUID) == null)
-            attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
-        if (attrs.getString(Tag.SOPInstanceUID) == null)
-            attrs.setString(Tag.SOPInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
-        if (attrs.getString(Tag.SeriesInstanceUID) == null)
-            attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
-                    UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
+        attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+        attrs.setString(Tag.SOPInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+        attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
+                UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
+
     }
+
+    private boolean adjustForMultipleStudies(Attributes attrs, Socket s, ApplicationEntity ae, HL7Segment msh) throws IOException {
+        boolean result = false;
+        if (attrs.getString(Tag.AccessionNumber) != null) {
+            List<Study> studies = storeService.findStudiesByAccessionNo(attrs.getString(Tag.AccessionNumber));
+            List<String[]> studySeriesSopList = new ArrayList<>(studies.size());
+            int i = 0;
+            for (Study study : studies) {
+                String sopIUID = UIDUtils.createUID();
+                String[] studySeriesSop = {study.getStudyInstanceUID(), UIDUtils.createNameBasedUID(sopIUID.getBytes()),
+                        sopIUID};
+                studySeriesSopList.add(i, studySeriesSop);
+                i++;
+            }
+            for (Study study : studies) {
+                for (int j = 0; j < studySeriesSopList.size(); j++) {
+                    String[] studySeriesSop = studySeriesSopList.get(j);
+                    if (study.getStudyInstanceUID().equals(studySeriesSop[0])) {
+                        attrs.setString(Tag.StudyInstanceUID, VR.UI, studySeriesSop[0]);
+                        attrs.setString(Tag.SeriesInstanceUID, VR.UI, studySeriesSop[1]);
+                        attrs.setString(Tag.SOPInstanceUID, VR.UI, studySeriesSop[2]);
+                        Sequence seq = attrs.newSequence(Tag.IdenticalDocumentsSequence, studySeriesSopList.size() - 1);
+                        Iterator<String[]> studySeriesSopIter = studySeriesSopList.iterator();
+                        while (studySeriesSopIter.hasNext()) {
+                            String[] identicalDocSeqRefs = studySeriesSopIter.next();
+                            if (!identicalDocSeqRefs[0].equals(studySeriesSop[0]))
+                                seq.add(refStudy(identicalDocSeqRefs[0], identicalDocSeqRefs[1], identicalDocSeqRefs[2]));
+                        }
+                        store(s, ae, msh, attrs);
+                    }
+                }
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    private Attributes refStudy(String studyUID, String seriesUID, String sopUID) {
+        Attributes refStudyAttrs = new Attributes(2);
+        refStudyAttrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+        refStudyAttrs.newSequence(Tag.ReferencedSeriesSequence, 2).add(refSeries(seriesUID, sopUID));
+        return refStudyAttrs;
+    }
+
+    private Attributes refSeries(String seriesUID, String sopUID) {
+        Attributes refSeriesAttrs = new Attributes(2);
+        refSeriesAttrs.setString(Tag.SeriesInstanceUID, VR.UI, seriesUID);
+        refSeriesAttrs.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP(sopUID));
+        return refSeriesAttrs;
+    }
+
+    private Attributes refSOP(String sopIUID) {
+        Attributes attrs = new Attributes(2);
+        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, sopIUID);
+        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, "1.2.840.10008.5.1.4.1.1.88.11");
+        return attrs;
+    }
+
 }

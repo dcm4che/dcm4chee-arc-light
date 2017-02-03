@@ -5,6 +5,7 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
@@ -72,4 +74,6 @@ public interface StoreService {
             throws IOException;
 
     void restoreInstances(StoreSession session, String studyUID, String seriesUID) throws IOException;
+
+    List<Study> findStudiesByAccessionNo(String accNo);
 }

@@ -61,81 +61,85 @@ import java.util.*;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
 @NamedQueries({
-@NamedQuery(
-    name=Study.FIND_BY_PATIENT,
-    query="select st from Study st " +
-            "where st.patient = ?1"),
-@NamedQuery(
-    name=Study.FIND_BY_STUDY_IUID,
-    query="select st from Study st " +
-            "where st.studyInstanceUID = ?1"),
-@NamedQuery(
-    name=Study.FIND_BY_STUDY_IUID_EAGER,
-    query="select st from Study st " +
-            "join fetch st.patient p " +
-            "left join fetch p.patientName " +
-            "left join fetch st.referringPhysicianName " +
-            "join fetch st.attributesBlob " +
-            "join fetch p.attributesBlob " +
-            "where st.studyInstanceUID = ?1"),
-@NamedQuery(
-    name=Study.FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME,
-    query="select st.pk from Study st " +
-            "where st.storageIDs = ?1 " +
-            "order by st.accessTime"),
-@NamedQuery(
-    name=Study.FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET,
-    query="select st.pk from Study st " +
-            "where st.storageIDs = ?1 and st.externalRetrieveAET = ?2 " +
-            "order by st.accessTime"),
-@NamedQuery(
-    name=Study.UPDATE_ACCESS_TIME,
-    query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1"),
-@NamedQuery(
-    name=Study.SET_FAILED_SOP_INSTANCE_UID_LIST,
-    query="update Study st set st.failedSOPInstanceUIDList = ?2 " +
-            "where st.studyInstanceUID = ?1"),
-@NamedQuery(
-    name=Study.INCREMENT_FAILED_RETRIEVES,
-    query="update Study st set st.failedRetrieves = st.failedRetrieves + 1, st.failedSOPInstanceUIDList = ?2 " +
-            "where st.studyInstanceUID = ?1"),
-@NamedQuery(
-    name=Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST,
-    query="update Study st set st.failedSOPInstanceUIDList = NULL where st.studyInstanceUID = ?1"),
-@NamedQuery(
-    name=Study.COUNT_STUDIES_OF_PATIENT,
-    query="select count(st) from Study st " +
-            "where st.patient = ?1"),
-@NamedQuery(
-    name=Study.GET_EXPIRED_STUDIES,
-    query="select st from Study st " +
-            "where st.expirationDate <= ?1"),
-@NamedQuery(
-    name = Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID,
-    query = "select st from Study st " +
-            "where st.accessControlID = ?1 and st.accessTime = ?2")
+        @NamedQuery(
+                name=Study.FIND_BY_PATIENT,
+                query="select st from Study st " +
+                        "where st.patient = ?1"),
+        @NamedQuery(
+                name=Study.FIND_BY_STUDY_IUID,
+                query="select st from Study st " +
+                        "where st.studyInstanceUID = ?1"),
+        @NamedQuery(
+                name=Study.FIND_BY_STUDY_IUID_EAGER,
+                query="select st from Study st " +
+                        "join fetch st.patient p " +
+                        "left join fetch p.patientName " +
+                        "left join fetch st.referringPhysicianName " +
+                        "join fetch st.attributesBlob " +
+                        "join fetch p.attributesBlob " +
+                        "where st.studyInstanceUID = ?1"),
+        @NamedQuery(
+                name=Study.FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME,
+                query="select st.pk from Study st " +
+                        "where st.storageIDs = ?1 " +
+                        "order by st.accessTime"),
+        @NamedQuery(
+                name=Study.FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET,
+                query="select st.pk from Study st " +
+                        "where st.storageIDs = ?1 and st.externalRetrieveAET = ?2 " +
+                        "order by st.accessTime"),
+        @NamedQuery(
+                name=Study.UPDATE_ACCESS_TIME,
+                query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1"),
+        @NamedQuery(
+                name=Study.SET_FAILED_SOP_INSTANCE_UID_LIST,
+                query="update Study st set st.failedSOPInstanceUIDList = ?2 " +
+                        "where st.studyInstanceUID = ?1"),
+        @NamedQuery(
+                name=Study.INCREMENT_FAILED_RETRIEVES,
+                query="update Study st set st.failedRetrieves = st.failedRetrieves + 1, st.failedSOPInstanceUIDList = ?2 " +
+                        "where st.studyInstanceUID = ?1"),
+        @NamedQuery(
+                name=Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST,
+                query="update Study st set st.failedSOPInstanceUIDList = NULL where st.studyInstanceUID = ?1"),
+        @NamedQuery(
+                name=Study.COUNT_STUDIES_OF_PATIENT,
+                query="select count(st) from Study st " +
+                        "where st.patient = ?1"),
+        @NamedQuery(
+                name=Study.GET_EXPIRED_STUDIES,
+                query="select st from Study st " +
+                        "where st.expirationDate <= ?1"),
+        @NamedQuery(
+                name = Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID,
+                query = "select st from Study st " +
+                        "where st.accessControlID = ?1 and st.accessTime = ?2"),
+        @NamedQuery(
+                name=Study.FIND_BY_ACCESSION_NUMBER,
+                query = "select st from Study st " +
+                        "where st.accessionNumber = ?1")
 })
 @Entity
 @Table(name = "study",
-    uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
-    indexes = {
-        @Index(columnList = "access_time"),
-        @Index(columnList = "created_time"),
-        @Index(columnList = "access_control_id"),
-        @Index(columnList = "rejection_state"),
-        @Index(columnList = "storage_ids"),
-        @Index(columnList = "study_date"),
-        @Index(columnList = "study_time"),
-        @Index(columnList = "accession_no"),
-        @Index(columnList = "study_desc"),
-        @Index(columnList = "study_custom1"),
-        @Index(columnList = "study_custom2"),
-        @Index(columnList = "study_custom3"),
-        @Index(columnList = "expiration_date"),
-        @Index(columnList = "failed_retrieves"),
-        @Index(columnList = "failed_iuids"),
-        @Index(columnList = "ext_retrieve_aet")
-    })
+        uniqueConstraints = @UniqueConstraint(columnNames = "study_iuid"),
+        indexes = {
+                @Index(columnList = "access_time"),
+                @Index(columnList = "created_time"),
+                @Index(columnList = "access_control_id"),
+                @Index(columnList = "rejection_state"),
+                @Index(columnList = "storage_ids"),
+                @Index(columnList = "study_date"),
+                @Index(columnList = "study_time"),
+                @Index(columnList = "accession_no"),
+                @Index(columnList = "study_desc"),
+                @Index(columnList = "study_custom1"),
+                @Index(columnList = "study_custom2"),
+                @Index(columnList = "study_custom3"),
+                @Index(columnList = "expiration_date"),
+                @Index(columnList = "failed_retrieves"),
+                @Index(columnList = "failed_iuids"),
+                @Index(columnList = "ext_retrieve_aet")
+        })
 public class Study {
 
     public static final String FIND_BY_PATIENT = "Study.findByPatient";
@@ -150,15 +154,16 @@ public class Study {
     public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
     public static final String GET_EXPIRED_STUDIES = "Study.GetExpiredStudies";
     public static final String FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID = "Study.FindByAccessTimeAndAccessControlID";
+    public static final String FIND_BY_ACCESSION_NUMBER = "Study.FindByAccessionNumber";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pk")
     private long pk;
-    
+
     @Version
     @Column(name = "version")
-    private long version;    
+    private long version;
 
     @Basic(optional = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -255,9 +260,9 @@ public class Study {
     private IssuerEntity issuerOfAccessionNumber;
 
     @ManyToMany
-    @JoinTable(name = "rel_study_pcode", 
-        joinColumns = @JoinColumn(name = "study_fk", referencedColumnName = "pk"),
-        inverseJoinColumns = @JoinColumn(name = "pcode_fk", referencedColumnName = "pk"))
+    @JoinTable(name = "rel_study_pcode",
+            joinColumns = @JoinColumn(name = "study_fk", referencedColumnName = "pk"),
+            inverseJoinColumns = @JoinColumn(name = "pcode_fk", referencedColumnName = "pk"))
     private Collection<CodeEntity> procedureCodes;
 
     @OneToMany(mappedBy = "study", cascade=CascadeType.ALL)
@@ -382,11 +387,11 @@ public class Study {
     public PersonName getReferringPhysicianName() {
         return referringPhysicianName;
     }
-    
+
     public AttributesBlob getAttributesBlob() {
         return attributesBlob;
     }
-    
+
     public Attributes getAttributes() throws BlobCorruptedException {
         return attributesBlob.getAttributes();
     }
@@ -487,12 +492,12 @@ public class Study {
         referringPhysicianName = PersonName.valueOf(
                 attrs.getString(Tag.ReferringPhysicianName), fuzzyStr,
                 referringPhysicianName);
-        studyCustomAttribute1 = 
-            AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute1(), "*");
+        studyCustomAttribute1 =
+                AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute1(), "*");
         studyCustomAttribute2 =
-            AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute2(), "*");
+                AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute2(), "*");
         studyCustomAttribute3 =
-            AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute3(), "*");
+                AttributeFilter.selectStringValue(attrs, filter.getCustomAttribute3(), "*");
 
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
