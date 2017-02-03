@@ -302,7 +302,7 @@ class StoreServiceImpl implements StoreService {
                     store(ctx, attr);
                     populateResult(refSOPSeq, attr);
                 } catch (DicomServiceException e) {
-                    result.setString(Tag.FailureReason, VR.US, Integer.toString(e.getStatus()) + e.getMessage());
+                    result.setString(Tag.FailureReason, VR.US, Integer.toString(e.getStatus()));
                     populateResult(failedSOPSeq, attr);
                 }
             }
