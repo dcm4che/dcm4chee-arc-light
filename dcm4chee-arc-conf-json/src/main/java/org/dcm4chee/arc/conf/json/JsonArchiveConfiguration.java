@@ -865,7 +865,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setAuditRecordRepositoryURL(reader.stringValue());
                     break;
                 case "dcmCopyMoveUpdatePolicy":
-                    arcDev.setCopyMoveUpdatePolicy(CopyMoveUpdatePolicy.valueOf(reader.stringValue()));
+                    arcDev.setCopyMoveUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1700,7 +1700,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
                     break;
                 case "dcmCopyMoveUpdatePolicy":
-                    arcAE.setCopyMoveUpdatePolicy(CopyMoveUpdatePolicy.valueOf(reader.stringValue()));
+                    arcAE.setCopyMoveUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

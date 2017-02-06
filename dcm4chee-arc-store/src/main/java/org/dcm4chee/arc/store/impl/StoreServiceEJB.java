@@ -688,7 +688,11 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
-        Attributes.UpdatePolicy updatePolicy = filter.getAttributeUpdatePolicy();
+        Attributes.UpdatePolicy updatePolicy = ctx.isCopyOrMove()
+                                                ? arcAE.copyMoveUpdatePolicy() != null
+                                                    ? arcAE.copyMoveUpdatePolicy()
+                                                    : null
+                                                : filter.getAttributeUpdatePolicy();
         if (updatePolicy == null)
             return study;
 

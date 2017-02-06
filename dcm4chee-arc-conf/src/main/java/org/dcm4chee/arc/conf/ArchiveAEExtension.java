@@ -103,7 +103,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration hl7PSUTimeout;
     private Boolean hl7PSUOnTimeout;
     private Boolean hl7PSUMWL;
-    private CopyMoveUpdatePolicy copyMoveUpdatePolicy;
+    private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -896,15 +896,15 @@ public class ArchiveAEExtension extends AEExtension {
                 AcceptConflictingPatientID.MERGED);
     }
 
-    public CopyMoveUpdatePolicy getCopyMoveUpdatePolicy() {
+    public Attributes.UpdatePolicy getCopyMoveUpdatePolicy() {
         return copyMoveUpdatePolicy;
     }
 
-    public void setCopyMoveUpdatePolicy(CopyMoveUpdatePolicy copyMoveUpdatePolicy) {
+    public void setCopyMoveUpdatePolicy(Attributes.UpdatePolicy copyMoveUpdatePolicy) {
         this.copyMoveUpdatePolicy = copyMoveUpdatePolicy;
     }
 
-    public CopyMoveUpdatePolicy copyMoveUpdatePolicy() {
+    public Attributes.UpdatePolicy copyMoveUpdatePolicy() {
         return copyMoveUpdatePolicy != null
                 ? copyMoveUpdatePolicy
                 : getArchiveDeviceExtension().getCopyMoveUpdatePolicy();

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 
 import java.time.LocalTime;
@@ -155,7 +156,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration hl7PSUTaskPollingInterval;
     private boolean hl7PSUMWL = false;
     private String auditRecordRepositoryURL;
-    private CopyMoveUpdatePolicy copyMoveUpdatePolicy;
+    private Attributes.UpdatePolicy copyMoveUpdatePolicy;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1373,11 +1374,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditRecordRepositoryURL = auditRecordRepositoryURL;
     }
 
-    public CopyMoveUpdatePolicy getCopyMoveUpdatePolicy() {
+    public Attributes.UpdatePolicy getCopyMoveUpdatePolicy() {
         return copyMoveUpdatePolicy;
     }
 
-    public void setCopyMoveUpdatePolicy(CopyMoveUpdatePolicy copyMoveUpdatePolicy) {
+    public void setCopyMoveUpdatePolicy(Attributes.UpdatePolicy copyMoveUpdatePolicy) {
         this.copyMoveUpdatePolicy = copyMoveUpdatePolicy;
     }
 
