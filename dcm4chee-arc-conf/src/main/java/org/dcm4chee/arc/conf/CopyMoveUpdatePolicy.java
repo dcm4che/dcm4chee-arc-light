@@ -45,5 +45,5 @@ package org.dcm4chee.arc.conf;
  * @since Feb 2017
  */
 public enum CopyMoveUpdatePolicy {
-    SUPPLEMENT, OVERWRITE, MERGED
+    SUPPLEMENT, OVERWRITE, MERGED, REPLACE
 }

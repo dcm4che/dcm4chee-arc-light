@@ -928,7 +928,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.155 NAME 'dcmAuditRecordRepositoryURL'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.156 NAME 'dcmCopyMoveUpdatePolicy'
-  DESC 'Indicates which policy will be used for updation of attributes for RESTful Copy/Move Instances service. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED. If absent, nothing will be done (target's attributes remain unchanged).'
+  DESC 'Indicates which policy will be used for updation of attributes for RESTful Copy/Move Instances service. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, nothing will be done (target's attributes remain unchanged).'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
