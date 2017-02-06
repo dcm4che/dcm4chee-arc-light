@@ -106,10 +106,14 @@ class ImportReportService extends AbstractHL7Service {
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
                 msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), null);
-        if (attrs.getString(Tag.StudyInstanceUID) == null)
-            if (!adjustForMultipleStudies(attrs, s, ae, msh))
+        if (attrs.getString(Tag.StudyInstanceUID) == null) {
+            if (!adjustForMultipleStudies(attrs, s, ae, msh)) {
                 adjust(attrs);
-        store(s, ae, msh, attrs);
+                store(s, ae, msh, attrs);
+            }
+        } else {
+            store(s, ae, msh, attrs);
+        }
     }
 
     private void store(Socket s, ApplicationEntity ae, HL7Segment msh, Attributes attrs) throws IOException {
