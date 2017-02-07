@@ -619,14 +619,14 @@
             </div>
             <div class="thead header4" [ngClass]="{'hover':visibleHeaderIndex === 3}">
                 <div class="tr_row ">
-                    <div class="th">
+                    <div class="th" style="width:6.7%" >
                     </div>
-                    <div class="th">SOP Class UID</div>
+                    <div class="th" style="width:18%" >SOP Class UID</div>
                     <div class="th">Instance Number</div>
                     <div class="th">Content Date</div>
                     <div class="th">Content Time</div>
-                    <div style="width:28%" class="th">Content Description</div>
-                    <div style="width:2%" class="th">#F</div>
+                    <div style="width:30%" class="th">Content Description</div>
+                    <div style="width:3%" class="th">#F</div>
                 </div>
             </div>
             <div class="thead header5" [ngClass]="{'hover':visibleHeaderIndex === 4}">
@@ -863,22 +863,22 @@
                                             </div>
                                             <div class="subblock">
                                                 <div class="tr_row repeat3_hover" (click)='select(instance._VALUE,"instance", {patientkey:patient._KEY,"study._KEY":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY})' [ngClass]="{selected: instance._VALUE.selected}" >
-                                                    <div class="td_cell table_btn">
+                                                    <div class="td_cell table_btn" style="width:4%">
                                                         <!-- <input type="checkbox" [(ngModel)]="instance._VALUE.selected" class="selectcheckboxes" /> -->
-                                                        <a (click)="$event.preventDefault();toggleAttributs(series._VALUE.instances[instance._KEY],'attributs')" href="" title="Show Attributes" [ngClass]="{active:instance._VALUE.showAttributes}">
+                                                        <a style="width:45%" (click)="$event.preventDefault();toggleAttributs(series._VALUE.instances[instance._KEY],'attributs')" href="" title="Show Attributes" [ngClass]="{active:instance._VALUE.showAttributes}">
                                                             <span class="glyphicon glyphicon-th-list"></span>
                                                         </a>
-                                                        <a (click)="$event.preventDefault();toggleAttributs(series._VALUE.instances[instance._KEY],'fileattributs')" href="" title="Show Attributes from file" [ngClass]="{active:instance._VALUE.showFileAttributes}">
+                                                        <a style="width:45%" (click)="$event.preventDefault();toggleAttributs(series._VALUE.instances[instance._KEY],'fileattributs')" href="" title="Show Attributes from file" [ngClass]="{active:instance._VALUE.showFileAttributes}">
                                                             <span class="glyphicon glyphicon-list"></span>
                                                         </a>
 
                                                     </div>
-                                                    <div class="td_cell txt hover_cell"  ><div *ngIf="instance._VALUE.attrs['00080016'] && instance._VALUE.attrs['00080016'].Value && instance._VALUE.attrs['00080016'].Value[0]" tooltip="{{instance._VALUE.attrs['00080016'].Value[0]}}" >{{(instance._VALUE.attrs['00080016'].Value[0]) || '&nbsp;'}}</div></div>
+                                                    <div class="td_cell txt hover_cell" style="width:18.6%" ><div *ngIf="instance._VALUE.attrs['00080016'] && instance._VALUE.attrs['00080016'].Value && instance._VALUE.attrs['00080016'].Value[0]" tooltip="{{instance._VALUE.attrs['00080016'].Value[0]}}" >{{(instance._VALUE.attrs['00080016'].Value[0]) || '&nbsp;'}}</div></div>
                                                     <div class="td_cell txt hover_cell"  ><div *ngIf="instance._VALUE.attrs['00200013'] && instance._VALUE.attrs['00200013'].Value && instance._VALUE.attrs['00200013'].Value[0]" tooltip="{{instance._VALUE.attrs['00200013'].Value[0]}}" >{{(instance._VALUE.attrs['00200013'].Value[0]) || '&nbsp;'}}</div></div>
                                                     <div class="td_cell hover_cell" ><div *ngIf="(instance._VALUE.attrs['00080023'] && instance._VALUE.attrs['00080023'].Value && instance._VALUE.attrs['00080023'].Value[0]) || (instance._VALUE.attrs['00700082'] && instance._VALUE.attrs['00700082'].Value && instance._VALUE.attrs['00700082'].Value[0])">{{((instance._VALUE.attrs['00080023'] || instance._VALUE.attrs['00700082']).Value[0] | formatDA) || '&nbsp;'}}</div></div>
                                                     <div class="td_cell hover_cell" ><div *ngIf="(instance._VALUE.attrs['00080033'] && instance._VALUE.attrs['00080033'].Value && instance._VALUE.attrs['00080033'].Value[0]) || (instance._VALUE.attrs['00700083'] && instance._VALUE.attrs['00700083'].Value && instance._VALUE.attrs['00700083'].Value[0])">{{((instance._VALUE.attrs['00080033'] || instance._VALUE.attrs['00700083']).Value[0] | formatTM) || '&nbsp;'}}</div></div>
-                                                    <div style="width:28%" class="td_cell txt hover_cell" tooltip="{{(instance._VALUE.attrs | contentDescription)}}" [innerHtml]="instance._VALUE.attrs | contentDescription"></div>
-                                                    <div style="width:2.7%" class="td_cell hover_cell" ></div>
+                                                    <div style="width:30.7%" class="td_cell txt hover_cell" tooltip="{{(instance._VALUE.attrs | contentDescription)}}" [innerHtml]="instance._VALUE.attrs | contentDescription"></div>
+                                                    <div style="width:3%" class="td_cell hover_cell" ></div>
                                                 </div>
                                                 <div class="tr_row"  *ngIf="instance._VALUE.showAttributes">
                                                     <div class="td_cell attribute_list">
