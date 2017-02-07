@@ -773,6 +773,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.155 NAME 'dcmAuditRecordRepositoryUR
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.156 NAME 'dcmCopyMoveUpdatePolicy'
+  DESC 'Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, the attributes will not be updated.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -869,6 +874,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAllowDeleteStudyPermanently $
     dcmRemapRetrieveURL $
     dcmAuditRecordRepositoryURL $
+    dcmCopyMoveUpdatePolicy $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
     hl7PSUDelay $
@@ -925,6 +931,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAcceptedUserRole $
     dcmAllowDeleteStudyPermanently $
+    dcmCopyMoveUpdatePolicy $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $
