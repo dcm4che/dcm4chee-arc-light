@@ -97,7 +97,7 @@ public interface QueryService {
     Attributes createIAN(ApplicationEntity ae, String studyInstanceUID, String seriesInstanceUID,
                          Availability instanceAvailability, String... retrieveAETs);
 
-    Attributes createRejectionNote(
+    Attributes createRejectionNote(boolean copyMove,
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);
 
     Attributes createRejectionNote(Attributes sopInstanceRefs, RejectionNote rjNote);

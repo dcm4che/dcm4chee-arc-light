@@ -107,6 +107,11 @@
         "MERGED"
       ]
     },
+    "hl7TrackChangedPatientID": {
+      "title": "Track Changed Patient ID",
+      "description": "Enable to keep track of the prior Patient ID on a change of the Patient ID by HL7 ADT^A47 or by the RESTful Patient Update Service. Enabled if absent.",
+      "type": "boolean"
+    },
     "dcmBulkDataSpoolDirectory": {
       "title": "Bulk Data Spool Directory",
       "description": "Path to Bulk Data Spool Directory",
@@ -554,6 +559,17 @@
       "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
       "type": "string"
     },
+    "dcmCopyMoveUpdatePolicy": {
+      "title": "Copy Move Update Policy",
+      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, the attributes will not be updated.",
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "OVERWRITE",
+        "MERGED",
+        "REPLACE"
+      ]
+    },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled.",
@@ -596,11 +612,6 @@
       "type": "integer",
       "minimum": 0,
       "exclusiveMinimum": true
-    },
-    "dcmAuditRecordRepositoryURL": {
-      "title": "Audit Record Repository URL",
-      "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
-      "type": "string"
     },
     "dcmStorage": {
       "title": "Storage Descriptor",

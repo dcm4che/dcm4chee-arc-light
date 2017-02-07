@@ -69,6 +69,7 @@ public class QueryParam {
     private CodeEntity[] hideRejectionNotesWithCode = {};
     private String sendingApplicationEntityTitleOfSeries;
     private String studyReceiveDateTime;
+    private boolean hideNotRejectedInstances;
 
     public QueryParam(ApplicationEntity ae) {
         this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
@@ -114,6 +115,10 @@ public class QueryParam {
 
     public boolean isHideNotRejectedInstances() {
         return qrView.isHideNotRejectedInstances();
+    }
+
+    public void setHideNotRejectedInstances(boolean hideNotRejectedInstances) {
+        this.qrView.setHideNotRejectedInstances(hideNotRejectedInstances);
     }
 
     public AttributeFilter getAttributeFilter(Entity entity) {

@@ -77,6 +77,10 @@ import java.util.*;
             "join fetch p.attributesBlob " +
             "where i.sopInstanceUID = ?1"),
 @NamedQuery(
+    name=Instance.FIND_BY_SERIES_AND_SOP_IUID,
+    query="select i from Instance i " +
+            "where i.series = ?1 AND i.sopInstanceUID = ?2"),
+@NamedQuery(
         name=Instance.FIND_LAST_MODIFIED_STUDY_LEVEL,
         query="SELECT p.updatedTime, st.modifiedTime, MAX(se.updatedTime), MAX(i.updatedTime) from Instance i " +
                 "JOIN i.series se " +
@@ -169,6 +173,7 @@ import java.util.*;
 public class Instance {
 
     public static final String FIND_BY_SOP_IUID_EAGER = "Instance.findBySopIUIDEager";
+    public static final String FIND_BY_SERIES_AND_SOP_IUID = "Instance.findBySeriesAndSopIUID";
     public static final String FIND_BY_STUDY_SERIES_SOP_IUID_EAGER = "Instance.findByStudySeriesSopIUIDEager";
     public static final String COUNT_INSTANCES_OF_SERIES = "Instance.countInstancesOfSeries";
     public static final String COUNT_REJECTED_INSTANCES_OF_SERIES = "Instance.countRejectedInstancesOfSeries";

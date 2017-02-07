@@ -38,23 +38,58 @@
  * ** END LICENSE BLOCK *****
  */
 
-package dcm4chee.arc.audit.arr;
+package org.dcm4chee.arr.proxy;
 
-import javax.servlet.http.HttpServletRequest;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
+import org.dcm4che3.conf.api.DicomConfiguration;
+import org.dcm4che3.net.Device;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Jan 2017
+ * @since Jul 2015
  */
-public class AuditLogUsed {
-    private final HttpServletRequest request;
+@ApplicationScoped
+public class ArchiveDeviceProducer {
 
-    public AuditLogUsed(HttpServletRequest request) {
-        this.request = request;
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveDeviceProducer.class);
+    private static final String DEF_DEVICE_NAME = "dcm4chee-arc";
+
+    @Inject
+    private DicomConfiguration conf;
+
+    private Device device;
+
+    @PostConstruct
+    private void init() {
+        try {
+            device = findDevice();
+        } catch (ConfigurationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public HttpServletRequest getHttpRequest() {
-        return request;
+    @Produces
+    public Device getDevice() {
+        return device;
     }
 
+    private Device findDevice() throws ConfigurationException {
+        String key = "dcm4chee-arc.DeviceName";
+        String name = System.getProperty(key, DEF_DEVICE_NAME);
+        try {
+            return conf.findDevice(name);
+        } catch (ConfigurationNotFoundException e) {
+            LOG.error("Missing Configuration for Device '{}' - you may change the Device name by System Property '{}'",
+                    name, key);
+            throw e;
+        }
+    }
 }

@@ -45,19 +45,13 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.9.0</version>
+    <version>5.9.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>dcm4chee-arc-audit</artifactId>
 
   <dependencies>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-audit-arr</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-conf</artifactId>
@@ -97,7 +91,7 @@
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-retrieve</artifactId>
-      <version>5.9.0</version>
+      <version>5.9.1</version>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>

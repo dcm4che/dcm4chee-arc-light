@@ -76,6 +76,8 @@ public class LdapArchiveConfigurationFactory {
 
     private static final String LDAP_PROPERTIES = "ldap.properties";
     private static final String JBOSS_SERVER_CONFIG_DIR = "jboss.server.config.dir";
+    private static final String APP_NAME_PROPERTY = "org.dcm4chee.arc.AppName";
+    private static final String DEF_APP_NAME = "dcm4chee-arc";
 
     private static final LdapDicomConfigurationExtension[] configExts() {
         return new LdapDicomConfigurationExtension[]{
@@ -87,9 +89,6 @@ public class LdapArchiveConfigurationFactory {
                 newLdapHL7Configuration()
         };
     };
-
-    @Resource(lookup="java:app/AppName")
-    String appName;
 
     private static LdapDicomConfigurationExtension newLdapHL7Configuration() {
         LdapHL7Configuration hl7Config = new LdapHL7Configuration();
@@ -142,6 +141,7 @@ public class LdapArchiveConfigurationFactory {
     }
 
     private URL envURL() {
+        String appName = System.getProperty(APP_NAME_PROPERTY, DEF_APP_NAME);
         String configDir = System.getProperty(JBOSS_SERVER_CONFIG_DIR);
         Path path = Paths.get(configDir, appName, LDAP_PROPERTIES);
         try {

@@ -45,11 +45,65 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.9.0</version>
+    <version>5.9.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arc-audit-arr</artifactId>
+  <artifactId>dcm4chee-arr-proxy</artifactId>
+  <packaging>war</packaging>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-conf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-conf-ldap</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <classifier>${classifier}</classifier>
+          <webXml>${webXml}</webXml>
+          <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>unsecure</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
+        <classifier>unsecure</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>secure</id>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
+        <classifier>secure</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>secure-ui</id>
+      <properties>
+        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
+        <classifier>secure</classifier>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

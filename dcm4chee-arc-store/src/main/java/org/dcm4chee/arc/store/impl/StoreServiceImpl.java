@@ -167,7 +167,7 @@ class StoreServiceImpl implements StoreService {
             if (ctx.getAcceptedStudyInstanceUID() != null
                     && !ctx.getAcceptedStudyInstanceUID().equals(ctx.getStudyInstanceUID())) {
                 LOG.info("{}: Received Instance[studyUID={},seriesUID={},objectUID={}]" +
-                        " does not match requested studyUID={}", ctx.getStoreSession(), ctx.getStudyInstanceUID(),
+                                " does not match requested studyUID={}", ctx.getStoreSession(), ctx.getStudyInstanceUID(),
                         ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), ctx.getAcceptedStudyInstanceUID());
                 throw new DicomServiceException(DIFF_STUDY_INSTANCE_UID);
             }
@@ -249,6 +249,10 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
+    public List<Study> findStudiesByAccessionNo(String accNo) {
+        return ejb.findStudiesByAccessionNo(accNo);
+    }
+
     @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
         ctx.setAttributes(attrs);
@@ -279,10 +283,20 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
+    private void store(StoreSession session, Attributes ko) throws IOException {
+        StoreContext ctx = newStoreContext(session);
+        ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+        ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+        ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+        store(ctx, ko);
+    }
+
     @Override
-    public Attributes copyInstances(
+    public Attributes copyInstances(Attributes ko,
             StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
-            throws IOException {
+            throws Exception {
+        if (ko != null)
+            store(session, ko);
         Attributes result = new Attributes();
         session.setUIDMap(uidMap);
         if (instances != null) {
@@ -298,15 +312,25 @@ class StoreServiceImpl implements StoreService {
                 ctx.setRetrieveAETs(il.getRetrieveAETs());
                 ctx.setAvailability(il.getAvailability());
                 try {
+                    ctx.setCopyOrMove(true);
                     store(ctx, attr);
                     populateResult(refSOPSeq, attr);
                 } catch (DicomServiceException e) {
-                    result.setString(Tag.FailureReason, VR.US, Integer.toString(e.getStatus()) + e.getMessage());
+                    if (ko != null)
+                        UIDUtils.remapUIDs(attr, reverseUIDMap(uidMap));
+                    result.setString(Tag.FailureReason, VR.US, Integer.toString(e.getStatus()));
                     populateResult(failedSOPSeq, attr);
                 }
             }
         }
         return result;
+    }
+
+    private Map<String, String> reverseUIDMap(Map<String, String> uidMap) {
+        Map<String, String> reverseUidMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : uidMap.entrySet())
+            reverseUidMap.put(entry.getValue(), entry.getKey());
+        return reverseUidMap;
     }
 
     private void populateResult(Sequence refSOPSeq, Attributes ilAttr) {
@@ -326,7 +350,7 @@ class StoreServiceImpl implements StoreService {
         Map<String, Set<String>> refIUIDsBySeriesIUID = new HashMap<>();
         RetrieveContext ctx;
         if (refSeriesSeq == null) {
-             ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
+            ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
                     sourceStudyUID);
         } else {
             for (Attributes item : refSeriesSeq) {
@@ -364,7 +388,7 @@ class StoreServiceImpl implements StoreService {
         String characterSet = session.getArchiveAEExtension().defaultCharacterSet();
         if (characterSet != null) {
             LOG.debug("{}: No Specific Character Set (0008,0005) in received data set - " +
-                            "supplement configured Default Character Set: {}", session, characterSet);
+                    "supplement configured Default Character Set: {}", session, characterSet);
             attrs.setString(Tag.SpecificCharacterSet, VR.CS, characterSet);
         }
     }
@@ -542,15 +566,20 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ZipInputStream openZipInputStream(StoreContext storeContext, String storageID, String storagePath)
+    public ZipInputStream openZipInputStream(
+            StoreSession session, String storageID, String storagePath, String studyUID)
             throws IOException {
-        StoreSession session = storeContext.getStoreSession();
         ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
         Storage storage = getStorage(session,  arcDev.getStorageDescriptor(storageID));
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(storagePath);
-        readContext.setStudyInstanceUID(storeContext.getStudyInstanceUID());
+        readContext.setStudyInstanceUID(studyUID);
         return new ZipInputStream(storage.openInputStream(readContext));
+    }
+
+    @Override
+    public void restoreInstances(StoreSession session, String studyUID, String seriesUID) throws IOException {
+        ejb.restoreInstances(session, studyUID, seriesUID);
     }
 
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {

@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.audit;
 
-import dcm4chee.arc.audit.arr.AuditLogUsed;
 import org.dcm4che3.audit.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
@@ -133,9 +132,6 @@ public class AuditService {
                 break;
             case PROC_STUDY:
                 auditProcedureRecord(auditLogger, readerObj, eventTime, eventType);
-                break;
-            case AUDIT_LOG_USED:
-                auditLogUsed(auditLogger, readerObj, eventTime, eventType);
                 break;
         }
     }
@@ -718,31 +714,6 @@ public class AuditService {
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                 .name(prI.getField(AuditInfo.P_NAME)).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), auditLogger);
-    }
-
-    void spoolAuditLogUsed(AuditLogUsed auditLogUsed) {
-        AuditServiceUtils.EventType et = AuditServiceUtils.EventType.AUD_LOG_US;
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        LinkedHashSet<Object> obj = new LinkedHashSet<>();
-        String callingAET = auditLogUsed.getHttpRequest().getAttribute(keycloakClassName) != null
-                ? getPreferredUsername(auditLogUsed.getHttpRequest()) : auditLogUsed.getHttpRequest().getRemoteAddr();
-        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(auditLogUsed.getHttpRequest().getRemoteHost())
-                .callingAET(callingAET).calledHost(arcDev.getAuditRecordRepositoryURL()).outcome(null).build();
-        obj.add(new AuditInfo(i));
-        writeSpoolFile(String.valueOf(et), obj);
-    }
-
-    private void auditLogUsed(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime,
-                              AuditServiceUtils.EventType et) {
-        AuditInfo prI = new AuditInfo(readerObj.getMainInfo());
-        EventIdentification ei = getEI(et, prI.getField(AuditInfo.OUTCOME), eventTime);
-        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(prI.getField(AuditInfo.CALLING_AET),
-                prI.getField(AuditInfo.CALLING_HOST)).requester(et.isSource).build();
-        BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
-                prI.getField(AuditInfo.CALLED_HOST), AuditMessages.ParticipantObjectIDTypeCode.URI,
-                AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.SecurityResource)
-                .name("Security Audit Log").build();
-        emitAuditMessage(ei, getApList(ap1), getPoiList(poi1), auditLogger);
     }
 
     private BuildAuditInfo getAIStoreCtx(StoreContext ctx) {

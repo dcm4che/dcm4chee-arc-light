@@ -273,6 +273,17 @@
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
       "type": "string"
     },
+    "dcmCopyMoveUpdatePolicy": {
+      "title": "Copy Move Update Policy",
+      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, the attributes will not be updated.",
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "OVERWRITE",
+        "MERGED",
+        "REPLACE"
+      ]
+    },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent.",

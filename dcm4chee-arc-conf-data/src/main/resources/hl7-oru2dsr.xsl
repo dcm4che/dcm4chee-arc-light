@@ -79,6 +79,10 @@
     <DicomAttribute tag="0020000E" vr="UI">
       <Value number="1"><xsl:value-of select="$seriesuid"/></Value>
     </DicomAttribute>
+    <!--Accession Number-->
+    <DicomAttribute tag="00080050" vr="SH">
+      <Value number="1"><xsl:value-of select="field[18]"/></Value>
+    </DicomAttribute>
     <!--Referenced Request Sequence-->
     <DicomAttribute tag="0040A370" vr="SQ">
       <Item number="1">

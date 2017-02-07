@@ -220,12 +220,13 @@ dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
 dcmSeriesMetadataDelay: PT1M
+dcmAuditRecordRepositoryURL: http://kibana:5601
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
-dicomSoftwareVersion: 5.8.1
+dicomSoftwareVersion: 5.9.0
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D

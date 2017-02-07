@@ -47,13 +47,14 @@
     <servlet-name>javax.ws.rs.core.Application</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
+  <!--
   <security-constraint>
     <web-resource-collection>
-      <web-resource-name>dcm4chee-arc-ui-arr</web-resource-name>
+      <web-resource-name>dcm4chee-arr-proxy</web-resource-name>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
-      <role-name>user</role-name>
+      <role-name>auditlog</role-name>
     </auth-constraint>
   </security-constraint>
   <login-config>
@@ -61,6 +62,7 @@
     <realm-name>dcm4che</realm-name>
   </login-config>
   <security-role>
-    <role-name>user</role-name>
+    <role-name>auditlog</role-name>
   </security-role>
+  -->
 </web-app>

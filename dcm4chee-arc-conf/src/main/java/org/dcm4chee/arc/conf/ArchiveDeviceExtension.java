@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 
 import java.time.LocalTime;
@@ -155,6 +156,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration hl7PSUTaskPollingInterval;
     private boolean hl7PSUMWL = false;
     private String auditRecordRepositoryURL;
+    private Attributes.UpdatePolicy copyMoveUpdatePolicy;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -721,7 +723,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setRejectExpiredStudiesFetchSize(int rejectExpiredStudiesFetchSize) {
         this.rejectExpiredStudiesFetchSize =
-                greaterZero(rejectExpiredStudiesFetchSize, "rejectExpiredStudiesFetchSize");
+                greaterOrEqualsZero(rejectExpiredStudiesFetchSize, "rejectExpiredStudiesFetchSize");
     }
 
     public int getRejectExpiredSeriesFetchSize() {
@@ -730,7 +732,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setRejectExpiredSeriesFetchSize(int rejectExpiredSeriesFetchSize) {
         this.rejectExpiredSeriesFetchSize =
-                greaterZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
+                greaterOrEqualsZero(rejectExpiredSeriesFetchSize, "rejectExpiredSeriesFetchSize");;
     }
 
     public Duration getRejectExpiredStudiesPollingInterval() {
@@ -1153,6 +1155,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return i;
     }
 
+    private int greaterOrEqualsZero(int i, String prompt) {
+        if (i < 0)
+            throw new IllegalArgumentException(prompt + ": " + i);
+        return i;
+    }
+
     public Collection<ExporterDescriptor> getExporterDescriptors() {
         return exporterDescriptorMap.values();
     }
@@ -1366,6 +1374,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditRecordRepositoryURL = auditRecordRepositoryURL;
     }
 
+    public Attributes.UpdatePolicy getCopyMoveUpdatePolicy() {
+        return copyMoveUpdatePolicy;
+    }
+
+    public void setCopyMoveUpdatePolicy(Attributes.UpdatePolicy copyMoveUpdatePolicy) {
+        this.copyMoveUpdatePolicy = copyMoveUpdatePolicy;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1469,6 +1485,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMWL = arcdev.hl7PSUMWL;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
+        copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

@@ -1,0 +1,6 @@
+version: 1
+
+dn: cn=auditlog,ou=users,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: auditlog
+member: uid=admin,ou=users,dc=dcm4che,dc=org
