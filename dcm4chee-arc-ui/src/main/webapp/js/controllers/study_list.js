@@ -1585,6 +1585,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 }
                             }
                             // console.log("$scope.editpatient.attrs",$scope.editpatient.attrs);
+                            if(mode === "create" && $scope.editpatient.attrs["00100021"].Value){
+                                oldPatientID = oldPatientID+"^^^"+$scope.editpatient.attrs["00100021"].Value[0];
+                            }
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients/"+oldPatientID,
                                 $scope.editpatient.attrs
