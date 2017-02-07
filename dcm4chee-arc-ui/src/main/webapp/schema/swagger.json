@@ -1152,6 +1152,51 @@
         "tags": [
           "IOCM-RS"
         ],
+        "summary": "Merge Patients",
+        "operationId": "MergePatients",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer of the dominant Patient encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priorPatientID",
+            "in": "body",
+            "description": "Patient ID and Issuer of the merged Patient encoded as JSON Dataset",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatientIDs"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{patientID}/merge/{priorPatientID}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
         "summary": "Merge Patient",
         "operationId": "MergePatient",
         "consumes": [
@@ -1173,13 +1218,11 @@
             "type": "string"
           },
           {
-            "name": "mergePatientIDs",
-            "in": "body",
-            "description": "Patient ID and Issuer of the merged Patient encoded as JSON Dataset",
+            "name": "priorPatientID",
+            "in": "path",
+            "description": "Patient ID and Issuer of the merged Patient encoded as HL7 CX",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatientIDs"
-            }
+            "type": "string"
           }
         ],
         "responses": {
