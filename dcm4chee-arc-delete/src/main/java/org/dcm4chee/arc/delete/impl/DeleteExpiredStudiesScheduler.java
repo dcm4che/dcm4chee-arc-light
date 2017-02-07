@@ -177,7 +177,7 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
 
     private void reject(ApplicationEntity ae, String studyUID, String seriesUID,
                         RejectionNote rn) throws IOException {
-        Attributes attrs = queryService.createRejectionNote(ae, studyUID, seriesUID, null, rn);
+        Attributes attrs = queryService.createRejectionNote(false, ae, studyUID, seriesUID, null, rn);
         if (attrs == null)
             LOG.warn("No Study with UID: " + studyUID, Response.Status.NOT_FOUND);
 

@@ -427,7 +427,7 @@ public class IocmRS {
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         storeService.restoreInstances(session, studyUID, seriesUID);
 
-        Attributes attrs = queryService.createRejectionNote(
+        Attributes attrs = queryService.createRejectionNote(rsOp == RSOperation.MoveInstances,
                 arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
         if (attrs == null)
             throw new WebApplicationException(getResponse("No Study with UID: " + studyUID, Response.Status.NOT_FOUND));
@@ -485,6 +485,14 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
 
+        RejectionNote rjNote = null;
+        if (code != null) {
+            rjNote = arcDev.getRejectionNote(code);
+            if (rjNote == null)
+                throw new WebApplicationException(getResponse("Unknown Rejection Note Code: "
+                        + code, Response.Status.NOT_FOUND));
+        }
+
         Map<String, String> uidMap = new HashMap<>();
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
@@ -492,8 +500,12 @@ public class IocmRS {
             throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-        rejectInstanceRefs(code, instanceRefs, session, arcDev);
-        final Attributes result = storeService.copyInstances(session, instances, uidMap);
+        Attributes ko = rjNote != null ? queryService.createRejectionNote(instanceRefs, rjNote) : null;
+        final Attributes result = storeService.copyInstances(ko, session, instances, uidMap);
+
+        if (result.getString(Tag.FailureReason) != null && ko != null)
+            reverseRejectionMove(op, instances, result);
+
         forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);
         return new StreamingOutput() {
             @Override
@@ -503,6 +515,15 @@ public class IocmRS {
                 }
             }
         };
+    }
+
+    private void reverseRejectionMove(RSOperation op, Collection<InstanceLocations> instances, Attributes result)
+            throws IOException {
+        for (Attributes item : result.getSequence(Tag.FailedSOPSequence))
+            for (InstanceLocations il : instances)
+                if (item.getString(Tag.ReferencedSOPInstanceUID).equals(il.getSopInstanceUID()))
+                    reject(op, il.getAttributes().getString(Tag.StudyInstanceUID), il.getAttributes().getString(Tag.SeriesInstanceUID),
+                        il.getSopInstanceUID(), "REVOKE_REJECTION", "99DCM4CHEE");
     }
 
     private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,

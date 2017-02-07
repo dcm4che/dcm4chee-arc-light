@@ -61,9 +61,9 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    Attributes copyInstances(
+    Attributes copyInstances(Attributes ko,
             StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
-            throws IOException;
+            throws Exception;
 
     Collection<InstanceLocations> queryInstances(
             StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap)

@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.query.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
@@ -221,16 +222,21 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Attributes createRejectionNote(
+    public Attributes createRejectionNote(boolean copyMove,
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote) {
         SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);
-        if (seriesUID != null) {
-            builder.setSeriesInstanceUID(seriesUID);
-            if (objectUID != null)
-                builder.setSOPInstanceUID(objectUID);
+        if (!copyMove) {
+            if (seriesUID != null) {
+                builder.setSeriesInstanceUID(seriesUID);
+                if (objectUID != null)
+                    builder.setSOPInstanceUID(objectUID);
+            }
         }
+
+        Predicate predicate = copyMove ? builder.build(ae, copyMove) : builder.build(ae);
+
         Attributes attrs = ejb.getStudyAttributesWithSOPInstanceRefs(
-                QueryServiceEJB.SOPInstanceRefsType.KOS_IOCM, studyUID, builder.build(ae), null);
+                QueryServiceEJB.SOPInstanceRefsType.KOS_IOCM, studyUID, predicate, null);
         if (attrs == null || !attrs.containsValue(Tag.CurrentRequestedProcedureEvidenceSequence))
             return null;
 
@@ -361,6 +367,18 @@ class QueryServiceImpl implements QueryService {
             QueryParam queryParam = initCodeEntities(new QueryParam(ae));
             predicate.and(QueryBuilder.hideRejectedInstance(queryParam));
             predicate.and(QueryBuilder.hideRejectionNote(queryParam));
+            return predicate;
+        }
+
+        public BooleanBuilder build(ApplicationEntity ae, boolean copyMove) {
+            QueryParam queryParam = initCodeEntities(new QueryParam(ae));
+            //set temporarily for move reverse rejection
+            boolean configured = queryParam.isHideNotRejectedInstances();
+            if (!configured)
+                queryParam.setHideNotRejectedInstances(copyMove);
+            predicate.and(QueryBuilder.hideRejectedInstance(queryParam));
+            //revert back to configured
+            queryParam.setHideNotRejectedInstances(configured);
             return predicate;
         }
     }

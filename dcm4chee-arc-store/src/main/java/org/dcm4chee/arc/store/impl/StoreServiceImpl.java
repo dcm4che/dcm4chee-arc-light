@@ -283,10 +283,20 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
+    private void store(StoreSession session, Attributes ko) throws IOException {
+        StoreContext ctx = newStoreContext(session);
+        ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+        ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+        ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+        store(ctx, ko);
+    }
+
     @Override
-    public Attributes copyInstances(
+    public Attributes copyInstances(Attributes ko,
             StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
-            throws IOException {
+            throws Exception {
+        if (ko != null)
+            store(session, ko);
         Attributes result = new Attributes();
         session.setUIDMap(uidMap);
         if (instances != null) {
@@ -306,12 +316,21 @@ class StoreServiceImpl implements StoreService {
                     store(ctx, attr);
                     populateResult(refSOPSeq, attr);
                 } catch (DicomServiceException e) {
+                    if (ko != null)
+                        UIDUtils.remapUIDs(attr, reverseUIDMap(uidMap));
                     result.setString(Tag.FailureReason, VR.US, Integer.toString(e.getStatus()));
                     populateResult(failedSOPSeq, attr);
                 }
             }
         }
         return result;
+    }
+
+    private Map<String, String> reverseUIDMap(Map<String, String> uidMap) {
+        Map<String, String> reverseUidMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : uidMap.entrySet())
+            reverseUidMap.put(entry.getValue(), entry.getKey());
+        return reverseUidMap;
     }
 
     private void populateResult(Sequence refSOPSeq, Attributes ilAttr) {
