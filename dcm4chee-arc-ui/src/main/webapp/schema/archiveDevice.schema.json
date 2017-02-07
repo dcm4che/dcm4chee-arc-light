@@ -613,6 +613,11 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "hl7TrackChangedPatientID": {
+      "title": "HL7 Track Changed Patient ID",
+      "description": "Enable to keep track of the prior Patient ID on a change of the Patient ID by HL7 ADT^A47 or by the RESTful Patient Update Service. Enabled if absent.",
+      "type": "boolean"
+    },
     "dcmStorage": {
       "title": "Storage Descriptor",
       "description": "Specifies Storage System",

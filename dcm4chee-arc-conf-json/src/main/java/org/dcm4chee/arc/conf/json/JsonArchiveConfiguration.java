@@ -183,6 +183,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmAcceptConflictingPatientID", arcDev.getAcceptConflictingPatientID());
         writer.writeNotNull("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL());
         writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy());
+        writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -866,6 +867,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmCopyMoveUpdatePolicy":
                     arcDev.setCopyMoveUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7TrackChangedPatientID":
+                    arcDev.setHl7TrackChangedPatientID(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
