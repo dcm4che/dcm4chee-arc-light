@@ -77,12 +77,11 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayOutputStream;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -942,22 +941,19 @@ public class StoreServiceEJB {
         LocalDate expirationDate = null;
         DicomServiceException exception = null;
         try {
-            URL url = new URL(urlspec);
-            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-            int responseCode = httpConn.getResponseCode();
-            String responseContent = null;
+            WebTarget target = ClientBuilder.newBuilder().build().target(urlspec);
+            Response resp = target.request().get();
             Pattern responsePattern = session.getArchiveAEExtension().storePermissionServiceResponsePattern();
-            switch (responseCode) {
-                case HttpURLConnection.HTTP_OK:
-                    responseContent = readContent(httpConn);
+            switch (resp.getStatus()) {
+                case 200:
+                    String responseContent = resp.readEntity(String.class);
                     LOG.debug("{}: Store Permission Service {} response:\n{}", session, urlspec, responseContent);
                     if (responsePattern == null || responsePattern.matcher(responseContent).find() )
                         expirationDate = selectExpirationDate(session, urlspec, responseContent);
-                    else {
+                    else
                         exception = selectErrorCodeComment(session, urlspec, responseContent);
-                    }
                     break;
-                case HttpURLConnection.HTTP_NO_CONTENT:
+                case 204:
                     if (responsePattern == null)
                         break;
                 default:
@@ -1020,20 +1016,6 @@ public class StoreServiceEJB {
         return new DicomServiceException(
                 selectErrorCode(session, url, response, arcAE.storePermissionServiceErrorCodePattern()),
                 selectErrorComment(session, url, response, arcAE.storePermissionServiceErrorCommentPattern()));
-    }
-
-    private String readContent(HttpURLConnection httpConn) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(512);
-        try (InputStream in = httpConn.getInputStream()) {
-            StreamUtils.copy(in, out);
-        }
-        return new String(out.toByteArray(), charsetOf(httpConn));
-    }
-
-    private String charsetOf(HttpURLConnection httpConn) {
-        String contentType = httpConn.getContentType().toUpperCase();
-        int index = contentType.lastIndexOf("CHARSET=");
-        return index >= 0 ? contentType.substring(index + 8) : "UTF-8";
     }
 
     private void setStudyAttributes(StoreContext ctx, Study study) {
