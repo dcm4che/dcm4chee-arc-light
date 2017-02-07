@@ -118,10 +118,11 @@ class ImportReportService extends AbstractHL7Service {
                     return;
             }
         }
-        if (!attrs.containsValue(Tag.SeriesInstanceUID))
-            attrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
         if (!attrs.containsValue(Tag.SOPInstanceUID))
             attrs.setString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
+        if (!attrs.containsValue(Tag.SeriesInstanceUID))
+            attrs.setString(Tag.SeriesInstanceUID, VR.UI,
+                    UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
         store(s, ae, msh, attrs);
     }
 
