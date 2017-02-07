@@ -106,13 +106,16 @@ class ImportReportService extends AbstractHL7Service {
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
                 msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), null);
-        if (attrs.getString(Tag.StudyInstanceUID) != null) {
+
+        boolean studyUIDExists = attrs.getString(Tag.StudyInstanceUID) != null;
+        if (studyUIDExists) {
+            adjust(attrs, studyUIDExists);
             store(s, ae, msh, attrs);
             return;
         }
 
         if (!adjustForMultipleStudies(attrs, s, ae, msh)) {
-            adjust(attrs);
+            adjust(attrs, studyUIDExists);
             store(s, ae, msh, attrs);
         }
     }
@@ -127,12 +130,19 @@ class ImportReportService extends AbstractHL7Service {
         }
     }
 
-    private void adjust(Attributes attrs) {
-        attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
-        attrs.setString(Tag.SOPInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
-        attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
-                UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
-
+    private void adjust(Attributes attrs, boolean studyUIDExists) {
+        if (!studyUIDExists) {
+            attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+            attrs.setString(Tag.SOPInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+            attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
+                    UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
+        } else {
+            if (attrs.getString(Tag.SOPInstanceUID) != null)
+                attrs.setString(Tag.SOPInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
+            if (attrs.getString(Tag.SeriesInstanceUID) != null)
+                attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
+                    UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
+        }
     }
 
     private boolean adjustForMultipleStudies(Attributes attrs, Socket s, ApplicationEntity ae, HL7Segment msh) throws IOException {
