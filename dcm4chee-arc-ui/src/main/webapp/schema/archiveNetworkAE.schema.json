@@ -275,7 +275,7 @@
     },
     "dcmCopyMoveUpdatePolicy": {
       "title": "Copy Move Update Policy",
-      "description": "Indicates which policy will be used for updation of attributes for RESTful Copy/Move Instances service. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, nothing will be done (attributes of target study attributes remain unchanged).",
+      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, the attributes will not be updated.",
       "type": "string",
       "enum": [
         "SUPPLEMENT",
