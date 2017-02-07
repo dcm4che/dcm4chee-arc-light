@@ -249,8 +249,9 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    public List<Study> findStudiesByAccessionNo(String accNo) {
-        return ejb.findStudiesByAccessionNo(accNo);
+    @Override
+    public List<String> studyIUIDsByAccessionNo(String accNo) {
+        return accNo != null ? ejb.studyIUIDsByAccessionNo(accNo) : Collections.emptyList();
     }
 
     @Override

@@ -1296,8 +1296,8 @@ public class StoreServiceEJB {
         result.setCreatedPatient(null);
     }
 
-    public List<Study> findStudiesByAccessionNo(String accNo) {
-        return em.createNamedQuery(Study.FIND_BY_ACCESSION_NUMBER, Study.class)
+    public List<String> studyIUIDsByAccessionNo(String accNo) {
+        return em.createNamedQuery(Study.STUDY_IUIDS_BY_ACCESSION_NUMBER, String.class)
                 .setParameter(1, accNo).getResultList();
     }
 }

@@ -75,5 +75,5 @@ public interface StoreService {
 
     void restoreInstances(StoreSession session, String studyUID, String seriesUID) throws IOException;
 
-    List<Study> findStudiesByAccessionNo(String accNo);
+    List<String> studyIUIDsByAccessionNo(String accNo);
 }

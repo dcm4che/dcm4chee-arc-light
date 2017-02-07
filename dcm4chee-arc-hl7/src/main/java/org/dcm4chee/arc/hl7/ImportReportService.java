@@ -49,7 +49,6 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -60,8 +59,6 @@ import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -107,17 +104,25 @@ class ImportReportService extends AbstractHL7Service {
         Attributes attrs = SAXTransformer.transform(
                 msg.data(), hl7cs, arcHL7App.importReportTemplateURI(), null);
 
-        boolean studyUIDExists = attrs.getString(Tag.StudyInstanceUID) != null;
-        if (studyUIDExists) {
-            adjust(attrs, studyUIDExists);
-            store(s, ae, msh, attrs);
-            return;
+        if (!attrs.containsValue(Tag.StudyInstanceUID)) {
+            List<String> suids = storeService.studyIUIDsByAccessionNo(attrs.getString(Tag.AccessionNumber));
+            switch (suids.size()) {
+                case 0:
+                    attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+                    break;
+                case 1:
+                    attrs.setString(Tag.StudyInstanceUID, VR.UI, suids.get(0));
+                    break;
+                default:
+                    mstore(s, ae, msh, attrs, suids);
+                    return;
+            }
         }
-
-        if (!adjustForMultipleStudies(attrs, s, ae, msh)) {
-            adjust(attrs, studyUIDExists);
-            store(s, ae, msh, attrs);
-        }
+        if (!attrs.containsValue(Tag.SeriesInstanceUID))
+            attrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
+        if (!attrs.containsValue(Tag.SOPInstanceUID))
+            attrs.setString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
+        store(s, ae, msh, attrs);
     }
 
     private void store(Socket s, ApplicationEntity ae, HL7Segment msh, Attributes attrs) throws IOException {
@@ -130,75 +135,42 @@ class ImportReportService extends AbstractHL7Service {
         }
     }
 
-    private void adjust(Attributes attrs, boolean studyUIDExists) {
-        if (!studyUIDExists) {
-            attrs.setString(Tag.StudyInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
-            attrs.setString(Tag.SOPInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
-            attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
-                    UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
-        } else {
-            if (attrs.getString(Tag.SOPInstanceUID) != null)
-                attrs.setString(Tag.SOPInstanceUID, VR.valueOf("UI"), UIDUtils.createUID());
-            if (attrs.getString(Tag.SeriesInstanceUID) != null)
-                attrs.setString(Tag.SeriesInstanceUID, VR.valueOf("UI"),
-                    UIDUtils.createNameBasedUID(attrs.getString(Tag.SOPInstanceUID).getBytes()));
+    private void mstore(Socket s, ApplicationEntity ae, HL7Segment msh, Attributes attrs, List<String> suids)
+            throws IOException {
+        int n = suids.size();
+        Sequence seq = attrs.newSequence(Tag.IdenticalDocumentsSequence, n);
+        for (String suid : suids)
+            seq.add(refStudy(suid));
+        for (int i = 0; i < n; i++) {
+            Attributes refStudy = seq.remove(i);
+            Attributes refSeries = refStudy.getNestedDataset(Tag.ReferencedSeriesSequence);
+            Attributes refSOP = refStudy.getNestedDataset(Tag.ReferencedSOPSequence);
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, refStudy.getString(Tag.StudyInstanceUID));
+            attrs.setString(Tag.SeriesInstanceUID, VR.UI, refSeries.getString(Tag.ReferencedSeriesSequence));
+            attrs.setString(Tag.SOPInstanceUID, VR.UI, refSOP.getString(Tag.ReferencedSOPInstanceUID));
+            store(s, ae, msh, attrs);
+            seq.add(i, refStudy);
         }
     }
 
-    private boolean adjustForMultipleStudies(Attributes attrs, Socket s, ApplicationEntity ae, HL7Segment msh) throws IOException {
-        boolean result = false;
-        if (attrs.getString(Tag.AccessionNumber) != null) {
-            List<Study> studies = storeService.findStudiesByAccessionNo(attrs.getString(Tag.AccessionNumber));
-            List<String[]> studySeriesSopList = new ArrayList<>(studies.size());
-            int i = 0;
-            for (Study study : studies) {
-                String sopIUID = UIDUtils.createUID();
-                String[] studySeriesSop = {study.getStudyInstanceUID(), UIDUtils.createNameBasedUID(sopIUID.getBytes()),
-                        sopIUID};
-                studySeriesSopList.add(i, studySeriesSop);
-                i++;
-            }
-            for (Study study : studies) {
-                for (int j = 0; j < studySeriesSopList.size(); j++) {
-                    String[] studySeriesSop = studySeriesSopList.get(j);
-                    if (study.getStudyInstanceUID().equals(studySeriesSop[0])) {
-                        attrs.setString(Tag.StudyInstanceUID, VR.UI, studySeriesSop[0]);
-                        attrs.setString(Tag.SeriesInstanceUID, VR.UI, studySeriesSop[1]);
-                        attrs.setString(Tag.SOPInstanceUID, VR.UI, studySeriesSop[2]);
-                        Sequence seq = attrs.newSequence(Tag.IdenticalDocumentsSequence, studySeriesSopList.size() - 1);
-                        Iterator<String[]> studySeriesSopIter = studySeriesSopList.iterator();
-                        while (studySeriesSopIter.hasNext()) {
-                            String[] identicalDocSeqRefs = studySeriesSopIter.next();
-                            if (!identicalDocSeqRefs[0].equals(studySeriesSop[0]))
-                                seq.add(refStudy(identicalDocSeqRefs[0], identicalDocSeqRefs[1], identicalDocSeqRefs[2]));
-                        }
-                        store(s, ae, msh, attrs);
-                    }
-                }
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    private Attributes refStudy(String studyUID, String seriesUID, String sopUID) {
+    private Attributes refStudy(String studyUID) {
         Attributes refStudyAttrs = new Attributes(2);
         refStudyAttrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-        refStudyAttrs.newSequence(Tag.ReferencedSeriesSequence, 2).add(refSeries(seriesUID, sopUID));
+        refStudyAttrs.newSequence(Tag.ReferencedSeriesSequence, 2).add(refSeries());
         return refStudyAttrs;
     }
 
-    private Attributes refSeries(String seriesUID, String sopUID) {
+    private Attributes refSeries() {
         Attributes refSeriesAttrs = new Attributes(2);
-        refSeriesAttrs.setString(Tag.SeriesInstanceUID, VR.UI, seriesUID);
-        refSeriesAttrs.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP(sopUID));
+        refSeriesAttrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
+        refSeriesAttrs.newSequence(Tag.ReferencedSOPSequence, 1).add(refSOP());
         return refSeriesAttrs;
     }
 
-    private Attributes refSOP(String sopIUID) {
+    private Attributes refSOP() {
         Attributes attrs = new Attributes(2);
-        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, sopIUID);
-        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, "1.2.840.10008.5.1.4.1.1.88.11");
+        attrs.setString(Tag.ReferencedSOPInstanceUID, VR.UI, UIDUtils.createUID());
+        attrs.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.BasicTextSRStorage);
         return attrs;
     }
 
