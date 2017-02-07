@@ -1199,9 +1199,6 @@
         ],
         "summary": "Merge Patient",
         "operationId": "MergePatient",
-        "consumes": [
-          "application/json"
-        ],
         "parameters": [
           {
             "name": "aet",
@@ -1221,6 +1218,46 @@
             "name": "priorPatientID",
             "in": "path",
             "description": "Patient ID and Issuer of the merged Patient encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/patients/{patientID}/changeid/{priorPatientID}": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Change Patient ID",
+        "operationId": "ChangePatientID",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "New Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priorPatientID",
+            "in": "path",
+            "description": "Prior Patient ID and Issuer encoded as HL7 CX",
             "required": true,
             "type": "string"
           }
