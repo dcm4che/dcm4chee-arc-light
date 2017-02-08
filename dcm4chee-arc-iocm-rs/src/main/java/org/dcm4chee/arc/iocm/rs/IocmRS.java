@@ -54,6 +54,7 @@ import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -295,6 +296,32 @@ public class IocmRS {
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @POST
+    @Path("/patients/{patientID}/changeid/{priorPatientID}")
+    public void changePatientID(@PathParam("patientID") IDWithIssuer patientID,
+                                @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
+        logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        try {
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
+            Patient priorPatient = patientService.findPatient(priorPatientID);
+            if (priorPatient == null)
+                throw new WebApplicationException(getResponse(
+                        "Patient having patient ID : " + priorPatientID + " not found.", Response.Status.NOT_FOUND));
+            Attributes attrs = priorPatient.getAttributes();
+            attrs.setString(Tag.PatientID, VR.LO, patientID.getID());
+            if (patientID.getIssuer() != null)
+                attrs.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
+            ctx.setAttributes(attrs);
+            ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+            ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+            patientService.changePatientID(ctx);
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
