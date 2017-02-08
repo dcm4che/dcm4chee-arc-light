@@ -189,4 +189,9 @@ public class DeletionServiceImpl implements DeletionService {
         else
             return false;
     }
+
+    @Override
+    public void deleteInstances(List<Location> locations) {
+        ejb.deleteInstances(locations);
+    }
 }

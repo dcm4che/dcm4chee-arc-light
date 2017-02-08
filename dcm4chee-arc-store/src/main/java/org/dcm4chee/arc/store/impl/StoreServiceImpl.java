@@ -284,20 +284,10 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void store(StoreSession session, Attributes ko) throws IOException {
-        StoreContext ctx = newStoreContext(session);
-        ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-        ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
-        ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-        store(ctx, ko);
-    }
-
     @Override
     public Attributes copyInstances(Attributes ko,
             StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
             throws Exception {
-        if (ko != null)
-            store(session, ko);
         Attributes result = new Attributes();
         session.setUIDMap(uidMap);
         if (instances != null) {

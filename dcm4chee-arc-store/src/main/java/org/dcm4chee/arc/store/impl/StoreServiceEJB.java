@@ -98,7 +98,6 @@ import java.util.zip.ZipInputStream;
  */
 @Stateless
 public class StoreServiceEJB {
-
     private static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
     private static final String IGNORE = "{}: Ignore received Instance[studyUID={},seriesUID={},objectUID={}]";
     private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source";
@@ -1125,6 +1124,7 @@ public class StoreServiceEJB {
                 .build();
         location.setInstance(instance);
         em.persist(location);
+        ctx.getLocations().add(location);
         result.getLocations().add(location);
         result.getWriteContexts().add(writeContext);
         if (objectType == Location.ObjectType.DICOM_FILE)

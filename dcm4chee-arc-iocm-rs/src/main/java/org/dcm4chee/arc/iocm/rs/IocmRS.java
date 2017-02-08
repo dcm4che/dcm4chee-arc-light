@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
@@ -54,7 +53,6 @@ import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -528,11 +526,23 @@ public class IocmRS {
             throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-        Attributes ko = rjNote != null ? queryService.createRejectionNote(instanceRefs, rjNote) : null;
+
+        Attributes ko = null;
+        StoreContext koctx = storeService.newStoreContext(session);
+        if (rjNote != null) {
+            ko = queryService.createRejectionNote(instanceRefs, rjNote);
+            koctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+            koctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+            koctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            storeService.store(koctx, ko);
+        }
+
         final Attributes result = storeService.copyInstances(ko, session, instances, uidMap);
 
-        if (result.getString(Tag.FailureReason) != null && ko != null)
+        if (result.getString(Tag.FailureReason) != null && ko != null) {
+            deletionService.deleteInstances(koctx.getLocations());
             reverseRejectionMove(op, instances, result);
+        }
 
         forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);
         return new StreamingOutput() {
@@ -551,7 +561,7 @@ public class IocmRS {
             for (InstanceLocations il : instances)
                 if (item.getString(Tag.ReferencedSOPInstanceUID).equals(il.getSopInstanceUID()))
                     reject(op, il.getAttributes().getString(Tag.StudyInstanceUID), il.getAttributes().getString(Tag.SeriesInstanceUID),
-                        il.getSopInstanceUID(), "REVOKE_REJECTION", "99DCM4CHEE");
+                            il.getSopInstanceUID(), "REVOKE_REJECTION", "99DCM4CHEE");
     }
 
     private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
@@ -591,23 +601,6 @@ public class IocmRS {
             destSeq.add(srcSeq.remove(0));
     }
 
-    private void rejectInstanceRefs(Code code, Attributes instanceRefs, StoreSession session,
-                                            ArchiveDeviceExtension arcDev) throws IOException {
-        RejectionNote rjNote = null;
-        if (code != null) {
-            rjNote = arcDev.getRejectionNote(code);
-            if (rjNote == null)
-                throw new WebApplicationException(getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
-        }
-        if (rjNote != null) {
-            Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
-            StoreContext ctx = storeService.newStoreContext(session);
-            ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-            ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
-            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-            storeService.store(ctx, ko);
-        }
-    }
 
     private void expect(JsonParser parser, JsonParser.Event expected) {
         JsonParser.Event next = parser.next();
