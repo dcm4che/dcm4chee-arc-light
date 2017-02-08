@@ -542,6 +542,8 @@ public class IocmRS {
         if (result.getString(Tag.FailureReason) != null && ko != null) {
             deletionService.deleteInstances(koctx.getLocations());
             reverseRejectionMove(op, instances, result);
+            throw new WebApplicationException(getResponse("Moving of instances failed with failure reason : " +
+                    result.getString(Tag.FailureReason), Response.Status.INTERNAL_SERVER_ERROR));
         }
 
         forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);

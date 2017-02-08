@@ -42,12 +42,10 @@ package org.dcm4chee.arc.query.util;
 
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.CodeEntity;
 
-import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
