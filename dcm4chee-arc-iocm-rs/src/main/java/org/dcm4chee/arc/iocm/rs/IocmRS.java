@@ -266,18 +266,8 @@ public class IocmRS {
             if (newPatient)
                 patientService.updatePatient(ctx);
             else {
-                if (arcDev.isHl7TrackChangedPatientID()) {
-                    patientService.createPatient(ctx);
-                    ctx.setPatientID(bodyPatientID);
-                    ctx.setAttributes(attrs);
-                    attrs.setString(Tag.PatientID, VR.LO, patientID.toString());
-                    ctx.setPreviousAttributes(attrs);
-                    patientService.mergePatient(ctx);
-                    attrs.setString(Tag.PatientID, VR.LO, bodyPatientID.toString());
-                } else {
-                    ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
-                    patientService.changePatientID(ctx);
-                }
+                ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
+                patientService.changePatientID(ctx);
             }
             forwardRS(HttpMethod.PUT, newPatient ? RSOperation.CreatePatient : RSOperation.UpdatePatient, arcAE, attrs);
         } catch (JsonParsingException e) {
