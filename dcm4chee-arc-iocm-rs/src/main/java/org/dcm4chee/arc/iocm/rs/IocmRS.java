@@ -250,10 +250,8 @@ public class IocmRS {
     public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         try {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
-
             JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
             Attributes attrs = reader.readDataset(null);
             ctx.setAttributes(attrs);
@@ -265,14 +263,11 @@ public class IocmRS {
             if (newPatient)
                 patientService.updatePatient(ctx);
             else {
-                if (arcDev.isHl7TrackChangedPatientID()) {
-                    patientService.createPatient(ctx);
-                    ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
-                    patientService.mergePatient(ctx);
-                } else {
-                    ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
+                ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
+                if (arcAE.getArchiveDeviceExtension().isHl7TrackChangedPatientID())
+                    patientService.trackPriorPatient(ctx);
+                else
                     patientService.changePatientID(ctx);
-                }
             }
             forwardRS(HttpMethod.PUT, newPatient ? RSOperation.CreatePatient : RSOperation.UpdatePatient, arcAE, attrs);
         } catch (JsonParsingException e) {

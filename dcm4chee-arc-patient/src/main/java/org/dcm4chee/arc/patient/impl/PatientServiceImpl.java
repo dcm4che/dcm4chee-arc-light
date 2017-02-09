@@ -133,6 +133,12 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    public Patient trackPriorPatient(PatientMgtContext ctx) {
+        createPatient(ctx);
+        return mergePatient(ctx);
+    }
+
+    @Override
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
         try {

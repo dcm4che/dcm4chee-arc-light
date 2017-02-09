@@ -22,6 +22,7 @@ import java.net.Socket;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 @ApplicationScoped
@@ -60,7 +61,9 @@ class PatientUpdateService extends AbstractHL7Service {
         if (ctx.getPreviousPatientID() == null)
             throw new HL7Exception(HL7Exception.AR, "Missing MRG-1");
         return "ADT^A47".equals(msh.getMessageType())
-                ? patientService.changePatientID(ctx)
+                ? arcHL7App.getArchiveDeviceExtension().isHl7TrackChangedPatientID()
+                    ? patientService.trackPriorPatient(ctx)
+                    : patientService.changePatientID(ctx)
                 : patientService.mergePatient(ctx);
     }
 }
