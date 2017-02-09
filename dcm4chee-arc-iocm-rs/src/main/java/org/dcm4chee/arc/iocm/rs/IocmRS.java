@@ -279,10 +279,37 @@ public class IocmRS {
     @POST
     @Path("/patients/{patientID}/merge")
     @Consumes("application/json")
-    public void mergePatient(@PathParam("patientID") IDWithIssuer patientID, InputStream in) throws Exception {
+    public void mergePatients(@PathParam("patientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
         try {
             final Attributes attrs = parseOtherPatientIDs(in);
+            for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
+                mergePatient(patientID, otherPID);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @POST
+    @Path("/patients/{patientID}/merge/{priorPatientID}")
+    public void mergePatient(@PathParam("patientID") IDWithIssuer patientID,
+                             @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
+        logRequest();
+        try {
+            Attributes priorPatAttr = new Attributes(2);
+            priorPatAttr.setString(Tag.PatientID, VR.LO, priorPatientID.getID());
+            if (priorPatientID.getIssuer() != null)
+                priorPatAttr.setString(Tag.IssuerOfPatientID, VR.LO, priorPatientID.getIssuer().toString());
+            mergePatient(patientID, priorPatAttr);
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr) throws Exception {
+        try {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request, getArchiveAE().getApplicationEntity());
             patMgtCtx.setPatientID(patientID);
             Attributes patAttr = new Attributes(2);
@@ -290,13 +317,10 @@ public class IocmRS {
             if (patientID.getIssuer() != null)
                 patAttr.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
             patMgtCtx.setAttributes(patAttr);
-            for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence)) {
-                patMgtCtx.setPreviousAttributes(otherPID);
-                patientService.mergePatient(patMgtCtx);
-            }
-        } catch (JsonParsingException e) {
-            throw new WebApplicationException(
-                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+            patMgtCtx.setPreviousAttributes(priorPatAttr);
+            patientService.mergePatient(patMgtCtx);
+        } catch (Exception e) {
+            throw e;
         }
     }
 
