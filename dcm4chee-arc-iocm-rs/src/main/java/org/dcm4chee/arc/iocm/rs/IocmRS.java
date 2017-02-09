@@ -285,7 +285,9 @@ public class IocmRS {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request, getArchiveAE().getApplicationEntity());
             patMgtCtx.setPatientID(patientID);
             Attributes patAttr = new Attributes(2);
-            patAttr.setString(Tag.PatientID, VR.LO, patientID.toString());
+            patAttr.setString(Tag.PatientID, VR.LO, patientID.getID());
+            if (patientID.getIssuer() != null)
+                patAttr.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
             patMgtCtx.setAttributes(patAttr);
             for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence)) {
                 patMgtCtx.setPreviousAttributes(otherPID);
