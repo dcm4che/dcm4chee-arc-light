@@ -49,19 +49,21 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arr-proxy</artifactId>
+  <artifactId>dcm4chee-arc-retrieve-xdsi</artifactId>
   <packaging>war</packaging>
 
   <dependencies>
+    <!-- used to pull correct dependencies for jaxws-tools-maven-plugin  -->
     <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-conf</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.jboss.ws.cxf</groupId>
+      <artifactId>jbossws-cxf-client</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-conf-ldap</artifactId>
+      <artifactId>dcm4chee-arc-retrieve</artifactId>
       <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -71,39 +73,38 @@
         <artifactId>maven-war-plugin</artifactId>
         <version>${maven-war-plugin.version}</version>
         <configuration>
-          <classifier>${classifier}</classifier>
-          <webXml>${webXml}</webXml>
-          <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <attachClasses>true</attachClasses>
         </configuration>
       </plugin>
-    </plugins>
-  </build>
+      <plugin>
+        <groupId>org.jboss.ws.plugins</groupId>
+        <artifactId>jaxws-tools-maven-plugin</artifactId>
+        <version>${jaxws-tools-maven-plugin.version}</version>
+        <configuration>
+          <wsdls>
+            <wsdl>${basedir}/src/main/webapp/WEB-INF/wsdl/XDS-I.b_ImagingDocumentSource.wsdl</wsdl>
+          </wsdls>
+          <extension>true</extension>
+          <verbose>true</verbose>
+          <endpointClass/>
+          <!-- some JDK implementations forbid file access for external schema,
+               see http://docs.oracle.com/javase/8/docs/api/javax/xml/XMLConstants.html#ACCESS_EXTERNAL_SCHEMA -->
+          <argLine>-Djavax.xml.accessExternalSchema=all</argLine>
+          <fork>true</fork>
+          <targetPackage>org.dcm4chee.arc.retrieve.xsdi</targetPackage>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>wsconsume</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-  <profiles>
-    <profile>
-      <id>unsecure</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
-        <classifier>unsecure</classifier>
-      </properties>
-    </profile>
-    <profile>
-      <id>secure</id>
-      <properties>
-        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
-        <classifier>secure</classifier>
-      </properties>
-    </profile>
-    <profile>
-      <id>secure-ui</id>
-      <properties>
-        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
-        <classifier>secure</classifier>
-      </properties>
-    </profile>
-  </profiles>
+    </plugins>
+
+  </build>
 
 </project>
