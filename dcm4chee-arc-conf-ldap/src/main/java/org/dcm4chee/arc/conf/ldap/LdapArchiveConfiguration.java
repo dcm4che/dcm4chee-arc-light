@@ -164,6 +164,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern());
         LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination());
+        LdapUtils.storeNotNull(attrs, "dcmXDSiImagingDocumentSourceAETitle", ext.getXDSiImagingDocumentSourceAETitle());
         LdapUtils.storeNotNull(attrs, "dcmRemapRetrieveURL", ext.getRemapRetrieveURL());
         LdapUtils.storeNotDef(attrs, "dcmValidateCallingAEHostname", ext.isValidateCallingAEHostname(), false);
         LdapUtils.storeNotNull(attrs, "hl7PSUSendingApplication", ext.getHl7PSUSendingApplication());
@@ -277,6 +278,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
         ext.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
+        ext.setXDSiImagingDocumentSourceAETitle(LdapUtils.stringValue(attrs.get("dcmXDSiImagingDocumentSourceAETitle"), null));
         ext.setRemapRetrieveURL(LdapUtils.stringValue(attrs.get("dcmRemapRetrieveURL"), null));
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), false));
         ext.setHl7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
@@ -454,6 +456,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmRetrieveAET", aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
         LdapUtils.storeDiff(mods, "dcmExternalRetrieveAEDestination",
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination());
+        LdapUtils.storeDiff(mods, "dcmXDSiImagingDocumentSourceAETitle",
+                aa.getXDSiImagingDocumentSourceAETitle(), bb.getXDSiImagingDocumentSourceAETitle());
         LdapUtils.storeDiff(mods, "dcmRemapRetrieveURL", aa.getRemapRetrieveURL(), bb.getRemapRetrieveURL());
         LdapUtils.storeDiff(mods, "dcmValidateCallingAEHostname", aa.isValidateCallingAEHostname(), bb.isValidateCallingAEHostname());
         LdapUtils.storeDiff(mods, "hl7PSUSendingApplication", aa.getHl7PSUSendingApplication(), bb.getHl7PSUSendingApplication());

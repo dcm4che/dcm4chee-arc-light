@@ -783,6 +783,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.157 NAME 'hl7TrackChangedPatientID'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.158 NAME 'dcmXDSiImagingDocumentSourceAETitle'
+  DESC 'AE Title of local Application Entity associated with XDS-I Imaging Document Source.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -830,6 +835,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
     dcmExternalRetrieveAEDestination $
+    dcmXDSiImagingDocumentSourceAETitle $
     dcmAltCMoveSCP $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $

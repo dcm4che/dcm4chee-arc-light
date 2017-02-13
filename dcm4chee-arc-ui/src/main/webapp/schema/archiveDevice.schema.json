@@ -533,6 +533,11 @@
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
       "type": "string"
     },
+    "dcmXDSiImagingDocumentSourceAETitle": {
+      "title": "XDS-I Imaging Document Source AE Title",
+      "description": "AE Title of local Application Entity associated with XDS-I Imaging Document Source.",
+      "type": "string"
+    },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",

@@ -99,6 +99,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String fallbackCMoveSCPLeadingCFindSCP;
     private int fallbackCMoveSCPRetries;
     private String externalRetrieveAEDestination;
+    private String xdsiImagingDocumentSourceAETitle;
     private String alternativeCMoveSCP;
     private Duration exportTaskPollingInterval;
     private int exportTaskFetchSize = 5;
@@ -531,6 +532,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setExternalRetrieveAEDestination(String externalRetrieveAEDestination) {
         this.externalRetrieveAEDestination = externalRetrieveAEDestination;
+    }
+
+    public String getXDSiImagingDocumentSourceAETitle() {
+        return xdsiImagingDocumentSourceAETitle;
+    }
+
+    public void setXDSiImagingDocumentSourceAETitle(String xdsiImagingDocumentSourceAETitle) {
+        this.xdsiImagingDocumentSourceAETitle = xdsiImagingDocumentSourceAETitle;
     }
 
     public String getAlternativeCMoveSCP() {
@@ -1437,6 +1446,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCPLeadingCFindSCP = arcdev.fallbackCMoveSCPLeadingCFindSCP;
         fallbackCMoveSCPRetries = arcdev.fallbackCMoveSCPRetries;
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;
+        xdsiImagingDocumentSourceAETitle = arcdev.xdsiImagingDocumentSourceAETitle;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
         exportTaskFetchSize = arcdev.exportTaskFetchSize;

@@ -170,6 +170,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getStorePermissionServiceErrorCodePattern());
         writer.writeNotEmpty("dcmRetrieveAET", arcDev.getRetrieveAETitles());
         writer.writeNotNull("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination());
+        writer.writeNotNull("dcmXDSiImagingDocumentSourceAETitle", arcDev.getXDSiImagingDocumentSourceAETitle());
         writer.writeNotNull("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL());
         writer.writeNotDef("dcmValidateCallingAEHostname", arcDev.isValidateCallingAEHostname(), false);
         writer.writeNotNull("hl7PSUSendingApplication", arcDev.getHl7PSUSendingApplication());
@@ -828,6 +829,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmExternalRetrieveAEDestination":
                     arcDev.setExternalRetrieveAEDestination(reader.stringValue());
+                    break;
+                case "dcmXDSiImagingDocumentSourceAETitle":
+                    arcDev.setXDSiImagingDocumentSourceAETitle(reader.stringValue());
                     break;
                 case "dcmRemapRetrieveURL":
                     arcDev.setRemapRetrieveURL(reader.stringValue());
