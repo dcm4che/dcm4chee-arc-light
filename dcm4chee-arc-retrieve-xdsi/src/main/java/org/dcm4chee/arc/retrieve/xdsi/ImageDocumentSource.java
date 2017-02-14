@@ -45,6 +45,7 @@ import org.dcm4chee.arc.retrieve.RetrieveService;
 
 import javax.jws.WebService;
 import javax.xml.ws.BindingType;
+import javax.xml.ws.soap.Addressing;
 import javax.xml.ws.soap.MTOM;
 import javax.xml.ws.soap.SOAPBinding;
 
@@ -54,6 +55,7 @@ import javax.xml.ws.soap.SOAPBinding;
  */
 @MTOM
 @BindingType(value = SOAPBinding.SOAP12HTTP_MTOM_BINDING)
+@Addressing
 @WebService(endpointInterface="org.dcm4chee.arc.retrieve.xdsi.ImagingDocumentSourcePortType",
         name="ImagingDocumentSource",
         serviceName="ImagingDocumentSource",
