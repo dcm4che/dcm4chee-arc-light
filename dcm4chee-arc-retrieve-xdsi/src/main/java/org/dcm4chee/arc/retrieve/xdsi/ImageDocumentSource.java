@@ -38,7 +38,7 @@
  * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve.xsdi;
+package org.dcm4chee.arc.retrieve.xdsi;
 
 import com.google.inject.Inject;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -54,7 +54,7 @@ import javax.xml.ws.soap.SOAPBinding;
  */
 @MTOM
 @BindingType(value = SOAPBinding.SOAP12HTTP_MTOM_BINDING)
-@WebService(endpointInterface="org.dcm4chee.arc.retrieve.xsdi.ImagingDocumentSourcePortType",
+@WebService(endpointInterface="org.dcm4chee.arc.retrieve.xdsi.ImagingDocumentSourcePortType",
         name="ImagingDocumentSource",
         serviceName="ImagingDocumentSource",
         portName="ImagingDocumentSource_Port_Soap12",
