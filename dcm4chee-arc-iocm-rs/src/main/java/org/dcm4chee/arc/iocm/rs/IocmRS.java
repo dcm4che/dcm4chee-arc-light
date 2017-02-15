@@ -273,6 +273,8 @@ public class IocmRS {
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
         }
     }
 
