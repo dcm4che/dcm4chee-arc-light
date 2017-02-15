@@ -179,6 +179,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL());
         LdapUtils.storeNotNull(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy());
         LdapUtils.storeNotDef(attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
+        LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL());
+        LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL());
     }
 
     @Override
@@ -294,6 +296,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditRecordRepositoryURL(LdapUtils.stringValue(attrs.get("dcmAuditRecordRepositoryURL"), null));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
         ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
+        ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
+        ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
     }
 
     @Override
@@ -474,6 +478,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy());
         LdapUtils.storeDiff(mods, "hl7TrackChangedPatientID",
                 aa.isHl7TrackChangedPatientID(), bb.isHl7TrackChangedPatientID(), true);
+        LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL());
+        LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL());
     }
 
     @Override
@@ -615,6 +621,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "hl7PSUMWL", ext.getHl7PSUMWL());
         LdapUtils.storeNotNull(attrs, "dcmAcceptConflictingPatientID", ext.getAcceptConflictingPatientID());
         LdapUtils.storeNotNull(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy());
+        LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL());
+        LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL());
     }
 
     @Override
@@ -678,6 +686,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
+        ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
+        ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
     }
 
     @Override
@@ -759,6 +769,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7PSUMWL", aa.getHl7PSUMWL(), bb.getHl7PSUMWL());
         LdapUtils.storeDiff(mods, "dcmAcceptConflictingPatientID", aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID());
         LdapUtils.storeDiff(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy());
+        LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL());
+        LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL());
     }
 
     @Override

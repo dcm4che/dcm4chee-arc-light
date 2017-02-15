@@ -40,14 +40,16 @@
 
 package org.dcm4chee.arc.qido;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -56,8 +58,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,8 +74,6 @@ public class QueryAETs {
     @Context
     private HttpServletRequest request;
 
-    private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
-
     @GET
     @NoCache
     @Produces("application/json")
@@ -83,42 +81,34 @@ public class QueryAETs {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                Writer w = new OutputStreamWriter(out, "UTF-8");
-                int count = 0;
-                w.write('[');
-                for (String aet : device.getApplicationAETitles()) {
-                    ApplicationEntity ae = device.getApplicationEntity(aet);
-                    if (!ae.isInstalled())
-                        continue;
-                    if (count++ > 0)
-                        w.write(',');
-                    w.write("{\"title\":\"");
-                    w.write(aet);
-                    w.write('"');
-                    String desc = ae.getDescription();
-                    if (desc != null) {
-                        w.write(",\"description\":\"");
-                        w.write(desc);
-                        w.write('"');
-                    }
-                    if (ae.getAEExtension(ArchiveAEExtension.class)
-                            .getQueryRetrieveView().isHideNotRejectedInstances())
-                        w.write(",\"dcmHideNotRejectedInstances\":true");
-                    String[] acceptedUserRoles = ae.getAEExtension(ArchiveAEExtension.class).getAcceptedUserRoles();
-                    if (acceptedUserRoles.length != 0) {
-                        w.write(",\"dcmAcceptedUserRole\":[\"");
-                        for (int i = 0; i < acceptedUserRoles.length; i++) {
-                            if (i > 0)
-                                w.write("\",\"");
-                            w.write(acceptedUserRoles[i]);
-                        }
-                        w.write("\"]");
-                    }
-                    w.write('}');
-                }
-                w.write(']');
-                w.flush();
+                alternate(out);
             }
         };
+    }
+
+    private void alternate(OutputStream out) throws IOException {
+        JsonGenerator gen = Json.createGenerator(out);
+        gen.writeStartArray();
+        for (String aet : device.getApplicationAETitles())
+            writeTo(aet, gen);
+        gen.writeEnd();
+        gen.flush();
+    }
+
+    private void writeTo(String aet, JsonGenerator gen) {
+        ApplicationEntity ae = device.getApplicationEntity(aet);
+        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        JsonWriter writer = new JsonWriter(gen);
+        gen.writeStartObject();
+        gen.write("title", aet);
+        writer.writeNotNull("description", ae.getDescription());
+        if (arcAE.getQueryRetrieveView().isHideNotRejectedInstances())
+            writer.writeNotNull("dcmHideNotRejectedInstances", arcAE.getQueryRetrieveView().isHideNotRejectedInstances());
+        else {
+            writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcAE.invokeImageDisplayPatientURL());
+            writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcAE.invokeImageDisplayStudyURL());
+        }
+        writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
+        gen.writeEnd();
     }
 }

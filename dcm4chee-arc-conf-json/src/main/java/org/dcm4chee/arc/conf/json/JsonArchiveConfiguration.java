@@ -185,6 +185,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL());
         writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy());
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
+        writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL());
+        writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -549,6 +551,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("hl7PSUMWL", arcAE.getHl7PSUMWL());
         writer.writeNotNull("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID());
         writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy());
+        writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL());
+        writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL());
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -874,6 +878,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7TrackChangedPatientID":
                     arcDev.setHl7TrackChangedPatientID(reader.booleanValue());
+                    break;
+                case "dcmInvokeImageDisplayPatientURL":
+                    arcDev.setInvokeImageDisplayPatientURL(reader.stringValue());
+                    break;
+                case "dcmInvokeImageDisplayStudyURL":
+                    arcDev.setInvokeImageDisplayStudyURL(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1709,6 +1719,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmCopyMoveUpdatePolicy":
                     arcAE.setCopyMoveUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmInvokeImageDisplayPatientURL":
+                    arcAE.setInvokeImageDisplayPatientURL(reader.stringValue());
+                    break;
+                case "dcmInvokeImageDisplayStudyURL":
+                    arcAE.setInvokeImageDisplayStudyURL(reader.stringValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);
