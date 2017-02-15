@@ -1303,9 +1303,9 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                 console.log("set oldUniversalEntityId",oldUniversalEntityId);
             }
             if( 
-                $scope.editpatient.attrs["00100024"] && 
-                $scope.editpatient.attrs["00100024"].Value && 
-                $scope.editpatient.attrs["00100024"].Value[0] && 
+                $scope.editpatient.attrs["00100024"] &&
+                $scope.editpatient.attrs["00100024"].Value &&
+                $scope.editpatient.attrs["00100024"].Value[0] &&
                 $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
                 $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value &&
                 $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0]
@@ -1589,6 +1589,30 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
                                 if ($scope.editpatient.attrs["00100021"].Value && $scope.editpatient.attrs["00100021"].Value[0]) {
                                     oldPatientID = oldPatientID + "^^^" + $scope.editpatient.attrs["00100021"].Value[0];
                                 }
+                                if (
+                                    $scope.editpatient.attrs["00100024"] &&
+                                    $scope.editpatient.attrs["00100024"].Value &&
+                                    $scope.editpatient.attrs["00100024"].Value[0] &&
+                                    $scope.editpatient.attrs["00100024"].Value[0]["00400032"] &&
+                                    $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value &&
+                                    $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0]
+                                ) {
+                                    oldUniversalEntityId  = $scope.editpatient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                                }
+                                if (
+                                    $scope.editpatient.attrs["00100024"] &&
+                                    $scope.editpatient.attrs["00100024"].Value &&
+                                    $scope.editpatient.attrs["00100024"].Value[0] &&
+                                    $scope.editpatient.attrs["00100024"].Value[0]["00400033"] &&
+                                    $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value &&
+                                    $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0]
+                                ) {
+                                    oldUniversalEntityType  = $scope.editpatient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                                }
+                                if (oldUniversalEntityId != undefined)
+                                    oldPatientID = oldPatientID + "&" + oldUniversalEntityId;
+                                if (oldUniversalEntityType != undefined)
+                                    oldPatientID = oldPatientID + "&" + oldUniversalEntityType;
                             }
                             $http.put(
                                 "../aets/"+$scope.aet+"/rs/patients/"+oldPatientID,
