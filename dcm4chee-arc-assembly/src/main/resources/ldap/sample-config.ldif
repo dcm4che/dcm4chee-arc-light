@@ -234,6 +234,7 @@ dicomAuthorizedNodeCertificateReference: dicomDeviceName=hl7snd,cn=Devices,cn=DI
 dcmStorageID: fs1
 dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
+dcmExternalRetrieveAEDestination: DCM4CHEE
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
 dcmSeriesMetadataDelay: PT1M
 dcmAuditRecordRepositoryURL: http://kibana:5601
@@ -243,7 +244,7 @@ dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
-dicomSoftwareVersion: 5.9.1
+dicomSoftwareVersion: 5.9.2
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
