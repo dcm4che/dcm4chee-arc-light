@@ -206,6 +206,26 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
     $scope.$watchCollection('patients', function(newValue, oldValue){
         StudiesService.trim($scope);
     });
+    $scope.openViewer = function(model, mode){
+        var url,
+            slash,
+            configuredUrl;
+
+        switch(mode) {
+            case 'patient':
+                configuredUrl = $scope.aetmodel.dcmInvokeImageDisplayPatientURL;
+                slash = (configuredUrl.substr(configuredUrl.length - 1) != '/')?'/':'';
+                url = configuredUrl+slash+'IHEInvokeImageDisplay?requestType=PATIENT&patientID='+model['00100020'].Value[0];
+            break;
+            case 'study':
+                configuredUrl = $scope.aetmodel.dcmInvokeImageDisplayStudyURL;
+                slash = (configuredUrl.substr(configuredUrl.length - 1) != '/')?'/':'';
+                url = configuredUrl+slash+'IHEInvokeImageDisplay?requestType=STUDY&studyUID='+model['0020000D'].Value[0];
+            break;
+
+        }
+        $window.open(url);
+    }
     $scope.editTest = function(item){
         item.selected = true;
         console.log("item",item);

@@ -1,6 +1,6 @@
 <!--  <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-        exporterID:{{exporterID}}
-        reject:{{reject}}
+        aes:{{aes | json}}
+        aetmodel:{{aetmodel | json}}
 </pre>-->
 
 <!-- contextmenu -->
@@ -756,6 +756,9 @@
                     <a class="hiddenbuttons"  class="table_btn"  ng-show="user.isRole('admin') && patient.attrs['00201200'].Value[0] === 0" ng-click="deletePatient(patient, patients, patientkey)" href="" title="Delete Patient">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>
+                    <a class="hiddenbuttons"  class="table_btn"  ng-show="user.isRole('admin') && aetmodel.dcmInvokeImageDisplayPatientURL"  ng-click="openViewer(patient.attrs,'patient')" href="" title="Open patient in the viewer">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -839,6 +842,9 @@
                                 </a>
                                 <a class="hiddenbuttons" ng-show="trashaktive && user.isRole('admin')" ng-click="rejectStudy(study)" href="" title="Restore Study">
                                     <span class="glyphicon glyphicon-repeat"></span>
+                                </a>
+                                <a class="hiddenbuttons" ng-show="user.isRole('admin') && aetmodel.dcmInvokeImageDisplayStudyURL"  ng-click="openViewer(study.attrs,'study')" href="" title="Open study in the viewer">
+                                    <span class="glyphicon glyphicon-eye-open"></span>
                                 </a>
                             </div>
                         </div>
