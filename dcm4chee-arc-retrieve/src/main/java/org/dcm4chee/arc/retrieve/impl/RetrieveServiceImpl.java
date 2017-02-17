@@ -237,6 +237,27 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
+    @Override
+    public RetrieveContext newRetrieveContextXDSI(
+            HttpServletRequest request, String localAET,
+            List<String> studyUIDs, List<String> seriesUIDs, List<String> objectUIDs) {
+        ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
+        RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
+        initCodes(ctx);
+        ctx.setHttpRequest(request);
+        int numStudies = studyUIDs.size();
+        ctx.setStudyInstanceUIDs(studyUIDs.toArray(new String[numStudies]));
+        if (numStudies == 1) {
+            int numSeries = seriesUIDs.size();
+            ctx.setSeriesInstanceUIDs(seriesUIDs.toArray(new String[numSeries]));
+            if (numSeries == 1) {
+                int numObjects = objectUIDs.size();
+                ctx.setSopInstanceUIDs(objectUIDs.toArray(new String[numObjects]));
+            }
+        }
+        return ctx;
+    }
+
     private RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
