@@ -1,7 +1,7 @@
-<!--<pre style="position: absolute;width:50%;top:0;z-index: 9999999;">-->
+<pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
 
-                        <!--<button (click)="createPatient(null)">createpatient</button>-->
-                        <!--</pre>-->
+                        <button (click)="removeClipboardElement('series',{'studykey':0,'serieskey':0})">test</button>
+                        </pre>
 <div class="main_content studies">
     <div *ngIf="user">
 
@@ -42,11 +42,11 @@
         </div>
         <div class="content" id="clipboard_content" *ngIf="showClipboardContent">
             <h5>Selected Objects to {{clipboard.action}}</h5>
-            <a class="clear_clipboard" title="Clear clipboard" href="" (click)="clearClipboard()">
+            <a class="clear_clipboard" title="Clear clipboard" href="" (click)="$event.preventDefault();clearClipboard()">
                 Clear <span class="glyphicon glyphicon-remove"></span>
             </a>
             <div class="header">
-                <div>study._VALUE Instance UID
+                <div>Study Instance UID
                     <div *ngIf="showClipboardHeaders.series || showClipboardHeaders.instance">Series Instance UID
                         <div *ngIf="showClipboardHeaders.instance">
                             <span class="sopclass">Referenced SOP Class UID</span>
@@ -56,21 +56,25 @@
                 </div>
             </div>
             <div class="body">
-                <div class="block" *ngFor="let value of clipboard.selected; let key = index;">
+                <div class="block" *ngFor="let value of getKeys(clipboard.selected)">
                     <div class="study_block block_part">
-                        {{value.StudyInstanceUID}}
-                        <i (click)='removeClipboardElement("study._VALUE",{"study._KEY":key})' class="remove glyphicon glyphicon-remove"></i>
-                        <div class="series_block block_part" *ngFor="let seriesequence of value.ReferencedSeriesSequence; let key2 = index;" [ngClass]="{'no-series':!seriesequence.ReferencedSOPSequence.length,'series':seriesequence.ReferencedSOPSequence.length,'scroll-active':clipboardHasScrollbar()}">
-                            {{seriesequence.SeriesInstanceUID}}
-                            <i (click)='removeClipboardElement("serie", {"study._KEY":key, "serieskey":key2})' class="remove glyphicon glyphicon-remove"></i>
-                            <div class="sop_block block_part" *ngFor="let sopseq of seriesequence.ReferencedSOPSequence; let key3 = index;">
-                                <span class="sopclass">
-                                    {{sopseq.ReferencedSOPClassUID}}
-                                </span>
-                                <span class="sopinstance">
-                                    {{sopseq.ReferencedSOPInstanceUID}}
-                                </span>
-                                <i (click)='removeClipboardElement("instance", {"study._KEY":key, "serieskey":key2, "instancekey":key3})' class="remove glyphicon glyphicon-remove"></i>
+                        {{clipboard.selected[value].StudyInstanceUID}}
+                        <i (click)='removeClipboardElement("study",{"studykey":value})' class="remove glyphicon glyphicon-remove"></i>
+                        <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.selected[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':!seriesequence.ReferencedSOPSequence,'series':seriesequence.ReferencedSOPSequence,'scroll-active':clipboardHasScrollbar}">
+                            <div>
+                                {{seriesequence.SeriesInstanceUID}}
+                            </div>
+                            <i *ngIf="seriesequence.ReferencedSOPSequence" (click)='removeClipboardElement("serie", {"studykey":value, "serieskey":key})' class="remove glyphicon glyphicon-remove"></i>
+                            <div *ngIf="seriesequence.ReferencedSOPSequence">
+                                <div class="sop_block block_part" *ngFor="let sopseq of getKeys(seriesequence.ReferencedSOPSequence); let key2 = index;">
+                                    <span class="sopclass">
+                                        {{sopseq.ReferencedSOPClassUID}}
+                                    </span>
+                                    <span class="sopinstance">
+                                        {{sopseq.ReferencedSOPInstanceUID}}
+                                    </span>
+                                    <i (click)='removeClipboardElement("instance", {"studykey":value, "serieskey":key, "instancekey":key2})' class="remove glyphicon glyphicon-remove"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -650,6 +654,10 @@
                     <div style="width:6%" class="th" title="Scheduled Station AE Title">SS AE Title</div>
                 </div>
             </div>
+            <div class="headerbuttons">
+                <button title="Toggle checkboxes for selection" class="activate_checkboxes" (click)="showCheckBoxes()"><i class="material-icons">playlist_add_check</i></button>
+                <button title="Copy selected objects to the clipboard" class="activate_checkboxes" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
+            </div>
         </div>
     </div>
 
@@ -660,14 +668,17 @@
         <!--{{m._KEY}} : {{m._VALUE.attrs |json}}-->
     <!--</div>-->
 <!--</pre>-->
-        <div class="repeat0" contextmenu-item='patient._VALUE' *ngFor="let patient of patients | getKey" (click)='select(patient._VALUE,"patient",{patientkey:patient._KEY})'>
+        <div class="repeat0" contextmenu-item='patient._VALUE' *ngFor="let patient of patients | getKey">
             <div class="more_menu_content">
-                <div class="more_menu_study">
+                <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">
                     <div class="colcell">
                         <div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>
                     </div>
                     <div class="exeq_buttons">
                         <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,3)"></div>
+                        <div class="checkbox_content hiddenbuttons">
+                            <input type="checkbox" [ngModel]="patient._VALUE.selected" name="select" (change)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"fromcheckbox")'>
+                        </div>
                         <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
@@ -680,7 +691,7 @@
                     </div>
                 </div>
             </div>
-            <div class="thead" [ngClass]="{hide:patient._VALUE.hide}">
+            <div class="thead" [ngClass]="{hide:patient._VALUE.hide}" (click)='select(patient._VALUE,"patient",{"patientkey":patient._KEY})'>
                 <div class="tr_row" [ngClass]="{selected: patient._VALUE.selected}">
                     <div class="th" style="width:10%">
                         <!--<div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>-->
@@ -711,10 +722,13 @@
                 <div class="tbody">
                     <div class="tr_row">
                         <div class="more_menu_content">
-                            <div class="more_menu_study">
+                            <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">
                                 <div class="colcell" [innerHtml]="study._VALUE.offset+1+'.'"> </div>
                                 <div class="exeq_buttons">
                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event, 5)"></div>
+                                    <div class="checkbox_content hiddenbuttons">
+                                        <input type="checkbox" [ngModel]="study._VALUE.selected" (change)='select(study._VALUE,"study", {"patientkey":patient._KEY,"studykey":study._KEY},"fromcheckbox")'>
+                                    </div>
                                     <a class="hiddenbuttons" *ngIf="isRole('admin')" (click)="editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
@@ -737,12 +751,11 @@
                             </div>
                         </div>
                         <div class="subblock">
-                            <div class="td_row thead repeat1_hover" (click)='select(study._VALUE,"study", {"patientkey":patient._KEY,"study":study._KEY})' [ngClass]="{selected: study._VALUE.selected, trash:trashaktive}">
+                            <div class="td_row thead repeat1_hover" (click)='select(study._VALUE,"study", {"patientkey":patient._KEY,"studykey":study._KEY})' [ngClass]="{selected: study._VALUE.selected, trash:trashaktive}">
                                 <div class="td_cell table_btn">
                                     <a (click)="$event.preventDefault();study._VALUE.showAttributes = !study._VALUE.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>
-
                                     <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && !(study._VALUE.series)" (click)="$event.preventDefault();querySeries(study._VALUE,0)" href="" title="Show Series">&#9658;</a>
                                     <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && study._VALUE.series" (click)="$event.preventDefault();study._VALUE.series = null" href="" title="Hide Series">&#9660;</a>
                                 </div>
@@ -780,10 +793,13 @@
                                 <div class="repeat2" *ngFor="let series of study._VALUE.series | getKey" contextmenu-item="series" >
                                     <div class="subblock">
                                         <div class="more_menu_content">
-                                            <div class="more_menu_study">
+                                            <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">
                                                 <div class="td_cell colcell" [innerHtml]="series._VALUE.offset+1+'.'"> </div>
                                                 <div class="exeq_buttons" >
                                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,6)"></div>
+                                                    <div class="checkbox_content hiddenbuttons">
+                                                        <input type="checkbox" [(ngModel)]="series._VALUE.selected" (change)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY},"fromcheckbox")'>
+                                                    </div>
                                                     <a class="hiddenbuttons" (click)="exportSeries(series._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export Series">
                                                         <span class="glyphicon glyphicon-export"></span>
                                                     </a>
@@ -802,7 +818,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="tr_row repeat2_hover" (click)='select(series._VALUE,"series", {patientkey:patient._KEY,"study._KEY":study._KEY, "serieskey":series._KEY})' [ngClass]="{selected: series._VALUE.selected}">
+                                        <div class="tr_row repeat2_hover" (click)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY})' [ngClass]="{selected: series._VALUE.selected}">
                                             <div class="td_cell table_btn">
                                                 <a (click)="$event.preventDefault();series._VALUE.showAttributes = !series._VALUE.showAttributes" href="" title="Show Attributes">
                                                     <span class="glyphicon glyphicon-th-list"></span>
@@ -827,10 +843,13 @@
                                         </div>
                                         <div class="repeat3" *ngFor="let instance of series._VALUE.instances | getKey" contextmenu-item="instance">
                                             <div class="more_menu_content">
-                                                <div class="more_menu_study repeat3block">
+                                                <div class="more_menu_study repeat3block" [ngClass]="{show_checkboxes:showCheckboxes}">
                                                     <div class="td_cell colcell" [innerHtml]="instance._VALUE.offset+1+'.'"> </div>
                                                     <div class="exeq_buttons">
                                                         <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,7)"></div>
+                                                        <div class="checkbox_content hiddenbuttons">
+                                                            <input type="checkbox" [(ngModel)]="instance._VALUE.selected" (change)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
+                                                        </div>
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export instance">
                                                             <span class="glyphicon glyphicon-export"></span>
                                                         </a>
@@ -862,7 +881,7 @@
                                                 </div>
                                             </div>
                                             <div class="subblock">
-                                                <div class="tr_row repeat3_hover" (click)='select(instance._VALUE,"instance", {patientkey:patient._KEY,"study._KEY":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY})' [ngClass]="{selected: instance._VALUE.selected}" >
+                                                <div class="tr_row repeat3_hover" (click)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY})' [ngClass]="{selected: instance._VALUE.selected}" >
                                                     <div class="td_cell table_btn" style="width:4%">
                                                         <!-- <input type="checkbox" [(ngModel)]="instance._VALUE.selected" class="selectcheckboxes" /> -->
                                                         <a style="width:45%" (click)="$event.preventDefault();toggleAttributs(series._VALUE.instances[instance._KEY],'attributs')" href="" title="Show Attributes" [ngClass]="{active:instance._VALUE.showAttributes}">

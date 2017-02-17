@@ -185,26 +185,6 @@ export class StudiesService {
         this.getArrayFromIodHelper(res, dropdown);
         return dropdown;
     };
-    clearSelection(patients){
-        _.forEach(patients,function(patient, i){
-            patient.selected = false;
-            if(patient.studies){
-                _.forEach(patient.studies,function(study, j){
-                    study.selected = false;
-                    if(study.series){
-                        _.forEach(study.series,function(serie, j){
-                            serie.selected = false;
-                            if(serie.instances){
-                                _.forEach(serie.instances,function(instance, j){
-                                    instance.selected = false;
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    };
 
     clearPatientObject(object){
         let $this = this;
@@ -240,4 +220,61 @@ export class StudiesService {
             }
         });
     };
+    clearSelection(patients){
+        _.forEach(patients,function(patient, i){
+            patient.selected = false;
+            if(patient.studies){
+                _.forEach(patient.studies,function(study, j){
+                    study.selected = false;
+                    if(study.series){
+                        _.forEach(study.series,function(serie, j){
+                            serie.selected = false;
+                            if(serie.instances){
+                                _.forEach(serie.instances,function(instance, j){
+                                    instance.selected = false;
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    };
+    MergeRecursive(clipboard, selected) {
+        _.forEach(selected, function(study, studykey){
+            clipboard[studykey] = clipboard[studykey] || selected[studykey];
+            if(clipboard[studykey]){
+                if(study["ReferencedSeriesSequence"]){
+                    clipboard[studykey]["ReferencedSeriesSequence"] = clipboard[studykey]["ReferencedSeriesSequence"] || study["ReferencedSeriesSequence"]
+                    _.forEach(study["ReferencedSeriesSequence"] ,function(selSeries,selSeriesKey){
+
+                        let SeriesInstanceUIDInArray = false;
+                        _.forEach(clipboard[studykey]["ReferencedSeriesSequence"] ,function(clipSeries,clipSeriesKey){
+                            if(clipSeries.SeriesInstanceUID === selSeries.SeriesInstanceUID){
+                                SeriesInstanceUIDInArray = true;
+                                if(selSeries.ReferencedSOPSequence){
+                                    if(clipSeries.ReferencedSOPSequence){
+                                        _.forEach(selSeries.ReferencedSOPSequence , function(selInstance, selSeriesKey){
+                                            let sopClassInstanceUIDInArray = false;
+                                            _.forEach(clipSeries.ReferencedSOPSequence , function(clipInstance, clipInstanceKey){
+                                                if(clipInstance.ReferencedSOPClassUID && clipInstance.ReferencedSOPClassUID === selInstance.ReferencedSOPClassUID && clipInstance.ReferencedSOPInstanceUID && clipInstance.ReferencedSOPInstanceUID === selInstance.ReferencedSOPInstanceUID){
+                                                    sopClassInstanceUIDInArray = true;
+                                                }
+                                            });
+                                            if(!sopClassInstanceUIDInArray){
+                                                clipSeries.ReferencedSOPSequence.push(selInstance);
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                        if(!SeriesInstanceUIDInArray){
+                            clipboard[studykey]["ReferencedSeriesSequence"].push(selSeries);
+                        }
+                    });
+                }
+            }
+        });
+    }
 }

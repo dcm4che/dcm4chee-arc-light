@@ -34,7 +34,8 @@ export class StudiesComponent{
     titleLabel = "Edit patient";
     rjcode = null;
     trashaktive = false;
-    clipboard;
+    clipboard:any = {};
+    showCheckboxes = false;
     disabled = {};
     filter = {
         orderby: "-StudyDate,-StudyTime",
@@ -64,10 +65,14 @@ export class StudiesComponent{
     opendropdown = false;
     addPatientAttribut = "";
     lastPressedCode;
-
+    clipboardHasScrollbar:boolean = false;
     // birthDate;
     clipBoardNotEmpty(){
-        return false; //TODO
+        if(this.clipboard.selected && Object.keys(this.clipboard.selected).length > 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     clearForm(){
@@ -173,10 +178,10 @@ export class StudiesComponent{
     items = {};
     anySelected;
     lastSelectedObject = {modus:""};
-    keysdown:any;
+    keysdown:any = {};
     lastSelect:any;
-    selected;
-
+    selected:any = {};
+    pressedKey;
     selectModality(key){
         this.filter.ModalitiesInStudy = key;
         this.filter['ScheduledProcedureStepSequence.Modality'] = key;
@@ -193,7 +198,6 @@ export class StudiesComponent{
         //     console.log(this.value);
         // });
 
-
         this.cfpLoadingBar.interval = 200;
         this.modalities = Globalvar.MODALITIES;
         console.log("modalities",this.modalities);
@@ -206,14 +210,15 @@ export class StudiesComponent{
         if(!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
+            let $this = this;
             this.mainservice.user
                 .subscribe(
                     (response) => {
-                        this.user.user  = response.user;
-                        this.mainservice.user.user = response.user;
-                        this.user.roles = response.roles;
-                        this.mainservice.user.roles = response.roles;
-                        this.isRole = (role)=>{
+                        $this.user.user  = response.user;
+                        $this.mainservice.user.user = response.user;
+                        $this.user.roles = response.roles;
+                        $this.mainservice.user.roles = response.roles;
+                        $this.isRole = (role)=>{
                             if(response.user === null && response.roles.length === 0){
                                 return true;
                             }else{
@@ -226,13 +231,13 @@ export class StudiesComponent{
                         };
                     },
                     (response) => {
-                        // this.user = this.user || {};
+                        // $this.user = $this.user || {};
                         console.log("get user error");
-                        this.user.user = "user";
-                        this.mainservice.user.user = "user";
-                        this.user.roles = ["user","admin"];
-                        this.mainservice.user.roles = ["user","admin"];
-                        this.isRole = (role)=>{
+                        $this.user.user = "user";
+                        $this.mainservice.user.user = "user";
+                        $this.user.roles = ["user","admin"];
+                        $this.mainservice.user.roles = ["user","admin"];
+                        $this.isRole = (role)=>{
                             if(role === "admin"){
                                 return false;
                             }else{
@@ -247,26 +252,6 @@ export class StudiesComponent{
             this.isRole = this.mainservice.isRole;
             // console.log("isroletest",this.user.applyisRole("admin"));
         }
-        // console.log("user",this.mainservice.user);
-        // this.mainservice.getUserObservable().subscribe(
-        //     (user)=>{
-        //         console.log("in getuserobsrvable user0",user);
-        //         this.user = user;
-        //     },
-        //     (err)=>{
-        //         console.log("getuserosb erro",err);
-        //     },
-        //     ()=>{
-        //         console.log("finisch");
-        //     }
-        // );
-        // console.log("user1",this.user);
-        // this.user = this.mainservice.user;
-        // setTimeout(()=>{
-        //     // this.user = this.mainservice.user;
-        //     console.log("user2mainserver",this.mainservice.user);
-        //     console.log("user2",this.user);
-        // },500);
         this.hoverdic.forEach((m, i)=>{
             let $this = this;
             $(document.body).on("mouseover mouseleave",m,function(e){
@@ -284,6 +269,44 @@ export class StudiesComponent{
                     },200);
                 }
             });
+        });
+        console.log("thisrole=",this.isRole);
+        let $this = this;
+        $(document).keydown(function(e){
+
+            $this.pressedKey = e.keyCode;
+            // Do we already know it's down?
+            if ($this.keysdown && $this.keysdown[e.keyCode]) {
+                // Ignore it
+                return;
+            }
+            console.log("e.keyCode",e.keyCode);
+            console.log("isrole admin=",$this.isRole("admin"));
+            // console.log("isrole admin=",this.mainservice.isRole);
+            // Remember it's down
+            $this.keysdown[e.keyCode] = true;
+            //ctrl + c clicked
+            if($this.keysdown[17]===true && $this.keysdown[67]===true && $this.isRole("admin")){
+                console.log("ctrl + c");
+                $this.ctrlC();
+            }
+/*            //ctrl + v clicked
+            if(this.keysdown[17]===true && this.keysdown[86]===true && this.isRole("admin")){
+                if(this.lastSelectedObject && this.clipboard && this.clipboard.selected && Object.keys(this.clipboard.selected).length > 0){
+                    ctrlV(this.lastSelectedObject);
+                }
+            }
+            //ctrl + x clicked
+            if(this.keysdown[17]===true && this.keysdown[88]===true && this.isRole("admin")){
+                console.log("ctrl + x");
+                ctrlX();
+            }*/
+
+        });
+        $(document).keyup(function(e){
+            console.log("keydown")
+            $this.pressedKey = null;
+            delete $this.keysdown[e.keyCode];
         });
 
         //Detect in witch column is the mouse position and select the header.
@@ -418,7 +441,8 @@ export class StudiesComponent{
                         attrs: studyAttrs,
                         series: null,
                         showAttributes: false,
-                        fromAllStudies:false
+                        fromAllStudies:false,
+                        selected:false
                     };
                     pat.studies.push(study);
                     $this.extendedFilter(false);
@@ -524,7 +548,7 @@ export class StudiesComponent{
                  var dd = string.substring(6,8);
                  var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
                  var date          = new Date(timestampDate);
-                 $scope.dateplaceholder[index] = date;
+                 this.dateplaceholder[index] = date;
                  }*/
             });
             if(patient.attrs["00100020"] && patient.attrs["00100020"].Value && patient.attrs["00100020"].Value[0]){
@@ -1032,7 +1056,8 @@ export class StudiesComponent{
                             moreInstances: false,
                             attrs: attrs,
                             instances: null,
-                            showAttributes: false
+                            showAttributes: false,
+                            selected:false
                         };
                     });
                     if (study.moreSeries = (study.series.length > $this.limit)) {
@@ -1082,7 +1107,8 @@ export class StudiesComponent{
                             numberOfFrames: numberOfFrames,
                             gspsQueryParams: gspsQueryParams,
                             views: $this.createArray(video || numberOfFrames || gspsQueryParams.length || 1),
-                            view: 1
+                            view: 1,
+                            selected:false
                         };
                     });
                 }else{
@@ -1117,7 +1143,8 @@ export class StudiesComponent{
                         attrs: attrs,
                         series: null,
                         showAttributes: false,
-                        fromAllStudies:true
+                        fromAllStudies:true,
+                        selected:false
                     };
                 });
                 if (patient.moreStudies = (patient.studies.length > $this.limit)) {
@@ -1155,7 +1182,8 @@ export class StudiesComponent{
                         offset: offset + index,
                         attrs: attrs,
                         studies: null,
-                        showAttributes: false
+                        showAttributes: false,
+                        selected:false
                     };
                 });
                 if ($this.morePatients = ($this.patients.length > $this.limit)) {
@@ -1212,42 +1240,56 @@ export class StudiesComponent{
     viewInstance(inst) {
         window.open(this.renderURL(inst));
     };
-    select(object, modus, keys){
-        let test = false;
-        if(test){//TODO this.isRole("admin")
+    select(object, modus, keys, fromcheckbox){
+        console.log("in select = fromcheckbox", fromcheckbox);
+        // let test = true;
+        console.log("object.selected",object.selected);
+        // console.log("patient object selected",this.patients[keys.patientkey].studies[keys.studykey].selected);
+        console.log("object",object);
+        console.log("modus",modus);
+        console.log("keys",keys);
+        if(this.isRole("admin")){
             this.anySelected = true;
             this.lastSelectedObject = object;
             this.lastSelectedObject.modus = modus;
-
-            //0020000D object Instance UID
-            //ctrl + click
-            if(Object.keys(this.keysdown).length === 1 && this.keysdown[17] === true){
-                this.selectObject(object, modus);
+            /*
+            * If the function was called from checkbox go in there
+            * */
+            if(fromcheckbox && fromcheckbox === "fromcheckbox"){
+                console.log("in if fromcheckbox", fromcheckbox);
+                this.selectObject(object, modus, true);
             }
-            //close contextmenu (That's a bug on contextmenu module. The bug has been reported)
-            $(".dropdown.contextmenu").addClass('ng-hide');
+
+            //ctrl + click
+            if(this.keysdown && Object.keys(this.keysdown).length === 1 && this.keysdown[17] === true){
+                this.selectObject(object, modus, false);
+            }
+            // //close contextmenu (That's a bug on contextmenu module. The bug has been reported)
+            // $(".dropdown.contextmenu").addClass('ng-hide');
 
             //Shift + click
-            if(Object.keys(this.keysdown).length === 1 && this.keysdown[16] === true){
+            console.log("before shiftclick");
+            if(this.keysdown && Object.keys(this.keysdown).length === 1 && this.keysdown[16] === true){
+                console.log("in shift click");
                 this.service.clearSelection(this.patients);
                 if(!this.lastSelect){
-                    this.selectObject(object, modus);
+                    this.selectObject(object, modus, false);
                     this.lastSelect = {"keys":keys, "modus":modus};
                 }else{
                     if(modus != this.lastSelect.modus){
                         this.service.clearSelection(this.patients);
-                        this.selectObject(object, modus);
+                        this.selectObject(object, modus, false);
                         this.lastSelect = {"keys":keys, "modus":modus};
                     }else{
                         switch(modus) {
                             case "patient":
-                                this.selectObject(object, modus);
+                                this.selectObject(object, modus, false);
                                 break;
                             case "study":
                                 // {"patientkey":patientkey,"studykey":studykey}
                                 if(keys.patientkey != this.lastSelect.keys.patientkey){
                                     this.service.clearSelection(this.patients);
-                                    this.selectObject(object, modus);
+                                    this.selectObject(object, modus, false);
                                     this.lastSelect = {"keys":keys, "modus":modus};
                                 }else{
                                     console.log("keys.studykey",keys.studykey);
@@ -1257,13 +1299,13 @@ export class StudiesComponent{
                                             console.log("i",i);
                                             console.log("this.patients[keys.patientkey].studies[i]=",this.patients[keys.patientkey].studies[i]);
                                             // this.patients[keys.patientkey].studies[i].selected = true;
-                                            this.selectObject(this.patients[keys.patientkey].studies[i], modus);
+                                            this.selectObject(this.patients[keys.patientkey].studies[i], modus, false);
                                         }
                                     }else{
                                         for (var i = this.lastSelect.keys.studykey; i >= keys.studykey; i--) {
                                             console.log("this.patients[keys.patientkey].studies[i]=",this.patients[keys.patientkey].studies[i]);
                                             // this.patients[keys.patientkey].studies[i].selected = true;
-                                            this.selectObject(this.patients[keys.patientkey].studies[i], modus);
+                                            this.selectObject(this.patients[keys.patientkey].studies[i], modus, false);
                                         }
                                     }
                                     this.lastSelect = {};
@@ -1274,7 +1316,7 @@ export class StudiesComponent{
                                 console.log("keys",keys);
                                 if(keys.patientkey != this.lastSelect.keys.patientkey || keys.studykey != this.lastSelect.keys.studykey){
                                     this.service.clearSelection(this.patients);
-                                    this.selectObject(object, modus);
+                                    this.selectObject(object, modus, false);
                                     this.lastSelect = {"keys":keys, "modus":modus};
                                 }else{
                                     console.log("keys.studykey",keys.serieskey);
@@ -1284,13 +1326,13 @@ export class StudiesComponent{
                                             console.log("i",i);
                                             console.log("this.patients[keys.patientkey].studies[i]=",this.patients[keys.patientkey].studies[keys.studykey].series[i]);
                                             // this.patients[keys.patientkey].studies[i].selected = true;
-                                            this.selectObject(this.patients[keys.patientkey].studies[keys.studykey].series[i], modus);
+                                            this.selectObject(this.patients[keys.patientkey].studies[keys.studykey].series[i], modus, false);
                                         }
                                     }else{
                                         for (var i = this.lastSelect.keys.serieskey; i >= keys.serieskey; i--) {
                                             console.log("this.patients[keys.patientkey].studies[i]=",this.patients[keys.patientkey].studies[keys.studykey].series[i]);
                                             // this.patients[keys.patientkey].studies[i].selected = true;
-                                            this.selectObject(this.patients[keys.patientkey].studies[keys.studykey].series[i], modus);
+                                            this.selectObject(this.patients[keys.patientkey].studies[keys.studykey].series[i], modus, false);
                                         }
                                     }
                                     this.lastSelect = {};
@@ -1302,23 +1344,23 @@ export class StudiesComponent{
                                 console.log("this.patients",this.patients[keys.patientkey]);
                                 if(keys.patientkey != this.lastSelect.keys.patientkey || keys.studykey != this.lastSelect.keys.studykey || keys.serieskey != this.lastSelect.keys.serieskey){
                                     this.service.clearSelection(this.patients);
-                                    this.selectObject(object, modus);
+                                    this.selectObject(object, modus, false);
                                     this.lastSelect = {"keys":keys, "modus":modus};
                                 }else{
                                     console.log("keys.studykey",keys.instancekey);
                                     console.log("this.lastSelect.keys.studykey",this.lastSelect.keys.instancekey);
                                     if(keys.instancekey > this.lastSelect.keys.instancekey){
-                                        for (var i = keys.instancekey; i >= this.lastSelect.keys.instancekey; i--) {
+                                        for (let i = keys.instancekey; i >= this.lastSelect.keys.instancekey; i--) {
                                             console.log("i",i);
                                             // console.log("this.patients[keys.patientkey].studies[i]=",this.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]);
                                             // this.patients[keys.patientkey].studies[i].selected = true;
-                                            this.selectObject(this.patients[keys.patientkey].studies[keys.studykey].series[keys.serieskey].instances[i], modus);
+                                            this.selectObject(this.patients[keys.patientkey].studies[keys.studykey].series[keys.serieskey].instances[i], modus, false);
                                         }
                                     }else{
-                                        for (var i = this.lastSelect.keys.instancekey; i >= keys.instancekey; i--) {
+                                        for (let i = this.lastSelect.keys.instancekey; i >= keys.instancekey; i--) {
                                             // console.log("this.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]=",this.patients[keys.patientkey].studies[keys.studykey].series[keys.studykey].instances[i]);
                                             // this.patients[keys.patientkey].studies[i].selected = true;
-                                            this.selectObject(this.patients[keys.patientkey].studies[keys.studykey].series[keys.serieskey].instances[i], modus);
+                                            this.selectObject(this.patients[keys.patientkey].studies[keys.studykey].series[keys.serieskey].instances[i], modus, false);
                                         }
                                     }
                                     this.lastSelect = {};
@@ -1330,16 +1372,34 @@ export class StudiesComponent{
                     }
                 }
             }
-            if(Object.keys(this.keysdown).length === 0 && this.anySelected){
+            console.log("before keyend");
+            if(!this.showCheckboxes && this.keysdown && Object.keys(this.keysdown).length === 0 && this.anySelected){
                 this.service.clearSelection(this.patients);
                 this.anySelected = false;
-                this.selected = {};
+                // this.selected = {};
+            }
+            try {
+                this.clipboardHasScrollbar = $("#clipboard_content").get(0).scrollHeight > $("#clipboard_content").height();
+            }catch (e){
+
             }
         }
     };
-    selectObject(object, modus){
+    // clipboardHasScrollbar(){
+    //     // $.fn.hasScrollBar = function() {
+    //     //     return this.get(0).scrollHeight > this.height();
+    //     // }
+    //     return
+    // }
+    selectObject(object, modus, fromcheckbox){
+        console.log("in select object modus", modus);
+        console.log("object",object);
+        console.log("object selected",object.selected);
         this.showClipboardHeaders[modus] = true;
-        object.selected = !object.selected;
+        // if(!fromcheckbox){
+            object.selected = !object.selected;
+        // }
+        console.log("2object selected",object.selected);
         // this.selected[object.attrs["0020000D"].Value[0]]["modus"] = this.selected[object.attrs["0020000D"].Value[0]]["modus"] || modus;
         // console.log("",);
         if(modus === "patient"){
@@ -1349,29 +1409,34 @@ export class StudiesComponent{
             this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] = this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] || object.attrs["0020000D"].Value[0];
         }
         if(modus === "study"){
-            object.series.forEach((m,k)=>{
-                if(m.selected != undefined){
-                    m.selected = !m.selected;
-                }else{
+            console.log("01");
+            _.forEach(object.series, (m,k)=>{
+                console.log("m,",m);
+                // if(m.selected != undefined){
+                //     m.selected = !m.selected;
+                // }else{
                     m.selected = object.selected;
-                }
-                m.instances.forEach((j,i) => {
-                    if(j.selected != undefined){
-                        j.selected = !j.selected;
-                    }else{
+                // }
+                _.forEach(m.instances, (j,i) => {
+                        console.log("03");
+                    // if(j.selected != undefined){
+                    //     j.selected = !j.selected;
+                    // }else{
                         j.selected = object.selected;
-                    }
+                    // }
                 });
             });
+            console.log("06");
         }
         if(modus === "series"){
             //Select childs
+            console.log("1");
             _.forEach(object.instances, function(j,i){
-                if(j.selected != undefined){
-                    j.selected = !j.selected;
-                }else{
+                // if(j.selected != undefined){
+                //     j.selected = !j.selected;
+                // }else{
                     j.selected = object.selected;
-                }
+                // }
             });
             this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || [];
             let SeriesInstanceUIDInArray = false;
@@ -1391,6 +1456,7 @@ export class StudiesComponent{
                     "SeriesInstanceUID": object.attrs["0020000E"].Value[0]
                 });
             }
+            console.log("4");
         }
         if(modus === "instance"){
 
@@ -1399,8 +1465,6 @@ export class StudiesComponent{
             if(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){
 
                 _.forEach(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"], function(s,l){
-                    console.log("s",s);
-                    console.log("l",l);
                     if(s.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
                         SeriesInstanceUIDInArray = true;
                     }
@@ -1413,19 +1477,20 @@ export class StudiesComponent{
                     "SeriesInstanceUID": object.attrs["0020000E"].Value[0]
                 });
             }
-            _.forEach(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"],function(m,i){
+            let $this = this;
+            _.forEach($this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"],function(m,i){
                 if(m.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
 
-                    this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] = this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] || [];
+                    $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] = $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] || [];
 
                     let sopClassInstanceUIDInArray = false;
-                    _.forEach(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"],function(m2, i2){
+                    _.forEach($this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"],function(m2, i2){
                         if(m2.ReferencedSOPClassUID && m2.ReferencedSOPClassUID === object.attrs["00080016"].Value[0] && m2.ReferencedSOPInstanceUID && m2.ReferencedSOPInstanceUID === object.attrs["00080018"].Value[0]){
                             sopClassInstanceUIDInArray = true;
                         }
                     });
                     if(!sopClassInstanceUIDInArray){
-                        this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"].push(                                                                                                                    {
+                        $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"].push(                                                                                                                    {
                             "ReferencedSOPClassUID": object.attrs["00080016"].Value[0],
                             "ReferencedSOPInstanceUID": object.attrs["00080018"].Value[0]
                         });
@@ -1493,7 +1558,40 @@ export class StudiesComponent{
         console.log("params",params);
         return params;
     }
-    renderURL(inst) {[0]
+
+    ctrlC(){
+        // if(user.isRole("admin")){ //TODO
+            console.log("ctrl c");
+        
+            this.clipboard["selected"] = this.clipboard["selected"] || {};
+            console.log("this.selected",this.selected);
+            // console.log("test",angular.merge({},this.clipboard.selected, this.selected));
+            // this.clipboard.selected = angular.merge({},this.clipboard.selected, this.selected);
+            this.service.MergeRecursive(this.clipboard.selected,this.selected);
+            console.log("this.clipboard",this.clipboard);
+            if(this.clipboard.action && this.clipboard.action === "move"){
+                // vex.dialog.confirm({
+                //     message: "Are you sure you want to change the action from move to copy?",
+                //     callback: function(m) {
+                //         $(".vex").hide();
+                //         $("body").removeClass('vex-open');
+                //         if(m){
+                //             this.clipboard["action"] = "copy";
+                //         }
+                //         showClipboardForAMoment();
+                //     }
+                // });
+            }else{
+                this.clipboard["action"] = "copy";
+                // showClipboardForAMoment();
+            }
+            console.log("this.clipboard",this.clipboard);
+            this.service.clearSelection(this.patients);
+            this.selected = {};
+            this.showClipboardContent = true;
+        // }
+    };
+    renderURL(inst) {
         if (inst.video)
             return this.wadoURL(inst.wadoQueryParams, { contentType: 'video/mpeg' });
         if (inst.numberOfFrames)
@@ -1501,6 +1599,37 @@ export class StudiesComponent{
         if (inst.gspsQueryParams.length)
             return this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
         return this.wadoURL(inst.wadoQueryParams);
+    }
+    getKeys(obj){
+        if(_.isArray(obj)){
+            return obj;
+        }else{
+            // console.log("objectkeys=",Object.keys(obj));
+            return Object.keys(obj);
+        }
+    }
+    removeClipboardElement(modus, keys){
+        console.log("in removeclipboarelement", modus);
+        console.log("in keys", keys);
+
+        switch(modus) {
+            case "study":
+                console.log("thisclipboard",this.clipboard);
+                delete this.clipboard.selected[keys.studykey];
+                console.log("thisclipboard",this.clipboard);
+                break;
+            case "serie":
+                console.log("clipb",this.clipboard);
+                delete this.clipboard.selected[keys.studykey].ReferencedSeriesSequence[keys.serieskey];
+                console.log("clipb2", this.clipboard);
+                break;
+            case "instance":
+                this.clipboard.selected[keys.studykey].ReferencedSeriesSequence[keys.serieskey].ReferencedSOPSequence.splice(keys.instancekey,1);
+                break;
+            default:
+        }
+        console.log("clipboard",this.clipboard);
+        // this.clipboard = {};
     }
     addEffect(direction){
         var element = $(".div-table");
@@ -1828,5 +1957,8 @@ export class StudiesComponent{
                     if (retries)
                         this.initRjNotes(retries-1);
             });
+    }
+    showCheckBoxes(){
+        this.showCheckboxes = !this.showCheckboxes;
     }
 }
