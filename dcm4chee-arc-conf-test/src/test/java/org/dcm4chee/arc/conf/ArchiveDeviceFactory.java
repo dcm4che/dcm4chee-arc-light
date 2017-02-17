@@ -854,7 +854,7 @@ class ArchiveDeviceFactory {
             "DSS"
     };
 
-    static final String DCM4CHEE_ARC_VERSION = "5.9.0";
+    static final String DCM4CHEE_ARC_VERSION = "5.9.2";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -913,6 +913,8 @@ class ArchiveDeviceFactory {
     static final LocalTime REJECT_EXPIRED_STUDIES_START_TIME = LocalTime.parse("00:00:00");
     static final int REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE = 10;
     static final String REJECT_EXPIRED_STUDIES_AE_TITLE = "DCM4CHEE";
+    static final String EXTERNAL_RETRIEVE_AE_DESTINATION = "DCM4CHEE";
+    static final String XDSI_IMAGING_DOCUMENT_SOURCE_AE_TITLE = "DCM4CHEE";
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.parse("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
@@ -1172,6 +1174,8 @@ class ArchiveDeviceFactory {
         ext.setStorageID(STORAGE_ID);
         ext.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
+        ext.setExternalRetrieveAEDestination(EXTERNAL_RETRIEVE_AE_DESTINATION);
+        ext.setXDSiImagingDocumentSourceAETitle(XDSI_IMAGING_DOCUMENT_SOURCE_AE_TITLE);
         if (configType == configType.TEST) {
             ext.setPersonNameComponentOrderInsensitiveMatching(true);
             ext.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);

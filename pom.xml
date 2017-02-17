@@ -46,7 +46,7 @@
 
   <groupId>org.dcm4che.dcm4chee-arc</groupId>
   <artifactId>dcm4chee-arc-parent</artifactId>
-  <version>5.9.1</version>
+  <version>5.9.2</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -54,8 +54,13 @@
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
+    <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
+    <wildfly-javaee7.version>10.1.0.Final</wildfly-javaee7.version>
+    <jbossws-cxf-client.version>5.1.5.Final</jbossws-cxf-client.version>
+    <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
+    <jaxws-tools-maven-plugin.version>1.2.0.Final</jaxws-tools-maven-plugin.version>
     <!-- Versions -->
-    <dcm4che.version>dcm4chee-arc-light-5.9.1</dcm4che.version>
+    <dcm4che.version>dcm4chee-arc-light-5.9.2</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
     <hibernate.version>5.0.10.Final</hibernate.version>
     <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
@@ -84,16 +89,61 @@
       <name>dcm4che Repository</name>
       <url>http://www.dcm4che.org/maven2</url>
     </repository>
+    <repository>
+      <id>jboss-ga-repository</id>
+      <url>http://maven.repository.redhat.com/techpreview/all</url>
+    </repository>
+    <repository>
+      <id>jboss-earlyaccess-repository</id>
+      <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
+    </repository>
+    <repository>
+      <id>jboss-thirdparty-repository</id>
+      <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
+    </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jboss-ga-plugin-repository</id>
+      <url>http://maven.repository.redhat.com/techpreview/all</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>jboss-earlyaccess-plugin-repository</id>
+      <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee-7.0</artifactId>
-        <version>1.0.2.Final</version>
+        <groupId>org.wildfly.bom</groupId>
+        <artifactId>wildfly-javaee7-with-tools</artifactId>
+        <version>${wildfly-javaee7.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.ws.cxf</groupId>
+        <artifactId>jbossws-cxf-client</artifactId>
+        <version>${jbossws-cxf-client.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.jboss.com.sun.httpserver</groupId>
+            <artifactId>httpserver</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -387,6 +437,7 @@
     <module>dcm4chee-arc-retrieve</module>
     <module>dcm4chee-arc-retrieve-scp</module>
     <module>dcm4chee-arc-retrieve-scu</module>
+    <module>dcm4chee-arc-retrieve-xdsi</module>
     <module>dcm4chee-arc-rs-client</module>
     <module>dcm4chee-arc-service</module>
     <module>dcm4chee-arc-stgcmt</module>

@@ -939,6 +939,24 @@ attributetype ( 1.2.40.0.13.1.15.110.3.157 NAME 'hl7TrackChangedPatientID'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.158 NAME 'dcmXDSiImagingDocumentSourceAETitle'
+  DESC 'AE Title of local Application Entity associated with XDS-I Imaging Document Source.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.159 NAME 'dcmInvokeImageDisplayPatientURL'
+  DESC 'URL to launch external Image Display for a Patient. {} will be replaced by the Patient ID formatted as HL7 CX data type. E.g.: http://display:8080/IHEInvokeImageDisplay?requestType=PATIENT&patientID={}'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.160 NAME 'dcmInvokeImageDisplayStudyURL'
+  DESC 'URL to launch external Image Display for a Study. {} will be replaced by the Study Instance UID. E.g.: http://display:8080/IHEInvokeImageDisplay?requestType=STUDY&studyUID={}'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -986,6 +1004,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmFallbackCMoveSCPRetries $
     dcmFallbackCMoveSCPStudyOlderThan $
     dcmExternalRetrieveAEDestination $
+    dcmXDSiImagingDocumentSourceAETitle $
     dcmAltCMoveSCP $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
@@ -1036,6 +1055,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAllowDeleteStudyPermanently $
     dcmRemapRetrieveURL $
     dcmAuditRecordRepositoryURL $
+    dcmInvokeImageDisplayPatientURL $
+    dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
@@ -1094,6 +1115,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAcceptedUserRole $
     dcmAllowDeleteStudyPermanently $
+    dcmInvokeImageDisplayPatientURL $
+    dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
     hl7PSUDelay $
     hl7PSUMWL $

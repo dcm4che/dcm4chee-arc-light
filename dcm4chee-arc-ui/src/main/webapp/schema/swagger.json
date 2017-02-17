@@ -1053,7 +1053,7 @@
           "application/json"
         ],
         "produces": [
-          "text/plan"
+          "text/plain"
         ],
         "parameters": [
           {

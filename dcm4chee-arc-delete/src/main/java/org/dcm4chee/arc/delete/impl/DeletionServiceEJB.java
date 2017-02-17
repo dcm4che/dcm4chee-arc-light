@@ -43,7 +43,6 @@ package org.dcm4chee.arc.delete.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -170,6 +169,14 @@ public class DeletionServiceEJB {
         return locations.size();
     }
 
+    public void deleteInstances(List<Location> locations) {
+        List<Instance> instances = new ArrayList<>();
+        instances.add(locations.get(0).getInstance());
+        for (Location location : locations)
+            em.remove(em.contains(location) ? location : em.merge(location));
+        deleteInstances(instances);
+    }
+
     public void deleteEmptyStudy(StudyDeleteContext ctx) {
         Study study = ctx.getStudy();
         em.remove(em.contains(study) ? study : em.merge(study));
@@ -212,7 +219,7 @@ public class DeletionServiceEJB {
                 series.put(ser.getPk(), ser);
                 deleteSeriesQueryAttributes(ser);
             }
-            em.remove(inst);
+            em.remove(em.contains(inst) ? inst : em.merge(inst));
         }
         HashMap<Long,Study> studies = new HashMap<>();
         for (Series ser : series.values()) {
@@ -224,7 +231,7 @@ public class DeletionServiceEJB {
             if (countInstancesOfSeries(ser) == 0) {
                 if (ser.getMetadata() != null)
                     ser.getMetadata().setStatus(Metadata.Status.TO_DELETE);
-                em.remove(ser);
+                em.remove(em.contains(ser) ? ser : em.merge(ser));
             } else {
                 studies.put(study.getPk(), null);
                 if (ser.getRejectionState() == RejectionState.PARTIAL && !hasRejectedInstances(ser))
@@ -236,7 +243,7 @@ public class DeletionServiceEJB {
                 continue;
 
             if (countSeriesOfStudy(study) == 0) {
-                em.remove(study);
+                em.remove(em.contains(study) ? study : em.merge(study));
             } else {
                 if (study.getRejectionState() == RejectionState.PARTIAL
                         && !hasSeriesWithOtherRejectionState(study, RejectionState.NONE))

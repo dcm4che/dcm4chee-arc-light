@@ -164,6 +164,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern());
         LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination());
+        LdapUtils.storeNotNull(attrs, "dcmXDSiImagingDocumentSourceAETitle", ext.getXDSiImagingDocumentSourceAETitle());
         LdapUtils.storeNotNull(attrs, "dcmRemapRetrieveURL", ext.getRemapRetrieveURL());
         LdapUtils.storeNotDef(attrs, "dcmValidateCallingAEHostname", ext.isValidateCallingAEHostname(), false);
         LdapUtils.storeNotNull(attrs, "hl7PSUSendingApplication", ext.getHl7PSUSendingApplication());
@@ -178,6 +179,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL());
         LdapUtils.storeNotNull(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy());
         LdapUtils.storeNotDef(attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
+        LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL());
+        LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL());
     }
 
     @Override
@@ -277,6 +280,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStorePermissionServiceErrorCodePattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCodePattern")));
         ext.setRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmRetrieveAET")));
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
+        ext.setXDSiImagingDocumentSourceAETitle(LdapUtils.stringValue(attrs.get("dcmXDSiImagingDocumentSourceAETitle"), null));
         ext.setRemapRetrieveURL(LdapUtils.stringValue(attrs.get("dcmRemapRetrieveURL"), null));
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), false));
         ext.setHl7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
@@ -292,6 +296,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditRecordRepositoryURL(LdapUtils.stringValue(attrs.get("dcmAuditRecordRepositoryURL"), null));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
         ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
+        ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
+        ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
     }
 
     @Override
@@ -454,6 +460,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmRetrieveAET", aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
         LdapUtils.storeDiff(mods, "dcmExternalRetrieveAEDestination",
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination());
+        LdapUtils.storeDiff(mods, "dcmXDSiImagingDocumentSourceAETitle",
+                aa.getXDSiImagingDocumentSourceAETitle(), bb.getXDSiImagingDocumentSourceAETitle());
         LdapUtils.storeDiff(mods, "dcmRemapRetrieveURL", aa.getRemapRetrieveURL(), bb.getRemapRetrieveURL());
         LdapUtils.storeDiff(mods, "dcmValidateCallingAEHostname", aa.isValidateCallingAEHostname(), bb.isValidateCallingAEHostname());
         LdapUtils.storeDiff(mods, "hl7PSUSendingApplication", aa.getHl7PSUSendingApplication(), bb.getHl7PSUSendingApplication());
@@ -470,6 +478,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy());
         LdapUtils.storeDiff(mods, "hl7TrackChangedPatientID",
                 aa.isHl7TrackChangedPatientID(), bb.isHl7TrackChangedPatientID(), true);
+        LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL());
+        LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL());
     }
 
     @Override
@@ -611,6 +621,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "hl7PSUMWL", ext.getHl7PSUMWL());
         LdapUtils.storeNotNull(attrs, "dcmAcceptConflictingPatientID", ext.getAcceptConflictingPatientID());
         LdapUtils.storeNotNull(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy());
+        LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL());
+        LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL());
     }
 
     @Override
@@ -674,6 +686,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
+        ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
+        ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
     }
 
     @Override
@@ -755,6 +769,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7PSUMWL", aa.getHl7PSUMWL(), bb.getHl7PSUMWL());
         LdapUtils.storeDiff(mods, "dcmAcceptConflictingPatientID", aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID());
         LdapUtils.storeDiff(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy());
+        LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL());
+        LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL());
     }
 
     @Override

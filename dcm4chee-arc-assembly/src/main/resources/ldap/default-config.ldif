@@ -1,5 +1,17 @@
 version: 1
 
+dn: cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomConfigurationRoot
+cn: DICOM Configuration
+
+dn: cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomDevicesRoot
+cn: Devices
+
+dn: cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitlesRegistryRoot
+cn: Unique AE Titles Registry
+
 dn: dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomDeviceName: unknown
@@ -65,13 +77,15 @@ hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xs
 dcmStorageID: fs1
 dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
+dcmExternalRetrieveAEDestination: DCM4CHEE
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
 dcmAuditRecordRepositoryURL: http://kibana:5601
+dcmXDSiImagingDocumentSourceAETitle: DCM4CHEE
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
-dicomSoftwareVersion: 5.9.0
+dicomSoftwareVersion: 5.9.2
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D

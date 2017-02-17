@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
@@ -251,10 +250,8 @@ public class IocmRS {
     public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         try {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
-
             JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
             Attributes attrs = reader.readDataset(null);
             ctx.setAttributes(attrs);
@@ -266,20 +263,30 @@ public class IocmRS {
             if (newPatient)
                 patientService.updatePatient(ctx);
             else {
-                if (arcDev.isHl7TrackChangedPatientID()) {
-                    patientService.createPatient(ctx);
-                    ctx.setPatientID(bodyPatientID);
-                    ctx.setAttributes(attrs);
-                    attrs.setString(Tag.PatientID, VR.LO, patientID.toString());
-                    ctx.setPreviousAttributes(attrs);
-                    patientService.mergePatient(ctx);
-                    attrs.setString(Tag.PatientID, VR.LO, bodyPatientID.toString());
-                } else {
-                    ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
+                ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
+                if (arcAE.getArchiveDeviceExtension().isHl7TrackChangedPatientID())
+                    patientService.trackPriorPatient(ctx);
+                else
                     patientService.changePatientID(ctx);
-                }
             }
             forwardRS(HttpMethod.PUT, newPatient ? RSOperation.CreatePatient : RSOperation.UpdatePatient, arcAE, attrs);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        }
+    }
+
+    @POST
+    @Path("/patients/{patientID}/merge")
+    @Consumes("application/json")
+    public void mergePatients(@PathParam("patientID") IDWithIssuer patientID, InputStream in) throws Exception {
+        logRequest();
+        try {
+            final Attributes attrs = parseOtherPatientIDs(in);
+            for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
+                mergePatient(patientID, otherPID);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -287,24 +294,61 @@ public class IocmRS {
     }
 
     @POST
-    @Path("/patients/{patientID}/merge")
-    @Consumes("application/json")
-    public void mergePatient(@PathParam("patientID") IDWithIssuer patientID, InputStream in) throws Exception {
+    @Path("/patients/{patientID}/merge/{priorPatientID}")
+    public void mergePatient(@PathParam("patientID") IDWithIssuer patientID,
+                             @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
         logRequest();
         try {
-            final Attributes attrs = parseOtherPatientIDs(in);
+            Attributes priorPatAttr = new Attributes(2);
+            priorPatAttr.setString(Tag.PatientID, VR.LO, priorPatientID.getID());
+            if (priorPatientID.getIssuer() != null)
+                priorPatAttr.setString(Tag.IssuerOfPatientID, VR.LO, priorPatientID.getIssuer().toString());
+            mergePatient(patientID, priorPatAttr);
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr) throws Exception {
+        try {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request, getArchiveAE().getApplicationEntity());
             patMgtCtx.setPatientID(patientID);
             Attributes patAttr = new Attributes(2);
-            patAttr.setString(Tag.PatientID, VR.LO, patientID.toString());
+            patAttr.setString(Tag.PatientID, VR.LO, patientID.getID());
+            if (patientID.getIssuer() != null)
+                patAttr.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
             patMgtCtx.setAttributes(patAttr);
-            for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence)) {
-                patMgtCtx.setPreviousAttributes(otherPID);
-                patientService.mergePatient(patMgtCtx);
-            }
-        } catch (JsonParsingException e) {
+            patMgtCtx.setPreviousAttributes(priorPatAttr);
+            patientService.mergePatient(patMgtCtx);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @POST
+    @Path("/patients/{patientID}/changeid/{priorPatientID}")
+    public void changePatientID(@PathParam("patientID") IDWithIssuer patientID,
+                                @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
+        logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        try {
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
+            Patient priorPatient = patientService.findPatient(priorPatientID);
+            if (priorPatient == null)
+                throw new WebApplicationException(getResponse(
+                        "Patient having patient ID : " + priorPatientID + " not found.", Response.Status.NOT_FOUND));
+            Attributes attrs = priorPatient.getAttributes();
+            attrs.setString(Tag.PatientID, VR.LO, patientID.getID());
+            if (patientID.getIssuer() != null)
+                attrs.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
+            ctx.setAttributes(attrs);
+            ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
+            ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+            patientService.changePatientID(ctx);
+        } catch (Exception e) {
             throw new WebApplicationException(
-                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+                    getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -511,11 +555,25 @@ public class IocmRS {
             throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-        Attributes ko = rjNote != null ? queryService.createRejectionNote(instanceRefs, rjNote) : null;
+
+        Attributes ko = null;
+        StoreContext koctx = storeService.newStoreContext(session);
+        if (rjNote != null) {
+            ko = queryService.createRejectionNote(instanceRefs, rjNote);
+            koctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+            koctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+            koctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+            storeService.store(koctx, ko);
+        }
+
         final Attributes result = storeService.copyInstances(ko, session, instances, uidMap);
 
-        if (result.getString(Tag.FailureReason) != null && ko != null)
+        if (result.getString(Tag.FailureReason) != null && ko != null) {
+            deletionService.deleteInstances(koctx.getLocations());
             reverseRejectionMove(op, instances, result);
+            throw new WebApplicationException(getResponse("Moving of instances failed with failure reason : " +
+                    result.getString(Tag.FailureReason), Response.Status.INTERNAL_SERVER_ERROR));
+        }
 
         forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);
         return new StreamingOutput() {
@@ -534,7 +592,7 @@ public class IocmRS {
             for (InstanceLocations il : instances)
                 if (item.getString(Tag.ReferencedSOPInstanceUID).equals(il.getSopInstanceUID()))
                     reject(op, il.getAttributes().getString(Tag.StudyInstanceUID), il.getAttributes().getString(Tag.SeriesInstanceUID),
-                        il.getSopInstanceUID(), "REVOKE_REJECTION", "99DCM4CHEE");
+                            il.getSopInstanceUID(), "REVOKE_REJECTION", "99DCM4CHEE");
     }
 
     private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
@@ -574,23 +632,6 @@ public class IocmRS {
             destSeq.add(srcSeq.remove(0));
     }
 
-    private void rejectInstanceRefs(Code code, Attributes instanceRefs, StoreSession session,
-                                            ArchiveDeviceExtension arcDev) throws IOException {
-        RejectionNote rjNote = null;
-        if (code != null) {
-            rjNote = arcDev.getRejectionNote(code);
-            if (rjNote == null)
-                throw new WebApplicationException(getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
-        }
-        if (rjNote != null) {
-            Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
-            StoreContext ctx = storeService.newStoreContext(session);
-            ctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-            ctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
-            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-            storeService.store(ctx, ko);
-        }
-    }
 
     private void expect(JsonParser parser, JsonParser.Event expected) {
         JsonParser.Event next = parser.next();

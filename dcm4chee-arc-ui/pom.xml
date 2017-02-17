@@ -5,7 +5,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.9.1</version>
+    <version>5.9.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -65,7 +65,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
-        <version>2.1.1</version>
+        <version>${maven-war-plugin.version}</version>
         <configuration>
           <warSourceIncludes>
             index.html,

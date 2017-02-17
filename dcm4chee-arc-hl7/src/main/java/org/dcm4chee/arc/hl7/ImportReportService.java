@@ -145,9 +145,9 @@ class ImportReportService extends AbstractHL7Service {
         for (int i = 0; i < n; i++) {
             Attributes refStudy = seq.remove(i);
             Attributes refSeries = refStudy.getNestedDataset(Tag.ReferencedSeriesSequence);
-            Attributes refSOP = refStudy.getNestedDataset(Tag.ReferencedSOPSequence);
+            Attributes refSOP = refSeries.getNestedDataset(Tag.ReferencedSOPSequence);
             attrs.setString(Tag.StudyInstanceUID, VR.UI, refStudy.getString(Tag.StudyInstanceUID));
-            attrs.setString(Tag.SeriesInstanceUID, VR.UI, refSeries.getString(Tag.ReferencedSeriesSequence));
+            attrs.setString(Tag.SeriesInstanceUID, VR.UI, refSeries.getString(Tag.SeriesInstanceUID));
             attrs.setString(Tag.SOPInstanceUID, VR.UI, refSOP.getString(Tag.ReferencedSOPInstanceUID));
             store(s, ae, msh, attrs);
             seq.add(i, refStudy);

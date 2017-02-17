@@ -104,6 +104,8 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean hl7PSUOnTimeout;
     private Boolean hl7PSUMWL;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
+    private String invokeImageDisplayPatientURL;
+    private String invokeImageDisplayStudyURL;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -910,6 +912,34 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getCopyMoveUpdatePolicy();
     }
 
+    public String getInvokeImageDisplayPatientURL() {
+        return invokeImageDisplayPatientURL;
+    }
+
+    public void setInvokeImageDisplayPatientURL(String invokeImageDisplayPatientURL) {
+        this.invokeImageDisplayPatientURL = invokeImageDisplayPatientURL;
+    }
+
+    public String invokeImageDisplayPatientURL() {
+        return invokeImageDisplayPatientURL != null
+                ? invokeImageDisplayPatientURL
+                : getArchiveDeviceExtension().getInvokeImageDisplayPatientURL();
+    }
+
+    public String getInvokeImageDisplayStudyURL() {
+        return invokeImageDisplayStudyURL;
+    }
+
+    public void setInvokeImageDisplayStudyURL(String invokeImageDisplayStudyURL) {
+        this.invokeImageDisplayStudyURL = invokeImageDisplayStudyURL;
+    }
+
+    public String invokeImageDisplayStudyURL() {
+        return invokeImageDisplayStudyURL != null
+                ? invokeImageDisplayStudyURL
+                : getArchiveDeviceExtension().getInvokeImageDisplayStudyURL();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -959,6 +989,8 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUDelay = aeExt.hl7PSUDelay;
         hl7PSUTimeout = aeExt.hl7PSUTimeout;
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
+        invokeImageDisplayPatientURL = aeExt.invokeImageDisplayPatientURL;
+        invokeImageDisplayStudyURL = aeExt.invokeImageDisplayStudyURL;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

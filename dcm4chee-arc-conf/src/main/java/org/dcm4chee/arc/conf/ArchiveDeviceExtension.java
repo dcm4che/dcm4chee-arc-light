@@ -99,6 +99,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String fallbackCMoveSCPLeadingCFindSCP;
     private int fallbackCMoveSCPRetries;
     private String externalRetrieveAEDestination;
+    private String xdsiImagingDocumentSourceAETitle;
     private String alternativeCMoveSCP;
     private Duration exportTaskPollingInterval;
     private int exportTaskFetchSize = 5;
@@ -158,6 +159,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String auditRecordRepositoryURL;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private boolean hl7TrackChangedPatientID = true;
+    private String invokeImageDisplayPatientURL;
+    private String invokeImageDisplayStudyURL;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -531,6 +534,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setExternalRetrieveAEDestination(String externalRetrieveAEDestination) {
         this.externalRetrieveAEDestination = externalRetrieveAEDestination;
+    }
+
+    public String getXDSiImagingDocumentSourceAETitle() {
+        return xdsiImagingDocumentSourceAETitle;
+    }
+
+    public void setXDSiImagingDocumentSourceAETitle(String xdsiImagingDocumentSourceAETitle) {
+        this.xdsiImagingDocumentSourceAETitle = xdsiImagingDocumentSourceAETitle;
     }
 
     public String getAlternativeCMoveSCP() {
@@ -1391,6 +1402,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7TrackChangedPatientID = hl7TrackChangedPatientID;
     }
 
+    public String getInvokeImageDisplayPatientURL() {
+        return invokeImageDisplayPatientURL;
+    }
+
+    public void setInvokeImageDisplayPatientURL(String invokeImageDisplayPatientURL) {
+        this.invokeImageDisplayPatientURL = invokeImageDisplayPatientURL;
+    }
+
+    public String getInvokeImageDisplayStudyURL() {
+        return invokeImageDisplayStudyURL;
+    }
+
+    public void setInvokeImageDisplayStudyURL(String invokeImageDisplayStudyURL) {
+        this.invokeImageDisplayStudyURL = invokeImageDisplayStudyURL;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1437,6 +1464,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         fallbackCMoveSCPLeadingCFindSCP = arcdev.fallbackCMoveSCPLeadingCFindSCP;
         fallbackCMoveSCPRetries = arcdev.fallbackCMoveSCPRetries;
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;
+        xdsiImagingDocumentSourceAETitle = arcdev.xdsiImagingDocumentSourceAETitle;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         exportTaskPollingInterval = arcdev.exportTaskPollingInterval;
         exportTaskFetchSize = arcdev.exportTaskFetchSize;
@@ -1496,6 +1524,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
         hl7TrackChangedPatientID = arcdev.hl7TrackChangedPatientID;
+        invokeImageDisplayPatientURL = arcdev.invokeImageDisplayPatientURL;
+        invokeImageDisplayStudyURL = arcdev.invokeImageDisplayStudyURL;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();
