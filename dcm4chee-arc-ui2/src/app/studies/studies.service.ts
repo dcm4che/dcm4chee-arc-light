@@ -4,6 +4,7 @@ import {DatePipe} from "@angular/common";
 import * as _ from "lodash";
 import {Observable} from "rxjs";
 declare var DCM4CHE: any;
+declare var window:any
 
 @Injectable()
 export class StudiesService {
@@ -30,6 +31,9 @@ export class StudiesService {
     getTodayDate() {
         let todayDate = new Date();
         return this.datePipe.transform(todayDate, 'yyyyMMdd');
+    }
+    getWindow(){
+        return window;
     }
     getAes(user, aes){
         console.log("in get aes service");

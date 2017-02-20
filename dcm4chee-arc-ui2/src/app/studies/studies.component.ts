@@ -395,6 +395,7 @@ export class StudiesComponent{
     }
     clearClipboard = function(){
         this.clipboard = {};
+        this.selected = {};
     };
     queryStudies(offset){
         this.queryMode = "queryStudies";
@@ -1558,10 +1559,42 @@ export class StudiesComponent{
         console.log("params",params);
         return params;
     }
-
+    showClipboardForAMoment(){
+        this.showClipboardContent = true;
+        setTimeout(function() {
+            this.showClipboardContent = false;
+        }, 1500);
+    };
+    ctrlX(){
+        if(this.isRole("admin")){
+            console.log("ctrl x");
+            this.clipboard["selected"] = this.clipboard["selected"] || {};
+            this.service.MergeRecursive(this.clipboard.selected,this.selected);
+            if(this.clipboard.action && this.clipboard.action === "copy"){
+                // vex.dialog.confirm({
+                //     message: "Are you sure you want to change the action from copy to move?",
+                //     callback: function(m) {
+                //         $(".vex").hide();
+                //         $("body").removeClass('vex-open');
+                //         if (m) {
+                //             $scope.clipboard["action"] = "move";
+                //         }
+                //         showClipboardForAMoment();
+                //     }
+                // });
+            }else{
+                this.clipboard["action"] = "move";
+                this.showClipboardForAMoment();
+            }
+            this.service.clearSelection(this.patients);
+            console.log("$scope.clipboard",this.clipboard);
+            this.selected = {};
+            // this.showClipboardContent = true;
+        }
+    };
     ctrlC(){
-        // if(user.isRole("admin")){ //TODO
-            console.log("ctrl c");
+        if(this.isRole("admin")){
+            console.log("ctrl c",this.clipboard);
         
             this.clipboard["selected"] = this.clipboard["selected"] || {};
             console.log("this.selected",this.selected);
@@ -1583,13 +1616,14 @@ export class StudiesComponent{
                 // });
             }else{
                 this.clipboard["action"] = "copy";
-                // showClipboardForAMoment();
+                this.showClipboardForAMoment();
             }
             console.log("this.clipboard",this.clipboard);
             this.service.clearSelection(this.patients);
+
             this.selected = {};
-            this.showClipboardContent = true;
-        // }
+            // this.showClipboardContent = true;
+        }
     };
     renderURL(inst) {
         if (inst.video)
@@ -1862,6 +1896,28 @@ export class StudiesComponent{
                 this.cfpLoadingBar.complete();
             }
         );
+    };
+    openViewer(model, mode){
+        let url,
+            slash,
+            configuredUrl;
+
+        switch(mode) {
+            case 'patient':
+                configuredUrl = this.aetmodel.dcmInvokeImageDisplayPatientURL;
+                slash = (configuredUrl.substr(configuredUrl.length - 1) != '/')?'/':'';
+                url = configuredUrl+slash+'IHEInvokeImageDisplay?requestType=PATIENT&patientID='+model['00100020'].Value[0];
+                break;
+            case 'study':
+                configuredUrl = this.aetmodel.dcmInvokeImageDisplayStudyURL;
+                slash = (configuredUrl.substr(configuredUrl.length - 1) != '/')?'/':'';
+                url = configuredUrl+slash+'IHEInvokeImageDisplay?requestType=STUDY&studyUID='+model['0020000D'].Value[0];
+                break;
+
+        }
+        console.log("url",url);
+        // $window.open(url);
+        this.service.getWindow().open(url);
     };
     showMoreFunction(e, elementLimit){
         console.log("e",e);

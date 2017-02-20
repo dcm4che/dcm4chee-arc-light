@@ -1,7 +1,6 @@
-<pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-
-                        <button (click)="removeClipboardElement('series',{'studykey':0,'serieskey':0})">test</button>
-                        </pre>
+<!--<pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
+test
+</pre>-->
 <div class="main_content studies">
     <div *ngIf="user">
 
@@ -60,23 +59,25 @@
                     <div class="study_block block_part">
                         {{clipboard.selected[value].StudyInstanceUID}}
                         <i (click)='removeClipboardElement("study",{"studykey":value})' class="remove glyphicon glyphicon-remove"></i>
-                        <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.selected[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':!seriesequence.ReferencedSOPSequence,'series':seriesequence.ReferencedSOPSequence,'scroll-active':clipboardHasScrollbar}">
-                            <div>
-                                {{seriesequence.SeriesInstanceUID}}
+                        <ng-container *ngIf="clipboard.selected[value] && clipboard.selected[value].ReferencedSeriesSequence">
+                            <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.selected[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':(!seriesequence || !(seriesequence && seriesequence.ReferencedSOPSequence)),'series':(seriesequence && seriesequence.ReferencedSOPSequence),'scroll-active':clipboardHasScrollbar}">
+                                <ng-container *ngIf="seriesequence && seriesequence.SeriesInstanceUID">
+                                    {{seriesequence.SeriesInstanceUID}}
+                                </ng-container>
+                                <i *ngIf="seriesequence && seriesequence.SeriesInstanceUID" (click)='removeClipboardElement("serie", {"studykey":value, "serieskey":key})' class="remove glyphicon glyphicon-remove"></i>
+                                <ng-container *ngIf="seriesequence && seriesequence.ReferencedSOPSequence">
+                                    <div class="sop_block block_part" *ngFor="let sopseq of getKeys(seriesequence.ReferencedSOPSequence); let key2 = index;">
+                                        <span class="sopclass">
+                                            {{sopseq.ReferencedSOPClassUID}}
+                                        </span>
+                                        <span class="sopinstance">
+                                            {{sopseq.ReferencedSOPInstanceUID}}
+                                        </span>
+                                        <i (click)='removeClipboardElement("instance", {"studykey":value, "serieskey":key, "instancekey":key2})' class="remove glyphicon glyphicon-remove"></i>
+                                    </div>
+                                </ng-container>
                             </div>
-                            <i *ngIf="seriesequence.ReferencedSOPSequence" (click)='removeClipboardElement("serie", {"studykey":value, "serieskey":key})' class="remove glyphicon glyphicon-remove"></i>
-                            <div *ngIf="seriesequence.ReferencedSOPSequence">
-                                <div class="sop_block block_part" *ngFor="let sopseq of getKeys(seriesequence.ReferencedSOPSequence); let key2 = index;">
-                                    <span class="sopclass">
-                                        {{sopseq.ReferencedSOPClassUID}}
-                                    </span>
-                                    <span class="sopinstance">
-                                        {{sopseq.ReferencedSOPInstanceUID}}
-                                    </span>
-                                    <i (click)='removeClipboardElement("instance", {"studykey":value, "serieskey":key, "instancekey":key2})' class="remove glyphicon glyphicon-remove"></i>
-                                </div>
-                            </div>
-                        </div>
+                        </ng-container>
                     </div>
                 </div>
             </div>
@@ -656,7 +657,11 @@
             </div>
             <div class="headerbuttons">
                 <button title="Toggle checkboxes for selection" class="activate_checkboxes" (click)="showCheckBoxes()"><i class="material-icons">playlist_add_check</i></button>
-                <button title="Copy selected objects to the clipboard" class="activate_checkboxes" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
+                <div class="movegroup">
+                    <button title="Copy (Selected objects)" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
+                    <button title="Cut (Selected objects)" class="moveselected" (click)="ctrlX()"><i class="material-icons">content_cut</i></button>
+                    <button title="Past (Objects that are in the clipboard to the selected object)" class="pasteselected" (click)="ctrlV()"><i class="material-icons">content_paste</i></button>
+                </div>
             </div>
         </div>
     </div>
@@ -687,6 +692,9 @@
                         </a>
                         <a class="table_btn hiddenbuttons"  *ngIf="isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient">
                             <span class="glyphicon glyphicon-remove"></span>
+                        </a>
+                        <a class="table_btn hiddenbuttons"  ng-show="user.isRole('admin') && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer">
+                            <span class="glyphicon glyphicon-eye-open"></span>
                         </a>
                     </div>
                 </div>
@@ -746,6 +754,9 @@
                                     </a>
                                     <a class="hiddenbuttons"  *ngIf="trashaktive && isRole('admin')" (click)="rejectStudy(study._VALUE)" href="" title="Restore study">
                                         <span class="glyphicon glyphicon-repeat"></span>
+                                    </a>
+                                    <a class="hiddenbuttons" ng-show="user.isRole('admin') && aetmodel.dcmInvokeImageDisplayStudyURL"  (click)="$event.preventDefault();openViewer(study._VALUE.attrs,'study')" href="" title="Open study in the viewer">
+                                        <span class="glyphicon glyphicon-eye-open"></span>
                                     </a>
                                 </div>
                             </div>

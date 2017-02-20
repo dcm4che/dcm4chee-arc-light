@@ -895,16 +895,35 @@ table{
     position: absolute;
     top: 0;
     left:5px;
-    .activate_checkboxes{
-      height: 30px;
+    button{
+      height: 22px;
       width: 30px;
       background: transparent;
       border: none;
       text-align: center;
       vertical-align: middle;
       padding: 3px 0;
-      color: white;
+      color: #dddddd;
+      i{
+        font-size:19px;
+      }
+      &:hover{
+        font-weight:bold;
+        color:#ffffff;
+      }
     }
+    .movegroup{
+      border: 1px solid white;
+      display: inline-block;
+      margin-top: 2px;
+    }
+/*    .activate_checkboxes{
+    }
+    .copyselected{
+      i{
+        font-size:19px;
+      }
+    }*/
   }
 }
 .div-table{
