@@ -52,6 +52,7 @@ import javax.inject.Inject;
 import javax.jws.WebService;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.BindingType;
+import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.soap.Addressing;
 import javax.xml.ws.soap.MTOM;
 import javax.xml.ws.soap.SOAPBinding;
@@ -91,6 +92,8 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     @Inject
     private HttpServletRequest request;
 
+    private WebServiceContext wsctx;
+
     @Inject @RetrieveStart
     private Event<RetrieveContext> retrieveStart;
 
@@ -113,10 +116,15 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
             try {
                 retrieveService.calculateMatches(ctx);
                 if (validateMatches(ctx, docReqs, regRsp)) {
+                    retrieveStart.fire(ctx);
+                    int n = ctx.getNumberOfMatches();
                     for (InstanceLocations match : ctx.getMatches()) {
+                        DicomDataHandler dh = new DicomDataHandler(ctx, match, tsuids);
                         rsp.getDocumentResponse().add(
                                 createDocumentResponse(docReqs.get(match.getSopInstanceUID()),
-                                        new DicomDataHandler(ctx, match, tsuids)));
+                                        dh));
+                        if (--n == 0)
+                            dh.setRetrieveEnd(retrieveEnd);
                     }
                 }
             } catch (DicomServiceException e) {
@@ -161,6 +169,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
                     XDS_ERR_MISSING_DOCUMENT, DICOM_OBJECT_NOT_FOUND, XDS_ERR_SEVERITY_ERROR,
                     iuid));
         }
+        ctx.setNumberOfMatches(matches.size());
         return !matches.isEmpty();
     }
 

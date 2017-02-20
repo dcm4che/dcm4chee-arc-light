@@ -7,6 +7,7 @@ import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 
 import javax.activation.DataHandler;
+import javax.enterprise.event.Event;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -19,12 +20,17 @@ public class DicomDataHandler extends DataHandler {
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
     private final Collection<String> tsuids;
+    private Event<RetrieveContext> retrieveEnd;
 
     public DicomDataHandler(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
         super(inst, MediaTypes.APPLICATION_DICOM);
         this.ctx = ctx;
         this.inst = inst;
         this.tsuids = tsuids;
+    }
+
+    public void setRetrieveEnd(Event<RetrieveContext> retrieveEnd) {
+        this.retrieveEnd = retrieveEnd;
     }
 
     @Override
@@ -38,5 +44,8 @@ public class DicomDataHandler extends DataHandler {
                 }
             });
         }
+        if (retrieveEnd != null)
+            retrieveEnd.fire(ctx);
     }
+
 }
