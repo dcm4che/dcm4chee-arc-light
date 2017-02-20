@@ -78,7 +78,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     public static final String XDS_B_STATUS_PARTIAL_SUCCESS = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:PartialSuccess";
     public static final String XDS_ERR_SEVERITY_ERROR = "urn:oasis:names:tc:ebxml-regrep:ErrorSeverityType:Error";
     public static final String XDS_ERR_MISSING_DOCUMENT = "XDSMissingDocument";
-    public static final String XDS_ERR_REPOSITORY_ERROR = "XDSRepositoryError";
+    public static final String XDS_ERR_DOCUMENT_SOURCE_ERROR = "XDSDocumentSourceError";
     public static final String DICOM_OBJECT_NOT_FOUND = "DICOM Object not found";
     public static final String MISSING_TRANSFER_SYNTAX_UIDLIST = "Missing TransferSyntaxUIDList";
 
@@ -106,7 +106,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         DocumentRequests docReqs = new DocumentRequests(req.getStudyRequest());
         List<String> tsuids = req.getTransferSyntaxUIDList().getTransferSyntaxUID();
         if (!validateTransferSyntaxes(tsuids)) {
-            addRegisterErrors(regRsp, docReqs, XDS_ERR_REPOSITORY_ERROR, MISSING_TRANSFER_SYNTAX_UIDLIST);
+            addRegisterErrors(regRsp, docReqs, XDS_ERR_DOCUMENT_SOURCE_ERROR, MISSING_TRANSFER_SYNTAX_UIDLIST);
         } else {
             RetrieveContext ctx = retrieveService.newRetrieveContextXDSI(request, getLocalAET(),
                     docReqs.studyUIDs, docReqs.seriesUIDs, docReqs.objectUIDs);
@@ -120,7 +120,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
                     }
                 }
             } catch (DicomServiceException e) {
-                addRegisterErrors(regRsp, docReqs, XDS_ERR_REPOSITORY_ERROR, e.getMessage());
+                addRegisterErrors(regRsp, docReqs, XDS_ERR_DOCUMENT_SOURCE_ERROR, e.getMessage());
             }
         }
         regRsp.setStatus(regRsp.getRegistryErrorList() == null ? XDS_B_STATUS_SUCCESS
@@ -150,24 +150,17 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
 
     private boolean validateMatches(RetrieveContext ctx, DocumentRequests docReqs, RegistryResponseType regRsp) {
         List<InstanceLocations> matches = ctx.getMatches();
-        HashSet<String> iuids = new HashSet<>();
+        HashSet<String> iuids = new HashSet<>(docReqs.keySet());
         Iterator<InstanceLocations> iter = matches.iterator();
         while (iter.hasNext()) {
-            String iuid = iter.next().getSopInstanceUID();
-            if (docReqs.containsKey(iuid))
-                iuids.add(iuid);
-            else
+            if (!iuids.remove(iter.next().getSopInstanceUID()))
                 iter.remove();
         }
-
-        for (RetrieveDocumentSetRequestType.DocumentRequest docReq : docReqs.values()) {
-            if (!iuids.contains(docReq.getDocumentUniqueId())) {
-                errors(regRsp).add(createRegistryError(
-                        XDS_ERR_MISSING_DOCUMENT, DICOM_OBJECT_NOT_FOUND, XDS_ERR_SEVERITY_ERROR,
-                        docReq.getDocumentUniqueId()));
-            }
+        for (String iuid : iuids) {
+            errors(regRsp).add(createRegistryError(
+                    XDS_ERR_MISSING_DOCUMENT, DICOM_OBJECT_NOT_FOUND, XDS_ERR_SEVERITY_ERROR,
+                    iuid));
         }
-
         return !matches.isEmpty();
     }
 
