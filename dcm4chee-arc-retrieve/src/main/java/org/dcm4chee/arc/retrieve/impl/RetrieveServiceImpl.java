@@ -664,9 +664,12 @@ public class RetrieveServiceImpl implements RetrieveService {
         LocationDicomInputStream locationInputStream = openLocationInputStream(ctx, inst);
         String tsuid = locationInputStream.getLocation().getTransferSyntaxUID();
         if (!tsuids.isEmpty() && !tsuids.contains(tsuid)) {
-            tsuid = fmi || tsuids.contains(UID.ExplicitVRLittleEndian)
-                    ? UID.ExplicitVRLittleEndian
-                    : UID.ImplicitVRLittleEndian;
+            if (tsuids.contains(UID.ExplicitVRLittleEndian))
+                tsuid = UID.ExplicitVRLittleEndian;
+            else if (tsuids.contains(UID.ImplicitVRLittleEndian))
+                tsuid = UID.ExplicitVRLittleEndian;
+            else
+                throw new NoPresentationContextException(inst.getSopClassUID(), tsuid);
         }
         Transcoder transcoder = new Transcoder(locationInputStream.getDicomInputStream());
         transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
