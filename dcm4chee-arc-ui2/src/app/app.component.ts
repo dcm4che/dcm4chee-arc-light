@@ -1,6 +1,5 @@
 import {Component, ViewContainerRef, Output} from '@angular/core';
 import {MdDialog, MdDialogRef, MdDialogConfig} from "@angular/material";
-import {TestdialogComponent} from "./widgets/dialogs/testdialog.component";
 import {MessagingComponent} from "./widgets/messaging/messaging.component";
 import {AppService} from "./app.service";
 import {ViewChild} from "@angular/core/src/metadata/di";
@@ -90,17 +89,6 @@ export class AppComponent {
     onClick() {
         // this.dcm4che.elementName.forTag()
         console.log("dcm4chetest",DCM4CHE.elementName.forTag("00000000"));
-        /*Dialogset*/
-        this.config.viewContainerRef = this.viewContainerRef;
-
-        this.dialogRef = this.dialog.open(TestdialogComponent, this.config);
-        this.dialogRef.componentInstance.name = "testnamefromcomponent";
-        this.dialogRef.componentInstance.nachname = "testnachname";
-        this.dialogRef.afterClosed().subscribe(result => {
-            console.log('result: ', result);
-            this.dialogRef = null;
-        });
-        /*-Dialogset*/
 
         this.msg.setMsg({
             "title": "Warning",

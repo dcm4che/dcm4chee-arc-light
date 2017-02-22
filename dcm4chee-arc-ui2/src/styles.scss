@@ -83,7 +83,7 @@ md-progress-circle, [_nghost-nyg-8]{
   }
 }
 .md-overlay-pane{
-  width:90%;
+  //width:90%;
   .addPatientAttribut{
     margin-bottom: 20px;
     padding-left:7px;
@@ -392,5 +392,12 @@ p-calendar select{
       border-top: 20px solid $lightBlue;
       border-radius: 5px;
     }
+  }
+}
+.vex.vex-theme-os{
+  h5{
+    font-size: 22px;
+    font-weight: bold;
+    color: rgba(6, 29, 47, 0.84);
   }
 }

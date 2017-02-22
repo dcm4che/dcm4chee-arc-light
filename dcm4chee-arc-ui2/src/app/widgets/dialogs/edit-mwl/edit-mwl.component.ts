@@ -10,9 +10,7 @@ import {SearchPipe} from "../../../pipes/search.pipe";
     selector: 'app-edit-mwl',
     templateUrl: './edit-mwl.component.html',
     styles: [`
-        .md-overlay-pane{
-            width:80%;
-        }
+
     `]
 })
 export class EditMwlComponent {

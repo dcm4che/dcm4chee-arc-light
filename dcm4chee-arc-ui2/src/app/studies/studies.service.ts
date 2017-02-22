@@ -281,4 +281,37 @@ export class StudiesService {
             }
         });
     }
+    /*
+    * Removing the element from clipboard, called from delete button on the clipboard or on copy-move dialog
+    * @modus: what kind of object is the object that should be removed
+    * @keys: the indexes where the object is in clipboard
+    * @clipboard: the clipboard object
+    * */
+    removeClipboardElement(modus, keys, clipboard){
+        switch(modus) {
+            case "patient":
+                delete clipboard.selected[keys.patientkey];
+                break;
+            case "study":
+                delete clipboard.selected[keys.studykey];
+                break;
+            case "serie":
+                delete clipboard.selected[keys.studykey].ReferencedSeriesSequence[keys.serieskey];
+                break;
+            case "instance":
+                clipboard.selected[keys.studykey].ReferencedSeriesSequence[keys.serieskey].ReferencedSOPSequence.splice(keys.instancekey,1);
+                break;
+            default:
+        }
+        /*
+        * Check if there are any patient in the clipboard anymore
+        * */
+        let haspatient = false;
+        _.forEach(clipboard.selected, (m,i)=>{
+            if(i != '' && (!m || _.size(m) === 0)){
+                haspatient = true;
+            }
+        })
+        clipboard.hasPatient = haspatient;
+    }
 }

@@ -13,6 +13,9 @@ import {MdDialogConfig, MdDialog, MdDialogRef} from "@angular/material";
 import {EditPatientComponent} from "../widgets/dialogs/edit-patient/edit-patient.component";
 import {map} from "rxjs/operator/map";
 import {EditMwlComponent} from "../widgets/dialogs/edit-mwl/edit-mwl.component";
+import {CopyMoveObjectsComponent} from "../widgets/dialogs/copy-move-objects/copy-move-objects.component";
+import {subscribeOn} from "rxjs/operator/subscribeOn";
+import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 
 @Component({
     selector: 'app-studies',
@@ -66,6 +69,7 @@ export class StudiesComponent{
     addPatientAttribut = "";
     lastPressedCode;
     clipboardHasScrollbar:boolean = false;
+    target;
     // birthDate;
     clipBoardNotEmpty(){
         if(this.clipboard.selected && Object.keys(this.clipboard.selected).length > 0){
@@ -191,7 +195,7 @@ export class StudiesComponent{
 
     dialogRef: MdDialogRef<any>;
 
-    constructor(public $http: Http, public service:StudiesService, public mainservice:AppService,public cfpLoadingBar:SlimLoadingBarService, public messaging:MessagingComponent, public viewContainerRef: ViewContainerRef ,public dialog: MdDialog, public config: MdDialogConfig,) {
+    constructor(public $http: Http, public service:StudiesService, public mainservice:AppService,public cfpLoadingBar:SlimLoadingBarService, public messaging:MessagingComponent, public viewContainerRef: ViewContainerRef ,public dialog: MdDialog, public config: MdDialogConfig) {
         // $('.clockpicker').clockpicker()
         //     .find('input').change(function(){
         //     // TODO: time changed
@@ -206,7 +210,6 @@ export class StudiesComponent{
         this.initExporters(1);
         this.initRjNotes(1);
         // this.user = this.mainservice.user;
-        console.log("this.mainserviceuser before subscire", this.mainservice.user);
         if(!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
@@ -270,6 +273,7 @@ export class StudiesComponent{
                 }
             });
         });
+
         console.log("thisrole=",this.isRole);
         let $this = this;
         $(document).keydown(function(e){
@@ -357,6 +361,23 @@ export class StudiesComponent{
     //             }
     //         );
     // }
+
+    /*
+    * @confirmparameters is an object that can contain title, content
+    * */
+    confirm(confirmparameters){
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
+        this.dialogRef.componentInstance.parameters = confirmparameters;
+/*        this.dialogRef.afterClosed().subscribe(result => {
+            if(result){
+                console.log("result", result);
+            }else{
+                console.log("false");
+            }
+        });*/
+        return this.dialogRef.afterClosed();
+    };
     timeClose(){
         console.log("closetest",this.studyTime);
     }
@@ -695,7 +716,7 @@ export class StudiesComponent{
                                         console.log("response",response);
                                         $this.mainservice.setMessage( {
                                             "title": "Error "+response.status,
-                                            "text": response.errorMessage,
+                                            "text": JSON.parse(response._body).errorMessage,
                                             "status": "error"
                                         });
                                     }
@@ -916,7 +937,7 @@ export class StudiesComponent{
                                     console.log("response",response);
                                     $this.mainservice.setMessage( {
                                         "title": "Error "+response.status,
-                                        "text": response.errorMessage,
+                                        "text": JSON.parse(response._body).errorMessage,
                                         "status": "error"
                                     });
                                 }
@@ -1260,7 +1281,9 @@ export class StudiesComponent{
                 console.log("in if fromcheckbox", fromcheckbox);
                 this.selectObject(object, modus, true);
             }
-
+            if(modus === 'patient'){
+                this.clipboard.hasPatient = true;
+            }
             //ctrl + click
             if(this.keysdown && Object.keys(this.keysdown).length === 1 && this.keysdown[17] === true){
                 this.selectObject(object, modus, false);
@@ -1396,108 +1419,143 @@ export class StudiesComponent{
         console.log("in select object modus", modus);
         console.log("object",object);
         console.log("object selected",object.selected);
+        console.log("this.clipboard.action",this.clipboard.action);
         this.showClipboardHeaders[modus] = true;
         // if(!fromcheckbox){
             object.selected = !object.selected;
         // }
+        this.target = object;
+        this.target.modus = modus;
         console.log("2object selected",object.selected);
         // this.selected[object.attrs["0020000D"].Value[0]]["modus"] = this.selected[object.attrs["0020000D"].Value[0]]["modus"] || modus;
         // console.log("",);
-        if(modus === "patient"){
-            console.log("modus in selectObject patient");
-        }else{
-            this.selected[object.attrs["0020000D"].Value[0]] = this.selected[object.attrs["0020000D"].Value[0]] || {};
-            this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] = this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] || object.attrs["0020000D"].Value[0];
-        }
-        if(modus === "study"){
-            console.log("01");
-            _.forEach(object.series, (m,k)=>{
-                console.log("m,",m);
-                // if(m.selected != undefined){
-                //     m.selected = !m.selected;
-                // }else{
-                    m.selected = object.selected;
-                // }
-                _.forEach(m.instances, (j,i) => {
-                        console.log("03");
-                    // if(j.selected != undefined){
-                    //     j.selected = !j.selected;
-                    // }else{
-                        j.selected = object.selected;
-                    // }
-                });
-            });
-            console.log("06");
-        }
-        if(modus === "series"){
-            //Select childs
-            console.log("1");
-            _.forEach(object.instances, function(j,i){
-                // if(j.selected != undefined){
-                //     j.selected = !j.selected;
-                // }else{
-                    j.selected = object.selected;
-                // }
-            });
-            this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || [];
-            let SeriesInstanceUIDInArray = false;
-            if(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){
-                _.forEach(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"], function(s,l){
-                    console.log("s",s);
-                    console.log("l",l);
-                    if(s.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
-                        SeriesInstanceUIDInArray = true;
-                    }
-                });
-            }else{
-                SeriesInstanceUIDInArray = false;
-            }
-            if(!SeriesInstanceUIDInArray){
-                this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"].push({
-                    "SeriesInstanceUID": object.attrs["0020000E"].Value[0]
-                });
-            }
-            console.log("4");
-        }
-        if(modus === "instance"){
+        if(object.selected && object.selected === true){
 
-            this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || [];
-            let SeriesInstanceUIDInArray = false;
-            if(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){
-
-                _.forEach(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"], function(s,l){
-                    if(s.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
-                        SeriesInstanceUIDInArray = true;
-                    }
-                });
-            }else{
-                SeriesInstanceUIDInArray = false;
-            }
-            if(!SeriesInstanceUIDInArray){
-                this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"].push({
-                    "SeriesInstanceUID": object.attrs["0020000E"].Value[0]
-                });
-            }
-            let $this = this;
-            _.forEach($this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"],function(m,i){
-                if(m.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
-
-                    $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] = $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] || [];
-
-                    let sopClassInstanceUIDInArray = false;
-                    _.forEach($this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"],function(m2, i2){
-                        if(m2.ReferencedSOPClassUID && m2.ReferencedSOPClassUID === object.attrs["00080016"].Value[0] && m2.ReferencedSOPInstanceUID && m2.ReferencedSOPInstanceUID === object.attrs["00080018"].Value[0]){
-                            sopClassInstanceUIDInArray = true;
+            if(modus === "patient"){
+                console.log("modus in selectObject patient");
+                // if(this.clipboard.action === 'merge'){
+                    this.selected["patients"] = this.selected['patients'] || [];
+                    this.selected['patients'].push({
+                        "PatientID": object.attrs["00100020"].Value[0],
+                        "IssuerOfPatientID": ((object.attrs["00100021"] && object.attrs["00100021"].Value && object.attrs["00100021"].Value[0]) ? object.attrs["00100021"].Value[0]:''),
+                        "IssuerOfPatientIDQualifiers": {
+                            "UniversalEntityID": ((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400032'] && object.attrs["00100024"].Value[0]['00400032'].Value[0]) ? object.attrs["00100024"].Value[0]['00400032'].Value[0] : ''),
+                            "UniversalEntityIDType": ((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400033'] && object.attrs["00100024"].Value[0]['00400033'].Value[0]) ? object.attrs["00100024"].Value[0]['00400033'].Value[0] : '')
                         }
                     });
-                    if(!sopClassInstanceUIDInArray){
-                        $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"].push(                                                                                                                    {
-                            "ReferencedSOPClassUID": object.attrs["00080016"].Value[0],
-                            "ReferencedSOPInstanceUID": object.attrs["00080018"].Value[0]
-                        });
-                    }
+                    this.selected[object.attrs["00100020"].Value[0]] = this.selected[object.attrs["00100020"].Value[0]] || {};
+                // }else{
+                // }
+            }else{
+                this.selected[object.attrs["0020000D"].Value[0]] = this.selected[object.attrs["0020000D"].Value[0]] || {};
+                this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] = this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] || object.attrs["0020000D"].Value[0];
+            }
+            if(modus === "study"){
+                _.forEach(object.series, (m,k)=>{
+                    m.selected = object.selected;
+                    _.forEach(m.instances, (j,i) => {
+                        j.selected = object.selected;
+                    });
+                });
+            }
+            if(modus === "series"){
+                _.forEach(object.instances, function(j,i){
+                    j.selected = object.selected;
+                });
+                this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || [];
+                let SeriesInstanceUIDInArray = false;
+                if(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){
+                    _.forEach(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"], function(s,l){
+                        console.log("s",s);
+                        console.log("l",l);
+                        if(s.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
+                            SeriesInstanceUIDInArray = true;
+                        }
+                    });
+                }else{
+                    SeriesInstanceUIDInArray = false;
                 }
-            });
+                if(!SeriesInstanceUIDInArray){
+                    this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"].push({
+                        "SeriesInstanceUID": object.attrs["0020000E"].Value[0]
+                    });
+                }
+            }
+            if(modus === "instance"){
+
+                this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] = this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"] || [];
+                let SeriesInstanceUIDInArray = false;
+                if(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"]){
+
+                    _.forEach(this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"], function(s,l){
+                        if(s.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
+                            SeriesInstanceUIDInArray = true;
+                        }
+                    });
+                }else{
+                    SeriesInstanceUIDInArray = false;
+                }
+                if(!SeriesInstanceUIDInArray){
+                    this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"].push({
+                        "SeriesInstanceUID": object.attrs["0020000E"].Value[0]
+                    });
+                }
+                let $this = this;
+                _.forEach($this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"],function(m,i){
+                    if(m.SeriesInstanceUID === object.attrs["0020000E"].Value[0]){
+
+                        $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] = $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"] || [];
+
+                        let sopClassInstanceUIDInArray = false;
+                        _.forEach($this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"],function(m2, i2){
+                            if(m2.ReferencedSOPClassUID && m2.ReferencedSOPClassUID === object.attrs["00080016"].Value[0] && m2.ReferencedSOPInstanceUID && m2.ReferencedSOPInstanceUID === object.attrs["00080018"].Value[0]){
+                                sopClassInstanceUIDInArray = true;
+                            }
+                        });
+                        if(!sopClassInstanceUIDInArray){
+                            $this.selected[object.attrs["0020000D"].Value[0]]["ReferencedSeriesSequence"][i]["ReferencedSOPSequence"].push(                                                                                                                    {
+                                "ReferencedSOPClassUID": object.attrs["00080016"].Value[0],
+                                "ReferencedSOPInstanceUID": object.attrs["00080018"].Value[0]
+                            });
+                        }
+                    }
+                });
+            }
+        }else{
+            if(modus === "patient"){
+                console.log("modus in selectObject patient");
+                // if(this.clipboard.action === 'merge'){
+/*                this.selected["patients"] = this.selected['patients'] || [];
+                this.selected['patients'].push({
+                    "PatientID": object.attrs["00100020"].Value[0],
+                    "IssuerOfPatientID": ((object.attrs["00100020"]) ? object.attrs["00100020"].Value[0]:''),
+                    "IssuerOfPatientIDQualifiers": {
+                        "UniversalEntityID": ((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400032'] && object.attrs["00100024"].Value[0]['00400032'].Value[0]) ? object.attrs["00100024"].Value[0]['00400032'].Value[0] : ''),
+                        "UniversalEntityIDType": ((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400033'] && object.attrs["00100024"].Value[0]['00400033'].Value[0]) ? object.attrs["00100024"].Value[0]['00400033'].Value[0] : '')
+                    }
+                });*/
+                let $this = this;
+                _.forEach(this.selected['patients'],(m,i)=>{
+                    console.log("m",m);
+                    console.log("ifcheck,mpatientid",m.PatientID);
+                    console.log("ifcheck,objectpid",object.attrs["00100020"].Value[0]);
+                    if(m.PatientID === object.attrs["00100020"].Value[0]){
+                        console.log("in if",$this.selected['patients'][i]);
+                       this.selected['patients'].splice(i,1);
+                        console.log("in if",$this.selected)
+                    }
+                    console.log("i",i);
+                });
+                delete this.selected[object.attrs["00100020"].Value[0]];
+                // this.selected[object.attrs["00100020"].Value[0]] = this.selected[object.attrs["00100020"].Value[0]] || {};
+                // }else{
+                // }
+            }else{
+                console.log("in else",modus);
+                delete this.selected[object.attrs["0020000D"].Value[0]];
+/*                this.selected[object.attrs["0020000D"].Value[0]] = this.selected[object.attrs["0020000D"].Value[0]] || {};
+                this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] = this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] || object.attrs["0020000D"].Value[0];*/
+            }
         }
         // this.selected[modus] = this.selected[modus] || [];
         // this.selected[modus].push(object);
@@ -1561,8 +1619,9 @@ export class StudiesComponent{
     }
     showClipboardForAMoment(){
         this.showClipboardContent = true;
+        let $this = this;
         setTimeout(function() {
-            this.showClipboardContent = false;
+            $this.showClipboardContent = false;
         }, 1500);
     };
     ctrlX(){
@@ -1571,51 +1630,44 @@ export class StudiesComponent{
             this.clipboard["selected"] = this.clipboard["selected"] || {};
             this.service.MergeRecursive(this.clipboard.selected,this.selected);
             if(this.clipboard.action && this.clipboard.action === "copy"){
-                // vex.dialog.confirm({
-                //     message: "Are you sure you want to change the action from copy to move?",
-                //     callback: function(m) {
-                //         $(".vex").hide();
-                //         $("body").removeClass('vex-open');
-                //         if (m) {
-                //             $scope.clipboard["action"] = "move";
-                //         }
-                //         showClipboardForAMoment();
-                //     }
-                // });
+                let $this = this;
+                this.confirm({
+                    content:'Are you sure you want to change the action from copy to move?'
+                }).subscribe(result => {
+                    if(result){
+                        $this.clipboard["action"] = "move";
+                    }
+                    $this.showClipboardForAMoment();
+                });
             }else{
                 this.clipboard["action"] = "move";
                 this.showClipboardForAMoment();
             }
             this.service.clearSelection(this.patients);
-            console.log("$scope.clipboard",this.clipboard);
             this.selected = {};
             // this.showClipboardContent = true;
         }
     };
-    ctrlC(){
+    merge(){
         if(this.isRole("admin")){
-            console.log("ctrl c",this.clipboard);
-        
+            console.log("merge",this.clipboard);
             this.clipboard["selected"] = this.clipboard["selected"] || {};
             console.log("this.selected",this.selected);
             // console.log("test",angular.merge({},this.clipboard.selected, this.selected));
             // this.clipboard.selected = angular.merge({},this.clipboard.selected, this.selected);
             this.service.MergeRecursive(this.clipboard.selected,this.selected);
-            console.log("this.clipboard",this.clipboard);
-            if(this.clipboard.action && this.clipboard.action === "move"){
-                // vex.dialog.confirm({
-                //     message: "Are you sure you want to change the action from move to copy?",
-                //     callback: function(m) {
-                //         $(".vex").hide();
-                //         $("body").removeClass('vex-open');
-                //         if(m){
-                //             this.clipboard["action"] = "copy";
-                //         }
-                //         showClipboardForAMoment();
-                //     }
-                // });
+            if(this.clipboard.action && (this.clipboard.action === "move" || this.clipboard.action === "copy")){
+                let $this = this;
+                this.confirm({
+                    content:'Are you sure you want to change the action from '+this.clipboard.action+' to merge?'
+                }).subscribe(result => {
+                    if(result){
+                        $this.clipboard["action"] = "merge";
+                    }
+                    $this.showClipboardForAMoment();
+                });
             }else{
-                this.clipboard["action"] = "copy";
+                this.clipboard["action"] = "merge";
                 this.showClipboardForAMoment();
             }
             console.log("this.clipboard",this.clipboard);
@@ -1623,6 +1675,274 @@ export class StudiesComponent{
 
             this.selected = {};
             // this.showClipboardContent = true;
+        }
+    };
+    ctrlC(){
+        if(this.isRole("admin")){
+            if(_.size(this.selected) > 0){
+
+                console.log("ctrl c",this.clipboard);
+
+                this.clipboard["selected"] = this.clipboard["selected"] || {};
+                console.log("this.selected",this.selected);
+                // console.log("test",angular.merge({},this.clipboard.selected, this.selected));
+                // this.clipboard.selected = angular.merge({},this.clipboard.selected, this.selected);
+                this.service.MergeRecursive(this.clipboard.selected,this.selected);
+                console.log("this.clipboard",this.clipboard);
+                if(this.clipboard.action && this.clipboard.action === "move"){
+                    let $this = this;
+                    this.confirm({
+                        content:'Are you sure you want to change the action from move to copy?'
+                    }).subscribe(result => {
+                        if(result){
+                            $this.clipboard["action"] = "copy";
+                        }
+                        $this.showClipboardForAMoment();
+                    });
+                }else{
+                    this.clipboard["action"] = "copy";
+                    this.showClipboardForAMoment();
+                }
+                console.log("this.clipboard",this.clipboard);
+                this.service.clearSelection(this.patients);
+
+                this.selected = {};
+                // this.showClipboardContent = true;
+            }else{
+                this.mainservice.setMessage({
+                    "title": "Info",
+                    "text": "No element selected!",
+                    "status":'info'
+                });
+            }
+        }
+    };
+    ctrlV() {
+        if (_.size(this.clipboard) > 0){
+            this.cfpLoadingBar.start();
+            let headers = new Headers({'Content-Type': 'application/json'});
+            let $this = this;
+            this.config.viewContainerRef = this.viewContainerRef;
+            this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, this.config);
+            let action = this.clipboard["action"].toUpperCase();
+            this.dialogRef.componentInstance.clipboard = this.clipboard;
+            this.dialogRef.componentInstance.rjnotes = this.rjnotes;
+            this.dialogRef.componentInstance.selected = this.selected;
+            this.dialogRef.componentInstance.showClipboardHeaders = this.showClipboardHeaders;
+            this.dialogRef.componentInstance.target = this.target;
+            this.dialogRef.componentInstance.saveLabel = action;
+            this.dialogRef.componentInstance.title = action + ' PROCESS';
+            this.cfpLoadingBar.stop();
+            this.dialogRef.afterClosed().subscribe(result => {
+                $this.cfpLoadingBar.start();
+                if (result) {
+                    if ($this.clipboard.action === "merge") {
+                        let object = {
+                            priorPatientID: $this.clipboard.selected.patients
+                        }
+                        console.log("object", object);
+                        console.log("in merge clipboard", $this.clipboard);
+                        console.log("in merge selected", $this.selected);
+                        console.log("in merge selected", $this.selected.patients[0].PatientID);
+                        $this.$http.post(
+                            "../aets/" + $this.aet + "/rs/patients/" + $this.selected.patients[0].PatientID + "/merge",
+                            object,
+                            headers
+                        )
+                            .map(response => response.json())
+                            .subscribe((response)=> {
+                                $this.mainservice.setMessage({
+                                    "title": "Info",
+                                    "text": "Patients merged successfully!",
+                                    "status": "info"
+                                });
+                            },(response)=>{
+                                $this.cfpLoadingBar.stop();
+                                console.log("responseb1",JSON.parse(response._body).errorMessage);
+                                console.log("responseb2",response.body);
+
+                                $this.mainservice.setMessage({
+                                    "title": "Error " + response.status,
+                                    "text": JSON.parse(response._body).errorMessage,
+                                    "status": "error"
+                                });
+                            });
+                    }
+                    if ($this.clipboard.action === "copy") {
+                        if ($this.target.modus === "patient") {
+                            let study = {
+                                "00100020": $this.target.attrs['00100020'],
+                                "00200010": {"vr": "SH", "Value": [""]},
+                                "0020000D": {"vr": "UI", "Value": [""]},
+                                "00080050": {"vr": "SH", "Value": [""]}
+                            };
+                            $this.$http.post(
+                                "../aets/" + $this.aet + "/rs/studies",
+                                study,
+                                headers
+                            ).map(response => response.json())
+                                .subscribe((response)=> {
+                                        _.forEach($this.clipboard.selected, function (m, i) {
+                                            console.log("m", m);
+                                            console.log("i", i);
+                                            $this.$http.post(
+                                                "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/copy",
+                                                m,
+                                                headers
+                                            ).map(response => response.json())
+                                                .subscribe((response) => {
+                                                    console.log("in then function");
+                                                    $this.clipboard = {};
+                                                    $this.mainservice.setMessage({
+                                                        "title": "Info",
+                                                        "text": "Object with the Study Instance UID " + m.StudyInstanceUID + " copied successfully!",
+                                                        "status": "info"
+                                                    });
+                                                    $this.cfpLoadingBar.stop();
+                                                    // $this.callBackFree = true;
+                                                }, (response) => {
+                                                    $this.cfpLoadingBar.stop();
+                                                    $this.mainservice.setMessage({
+                                                        "title": "Error " + response.status,
+                                                        "text": JSON.parse(response._body).errorMessage,
+                                                        "status": "error"
+                                                    });
+                                                    // $this.callBackFree = true;
+                                                });
+                                        });
+                                    },
+                                    (response) => {
+                                        $this.cfpLoadingBar.stop();
+                                        $this.mainservice.setMessage({
+                                            "title": "Error " + response.status,
+                                            "text": JSON.parse(response._body).errorMessage,
+                                            "status": "error"
+                                        });
+                                        console.log("response", response);
+                                    }
+                                );
+                        } else {
+                            _.forEach($this.clipboard.selected, function (m, i) {
+                                console.log("m", m);
+                                $this.$http.post(
+                                    "../aets/" + $this.aet + "/rs/studies/" + $this.target.attrs['0020000D'].Value[0] + "/copy",
+                                    m,
+                                    headers
+                                ).map(response => response.json())
+                                    .subscribe((response) => {
+                                        console.log("in then function");
+                                        $this.clipboard = {};
+                                        $this.cfpLoadingBar.stop();
+                                        $this.mainservice.setMessage({
+                                            "title": "Info",
+                                            "text": "Object with the Study Instance UID " + $this.target.attrs['0020000D'].Value[0] + " copied successfully!",
+                                            "status": "info"
+                                        });
+                                        // $this.callBackFree = true;
+                                    }, (response) => {
+                                        $this.cfpLoadingBar.stop();
+                                        $this.mainservice.setMessage({
+                                            "title": "Error " + response.status,
+                                            "text": JSON.parse(response._body).errorMessage,
+                                            "status": "error"
+                                        });
+                                        // $this.callBackFree = true;
+                                    });
+                            });
+                        }
+                    }
+                    if ($this.clipboard.action === "move") {
+                        if ($this.target.modus === "patient") {
+                            let study = {
+                                "00100020": $this.target.attrs['00100020'],
+                                "00200010": {"vr": "SH", "Value": [""]},
+                                "0020000D": {"vr": "UI", "Value": [""]},
+                                "00080050": {"vr": "SH", "Value": [""]}
+                            };
+                            $this.$http.post(
+                                "../aets/" + $this.aet + "/rs/studies",
+                                study,
+                                headers
+                            )
+                                .map(response => response.json())
+                                .subscribe((response) => {
+                                        _.forEach($this.clipboard.selected, function (m, i) {
+                                            console.log("m", m);
+                                            $this.$http.post(
+                                                "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/move/" + $this.reject,
+                                                m,
+                                                headers
+                                            )
+                                                .map(response => response.json())
+                                                .subscribe(function successCallback(response) {
+                                                    console.log("in then function");
+                                                    $this.clipboard = {};
+                                                    $this.cfpLoadingBar.stop();
+                                                    $this.mainservice.setMessage({
+                                                        "title": "Info",
+                                                        "text": "Object with the Study Instance UID " + m.StudyInstanceUID + " moved successfully!",
+                                                        "status": "info"
+                                                    });
+                                                }, function errorCallback(response) {
+                                                    $this.cfpLoadingBar.stop();
+                                                    $this.mainservice.setMessage({
+                                                        "title": "Error " + response.status,
+                                                        "text": JSON.parse(response._body).errorMessage,
+                                                        "status": "error"
+                                                    });
+                                                });
+                                        });
+                                    },
+                                    (response) => {
+                                        $this.cfpLoadingBar.stop();
+                                        $this.mainservice.setMessage({
+                                            "title": "Error " + response.status,
+                                            "text": JSON.parse(response._body).errorMessage,
+                                            "status": "error"
+                                        });
+                                        console.log("response", response);
+                                    }
+                                );
+                        } else {
+                            _.forEach($this.clipboard.selected, function (m, i) {
+                                console.log("m", m);
+                                $this.$http.post(
+                                    "../aets/" + $this.aet + "/rs/studies/" + $this.target.attrs['0020000D'].Value[0] + "/move/" + $this.reject,
+                                    m,
+                                    headers
+                                )
+                                    .map(response => response.json())
+                                    .subscribe((response) => {
+                                        console.log("in then function");
+                                        $this.clipboard = {};
+                                        $this.cfpLoadingBar.stop();
+                                        $this.mainservice.setMessage({
+                                            "title": "Info",
+                                            "text": "Object with the Study Instance UID " + $this.target.attrs['0020000D'].Value[0] + " moved successfully!",
+                                            "status": "info"
+                                        });
+                                    }, (response) => {
+                                        $this.cfpLoadingBar.stop();
+                                        $this.mainservice.setMessage({
+                                            "title": "Error " + response.status,
+                                            "text": JSON.parse(response._body).errorMessage,
+                                            "status": "error"
+                                        });
+                                    });
+                            });
+                        }
+                    }
+
+                }
+                $this.cfpLoadingBar.stop();
+                this.dialogRef = null;
+            });
+        }else {
+            this.mainservice.setMessage({
+                "title": "Warning",
+                "text": "Clipboard is empty, first add something in the clipboard with the copy,cut or merge button",
+                "status":'warning'
+            });
         }
     };
     renderURL(inst) {
@@ -1642,29 +1962,7 @@ export class StudiesComponent{
             return Object.keys(obj);
         }
     }
-    removeClipboardElement(modus, keys){
-        console.log("in removeclipboarelement", modus);
-        console.log("in keys", keys);
 
-        switch(modus) {
-            case "study":
-                console.log("thisclipboard",this.clipboard);
-                delete this.clipboard.selected[keys.studykey];
-                console.log("thisclipboard",this.clipboard);
-                break;
-            case "serie":
-                console.log("clipb",this.clipboard);
-                delete this.clipboard.selected[keys.studykey].ReferencedSeriesSequence[keys.serieskey];
-                console.log("clipb2", this.clipboard);
-                break;
-            case "instance":
-                this.clipboard.selected[keys.studykey].ReferencedSeriesSequence[keys.serieskey].ReferencedSOPSequence.splice(keys.instancekey,1);
-                break;
-            default:
-        }
-        console.log("clipboard",this.clipboard);
-        // this.clipboard = {};
-    }
     addEffect(direction){
         var element = $(".div-table");
         element.removeClass('fadeInRight').removeClass('fadeInLeft');
@@ -1890,7 +2188,7 @@ export class StudiesComponent{
             (response) => {
                 this.mainservice.setMessage( {
                     "title": "Error "+response.status,
-                    "text": response.errorMessage,
+                    "text": JSON.parse(response._body).errorMessage,
                     "status": "error"
                 });
                 this.cfpLoadingBar.complete();
@@ -1977,6 +2275,9 @@ export class StudiesComponent{
             });
         }
     };
+    removeClipboardElement(modus, keys){
+        this.service.removeClipboardElement(modus, keys, this.clipboard);
+    }
     initExporters(retries) {
         let $this = this;
        this.$http.get("../export")
@@ -1994,6 +2295,7 @@ export class StudiesComponent{
                 });
     }
     initRjNotes(retries) {
+        let $this = this;
        this.$http.get("../reject")
             .map(response => response.json())
             .subscribe(
@@ -2006,8 +2308,8 @@ export class StudiesComponent{
                             return 1;
                         return 0;
                     });
-                    this.rjnotes = rjnotes;
-                    this.reject = rjnotes[0].codeValue + "^" + rjnotes[0].codingSchemeDesignator;
+                    $this.rjnotes = rjnotes;
+                    $this.reject = rjnotes[0].codeValue + "^" + rjnotes[0].codingSchemeDesignator;
                 },
                 function (res) {
                     if (retries)

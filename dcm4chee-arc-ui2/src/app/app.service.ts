@@ -1,10 +1,11 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable, OnInit, ViewContainerRef} from '@angular/core';
 import {MessagingComponent} from "./widgets/messaging/messaging.component";
 import {Http} from "@angular/http";
 import {Observer, Observable, Subject} from "rxjs";
 import {User} from "./models/user";
 import * as _ from "lodash";
 import {ViewChildren, ViewChild} from "@angular/core/src/metadata/di";
+import {ConfirmComponent} from "./widgets/dialogs/confirm/confirm.component";
 
 @Injectable()
 export class AppService implements OnInit{
@@ -82,5 +83,10 @@ export class AppService implements OnInit{
     //     this.messaging.msg = msg;
     // }
 
-
+/*    confirm(confirmparameters){
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
+        this.dialogRef.componentInstance.parameters = confirmparameters;
+        return this.dialogRef;
+    }*/
 }

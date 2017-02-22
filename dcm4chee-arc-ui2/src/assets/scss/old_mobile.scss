@@ -1,3 +1,13 @@
+@media screen and (min-width: 1900px) {
+  .vex-theme-os{
+    width:1800px;
+  }
+}
+@media screen and (max-width: 1900px) {
+  .vex-theme-os{
+    width:1600px;
+  }
+}
 @media screen and (max-width: 1710px) {
   .deviceedit_block {
     .active_border.col-md-8{
@@ -26,20 +36,32 @@
   .repeat0 .repeat1 .subblock{
     width:96.5%;
   }
+  .vex-theme-os{
+    width:1500px;
+  }
 }
 @media screen and (max-width: 1600px) {
   .block-1-1, .block-1-2, .block-2-1, .block-2-2{
     width:31%;
+  }
+  .vex-theme-os{
+    width:1400px;
   }
 }
 @media (max-width: 1500px) {
   .repeat0 .repeat1 .subblock{
     width:96%;
   }
+  .vex-theme-os{
+    width:1300px;
+  }
 }
 @media (max-width: 1400px) {
   .repeat0 .repeat1 .subblock{
     width:95.5%;
+  }
+  .vex-theme-os{
+    width:1200px;
   }
 }
 @media screen and (max-width: 1300px) {
@@ -66,5 +88,13 @@
   }
   .hideonmobile{
     display: none;
+  }
+  .vex-theme-os{
+    width:1100px;
+  }
+}
+@media screen and (max-width: 1200px) {
+  .vex-theme-os{
+    width:auto;
   }
 }

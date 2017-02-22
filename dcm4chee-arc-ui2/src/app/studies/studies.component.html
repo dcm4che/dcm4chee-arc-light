@@ -1,5 +1,5 @@
 <!--<pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-test
+confirmtest: <button (click)="testConfirm()">confirm</button>
 </pre>-->
 <div class="main_content studies">
     <div *ngIf="user">
@@ -17,7 +17,7 @@ test
                 {{meta.contextmenu.item.modus}}
                 </li> -->
             <!--<li [hidden]="meta.contextmenu.item.modus === 'patient._VALUE'" ><a role="menuitem" href="" (click)="ctrlC(meta.contextmenu.item)"><label>Copy</label><span>Ctrl + c</span></a></li>-->
-            <li><a role="menuitem" href="" (click)="ctrlV(meta.contextmenu.item)"><label>Paste</label><span>Ctrl + v</span></a></li>
+            <li><a role="menuitem" href="" (click)="ctrlV()"><label>Paste</label><span>Ctrl + v</span></a></li>
             <!--<li [hidden]="meta.contextmenu.item.modus === 'patient._VALUE'" ><a role="menuitem" href="" (click)="ctrlX(meta.contextmenu.item)"><label>Cut</label><span>Ctrl + x</span></a></li>-->
             <li>
                 <!--       <a role="menuitem" tabindex="-1" href (click)="editTest(meta.contextmenu.item)"
@@ -44,41 +44,59 @@ test
             <a class="clear_clipboard" title="Clear clipboard" href="" (click)="$event.preventDefault();clearClipboard()">
                 Clear <span class="glyphicon glyphicon-remove"></span>
             </a>
-            <div class="header">
-                <div>Study Instance UID
-                    <div *ngIf="showClipboardHeaders.series || showClipboardHeaders.instance">Series Instance UID
-                        <div *ngIf="showClipboardHeaders.instance">
-                            <span class="sopclass">Referenced SOP Class UID</span>
-                            <span class="sopinstance">Referenced SOP Instance UID</span>
+            <div class="table_block">
+                <div class="header">
+                    <div *ngIf="clipboard.action === 'merge' || clipboard.hasPatient === true">
+                        Patient ID
+                    </div>
+                    <div class="study_block" [ngClass]="{'haspatient':clipboard.hasPatient === true}" *ngIf="clipboard.action != 'merge'">Study Instance UID
+                        <div *ngIf="showClipboardHeaders.series || showClipboardHeaders.instance">Series Instance UID
+                            <div *ngIf="showClipboardHeaders.instance">
+                                <span class="sopclass">Referenced SOP Class UID</span>
+                                <span class="sopinstance">Referenced SOP Instance UID</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="body">
-                <div class="block" *ngFor="let value of getKeys(clipboard.selected)">
-                    <div class="study_block block_part">
-                        {{clipboard.selected[value].StudyInstanceUID}}
-                        <i (click)='removeClipboardElement("study",{"studykey":value})' class="remove glyphicon glyphicon-remove"></i>
-                        <ng-container *ngIf="clipboard.selected[value] && clipboard.selected[value].ReferencedSeriesSequence">
-                            <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.selected[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':(!seriesequence || !(seriesequence && seriesequence.ReferencedSOPSequence)),'series':(seriesequence && seriesequence.ReferencedSOPSequence),'scroll-active':clipboardHasScrollbar}">
-                                <ng-container *ngIf="seriesequence && seriesequence.SeriesInstanceUID">
-                                    {{seriesequence.SeriesInstanceUID}}
-                                </ng-container>
-                                <i *ngIf="seriesequence && seriesequence.SeriesInstanceUID" (click)='removeClipboardElement("serie", {"studykey":value, "serieskey":key})' class="remove glyphicon glyphicon-remove"></i>
-                                <ng-container *ngIf="seriesequence && seriesequence.ReferencedSOPSequence">
-                                    <div class="sop_block block_part" *ngFor="let sopseq of getKeys(seriesequence.ReferencedSOPSequence); let key2 = index;">
-                                        <span class="sopclass">
-                                            {{sopseq.ReferencedSOPClassUID}}
-                                        </span>
-                                        <span class="sopinstance">
-                                            {{sopseq.ReferencedSOPInstanceUID}}
-                                        </span>
-                                        <i (click)='removeClipboardElement("instance", {"studykey":value, "serieskey":key, "instancekey":key2})' class="remove glyphicon glyphicon-remove"></i>
+                <div class="body">
+
+                    <ng-container *ngIf="clipboard.action === 'merge'">
+                        <div class="block" *ngFor="let value of clipboard.selected.patients">
+                            {{ value.PatientID }}
+                            <i (click)='removeClipboardElement("patient",{"patientkey":value})' class="remove glyphicon glyphicon-remove"></i>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="clipboard.action != 'merge'">
+                        <div class="block" *ngFor="let value of getKeys(clipboard.selected)">
+                            <div *ngIf="!clipboard.selected[value].StudyInstanceUID" class="patient_block block_part">
+                                {{value}}
+                                <i (click)='removeClipboardElement("patient",{"patientkey":value})' class="remove glyphicon glyphicon-remove"></i>
+                            </div>
+                            <div *ngIf="clipboard.selected[value].StudyInstanceUID" class="study_block block_part" [ngClass]="{'haspatient':clipboard.hasPatient === true}">
+                                {{clipboard.selected[value].StudyInstanceUID}}
+                                <i (click)='removeClipboardElement("study",{"studykey":value})' class="remove glyphicon glyphicon-remove"></i>
+                                <ng-container *ngIf="clipboard.selected[value] && clipboard.selected[value].ReferencedSeriesSequence">
+                                    <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.selected[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':(!seriesequence || !(seriesequence && seriesequence.ReferencedSOPSequence)),'series':(seriesequence && seriesequence.ReferencedSOPSequence),'scroll-active':clipboardHasScrollbar}">
+                                        <ng-container *ngIf="seriesequence && seriesequence.SeriesInstanceUID">
+                                            {{seriesequence.SeriesInstanceUID}}
+                                        </ng-container>
+                                        <i *ngIf="seriesequence && seriesequence.SeriesInstanceUID" (click)='removeClipboardElement("serie", {"studykey":value, "serieskey":key})' class="remove glyphicon glyphicon-remove"></i>
+                                        <ng-container *ngIf="seriesequence && seriesequence.ReferencedSOPSequence">
+                                            <div class="sop_block block_part" *ngFor="let sopseq of getKeys(seriesequence.ReferencedSOPSequence); let key2 = index;">
+                                                <span class="sopclass">
+                                                    {{sopseq.ReferencedSOPClassUID}}
+                                                </span>
+                                                <span class="sopinstance">
+                                                    {{sopseq.ReferencedSOPInstanceUID}}
+                                                </span>
+                                                <i (click)='removeClipboardElement("instance", {"studykey":value, "serieskey":key, "instancekey":key2})' class="remove glyphicon glyphicon-remove"></i>
+                                            </div>
+                                        </ng-container>
                                     </div>
                                 </ng-container>
                             </div>
-                        </ng-container>
-                    </div>
+                        </div>
+                    </ng-container>
                 </div>
             </div>
         </div>
@@ -660,6 +678,7 @@ test
                 <div class="movegroup">
                     <button title="Copy (Selected objects)" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
                     <button title="Cut (Selected objects)" class="moveselected" (click)="ctrlX()"><i class="material-icons">content_cut</i></button>
+                    <button title="Merge (Add selected patient in the clipboard for Merge)" class="moveselected" (click)="merge()"><i class="material-icons">supervisor_account</i></button>
                     <button title="Past (Objects that are in the clipboard to the selected object)" class="pasteselected" (click)="ctrlV()"><i class="material-icons">content_paste</i></button>
                 </div>
             </div>

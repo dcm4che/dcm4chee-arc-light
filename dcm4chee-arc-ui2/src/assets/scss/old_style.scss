@@ -371,7 +371,7 @@ device and create an other one with the new name*/
   &.block{
     height: 100px;
     //overflow: visible;
-    z-index: 9999;
+    z-index: 1;
     box-sizing: border-box;
     box-shadow: 24px 6px 38px -10px #444;
     -webkit-transition: 0.3s height;
@@ -1465,7 +1465,7 @@ table{
     position: absolute;
     width: 380px;
     border: 1px solid #ccc;
-    z-index: 9999;
+    z-index: 999999999;
     margin-top: 35px;
     box-sizing: border-box;
     padding: 30px 20px;
@@ -1856,7 +1856,7 @@ table{
 		    position: absolute;
 		    top: 30px;
 		    width: 148px;
-		    z-index: 999;
+		    z-index: 999999999;
 		}
 		.btn-danger{
 			display: block;
@@ -1914,6 +1914,7 @@ div[tooltip]{
 	position:relative;
 	// overflow:visible;
 }
+
 .vex.vex-theme-os .vex-content{
 	margin-bottom:40px !important;
 }
@@ -3202,13 +3203,14 @@ input.ng-invalid, .has-error .form-control{
 	    z-index: 999;
 	}
     .toggle_button {
-	   background: #bbb none repeat scroll 0 0;
+	   //background: #bbb none repeat scroll 0 0;
+	   background: #2e4150 none repeat scroll 0 0;
 	    border-bottom-left-radius: 5px;
 	    border-top-left-radius: 5px;
 	    -moz-box-shadow:-3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
 	    -webkit-box-shadow:-3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
 	    box-shadow:-3px -1px 3px 0 rgba(0, 0, 0, 0.25), -3px 1px 3px -2px rgba(0, 0, 0, 0.25), -3px 0 3px -2px rgba(0, 0, 0, 0.25);
-	    color: #545353;
+	    color: #c8c8c8;
 	    float: left;
 	    font-size: 35px;
 	    padding: 1px 5px;
@@ -3218,14 +3220,22 @@ input.ng-invalid, .has-error .form-control{
 	    	cursor: pointer;
 	    }
 	}
+    .header .study_block.haspatient{
+      margin-left:10px;
+    }
+    .study_block.haspatient, .header .study_block.haspatient{
+      padding-left:12%;
+    }
 	&.said .content{
-	    background:#f0f0f0;
+	    //background:#f0f0f0;
+	    background:white;
 	    color: #444;
 	    float: left;
 	    max-height: 500px;
 	    min-height: 100px;
-    	border-top: 20px solid #bbb;
-    	-moz-box:0px 2px 3px 3px  rgba(0, 0, 0, 0.25);
+    	//border-top: 20px solid #bbb;
+        border-top: 20px solid #2e4150;
+        -moz-box:0px 2px 3px 3px  rgba(0, 0, 0, 0.25);
     	-webkit-box:0px 2px 3px 3px  rgba(0, 0, 0, 0.25);
     	box-shadow:0px 2px 3px 3px  rgba(0, 0, 0, 0.25);
 		overflow: auto;
@@ -3235,7 +3245,7 @@ input.ng-invalid, .has-error .form-control{
 		}
 		.header div div, .body div div div{
 		    display: table;
-		    margin-left: 200px;
+		    margin-left: 25%;
 		    // margin-right: 7px;
 		}
 
@@ -3265,6 +3275,10 @@ input.ng-invalid, .has-error .form-control{
 		    padding: 15px;
 		    text-transform: uppercase;
 		}
+      .table_block{
+        border:1px solid #dddddd;
+        margin:15px;
+      }
 	    .block {
 		    border-top: 1px solid #ddd;
 		    padding: 10px 15px;
@@ -3304,9 +3318,16 @@ input.ng-invalid, .has-error .form-control{
 
 		.header{
 			background: #e7e7e7;
-    		padding-top: 10px;
-		    font-weight: bold;
-		    color: #6d6d6d;
+          color: #6d6d6d;
+          /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#2e4150+0,061d2f+100 */
+/*          background: #2e4150; !* Old browsers *!
+          background: -moz-linear-gradient(top,  #2e4150 0%, #061d2f 100%); !* FF3.6-15 *!
+          background: -webkit-linear-gradient(top,  #2e4150 0%,#061d2f 100%); !* Chrome10-25,Safari5.1-6 *!
+          background: linear-gradient(to bottom,  #2e4150 0%,#061d2f 100%); !* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ *!
+          filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2e4150', endColorstr='#061d2f',GradientType=0 ); !* IE6-9 *!
+color:white;*/
+          padding-top: 10px;
+          font-weight: bold;
 			&> div {
 			    padding: 1px 15px;
 			}
