@@ -376,7 +376,7 @@ public class AuditService {
                 poi = new BuildParticipantObjectIdentification.Builder(
                         qrI.getField(AuditInfo.Q_POID), AuditMessages.ParticipantObjectIDTypeCode.SOPClassUID,
                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                        AuditMessages.ParticipantObjectTypeCodeRole.Query).query(data)
+                        AuditMessages.ParticipantObjectTypeCodeRole.Report).query(data)
                         .detail(getPod("TransferSyntax", UID.ImplicitVRLittleEndian)).build();
             }
             poiList = getPoiList(poi);
