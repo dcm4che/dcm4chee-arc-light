@@ -121,18 +121,27 @@ export class StudiesService {
         // });
         // this.http.request(new Request(this.options))
 
-        return this.$http.get(url + '/patients' + this._config(params)).map(res => res.json());
+        return this.$http.get(url + '/patients' + this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
 
     queryStudies = function(url, params) {
-        return this.$http.get(url + '/studies' + this._config(params)).map(res => res.json());
+        console.log("in querystudies");
+        return this.$http.get(url + '/studies' + this._config(params)).map(res => {
+            let resjson;
+            try{
+                resjson = res.json();
+            }catch (e){
+                resjson = {};
+            }
+            return resjson;
+        });
     };
     queryMwl = function(url, params) {
-        return this.$http.get(url + '/mwlitems' + this._config(params)).map(res => res.json());
+        return this.$http.get(url + '/mwlitems' + this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
 
     querySeries = function(url, studyIUID, params) {
-        return this.$http.get(url + '/studies/' + studyIUID + '/series' + this._config(params)).map(res => res.json());
+        return this.$http.get(url + '/studies/' + studyIUID + '/series' + this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
 
     queryInstances = function(url, studyIUID, seriesIUID, params) {
@@ -140,7 +149,7 @@ export class StudiesService {
             + '/studies/' + studyIUID
             + '/series/' + seriesIUID
             + '/instances' +
-            this._config(params)).map(res => res.json());
+            this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
 
     getPatientIod(){
@@ -148,7 +157,7 @@ export class StudiesService {
         if (this._patientIod) {
             return Observable.of(this._patientIod);
         } else {
-            return this.$http.get('assets/iod/patient.iod.json').map(res => res.json());
+            return this.$http.get('assets/iod/patient.iod.json').map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
         }
     };
     getMwlIod(){
@@ -156,7 +165,7 @@ export class StudiesService {
         if (this._mwlIod) {
             return Observable.of(this._mwlIod);
         } else {
-            return this.$http.get('assets/iod/mwl.iod.json').map(res => res.json());
+            return this.$http.get('assets/iod/mwl.iod.json').map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
         }
     };
     getArrayFromIodHelper(data, dropdown){

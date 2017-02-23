@@ -348,7 +348,7 @@ export class StudiesComponent{
     // initAETs(retries) {
     //
     //     this.$http.get("/dcm4chee-arc/aets")
-    //         .map(response => response.json())
+    //         .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
     //         .subscribe(
     //             (res) => {
     //                 this.aes = this.service.getAes(this.user, res);
@@ -702,7 +702,7 @@ export class StudiesComponent{
                                 patient.attrs,
                                 headers
                             )
-                            //.map(response => response.json())
+                            //.map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                 .subscribe(
                                     (response) => {
                                         console.log("response",response);
@@ -923,7 +923,7 @@ export class StudiesComponent{
                                     patient.attrs,
                                     headers
                                 )
-                                    //.map(response => response.json())
+                                    //.map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                 .subscribe(
                                 (response) => {
                                     console.log("response",response);
@@ -1144,6 +1144,7 @@ export class StudiesComponent{
             });
     };
     queryAllStudiesOfPatient = function(patient, offset, event) {
+        console.log("in queryallstudies");
         event.preventDefault();
         this.cfpLoadingBar.start();
         if (offset < 0) offset = 0;
@@ -1155,8 +1156,10 @@ export class StudiesComponent{
                 IssuerOfPatientID: this.valueOf(patient.attrs['00100021']),
                 orderby: this.filter.orderby !== "StudyDate,StudyTime" ? "-StudyDate,-StudyTime" : this.filter.orderby
             })
-        ).subscribe((res) => {
-            if(res.length > 0){
+        )
+            .subscribe((res) => {
+            console.log("res in queryallstudy",res);
+            if(res && res.length > 0){
                 patient.studies = res.map(function (attrs, index) {
                     return {
                         patient: patient,
@@ -1175,11 +1178,11 @@ export class StudiesComponent{
                 // StudiesService.trim($this);
                 // console.log("patient",patient);
             }else{
-                // this.mainservice.setMessage( {
-                //     "title": "Info",
-                //     "text": "No matching Studies found!",
-                //     "status": "info"
-                // });
+                this.mainservice.setMessage( {
+                    "title": "Info",
+                    "text": "No matching Studies found!",
+                    "status": "info"
+                });
             }
             this.cfpLoadingBar.complete();
         });
@@ -1432,20 +1435,36 @@ export class StudiesComponent{
         if(object.selected && object.selected === true){
 
             if(modus === "patient"){
+/*                if(!_.isset(object.attrs["00100020"].Value[0])){
+
+                }*/
+console.log("issettestid =",_.hasIn(object, 'attrs["00100020"].Value[0]'));
+console.log("issuerhasin =",_.hasIn(object,'attrs["00100021"].Value[0]'));
                 console.log("modus in selectObject patient");
-                // if(this.clipboard.action === 'merge'){
-                    this.selected["patients"] = this.selected['patients'] || [];
-                    this.selected['patients'].push({
-                        "PatientID": object.attrs["00100020"].Value[0],
-                        "IssuerOfPatientID": ((object.attrs["00100021"] && object.attrs["00100021"].Value && object.attrs["00100021"].Value[0]) ? object.attrs["00100021"].Value[0]:''),
-                        "IssuerOfPatientIDQualifiers": {
-                            "UniversalEntityID": ((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400032'] && object.attrs["00100024"].Value[0]['00400032'].Value[0]) ? object.attrs["00100024"].Value[0]['00400032'].Value[0] : ''),
-                            "UniversalEntityIDType": ((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400033'] && object.attrs["00100024"].Value[0]['00400033'].Value[0]) ? object.attrs["00100024"].Value[0]['00400033'].Value[0] : '')
-                        }
-                    });
-                    this.selected[object.attrs["00100020"].Value[0]] = this.selected[object.attrs["00100020"].Value[0]] || {};
-                // }else{
-                // }
+                this.selected["patients"] = this.selected['patients'] || [];
+                let patientobject = {};
+                patientobject["PatientID"] = object.attrs["00100020"].Value[0];
+                // if(object.attrs["00100021"] && object.attrs["00100021"].Value && object.attrs["00100021"].Value[0]){
+                if(_.hasIn(object,'attrs["00100021"].Value[0]') && object.attrs["00100021"].Value[0] != ''){
+                    patientobject["IssuerOfPatientID"] = object.attrs["00100021"].Value[0];
+                }
+                // if((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400032'] && object.attrs["00100024"].Value[0]['00400032'].Value[0]) && (object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400033'] && object.attrs["00100024"].Value[0]['00400033'].Value[0])){
+                if(_.hasIn(object, 'attrs.00100024.Value[0].00400032.Value[0]') && _.hasIn(object, 'attrs.00100024.Value[0].00400033.Value[0]') && (object.attrs['00100024'].Value[0]['00400032'].Value[0] != '') && (object.attrs['00100024'].Value[0]['00400033'].Value[0] != '')){
+                    patientobject['IssuerOfPatientIDQualifiers'] = {
+                        "UniversalEntityID": object.attrs["00100024"].Value[0]['00400032'].Value[0],
+                        "UniversalEntityIDType": object.attrs["00100024"].Value[0]['00400033'].Value[0]
+                    };
+                }
+                this.selected['patients'].push(patientobject);
+/*                this.selected['patients'].push({
+                    "PatientID": object.attrs["00100020"].Value[0],
+                    "IssuerOfPatientID": ((object.attrs["00100021"] && object.attrs["00100021"].Value && object.attrs["00100021"].Value[0]) ? object.attrs["00100021"].Value[0]:''),
+                    "IssuerOfPatientIDQualifiers": {
+                        "UniversalEntityID": ((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400032'] && object.attrs["00100024"].Value[0]['00400032'].Value[0]) ? object.attrs["00100024"].Value[0]['00400032'].Value[0] : ''),
+                        "UniversalEntityIDType": ((object.attrs["00100024"] && object.attrs["00100024"].Value[0]['00400033'] && object.attrs["00100024"].Value[0]['00400033'].Value[0]) ? object.attrs["00100024"].Value[0]['00400033'].Value[0] : '')
+                    }
+                });*/
+                this.selected[object.attrs["00100020"].Value[0]] = this.selected[object.attrs["00100020"].Value[0]] || {};
             }else{
                 this.selected[object.attrs["0020000D"].Value[0]] = this.selected[object.attrs["0020000D"].Value[0]] || {};
                 this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] = this.selected[object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] || object.attrs["0020000D"].Value[0];
@@ -1601,9 +1620,7 @@ export class StudiesComponent{
             offset: offset,
             limit: limit
         };
-        console.log("fiilter2",filter);
         for(let key in filter){
-            console.log("in fist for2",key);
             if (filter[key] || filter===false){
                 params[key] = filter[key];
             }
@@ -1614,7 +1631,6 @@ export class StudiesComponent{
         //         params[key] = filter[key];
         //     }
         // }
-        console.log("params",params);
         return params;
     }
     showClipboardForAMoment(){
@@ -1746,11 +1762,19 @@ export class StudiesComponent{
                         console.log("in merge selected", $this.selected.patients[0].PatientID);
                         $this.$http.post(
                             "../aets/" + $this.aet + "/rs/patients/" + $this.selected.patients[0].PatientID + "/merge",
-                            object,
+                            object.priorPatientID,
                             headers
-                        )
-                            .map(response => response.json())
+                        ).map(res => {
+                            let resjson;
+                            try{
+                                resjson = res.json();
+                            }catch (e){
+                                resjson = {};
+                            }
+                            return resjson;
+                        })
                             .subscribe((response)=> {
+                                console.log("response in first",response);
                                 $this.mainservice.setMessage({
                                     "title": "Info",
                                     "text": "Patients merged successfully!",
@@ -1758,14 +1782,17 @@ export class StudiesComponent{
                                 });
                             },(response)=>{
                                 $this.cfpLoadingBar.stop();
-                                console.log("responseb1",JSON.parse(response._body).errorMessage);
-                                console.log("responseb2",response.body);
+                                console.log("response",response);
+                                if(response._body && response._body != ''){
+                                    console.log("responseb1",JSON.parse(response._body).errorMessage);
+                                    console.log("responseb2",response.body);
 
-                                $this.mainservice.setMessage({
-                                    "title": "Error " + response.status,
-                                    "text": JSON.parse(response._body).errorMessage,
-                                    "status": "error"
-                                });
+                                    $this.mainservice.setMessage({
+                                        "title": "Error " + response.status,
+                                        "text": JSON.parse(response._body).errorMessage,
+                                        "status": "error"
+                                    });
+                                }
                             });
                     }
                     if ($this.clipboard.action === "copy") {
@@ -1780,7 +1807,7 @@ export class StudiesComponent{
                                 "../aets/" + $this.aet + "/rs/studies",
                                 study,
                                 headers
-                            ).map(response => response.json())
+                            ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                 .subscribe((response)=> {
                                         _.forEach($this.clipboard.selected, function (m, i) {
                                             console.log("m", m);
@@ -1789,7 +1816,7 @@ export class StudiesComponent{
                                                 "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/copy",
                                                 m,
                                                 headers
-                                            ).map(response => response.json())
+                                            ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                                 .subscribe((response) => {
                                                     console.log("in then function");
                                                     $this.clipboard = {};
@@ -1801,6 +1828,7 @@ export class StudiesComponent{
                                                     $this.cfpLoadingBar.stop();
                                                     // $this.callBackFree = true;
                                                 }, (response) => {
+                                                    console.log("resin err",response);
                                                     $this.cfpLoadingBar.stop();
                                                     $this.mainservice.setMessage({
                                                         "title": "Error " + response.status,
@@ -1828,7 +1856,7 @@ export class StudiesComponent{
                                     "../aets/" + $this.aet + "/rs/studies/" + $this.target.attrs['0020000D'].Value[0] + "/copy",
                                     m,
                                     headers
-                                ).map(response => response.json())
+                                ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                     .subscribe((response) => {
                                         console.log("in then function");
                                         $this.clipboard = {};
@@ -1864,7 +1892,7 @@ export class StudiesComponent{
                                 study,
                                 headers
                             )
-                                .map(response => response.json())
+                                .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                 .subscribe((response) => {
                                         _.forEach($this.clipboard.selected, function (m, i) {
                                             console.log("m", m);
@@ -1873,7 +1901,7 @@ export class StudiesComponent{
                                                 m,
                                                 headers
                                             )
-                                                .map(response => response.json())
+                                                .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                                 .subscribe(function successCallback(response) {
                                                     console.log("in then function");
                                                     $this.clipboard = {};
@@ -1911,7 +1939,7 @@ export class StudiesComponent{
                                     m,
                                     headers
                                 )
-                                    .map(response => response.json())
+                                    .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                     .subscribe((response) => {
                                         console.log("in then function");
                                         $this.clipboard = {};
@@ -2066,7 +2094,7 @@ export class StudiesComponent{
     initAETs(retries) {
         let $this = this;
        this.$http.get("../aets")
-            .map(response => response.json())
+            .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
             .subscribe(
                 function (res) {
                     console.log("before call getAes",res,"this user=",$this.user);
@@ -2112,7 +2140,7 @@ export class StudiesComponent{
     initAttributeFilter(entity, retries) {
         let $this = this;
        this.$http.get("../attribute-filter/" + entity)
-            .map(response => response.json())
+            .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
             .subscribe(
                 function (res) {
                     if(entity === "Patient" && res.dcmTag){
@@ -2150,7 +2178,7 @@ export class StudiesComponent{
                 {},
                 headers
             )
-            .map(response => response.json())
+            .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
             .subscribe(
             (response) => {
                 // console.log("response",response);
@@ -2281,7 +2309,7 @@ export class StudiesComponent{
     initExporters(retries) {
         let $this = this;
        this.$http.get("../export")
-            .map(response => response.json())
+            .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
             .subscribe(
                 function (res) {
                     this.exporters = res;
@@ -2297,7 +2325,7 @@ export class StudiesComponent{
     initRjNotes(retries) {
         let $this = this;
        this.$http.get("../reject")
-            .map(response => response.json())
+            .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
             .subscribe(
                 function (res) {
                     let rjnotes = res;

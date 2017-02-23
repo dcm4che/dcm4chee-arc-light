@@ -20,8 +20,8 @@ myApp.controller("DeviceListController", function($scope, $http, $timeout, $log,
             }).then(function successCallback(response) {
                 $scope.aes = response.data;
             }, function errorCallback(response) {
-                $log.error("Error loading device names", response);
-                vex.dialog.alert("Error loading device names, please reload the page and try again!");
+                $log.error("Error loading aes", response);
+                vex.dialog.alert("Error loading aes, please reload the page and try again!");
             });            
         });
     });
