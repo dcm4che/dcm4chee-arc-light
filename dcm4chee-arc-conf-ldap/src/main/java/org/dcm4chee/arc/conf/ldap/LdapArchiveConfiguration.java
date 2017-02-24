@@ -181,6 +181,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
         LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL());
         LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL());
+        LdapUtils.storeNotNull(attrs, "hl7ADTSendingApplication", ext.getHl7ADTSendingApplication());
+        LdapUtils.storeNotNull(attrs, "hl7ADTReceivingApplication", ext.getHl7ADTReceivingApplication());
     }
 
     @Override
@@ -298,6 +300,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
+        ext.setHl7ADTReceivingApplication(LdapUtils.stringValue(attrs.get("hl7ADTReceivingApplication"), null));
+        ext.setHl7ADTSendingApplication(LdapUtils.stringValue(attrs.get("hl7ADTSendingApplication"), null));
     }
 
     @Override
@@ -480,6 +484,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isHl7TrackChangedPatientID(), bb.isHl7TrackChangedPatientID(), true);
         LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL());
         LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL());
+        LdapUtils.storeDiff(mods, "hl7ADTReceivingApplication", aa.getHl7ADTReceivingApplication(), bb.getHl7ADTReceivingApplication());
+        LdapUtils.storeDiff(mods, "hl7ADTSendingApplication", aa.getHl7ADTSendingApplication(), bb.getHl7ADTSendingApplication());
     }
 
     @Override

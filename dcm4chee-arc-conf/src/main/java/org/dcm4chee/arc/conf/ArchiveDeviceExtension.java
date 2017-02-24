@@ -161,6 +161,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean hl7TrackChangedPatientID = true;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
+    private String hl7ADTReceivingApplication;
+    private String hl7ADTSendingApplication;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1418,6 +1420,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.invokeImageDisplayStudyURL = invokeImageDisplayStudyURL;
     }
 
+    public String getHl7ADTReceivingApplication() {
+        return hl7ADTReceivingApplication;
+    }
+
+    public void setHl7ADTReceivingApplication(String hl7ADTReceivingApplication) {
+        this.hl7ADTReceivingApplication = hl7ADTReceivingApplication;
+    }
+
+    public String getHl7ADTSendingApplication() {
+        return hl7ADTSendingApplication;
+    }
+
+    public void setHl7ADTSendingApplication(String hl7ADTSendingApplication) {
+        this.hl7ADTSendingApplication = hl7ADTSendingApplication;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1526,6 +1544,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7TrackChangedPatientID = arcdev.hl7TrackChangedPatientID;
         invokeImageDisplayPatientURL = arcdev.invokeImageDisplayPatientURL;
         invokeImageDisplayStudyURL = arcdev.invokeImageDisplayStudyURL;
+        hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
+        hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();
