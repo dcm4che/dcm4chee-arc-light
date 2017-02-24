@@ -904,6 +904,9 @@ table{
       vertical-align: middle;
       padding: 3px 0;
       color: #dddddd;
+      &.disabled{
+        color:#a7a7a7;
+      }
       i{
         font-size:19px;
       }

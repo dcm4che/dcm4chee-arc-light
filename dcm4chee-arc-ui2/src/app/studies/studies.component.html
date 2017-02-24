@@ -1,6 +1,12 @@
-<!--<pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-confirmtest: <button (click)="testConfirm()">confirm</button>
-</pre>-->
+<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
+<pre *ngIf="debugpre" style="position: absolute;width:70%;top:0;z-index: 9999999;">
+    <div style="float:left;width:50%">
+        clipboard: {{ clipboard | json}}
+    </div>
+    <div style="float:left;width:50%">
+        select: {{ selected | json}}
+    </div>
+</pre>
 <div class="main_content studies">
     <div *ngIf="user">
 
@@ -676,8 +682,8 @@ confirmtest: <button (click)="testConfirm()">confirm</button>
             <div class="headerbuttons">
                 <button title="Toggle checkboxes for selection" class="activate_checkboxes" (click)="showCheckBoxes()"><i class="material-icons">playlist_add_check</i></button>
                 <div class="movegroup">
-                    <button title="Copy (Selected objects)" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
-                    <button title="Cut (Selected objects)" class="moveselected" (click)="ctrlX()"><i class="material-icons">content_cut</i></button>
+                    <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Copy (Selected objects)" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
+                    <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Cut (Selected objects)" class="moveselected" (click)="ctrlX()"><i class="material-icons">content_cut</i></button>
                     <button title="Merge (Add selected patient in the clipboard for Merge)" class="moveselected" (click)="merge()"><i class="material-icons">supervisor_account</i></button>
                     <button title="Past (Objects that are in the clipboard to the selected object)" class="pasteselected" (click)="ctrlV()"><i class="material-icons">content_paste</i></button>
                 </div>

@@ -33,6 +33,7 @@ export class StudiesComponent{
         "series":false,
         "instance":false
     };
+    debugpre = false;
     saveLabel = "SAVE";
     titleLabel = "Edit patient";
     rjcode = null;
@@ -184,7 +185,9 @@ export class StudiesComponent{
     lastSelectedObject = {modus:""};
     keysdown:any = {};
     lastSelect:any;
-    selected:any = {};
+    selected:any = {
+        hasPatient:false
+    };
     pressedKey;
     selectModality(key){
         this.filter.ModalitiesInStudy = key;
@@ -1285,7 +1288,12 @@ export class StudiesComponent{
                 this.selectObject(object, modus, true);
             }
             if(modus === 'patient'){
-                this.clipboard.hasPatient = true;
+                console.log("patient.length",_.size(this.selected.patients));
+                if(_.size(this.selected.patients) > 0){
+                    this.selected.hasPatient = true;
+                }else{
+                    this.selected.hasPatient = false;
+                }
             }
             //ctrl + click
             if(this.keysdown && Object.keys(this.keysdown).length === 1 && this.keysdown[17] === true){
@@ -1542,7 +1550,7 @@ console.log("issuerhasin =",_.hasIn(object,'attrs["00100021"].Value[0]'));
             }
         }else{
             if(modus === "patient"){
-                console.log("modus in selectObject patient");
+                console.log("modus in selectObject patient",this.selected);
                 // if(this.clipboard.action === 'merge'){
 /*                this.selected["patients"] = this.selected['patients'] || [];
                 this.selected['patients'].push({
@@ -1556,9 +1564,9 @@ console.log("issuerhasin =",_.hasIn(object,'attrs["00100021"].Value[0]'));
                 let $this = this;
                 _.forEach(this.selected['patients'],(m,i)=>{
                     console.log("m",m);
-                    console.log("ifcheck,mpatientid",m.PatientID);
-                    console.log("ifcheck,objectpid",object.attrs["00100020"].Value[0]);
-                    if(m.PatientID === object.attrs["00100020"].Value[0]){
+                    // console.log("ifcheck,mpatientid",m.PatientID);
+                    // console.log("ifcheck,objectpid",object.attrs["00100020"].Value[0]);
+                    if(m && m.PatientID === object.attrs["00100020"].Value[0]){
                         console.log("in if",$this.selected['patients'][i]);
                        this.selected['patients'].splice(i,1);
                         console.log("in if",$this.selected)
@@ -1643,25 +1651,42 @@ console.log("issuerhasin =",_.hasIn(object,'attrs["00100021"].Value[0]'));
     ctrlX(){
         if(this.isRole("admin")){
             console.log("ctrl x");
-            this.clipboard["selected"] = this.clipboard["selected"] || {};
-            this.service.MergeRecursive(this.clipboard.selected,this.selected);
-            if(this.clipboard.action && this.clipboard.action === "copy"){
-                let $this = this;
-                this.confirm({
-                    content:'Are you sure you want to change the action from copy to move?'
-                }).subscribe(result => {
-                    if(result){
-                        $this.clipboard["action"] = "move";
+            if(_.size(this.selected) > 0){
+                if(this.selected.hasPatient === true){
+                    this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "Move process on patient level is not supported",
+                        "status":'info'
+                    });
+                }else{
+                    this.clipboard["selected"] = this.clipboard["selected"] || {};
+                    this.service.MergeRecursive(this.clipboard.selected,this.selected);
+                    if(this.clipboard.action && this.clipboard.action === "copy"){
+                        let $this = this;
+                        this.confirm({
+                            content:'Are you sure you want to change the action from copy to move?'
+                        }).subscribe(result => {
+                            if(result){
+                                $this.clipboard["action"] = "move";
+                            }
+                            $this.showClipboardForAMoment();
+                        });
+                    }else{
+                        this.clipboard["action"] = "move";
+                        this.showClipboardForAMoment();
                     }
-                    $this.showClipboardForAMoment();
-                });
+                    this.service.clearSelection(this.patients);
+                    this.selected = {};
+                    // this.showClipboardContent = true;
+
+                }
             }else{
-                this.clipboard["action"] = "move";
-                this.showClipboardForAMoment();
+                this.mainservice.setMessage({
+                    "title": "Info",
+                    "text": "No element selected!",
+                    "status":'info'
+                });
             }
-            this.service.clearSelection(this.patients);
-            this.selected = {};
-            // this.showClipboardContent = true;
         }
     };
     merge(){
@@ -1696,34 +1721,42 @@ console.log("issuerhasin =",_.hasIn(object,'attrs["00100021"].Value[0]'));
     ctrlC(){
         if(this.isRole("admin")){
             if(_.size(this.selected) > 0){
-
-                console.log("ctrl c",this.clipboard);
-
-                this.clipboard["selected"] = this.clipboard["selected"] || {};
-                console.log("this.selected",this.selected);
-                // console.log("test",angular.merge({},this.clipboard.selected, this.selected));
-                // this.clipboard.selected = angular.merge({},this.clipboard.selected, this.selected);
-                this.service.MergeRecursive(this.clipboard.selected,this.selected);
-                console.log("this.clipboard",this.clipboard);
-                if(this.clipboard.action && this.clipboard.action === "move"){
-                    let $this = this;
-                    this.confirm({
-                        content:'Are you sure you want to change the action from move to copy?'
-                    }).subscribe(result => {
-                        if(result){
-                            $this.clipboard["action"] = "copy";
-                        }
-                        $this.showClipboardForAMoment();
+                if(this.selected.hasPatient === true){
+                    this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "Copy process on patient level is not supported",
+                        "status":'info'
                     });
                 }else{
-                    this.clipboard["action"] = "copy";
-                    this.showClipboardForAMoment();
-                }
-                console.log("this.clipboard",this.clipboard);
-                this.service.clearSelection(this.patients);
+                    console.log("ctrl c",this.clipboard);
 
-                this.selected = {};
-                // this.showClipboardContent = true;
+                    this.clipboard["selected"] = this.clipboard["selected"] || {};
+                    console.log("this.selected",this.selected);
+                    // console.log("test",angular.merge({},this.clipboard.selected, this.selected));
+                    // this.clipboard.selected = angular.merge({},this.clipboard.selected, this.selected);
+                    delete this.selected.patients;
+                    console.log("this.selected",this.selected);
+                    this.service.MergeRecursive(this.clipboard.selected,this.selected);
+                    console.log("this.clipboard",this.clipboard);
+                    if(this.clipboard.action && this.clipboard.action === "move"){
+                        let $this = this;
+                        this.confirm({
+                            content:'Are you sure you want to change the action from move to copy?'
+                        }).subscribe(result => {
+                            if(result){
+                                $this.clipboard["action"] = "copy";
+                            }
+                            $this.showClipboardForAMoment();
+                        });
+                    }else{
+                        this.clipboard["action"] = "copy";
+                        this.showClipboardForAMoment();
+                    }
+                    console.log("this.clipboard",this.clipboard);
+                    this.service.clearSelection(this.patients);
+                    this.selected = {};
+                    // this.showClipboardContent = true;
+                }
             }else{
                 this.mainservice.setMessage({
                     "title": "Info",
@@ -1796,6 +1829,7 @@ console.log("issuerhasin =",_.hasIn(object,'attrs["00100021"].Value[0]'));
                             });
                     }
                     if ($this.clipboard.action === "copy") {
+                        console.log("in ctrlv copy patient",$this.target);
                         if ($this.target.modus === "patient") {
                             let study = {
                                 "00100020": $this.target.attrs['00100020'],
@@ -1807,24 +1841,25 @@ console.log("issuerhasin =",_.hasIn(object,'attrs["00100021"].Value[0]'));
                                 "../aets/" + $this.aet + "/rs/studies",
                                 study,
                                 headers
-                            ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
+                            ).map(res => { console.log("in map1",res); let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                 .subscribe((response)=> {
+                                    console.log("in subscribe2",response);
                                         _.forEach($this.clipboard.selected, function (m, i) {
                                             console.log("m", m);
                                             console.log("i", i);
                                             $this.$http.post(
                                                 "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/copy",
-                                                m,
+                                                i,
                                                 headers
                                             ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                                 .subscribe((response) => {
-                                                    console.log("in then function");
+                                                    console.log("in then function",response);
                                                     $this.clipboard = {};
-                                                    $this.mainservice.setMessage({
+         /*                                           $this.mainservice.setMessage({
                                                         "title": "Info",
                                                         "text": "Object with the Study Instance UID " + m.StudyInstanceUID + " copied successfully!",
                                                         "status": "info"
-                                                    });
+                                                    });*/
                                                     $this.cfpLoadingBar.stop();
                                                     // $this.callBackFree = true;
                                                 }, (response) => {
