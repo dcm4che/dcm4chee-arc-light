@@ -798,6 +798,15 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.160 NAME 'dcmInvokeImageDisplayStudy
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.161 NAME 'hl7ADTReceivingApplication'
+  DESC 'Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.162 NAME 'hl7ADTSendingApplication'
+  DESC 'Application|Facility name of Sending Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -899,6 +908,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmInvokeImageDisplayPatientURL $
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
+    hl7ADTReceivingApplication $
+    hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
     hl7PSUDelay $
