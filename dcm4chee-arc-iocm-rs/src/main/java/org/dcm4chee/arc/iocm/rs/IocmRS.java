@@ -284,7 +284,8 @@ public class IocmRS {
                 patientService.updatePatient(ctx);
             else {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
-                if (arcAE.getArchiveDeviceExtension().isHl7TrackChangedPatientID())
+                if (arcAE.getArchiveDeviceExtension().isHl7TrackChangedPatientID()
+                        && !patientID.getID().equals(bodyPatientID.getID()))
                     patientService.trackPriorPatient(ctx);
                 else
                     patientService.changePatientID(ctx);
