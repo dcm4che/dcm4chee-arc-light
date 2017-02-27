@@ -42,6 +42,8 @@ package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
+import org.dcm4che3.hl7.HL7Message;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
@@ -53,6 +55,7 @@ import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -123,6 +126,9 @@ public class IocmRS {
 
     @Inject
     private RSClient rsClient;
+
+    @Inject
+    private HL7Sender hl7Sender;
 
     @PathParam("AETitle")
     private String aet;
@@ -234,13 +240,27 @@ public class IocmRS {
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             patientService.updatePatient(ctx);
-            forwardRS(HttpMethod.PUT, RSOperation.CreatePatient, arcAE, attrs);
+            forwardRS(HttpMethod.POST, RSOperation.CreatePatient, arcAE, attrs);
+//            sendHL7Message("ADT^A28^ADT_A05", ctx.getPatientID(), ctx.getPatient().getPatientName().toString());
             return IDWithIssuer.pidOf(attrs).toString();
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
         } catch (IOException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    private void sendHL7Message(String msgType, IDWithIssuer id, String name) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        if (arcDev.getHl7ADTSendingApplication() != null) {
+            HL7Msg msg = new HL7Msg(msgType, id.toString(), name);
+            msg.setSendingApplicationWithFacility(arcDev.getHl7ADTSendingApplication());
+            for (String receiver : arcDev.getHl7ADTReceivingApplication()) {
+                msg.setReceivingApplicationWithFacility(receiver);
+                hl7Sender.scheduleMessage(msg.getHL7Message());
+            }
         }
     }
 
@@ -397,18 +417,18 @@ public class IocmRS {
     @PUT
     @Path("/studies/{studyUID}/expire/{expirationDate}")
     public void updateStudyExpirationDate(@PathParam("studyUID") String studyUID,
-            @PathParam("expirationDate")
-            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-            String expirationDate) throws Exception {
+                                          @PathParam("expirationDate")
+                                          @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
+                                                  String expirationDate) throws Exception {
         updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate);
     }
 
     @PUT
     @Path("/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}")
     public void updateSeriesExpirationDate(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
-            @PathParam("expirationDate")
-            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-            String expirationDate) throws Exception {
+                                           @PathParam("expirationDate")
+                                           @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
+                                                   String expirationDate) throws Exception {
         updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate);
     }
 
@@ -596,7 +616,7 @@ public class IocmRS {
     }
 
     private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
-                  ApplicationEntity ae, boolean availability) {
+                                          ApplicationEntity ae, boolean availability) {
         String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
         Attributes refStudy = new Attributes(2);
         Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
@@ -779,5 +799,34 @@ public class IocmRS {
     private Response getResponse(String errorMessage, Response.Status status) {
         Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
         return Response.status(status).entity(entity).build();
+    }
+
+    class HL7Msg {
+        private final HL7Segment msh;
+        private final HL7Segment pid;
+        private final HL7Message hl7Message;
+
+        public HL7Msg(String msgType, String id, String name) {
+            msh = HL7Segment.makeMSH();
+            msh.setField(8, msgType);
+            pid = new HL7Segment(6);
+            pid.setField(3, id);
+            pid.setField(5, name);
+            hl7Message = new HL7Message(2);
+            hl7Message.add(msh);
+            hl7Message.add(pid);
+        }
+
+        public HL7Message getHL7Message() {
+            return hl7Message;
+        }
+
+        public void setSendingApplicationWithFacility(String sendingApp) {
+            msh.setSendingApplicationWithFacility(sendingApp);
+        }
+
+        public void setReceivingApplicationWithFacility(String receivingApp) {
+            msh.setReceivingApplicationWithFacility(receivingApp);
+        }
     }
 }

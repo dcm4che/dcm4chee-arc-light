@@ -592,7 +592,7 @@
     },
     "hl7ADTReceivingApplication": {
       "title": "HL7 ADT Receiving Application",
-      "description": "Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates.",
+      "description": "Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.",
       "type": "array",
       "items" : { "type": "string" }
     },

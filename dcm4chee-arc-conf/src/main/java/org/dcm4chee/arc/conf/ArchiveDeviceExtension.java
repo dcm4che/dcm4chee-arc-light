@@ -161,7 +161,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean hl7TrackChangedPatientID = true;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
-    private String hl7ADTReceivingApplication;
+    private String[] hl7ADTReceivingApplication = {};
     private String hl7ADTSendingApplication;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -1420,11 +1420,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.invokeImageDisplayStudyURL = invokeImageDisplayStudyURL;
     }
 
-    public String getHl7ADTReceivingApplication() {
+    public String[] getHl7ADTReceivingApplication() {
         return hl7ADTReceivingApplication;
     }
 
-    public void setHl7ADTReceivingApplication(String hl7ADTReceivingApplication) {
+    public void setHl7ADTReceivingApplication(String[] hl7ADTReceivingApplication) {
         this.hl7ADTReceivingApplication = hl7ADTReceivingApplication;
     }
 

@@ -958,7 +958,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.160 NAME 'dcmInvokeImageDisplayStudyURL'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.161 NAME 'hl7ADTReceivingApplication'
-  DESC 'Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates.'
+  DESC 'Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
