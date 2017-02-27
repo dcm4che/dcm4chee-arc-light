@@ -67,22 +67,22 @@
                 <div class="body">
 
                     <ng-container *ngIf="clipboard.action === 'merge'">
-                        <div class="block" *ngFor="let value of clipboard.selected.patients">
+                        <div class="block" *ngFor="let value of clipboard.patients">
                             {{ value.PatientID }}
                             <i (click)='removeClipboardElement("patient",{"patientkey":value})' class="remove glyphicon glyphicon-remove"></i>
                         </div>
                     </ng-container>
                     <ng-container *ngIf="clipboard.action != 'merge'">
-                        <div class="block" *ngFor="let value of getKeys(clipboard.selected)">
-                            <div *ngIf="!clipboard.selected[value].StudyInstanceUID" class="patient_block block_part">
+                        <div class="block" *ngFor="let value of getKeys(clipboard.otherObjects)">
+                            <div *ngIf="!clipboard.otherObjects[value].StudyInstanceUID" class="patient_block block_part">
                                 {{value}}
                                 <i (click)='removeClipboardElement("patient",{"patientkey":value})' class="remove glyphicon glyphicon-remove"></i>
                             </div>
-                            <div *ngIf="clipboard.selected[value].StudyInstanceUID" class="study_block block_part" [ngClass]="{'haspatient':clipboard.hasPatient === true}">
-                                {{clipboard.selected[value].StudyInstanceUID}}
+                            <div *ngIf="clipboard.otherObjects[value].StudyInstanceUID" class="study_block block_part" [ngClass]="{'haspatient':clipboard.hasPatient === true}">
+                                {{clipboard.otherObjects[value].StudyInstanceUID}}
                                 <i (click)='removeClipboardElement("study",{"studykey":value})' class="remove glyphicon glyphicon-remove"></i>
-                                <ng-container *ngIf="clipboard.selected[value] && clipboard.selected[value].ReferencedSeriesSequence">
-                                    <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.selected[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':(!seriesequence || !(seriesequence && seriesequence.ReferencedSOPSequence)),'series':(seriesequence && seriesequence.ReferencedSOPSequence),'scroll-active':clipboardHasScrollbar}">
+                                <ng-container *ngIf="clipboard.otherObjects[value] && clipboard.otherObjects[value].ReferencedSeriesSequence">
+                                    <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.otherObjects[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':(!seriesequence || !(seriesequence && seriesequence.ReferencedSOPSequence)),'series':(seriesequence && seriesequence.ReferencedSOPSequence),'scroll-active':clipboardHasScrollbar}">
                                         <ng-container *ngIf="seriesequence && seriesequence.SeriesInstanceUID">
                                             {{seriesequence.SeriesInstanceUID}}
                                         </ng-container>
@@ -395,15 +395,14 @@
                                                 <li [ngClass]="{active:filter.orderby === 'PatientName,-StudyDate,-StudyTime'}" (click)="filter.orderby = 'PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &darr; and study._VALUE date &uarr;'">study._VALUE patient._VALUE name &darr; and study._VALUE date &uarr;</li>
                                                 <li [ngClass]="{active:filter.orderby === '-PatientName,StudyDate,StudyTime'}" (click)="filter.orderby = '-PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &uarr; and study._VALUE date &darr;'">study._VALUE patient._VALUE name &uarr; and study._VALUE date &darr;</li>
                                                 <li [ngClass]="{active:filter.orderby === '-PatientName,-StudyDate,-StudyTime'}" (click)="filter.orderby = '-PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &uarr; and study._VALUE date &uarr;'">study._VALUE patient._VALUE name &uarr; and study._VALUE date &uarr;</li> -->
-                                <li *ngFor="let order of orderby; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);" title="{{filterMode}}" [innerHtml]="order.label"></li>
+                                <li *ngFor="let order of orderby; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{filterMode}}" [innerHtml]="order.label"></li>
                             </ul>
                         </div>
                         <!--                 <button class="btn btn-default" type="button">Go!</button>
-                        -->             <button type="button" class="btn btn-info btn-default executebutton" *ngIf="filterMode==='patient'"
-
-                                                id="querypatients" (click)="queryPatients(0);patientmode=true" title="Query Patients">
-                        <span class="glyphicon glyphicon-refresh"></span>
-                    </button>
+                        -->
+                        <button type="button" class="btn btn-info btn-default executebutton" *ngIf="filterMode==='patient'" id="querypatients" (click)="queryPatients(0);patientmode=true" title="Query Patients">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </button>
                         <button type="button" class="btn btn-default executebutton" [disabled]="filter.orderby === ''"
                                 *ngIf="filterMode==='study'" id="querystudies" (click)="queryStudies(0);patientmode=false" title="Query Studies">
                             <span class="glyphicon glyphicon-refresh"></span>

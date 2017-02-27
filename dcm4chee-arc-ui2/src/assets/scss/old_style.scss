@@ -309,7 +309,7 @@ device and create an other one with the new name*/
     right: -195px;
     width: 250px;
     &.show_checkboxes{
-      right:-170px;
+      right:-170px !important;
     }
     & > .colcell > .table_btn {
       display: block;
@@ -1307,7 +1307,7 @@ table{
                               width: 237px;
                             }
                             &.show_checkboxes{
-                              right:-225px;
+                              right:-225px !important;
                             }
                           }
                         }

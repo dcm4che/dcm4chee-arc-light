@@ -43,34 +43,34 @@
                 </div>
                 <div class="body">
                     <ng-container *ngIf="clipboard.action === 'merge'">
-                        <div class="block" *ngFor="let value of clipboard.selected.patients">
+                        <div class="block" *ngFor="let value of clipboard.patients">
                             {{ value.PatientID }}
                             <i (click)='removeClipboardElement("patient",{"patientkey":value})' class="remove glyphicon glyphicon-remove"></i>
                         </div>
                     </ng-container>
                     <ng-container *ngIf="clipboard.action != 'merge'">
-                        <div class="block" *ngFor="let value of getKeys(clipboard.selected)">
-                            <div *ngIf="!clipboard.selected[value].StudyInstanceUID" class="patient_block block_part">
+                        <div class="block" *ngFor="let value of getKeys(clipboard.otherObjects)">
+                            <div *ngIf="!clipboard.otherObjects[value].StudyInstanceUID" class="patient_block block_part">
                                 {{value}}
                                 <i (click)='removeClipboardElement("patient",{"patientkey":value})' class="remove glyphicon glyphicon-remove"></i>
                             </div>
-                            <div *ngIf="clipboard.selected[value].StudyInstanceUID" class="study_block block_part" [ngClass]="{'haspatient':clipboard.hasPatient === true}">
-                                {{clipboard.selected[value].StudyInstanceUID}}
+                            <div *ngIf="clipboard.otherObjects[value].StudyInstanceUID" class="study_block block_part" [ngClass]="{'haspatient':clipboard.hasPatient === true}">
+                                {{clipboard.otherObjects[value].StudyInstanceUID}}
                                 <i (click)='removeClipboardElement("study",{"studykey":value})' class="remove glyphicon glyphicon-remove"></i>
-                                <ng-container *ngIf="clipboard.selected[value] && clipboard.selected[value].ReferencedSeriesSequence">
-                                    <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.selected[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':(!seriesequence || !(seriesequence && seriesequence.ReferencedSOPSequence)),'series':(seriesequence && seriesequence.ReferencedSOPSequence),'scroll-active':clipboardHasScrollbar}">
+                                <ng-container *ngIf="clipboard.otherObjects[value] && clipboard.otherObjects[value].ReferencedSeriesSequence">
+                                    <div class="series_block block_part" *ngFor="let seriesequence of getKeys(clipboard.otherObjects[value].ReferencedSeriesSequence); let key = index;" [ngClass]="{'no-series':(!seriesequence || !(seriesequence && seriesequence.ReferencedSOPSequence)),'series':(seriesequence && seriesequence.ReferencedSOPSequence),'scroll-active':clipboardHasScrollbar}">
                                         <ng-container *ngIf="seriesequence && seriesequence.SeriesInstanceUID">
                                             {{seriesequence.SeriesInstanceUID}}
                                         </ng-container>
                                         <i *ngIf="seriesequence && seriesequence.SeriesInstanceUID" (click)='removeClipboardElement("serie", {"studykey":value, "serieskey":key})' class="remove glyphicon glyphicon-remove"></i>
                                         <ng-container *ngIf="seriesequence && seriesequence.ReferencedSOPSequence">
                                             <div class="sop_block block_part" *ngFor="let sopseq of getKeys(seriesequence.ReferencedSOPSequence); let key2 = index;">
-                                            <span class="sopclass">
-                                                {{sopseq.ReferencedSOPClassUID}}
-                                            </span>
+                                                <span class="sopclass">
+                                                    {{sopseq.ReferencedSOPClassUID}}
+                                                </span>
                                                 <span class="sopinstance">
-                                                {{sopseq.ReferencedSOPInstanceUID}}
-                                            </span>
+                                                    {{sopseq.ReferencedSOPInstanceUID}}
+                                                </span>
                                                 <i (click)='removeClipboardElement("instance", {"studykey":value, "serieskey":key, "instancekey":key2})' class="remove glyphicon glyphicon-remove"></i>
                                             </div>
                                         </ng-container>

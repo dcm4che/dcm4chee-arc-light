@@ -299,16 +299,17 @@ export class StudiesService {
     removeClipboardElement(modus, keys, clipboard){
         switch(modus) {
             case "patient":
-                delete clipboard.selected[keys.patientkey];
+                delete clipboard['patients'][keys.patientkey];
+                delete clipboard['otherObjects'][keys.patientkey];
                 break;
             case "study":
-                delete clipboard.selected[keys.studykey];
+                delete clipboard['otherObjects'][keys.studykey];
                 break;
             case "serie":
-                delete clipboard.selected[keys.studykey].ReferencedSeriesSequence[keys.serieskey];
+                delete clipboard['otherObjects'][keys.studykey].ReferencedSeriesSequence[keys.serieskey];
                 break;
             case "instance":
-                clipboard.selected[keys.studykey].ReferencedSeriesSequence[keys.serieskey].ReferencedSOPSequence.splice(keys.instancekey,1);
+                clipboard['otherObjects'][keys.studykey].ReferencedSeriesSequence[keys.serieskey].ReferencedSOPSequence.splice(keys.instancekey,1);
                 break;
             default:
         }
@@ -316,11 +317,47 @@ export class StudiesService {
         * Check if there are any patient in the clipboard anymore
         * */
         let haspatient = false;
-        _.forEach(clipboard.selected, (m,i)=>{
+        _.forEach(clipboard.otherObjects, (m,i)=>{
             if(i != '' && (!m || _.size(m) === 0)){
                 haspatient = true;
             }
         })
-        clipboard.hasPatient = haspatient;
+        clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
+    }
+    getPatientId(patient){
+        console.log("patient",patient[0]);
+        let patientId = patient[0].PatientID;
+        if(patient[0].IssuerOfPatientID){
+            patientId += "^^^"+patient[0].IssuerOfPatientID;
+        }
+
+        if(_.hasIn(patient, '[0]["00100024"].Value[0]["00400032"].Value[0]')){
+            patientId +="&"+ patient[0]["00100024"].Value[0]["00400032"].Value[0];
+        }
+        if(_.hasIn(patient, '[0]["00100024"].Value[0]["00400033"].Value[0]')){
+            patientId +="&"+ patient[0]["00100024"].Value[0]["00400033"].Value[0];
+        }
+        console.log("patientid=",patientId);
+        return patientId;
+/*        if(issuer){
+        }
+        if(universalEntityId || universalEntityType){
+            // if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
+            //     oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
+            // }
+            // if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
+            //     oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
+            // }
+            if(!issuer){
+                oldPatientID += "^^^";
+            }
+
+            if(universalEntityId && oldUniversalEntityId){
+                oldPatientID += "&"+ oldUniversalEntityId;
+            }
+            if(universalEntityType && oldUniversalEntityType){
+                oldPatientID += "&"+ oldUniversalEntityType;
+            }
+        }*/
     }
 }
