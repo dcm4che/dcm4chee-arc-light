@@ -818,18 +818,24 @@ public class IocmRS {
         public HL7Msg(String msgType, PatientMgtContext ctx) {
             msh = HL7Segment.makeMSH();
             msh.setField(8, msgType);
-            pid = new HL7Segment(6);
+            pid = new HL7Segment(8);
+            pid.setField(0, "PID");
             pid.setField(3, ctx.getPatientID().toString());
-            if (ctx.getAttributes().getString(Tag.PatientName) != null)
-                pid.setField(5, ctx.getAttributes().getString(Tag.PatientName));
+            pid.setField(5, ctx.getAttributes().getString(Tag.PatientName));
+            pid.setField(6, ctx.getAttributes().getString(Tag.PatientMotherBirthName));
+            pid.setField(7, ctx.getAttributes().getString(Tag.PatientBirthDate));
+            pid.setField(8, ctx.getAttributes().getString(Tag.PatientSex));
             mrg = new HL7Segment(2);
             hl7Message = new HL7Message(3);
             hl7Message.add(msh);
             hl7Message.add(pid);
-            if (msgType.equals("ADT^A47^ADT_A30") || msgType.equals("ADT^A40^ADT_A39")) {
+            if (ctx.getPreviousPatientID() != null) {
+                mrg.setField(0, "MRG");
                 mrg.setField(1, ctx.getPreviousPatientID().toString());
-                if (ctx.getPreviousAttributes().getString(Tag.PatientName) != null)
-                    mrg.setField(7, ctx.getPreviousAttributes().getString(Tag.PatientName));
+                String prevPatName = msgType.equals("ADT^A40^ADT_A39")
+                        ? ctx.getPreviousAttributes().getString(Tag.PatientName)
+                        : ctx.getAttributes().getString(Tag.PatientName);
+                mrg.setField(7, prevPatName);
                 hl7Message.add(mrg);
             }
         }
