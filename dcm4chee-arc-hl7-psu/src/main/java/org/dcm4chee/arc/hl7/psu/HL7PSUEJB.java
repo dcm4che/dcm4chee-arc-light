@@ -172,7 +172,8 @@ public class HL7PSUEJB {
                     mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
                 }
             }
-            msg.setMWLItem(mwlItems.get(0).getAttributes());
+            if (action != HL7PSUScheduler.HL7PSU.MWL)
+                msg.setMWLItem(mwlItems.get(0).getAttributes());
         }
         if (action == HL7PSUScheduler.HL7PSU.MWL) {
             removeHL7PSUTask(task);
