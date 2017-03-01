@@ -65,10 +65,13 @@ class HL7PSUMessage {
         msh = HL7Segment.makeMSH();
         msh.setField(8, "OMG^O19^OMG_O19");
         orc = new HL7Segment(6);
+        orc.setField(0, "ORC");
         orc.setField(1, "SC");
         orc.setField(5, "CM");
         tq1 = new HL7Segment(8);
+        tq1.setField(0, "TQ1");
         obr = new HL7Segment(20);
+        obr.setField(0, "OBR");
         hl7Message = new HL7Message(4);
         hl7Message.add(msh);
         hl7Message.add(orc);
