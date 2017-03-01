@@ -82,6 +82,7 @@ md-progress-circle, [_nghost-nyg-8]{
     font-size:13px;
   }
 }
+
 .md-overlay-pane{
   //width:90%;
   .addPatientAttribut{
@@ -225,6 +226,13 @@ md-progress-circle, [_nghost-nyg-8]{
         color:#7e7b7b;
         display: inline-block;
       }
+    }
+  }
+}
+.md-overlay-pane{
+  .edit-mwl{
+    .dropdown{
+      margin-top:0;
     }
   }
 }

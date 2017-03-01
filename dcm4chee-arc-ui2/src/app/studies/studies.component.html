@@ -107,7 +107,7 @@
             </div>
         </div>
     </div>
-    <div class="headerblock" [ngClass]="{modality:showModalitySelector}">
+    <div class="headerblock" [ngClass]="{modality:showModalitySelector}" (keydown)="keyDownOnHeader($event)">
         <div class="row filter">
             <div class="main_filter_block">
                 <div class="col-md-3 block-1-1">
@@ -142,7 +142,7 @@
                             <input id="PatientID" type="text" [(ngModel)]="filter.PatientID" placeholder="Patient ID" title="Patient ID" class="col-md-12" />
                         </div>
                         <div class="col-md-6">
-                            <input autocomplete="off" id="IssuerOfPatientID" [disabled]="disabled.IssuerOfPatientID" type="text" [(ngModel)]="filter.IssuerOfPatientID" placeholder="Issuer of patient" title="Issuer of patient" class="col-md-12" (click)="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient._VALUE ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient._VALUE ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient._VALUE ID!')"/>
+                            <input autocomplete="off" id="IssuerOfPatientID" [disabled]="disabled.IssuerOfPatientID" type="text" [(ngModel)]="filter.IssuerOfPatientID" placeholder="Issuer of patient" title="Issuer of patient" class="col-md-12" (click)="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient._VALUE ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient._VALUE ID!')"/>
                         </div>
                     </div>
                 </div>
@@ -678,7 +678,7 @@
                     <div style="width:6%" class="th" title="Scheduled Station AE Title">SS AE Title</div>
                 </div>
             </div>
-            <div class="headerbuttons">
+            <div class="headerbuttons" *ngIf="filterMode != 'mwl'">
                 <button title="Toggle checkboxes for selection" class="activate_checkboxes" (click)="showCheckBoxes()"><i class="material-icons">playlist_add_check</i></button>
                 <div class="movegroup">
                     <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Copy (Selected objects)" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
@@ -723,7 +723,7 @@
                     </div>
                 </div>
             </div>
-            <div class="thead" [ngClass]="{hide:patient._VALUE.hide}" (click)='select(patient._VALUE,"patient",{"patientkey":patient._KEY})'>
+            <div class="thead" [ngClass]="{hide:patient._VALUE.hide}" (click)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"click")'>
                 <div class="tr_row" [ngClass]="{selected: patient._VALUE.selected}">
                     <div class="th" style="width:10%">
                         <!--<div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>-->
@@ -732,7 +732,7 @@
                         </a>
 
                         <a *ngIf="!(isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0) && !(patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
-                        <a *ngIf="!(isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0) && (patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
+                        <a *ngIf="!(isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0) && (patient._VALUE.studies)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
                         <a class="table_btn" *ngIf="!patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = true" href="" title="Show MWLs">&#9658;</a>
                         <a class="table_btn" *ngIf="patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
                     </div>
@@ -786,7 +786,7 @@
                             </div>
                         </div>
                         <div class="subblock">
-                            <div class="td_row thead repeat1_hover" (click)='select(study._VALUE,"study", {"patientkey":patient._KEY,"studykey":study._KEY})' [ngClass]="{selected: study._VALUE.selected, trash:trashaktive}">
+                            <div class="td_row thead repeat1_hover" (click)='select(study._VALUE,"study", {"patientkey":patient._KEY,"studykey":study._KEY},"click")' [ngClass]="{selected: study._VALUE.selected, trash:trashaktive}">
                                 <div class="td_cell table_btn">
                                     <a (click)="$event.preventDefault();study._VALUE.showAttributes = !study._VALUE.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
@@ -853,7 +853,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="tr_row repeat2_hover" (click)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY})' [ngClass]="{selected: series._VALUE.selected}">
+                                        <div class="tr_row repeat2_hover" (click)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY},"click")' [ngClass]="{selected: series._VALUE.selected}">
                                             <div class="td_cell table_btn">
                                                 <a (click)="$event.preventDefault();series._VALUE.showAttributes = !series._VALUE.showAttributes" href="" title="Show Attributes">
                                                     <span class="glyphicon glyphicon-th-list"></span>
@@ -916,7 +916,7 @@
                                                 </div>
                                             </div>
                                             <div class="subblock">
-                                                <div class="tr_row repeat3_hover" (click)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY})' [ngClass]="{selected: instance._VALUE.selected}" >
+                                                <div class="tr_row repeat3_hover" (click)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY}, "click")' [ngClass]="{selected: instance._VALUE.selected}" >
                                                     <div class="td_cell table_btn" style="width:4%">
                                                         <!-- <input type="checkbox" [(ngModel)]="instance._VALUE.selected" class="selectcheckboxes" /> -->
                                                         <a style="width:45%" (click)="$event.preventDefault();toggleAttributs(series._VALUE.instances[instance._KEY],'attributs')" href="" title="Show Attributes" [ngClass]="{active:instance._VALUE.showAttributes}">
@@ -986,25 +986,26 @@
                     </div>
                 </div>
             </div>
+            <ng-container *ngIf="patient._VALUE.mwls && patient._VALUE.showmwls">
             <div class="repeat1" *ngFor="let mwl of patient._VALUE.mwls | getKey" >
                 <div class="tbody">
                     <div class="tr_row">
                         <div class="colcell" [innerHtml]="mwl._VALUE.offset+1+'.'"> </div>
                         <div class="subblock">
                             <div class="td_row thead repeat4_hover">
-                                <div class="td_cell table_btn">
+                                <div class="td_cell table_btn" style="width:7%">
                                     <a (click)="$event.preventDefault();mwl._VALUE.showAttributes = !mwl._VALUE.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>
                                     <a *ngIf="isRole('admin')" (click)="$event.preventDefault();editMWL(patients[patient._KEY], patient._KEY, mwl._KEY, mwl._VALUE)" href="" title="Edit mwl">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
-                                    <a *ngIf="isRole('admin')" (click)="$event.preventDefault();deletemwl._VALUE(mwl._VALUE)" href="" title="Delete mwl._VALUE">
+                                    <a *ngIf="isRole('admin')" (click)="$event.preventDefault();deleteMWL(mwl._VALUE)" href="" title="Delete mwl">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
                                 </div>
-                                <div style="width:10.4%" class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['00401001'] && mwl._VALUE.attrs['00401001'].Value && mwl._VALUE.attrs['00401001'].Value[0]" tooltip="{{mwl._VALUE.attrs['00401001'].Value[0]}}">{{(mwl._VALUE.attrs['00401001'].Value[0]) || '&nbsp;'}}</div></div>
-                                <div  style="width:17.3%"  class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['0020000D'] && mwl._VALUE.attrs['0020000D'].Value && mwl._VALUE.attrs['0020000D'].Value[0]" tooltip="{{mwl._VALUE.attrs['0020000D'].Value[0]}}">{{(mwl._VALUE.attrs['0020000D'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div style="width:10.4%" class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['00401001'] && mwl._VALUE.attrs['00401001'].Value && mwl._VALUE.attrs['00401001'].Value[0]" tooltip="{{mwl._VALUE.attrs['00401001'].Value[0]}}">{{(mwl._VALUE.attrs['00401001'].Value[0] | trim:19) || '&nbsp;' }}</div></div>
+                                <div  style="width:17.3%"  class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['0020000D'] && mwl._VALUE.attrs['0020000D'].Value && mwl._VALUE.attrs['0020000D'].Value[0]" tooltip="{{mwl._VALUE.attrs['0020000D'].Value[0]}}">{{(mwl._VALUE.attrs['0020000D'].Value[0] | trim:32) || '&nbsp;'}}</div></div>
                                 <div class="td_cell txt hover_cell"  >
                                     <div *ngIf="mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400002'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value[0]" tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value[0]}}">
                                         {{(mwl._VALUE.attrs['00400100'].Value[0]['00400002'].Value[0] | formatDA) || '&nbsp;'}}
@@ -1035,7 +1036,7 @@
                                                    (mwl._VALUE.attrs['00400100'] && mwl._VALUE.attrs['00400100'].Value && mwl._VALUE.attrs['00400100'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400008'] &&  mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0] && mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'] && mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value && mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0])"
                                             tooltip="{{mwl._VALUE.attrs['00400100'].Value[0]['00400007'].Value[0] || mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0]}}">
 
-                                        {{(mwl._VALUE.attrs['00400100'].Value[0]['00400007'].Value[0]) || (mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0]) || '&nbsp;'}}
+                                        {{(mwl._VALUE.attrs['00400100'].Value[0]['00400007'].Value[0]) || (mwl._VALUE.attrs['00400100'].Value[0]['00400008'].Value[0]['00080104'].Value[0]| trim:32) || '&nbsp;'}}
                                     </div>
                                 </div>
                                 <div style="width:6%" class="td_cell txt hover_cell" >
@@ -1047,7 +1048,7 @@
                             <div class="td_row">
                                 <div class="tr_row"  *ngIf="mwl._VALUE.showAttributes">
                                     <div class="td_cell attribute_list" id="{{patient._VALUE.attrs['00100020'].Value[0] | removedots}}{{mwl._VALUE.attrs['0020000D'].Value[0] | removedots}}"> 
-                                        <!--<attribute-list attrs="mwl._VALUE.attrs"></attribute-list>-->attribute-list
+                                        <attribute-list *ngIf="mwl._VALUE.attrs" [attrs]="mwl._VALUE.attrs"></attribute-list>
                                     </div>
                                 </div>
                             </div>
@@ -1072,6 +1073,7 @@
 
                 </div>
             </div>
+            </ng-container>
             <div class="arrows" *ngIf="patient._VALUE && patient._VALUE.studies && patient._VALUE.studies[0] && patient._VALUE.studies[0].fromAllStudies">
                 <div class="arrows_block">
                     <button class="btn btn-link btn-xs"

@@ -324,40 +324,43 @@ export class StudiesService {
         })
         clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     }
+    /*
+    * return patientid - combination of patient id, issuer
+    * */
     getPatientId(patient){
-        console.log("patient",patient[0]);
-        let patientId = patient[0].PatientID;
-        if(patient[0].IssuerOfPatientID){
-            patientId += "^^^"+patient[0].IssuerOfPatientID;
+        console.log("patient",patient);
+        let obj;
+        if(_.hasIn(patient, '[0]')){
+            obj = patient[0];
+        }else{
+            obj = patient;
+        }
+        let patientId = obj.PatientID;
+        if(obj.IssuerOfPatientID){
+            patientId += "^^^"+obj.IssuerOfPatientID;
         }
 
-        if(_.hasIn(patient, '[0]["00100024"].Value[0]["00400032"].Value[0]')){
-            patientId +="&"+ patient[0]["00100024"].Value[0]["00400032"].Value[0];
+        if(_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
+            patientId +="&"+ obj["00100024"].Value[0]["00400032"].Value[0];
         }
-        if(_.hasIn(patient, '[0]["00100024"].Value[0]["00400033"].Value[0]')){
-            patientId +="&"+ patient[0]["00100024"].Value[0]["00400033"].Value[0];
+        if(_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')){
+            patientId +="&"+ obj["00100024"].Value[0]["00400033"].Value[0];
         }
-        console.log("patientid=",patientId);
         return patientId;
-/*        if(issuer){
-        }
-        if(universalEntityId || universalEntityType){
-            // if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
-            //     oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
-            // }
-            // if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
-            //     oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
-            // }
-            if(!issuer){
-                oldPatientID += "^^^";
-            }
+    }
 
-            if(universalEntityId && oldUniversalEntityId){
-                oldPatientID += "&"+ oldUniversalEntityId;
+    isTargetInClipboard(target, clipboard){
+        let contains = false;
+        _.forEach(clipboard.otherObjects,(m,i)=>{
+            if(_.isEqual(m, target.otherObjects[i])){
+               contains = true;
             }
-            if(universalEntityType && oldUniversalEntityType){
-                oldPatientID += "&"+ oldUniversalEntityType;
+        });
+        _.forEach(clipboard.patients,(m,i)=>{
+            if(_.isEqual(m, target.patients[i])){
+               contains = true;
             }
-        }*/
+        });
+        return contains;
     }
 }

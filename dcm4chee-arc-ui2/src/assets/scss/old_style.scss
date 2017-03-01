@@ -309,7 +309,7 @@ device and create an other one with the new name*/
     right: -195px;
     width: 250px;
     &.show_checkboxes{
-      right:-170px !important;
+      right:-170px;
     }
     & > .colcell > .table_btn {
       display: block;
@@ -893,7 +893,7 @@ table{
 	}
   .headerbuttons{
     position: absolute;
-    top: 0;
+    top: 1px;
     left:5px;
     button{
       height: 22px;
@@ -1307,7 +1307,7 @@ table{
                               width: 237px;
                             }
                             &.show_checkboxes{
-                              right:-225px !important;
+                              right:-225px;
                             }
                           }
                         }

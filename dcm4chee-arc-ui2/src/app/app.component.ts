@@ -5,6 +5,7 @@ import {AppService} from "./app.service";
 import {ViewChild} from "@angular/core/src/metadata/di";
 import {User} from "./models/user";
 import 'rxjs/add/operator/catch';
+import {Http} from "@angular/http";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -19,20 +20,24 @@ declare var DCM4CHE: any;
 export class AppComponent {
     progressValue = 30;
     //Detect witch header should be shown.
-
+    user:any = {};
     dialogRef: MdDialogRef<any>;
-
+    showUserMenu:boolean = false;
+    url = "/auth";
+    logoutUrl = '';
+    isRole:any;
     @ViewChild(MessagingComponent) msg;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
-    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging:MessagingComponent,public mainservice:AppService){
+    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging:MessagingComponent,public mainservice:AppService,public $http:Http){
+        let $this = this;
         if(!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
                 .subscribe(
                     (response) => {
-                        this.mainservice.user.user = response.user;
-                        this.mainservice.user.roles = response.roles;
-                        this.mainservice.isRole = function(role){
+                        $this.mainservice.user.user = response.user;
+                        $this.mainservice.user.roles = response.roles;
+                        $this.mainservice.isRole = function(role){
                             if(response.user === null && response.roles.length === 0){
                                 return true;
                             }else{
@@ -43,12 +48,14 @@ export class AppComponent {
                                 }
                             }
                         };
+                        $this.user = $this.mainservice.user;
+                        $this.isRole = $this.mainservice.isRole;
                     },
                     (response) => {
                         // this.user = this.user || {};
-                        this.mainservice.user.user = "user";
-                        this.mainservice.user.roles = ["user","admin"];
-                        this.mainservice.user.isRole = (role)=>{
+                        $this.mainservice.user.user = "user";
+                        $this.mainservice.user.roles = ["user","admin"];
+                        $this.mainservice.isRole = (role)=>{
                             if(role === "admin"){
                                 return false;
                             }else{
@@ -59,6 +66,23 @@ export class AppComponent {
                 );
         }
 
+
+        this.$http.get('../auth')
+            .map(res => res.json())
+            .subscribe(
+            (response) => {
+            $this.url  = response.url;
+            var host    = location.protocol + "//" + location.host
+
+            $this.logoutUrl = response.url + "/realms/dcm4che/protocol/openid-connect/logout?redirect_uri="
+                + encodeURIComponent(host + location.pathname);
+        }, (response) => {
+            // vex.dialog.alert("Error loading device names, please reload the page and try again!");
+            $this.url = "/auth";
+            let host = location.protocol + "//" + location.host
+            $this.logoutUrl =  host + "/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri="
+                + encodeURIComponent(host + location.pathname);
+        });
 
 
     }
@@ -84,7 +108,9 @@ export class AppComponent {
             }
         }
     };
-
+    createPatient(){
+        this.mainservice.createPatient({});
+    }
 
     onClick() {
         // this.dcm4che.elementName.forTag()

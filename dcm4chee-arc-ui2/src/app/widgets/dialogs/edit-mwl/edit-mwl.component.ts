@@ -5,6 +5,7 @@ import {Globalvar} from "../../../constants/globalvar";
 declare var DCM4CHE: any;
 import * as _ from "lodash";
 import {SearchPipe} from "../../../pipes/search.pipe";
+import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
 
 @Component({
     selector: 'app-edit-mwl',
@@ -17,13 +18,13 @@ export class EditMwlComponent {
 
     opendropdown = false;
 
-    addPatientAttribut = "";
+    addmwlAttribut = "";
     lastPressedCode;
     private _saveLabel;
     private _titleLabel;
     private _dropdown
-    private _patient:any;
-    private _patientkey:any;
+    private _mwl:any;
+    private _mwlkey:any;
     private _iod:any;
 
     constructor(public dialogRef: MdDialogRef<EditMwlComponent>, public mainservice:AppService) {
@@ -50,20 +51,20 @@ export class EditMwlComponent {
         this._dropdown = value;
     }
 
-    get patient(): any {
-        return this._patient;
+    get mwl(): any {
+        return this._mwl;
     }
 
-    set patient(value: any) {
-        this._patient = value;
+    set mwl(value: any) {
+        this._mwl = value;
     }
 
-    get patientkey(): any {
-        return this._patientkey;
+    get mwlkey(): any {
+        return this._mwlkey;
     }
 
-    set patientkey(value: any) {
-        this._patientkey = value;
+    set mwlkey(value: any) {
+        this._mwlkey = value;
     }
     get saveLabel(): string {
         return this._saveLabel;
@@ -87,14 +88,29 @@ export class EditMwlComponent {
             return Object.keys(obj);
         }
     }
+    modalityKeyHandler(e, dialogRef){
+        let code = (e.keyCode ? e.keyCode : e.which);
+        console.log("in modality keyhandler",code);
+        if(code === 13){
+            dialogRef.close(this._mwl);
+        }
+        if(code === 27){
+            dialogRef.close(null);
+        }
+    }
     pressedKey(e){
-        this.opendropdown = true;
+        console.log("pressedkey");
         var code = (e.keyCode ? e.keyCode : e.which);
         this.lastPressedCode = code;
+        if(code === 9 || code === 27){
+            this.opendropdown = false;
+        }else{
+            this.opendropdown = true;
+        }
         if(code === 13){
             // var filter = $filter("filter");
-            // var filtered = filter(this.dropdown, this.addPatientAttribut);
-            let filtered = new SearchPipe().transform(this.dropdown,this.addPatientAttribut)
+            // var filtered = filter(this.dropdown, this.addmwlAttribut);
+            let filtered = new SearchPipe().transform(this.dropdown,this.addmwlAttribut);
             if(filtered){
                 this.opendropdown = true;
             }
@@ -105,10 +121,10 @@ export class EditMwlComponent {
             }else{
                 attrcode = filtered[0].code;
             }
-            if(this._patient.attrs[attrcode] != undefined){
+            if(this._mwl.attrs[attrcode] != undefined){
                 if(this._iod[attrcode].multi){
-                    this._patient.attrs[attrcode]["Value"].push("");
-                    this.addPatientAttribut           = "";
+                    this._mwl.attrs[attrcode]["Value"].push("");
+                    this.addmwlAttribut           = "";
                     this.opendropdown                 = false;
                 }else{
                     this.mainservice.setMessage({
@@ -118,7 +134,7 @@ export class EditMwlComponent {
                     });
                 }
             }else{
-                this.patient.attrs[attrcode]  = this.iod[attrcode];
+                this._mwl.attrs[attrcode]  = this.iod[attrcode];
             }
             setTimeout(function(){
                 this.lastPressedCode = 0;
@@ -161,21 +177,25 @@ export class EditMwlComponent {
             this.opendropdown = false;
         }
     }
-    addAttribute(attrcode, patient){
-        console.log("attrcode",attrcode);
+    addAttribute(attrcode){
         if(attrcode.indexOf(':') > -1){
             var codes =  attrcode.split(":");
             if(codes[0] === "00400100"){
-                if(patient.attrs[codes[0]].Value[0][codes[1]] != undefined){
-                    if(this._iod[codes[0]].Value[0][codes[1]].multi){
-                                if(this._iod[codes[0]].Value[0][codes[1]].vr === "SQ"){
-                                    patient.attrs[codes[0]].Value[0][codes[1]]["Value"].push( _.cloneDeep(this._iod[codes[0]].Value[0][codes[1]].Value[0]));
-                                }else{
-                                    patient.attrs[codes[0]].Value[0][codes[1]]["Value"] = patient.attrs[codes[0]].Value[0][codes[1]]["Value"] || [];
-                                    patient.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
-                                }
-                                this.addPatientAttribut           = "";
-                                this.opendropdown                 = false;
+                if(this._mwl.attrs[codes[0]].Value[0][codes[1]] != undefined){
+                    if(this.iod[codes[0]].Value[0][codes[1]].multi){
+                        // this._mwl.attrs[attrcode]  = this.iod[attrcode];
+                        // console.log("this.iod",this.iod);
+                        // console.log("this._mwl",this._mwl);
+                        if(this.iod[codes[0]].Value[0][codes[1]].vr === "SQ"){
+                            // this._mwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = this._mwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || this.iod[codes[0]].Value[0][codes[1]].Value;
+                            // console.log("this.iod[codes[0]].Value[0][codes[1]].Value",this.iod[codes[0]].Value[0][codes[1]].Value);
+                            this._mwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push(this.iod[codes[0]].Value[0][codes[1]].Value[0]);
+                        }else{
+                            this._mwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = this._mwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || [];
+                            this._mwl.attrs[codes[0]].Value[0][codes[1]]["Value"].push("");
+                        }
+                        this.addmwlAttribut           = "";
+                        this.opendropdown                 = false;
                     }else{
                         this.mainservice.setMessage({
                             "title": "Warning",
@@ -184,58 +204,42 @@ export class EditMwlComponent {
                         });
                     }
                 }else{
-                    patient.attrs[codes[0]].Value[0][codes[1]]  =  _.cloneDeep(this._iod[codes[0]].Value[0][codes[1]]);
+                    this._mwl.attrs[codes[0]].Value[0][codes[1]]  = this.iod[codes[0]].Value[0][codes[1]];
                 }
             }else{
                 console.error("error, code 00400100 not found on the 0 position");
             }
         }else{
-            if(patient.attrs[attrcode]){
-                if(this._iod[attrcode].multi){
-                    // this.patien.attrs[attrcode]  = this._iod.data[attrcode];
-                    console.log("multi",this._iod[attrcode]);
-                    if(patient.attrs[attrcode].vr === "PN"){
-                        patient.attrs[attrcode]["Value"].push({Alphabetic:''});
-                    }else{
-                        if(patient.attrs[attrcode].vr === "SQ"){
-                            patient.attrs[attrcode]["Value"].push(_.cloneDeep(this._iod[attrcode].Value[0]));
-                        }else{
-                            patient.attrs[attrcode]["Value"].push("");
-                        }
-                    }
-                    this.addPatientAttribut           = "";
-                    this.opendropdown                 = false;
+            if(this._mwl.attrs[attrcode] != undefined){
+                if(this.iod[attrcode].multi){
+                    // this._mwl.attrs[attrcode]  = this.iod[attrcode];
+                    this._mwl.attrs[attrcode]["Value"].push("");
+                    this.addmwlAttribut  = "";
+                    this.opendropdown    = false;
                 }else{
                     this.mainservice.setMessage({
                         "title": "Warning",
                         "text": "Attribute already exists!",
                         "status": "warning"
                     });
-                    console.log("message attribute already exists");
                 }
             }else{
-                // console.log("in else", this.dialogRef.componentInstance.patient);
-                console.log("this._iodattrcod",this._iod[attrcode]);
-                patient.attrs[attrcode]  = _.cloneDeep(this._iod[attrcode]);
-                // patient.attrs[attrcode].Value[0] = "";
-                console.log("patient=",patient);
+                        this._mwl.attrs[attrcode]  = this.iod[attrcode];
             }
-            // this.dialogRef.componentInstance.patient = patient;
-            this.opendropdown = false;
-            console.log("patient after add ",patient);
         }
+        // this.items = $filter("mwl")(this._mwl.attrs,$scope.iod);
     };
     removeAttr(attrcode){
         switch(arguments.length) {
             case 2:
-                if(this.patient.attrs[arguments[0]].Value.length === 1){
-                    delete  this.patient.attrs[arguments[0]];
+                if(this._mwl.attrs[arguments[0]].Value.length === 1){
+                    delete  this._mwl.attrs[arguments[0]];
                 }else{
-                    this.patient.attrs[arguments[0]].Value.splice(arguments[1], 1);
+                    this._mwl.attrs[arguments[0]].Value.splice(arguments[1], 1);
                 }
                 break;
             default:
-                delete  this.patient.attrs[arguments[0]];
+                delete  this._mwl.attrs[arguments[0]];
                 break;
         }
     };

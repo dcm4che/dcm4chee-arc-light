@@ -36,12 +36,17 @@ export class AppService implements OnInit{
 
     // Observable string sources
     private setMessageSource = new Subject<string>();
+    private createPatientSource = new Subject<string>();
 
     // Observable string streams
     messageSet$ = this.setMessageSource.asObservable();
+    createPatient$ = this.createPatientSource.asObservable();
     // Service message commands
     setMessage(msg: any) {
         this.setMessageSource.next(msg);
+    }
+    createPatient(patient:any){
+        this.createPatientSource.next(patient);
     }
 
     // setMsg(msg){

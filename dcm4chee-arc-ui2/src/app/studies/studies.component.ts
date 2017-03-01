@@ -16,6 +16,7 @@ import {EditMwlComponent} from "../widgets/dialogs/edit-mwl/edit-mwl.component";
 import {CopyMoveObjectsComponent} from "../widgets/dialogs/copy-move-objects/copy-move-objects.component";
 import {subscribeOn} from "rxjs/operator/subscribeOn";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'app-studies',
@@ -48,7 +49,7 @@ export class StudiesComponent{
         "ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate":"",
         "ScheduledProcedureStepSequence.ScheduledProcedureStepStatus":"",
         returnempty:false,
-        PatientSex:"F",
+        PatientSex:"",
         PatientBirthDate:""
     };
     queryMode = "queryStudies";
@@ -80,6 +81,7 @@ export class StudiesComponent{
             return false;
         }
     }
+    jsonHeader = new Headers({ 'Content-Type': 'application/json' });
 
     clearForm(){
         _.forEach(this.filter,(m,i)=>{
@@ -198,6 +200,7 @@ export class StudiesComponent{
     };
 
     dialogRef: MdDialogRef<any>;
+    subscription:Subscription;
 
     constructor(public $http: Http, public service:StudiesService, public mainservice:AppService,public cfpLoadingBar:SlimLoadingBarService, public messaging:MessagingComponent, public viewContainerRef: ViewContainerRef ,public dialog: MdDialog, public config: MdDialogConfig) {
         // $('.clockpicker').clockpicker()
@@ -288,32 +291,44 @@ export class StudiesComponent{
                 // Ignore it
                 return;
             }
+            console.log("$this.keysdown",this.keysdown);
             console.log("e.keyCode",e.keyCode);
             console.log("isrole admin=",$this.isRole("admin"));
             // console.log("isrole admin=",this.mainservice.isRole);
             // Remember it's down
-            $this.keysdown[e.keyCode] = true;
+            let validKeys = [16,17,67,77,86,88,91,93,224];
+            if(validKeys.indexOf(e.keyCode) > -1){
+                console.log("in if ");
+                $this.keysdown[e.keyCode] = true;
+            }
             //ctrl + c clicked
-            if($this.keysdown[17]===true && $this.keysdown[67]===true && $this.isRole("admin")){
+            if($this.keysdown && ($this.keysdown[17]===true || $this.keysdown[91]===true || $this.keysdown[93]===true || $this.keysdown[224]===true) && $this.keysdown[67]===true && $this.isRole("admin")){
                 console.log("ctrl + c");
                 $this.ctrlC();
+                $this.keysdown = {};
             }
-/*            //ctrl + v clicked
-            if(this.keysdown[17]===true && this.keysdown[86]===true && this.isRole("admin")){
-                if(this.lastSelectedObject && this.clipboard && this.clipboard.selected && Object.keys(this.clipboard.selected).length > 0){
-                    ctrlV(this.lastSelectedObject);
-                }
+            //ctrl + v clicked
+            if($this.keysdown && ($this.keysdown[17]===true || $this.keysdown[91]===true || $this.keysdown[93]===true || $this.keysdown[224]===true) && $this.keysdown[86]===true && $this.isRole("admin")){
+                $this.ctrlV();
+                $this.keysdown = {};
+            }
+            //ctrl + m clicked
+            if($this.keysdown && ($this.keysdown[17]===true || $this.keysdown[91]===true || $this.keysdown[93]===true || $this.keysdown[224]===true) && $this.keysdown[77]===true && $this.isRole("admin")){
+                $this.merge();
+                $this.keysdown = {};
             }
             //ctrl + x clicked
-            if(this.keysdown[17]===true && this.keysdown[88]===true && this.isRole("admin")){
+            if($this.keysdown && ($this.keysdown[17]===true || $this.keysdown[91]===true || $this.keysdown[93]===true || $this.keysdown[224]===true) && $this.keysdown[88]===true && $this.isRole("admin")){
                 console.log("ctrl + x");
-                ctrlX();
-            }*/
+                $this.ctrlX();
+                $this.keysdown = {};
+            }
 
         });
         $(document).keyup(function(e){
-            console.log("keydown")
+            console.log("keyUP",e.keyCode);
             $this.pressedKey = null;
+            console.log("$this.keysdown",this.keysdown);
             delete $this.keysdown[e.keyCode];
         });
 
@@ -346,6 +361,11 @@ export class StudiesComponent{
                     }
                 }
             });
+        });
+
+        this.subscription = this.mainservice.createPatient$.subscribe(patient => {
+            console.log("patient in subscribe messagecomponent ",patient);
+            this.createPatient();
         });
     }
 
@@ -438,7 +458,7 @@ export class StudiesComponent{
             //           $this.studies = [];
             $this.morePatients = undefined;
             $this.moreStudies = undefined;
-            if(res != ""){
+            if(_.size(res) > 0){
                 //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
                 let index = 0;
                 while($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)){
@@ -447,6 +467,7 @@ export class StudiesComponent{
                 $this.attributeFilters.Patient.dcmTag.splice(index, 0, 2101760);
 
                 var pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
+                console.log("res",res);
                 res.forEach(function (studyAttrs, index) {
                     patAttrs = {};
                     $this.extractAttrs(studyAttrs, tags, patAttrs);
@@ -545,65 +566,33 @@ export class StudiesComponent{
         console.log("mwl",mwl);
         console.log("mwlkey",mwlkey);
 
-        let originalPatientObject = _.cloneDeep(mwl);
+        let originalMwlObject = _.cloneDeep(mwl);
         this.config.viewContainerRef = this.viewContainerRef;
-        let oldPatientID;
-        let oldIssuer;
-        let oldUniversalEntityId;
-        let oldUniversalEntityType;
+
         this.lastPressedCode = 0;
         if(mode === "edit"){
-            _.forEach(patient.attrs,function(value, index) {
+            _.forEach(mwl.attrs,function(value, index) {
                 var checkValue = "";
                 if(value.Value && value.Value.length){
                     checkValue = value.Value.join("");
                 }
                 if(!(value.Value && checkValue != "")){
-                    delete patient.attrs[index];
+                    delete mwl.attrs[index];
                 }
-                if(index === "00100040" && patient.attrs[index] && patient.attrs[index].Value && patient.attrs[index].Value[0]){
-                    patient.attrs[index].Value[0] = patient.attrs[index].Value[0].toUpperCase();
+                if(value.vr === "DA" && value.Value && value.Value[0]){
+/*                    var string = value.Value[0];
+                    string = string.replace(/\./g,"");
+                    var yyyy = string.substring(0,4);
+                    var MM = string.substring(4,6);
+                    var dd = string.substring(6,8);
+                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                    var date          = new Date(timestampDate);
+                    $scope.dateplaceholder[index] = date;*/
+                    console.log("in date",value.Value);
                 }
-                // console.log("value.vr",value.vr);
-                // console.log("value",value);
-                /*                if(value.vr === "DA" && value.Value && value.Value[0]){
-                 var string = value.Value[0];
-                 string = string.replace(/\./g,"");
-                 var yyyy = string.substring(0,4);
-                 var MM = string.substring(4,6);
-                 var dd = string.substring(6,8);
-                 var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
-                 var date          = new Date(timestampDate);
-                 this.dateplaceholder[index] = date;
-                 }*/
             });
-            if(patient.attrs["00100020"] && patient.attrs["00100020"].Value && patient.attrs["00100020"].Value[0]){
-                oldPatientID            = patient.attrs["00100020"].Value[0];
-            }
-            if(patient.attrs["00100021"] && patient.attrs["00100021"].Value && patient.attrs["00100021"].Value[0]){
-                oldIssuer               = patient.attrs["00100021"].Value[0];
-            }
-            if(
-                patient.attrs["00100024"] &&
-                patient.attrs["00100024"].Value &&
-                patient.attrs["00100024"].Value[0] &&
-                patient.attrs["00100024"].Value[0]["00400032"] &&
-                patient.attrs["00100024"].Value[0]["00400032"].Value &&
-                patient.attrs["00100024"].Value[0]["00400032"].Value[0]
-            ){
-                oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
-                console.log("set oldUniversalEntityId",oldUniversalEntityId);
-            }
-            if(
-                patient.attrs["00100024"] &&
-                patient.attrs["00100024"].Value &&
-                patient.attrs["00100024"].Value[0] &&
-                patient.attrs["00100024"].Value[0]["00400033"] &&
-                patient.attrs["00100024"].Value[0]["00400033"].Value &&
-                patient.attrs["00100024"].Value[0]["00400033"].Value[0]
-            ){
-                oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
-                console.log("set oldUniversalEntityType",oldUniversalEntityType);
+            if(mwl.attrs["00400100"].Value[0]["00400002"] && !mwl.attrs["00400100"].Value[0]["00400002"].Value){
+                mwl.attrs["00400100"].Value[0]["00400002"]["Value"] = [""];
             }
         }
 
@@ -612,132 +601,76 @@ export class StudiesComponent{
         let $this = this;
         this.service.getMwlIod().subscribe((res)=>{
             $this.service.patientIod = res;
-
+            console.log("berfore set mwl",mwl);
             $this.service.initEmptyValue(patient.attrs);
+            console.log("after initemptyvalue");
             $this.dialogRef = $this.dialog.open(EditMwlComponent, $this.config);
-            $this.dialogRef.componentInstance.patient = mwl;
-            $this.dialogRef.componentInstance.patientkey = mwlkey;
-            $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
             $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(res, "items", "Value");
+            $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
+            $this.dialogRef.componentInstance.mwl = mwl;
+            $this.dialogRef.componentInstance.mwlkey = mwlkey;
             console.log("$this.savelabel",$this.saveLabel);
             $this.dialogRef.componentInstance.saveLabel = $this.saveLabel;
             $this.dialogRef.componentInstance.titleLabel = $this.titleLabel;
             $this.dialogRef.afterClosed().subscribe(result => {
                 //If user clicked save
+                console.log("result",result);
                 if(result){
-                    let headers = new Headers({ 'Content-Type': 'application/json' });
-                    console.log("patient for clear",patient);
-                    $this.service.clearPatientObject(patient.attrs);
-                    $this.service.convertStringToNumber(patient.attrs);
-                    console.log("patient after clear",patient);
-                    // $this.service.convertDateToString($scope, "editpatient");
-                    if(patient.attrs["00100020"] && patient.attrs["00100020"].Value[0]){
-                        _.forEach(patient.attrs, function(m, i){
-                            if(res && res[i] && res[i].vr != "SQ" && m.Value && m.Value.length === 1 && m.Value[0] === ""){
-                                delete patient.attrs[i];
-                            }
-                        });
-                        // patient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
-                        oldPatientID = oldPatientID || patient.attrs["00100020"].Value[0];
-                        var issuer =                oldIssuer != undefined;
-                        var universalEntityId =     oldUniversalEntityId != undefined;
-                        var universalEntityType =   oldUniversalEntityType != undefined;
-
-                        if(issuer){
-                            oldPatientID += "^^^"+oldIssuer;
-                        }
-                        if(universalEntityId || universalEntityType){
-                            // if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
-                            //     oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
-                            // }
-                            // if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
-                            //     oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
-                            // }
-                            if(!issuer){
-                                oldPatientID += "^^^";
-                            }
-
-                            if(universalEntityId && oldUniversalEntityId){
-                                oldPatientID += "&"+ oldUniversalEntityId;
-                            }
-                            if(universalEntityType && oldUniversalEntityType){
-                                oldPatientID += "&"+ oldUniversalEntityType;
-                            }
-                        }
-                        // console.log("patient.attrs",patient.attrs);
-                        $this.$http.put(
-                            "../aets/"+$this.aet+"/rs/mwl/"+oldPatientID,
-                            patient.attrs
-                        ).subscribe(function successCallback(response) {
-                            if(mode === "edit"){
-                                //Update changes on the patient list
-                                // patient.attrs = patient.attrs;
-                                //Force rerendering the directive attribute-list
-                                var id = "#"+patient.attrs["00100020"].Value;
-                                // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
-                                // $(id).html(attribute);
-                            }else{
-
-                                $this.fireRightQuery();
-                            }
-                            // $scope.dateplaceholder = {};
-                            // console.log("data",data);
-                            // console.log("datepicker",$(".datepicker .no-close-button"));
-                            $this.mainservice.setMessage( {
-                                "title": "Info",
-                                "text": "Patient saved successfully!",
-                                "status": "info"
-                            });
-                        }, function errorCallback(response) {
-                            $this.mainservice.setMessage( {
-                                // "title": "Error",
-                                // "text": "Error saving patient!",
-                                // "status": "error"
-                                "title": "Error "+response.status,
-                                "text": response.statusText,
-                                "status": "error"
-                            });
-                        });
-                        ////
+                    $this.service.clearPatientObject(mwl.attrs);
+                    $this.service.convertStringToNumber(mwl.attrs);
+                    // StudiesService.convertDateToString($scope, "mwl");
+                    var local = {};
+                    if(mwl.attrs["00100020"]){
+                        local["00100020"] = mwl.attrs["00100020"];
                     }else{
-                        if(mode === "create"){
-                            $this.$http.post(
-                                "../aets/"+$this.aet+"/rs/mwl/",
-                                patient.attrs,
-                                headers
-                            )
-                            //.map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
-                                .subscribe(
-                                    (response) => {
-                                        console.log("response",response);
-                                        $this.mainservice.setMessage( {
-                                            "title": "Info",
-                                            "text": "Patient created successfully!",
-                                            "status": "info"
-                                        });
-                                    },
-                                    (response) => {
-                                        console.log("response",response);
-                                        $this.mainservice.setMessage( {
-                                            "title": "Error "+response.status,
-                                            "text": JSON.parse(response._body).errorMessage,
-                                            "status": "error"
-                                        });
-                                    }
-                                );
-                        }else{
-                            $this.mainservice.setMessage( {
-                                "title": "Error",
-                                "text": "Patient ID is required!",
-                                "status": "error"
-                            });
-                        }
-                        // $scope.dateplaceholder = {};
+                        local["00100020"] = patient.attrs["00100020"];
                     }
+                    _.forEach(mwl.attrs,function(m, i){
+                        if(res[i]){
+                            local[i] = m;
+                        }
+                    });
+                    _.forEach(mwl.attrs, function(m, i){
+                        if((res && res[i] && res[i].vr != "SQ") && m.Value && m.Value.length === 1 && m.Value[0] === ""){
+                            delete mwl.attrs[i];
+                        }
+                    });
+                    console.log("on post",local);
+                    $this.$http.post(
+                        "../aets/"+$this.aet+"/rs/mwlitems",
+                        local,
+                        $this.jsonHeader
+                    ).subscribe((response) => {
+                        console.log("in then function");
+                        if(mode === "edit"){
+
+                            $this.patients[patientkey].mwls[mwlkey].attrs = mwl.attrs;
+                            //Force rerendering the directive attribute-list
+                            // var id = "#"+patient.attrs['00100020'].Value[0]+$scope.mwl.attrs['0020000D'].Value[0];
+                            // id = id.replace(/\./g, '');
+                            // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].mwls['+mwlkey+'].attrs"></attribute-list>')($scope);
+                            // $(id).html(attribute);
+                        }else{
+                            $this.fireRightQuery();
+                        }
+                        $this.mainservice.setMessage({
+                            "title": "Info",
+                            "text": "MWL saved successfully!",
+                            "status": "info"
+                        });
+                        // $scope.callBackFree = true;
+                    },(response) => {
+                        $this.mainservice.setMessage({
+                            "title": "Error "+response.status,
+                            "text": response.statusText,
+                            "status": "error"
+                        });
+                        // $scope.callBackFree = true;
+                    });
                 }else{
-                    console.log("no", originalPatientObject);
+                    console.log("no", originalMwlObject);
                     // patient = originalPatient;
-                    _.assign(mwl, originalPatientObject);
+                    _.assign(mwl, originalMwlObject);
                 }
                 $this.dialogRef = null;
             });
@@ -748,7 +681,7 @@ export class StudiesComponent{
     editPatient(patient, patientkey){
         this.modifyPatient(patient, "edit", patientkey);
     };
-    createPatient(patient){
+    createPatient(){
         this.saveLabel = "CREATE";
         this.titleLabel = "Create new patient";
         let newPatient:any = {
@@ -966,6 +899,45 @@ export class StudiesComponent{
             console.log("error",err);
         });
     };
+    deleteMWL(mwl){
+
+        let $this = this;
+        this.confirm({
+            content:'Are you sure you want to delete this MWL?'
+        }).subscribe(result => {
+            if(result){
+                $this.cfpLoadingBar.start();
+                $this.$http.delete(
+                    `../aets/${this.aet}/rs/mwlitems/${mwl.attrs["0020000D"].Value[0]}/${mwl.attrs["00400100"].Value[0]["00400009"].Value[0]}`
+                ).subscribe(
+                    (response) => {
+                        $this.mainservice.setMessage({
+                            "title": "Info",
+                            "text": "MWL deleted successfully!",
+                            "status": "info"
+                        });
+                        $this.fireRightQuery();
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (response) => {
+                        $this.mainservice.setMessage({
+                            "title": "Error "+response.status,
+                            "text": response.statusText,
+                            "status": "error"
+                        });
+                        console.log("response",response);
+
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+            }
+        });
+    };
+    keyDownOnHeader(event){
+        if(event.keyCode == 13) {
+            this.fireRightQuery();
+        }
+    }
     queryMWL(offset){
         this.queryMode = "queryMWL";
         this.moreStudies = undefined;
@@ -981,7 +953,7 @@ export class StudiesComponent{
                 //           $this.studies = [];
                 $this.morePatients = undefined;
                 $this.moreMWL = undefined;
-                if(res != ""){
+                if(_.size(res) > 0){
                     var pat, mwl, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
                     res.forEach(function (studyAttrs, index) {
                         patAttrs = {};
@@ -990,6 +962,7 @@ export class StudiesComponent{
                             pat = {
                                 attrs: patAttrs,
                                 mwls: [],
+                                showmwls:true,
                                 showAttributes: false
                             };
                             // $this.$apply(function () {
@@ -1071,7 +1044,7 @@ export class StudiesComponent{
     }
     fireRightQuery(){
         console.log("querymode=",this.queryMode);
-        this[this.queryMode]();
+        this[this.queryMode](0);
     }
     querySeries = function(study, offset) {
         console.log("in query sersies study=",study);
@@ -1222,7 +1195,7 @@ export class StudiesComponent{
         ).subscribe((res) => {
             $this.morePatients = undefined;
             $this.moreStudies = undefined;
-            if(res != ""){
+            if(_.size(res) > 0){
                 $this.patients = res.map(function (attrs, index) {
                     return {
                         moreStudies: false,
@@ -1290,11 +1263,13 @@ export class StudiesComponent{
     select(object, modus, keys, fromcheckbox){
         console.log("in select = fromcheckbox", fromcheckbox);
         // let test = true;
+        console.log("object",object);
         console.log("object.selected",object.selected);
         // console.log("patient object selected",this.patients[keys.patientkey].studies[keys.studykey].selected);
         console.log("object",object);
         console.log("modus",modus);
         console.log("keys",keys);
+        let clickFromCheckbox = (fromcheckbox && fromcheckbox === "fromcheckbox");
         if(this.isRole("admin")){
             this.anySelected = true;
             this.lastSelectedObject = object;
@@ -1302,20 +1277,15 @@ export class StudiesComponent{
             /*
             * If the function was called from checkbox go in there
             * */
-            if(fromcheckbox && fromcheckbox === "fromcheckbox"){
+            if(clickFromCheckbox){
                 console.log("in if fromcheckbox", fromcheckbox);
                 this.selectObject(object, modus, true);
             }
-            if(modus === 'patient'){
-                console.log("patient.length",_.size(this.selected.patients));
-                if(_.size(this.selected.patients) > 0){
-                    this.selected.hasPatient = true;
-                }else{
-                    this.selected.hasPatient = false;
-                }
-            }
+
+            console.log("in ctrlclick keysdown",this.keysdown);
+            console.log("Object.keys(this.keysdown).length",Object.keys(this.keysdown).length);
             //ctrl + click
-            if(this.keysdown && Object.keys(this.keysdown).length === 1 && this.keysdown[17] === true){
+            if(this.keysdown && Object.keys(this.keysdown).length === 1 && (this.keysdown[17]===true || this.keysdown[91]===true || this.keysdown[93]===true || this.keysdown[224]===true)){
                 this.selectObject(object, modus, false);
             }
             // //close contextmenu (That's a bug on contextmenu module. The bug has been reported)
@@ -1427,10 +1397,21 @@ export class StudiesComponent{
                 }
             }
             console.log("before keyend");
-            if(!this.showCheckboxes && this.keysdown && Object.keys(this.keysdown).length === 0 && this.anySelected){
+            if(!this.showCheckboxes && !clickFromCheckbox && this.keysdown && Object.keys(this.keysdown).length === 0 && this.anySelected){
                 this.service.clearSelection(this.patients);
                 this.anySelected = false;
+                this.selected = {};
                 // this.selected['otherObjects'] = {};
+            }
+            if(modus === 'patient'){
+                console.log("this.selected",this.selected);//TODO when you have have a patient list, on ctrl and click the haspatient is still false
+                //console.log("this.selectedkeys",Object.keys(this.selected.patients).length);
+                //console.log("patient.length",_.size(this.selected.patients));
+                if(_.size(this.selected.patients) > 0){
+                    this.selected.hasPatient = true;
+                }else{
+                    this.selected.hasPatient = false;
+                }
             }
             try {
                 this.clipboardHasScrollbar = $("#clipboard_content").get(0).scrollHeight > $("#clipboard_content").height();
@@ -1482,7 +1463,20 @@ export class StudiesComponent{
                         "UniversalEntityIDType": object.attrs["00100024"].Value[0]['00400033'].Value[0]
                     };
                 }
-                this.selected['patients'].push(patientobject);
+                // console.log("check if patient in select selected =",this.service.getPatientId(this.selected.patients));
+                let patientInSelectedObject = false;
+                _.forEach(this.selected.patients, (m,i)=>{
+                    console.log("i=",i);
+                    console.log("m=",m);
+                    console.log("patientid",this.service.getPatientId(m));
+                    if(this.service.getPatientId(m) === this.service.getPatientId(patientobject)){
+                        patientInSelectedObject = true;
+                    }
+                });
+                console.log("patientobject =",this.service.getPatientId(patientobject));
+                if(!patientInSelectedObject){
+                    this.selected['patients'].push(patientobject);
+                }
 /*                this.selected['patients'].push({
                     "PatientID": object.attrs["00100020"].Value[0],
                     "IssuerOfPatientID": ((object.attrs["00100021"] && object.attrs["00100021"].Value && object.attrs["00100021"].Value[0]) ? object.attrs["00100021"].Value[0]:''),
@@ -1797,205 +1791,119 @@ export class StudiesComponent{
     ctrlV() {
         if (_.size(this.clipboard) > 0) {
             this.cfpLoadingBar.start();
-            let headers = new Headers({'Content-Type': 'application/json'});
-            let $this = this;
-            console.log("target", this.target);
-            console.log("firstelement select3", _.keysIn(this.selected.otherObjects)[0]);
-            console.log("selection in clipboard", ((_.keysIn(this.selected.otherObjects)[0]) in this.clipboard.otherObjects));
-            // if (((_.keysIn(this.selected.otherObjects)[0]) in this.clipboard.otherObjects)) {
-            //     this.mainservice.setMessage({
-            //         "title": "Warning",
-            //         "text": "Target object cannot be in the clipboard!",
-            //         "status":'warning'
-            //     });
-            // } else {
+            let headers:Headers = new Headers({'Content-Type': 'application/json'});
+            headers.append("testparam","testvalue");
+            console.log("headers",headers);
 
-                this.config.viewContainerRef = this.viewContainerRef;
-                this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, this.config);
-                let action = this.clipboard["action"].toUpperCase();
-                this.dialogRef.componentInstance.clipboard = this.clipboard;
-                this.dialogRef.componentInstance.rjnotes = this.rjnotes;
-                this.dialogRef.componentInstance.selected = this.selected['otherObjects'];
-                this.dialogRef.componentInstance.showClipboardHeaders = this.showClipboardHeaders;
-                this.dialogRef.componentInstance.target = this.target;
-                this.dialogRef.componentInstance.saveLabel = action;
-                this.dialogRef.componentInstance.title = action + ' PROCESS';
-                this.cfpLoadingBar.stop();
-                this.dialogRef.afterClosed().subscribe(result => {
-                    $this.cfpLoadingBar.start();
-                    if (result) {
-                        if ($this.clipboard.action === "merge") {
-                            let object = {
-                                priorPatientID: $this.clipboard.patients
-                            }
-                            console.log("object", object);
-                            console.log("in merge clipboard", $this.clipboard);
-                            console.log("in merge selected", $this.selected['otherObjects']);
-                            console.log("in merge selected", $this.selected.patients[0].PatientID);
-                            console.log("getpatientid",$this.service.getPatientId($this.selected.patients));
-                            $this.$http.post(
-                                "../aets/" + $this.aet + "/rs/patients/" + $this.service.getPatientId($this.selected.patients) + "/merge",
-                                object.priorPatientID,
-                                headers
-                            ).map(res => {
-                                let resjson;
-                                try {
-                                    resjson = res.json();
-                                } catch (e) {
-                                    resjson = {};
+
+            if(!this.service.isTargetInClipboard(this.selected, this.clipboard)){//TODO
+
+                let $this = this;
+                console.log("target", this.target);
+                console.log("firstelement select3", _.keysIn(this.selected.otherObjects)[0]);
+                console.log("selection in clipboard", ((_.keysIn(this.selected.otherObjects)[0]) in this.clipboard.otherObjects));
+                // if (((_.keysIn(this.selected.otherObjects)[0]) in this.clipboard.otherObjects)) {
+                //     this.mainservice.setMessage({
+                //         "title": "Warning",
+                //         "text": "Target object cannot be in the clipboard!",
+                //         "status":'warning'
+                //     });
+                // } else {
+
+                    this.config.viewContainerRef = this.viewContainerRef;
+                    this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, this.config);
+                    let action = this.clipboard["action"].toUpperCase();
+                    this.dialogRef.componentInstance.clipboard = this.clipboard;
+                    this.dialogRef.componentInstance.rjnotes = this.rjnotes;
+                    this.dialogRef.componentInstance.selected = this.selected['otherObjects'];
+                    this.dialogRef.componentInstance.showClipboardHeaders = this.showClipboardHeaders;
+                    this.dialogRef.componentInstance.target = this.target;
+                    this.dialogRef.componentInstance.saveLabel = action;
+                    this.dialogRef.componentInstance.title = action + ' PROCESS';
+                    this.cfpLoadingBar.stop();
+                    this.dialogRef.afterClosed().subscribe(result => {
+                        $this.cfpLoadingBar.start();
+                        if (result) {
+                            if ($this.clipboard.action === "merge") {
+                                let object = {
+                                    priorPatientID: $this.clipboard.patients
                                 }
-                                return resjson;
-                            })
-                                .subscribe((response)=> {
-                                    console.log("response in first", response);
-                                    $this.mainservice.setMessage({
-                                        "title": "Info",
-                                        "text": "Patients merged successfully!",
-                                        "status": "info"
-                                    });
-                                    $this.fireRightQuery();
-                                }, (response)=> {
-                                    $this.cfpLoadingBar.stop();
-                                    console.log("response", response);
-                                    if (response._body && response._body != '') {
-                                        console.log("responseb1", JSON.parse(response._body).errorMessage);
-                                        console.log("responseb2", response.body);
-
-                                        $this.mainservice.setMessage({
-                                            "title": "Error " + response.status,
-                                            "text": JSON.parse(response._body).errorMessage,
-                                            "status": "error"
-                                        });
-                                    }
-                                });
-                        }
-                        if ($this.clipboard.action === "copy") {
-                            console.log("in ctrlv copy patient", $this.target);
-                            if ($this.target.modus === "patient") {
-                                let study = {
-                                    "00100020": $this.target.attrs['00100020'],
-                                    "00200010": {"vr": "SH", "Value": [""]},
-                                    "0020000D": {"vr": "UI", "Value": [""]},
-                                    "00080050": {"vr": "SH", "Value": [""]}
-                                };
+                                console.log("object", object);
+                                console.log("in merge clipboard", $this.clipboard);
+                                console.log("in merge selected", $this.selected['otherObjects']);
+                                console.log("in merge selected", $this.selected.patients[0].PatientID);
+                                console.log("getpatientid",$this.service.getPatientId($this.selected.patients));
                                 $this.$http.post(
-                                    "../aets/" + $this.aet + "/rs/studies",
-                                    study,
-                                    headers
-                                ).map(res => {
-                                    console.log("in map1", res);
-                                    let resjson;
-                                    try {
-                                        resjson = res.json();
-                                    } catch (e) {
-                                        resjson = {};
-                                    }
-                                    return resjson;
-                                })
-                                    .subscribe((response)=> {
-                                            console.log("in subscribe2", response);
-                                            _.forEach($this.clipboard.otherObjects, function (m, i) {
-                                                console.log("m", m);
-                                                console.log("i", i);
-                                                $this.$http.post(
-                                                    "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/copy",
-                                                    i,
-                                                    headers
-                                                ).map(res => {
-                                                    let resjson;
-                                                    try {
-                                                        resjson = res.json();
-                                                    } catch (e) {
-                                                        resjson = {};
-                                                    }
-                                                    return resjson;
-                                                })
-                                                    .subscribe((response) => {
-                                                        console.log("in then function", response);
-                                                        $this.clipboard = {};
-                                                        /*                                           $this.mainservice.setMessage({
-                                                         "title": "Info",
-                                                         "text": "Object with the Study Instance UID " + m.StudyInstanceUID + " copied successfully!",
-                                                         "status": "info"
-                                                         });*/
-                                                        $this.cfpLoadingBar.stop();
-                                                        // $this.callBackFree = true;
-                                                    }, (response) => {
-                                                        console.log("resin err", response);
-                                                        $this.cfpLoadingBar.stop();
-                                                        $this.mainservice.setMessage({
-                                                            "title": "Error " + response.status,
-                                                            "text": JSON.parse(response._body).errorMessage,
-                                                            "status": "error"
-                                                        });
-                                                        // $this.callBackFree = true;
-                                                    });
-                                            });
-                                            $this.fireRightQuery();
-                                        },
-                                        (response) => {
-                                            $this.cfpLoadingBar.stop();
-                                            $this.mainservice.setMessage({
-                                                "title": "Error " + response.status,
-                                                "text": JSON.parse(response._body).errorMessage,
-                                                "status": "error"
-                                            });
-                                            console.log("response", response);
-                                        }
-                                    );
-                            } else {
-                                _.forEach($this.clipboard.otherObjects, function (m, i) {
-                                    console.log("m", m);
-                                    $this.$http.post(
-                                        "../aets/" + $this.aet + "/rs/studies/" + $this.target.attrs['0020000D'].Value[0] + "/copy",
-                                        m,
-                                        headers
-                                    ).map(res => {
-                                        let resjson;
-                                        try {
-                                            resjson = res.json();
-                                        } catch (e) {
-                                            resjson = {};
-                                        }
-                                        return resjson;
-                                    })
-                                        .subscribe((response) => {
-                                            console.log("in then function");
-                                            $this.clipboard = {};
-                                            $this.cfpLoadingBar.stop();
-                                            $this.mainservice.setMessage({
-                                                "title": "Info",
-                                                "text": "Object with the Study Instance UID " + $this.target.attrs['0020000D'].Value[0] + " copied successfully!",
-                                                "status": "info"
-                                            });
-                                            $this.fireRightQuery();
-                                            // $this.callBackFree = true;
-                                        }, (response) => {
-                                            $this.cfpLoadingBar.stop();
-                                            $this.mainservice.setMessage({
-                                                "title": "Error " + response.status,
-                                                "text": JSON.parse(response._body).errorMessage,
-                                                "status": "error"
-                                            });
-                                            // $this.callBackFree = true;
-                                        });
-                                });
-                            }
-                        }
-                        if ($this.clipboard.action === "move") {
-                            if ($this.target.modus === "patient") {
-                                let study = {
-                                    "00100020": $this.target.attrs['00100020'],
-                                    "00200010": {"vr": "SH", "Value": [""]},
-                                    "0020000D": {"vr": "UI", "Value": [""]},
-                                    "00080050": {"vr": "SH", "Value": [""]}
-                                };
-                                $this.$http.post(
-                                    "../aets/" + $this.aet + "/rs/studies",
-                                    study,
+                                    "../aets/" + $this.aet + "/rs/patients/" + $this.service.getPatientId($this.selected.patients) + "/merge",
+                                    object.priorPatientID,
                                     headers
                                 )
-                                    .map(res => {
+                                    .subscribe((response)=> {
+                                        console.log("response in first", response.status);
+                                        if(response.status === 204){
+                                            $this.mainservice.setMessage({
+                                                "title": "Info",
+                                                "text": "Patients merged successfully!",
+                                                "status": "info"
+                                            });
+                                        }else{
+                                            $this.mainservice.setMessage({
+                                                "title": "Info",
+                                                "text": response.statusText,
+                                                "status": "info"
+                                            });
+                                        }
+                                        $this.selected = {};
+                                        $this.clipboard = {};
+                                        $this.fireRightQuery();
+                                        $this.cfpLoadingBar.stop();
+                                    }, (response)=> {
+                                        $this.cfpLoadingBar.stop();
+                                        try{
+
+                                            if (response._body && response._body != '') {
+                                                try{
+                                                    console.log("responseb1", JSON.parse(response._body).errorMessage);
+                                                    console.log("responseb2", response.body);
+
+                                                    $this.mainservice.setMessage({
+                                                        "title": "Error " + response.status,
+                                                        "text": JSON.parse(response._body).errorMessage,
+                                                        "status": "error"
+                                                    });
+
+                                                }catch (e){
+                                                    $this.mainservice.setMessage({
+                                                        "title": "Error " + response.status,
+                                                        "text": response.statusText,
+                                                        "status": "error"
+                                                    });
+                                                }
+                                            }
+                                        }catch (e){
+                                            $this.mainservice.setMessage({
+                                                "title": "Error ",
+                                                "text": "Something went wrong!",
+                                                "status": "error"
+                                            });
+                                        }
+                                    });
+                            }
+                            if ($this.clipboard.action === "copy") {
+                                console.log("in ctrlv copy patient", $this.target);
+                                if ($this.target.modus === "patient") {
+                                    let study = {
+                                        "00100020": $this.target.attrs['00100020'],
+                                        "00200010": {"vr": "SH", "Value": [""]},
+                                        "0020000D": {"vr": "UI", "Value": [""]},
+                                        "00080050": {"vr": "SH", "Value": [""]}
+                                    };
+                                    $this.$http.post(
+                                        "../aets/" + $this.aet + "/rs/studies",
+                                        study,
+                                        headers
+                                    ).map(res => {
+                                        console.log("in map1", res);
                                         let resjson;
                                         try {
                                             resjson = res.json();
@@ -2004,15 +1912,16 @@ export class StudiesComponent{
                                         }
                                         return resjson;
                                     })
-                                    .subscribe((response) => {
-                                            _.forEach($this.clipboard.otherObjects, function (m, i) {
-                                                console.log("m", m);
-                                                $this.$http.post(
-                                                    "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/move/" + $this.reject,
-                                                    m,
-                                                    headers
-                                                )
-                                                    .map(res => {
+                                        .subscribe((response)=> {
+                                                console.log("in subscribe2", response);
+                                                _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                                    console.log("m", m);
+                                                    console.log("i", i);
+                                                    $this.$http.post(
+                                                        "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/copy",
+                                                        i,
+                                                        headers
+                                                    ).map(res => {
                                                         let resjson;
                                                         try {
                                                             resjson = res.json();
@@ -2021,42 +1930,89 @@ export class StudiesComponent{
                                                         }
                                                         return resjson;
                                                     })
-                                                    .subscribe(function successCallback(response) {
-                                                        console.log("in then function");
-                                                        $this.clipboard = {};
-                                                        $this.cfpLoadingBar.stop();
-                                                        $this.mainservice.setMessage({
-                                                            "title": "Info",
-                                                            "text": "Object with the Study Instance UID " + m.StudyInstanceUID + " moved successfully!",
-                                                            "status": "info"
+                                                        .subscribe((response) => {
+                                                            console.log("in then function", response);
+                                                            $this.clipboard = {};
+                                                            /*                                           $this.mainservice.setMessage({
+                                                             "title": "Info",
+                                                             "text": "Object with the Study Instance UID " + m.StudyInstanceUID + " copied successfully!",
+                                                             "status": "info"
+                                                             });*/
+                                                            $this.cfpLoadingBar.stop();
+                                                            // $this.callBackFree = true;
+                                                        }, (response) => {
+                                                            console.log("resin err", response);
+                                                            $this.cfpLoadingBar.stop();
+                                                            $this.mainservice.setMessage({
+                                                                "title": "Error " + response.status,
+                                                                "text": JSON.parse(response._body).errorMessage,
+                                                                "status": "error"
+                                                            });
+                                                            // $this.callBackFree = true;
                                                         });
-                                                        $this.fireRightQuery();
-                                                    }, function errorCallback(response) {
-                                                        $this.cfpLoadingBar.stop();
-                                                        $this.mainservice.setMessage({
-                                                            "title": "Error " + response.status,
-                                                            "text": JSON.parse(response._body).errorMessage,
-                                                            "status": "error"
-                                                        });
-                                                    });
+                                                });
+                                                $this.fireRightQuery();
+                                            },
+                                            (response) => {
+                                                $this.cfpLoadingBar.stop();
+                                                $this.mainservice.setMessage({
+                                                    "title": "Error " + response.status,
+                                                    "text": JSON.parse(response._body).errorMessage,
+                                                    "status": "error"
+                                                });
+                                                console.log("response", response);
+                                            }
+                                        );
+                                } else {
+                                    _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                        console.log("m", m);
+                                        $this.$http.post(
+                                            "../aets/" + $this.aet + "/rs/studies/" + $this.target.attrs['0020000D'].Value[0] + "/copy",
+                                            m,
+                                            headers
+                                        ).map(res => {
+                                            let resjson;
+                                            try {
+                                                resjson = res.json();
+                                            } catch (e) {
+                                                resjson = {};
+                                            }
+                                            return resjson;
+                                        })
+                                            .subscribe((response) => {
+                                                console.log("in then function");
+                                                $this.clipboard = {};
+                                                $this.cfpLoadingBar.stop();
+                                                $this.mainservice.setMessage({
+                                                    "title": "Info",
+                                                    "text": "Object with the Study Instance UID " + $this.target.attrs['0020000D'].Value[0] + " copied successfully!",
+                                                    "status": "info"
+                                                });
+                                                $this.fireRightQuery();
+                                                // $this.callBackFree = true;
+                                            }, (response) => {
+                                                $this.cfpLoadingBar.stop();
+                                                $this.mainservice.setMessage({
+                                                    "title": "Error " + response.status,
+                                                    "text": JSON.parse(response._body).errorMessage,
+                                                    "status": "error"
+                                                });
+                                                // $this.callBackFree = true;
                                             });
-                                        },
-                                        (response) => {
-                                            $this.cfpLoadingBar.stop();
-                                            $this.mainservice.setMessage({
-                                                "title": "Error " + response.status,
-                                                "text": JSON.parse(response._body).errorMessage,
-                                                "status": "error"
-                                            });
-                                            console.log("response", response);
-                                        }
-                                    );
-                            } else {
-                                _.forEach($this.clipboard.otherObjects, function (m, i) {
-                                    console.log("m", m);
+                                    });
+                                }
+                            }
+                            if ($this.clipboard.action === "move") {
+                                if ($this.target.modus === "patient") {
+                                    let study = {
+                                        "00100020": $this.target.attrs['00100020'],
+                                        "00200010": {"vr": "SH", "Value": [""]},
+                                        "0020000D": {"vr": "UI", "Value": [""]},
+                                        "00080050": {"vr": "SH", "Value": [""]}
+                                    };
                                     $this.$http.post(
-                                        "../aets/" + $this.aet + "/rs/studies/" + $this.target.attrs['0020000D'].Value[0] + "/move/" + $this.reject,
-                                        m,
+                                        "../aets/" + $this.aet + "/rs/studies",
+                                        study,
                                         headers
                                     )
                                         .map(res => {
@@ -2069,32 +2025,102 @@ export class StudiesComponent{
                                             return resjson;
                                         })
                                         .subscribe((response) => {
-                                            console.log("in then function");
-                                            $this.clipboard = {};
-                                            $this.cfpLoadingBar.stop();
-                                            $this.mainservice.setMessage({
-                                                "title": "Info",
-                                                "text": "Object with the Study Instance UID " + $this.target.attrs['0020000D'].Value[0] + " moved successfully!",
-                                                "status": "info"
+                                                _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                                    console.log("m", m);
+                                                    $this.$http.post(
+                                                        "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/move/" + $this.reject,
+                                                        m,
+                                                        headers
+                                                    )
+                                                        .map(res => {
+                                                            let resjson;
+                                                            try {
+                                                                resjson = res.json();
+                                                            } catch (e) {
+                                                                resjson = {};
+                                                            }
+                                                            return resjson;
+                                                        })
+                                                        .subscribe(function successCallback(response) {
+                                                            console.log("in then function");
+                                                            $this.clipboard = {};
+                                                            $this.cfpLoadingBar.stop();
+                                                            $this.mainservice.setMessage({
+                                                                "title": "Info",
+                                                                "text": "Object with the Study Instance UID " + m.StudyInstanceUID + " moved successfully!",
+                                                                "status": "info"
+                                                            });
+                                                            $this.fireRightQuery();
+                                                        }, function errorCallback(response) {
+                                                            $this.cfpLoadingBar.stop();
+                                                            $this.mainservice.setMessage({
+                                                                "title": "Error " + response.status,
+                                                                "text": JSON.parse(response._body).errorMessage,
+                                                                "status": "error"
+                                                            });
+                                                        });
+                                                });
+                                            },
+                                            (response) => {
+                                                $this.cfpLoadingBar.stop();
+                                                $this.mainservice.setMessage({
+                                                    "title": "Error " + response.status,
+                                                    "text": JSON.parse(response._body).errorMessage,
+                                                    "status": "error"
+                                                });
+                                                console.log("response", response);
+                                            }
+                                        );
+                                } else {
+                                    _.forEach($this.clipboard.otherObjects, function (m, i) {
+                                        console.log("m", m);
+                                        $this.$http.post(
+                                            "../aets/" + $this.aet + "/rs/studies/" + $this.target.attrs['0020000D'].Value[0] + "/move/" + $this.reject,
+                                            m,
+                                            headers
+                                        )
+                                            .map(res => {
+                                                let resjson;
+                                                try {
+                                                    resjson = res.json();
+                                                } catch (e) {
+                                                    resjson = {};
+                                                }
+                                                return resjson;
+                                            })
+                                            .subscribe((response) => {
+                                                console.log("in then function");
+                                                $this.clipboard = {};
+                                                $this.cfpLoadingBar.stop();
+                                                $this.mainservice.setMessage({
+                                                    "title": "Info",
+                                                    "text": "Object with the Study Instance UID " + $this.target.attrs['0020000D'].Value[0] + " moved successfully!",
+                                                    "status": "info"
+                                                });
+                                                $this.fireRightQuery();
+                                            }, (response) => {
+                                                $this.cfpLoadingBar.stop();
+                                                $this.mainservice.setMessage({
+                                                    "title": "Error " + response.status,
+                                                    "text": JSON.parse(response._body).errorMessage,
+                                                    "status": "error"
+                                                });
                                             });
-                                            $this.fireRightQuery();
-                                        }, (response) => {
-                                            $this.cfpLoadingBar.stop();
-                                            $this.mainservice.setMessage({
-                                                "title": "Error " + response.status,
-                                                "text": JSON.parse(response._body).errorMessage,
-                                                "status": "error"
-                                            });
-                                        });
-                                });
+                                    });
+                                }
                             }
-                        }
 
-                    }
-                    $this.cfpLoadingBar.stop();
-                    this.dialogRef = null;
+                        }
+                        $this.cfpLoadingBar.stop();
+                        this.dialogRef = null;
+                    });
+            }else {
+                this.mainservice.setMessage({
+                    "title": "Warning",
+                    "text": "Target object can not bee in the clipboard",
+                    "status":'warning'
                 });
-            // }
+            }
         }else {
             this.mainservice.setMessage({
                 "title": "Warning",
@@ -2401,6 +2427,7 @@ export class StudiesComponent{
                 right: "-="+variationvalue
             }, duration, function() {
                 element.removeClass("open");
+                element.removeAttr("style");
             });
         }else{
             $(e.target).closest(".more_menu_content").css("height",height);
@@ -2412,6 +2439,7 @@ export class StudiesComponent{
             }
             $(".more_menu_study.open").each(function(i,m){
                 $(m).removeClass("open");
+
                 if($(m).hasClass("repeat3block")){
                     $(m).css("right","-249px");
                 }else{
@@ -2423,6 +2451,7 @@ export class StudiesComponent{
                     .removeClass("block5")
                     .removeClass("block7")
                     .css("height",26);
+                $(m).removeAttr("style");
             });
             element.animate({
                 right: "+="+variationvalue

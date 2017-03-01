@@ -1,13 +1,13 @@
-<div class="vex vex-theme-os edit-patient" xmlns="http://www.w3.org/1999/html">
-    <div class="vex-dialog-form">
+<div class="vex vex-theme-os edit-mwl" xmlns="http://www.w3.org/1999/html">
+    <div class="vex-dialog-form" >
         <h3>{{titleLabel}}</h3>
-        <input autocomplete="off" id="addPatientAttribut" class="addPatientAttribut" [(ngModel)]="addPatientAttribut" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keypress)="pressedKey($event)"/>
-        <div class="dropdown" *ngIf="opendropdown">
-            <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut" (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
+        <input autocomplete="off" id="addmwlAttribut" class="addmwlAttribut" [(ngModel)]="addmwlAttribut" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
+        <div class="dropdown" *ngIf="opendropdown" (keydown)="pressedKey($event)">
+            <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addmwlAttribut" (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
         </div>
-        <iod-form-generator [object]="patient.attrs" [prefix]=""></iod-form-generator>
+        <iod-form-generator [object]="mwl.attrs | comparewithiod:iod" [prefix]="" (keydown)="modalityKeyHandler($event,dialogRef)"></iod-form-generator>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="dialogRef.close(patient)">{{saveLabel}}</button>
+            <button class="save" type="button" (click)="dialogRef.close(mwl)">{{saveLabel}}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>
         </div>
     </div>
