@@ -1,5 +1,6 @@
 package org.dcm4chee.arc.exporter;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
@@ -41,4 +42,12 @@ public interface ExportContext {
     boolean isOnlyIAN();
 
     void setOnlyIAN(boolean onlyIAN);
+
+    String getSubmissionSetUID();
+
+    void setSubmissionSetUID(String submissionSetUID);
+
+    Attributes getXDSiManifest();
+
+    void setXDSiManifest(Attributes xdsiManifest);
 }

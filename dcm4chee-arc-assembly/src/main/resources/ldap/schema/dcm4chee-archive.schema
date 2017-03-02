@@ -968,6 +968,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.162 NAME 'hl7ADTSendingApplication'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.163 NAME 'dcmRetrieveLocationUID'
+   DESC 'Retrieve Location UID.'
+   EQUALITY  objectIdentifierMatch
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
+   SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1214,6 +1220,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
     dcmStgCmtSCP $
     dcmIanDestination $
     dcmRetrieveAET $
+    dcmRetrieveLocationUID $
     dcmInstanceAvailability $
     dcmSchedule $
     dcmProperty ) )

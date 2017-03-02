@@ -47,6 +47,7 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.*;
+import org.dcm4chee.arc.xdsi.*;
 
 import javax.activation.DataHandler;
 import javax.enterprise.event.Event;
@@ -59,6 +60,8 @@ import javax.xml.ws.soap.MTOM;
 import javax.xml.ws.soap.SOAPBinding;
 import java.util.*;
 
+import static org.dcm4chee.arc.xdsi.XDSConstants.*;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Feb 2017
@@ -66,23 +69,17 @@ import java.util.*;
 @MTOM
 @BindingType(value = SOAPBinding.SOAP12HTTP_MTOM_BINDING)
 @Addressing(required=true)
-@WebService(endpointInterface="org.dcm4chee.arc.retrieve.xdsi.ImagingDocumentSourcePortType",
+@WebService(endpointInterface="org.dcm4chee.arc.xdsi.ImagingDocumentSourcePortType",
         name="ImagingDocumentSource",
         serviceName="ImagingDocumentSource",
         portName="ImagingDocumentSource_Port_Soap12",
         targetNamespace="urn:ihe:rad:xdsi-b:2009",
-        wsdlLocation = "WEB-INF/wsdl/XDS-I.b_ImagingDocumentSource.wsdl")
+        wsdlLocation = "/wsdl/XDS-I.b_ImagingDocumentSource.wsdl")
 public class ImageDocumentSource implements ImagingDocumentSourcePortType {
 
-    //Response stati
-    public static final String XDS_B_STATUS_SUCCESS = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
-    public static final String XDS_B_STATUS_FAILURE = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Failure";
-    public static final String XDS_B_STATUS_PARTIAL_SUCCESS = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:PartialSuccess";
-    public static final String XDS_ERR_SEVERITY_ERROR = "urn:oasis:names:tc:ebxml-regrep:ErrorSeverityType:Error";
-    public static final String XDS_ERR_MISSING_DOCUMENT = "XDSMissingDocument";
-    public static final String XDS_ERR_DOCUMENT_SOURCE_ERROR = "XDSDocumentSourceError";
     public static final String DICOM_OBJECT_NOT_FOUND = "DICOM Object not found";
-    public static final String NO_ACCEPTABLE_TRANSFER_SYNTAX = "DICOM Object not acceptable according provided TransferSyntaxUIDList";
+    public static final String NO_ACCEPTABLE_TRANSFER_SYNTAX =
+            "DICOM Object not acceptable according provided TransferSyntaxUIDList";
 
     @Inject
     private RetrieveService retrieveService;
@@ -120,9 +117,9 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
             if (dh != null)
                 dh.setRetrieveEnd(retrieveEnd);
         }
-        regRsp.setStatus(regRsp.getRegistryErrorList() == null ? XDS_B_STATUS_SUCCESS
-                : rsp.getDocumentResponse().isEmpty() ? XDS_B_STATUS_FAILURE
-                : XDS_B_STATUS_PARTIAL_SUCCESS);
+        regRsp.setStatus(regRsp.getRegistryErrorList() == null ? XDS_STATUS_SUCCESS
+                : rsp.getDocumentResponse().isEmpty() ? XDS_STATUS_FAILURE
+                : XDS_STATUS_PARTIAL_SUCCESS);
         return rsp;
     }
 

@@ -105,11 +105,10 @@
 		<xs:sequence>
 			<xs:element ref="lcm:SubmitObjectsRequest" />
 			<xs:sequence minOccurs="0">
-				<xs:element name="Document" maxOccurs="unbounded"
-					xmime:expectedContentTypes="application/octet-stream">
+				<xs:element name="Document" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:simpleContent>
-							<xs:extension base="xs:base64Binary">
+							<xs:extension base="xs:base64Binary" xmime:expectedContentTypes="application/octet-stream">
 								<xs:attribute name="id" type="xs:anyURI" use="required">
 									<xs:annotation>
 										<xs:documentation>This corresponds to the ExtrinsicObject id

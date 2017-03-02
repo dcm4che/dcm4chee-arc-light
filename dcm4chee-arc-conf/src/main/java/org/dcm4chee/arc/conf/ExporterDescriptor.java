@@ -1,5 +1,7 @@
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.data.Code;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ public class ExporterDescriptor {
     private String aeTitle;
     private String[] ianDestinations = {};
     private String[] retrieveAETitles = {};
+    private String retrieveLocationUID;
     private Availability instanceAvailability;
     private String stgCmtSCPAETitle;
     private ScheduleExpression[] schedules = {};
@@ -92,6 +95,14 @@ public class ExporterDescriptor {
         this.retrieveAETitles = retrieveAETitles;
     }
 
+    public String getRetrieveLocationUID() {
+        return retrieveLocationUID;
+    }
+
+    public void setRetrieveLocationUID(String retrieveLocationUID) {
+        this.retrieveLocationUID = retrieveLocationUID;
+    }
+
     public Availability getInstanceAvailability() {
         return instanceAvailability;
     }
@@ -147,6 +158,7 @@ public class ExporterDescriptor {
                 ", queueName=" + queueName +
                 ", ianDests=" + Arrays.toString(ianDestinations) +
                 ", retrieveAETs=" + Arrays.toString(retrieveAETitles) +
+                ", retrieveLocationUID=" + retrieveLocationUID +
                 ", availability=" + instanceAvailability +
                 ", schedules=" + Arrays.toString(schedules) +
                 ", properties=" + properties +

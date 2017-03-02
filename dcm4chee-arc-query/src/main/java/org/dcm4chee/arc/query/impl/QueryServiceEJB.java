@@ -278,12 +278,13 @@ public class QueryServiceEJB {
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             SOPInstanceRefsType type, String studyIUID, Predicate predicate,
-            Collection<Attributes> seriesAttrs) {
+            Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID) {
         Attributes attrs = getStudyAttributes(studyIUID);
         if (attrs == null)
             return null;
 
-        Attributes sopInstanceRefs = getSOPInstanceRefs(type, studyIUID, predicate, seriesAttrs, null, null);
+        Attributes sopInstanceRefs = getSOPInstanceRefs(
+                type, studyIUID, predicate, seriesAttrs, retrieveAETs, retrieveLocationUID, null);
         if (sopInstanceRefs != null)
             attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(sopInstanceRefs);
         return attrs;
@@ -291,7 +292,8 @@ public class QueryServiceEJB {
 
     public Attributes getSOPInstanceRefs(
             SOPInstanceRefsType type, String studyIUID, Predicate predicate,
-            Collection<Attributes> seriesAttrs, String retrieveAETs, Availability availability) {
+            Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
+            Availability availability) {
         List<Tuple> tuples = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(SOP_REFS_OF_STUDY)
                 .from(QInstance.instance)
@@ -315,8 +317,12 @@ public class QueryServiceEJB {
             Sequence refSOPSeq = seriesMap.get(seriesPk);
             if (refSOPSeq == null) {
                 Attributes refSeries = new Attributes(4);
-                if (type == SOPInstanceRefsType.KOS_XDSI)
-                    refSeries.setString(Tag.RetrieveAETitle, VR.AE, tuple.get(QInstance.instance.retrieveAETs));
+                if (type == SOPInstanceRefsType.KOS_XDSI) {
+                    if (retrieveAETs != null)
+                        refSeries.setString(Tag.RetrieveAETitle, VR.AE, retrieveAETs);
+                    if (retrieveLocationUID != null)
+                        refSeries.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
+                }
                 refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 10);
                 refSeries.setString(Tag.SeriesInstanceUID, VR.UI, tuple.get(QSeries.series.seriesInstanceUID));
                 seriesMap.put(seriesPk, refSOPSeq);
@@ -326,15 +332,19 @@ public class QueryServiceEJB {
             }
             Attributes refSOP = new Attributes(4);
             if (type == SOPInstanceRefsType.IAN) {
-                refSOP.setString(Tag.RetrieveAETitle, VR.AE,
-                        StringUtils.maskNull(retrieveAETs, tuple.get(QInstance.instance.retrieveAETs)));
+                refSOP.setString(Tag.RetrieveAETitle, VR.AE, StringUtils.maskNull(
+                        retrieveAETs, StringUtils.split(tuple.get(QInstance.instance.retrieveAETs), '\\')));
                 refSOP.setString(Tag.InstanceAvailability, VR.CS,
                         StringUtils.maskNull(availability, tuple.get(QInstance.instance.availability)).toString());
+                if (retrieveLocationUID != null)
+                    refSOP.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
             }
             refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, tuple.get(QInstance.instance.sopClassUID));
             refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, tuple.get(QInstance.instance.sopInstanceUID));
             refSOPSeq.add(refSOP);
         }
+        if (type == SOPInstanceRefsType.IAN)
+            refStudy.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
         return refStudy;
     }
 

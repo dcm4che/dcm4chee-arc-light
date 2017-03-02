@@ -196,18 +196,35 @@ class QueryServiceImpl implements QueryService {
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
         SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);
         return ejb.getStudyAttributesWithSOPInstanceRefs(
-                QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, builder.build(ae), seriesAttrs);
+                QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, builder.build(ae), seriesAttrs,
+                null, null);
     }
 
     @Override
     public Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID,
-                                Availability availability, String... retrieveAETs) {
+                                String[] retrieveAETs, String retrieveLocationUID, Availability availability) {
         SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);
         if (seriesUID != null)
             builder.setSeriesInstanceUID(seriesUID);
         return ejb.getSOPInstanceRefs(
                 QueryServiceEJB.SOPInstanceRefsType.IAN, studyUID, builder.build(ae), null,
-                retrieveAETs.length > 0 ? StringUtils.concat(retrieveAETs, '\\') : null, availability);
+                retrieveAETs, retrieveLocationUID, availability);
+    }
+
+    @Override
+    public Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
+                                         String[] retrieveAETs, String retrieveLocationUID,
+                                         Code conceptNameCode, int seriesNumber, int instanceNumber) {
+        SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);
+        Attributes attrs = ejb.getStudyAttributesWithSOPInstanceRefs(
+                QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, builder.build(ae), null,
+                retrieveAETs, retrieveLocationUID);
+        if (attrs == null || !attrs.containsValue(Tag.CurrentRequestedProcedureEvidenceSequence))
+            return null;
+
+        mkKOS(attrs, conceptNameCode, seriesNumber, instanceNumber);
+        return attrs;
+
     }
 
     @Override
@@ -217,7 +234,8 @@ class QueryServiceImpl implements QueryService {
             builder.setSeriesInstanceUID(seriesIUID);
         if (sopIUID != null && !sopIUID.equals("*"))
             builder.setSOPInstanceUID(sopIUID);
-        return ejb.getSOPInstanceRefs(QueryServiceEJB.SOPInstanceRefsType.STGCMT, studyIUID, builder.build(ae), null, null, null);
+        return ejb.getSOPInstanceRefs(QueryServiceEJB.SOPInstanceRefsType.STGCMT, studyIUID, builder.build(ae),
+                null, null, null, null);
     }
 
     @Override
@@ -231,7 +249,8 @@ class QueryServiceImpl implements QueryService {
         }
 
         Attributes attrs = ejb.getStudyAttributesWithSOPInstanceRefs(
-                QueryServiceEJB.SOPInstanceRefsType.KOS_IOCM, studyUID, builder.build(ae), null);
+                QueryServiceEJB.SOPInstanceRefsType.KOS_IOCM, studyUID, builder.build(ae),
+                null,null, null);
         if (attrs == null || !attrs.containsValue(Tag.CurrentRequestedProcedureEvidenceSequence))
             return null;
 
@@ -245,6 +264,10 @@ class QueryServiceImpl implements QueryService {
         attrs.newSequence(Tag.CurrentRequestedProcedureEvidenceSequence, 1).add(sopInstanceRefs);
         mkKOS(attrs, rjNote);
         return attrs;
+    }
+
+    private void mkKOS(Attributes attrs, RejectionNote rjNote) {
+        mkKOS(attrs, rjNote.getRejectionNoteCode(), rjNote.getSeriesNumber(), rjNote.getInstanceNumber());
     }
 
     @Override
@@ -293,7 +316,7 @@ class QueryServiceImpl implements QueryService {
         return readContext;
     }
 
-    private void mkKOS(Attributes attrs, RejectionNote rjNote) {
+    private void mkKOS(Attributes attrs, Code conceptNameCode, int seriesNumber, int instanceNumber) {
         Attributes studyRef =  attrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence);
         attrs.setString(Tag.SOPClassUID, VR.UI, UID.KeyObjectSelectionDocumentStorage);
         attrs.setString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
@@ -301,11 +324,11 @@ class QueryServiceImpl implements QueryService {
         attrs.setString(Tag.Modality, VR.CS, "KO");
         attrs.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
         attrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
-        attrs.setInt(Tag.SeriesNumber, VR.IS, rjNote.getSeriesNumber());
-        attrs.setInt(Tag.InstanceNumber, VR.IS, rjNote.getInstanceNumber());
+        attrs.setInt(Tag.SeriesNumber, VR.IS, seriesNumber);
+        attrs.setInt(Tag.InstanceNumber, VR.IS, instanceNumber);
         attrs.setString(Tag.ValueType, VR.CS, "CONTAINER");
         attrs.setString(Tag.ContinuityOfContent, VR.CS, "SEPARATE");
-        attrs.newSequence(Tag.ConceptNameCodeSequence, 1).add(rjNote.getRejectionNoteCode().toItem());
+        attrs.newSequence(Tag.ConceptNameCodeSequence, 1).add(conceptNameCode.toItem());
         attrs.newSequence(Tag.ContentTemplateSequence, 1).add(templateIdentifier());
         Sequence contentSeq = attrs.newSequence(Tag.ContentSequence, 1);
         for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {

@@ -1,6 +1,7 @@
 package org.dcm4chee.arc.exporter;
 
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
@@ -19,6 +20,8 @@ public class DefaultExportContext implements ExportContext {
     private Outcome outcome;
     private boolean onlyStgCmt;
     private boolean onlyIAN;
+    private String submissionSetUID;
+    private Attributes xdsiManifest;
 
     public DefaultExportContext(Exporter exporter) {
         this.exporter = exporter;
@@ -107,5 +110,25 @@ public class DefaultExportContext implements ExportContext {
     @Override
     public void setOnlyIAN(boolean onlyIAN) {
         this.onlyIAN = onlyIAN;
+    }
+
+    @Override
+    public String getSubmissionSetUID() {
+        return submissionSetUID;
+    }
+
+    @Override
+    public void setSubmissionSetUID(String submissionSetUID) {
+        this.submissionSetUID = submissionSetUID;
+    }
+
+    @Override
+    public Attributes getXDSiManifest() {
+        return xdsiManifest;
+    }
+
+    @Override
+    public void setXDSiManifest(Attributes xdsiManifest) {
+        this.xdsiManifest = xdsiManifest;
     }
 }

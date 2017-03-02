@@ -36,54 +36,55 @@
  *
  */
 
-package org.dcm4chee.arc.retrieve.xdsi;
+package org.dcm4chee.arc.export.xdsi;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-
-import javax.activation.DataHandler;
-import javax.enterprise.event.Event;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeaderElement;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Feb 2017
+ * @since Mar 2017
  */
-public class DicomDataHandler extends DataHandler {
-    private final RetrieveContext ctx;
-    private final InstanceLocations inst;
-    private final Collection<String> tsuids;
-    private Event<RetrieveContext> retrieveEnd;
-
-    public DicomDataHandler(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
-        super(inst, MediaTypes.APPLICATION_DICOM);
-        this.ctx = ctx;
-        this.inst = inst;
-        this.tsuids = tsuids;
-    }
-
-    public void setRetrieveEnd(Event<RetrieveContext> retrieveEnd) {
-        this.retrieveEnd = retrieveEnd;
+public class EnsureMustUnderstandHandler implements SOAPHandler<SOAPMessageContext> {
+    @Override
+    public Set<QName> getHeaders() {
+        return null;
     }
 
     @Override
-    public void writeTo(OutputStream os) throws IOException {
-        try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
-            transcoder.transcode(new Transcoder.Handler() {
-                @Override
-                public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                    ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
-                    return os;
+    public boolean handleMessage(SOAPMessageContext ctx) {
+        if ((Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY)) {
+            try {
+                Iterator<SOAPHeaderElement> iter = ctx.getMessage().getSOAPHeader().examineAllHeaderElements();
+                while (iter.hasNext()) {
+                    SOAPHeaderElement hdr = iter.next();
+                    switch (hdr.getNodeName()) {
+                        case "Action":
+                        case "To":
+                        case "ReplyTo":
+                            hdr.setMustUnderstand(true);
+                    }
                 }
-            });
+            } catch (SOAPException e) {
+                throw new RuntimeException(e);
+            }
         }
-        if (retrieveEnd != null)
-            retrieveEnd.fire(ctx);
+        return true;
     }
 
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        return true;
+    }
+
+    @Override
+    public void close(MessageContext context) {
+
+    }
 }

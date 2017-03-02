@@ -123,7 +123,8 @@ public class IANScheduler extends Scheduler {
                 try {
                     ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
                     if (ianTask.getMpps() == null) {
-                        ian = createIAN(ae, ianTask.getStudyInstanceUID(), null, null);
+                        ian = queryService.createIAN(ae, ianTask.getStudyInstanceUID(), null,
+                                null,null, null);
                         if (ian != null) {
                             LOG.info("Schedule {}", ianTask);
                             ejb.scheduleIANTask(ianTask, ian);
@@ -133,7 +134,8 @@ public class IANScheduler extends Scheduler {
                         }
                     } else {
                         if (ae.getAEExtension(ArchiveAEExtension.class).ianOnTimeout()
-                                && (ian = createIAN(ae, ianTask.getMpps().getStudyInstanceUID(), null, null)) != null) {
+                                && (ian = queryService.createIAN(ae, ianTask.getMpps().getStudyInstanceUID(), null,
+                                null,null, null)) != null) {
                             LOG.warn("Timeout for {} exceeded - schedule IAN for available instances", ianTask);
                             ejb.scheduleIANTask(ianTask, ian);
                         } else {
@@ -201,8 +203,10 @@ public class IANScheduler extends Scheduler {
 
     private void sendIAN(ExportContext ctx, ExporterDescriptor descriptor) {
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
-        Attributes ian = createIAN(ae, ctx.getStudyInstanceUID(), null,
-                descriptor.getInstanceAvailability(), descriptor.getRetrieveAETitles());
+        Attributes ian = queryService.createIAN(ae, ctx.getStudyInstanceUID(), null,
+                descriptor.getRetrieveAETitles(),
+                descriptor.getRetrieveLocationUID(),
+                descriptor.getInstanceAvailability());
         if (ian != null)
             for (String remoteAET : descriptor.getIanDestinations())
                 ejb.scheduleMessage(ctx.getAETitle(), ian, remoteAET);
@@ -217,7 +221,8 @@ public class IANScheduler extends Scheduler {
         ian.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         for (Attributes perfSeries : perfSeriesSeq) {
             String seriesInstanceUID = perfSeries.getString(Tag.SeriesInstanceUID);
-            Attributes ianForSeries = queryService.createIAN(ae, studyInstanceUID, seriesInstanceUID, null);
+            Attributes ianForSeries = queryService.createIAN(ae, studyInstanceUID, seriesInstanceUID,
+                    null, null, null);
             if (ianForSeries == null)
                 return null;
 
@@ -257,15 +262,6 @@ public class IANScheduler extends Scheduler {
                 return true;
         }
         return false;
-    }
-
-    private Attributes createIAN(ApplicationEntity ae, String studyInstanceUID, String seriesInstanceUID,
-                                 Availability availability, String... retrieveAETs) {
-        Attributes ian = queryService.createIAN(ae, studyInstanceUID, seriesInstanceUID, availability, retrieveAETs);
-        if (ian != null)
-            ian.setNull(Tag.ReferencedPerformedProcedureStepSequence, VR.SQ);
-
-        return ian;
     }
 
 }

@@ -52,6 +52,11 @@
         "type": "string"
       }
     },
+    "dcmRetrieveLocationUID": {
+      "title": "Retrieve Location UID",
+      "description": "Retrieve Location UID.",
+      "type": "string"
+    },
     "dcmInstanceAvailability": {
       "title": "Instance Availability",
       "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",

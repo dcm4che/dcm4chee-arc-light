@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.query;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
@@ -93,15 +94,19 @@ public interface QueryService {
     Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
 
-    Attributes createIAN(ApplicationEntity ae, String studyInstanceUID, String seriesInstanceUID,
-                         Availability instanceAvailability, String... retrieveAETs);
+    Attributes createIAN(ApplicationEntity ae, String studyUID, String seriesUID,
+                         String[] retrieveAETs, String retrieveLocationUID, Availability availability);
+
+    Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
+                                  String[] retrieveAETs, String retrieveLocationUID,
+                                  Code conceptNameCode, int seriesNumber, int instanceNumber);
 
     Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);
 
     Attributes createRejectionNote(Attributes sopInstanceRefs, RejectionNote rjNote);
 
-    Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae);
+   Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae);
 
     List<Object[]> getSeriesInstanceUIDs(String studyUID);
 

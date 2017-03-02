@@ -36,54 +36,46 @@
  *
  */
 
-package org.dcm4chee.arc.retrieve.xdsi;
+package org.dcm4chee.arc.xdsi;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4che3.data.DatePrecision;
+import org.dcm4che3.util.DateUtils;
 
-import javax.activation.DataHandler;
-import javax.enterprise.event.Event;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Feb 2017
+ * @since Mar 2017
  */
-public class DicomDataHandler extends DataHandler {
-    private final RetrieveContext ctx;
-    private final InstanceLocations inst;
-    private final Collection<String> tsuids;
-    private Event<RetrieveContext> retrieveEnd;
+public class SlotBuilder {
+    private final SlotType1 result;
 
-    public DicomDataHandler(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
-        super(inst, MediaTypes.APPLICATION_DICOM);
-        this.ctx = ctx;
-        this.inst = inst;
-        this.tsuids = tsuids;
+    public SlotBuilder(String name) {
+        result = new SlotType1();
+        result.setName(name);
     }
 
-    public void setRetrieveEnd(Event<RetrieveContext> retrieveEnd) {
-        this.retrieveEnd = retrieveEnd;
+    public SlotType1 build() {
+        return result;
     }
 
-    @Override
-    public void writeTo(OutputStream os) throws IOException {
-        try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
-            transcoder.transcode(new Transcoder.Handler() {
-                @Override
-                public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                    ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
-                    return os;
-                }
-            });
+    public SlotBuilder valueList(String... values) {
+        ValueListType valueList = new ValueListType();
+        for (String value : values) {
+            valueList.getValue().add(value);
         }
-        if (retrieveEnd != null)
-            retrieveEnd.fire(ctx);
+        result.setValueList(valueList);
+        return this;
     }
 
+    public SlotBuilder valueDTM(Date date) {
+        return valueList(DateUtils.formatDT(TimeZone.getTimeZone("UTC"), date, new DatePrecision(Calendar.SECOND)));
+    }
+
+    public SlotBuilder slotType(String value) {
+        result.setSlotType(value);
+        return this;
+    }
 }

@@ -36,54 +36,52 @@
  *
  */
 
-package org.dcm4chee.arc.retrieve.xdsi;
+package org.dcm4chee.arc.xdsi;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-
-import javax.activation.DataHandler;
-import javax.enterprise.event.Event;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
+import org.dcm4che3.data.Code;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Feb 2017
+ * @since Mar 2017
  */
-public class DicomDataHandler extends DataHandler {
-    private final RetrieveContext ctx;
-    private final InstanceLocations inst;
-    private final Collection<String> tsuids;
-    private Event<RetrieveContext> retrieveEnd;
+public class ClassificationBuilder {
+    private final ClassificationType result;
 
-    public DicomDataHandler(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
-        super(inst, MediaTypes.APPLICATION_DICOM);
-        this.ctx = ctx;
-        this.inst = inst;
-        this.tsuids = tsuids;
+    public ClassificationBuilder(String id) {
+        result = new ClassificationType();
+        result.setId(id);
+        result.setObjectType(XDSConstants.CLASSIFICATION);
     }
 
-    public void setRetrieveEnd(Event<RetrieveContext> retrieveEnd) {
-        this.retrieveEnd = retrieveEnd;
+    public ClassificationType build() {
+        return result;
     }
 
-    @Override
-    public void writeTo(OutputStream os) throws IOException {
-        try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
-            transcoder.transcode(new Transcoder.Handler() {
-                @Override
-                public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                    ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
-                    return os;
-                }
-            });
-        }
-        if (retrieveEnd != null)
-            retrieveEnd.fire(ctx);
+    public ClassificationBuilder classificationScheme(String value) {
+        result.setClassificationScheme(value);
+        return this;
     }
 
+    public ClassificationBuilder classifiedObject(String value) {
+        result.setClassifiedObject(value);
+        return this;
+    }
+
+    public ClassificationBuilder classificationNode(String value) {
+        result.setClassificationNode(value);
+        return this;
+    }
+
+    public ClassificationBuilder nodeRepresentation(String value) {
+        result.setNodeRepresentation(value);
+        return this;
+    }
+
+    public ClassificationBuilder code(Code code) {
+        result.setNodeRepresentation(code.getCodeValue());
+        result.setName(InternationalStringBuilder.build(code.getCodeMeaning()));
+        result.getSlot().add(
+                new SlotBuilder("codingScheme").valueList(code.getCodingSchemeDesignator()).build());
+        return this;
+    }
 }

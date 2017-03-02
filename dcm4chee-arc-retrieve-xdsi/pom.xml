@@ -53,12 +53,6 @@
   <packaging>war</packaging>
 
   <dependencies>
-    <!-- used to pull correct dependencies for jaxws-tools-maven-plugin  -->
-    <dependency>
-      <groupId>org.jboss.ws.cxf</groupId>
-      <artifactId>jbossws-cxf-client</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-conf</artifactId>
@@ -77,6 +71,12 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-xdsi</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -89,39 +89,6 @@
           <attachClasses>true</attachClasses>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.jboss.ws.plugins</groupId>
-        <artifactId>jaxws-tools-maven-plugin</artifactId>
-        <version>${jaxws-tools-maven-plugin.version}</version>
-        <configuration>
-          <wsdls>
-            <wsdl>${basedir}/src/main/webapp/WEB-INF/wsdl/XDS-I.b_ImagingDocumentSource.wsdl</wsdl>
-          </wsdls>
-<!--
-          <bindingFiles>
-            <bindingFile>${basedir}/src/main/webapp/WEB-INF/bindings/wsdl_src.xml</bindingFile>
-            <bindingFile>${basedir}/src/main/webapp/WEB-INF/bindings/schemas_src.xml</bindingFile>
-          </bindingFiles>
--->
-          <extension>true</extension>
-          <verbose>true</verbose>
-          <target>2.1</target>
-          <endpointClass/>
-          <!-- some JDK implementations forbid file access for external schema,
-               see http://docs.oracle.com/javase/8/docs/api/javax/xml/XMLConstants.html#ACCESS_EXTERNAL_SCHEMA -->
-          <argLine>-Djavax.xml.accessExternalDTD=all -Djavax.xml.accessExternalSchema=all</argLine>
-          <fork>true</fork>
-          <targetPackage>org.dcm4chee.arc.retrieve.xdsi</targetPackage>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>wsconsume</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
 
   </build>

@@ -45,6 +45,7 @@ import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
@@ -137,6 +138,10 @@ public class AuditTriggerObserver {
     public void onStudyDeleted(@Observes StudyDeleteContext ctx) {
         if (auditService.hasAuditLoggers())
             auditService.spoolStudyDeleted(ctx);
+    }
+
+    public void onExport(@Observes ExportContext ctx) {
+        // TODO
     }
 
     public void onConnection(@Observes ConnectionEvent event) {

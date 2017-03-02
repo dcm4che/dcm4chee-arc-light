@@ -195,7 +195,8 @@ public class HL7PSUScheduler extends Scheduler {
         Sequence perfSeriesSeq = mppsAttrs.getSequence(Tag.PerformedSeriesSequence);
         for (Attributes perfSeries : perfSeriesSeq) {
             String seriesInstanceUID = perfSeries.getString(Tag.SeriesInstanceUID);
-            Attributes ianForSeries = queryService.createIAN(ae, studyInstanceUID, seriesInstanceUID, null);
+            Attributes ianForSeries = queryService.createIAN(ae, studyInstanceUID, seriesInstanceUID,
+                    null, null, null);
             if (ianForSeries == null)
                 return false;
 

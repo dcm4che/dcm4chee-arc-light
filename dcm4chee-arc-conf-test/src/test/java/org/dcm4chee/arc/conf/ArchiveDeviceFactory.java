@@ -854,7 +854,7 @@ class ArchiveDeviceFactory {
             "DSS"
     };
 
-    static final String DCM4CHEE_ARC_VERSION = "5.9.2";
+    static final String DCM4CHEE_ARC_VERSION = "5.9.3";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
@@ -899,6 +899,42 @@ class ArchiveDeviceFactory {
     static final String WADO_CACHE_CONTROL = "no-cache";
     static final String WADO_JSON_EXPORT_URL = "http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/[0]/metadata";
     static final String WADO_JSON_ACCEPT = "application/json";
+    static final String XDSI_EXPORTER_ID = "XDS-I";
+    static final String XDSI_EXPORTER_DESC = "XDS-I Provide and Register";
+    static final URI XDSI_EXPORT_URI = URI.create("xds-i:http://localhost:8081/xdstools4/sim/default__rr2/rep/prb");
+    static final String XDSI_SOURCE_ID = "1.3.6.1.4.1.21367.2011.2.1.260";
+    static final String XDSI_ASSIGNING_AUTHORITY_OID = "1.3.6.1.4.1.21367.13.20.1000";
+    static final String XDSI_LANGUAGE_CODE = "en-us";
+    static final Code XDSI_KON_TYPECODE = new Code(
+            "DICOM KON TYPECODE",
+            "1.3.6.1.4.1.21367.100.1",
+            null,
+            "DICOM Key Object Note Type Code");
+    static final Code XDSI_CLASS_CODE = new Code(
+            "Imaging Exam",
+            "RSNA ISN",
+            null,
+            "Imaging Exam");
+    static final Code XDSI_CONFIDENTIALITY_CODE = new Code(
+            "N",
+            "2.16.840.1.113883.5.25",
+            null,
+            "Normal");
+    static final Code XDSI_MANIFEST_TITLE = new Code(
+            "113030",
+            "DCM",
+            null,
+            "Manifest");
+    static final Code XDSI_HEALTH_CARE_FACILITY_TYPE_CODE = new Code(
+            "GENERAL HOSPITAL",
+            "RSNA-ISN",
+            null,
+            "GENERAL HOSPITAL");
+    static final Code XDSI_PRACTICE_SETTING_CODE = new Code(
+            "R-3027B",
+            "SRT",
+            null,
+            "Radiology");
     static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.parse("PT5M");
     static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
@@ -918,6 +954,7 @@ class ArchiveDeviceFactory {
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.parse("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
+
 
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
@@ -1367,6 +1404,25 @@ class ArchiveDeviceFactory {
             wadoExportRule.setExportDelay(Duration.parse("PT1M"));
             wadoExportRule.setExporterIDs(WADO_EXPORTER_ID);
             ext.addExportRule(wadoExportRule);
+
+            ExporterDescriptor xdsiExportDescriptor = new ExporterDescriptor(XDSI_EXPORTER_ID);
+            xdsiExportDescriptor.setDescription(XDSI_EXPORTER_DESC);
+            xdsiExportDescriptor.setExportURI(XDSI_EXPORT_URI);
+            xdsiExportDescriptor.setQueueName("Export3");
+            xdsiExportDescriptor.setAETitle("DCM4CHEE");
+            xdsiExportDescriptor.setRetrieveAETitles("DCM4CHEE");
+            xdsiExportDescriptor.setRetrieveLocationUID(XDSI_SOURCE_ID);
+            xdsiExportDescriptor.setProperty("XDSSubmissionSet.sourceId", XDSI_SOURCE_ID);
+            xdsiExportDescriptor.setProperty("assigningAuthorityOID", XDSI_ASSIGNING_AUTHORITY_OID);
+            xdsiExportDescriptor.setProperty("Manifest.ContentType", XDSI_KON_TYPECODE.toString());
+            xdsiExportDescriptor.setProperty("Manifest.Title", XDSI_MANIFEST_TITLE.toString());
+            xdsiExportDescriptor.setProperty("languageCode", XDSI_LANGUAGE_CODE);
+            xdsiExportDescriptor.setProperty("classCode", XDSI_CLASS_CODE.toString());
+            xdsiExportDescriptor.setProperty("typeCode", XDSI_KON_TYPECODE.toString());
+            xdsiExportDescriptor.setProperty("confidentialityCode", XDSI_CONFIDENTIALITY_CODE.toString());
+            xdsiExportDescriptor.setProperty("healthCareFacilityTypeCode", XDSI_HEALTH_CARE_FACILITY_TYPE_CODE.toString());
+            xdsiExportDescriptor.setProperty("practiceSettingCode", XDSI_PRACTICE_SETTING_CODE.toString());
+            ext.addExporterDescriptor(xdsiExportDescriptor);
 
             HL7ForwardRule hl7ForwardRule = new HL7ForwardRule("Forward to HL7RCV|DCM4CHEE");
             hl7ForwardRule.getConditions().setCondition("MSH-3", "FORWARD");

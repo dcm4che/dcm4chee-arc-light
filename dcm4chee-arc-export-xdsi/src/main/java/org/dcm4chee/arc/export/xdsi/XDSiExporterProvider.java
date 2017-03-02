@@ -36,54 +36,39 @@
  *
  */
 
-package org.dcm4chee.arc.retrieve.xdsi;
+package org.dcm4chee.arc.export.xdsi;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.exporter.ExportContext;
+import org.dcm4chee.arc.exporter.Exporter;
+import org.dcm4chee.arc.exporter.ExporterProvider;
+import org.dcm4chee.arc.query.QueryService;
 
-import javax.activation.DataHandler;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Feb 2017
  */
-public class DicomDataHandler extends DataHandler {
-    private final RetrieveContext ctx;
-    private final InstanceLocations inst;
-    private final Collection<String> tsuids;
-    private Event<RetrieveContext> retrieveEnd;
+@ApplicationScoped
+@Named("xds-i")
+public class XDSiExporterProvider implements ExporterProvider {
 
-    public DicomDataHandler(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
-        super(inst, MediaTypes.APPLICATION_DICOM);
-        this.ctx = ctx;
-        this.inst = inst;
-        this.tsuids = tsuids;
-    }
+    @Inject
+    private QueryService queryService;
 
-    public void setRetrieveEnd(Event<RetrieveContext> retrieveEnd) {
-        this.retrieveEnd = retrieveEnd;
-    }
+    @Inject
+    private Device device;
+
+    @Inject
+    private Event<ExportContext> exportEvent;
 
     @Override
-    public void writeTo(OutputStream os) throws IOException {
-        try (Transcoder transcoder = ctx.getRetrieveService().openTranscoder(ctx, inst, tsuids, true)) {
-            transcoder.transcode(new Transcoder.Handler() {
-                @Override
-                public OutputStream newOutputStream(Transcoder transcoder, Attributes dataset) throws IOException {
-                    ctx.getRetrieveService().getAttributesCoercion(ctx, inst).coerce(dataset, null);
-                    return os;
-                }
-            });
-        }
-        if (retrieveEnd != null)
-            retrieveEnd.fire(ctx);
+    public Exporter getExporter(ExporterDescriptor descriptor) {
+        return new XDSiExporter(descriptor, queryService, device, exportEvent);
     }
-
 }
