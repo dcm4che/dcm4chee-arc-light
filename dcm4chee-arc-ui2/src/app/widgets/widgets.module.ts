@@ -9,6 +9,7 @@ import {EditPatientComponent} from "./dialogs/edit-patient/edit-patient.componen
 import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
 import { CopyMoveObjectsComponent } from './dialogs/copy-move-objects/copy-move-objects.component';
 import { ConfirmComponent } from './dialogs/confirm/confirm.component';
+import { EditStudyComponent } from './dialogs/edit-study/edit-study.component';
 
 
 @NgModule({
@@ -16,11 +17,10 @@ import { ConfirmComponent } from './dialogs/confirm/confirm.component';
         CommonModule,
         BrowserModule,
         FormsModule,
-
     ],
     declarations: [WidgetsComponent],
     exports:[WidgetsComponent],
     providers: [MdDialogConfig]
 })
 export class WidgetsModule { }
-export const WidgetsComponents = [ MessagingComponent,EditPatientComponent, EditMwlComponent, CopyMoveObjectsComponent, ConfirmComponent];
+export const WidgetsComponents = [ MessagingComponent,EditPatientComponent, EditMwlComponent, EditStudyComponent, CopyMoveObjectsComponent, ConfirmComponent];

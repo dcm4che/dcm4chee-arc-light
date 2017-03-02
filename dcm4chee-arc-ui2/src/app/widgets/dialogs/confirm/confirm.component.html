@@ -1,4 +1,4 @@
-<div class="vex vex-theme-os confirm" xmlns="http://www.w3.org/1999/html">
+<div class="vex vex-theme-os confirm" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
         <h5 *ngIf="parameters.title">{{ parameters.title }}</h5>
         <div class="content">

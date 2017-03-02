@@ -10,7 +10,18 @@ declare var window:any
 export class StudiesService {
     private _patientIod:any;
     private _mwlIod:any;
+    private _studyIod;
     integerVr = ["DS","FL","FD","IS","SL","SS","UL", "US"];
+
+    constructor(public $http:Http, public datePipe:DatePipe) { }
+
+    get studyIod() {
+        return this._studyIod;
+    }
+
+    set studyIod(value) {
+        this._studyIod = value;
+    }
 
     get patientIod(): any {
         return this._patientIod;
@@ -26,7 +37,6 @@ export class StudiesService {
         this._mwlIod = value;
     }
 
-    constructor(public $http:Http, public datePipe:DatePipe) { }
 
     getTodayDate() {
         let todayDate = new Date();
@@ -158,6 +168,14 @@ export class StudiesService {
             return Observable.of(this._patientIod);
         } else {
             return this.$http.get('assets/iod/patient.iod.json').map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+        }
+    };
+    getStudyIod(){
+        console.log("_patientIod",this._studyIod);
+        if (this._studyIod) {
+            return Observable.of(this._studyIod);
+        } else {
+            return this.$http.get('assets/iod/study.iod.json').map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
         }
     };
     getMwlIod(){

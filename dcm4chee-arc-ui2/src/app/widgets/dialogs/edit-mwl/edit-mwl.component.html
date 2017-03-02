@@ -5,7 +5,7 @@
         <div class="dropdown" *ngIf="opendropdown" (keydown)="pressedKey($event)">
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addmwlAttribut" (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
         </div>
-        <iod-form-generator [object]="mwl.attrs | comparewithiod:iod" [prefix]="" (keydown)="modalityKeyHandler($event,dialogRef)"></iod-form-generator>
+        <iod-form-generator [object]="mwl.attrs | comparewithiod:iod" [prefix]="" (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
         <div class="dialogbuttons">
             <button class="save" type="button" (click)="dialogRef.close(mwl)">{{saveLabel}}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>

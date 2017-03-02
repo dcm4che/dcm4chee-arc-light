@@ -80,6 +80,16 @@ export class EditPatientComponent {
     set titleLabel(value: string) {
         this._titleLabel = value;
     }
+
+    dialogKeyHandler(e, dialogRef){
+        let code = (e.keyCode ? e.keyCode : e.which);
+        if(code === 13){
+            dialogRef.close(this._patient);
+        }
+        if(code === 27){
+            dialogRef.close(null);
+        }
+    }
     getKeys(obj){
         if(_.isArray(obj)){
             return obj;

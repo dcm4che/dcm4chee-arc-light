@@ -761,7 +761,7 @@
                                     <div class="checkbox_content hiddenbuttons">
                                         <input type="checkbox" [ngModel]="study._VALUE.selected" (change)='select(study._VALUE,"study", {"patientkey":patient._KEY,"studykey":study._KEY},"fromcheckbox")'>
                                     </div>
-                                    <a class="hiddenbuttons" *ngIf="isRole('admin')" (click)="editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study">
+                                    <a class="hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
                                     <a class="hiddenbuttons" (click)="exportStudy(study._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export study">

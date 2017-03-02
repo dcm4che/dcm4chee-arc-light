@@ -7,6 +7,8 @@ import * as _ from "lodash";
 export class ComparewithiodPipe implements PipeTransform {
 
     transform(value: any, args?: any): any {
+        let valcopy = {};
+/*
         if(args === ""){
             return value;
         }else{
@@ -14,30 +16,31 @@ export class ComparewithiodPipe implements PipeTransform {
             console.log("args",args);
             for(let v in value){
                 console.log("v",v);
-                if(!this.isInIod(v,args)){
+                console.log("indexof777",v.indexOf('777'))
+                console.log("slice",v.slice(0, 3));
+                if(!this.isInIod(v,args) && v.indexOf('777') === -1){
+                    console.log("indelete",value[v]);
+                    console.log("v",v);
                     delete value[v];
                 }
-            }
-/*            Object.keys(value).map((element)=>{
-                console.log("element",element);
-                return element;
-            });*/
 
+            }
+            // delete value["00201208"];
+            // delete value["00201206"];
+            console.log("value",value);
+            // console.log('value["00201208"]',value["00201208"]);
             return value;
-            /*            return value.filter((obj)=>{
-                            console.log("obj",obj)
-                            let keys = Object.keys(obj);
-                            console.log("keys",keys);
-                            return true;
-            /!*
-                            let objString = JSON.stringify(obj).toLowerCase();
-                            _.each(keys,(k)=>{
-                                let re = new RegExp('"'+k.toLowerCase()+'"',"g");
-                                objString = objString.replace(re,'');
-                            });
-                            return objString.indexOf(args.toLowerCase()) !== -1;*!/
-                        });*/
-        }
+        }*/
+        Object.keys(value).filter(attr => {
+            console.log("attr",attr);
+            if(this.isInIod(attr,args)){
+                valcopy[attr] = {};
+                valcopy[attr] = value[attr];
+            }
+            // return (this.isInIod(attr,args));
+        });
+        console.log("valcopy");
+        return valcopy;
     }
     isInIod(element, iod){
         for(let i in iod){

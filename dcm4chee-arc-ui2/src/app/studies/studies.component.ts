@@ -17,6 +17,8 @@ import {CopyMoveObjectsComponent} from "../widgets/dialogs/copy-move-objects/cop
 import {subscribeOn} from "rxjs/operator/subscribeOn";
 import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {Subscription} from "rxjs";
+import {EditStudyComponent} from "../widgets/dialogs/edit-study/edit-study.component";
+import {ComparewithiodPipe} from "../pipes/comparewithiod.pipe";
 
 @Component({
     selector: 'app-studies',
@@ -681,6 +683,218 @@ export class StudiesComponent{
     editPatient(patient, patientkey){
         this.modifyPatient(patient, "edit", patientkey);
     };
+    modifyStudy(patient, mode, patientkey, studykey, study){
+        this.config.viewContainerRef = this.viewContainerRef;
+        let originalStudyObject = _.cloneDeep(study);
+        // console.log("patient",patient);
+        // console.log("studykey",studykey);
+        // console.log("study",study);
+        if(mode === "edit"){
+            _.forEach(study.attrs,function(value, index) {
+                var checkValue = "";
+                if(value.Value && value.Value.length){
+                    checkValue = value.Value.join("");
+                }
+                if(!(value.Value && checkValue != "")){
+                    delete study.attrs[index];
+                }
+/*                if(value.vr === "DA" && value.Value && value.Value[0]){
+                    var string = value.Value[0];
+                    string = string.replace(/\./g,"");
+                    var yyyy = string.substring(0,4);
+                    var MM = string.substring(4,6);
+                    var dd = string.substring(6,8);
+                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
+                    var date          = new Date(timestampDate);
+                    $scope.dateplaceholder[index] = date;
+                }*/
+            });
+        }
+
+        this.lastPressedCode = 0;
+        let $this = this;
+        this.service.getStudyIod().subscribe((res)=>{
+            $this.service.patientIod = res;
+            let header = "Create new Study";
+            if(mode === "edit"){
+                if(patient.attrs["00100020"] && patient.attrs["00100020"].Value[0]){
+                    header = 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span> with ID <span>'+patient.attrs["00100020"].Value[0]+'</span>';
+                }else{
+                    header = 'Edit study of patient <span>'+patient.attrs["00100010"].Value[0]["Alphabetic"]+'</span>';
+                }
+            }
+            let iod = $this.service.replaceKeyInJson(res, "items", "Value");
+            let studyFiltered = _.cloneDeep(study);
+            studyFiltered.attrs = new ComparewithiodPipe().transform(study.attrs,iod);
+            $this.service.initEmptyValue(patient.attrs);
+            console.log("afterinintemptyvalue");
+            $this.dialogRef = $this.dialog.open(EditStudyComponent, $this.config);
+            console.log("afterinintemptyvalue2");
+            $this.dialogRef.componentInstance.study = studyFiltered;
+            $this.dialogRef.componentInstance.studykey = studykey;
+            $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
+            $this.dialogRef.componentInstance.iod = iod;
+            console.log("$this.savelabel",$this.saveLabel);
+            $this.dialogRef.componentInstance.saveLabel = $this.saveLabel;
+            $this.dialogRef.componentInstance.titleLabel = $this.titleLabel;
+            $this.dialogRef.componentInstance.mode = mode;
+            $this.dialogRef.afterClosed().subscribe(result => {
+                if(result){
+                    $this.service.clearPatientObject(studyFiltered.attrs);
+                    $this.service.convertStringToNumber(studyFiltered.attrs);
+                    // StudiesService.convertDateToString($scope, "editstudyFiltered");
+
+                    //Add patient attributs again
+                    // angular.extend($scope.editstudyFiltered.attrs, patient.attrs);
+                    // $scope.editstudyFiltered.attrs.concat(patient.attrs);
+                    var local = {};
+                    if(studyFiltered.attrs["00100020"]){
+                        local["00100020"] = studyFiltered.attrs["00100020"];
+                    }else{
+                        local["00100020"] = studyFiltered.attrs["00100020"];
+                    }
+                    _.forEach(studyFiltered.attrs,function(m, i){
+                        if(res[i]){
+                            local[i] = m;
+                        }
+                    });
+                    $this.$http.post(
+                        "../aets/"+$this.aet+"/rs/studies",
+                        local,
+                        $this.jsonHeader
+                    ).subscribe(
+                        (response) => {
+                            if(mode === "edit"){
+
+                                // $scope.patients[patientkey].studies[studyFilteredkey].attrs = $scope.editstudyFiltered.attrs;
+                                //Force rerendering the directive attribute-list
+/*                                var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editstudyFiltered.attrs['0020000D'].Value[0];
+                                id = id.replace(/\./g, '');
+                                // var id = "#"+$scope.editstudyFiltered.attrs["0020000D"].Value;
+                                var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studyFilteredkey+'].attrs"></attribute-list>')($scope);
+                                $(id).html(attribute);*/
+                            }else{
+                                // if($scope.patientmode){
+                                //     $timeout(function() {
+                                //         angular.element("#querypatients").trigger('click');
+                                //     }, 0);
+                                //     // $scope.queryPatients(0);
+                                // }else{
+                                //     // $scope.queryStudies(0);
+                                //     $timeout(function() {
+                                //         angular.element("#querystudies").trigger('click');
+                                //     }, 0);
+                                // }
+                                $this.fireRightQuery();
+                            }
+                            $this.mainservice.setMessage( {
+                                "title": "Info",
+                                "text": "studyFiltered saved successfully!",
+                                "status": "info"
+                            });
+                        },
+                        (response) => {
+                            $this.mainservice.setMessage( {
+                                "title": "Error "+response.status,
+                                "text": response.statusText,
+                                "status": "error"
+                            });
+                        }
+                    );
+                }else{
+                    console.log("no", originalStudyObject);
+                    // patient = originalPatient;
+                    _.assign(study, originalStudyObject);
+                }
+                $this.dialogRef = null;
+            });
+        });
+        // console.log("$scope.editstudy",$scope.editstudy);
+ /*       $http.get('iod/study.iod.json',{ cache: true}).then(function (res) {
+                // angular.forEach($scope.editstudy.attrs,function(m, i){
+                //     if(!res.data[i] || res.data[i] === undefined){
+                //         delete $scope.editstudy.attrs[i];
+                //     }
+                // });
+                var dropdown                = StudiesService.getArrayFromIod(res);
+                res.data = StudiesService.replaceKeyInJson(res.data, "items", "Value");
+                $templateRequest('templates/edit_study.html').then(function(tpl) {
+                    $scope.dropdown             = dropdown;
+                    $scope.DCM4CHE              = DCM4CHE;
+                    $scope.addPatientAttribut   = "";
+                    $scope.opendropdown         = false;
+                    // console.log("tpl",tpl);
+                    var html                    = $compile(tpl)($scope);
+
+                    // console.log("$scope.editstudy",$scope.editstudy);
+                    // console.log("html",html);
+                    var $vex = vex.dialog.open({
+                        message: header,
+                        input: html,
+                        className:"vex-theme-os edit-patient",
+                        overlayClosesOnClick: false,
+                        escapeButtonCloses: false,
+                        afterOpen: function($vexContent) {
+                            cfpLoadingBar.complete();
+
+                        },
+                        onSubmit: function(e) {
+                            //Prevent submit/close if ENTER was clicked
+                            if($scope.lastPressedCode === 13){
+                                e.preventDefault();
+                            }else{
+                                $vex.data().vex.callback();
+                            }
+                        },
+                        buttons: [
+                            $.extend({}, vex.dialog.buttons.YES, {
+                                text: 'Save'
+                            }), $.extend({}, vex.dialog.buttons.NO, {
+                                text: 'Cancel'
+                            })
+                        ],
+                        callback: function(data) {
+                            cfpLoadingBar.start();
+                            if (data === false) {
+                                cfpLoadingBar.complete();
+
+                                StudiesService.clearPatientObject($scope.editstudy.attrs);
+                                return console.log('Cancelled');
+                            }else{
+
+                            }
+                            vex.close($vex.data().vex.id);
+                        }
+                    });
+                });
+            },
+            function errorCallback(response) {
+                DeviceService.msg($scope, {
+                    "title": "Error "+response.status,
+                    "text": response.data.errorMessage,
+                    "status": "error"
+                });
+                console.log("response",response);
+            });*/
+    };
+    editStudy(patient, patientkey, studykey, study){
+        this.saveLabel = "SAVE";
+        this.titleLabel = "Modify study";
+        this.modifyStudy(patient, "edit", patientkey, studykey, study);
+    };
+    createStudy(patient){
+        this.saveLabel = "CREATE";
+        this.titleLabel = "Create new Study";
+        var study = {
+            "attrs":{
+                "00200010": { "vr": "SH", "Value":[""]},
+                "0020000D": { "vr": "UI", "Value":[""]},
+                "00080050": { "vr": "SH", "Value":[""]}
+            }
+        };
+        this.modifyStudy(patient, "create", "", "", study);
+    };
+
     createPatient(){
         this.saveLabel = "CREATE";
         this.titleLabel = "Create new patient";

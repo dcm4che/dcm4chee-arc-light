@@ -30,19 +30,20 @@ export class IodFormGeneratorComponent implements OnInit {
         console.log("attr=",this.object);
         console.log("oninit object",this.object);
         console.log("prefix",this.prefix);
-        if(this.object.Value){
-            // console.log("has value",this.object);
+        if(this.object && this.object.Value){
+            console.log("has value",this.object);
 
             this.hasValue = true;
         }else{
             this.hasValue = false;
         }
-        // console.log("hasValue=",this.hasValue);
+        console.log("hasValue=",this.hasValue);
         if(_.isArray(this.object)){
             this.objectIsArray = true;
         }else{
             this.objectIsArray = false;
         }
+        console.log("objectisarray",this.objectIsArray);
     }
     getKeys(obj){
         if(_.isArray(obj)){
@@ -62,7 +63,7 @@ export class IodFormGeneratorComponent implements OnInit {
         console.log("arguments",arguments);
         switch(arguments.length) {
             case 2:
-                if(this.object[arguments[0]].Value.length === 1){
+                if(this.object[arguments[0]].Value && this.object[arguments[0]].Value.length === 1){
                     delete  this.object[arguments[0]];
                 }else{
                     this.object[arguments[0]].Value.splice(arguments[1], 1);
