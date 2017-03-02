@@ -3616,7 +3616,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }, 100);
         }
     };
-    initAETs(1);
+    initAETs(2);
     initAttributeFilter("Patient", 1);
     initExporters(1);
     initRjNotes(1);
