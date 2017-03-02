@@ -44,7 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.conf.RejectionNote;
@@ -97,7 +96,7 @@ public interface QueryService {
     Attributes createIAN(ApplicationEntity ae, String studyInstanceUID, String seriesInstanceUID,
                          Availability instanceAvailability, String... retrieveAETs);
 
-    Attributes createRejectionNote(boolean copyMove,
+    Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);
 
     Attributes createRejectionNote(Attributes sopInstanceRefs, RejectionNote rjNote);

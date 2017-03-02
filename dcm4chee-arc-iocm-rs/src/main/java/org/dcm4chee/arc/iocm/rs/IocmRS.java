@@ -510,7 +510,7 @@ public class IocmRS {
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         storeService.restoreInstances(session, studyUID, seriesUID);
 
-        Attributes attrs = queryService.createRejectionNote(rsOp == RSOperation.MoveInstances,
+        Attributes attrs = queryService.createRejectionNote(
                 arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
         if (attrs == null)
             throw new WebApplicationException(getResponse("No Study with UID: " + studyUID, Response.Status.NOT_FOUND));
@@ -598,7 +598,10 @@ public class IocmRS {
 
         if (result.getString(Tag.FailureReason) != null && ko != null) {
             deletionService.deleteInstances(koctx.getLocations());
-            reverseRejectionMove(op, instances, result);
+            StoreContext revokeCtx = storeService.newStoreContext(session);
+            RejectionNote revokeRjNote = arcDev.getRejectionNote(
+                    new Code("REVOKE_REJECTION", "99DCM4CHEE", null, "?"));
+            reverseRejectionMove(revokeCtx, revokeRjNote, instanceRefs);
             throw new WebApplicationException(getResponse("Moving of instances failed with failure reason : " +
                     result.getString(Tag.FailureReason), Response.Status.INTERNAL_SERVER_ERROR));
         }
@@ -614,13 +617,13 @@ public class IocmRS {
         };
     }
 
-    private void reverseRejectionMove(RSOperation op, Collection<InstanceLocations> instances, Attributes result)
+    private void reverseRejectionMove(StoreContext revokeCtx, RejectionNote revokeRjNote, Attributes instanceRefs)
             throws IOException {
-        for (Attributes item : result.getSequence(Tag.FailedSOPSequence))
-            for (InstanceLocations il : instances)
-                if (item.getString(Tag.ReferencedSOPInstanceUID).equals(il.getSopInstanceUID()))
-                    reject(op, il.getAttributes().getString(Tag.StudyInstanceUID), il.getAttributes().getString(Tag.SeriesInstanceUID),
-                            il.getSopInstanceUID(), "REVOKE_REJECTION", "99DCM4CHEE");
+        Attributes revoke = queryService.createRejectionNote(instanceRefs, revokeRjNote);
+        revokeCtx.setSopClassUID(revoke.getString(Tag.SOPClassUID));
+        revokeCtx.setSopInstanceUID(revoke.getString(Tag.SOPInstanceUID));
+        revokeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+        storeService.store(revokeCtx, revoke);
     }
 
     private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
