@@ -901,9 +901,9 @@ class ArchiveDeviceFactory {
     static final String WADO_JSON_ACCEPT = "application/json";
     static final String XDSI_EXPORTER_ID = "XDS-I";
     static final String XDSI_EXPORTER_DESC = "XDS-I Provide and Register";
-    static final URI XDSI_EXPORT_URI = URI.create("xds-i:http://localhost:8081/xdstools4/sim/default__rr2/rep/prb");
-    static final String XDSI_SOURCE_ID = "1.3.6.1.4.1.21367.2011.2.1.260";
-    static final String XDSI_ASSIGNING_AUTHORITY_OID = "1.3.6.1.4.1.21367.13.20.1000";
+    static final URI XDSI_EXPORT_URI = URI.create("xds-i:http://localhost:8081/xdstools4/sim/default__rr/rep/prb");
+    static final String XDSI_SOURCE_ID = "1.3.6.1.4.1.21367.13.80.110";
+    static final String XDSI_ASSIGNING_AUTHORITY_PAT_ID = "1.3.6.1.4.1.21367.2005.13.20.1000";
     static final String XDSI_LANGUAGE_CODE = "en-us";
     static final Code XDSI_KON_TYPECODE = new Code(
             "DICOM KON TYPECODE",
@@ -1413,7 +1413,7 @@ class ArchiveDeviceFactory {
             xdsiExportDescriptor.setRetrieveAETitles("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveLocationUID(XDSI_SOURCE_ID);
             xdsiExportDescriptor.setProperty("Manifest.title", XDSI_MANIFEST_TITLE.toString());
-            xdsiExportDescriptor.setProperty("AssigningAuthority.patientId", XDSI_ASSIGNING_AUTHORITY_OID);
+            xdsiExportDescriptor.setProperty("AssigningAuthority.patientId", XDSI_ASSIGNING_AUTHORITY_PAT_ID);
             xdsiExportDescriptor.setProperty("XDSSubmissionSet.sourceId", XDSI_SOURCE_ID);
             xdsiExportDescriptor.setProperty("XDSSubmissionSet.contentType", XDSI_KON_TYPECODE.toString());
             xdsiExportDescriptor.setProperty("DocumentEntry.typeCode", XDSI_KON_TYPECODE.toString());

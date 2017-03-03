@@ -987,7 +987,7 @@ cn: Leading DCMQRSCP
 
 dn: dcmExporterID=XDS-I,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRetrieveAET: DCM4CHEE
-dcmRetrieveLocationUID: 1.3.6.1.4.1.21367.2011.2.1.260
+dcmRetrieveLocationUID: 1.3.6.1.4.1.21367.13.80.110
 dicomDescription: XDS-I Provide and Register
 dcmQueueName: Export3
 dcmExporterID: XDS-I
@@ -999,11 +999,11 @@ dcmProperty: DocumentEntry.typeCode=(DICOM KON TYPECODE, 1.3.6.1.4.1.21367.100.1
 dcmProperty: Manifest.title=(113030, DCM, "Manifest")
 dcmProperty: DocumentEntry.confidentialityCode=(N, 2.16.840.1.113883.5.25, "Normal")
 dcmProperty: DocumentEntry.healthCareFacilityTypeCode=(GENERAL HOSPITAL, RSNA-ISN, "GENERAL HOSPITAL")
-dcmProperty: AssigningAuthority.patientId=1.3.6.1.4.1.21367.13.20.1000
+dcmProperty: AssigningAuthority.patientId=1.3.6.1.4.1.21367.2005.13.20.1000
 dcmProperty: DocumentEntry.practiceSettingCode=(R-3027B, SRT, "Radiology")
 dcmProperty: DocumentEntry.classCode=(Imaging Exam, RSNA ISN, "Imaging Exam")
-dcmProperty: XDSSubmissionSet.sourceId=1.3.6.1.4.1.21367.2011.2.1.260
-dcmURI: xds-i:http://localhost:8081/xdstools4/sim/default__rr2/rep/prb
+dcmProperty: XDSSubmissionSet.sourceId=1.3.6.1.4.1.21367.13.80.110
+dcmURI: xds-i:http://localhost:8081/xdstools4/sim/default__rr/rep/prb
 
 dn: dcmQueueName=IANSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: IAN Tasks

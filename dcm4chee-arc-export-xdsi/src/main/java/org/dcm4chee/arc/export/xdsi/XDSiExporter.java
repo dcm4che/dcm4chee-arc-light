@@ -69,7 +69,7 @@ public class XDSiExporter extends AbstractExporter {
     private static final String SUBMISSION_SET_ID = "SubmissionSet01";
     private static final String DOCUMENT_ID = "Document01";
     private static final ObjectFactory rimFactory = new ObjectFactory();
-    private static final String DEFAULT_SOURCE_ID = "1.3.6.1.4.1.21367.2011.2.1.260";
+    private static final String DEFAULT_SOURCE_ID = "1.3.6.1.4.1.21367.13.80.110";
     private static final String DEFAULT_LANGUAGE_CODE = "en-us";
     private static final Code DICOM_KON_TYPECODE = new Code(
             "DICOM KON TYPECODE",
