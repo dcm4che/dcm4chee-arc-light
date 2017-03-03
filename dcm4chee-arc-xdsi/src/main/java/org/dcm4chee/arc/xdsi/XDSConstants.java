@@ -72,9 +72,6 @@ public interface XDSConstants {
     public static final String XDS_ERR_MISSING_HOME_COMMUNITY_ID = "XDSMissingHomeCommunityId";
     public static final String XDS_ERR_UNAVAILABLE_COMMUNITY = "XDSUnavailableCommunity";
 
-    //Errors not defined in IHE
-    public static final String XDS_ERR_DOCUMENT_SOURCE_ERROR = "XDSDocumentSourceError";
-
     //Association Types
     public static final String HAS_MEMBER = "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember";
     public static final String RELATED_TO = "urn:oasis:names:tc:ebxml-regrep:AssociationType:relatedTo";

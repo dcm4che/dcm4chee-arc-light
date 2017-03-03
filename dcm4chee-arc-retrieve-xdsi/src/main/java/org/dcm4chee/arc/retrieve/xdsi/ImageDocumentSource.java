@@ -136,7 +136,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         try {
             retrieveService.calculateMatches(ctx);
         } catch (DicomServiceException e) {
-            addRegisterErrors(regRsp, docReqs, XDS_ERR_DOCUMENT_SOURCE_ERROR, e.getMessage());
+            addRegisterErrors(regRsp, docReqs, XDS_ERR_REPOSITORY_ERROR, e.getMessage());
             return false;
         }
         List<InstanceLocations> matches = ctx.getMatches();
