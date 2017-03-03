@@ -39,6 +39,7 @@ export class EditPatientComponent {
     }
 
     set iod(value: any) {
+        console.log("patientiod",value);
         this._iod = value;
     }
 

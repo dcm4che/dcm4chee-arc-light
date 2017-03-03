@@ -146,6 +146,20 @@ export class StudiesService {
             return resjson;
         });
     };
+    appendPatientIdTo(patient, obj){
+        if(_.hasIn(patient,"00100020")){
+            obj['00100020'] = obj['00100020'] || {};
+            obj['00100020'] = patient['00100020'];
+        }
+        if(_.hasIn(patient,"00100021")){
+            obj['00100021'] = obj['00100021'] || {};
+            obj['00100021'] = patient['00100021'];
+        }
+        if(_.hasIn(patient,"00100024")){
+            obj['00100024'] = obj['00100024'] || {};
+            obj['00100024'] = patient['00100024'];
+        }
+    }
     queryMwl = function(url, params) {
         return this.$http.get(url + '/mwlitems' + this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
@@ -186,15 +200,12 @@ export class StudiesService {
             return this.$http.get('assets/iod/mwl.iod.json').map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
         }
     };
-    getArrayFromIodHelper(data, dropdown){
-        _.forEach(data, function(m, i){
-            // console.log("i",i);
-            // console.log("m",m);
+
+    getArrayFromIod(res){
+        let dropdown = [];
+        _.forEach(res, function(m, i){
             if(i === "00400100"){
-                console.log("in if m",m.items);
                 _.forEach(m.items, function(l, j){
-                    // console.log("l",l);
-                    // console.log("j",j);
                     dropdown.push({
                         "code":"00400100:"+j,
                         "codeComma": ">"+j.slice(0, 4)+","+j.slice(4),
@@ -209,11 +220,6 @@ export class StudiesService {
                 });
             }
         });
-        return dropdown;
-    };
-    getArrayFromIod(res){
-        let dropdown = [];
-        this.getArrayFromIodHelper(res, dropdown);
         return dropdown;
     };
 

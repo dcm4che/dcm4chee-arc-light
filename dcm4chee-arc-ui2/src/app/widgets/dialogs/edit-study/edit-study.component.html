@@ -1,6 +1,6 @@
 <div class="vex vex-theme-os edit-study" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
-        <h3>{{titleLabel}}</h3>
+        <h3 [innerHtml]="titleLabel"></h3>
         <input autocomplete="off" id="addStudyAttribut" class="addStudyAttribut" [(ngModel)]="addStudyAttribut" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keypress)="pressedKey($event)"/>
         <div class="dropdown" *ngIf="opendropdown">
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addStudyAttribut" (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>

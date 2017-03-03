@@ -55,7 +55,16 @@ export class AppService implements OnInit{
     // }
     getUserInfo():Observable<User>{
         return this.$http.get("/dcm4chee-arc/ui/rs/realm")
-            .map((response) => response.json());
+            .map(res => {
+                console.log("in map1", res);
+                let resjson;
+                try {
+                    resjson = res.json();
+                } catch (e) {
+                    resjson = res;
+                }
+                return resjson;
+            });
     }
     get user(): any {
         console.log("ingetuser");

@@ -540,7 +540,10 @@ export class StudiesComponent{
         );
     };
     editMWL(patient, patientkey, mwlkey, mwl){
-        this.titleLabel = "Edit MWL";
+        this.saveLabel = "SAVE";
+        this.titleLabel = "Edit MWL of patient ";
+        this.titleLabel += ((_.hasIn(patient,'attrs.00100010.Value.0.Alphabetic')) ? "<b>" + patient.attrs["00100010"].Value[0]["Alphabetic"] + "</b>" : " ");
+        this.titleLabel += ((_.hasIn(patient,'attrs.00100020.Value.0')) ? " with ID: <b>" + patient.attrs["00100020"].Value[0] + "</b>" : "");
         this.modifyMWL(patient, "edit", patientkey, mwlkey, mwl);
     };
     createMWL(patient){
@@ -563,11 +566,6 @@ export class StudiesComponent{
         this.modifyMWL(patient, "create", "", "", mwl);
     };
     modifyMWL(patient, mode, patientkey, mwlkey, mwl){
-        console.log("patient",patient);
-        console.log("patientkey",patientkey);
-        console.log("mwl",mwl);
-        console.log("mwlkey",mwlkey);
-
         let originalMwlObject = _.cloneDeep(mwl);
         this.config.viewContainerRef = this.viewContainerRef;
 
@@ -604,12 +602,16 @@ export class StudiesComponent{
         this.service.getMwlIod().subscribe((res)=>{
             $this.service.patientIod = res;
             console.log("berfore set mwl",mwl);
-            $this.service.initEmptyValue(patient.attrs);
             console.log("after initemptyvalue");
+            let iod = $this.service.replaceKeyInJson(res, "items", "Value");
+            let mwlFiltered = _.cloneDeep(mwl);
+            mwlFiltered.attrs = new ComparewithiodPipe().transform(mwl.attrs,iod);
+            $this.service.initEmptyValue(mwlFiltered.attrs);
+
             $this.dialogRef = $this.dialog.open(EditMwlComponent, $this.config);
-            $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(res, "items", "Value");
+            $this.dialogRef.componentInstance.iod = iod
             $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
-            $this.dialogRef.componentInstance.mwl = mwl;
+            $this.dialogRef.componentInstance.mwl = mwlFiltered;
             $this.dialogRef.componentInstance.mwlkey = mwlkey;
             console.log("$this.savelabel",$this.saveLabel);
             $this.dialogRef.componentInstance.saveLabel = $this.saveLabel;
@@ -618,23 +620,21 @@ export class StudiesComponent{
                 //If user clicked save
                 console.log("result",result);
                 if(result){
-                    $this.service.clearPatientObject(mwl.attrs);
-                    $this.service.convertStringToNumber(mwl.attrs);
+                    $this.service.clearPatientObject(mwlFiltered.attrs);
+                    $this.service.convertStringToNumber(mwlFiltered.attrs);
                     // StudiesService.convertDateToString($scope, "mwl");
                     var local = {};
-                    if(mwl.attrs["00100020"]){
-                        local["00100020"] = mwl.attrs["00100020"];
-                    }else{
-                        local["00100020"] = patient.attrs["00100020"];
-                    }
-                    _.forEach(mwl.attrs,function(m, i){
+
+                    $this.service.appendPatientIdTo(patient.attrs,local);
+
+                    _.forEach(mwlFiltered.attrs,function(m, i){
                         if(res[i]){
                             local[i] = m;
                         }
                     });
-                    _.forEach(mwl.attrs, function(m, i){
+                    _.forEach(mwlFiltered.attrs, function(m, i){
                         if((res && res[i] && res[i].vr != "SQ") && m.Value && m.Value.length === 1 && m.Value[0] === ""){
-                            delete mwl.attrs[i];
+                            delete mwlFiltered.attrs[i];
                         }
                     });
                     console.log("on post",local);
@@ -643,24 +643,21 @@ export class StudiesComponent{
                         local,
                         $this.jsonHeader
                     ).subscribe((response) => {
-                        console.log("in then function");
                         if(mode === "edit"){
-
-                            $this.patients[patientkey].mwls[mwlkey].attrs = mwl.attrs;
-                            //Force rerendering the directive attribute-list
-                            // var id = "#"+patient.attrs['00100020'].Value[0]+$scope.mwl.attrs['0020000D'].Value[0];
-                            // id = id.replace(/\./g, '');
-                            // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].mwls['+mwlkey+'].attrs"></attribute-list>')($scope);
-                            // $(id).html(attribute);
+                            // _.assign(mwl, mwlFiltered);
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "MWL saved successfully!",
+                                "status": "info"
+                            });
                         }else{
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "MWL created successfully!",
+                                "status": "info"
+                            });
                             $this.fireRightQuery();
                         }
-                        $this.mainservice.setMessage({
-                            "title": "Info",
-                            "text": "MWL saved successfully!",
-                            "status": "info"
-                        });
-                        // $scope.callBackFree = true;
                     },(response) => {
                         $this.mainservice.setMessage({
                             "title": "Error "+response.status,
@@ -681,6 +678,11 @@ export class StudiesComponent{
         });
     }
     editPatient(patient, patientkey){
+        this.saveLabel = "SAVE";
+        this.titleLabel = "Edit patient ";
+        this.titleLabel += ((_.hasIn(patient,'attrs.00100010.Value.0.Alphabetic')) ? "<b>" + patient.attrs["00100010"].Value[0]["Alphabetic"] + "</b>" : " ");
+        this.titleLabel += ((_.hasIn(patient,'attrs.00100020.Value.0')) ? " with ID: <b>" + patient.attrs["00100020"].Value[0] + "</b>" : "");
+        console.log("titleLabel",this.titleLabel);
         this.modifyPatient(patient, "edit", patientkey);
     };
     modifyStudy(patient, mode, patientkey, studykey, study){
@@ -726,7 +728,7 @@ export class StudiesComponent{
             let iod = $this.service.replaceKeyInJson(res, "items", "Value");
             let studyFiltered = _.cloneDeep(study);
             studyFiltered.attrs = new ComparewithiodPipe().transform(study.attrs,iod);
-            $this.service.initEmptyValue(patient.attrs);
+            $this.service.initEmptyValue(studyFiltered.attrs);
             console.log("afterinintemptyvalue");
             $this.dialogRef = $this.dialog.open(EditStudyComponent, $this.config);
             console.log("afterinintemptyvalue2");
@@ -748,11 +750,8 @@ export class StudiesComponent{
                     // angular.extend($scope.editstudyFiltered.attrs, patient.attrs);
                     // $scope.editstudyFiltered.attrs.concat(patient.attrs);
                     var local = {};
-                    if(studyFiltered.attrs["00100020"]){
-                        local["00100020"] = studyFiltered.attrs["00100020"];
-                    }else{
-                        local["00100020"] = studyFiltered.attrs["00100020"];
-                    }
+                    $this.service.appendPatientIdTo(patient.attrs,local);
+                    // local["00100020"] = patient.attrs["00100020"];
                     _.forEach(studyFiltered.attrs,function(m, i){
                         if(res[i]){
                             local[i] = m;
@@ -765,33 +764,20 @@ export class StudiesComponent{
                     ).subscribe(
                         (response) => {
                             if(mode === "edit"){
-
-                                // $scope.patients[patientkey].studies[studyFilteredkey].attrs = $scope.editstudyFiltered.attrs;
-                                //Force rerendering the directive attribute-list
-/*                                var id = "#"+patient.attrs['00100020'].Value[0]+$scope.editstudyFiltered.attrs['0020000D'].Value[0];
-                                id = id.replace(/\./g, '');
-                                // var id = "#"+$scope.editstudyFiltered.attrs["0020000D"].Value;
-                                var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].studies['+studyFilteredkey+'].attrs"></attribute-list>')($scope);
-                                $(id).html(attribute);*/
+                                // _.assign(study, studyFiltered);
+                                $this.mainservice.setMessage( {
+                                    "title": "Info",
+                                    "text": "Study saved successfully!",
+                                    "status": "info"
+                                });
                             }else{
-                                // if($scope.patientmode){
-                                //     $timeout(function() {
-                                //         angular.element("#querypatients").trigger('click');
-                                //     }, 0);
-                                //     // $scope.queryPatients(0);
-                                // }else{
-                                //     // $scope.queryStudies(0);
-                                //     $timeout(function() {
-                                //         angular.element("#querystudies").trigger('click');
-                                //     }, 0);
-                                // }
+                                $this.mainservice.setMessage( {
+                                    "title": "Info",
+                                    "text": "Study created successfully!",
+                                    "status": "info"
+                                });
                                 $this.fireRightQuery();
                             }
-                            $this.mainservice.setMessage( {
-                                "title": "Info",
-                                "text": "studyFiltered saved successfully!",
-                                "status": "info"
-                            });
                         },
                         (response) => {
                             $this.mainservice.setMessage( {
@@ -879,7 +865,10 @@ export class StudiesComponent{
     };
     editStudy(patient, patientkey, studykey, study){
         this.saveLabel = "SAVE";
-        this.titleLabel = "Modify study";
+        this.titleLabel = "Edit study of patient ";
+        this.titleLabel += ((_.hasIn(patient,'attrs.00100010.Value.0.Alphabetic')) ? "<b>" + patient.attrs["00100010"].Value[0]["Alphabetic"] + "</b>" : " ");
+        this.titleLabel += ((_.hasIn(patient,'attrs.00100020.Value.0')) ? " with ID: <b>" + patient.attrs["00100020"].Value[0] + "</b>" : "");
+        console.log("titleLabel",this.titleLabel);
         this.modifyStudy(patient, "edit", patientkey, studykey, study);
     };
     createStudy(patient){
@@ -1041,7 +1030,7 @@ export class StudiesComponent{
                                 //Update changes on the patient list
                                 // patient.attrs = patient.attrs;
                                 //Force rerendering the directive attribute-list
-                                var id = "#"+patient.attrs["00100020"].Value;
+                                // var id = "#"+patient.attrs["00100020"].Value;
                                 // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
                                 // $(id).html(attribute);
                             }else{
@@ -1112,6 +1101,50 @@ export class StudiesComponent{
         },(err)=>{
             console.log("error",err);
         });
+    };
+    deletePatient(patient,patients, patientkey){
+        // console.log("study",study);
+        if(_.hasIn(patient,'attrs["00201200"].Value[0]') && patient.attrs['00201200'].Value[0] === 0){
+            let $this = this;
+            this.confirm({
+                content:'Are you sure you want to delete this patient?'
+            }).subscribe(result => {
+                if(result){
+                    $this.cfpLoadingBar.start();
+                    $this.$http.delete("../aets/"+$this.aet+"/rs/patients/"+patient.attrs["00100020"].Value[0]).subscribe(
+                        (response) => {
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Patient deleted successfully!",
+                                "status": "info"
+                            });
+                            console.log("patients",patients);
+                            console.log("patientkey",patientkey);
+                            // patients.splice(patientkey,1);
+                            $this.fireRightQuery();
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.mainservice.setMessage({
+                                "title": "Error "+err.status,
+                                "text": err.statusText,
+                                "status": "error"
+                            });
+                            // angular.element("#querypatients").trigger('click');
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                }
+            });
+        }else{
+            this.mainservice.setMessage({
+                "title": "Error",
+                "text": "Patient not empty!",
+                "status": "error"
+            });
+            this.cfpLoadingBar.complete();
+        }
+        // angular.element("#querypatients").trigger('click');
     };
     deleteMWL(mwl){
 
@@ -1908,12 +1941,6 @@ export class StudiesComponent{
                     // this.showClipboardContent = true;
 
                 }
-            }else{
-                this.mainservice.setMessage({
-                    "title": "Info",
-                    "text": "No element selected!",
-                    "status":'info'
-                });
             }
         }
     };
@@ -1945,13 +1972,14 @@ export class StudiesComponent{
 
                 this.selected = {};
                 // this.showClipboardContent = true;
-            }else{
+            }
+/*            else{
                 this.mainservice.setMessage({
                     "title": "Info",
                     "text": "No element selected!",
                     "status":'info'
                 });
-            }
+            }*/
         }
     };
     ctrlC(){
@@ -1993,13 +2021,14 @@ export class StudiesComponent{
                     this.selected = {};
                     // this.showClipboardContent = true;
                 }
-            }else{
+            }
+/*            else{
                 this.mainservice.setMessage({
                     "title": "Info",
                     "text": "No element selected!",
                     "status":'info'
                 });
-            }
+            }*/
         }
     };
     ctrlV() {
@@ -2718,5 +2747,9 @@ export class StudiesComponent{
     }
     showCheckBoxes(){
         this.showCheckboxes = !this.showCheckboxes;
+    }
+
+    debugTemplate(obj){
+        console.log("obj",obj);
     }
 }

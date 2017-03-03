@@ -35,6 +35,7 @@ export class AppComponent {
             this.mainservice.user
                 .subscribe(
                     (response) => {
+                        console.log("in userauth response",response);
                         $this.mainservice.user.user = response.user;
                         $this.mainservice.user.roles = response.roles;
                         $this.mainservice.isRole = function(role){
@@ -53,6 +54,7 @@ export class AppComponent {
                     },
                     (response) => {
                         // this.user = this.user || {};
+                        console.log("in user auth errorespons",response);
                         $this.mainservice.user.user = "user";
                         $this.mainservice.user.roles = ["user","admin"];
                         $this.mainservice.isRole = (role)=>{
@@ -62,6 +64,7 @@ export class AppComponent {
                                 return true;
                             }
                         };
+                        $this.isRole = $this.mainservice.isRole;
                     }
                 );
         }
