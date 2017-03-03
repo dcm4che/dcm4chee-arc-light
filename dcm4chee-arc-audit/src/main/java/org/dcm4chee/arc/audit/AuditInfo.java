@@ -69,7 +69,6 @@ class AuditInfo {
     static final int SOP_IUID = 18;
     static final int MPPS_UID = 19;
     static final int HL7_MESSAGE_TYPE = 20;
-    static final int USER_ID = 21;
 
     private final String[] fields;
 
@@ -95,8 +94,7 @@ class AuditInfo {
                 i.sopCUID,
                 i.sopIUID,
                 i.mppsUID,
-                i.hl7MessageType,
-                i.userId
+                i.hl7MessageType
         };
     }
 

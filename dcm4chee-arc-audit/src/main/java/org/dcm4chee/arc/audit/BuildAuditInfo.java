@@ -67,7 +67,6 @@ class BuildAuditInfo {
     final String warning;
     final boolean failedIUIDShow;
     final String hl7MessageType;
-    final String userId;
 
     static class Builder {
         private String callingHost;
@@ -91,7 +90,6 @@ class BuildAuditInfo {
         private String warning;
         private boolean failedIUIDShow;
         private String hl7MessageType;
-        private String userId;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -177,10 +175,6 @@ class BuildAuditInfo {
             hl7MessageType = val;
             return this;
         }
-        Builder userId(String val) {
-            userId = val;
-            return this;
-        }
         BuildAuditInfo build() {
             return new BuildAuditInfo(this);
         }
@@ -208,6 +202,5 @@ class BuildAuditInfo {
         warning = builder.warning;
         failedIUIDShow = builder.failedIUIDShow;
         hl7MessageType = builder.hl7MessageType;
-        userId = builder.userId;
     }
 }
