@@ -3,6 +3,7 @@ package org.dcm4chee.arc.exporter;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.xdsi.RegistryResponseType;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -22,6 +23,8 @@ public class DefaultExportContext implements ExportContext {
     private boolean onlyIAN;
     private String submissionSetUID;
     private Attributes xdsiManifest;
+    private RegistryResponseType registryResponse;
+    private Throwable exception;
 
     public DefaultExportContext(Exporter exporter) {
         this.exporter = exporter;
@@ -130,5 +133,25 @@ public class DefaultExportContext implements ExportContext {
     @Override
     public void setXDSiManifest(Attributes xdsiManifest) {
         this.xdsiManifest = xdsiManifest;
+    }
+
+    @Override
+    public RegistryResponseType getXDSiRegistryResponse() {
+        return registryResponse;
+    }
+
+    @Override
+    public void setXDSiRegistryResponse(RegistryResponseType registryResponse) {
+        this.registryResponse = registryResponse;
+    }
+
+    @Override
+    public Throwable getException() {
+        return exception;
+    }
+
+    @Override
+    public void setException(Throwable exception) {
+        this.exception = exception;
     }
 }

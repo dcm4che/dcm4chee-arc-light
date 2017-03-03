@@ -1412,16 +1412,16 @@ class ArchiveDeviceFactory {
             xdsiExportDescriptor.setAETitle("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveAETitles("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveLocationUID(XDSI_SOURCE_ID);
+            xdsiExportDescriptor.setProperty("Manifest.title", XDSI_MANIFEST_TITLE.toString());
+            xdsiExportDescriptor.setProperty("AssigningAuthority.patientId", XDSI_ASSIGNING_AUTHORITY_OID);
             xdsiExportDescriptor.setProperty("XDSSubmissionSet.sourceId", XDSI_SOURCE_ID);
-            xdsiExportDescriptor.setProperty("assigningAuthorityOID", XDSI_ASSIGNING_AUTHORITY_OID);
-            xdsiExportDescriptor.setProperty("Manifest.ContentType", XDSI_KON_TYPECODE.toString());
-            xdsiExportDescriptor.setProperty("Manifest.Title", XDSI_MANIFEST_TITLE.toString());
-            xdsiExportDescriptor.setProperty("languageCode", XDSI_LANGUAGE_CODE);
-            xdsiExportDescriptor.setProperty("classCode", XDSI_CLASS_CODE.toString());
-            xdsiExportDescriptor.setProperty("typeCode", XDSI_KON_TYPECODE.toString());
-            xdsiExportDescriptor.setProperty("confidentialityCode", XDSI_CONFIDENTIALITY_CODE.toString());
-            xdsiExportDescriptor.setProperty("healthCareFacilityTypeCode", XDSI_HEALTH_CARE_FACILITY_TYPE_CODE.toString());
-            xdsiExportDescriptor.setProperty("practiceSettingCode", XDSI_PRACTICE_SETTING_CODE.toString());
+            xdsiExportDescriptor.setProperty("XDSSubmissionSet.contentType", XDSI_KON_TYPECODE.toString());
+            xdsiExportDescriptor.setProperty("DocumentEntry.typeCode", XDSI_KON_TYPECODE.toString());
+            xdsiExportDescriptor.setProperty("DocumentEntry.languageCode", XDSI_LANGUAGE_CODE);
+            xdsiExportDescriptor.setProperty("DocumentEntry.classCode", XDSI_CLASS_CODE.toString());
+            xdsiExportDescriptor.setProperty("DocumentEntry.confidentialityCode", XDSI_CONFIDENTIALITY_CODE.toString());
+            xdsiExportDescriptor.setProperty("DocumentEntry.healthCareFacilityTypeCode", XDSI_HEALTH_CARE_FACILITY_TYPE_CODE.toString());
+            xdsiExportDescriptor.setProperty("DocumentEntry.practiceSettingCode", XDSI_PRACTICE_SETTING_CODE.toString());
             ext.addExporterDescriptor(xdsiExportDescriptor);
 
             HL7ForwardRule hl7ForwardRule = new HL7ForwardRule("Forward to HL7RCV|DCM4CHEE");

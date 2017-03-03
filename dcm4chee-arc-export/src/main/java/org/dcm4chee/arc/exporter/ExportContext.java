@@ -2,6 +2,7 @@ package org.dcm4chee.arc.exporter;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.xdsi.RegistryResponseType;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -50,4 +51,12 @@ public interface ExportContext {
     Attributes getXDSiManifest();
 
     void setXDSiManifest(Attributes xdsiManifest);
+
+    Throwable getException();
+
+    void setException(Throwable exception);
+
+    RegistryResponseType getXDSiRegistryResponse();
+
+    void setXDSiRegistryResponse(RegistryResponseType registryResponse);
 }
