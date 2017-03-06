@@ -58,6 +58,7 @@ import org.dcm4chee.arc.conf.ShowPatientInfo;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
@@ -66,6 +67,7 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.xdsi.RegistryResponseType;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
@@ -76,6 +78,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.net.Socket;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -132,6 +135,9 @@ public class AuditService {
                 break;
             case PROC_STUDY:
                 auditProcedureRecord(auditLogger, readerObj, eventTime, eventType);
+                break;
+            case PROV_REGISTER:
+                auditProvideAndRegister(auditLogger, readerObj, eventTime, eventType);
                 break;
         }
     }
@@ -714,6 +720,36 @@ public class AuditService {
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                 .name(prI.getField(AuditInfo.P_NAME)).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), auditLogger);
+    }
+
+    void spoolProvideAndRegister(ExportContext ctx) {
+        LinkedHashSet<Object> obj = new LinkedHashSet<>();
+        Attributes xdsiManifest = ctx.getXDSiManifest();
+        URI dest = ctx.getExporter().getExporterDescriptor().getExportURI();
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(getAET(device))
+                .calledAET(dest.toString()).calledHost(dest.getHost())
+                .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
+                .pID(getPID(xdsiManifest)).pName(pName(xdsiManifest)).submissionSetUID(ctx.getSubmissionSetUID()).build();
+        obj.add(new AuditInfo(i));
+        writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.PROV_REGIS), obj);
+    }
+
+    void auditProvideAndRegister(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType et) {
+        AuditInfo ai = new AuditInfo(readerObj.getMainInfo());
+        EventIdentification ei = getEI(et, ai.getField(AuditInfo.OUTCOME), eventTime);
+        BuildActiveParticipant apSource = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLING_AET),
+                getLocalHostName(auditLogger)).altUserID(auditLogger.processID()).roleIDCode(et.source).build();
+        BuildActiveParticipant apDest = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLED_AET),
+                ai.getField(AuditInfo.CALLED_HOST)).roleIDCode(et.destination).build();
+        BuildParticipantObjectIdentification poiPatient = new BuildParticipantObjectIdentification.Builder(
+                ai.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
+                .build();
+        BuildParticipantObjectIdentification poiSubmissionSet = new BuildParticipantObjectIdentification.Builder(
+                ai.getField(AuditInfo.SUBMISSION_SET_UID), AuditMessages.ParticipantObjectIDTypeCode.IHE_XDS_METADATA,
+                AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Job)
+                .build();
+        emitAuditMessage(ei, getApList(apSource, apDest), getPoiList(poiPatient, poiSubmissionSet), auditLogger);
     }
 
     private BuildAuditInfo getAIStoreCtx(StoreContext ctx) {

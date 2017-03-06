@@ -141,7 +141,8 @@ public class AuditTriggerObserver {
     }
 
     public void onExport(@Observes ExportContext ctx) {
-        // TODO
+        if (auditService.hasAuditLoggers())
+            auditService.spoolProvideAndRegister(ctx);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
