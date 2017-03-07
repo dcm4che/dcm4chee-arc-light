@@ -78,10 +78,10 @@ public class XDSiExporter extends AbstractExporter {
             null,
             "DICOM Key Object Note Type Code");
     private static final Code DEFAULT_CLASS_CODE = new Code(
-            "Imaging Exam",
-            "RSNA ISN",
+            "*",
+            "1.3.6.1.4.1.21367.100.1",
             null,
-            "Imaging Exam");
+            "*");
     private static final Code DEFAULT_CONFIDENTIALITY_CODE = new Code(
             "N", 
             "2.16.840.1.113883.5.25",
@@ -93,10 +93,10 @@ public class XDSiExporter extends AbstractExporter {
             null,
             "Manifest");
     private static final Code DEFAULT_HEALTH_CARE_FACILITY_TYPE_CODE = new Code(
-            "GENERAL HOSPITAL",
-            "RSNA-ISN",
+            "RADDX",
+            "2.16.840.1.113883.5.11",
             null,
-            "GENERAL HOSPITAL");
+            "Radiology diagnostics or therapeutics unit");
     private static final Code DEFAULT_PRACTICE_SETTING_CODE = new Code(
             "R-3027B",
             "SRT",

@@ -911,10 +911,10 @@ class ArchiveDeviceFactory {
             null,
             "DICOM Key Object Note Type Code");
     static final Code XDSI_CLASS_CODE = new Code(
-            "Imaging Exam",
-            "RSNA ISN",
+            "*",
+            "1.3.6.1.4.1.21367.100.1",
             null,
-            "Imaging Exam");
+            "*");
     static final Code XDSI_CONFIDENTIALITY_CODE = new Code(
             "N",
             "2.16.840.1.113883.5.25",
@@ -926,10 +926,10 @@ class ArchiveDeviceFactory {
             null,
             "Manifest");
     static final Code XDSI_HEALTH_CARE_FACILITY_TYPE_CODE = new Code(
-            "GENERAL HOSPITAL",
-            "RSNA-ISN",
+            "RADDX",
+            "2.16.840.1.113883.5.11",
             null,
-            "GENERAL HOSPITAL");
+            "Radiology diagnostics or therapeutics unit");
     static final Code XDSI_PRACTICE_SETTING_CODE = new Code(
             "R-3027B",
             "SRT",
