@@ -703,48 +703,48 @@
                     <div class="colcell">
                         <div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>
                     </div>
-                    <div class="exeq_buttons">
-                        <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,3)"></div>
-                        <div class="checkbox_content hiddenbuttons">
-                            <input type="checkbox" [ngModel]="patient._VALUE.selected" name="select" (change)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"fromcheckbox")'>
-                        </div>
-                        <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </a>
-                        <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
-                            <span class="glyphicon glyphicon-plus" ></span>
-                        </a>
-                        <a class="table_btn hiddenbuttons"  ng-show="isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] == 0" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient">
-                            <span class="glyphicon glyphicon-remove"></span>
-                        </a>
-                        <a class="table_btn hiddenbuttons"  ng-show="isRole('admin') && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer">
-                            <span class="glyphicon glyphicon-eye-open"></span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="thead" [ngClass]="{hide:patient._VALUE.hide}" (click)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"click")'>
-                <div class="tr_row" [ngClass]="{selected: patient._VALUE.selected}">
-                    <div class="th" style="width:10%">
-                        <!--<div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>-->
-                        <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">
-                            <span class="glyphicon glyphicon-th-list"></span>
-                        </a>
+                      <div class="exeq_buttons">
+                          <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,3)"></div>
+                          <div class="checkbox_content hiddenbuttons">
+                              <input type="checkbox" [ngModel]="patient._VALUE.selected" name="select" (change)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"fromcheckbox")'>
+                          </div>
+                          <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
+                              <span class="glyphicon glyphicon-pencil"></span>
+                          </a>
+                          <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
+                              <span class="glyphicon glyphicon-plus" ></span>
+                          </a>
+                          <a class="table_btn hiddenbuttons"  *ngIf="isRole('admin') && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient">
+                              <span class="glyphicon glyphicon-remove"></span>
+                          </a>
+                          <a class="table_btn hiddenbuttons"  ng-show="isRole('admin') && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer">
+                              <span class="glyphicon glyphicon-eye-open"></span>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="thead" [ngClass]="{hide:patient._VALUE.hide}" (click)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"click")'>
+                  <div class="tr_row" [ngClass]="{selected: patient._VALUE.selected}">
+                      <div class="th" style="width:10%">
+                          <!--<div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>-->
+                          <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">
+                              <span class="glyphicon glyphicon-th-list"></span>
+                          </a>
 
-                        <a *ngIf="!(isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0) && !(patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
-                        <a *ngIf="!(isRole('admin') && patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0] && patient._VALUE.attrs['00201200'].Value[0] === 0) && (patient._VALUE.studies)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
-                        <a class="table_btn" *ngIf="!patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = true" href="" title="Show MWLs">&#9658;</a>
-                        <a class="table_btn" *ngIf="patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
-                    </div>
-                    <div style="width:14%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00100010'] && patient._VALUE.attrs['00100010'].Value && patient._VALUE.attrs['00100010'].Value[0]" >{{(patient._VALUE.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'}}</div></div>
-                    <div style="width:12%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00100020'] && patient._VALUE.attrs['00100020'].Value && patient._VALUE.attrs['00100020'].Value[0]" tooltip="{{(patient._VALUE.attrs['00100020'].Value[0]) || '&nbsp;'}}">{{(patient._VALUE.attrs['00100020'].Value[0]) || '&nbsp;'}}</div></div>
-                    <div style="width:12%" class="th" ><div *ngIf="patient._VALUE.attrs['00100021'] && patient._VALUE.attrs['00100021'].Value && patient._VALUE.attrs['00100021'].Value[0]" class="txt hover_cell" tooltip="{{(patient._VALUE.attrs['00100021'].Value[0])|| '&nbsp;'}}">{{(patient._VALUE.attrs['00100021'].Value[0]) || '&nbsp;'}}</div></div>
-                    <div style="width:8%"  class="th hover_cell" ><div *ngIf="patient._VALUE.attrs['00100030'] && patient._VALUE.attrs['00100030'].Value && patient._VALUE.attrs['00100030'].Value[0]">{{(patient._VALUE.attrs['00100030'].Value[0] | formatDA) || '&nbsp;'}}</div></div>
-                    <div style="width:4%" class="th hover_cell" ><div *ngIf="patient._VALUE.attrs['00100040'] && patient._VALUE.attrs['00100040'].Value && patient._VALUE.attrs['00100040'].Value[0]"  [innerHtml]="(patient._VALUE.attrs['00100040'].Value[0]) || '&nbsp;'"></div></div>
-                    <div style="width:38%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00104000'] && patient._VALUE.attrs['00104000'].Value && patient._VALUE.attrs['00104000'].Value[0]" tooltip="{{(patient._VALUE.attrs['00104000'].Value[0]) || '&nbsp;'}}">{{(patient._VALUE.attrs['00104000'].Value[0]| trim:80) || '&nbsp;'}}</div></div>
-                    <div style="width:2%" class="th hover_cell"><div *ngIf="patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0]" >{{(patient._VALUE.attrs['00201200'].Value[0]) || '&nbsp;'}}</div></div>
-                </div>
-            </div>
+                          <a *ngIf="!(isRole('admin') && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)) && !(patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
+                          <a *ngIf="!(isRole('admin') && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)) && (patient._VALUE.studies)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
+                          <a class="table_btn" *ngIf="!patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = true" href="" title="Show MWLs">&#9658;</a>
+                          <a class="table_btn" *ngIf="patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
+                      </div>
+                      <div style="width:14%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00100010'] && patient._VALUE.attrs['00100010'].Value && patient._VALUE.attrs['00100010'].Value[0]" >{{(patient._VALUE.attrs['00100010'].Value[0].Alphabetic) || '&nbsp;'}}</div></div>
+                      <div style="width:12%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00100020'] && patient._VALUE.attrs['00100020'].Value && patient._VALUE.attrs['00100020'].Value[0]" tooltip="{{(patient._VALUE.attrs['00100020'].Value[0]) || '&nbsp;'}}">{{(patient._VALUE.attrs['00100020'].Value[0]) || '&nbsp;'}}</div></div>
+                      <div style="width:12%" class="th hover_cell" ><div *ngIf="patient._VALUE.attrs['00100021'] && patient._VALUE.attrs['00100021'].Value && patient._VALUE.attrs['00100021'].Value[0]" tooltip="{{(patient._VALUE.attrs['00100021'].Value[0])|| '&nbsp;'}}">{{(patient._VALUE.attrs['00100021'].Value[0]) || '&nbsp;'}}</div></div>
+                      <div style="width:8%"  class="th hover_cell" ><div *ngIf="patient._VALUE.attrs['00100030'] && patient._VALUE.attrs['00100030'].Value && patient._VALUE.attrs['00100030'].Value[0]">{{(patient._VALUE.attrs['00100030'].Value[0] | formatDA) || '&nbsp;'}}</div></div>
+                      <div style="width:4%" class="th hover_cell" ><div *ngIf="patient._VALUE.attrs['00100040'] && patient._VALUE.attrs['00100040'].Value && patient._VALUE.attrs['00100040'].Value[0]"  [innerHtml]="(patient._VALUE.attrs['00100040'].Value[0]) || '&nbsp;'"></div></div>
+                      <div style="width:38%" class="th txt hover_cell" ><div *ngIf="patient._VALUE.attrs['00104000'] && patient._VALUE.attrs['00104000'].Value && patient._VALUE.attrs['00104000'].Value[0]" tooltip="{{(patient._VALUE.attrs['00104000'].Value[0]) || '&nbsp;'}}">{{(patient._VALUE.attrs['00104000'].Value[0]| trim:80) || '&nbsp;'}}</div></div>
+                      <div style="width:2%" class="th hover_cell"><div *ngIf="patient._VALUE.attrs['00201200'] && patient._VALUE.attrs['00201200'].Value && patient._VALUE.attrs['00201200'].Value[0]" >{{(patient._VALUE.attrs['00201200'].Value[0]) || '&nbsp;'}}</div></div>
+                  </div>
+              </div>
             <div class="tr_row"  *ngIf="patient._VALUE.showAttributes && patient._VALUE.attrs">
                 <div class="td_cell attribute_list" id="{{patient._VALUE.attrs['00100020'].Value[0]}}">
                     <attribute-list *ngIf="patient._VALUE.attrs" [attrs]="patient._VALUE.attrs"></attribute-list>
@@ -770,16 +770,16 @@
                                     <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
                                         <span class="glyphicon glyphicon-ok"></span>
                                     </a>
-                                    <a class="hiddenbuttons" [hidden]="trashaktive || !isRole('admin') || study._VALUE.attrs['00201208'].Value[0] === 0" (click)="rejectStudy(study._VALUE)" href="" title="Reject study">
+                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && isRole('admin') && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && !_.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0))" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Reject study">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
-                                    <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="deleteStudy(study._VALUE)" href="" title="Delete study permanently">
+                                    <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="$event.preventDefault();deleteStudy(study._VALUE)" href="" title="Delete study permanently">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
-                                    <a class="hiddenbuttons"  *ngIf="trashaktive && isRole('admin')" (click)="rejectStudy(study._VALUE)" href="" title="Restore study">
+                                    <a class="hiddenbuttons"  *ngIf="trashaktive && isRole('admin')" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Restore study">
                                         <span class="glyphicon glyphicon-repeat"></span>
                                     </a>
-                                    <a class="hiddenbuttons" ng-show="user.isRole('admin') && aetmodel.dcmInvokeImageDisplayStudyURL"  (click)="$event.preventDefault();openViewer(study._VALUE.attrs,'study')" href="" title="Open study in the viewer">
+                                    <a class="hiddenbuttons" *ngIf="isRole('admin') && aetmodel.dcmInvokeImageDisplayStudyURL"  (click)="$event.preventDefault();openViewer(study._VALUE.attrs,'study')" href="" title="Open study in the viewer">
                                         <span class="glyphicon glyphicon-eye-open"></span>
                                     </a>
                                 </div>
@@ -990,7 +990,7 @@
             <div class="repeat1" *ngFor="let mwl of patient._VALUE.mwls | getKey" >
                 <div class="tbody">
                     <div class="tr_row">
-                        <div class="colcell" [innerHtml]="mwl._VALUE.offset+1+'.'"> </div>
+                        <!--<div class="colcell" [innerHtml]="mwl._VALUE.offset+1+'.'"> </div>-->
                         <div class="subblock">
                             <div class="td_row thead repeat4_hover">
                                 <div class="td_cell table_btn" style="width:7%">

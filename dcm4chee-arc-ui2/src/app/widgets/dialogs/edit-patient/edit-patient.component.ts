@@ -15,10 +15,13 @@ import {SearchPipe} from "../../../pipes/search.pipe";
 })
 export class EditPatientComponent {
 
-    opendropdown = false;
 
+    opendropdown = false;
     addPatientAttribut = "";
     lastPressedCode;
+    options = Globalvar.OPTIONS;
+    DCM4CHE = DCM4CHE;
+    private _mode;
     private _saveLabel;
     private _titleLabel;
     private _dropdown
@@ -27,19 +30,39 @@ export class EditPatientComponent {
     private _iod:any;
 
     constructor(public dialogRef: MdDialogRef<EditPatientComponent>, public mainservice:AppService) {
-
+        setTimeout(()=>{
+            console.log("in settimeout");
+            if(this._mode === "create"){
+                // $(".edit-patient .00100020").attr("title","To generate it automatically leave it blank");
+                // $(".edit-patient .00100020").attr("placeholder","To generate it automatically leave it blank");
+            }
+            // $(".editform .schema-form-fieldset > legend").append('<span class="glyphicon glyphicon-triangle-right"></span>');
+            // $(".editform .schema-form-fieldset > legend").bind("click",function(){
+            //     $(this).siblings("sf-decorator").toggle();
+            //     var icon = $(this).find(".glyphicon");
+            //     if(icon.hasClass('glyphicon-triangle-right')){
+            //         icon.removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
+            //     }else{
+            //         icon.removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
+            //     }
+            // });
+        },1000);
     }
-    options = Globalvar.OPTIONS;
-    DCM4CHE = DCM4CHE;
     onChange(newValue, model) {
         _.set(this, model,newValue);
+    }
+    get mode() {
+        return this._mode;
+    }
+
+    set mode(value) {
+        this._mode = value;
     }
     get iod(): any {
         return this._iod;
     }
 
     set iod(value: any) {
-        console.log("patientiod",value);
         this._iod = value;
     }
 
@@ -84,6 +107,7 @@ export class EditPatientComponent {
 
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
+        console.log("in dialogkeyhandler",code);
         if(code === 13){
             dialogRef.close(this._patient);
         }
@@ -98,10 +122,24 @@ export class EditPatientComponent {
             return Object.keys(obj);
         }
     }
+    checkClick(e){
+        console.log("e",e);
+        var code = (e.keyCode ? e.keyCode : e.which);
+        console.log("code in checkclick");
+        if(!(e.target.id === "dropdown" || e.target.id === 'addPatientAttribut')){
+            this.opendropdown = false;
+        }
+    }
     pressedKey(e){
         this.opendropdown = true;
         var code = (e.keyCode ? e.keyCode : e.which);
+        console.log("in pressedkey",code);
         this.lastPressedCode = code;
+        //Tab clicked
+        if(code === 9){
+            this.opendropdown = false;
+        }
+        //Enter clicked
         if(code === 13){
             // var filter = $filter("filter");
             // var filtered = filter(this.dropdown, this.addPatientAttribut);
@@ -116,6 +154,7 @@ export class EditPatientComponent {
             }else{
                 attrcode = filtered[0].code;
             }
+            console.log("patient_attrs not undefined", this._patient.attrs[attrcode]);
             if(this._patient.attrs[attrcode] != undefined){
                 if(this._iod[attrcode].multi){
                     this._patient.attrs[attrcode]["Value"].push("");
@@ -130,6 +169,7 @@ export class EditPatientComponent {
                 }
             }else{
                 this.patient.attrs[attrcode]  = this.iod[attrcode];
+                this.opendropdown = false;
             }
             setTimeout(function(){
                 this.lastPressedCode = 0;
@@ -150,7 +190,7 @@ export class EditPatientComponent {
             }
 
             if($(".dropdown_element.selected").position()){
-                $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+                $('#dropdown').scrollTop($('#dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('#dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
             }
         }
         //Arrow up pressed
@@ -166,7 +206,7 @@ export class EditPatientComponent {
                     $(".dropdown_element.selected").removeClass('selected').prev().addClass('selected');
                 }
             }
-            $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+            $('#dropdown').scrollTop($('#dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('#dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
         }
         if(code === 27){
             this.opendropdown = false;

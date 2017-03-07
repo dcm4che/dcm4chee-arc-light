@@ -11,6 +11,8 @@ declare var DCM4CHE: any;
 export class IodFormGeneratorComponent implements OnInit {
     @Input() object;
     @Input() prefix;
+    @Input() mode;
+
     objectIsArray;
     hasValue;
 

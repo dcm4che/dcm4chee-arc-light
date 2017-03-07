@@ -16,6 +16,7 @@ import {ComparewithiodPipe} from "../../../pipes/comparewithiod.pipe";
 })
 export class EditMwlComponent {
 
+
     opendropdown = false;
 
     addmwlAttribut = "";
@@ -26,6 +27,7 @@ export class EditMwlComponent {
     private _mwl:any;
     private _mwlkey:any;
     private _iod:any;
+    private _mode;
 
     constructor(public dialogRef: MdDialogRef<EditMwlComponent>, public mainservice:AppService) {
 
@@ -34,6 +36,13 @@ export class EditMwlComponent {
     DCM4CHE = DCM4CHE;
     onChange(newValue, model) {
         _.set(this, model,newValue);
+    }
+    get mode() {
+        return this._mode;
+    }
+
+    set mode(value) {
+        this._mode = value;
     }
     get iod(): any {
         return this._iod;

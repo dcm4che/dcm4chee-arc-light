@@ -3,9 +3,15 @@
         <h5 *ngIf="parameters.title">{{ parameters.title }}</h5>
         <div class="content">
             {{ parameters.content }}
+            <div *ngIf="parameters.selectoptions">
+                <select id="reject" name="reject" class="col-md-9" (change)="parameters.result = $event.target.value">
+                    <option *ngFor="let rjn of parameters.selectoptions" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
+                </select>
+            </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="dialogRef.close('ok')">OK</button>
+            <button *ngIf="!parameters.saveButton"  class="save" type="button" (click)="dialogRef.close('ok')">OK</button>
+            <button *ngIf="parameters.saveButton" class="save" type="button" (click)="dialogRef.close(parameters.result)">{{ parameters.saveButton }}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>
         </div>
     </div>

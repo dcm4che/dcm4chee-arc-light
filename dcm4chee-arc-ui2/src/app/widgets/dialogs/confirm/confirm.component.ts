@@ -26,7 +26,6 @@ export class ConfirmComponent {
     }
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
-        console.log("in modality keyhandler",code);
         if(code === 13){
             dialogRef.close('ok');
         }

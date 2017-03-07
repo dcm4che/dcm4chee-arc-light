@@ -171,4 +171,32 @@ export class Globalvar {
         ];
 
     }
+    /*
+    * Defines action for replacing placehoders/title or disabling elements when you edit or create patient,mwl or study
+    * Used in helpers/placeholderchanger.directive.ts
+    * */
+    public static get IODPLACEHOLDERS(): any{
+        return {
+            "00100020":{
+                "create":{
+                    placeholder:"To generate it automatically leave it blank",
+                    action:"replace"
+                }
+            },
+            "0020000D":{
+                "create":{
+                    placeholder:"To generate it automatically leave it blank",
+                    action:"replace"
+                },
+                "edit":{
+                    action:"disable"
+                }
+            },
+            "00400009":{
+                "edit":{
+                    action:"disable"
+                }
+            }
+        }
+    }
 }

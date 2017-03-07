@@ -34,6 +34,7 @@ import { KeysPipe } from './pipes/keys.pipe';
 import { IodFormGeneratorComponent } from './helpers/iod-form-generator/iod-form-generator.component';
 import { TooltipDirective } from './helpers/tooltip/tooltip.directive';
 import { ComparewithiodPipe } from './pipes/comparewithiod.pipe';
+import { PlaceholderchangerDirective } from './helpers/placeholderchanger.directive';
 
 @NgModule({
     declarations: [
@@ -59,7 +60,8 @@ import { ComparewithiodPipe } from './pipes/comparewithiod.pipe';
         KeysPipe,
         IodFormGeneratorComponent,
         TooltipDirective,
-        ComparewithiodPipe
+        ComparewithiodPipe,
+        PlaceholderchangerDirective
     ],
     imports: [
         BrowserModule,

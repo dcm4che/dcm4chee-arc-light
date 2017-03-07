@@ -2,10 +2,19 @@
   .vex-theme-os{
     width:1800px;
   }
+  .clipboard.said .content{
+    min-width:900px;
+  }
 }
 @media screen and (max-width: 1900px) {
   .vex-theme-os{
     width:1600px;
+  }
+  .clipboard.said .content{
+    min-width:800px;
+  }
+  .headerblock .headerbuttons button{
+    width:25px;
   }
 }
 @media screen and (max-width: 1710px) {
@@ -28,6 +37,8 @@
       font-size: 12px;
     }
   }
+
+
 }
 
 
@@ -39,6 +50,9 @@
   .vex-theme-os{
     width:1500px;
   }
+  .headerblock .headerbuttons button{
+    width:24px;
+  }
 }
 @media screen and (max-width: 1600px) {
   .block-1-1, .block-1-2, .block-2-1, .block-2-2{
@@ -46,6 +60,9 @@
   }
   .vex-theme-os{
     width:1400px;
+  }
+  .headerblock .headerbuttons button{
+    width:23px;
   }
 }
 @media (max-width: 1500px) {
@@ -55,6 +72,9 @@
   .vex-theme-os{
     width:1300px;
   }
+  .headerblock .headerbuttons button{
+    width:21px;
+  }
 }
 @media (max-width: 1400px) {
   .repeat0 .repeat1 .subblock{
@@ -62,6 +82,9 @@
   }
   .vex-theme-os{
     width:1200px;
+  }
+  .headerblock .headerbuttons button{
+    width:20px;
   }
 }
 @media screen and (max-width: 1300px) {
@@ -96,5 +119,8 @@
 @media screen and (max-width: 1200px) {
   .vex-theme-os{
     width:auto;
+  }
+  .clipboard.said .content{
+    min-width:600px;
   }
 }

@@ -86,14 +86,14 @@
           </execution>
             <execution>
                 <!--<id>npm run-script prod</id>-->
-                <id>npm run-script dev</id>
+                <id>npm run-script prod</id>
                 <phase>prepare-package</phase>
                 <goals>
                     <goal>npm</goal>
                 </goals>
                 <configuration>
                     <!--<arguments>run-script prod</arguments> //use this for production-->
-                    <arguments>run-script dev</arguments>
+                    <arguments>run-script prod</arguments>
                 </configuration>
             </execution>
         </executions>

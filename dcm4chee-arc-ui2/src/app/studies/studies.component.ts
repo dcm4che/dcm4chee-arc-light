@@ -22,8 +22,7 @@ import {ComparewithiodPipe} from "../pipes/comparewithiod.pipe";
 
 @Component({
     selector: 'app-studies',
-    templateUrl: './studies.component.html',
-    styleUrls: ['./studies.component.css']
+    templateUrl: './studies.component.html'
 })
 export class StudiesComponent{
 
@@ -83,6 +82,7 @@ export class StudiesComponent{
             return false;
         }
     }
+    _ = _;
     jsonHeader = new Headers({ 'Content-Type': 'application/json' });
 
     clearForm(){
@@ -609,7 +609,8 @@ export class StudiesComponent{
             $this.service.initEmptyValue(mwlFiltered.attrs);
 
             $this.dialogRef = $this.dialog.open(EditMwlComponent, $this.config);
-            $this.dialogRef.componentInstance.iod = iod
+            $this.dialogRef.componentInstance.iod = iod;
+            $this.dialogRef.componentInstance.mode = mode;
             $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
             $this.dialogRef.componentInstance.mwl = mwlFiltered;
             $this.dialogRef.componentInstance.mwlkey = mwlkey;
@@ -972,6 +973,7 @@ export class StudiesComponent{
 
             $this.service.initEmptyValue(patient.attrs);
             $this.dialogRef = $this.dialog.open(EditPatientComponent, $this.config);
+            $this.dialogRef.componentInstance.mode = mode;
             $this.dialogRef.componentInstance.patient = patient;
             $this.dialogRef.componentInstance.patientkey = patientkey;
             $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
@@ -1020,6 +1022,36 @@ export class StudiesComponent{
                             if(universalEntityType && oldUniversalEntityType){
                                 oldPatientID += "&"+ oldUniversalEntityType;
                             }
+                        }
+                        //From vrinda
+                        if(mode === "create" && _.hasIn(patient,"attrs.00100021") && patient.attrs["00100021"] != undefined) {
+                            if (patient.attrs["00100021"].Value && patient.attrs["00100021"].Value[0]) {
+                                oldPatientID = oldPatientID + "^^^" + patient.attrs["00100021"].Value[0];
+                            }
+                            if (
+                                patient.attrs["00100024"] &&
+                                patient.attrs["00100024"].Value &&
+                                patient.attrs["00100024"].Value[0] &&
+                                patient.attrs["00100024"].Value[0]["00400032"] &&
+                                patient.attrs["00100024"].Value[0]["00400032"].Value &&
+                                patient.attrs["00100024"].Value[0]["00400032"].Value[0]
+                            ) {
+                                oldUniversalEntityId  = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
+                            }
+                            if (
+                                patient.attrs["00100024"] &&
+                                patient.attrs["00100024"].Value &&
+                                patient.attrs["00100024"].Value[0] &&
+                                patient.attrs["00100024"].Value[0]["00400033"] &&
+                                patient.attrs["00100024"].Value[0]["00400033"].Value &&
+                                patient.attrs["00100024"].Value[0]["00400033"].Value[0]
+                            ) {
+                                oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
+                            }
+                            if (oldUniversalEntityId != undefined)
+                                oldPatientID = oldPatientID + "&" + oldUniversalEntityId;
+                            if (oldUniversalEntityType != undefined)
+                                oldPatientID = oldPatientID + "&" + oldUniversalEntityType;
                         }
                         // console.log("patient.attrs",patient.attrs);
                         $this.$http.put(
@@ -1102,6 +1134,153 @@ export class StudiesComponent{
             console.log("error",err);
         });
     };
+    deleteStudy = function(study){
+        this.cfpLoadingBar.start();
+        console.log("study",study);
+        // if(study.attrs['00201208'].Value[0] === 0){
+        let $this = this;
+        this.confirm({
+            content:'Are you sure you want to delete this study?'
+        }).subscribe(result => {
+            if(result){
+                $this.$http.delete(
+                    "../aets/"+$this.aet+"/rs/studies/"+study.attrs["0020000D"].Value[0]
+                ).subscribe(
+                    (response) => {
+                        $this.mainservice.setMessage({
+                            "title": "Info",
+                            "text": "Study deleted successfully!",
+                            "status": "info"
+                        });
+                        console.log("response",response);
+                        $this.fireRightQuery();
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (response) => {
+                        $this.mainservice.setMessage({
+                            "title": "Error "+response.status,
+                            "text": response.statusText,
+                            "status": "error"
+                        });
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+            }
+        });
+/*        vex.dialog.confirm({
+            message: 'Are you sure you want to delete this study?',
+            callback: function(value) {
+                if(value){
+                    $http({
+                        method: 'DELETE',
+                        url:"../aets/"+$scope.aet+"/rs/studies/"+study.attrs["0020000D"].Value[0],
+                    }).then(
+                        function successCallback(response) {
+                            DeviceService.msg($scope, {
+                                "title": "Info",
+                                "text": "Study deleted successfully!",
+                                "status": "info"
+                            });
+                            console.log("response",response);
+                            fireRightQuery();
+                            cfpLoadingBar.complete();
+                        },
+                        function errorCallback(response) {
+                            DeviceService.msg($scope, {
+                                // "title": "Error",
+                                // "text": "Error deleting study!",
+                                // "status": "error"
+                                "title": "Error "+response.status,
+                                "text": response.data.errorMessage,
+                                "status": "error"
+                            });
+                            cfpLoadingBar.complete();
+                        }
+                    );
+                }else{
+                    $log.log("deleting canceled");
+                    cfpLoadingBar.complete();
+                }
+            }
+        });*/
+    };
+    rejectStudy(study) {
+        let $this = this;
+        if (this.trashaktive) {
+            console.log("studyURL(study.attrs)",this.studyURL(study.attrs));
+            console.log("$scope.rjcode.codeValue",this.rjcode);
+            console.log("$scope.rjcode.codingSchemeDesignator",this.rjcode.codingSchemeDesignator);
+
+            this.$http.post(
+                this.studyURL(study.attrs) + '/reject/' + this.rjcode.codeValue + "^"+ this.rjcode.codingSchemeDesignator,
+                {},
+                $this.jsonHeader
+            ).subscribe(
+                (res) => {
+                // $scope.queryStudies($scope.studies[0].offset);
+                    $this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "Study restored successfully!",
+                        "status": "info"
+                    });
+                    $this.queryStudies($this.patients[0].offset);
+                },
+                (response) => {
+                    $this.mainservice.setMessage({
+                        "title": "Error "+response.status,
+                        "text": response.statusText,
+                        "status": "error"
+                    });
+                    console.log("response",response);
+                }
+            );
+        }else{
+
+            let parameters: any = {
+                content: 'Select rejected type',
+                selectoptions: this.rjnotes,
+                result: this.rjnotes[0].codeValue+'^'+this.rjnotes[0].codingSchemeDesignator,
+                saveButton: "REJECT"
+            };
+            console.log("parameters", parameters);
+            this.confirm(parameters).subscribe(result => {
+                if (result) {
+                    console.log("result", result);
+                    console.log("parameters", parameters);
+                    $this.cfpLoadingBar.start();
+                    $this.$http.post(
+                        $this.studyURL(study.attrs) + '/reject/' + parameters.result,
+                        {},
+                        $this.jsonHeader
+                    ).subscribe(
+                        (response) => {
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Study rejected successfully!",
+                                "status": "info"
+                            });
+
+                            // patients.splice(patientkey,1);
+                            $this.fireRightQuery();
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.mainservice.setMessage({
+                                "title": "Error " + err.status,
+                                "text": err.statusText,
+                                "status": "error"
+                            });
+                            // angular.element("#querypatients").trigger('click');
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                } else {
+                    console.log("else", result);
+                    console.log("parameters", parameters);
+                }
+            });
+        }
+    }
     deletePatient(patient,patients, patientkey){
         // console.log("study",study);
         if(_.hasIn(patient,'attrs["00201200"].Value[0]') && patient.attrs['00201200'].Value[0] === 0){
@@ -1201,7 +1380,7 @@ export class StudiesComponent{
                 $this.morePatients = undefined;
                 $this.moreMWL = undefined;
                 if(_.size(res) > 0){
-                    var pat, mwl, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
+                    let pat, mwl, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
                     res.forEach(function (studyAttrs, index) {
                         patAttrs = {};
                         $this.extractAttrs(studyAttrs, tags, patAttrs);
@@ -1228,6 +1407,7 @@ export class StudiesComponent{
                         };
                         pat.mwls.push(mwl);
                     });
+                    console.log("in mwl patient",$this.patients);
                     $this.extendedFilter(false);
                     if ($this.moreMWL = (res.length > $this.limit)) {
                         pat.mwls.pop();
@@ -1256,12 +1436,13 @@ export class StudiesComponent{
     };
     setTrash(){
         this.aet = this.aetmodel.title;
+        let $this = this;
         if(this.aetmodel.dcmHideNotRejectedInstances === true){
             if(this.rjcode === null){
                 this.$http.get("../reject?dcmRevokeRejection=true")
                     .map((res)=>res.json())
                     .subscribe(function (res) {
-                        this.rjcode = res[0];
+                        $this.rjcode = res[0];
                     });
             }
             this.filter.returnempty = false;
@@ -2035,10 +2216,9 @@ export class StudiesComponent{
         if (_.size(this.clipboard) > 0) {
             this.cfpLoadingBar.start();
             let headers:Headers = new Headers({'Content-Type': 'application/json'});
-            headers.append("testparam","testvalue");
-            console.log("headers",headers);
 
-
+            console.log("selected",this.selected);
+            console.log("clipboard",this.clipboard);
             if(!this.service.isTargetInClipboard(this.selected, this.clipboard)){//TODO
 
                 let $this = this;
@@ -2162,9 +2342,10 @@ export class StudiesComponent{
                                                     console.log("i", i);
                                                     $this.$http.post(
                                                         "../aets/" + $this.aet + "/rs/studies/" + response['0020000D'].Value[0] + "/copy",
-                                                        i,
+                                                        m,
                                                         headers
-                                                    ).map(res => {
+                                                    )
+                                                      /*  .map(res => {
                                                         let resjson;
                                                         try {
                                                             resjson = res.json();
@@ -2172,23 +2353,24 @@ export class StudiesComponent{
                                                             resjson = {};
                                                         }
                                                         return resjson;
-                                                    })
+                                                    })*/
                                                         .subscribe((response) => {
                                                             console.log("in then function", response);
                                                             $this.clipboard = {};
-                                                            /*                                           $this.mainservice.setMessage({
+                                                             $this.mainservice.setMessage({
                                                              "title": "Info",
                                                              "text": "Object with the Study Instance UID " + m.StudyInstanceUID + " copied successfully!",
                                                              "status": "info"
-                                                             });*/
+                                                             });
                                                             $this.cfpLoadingBar.stop();
                                                             // $this.callBackFree = true;
                                                         }, (response) => {
                                                             console.log("resin err", response);
+                                                            $this.clipboard = {};
                                                             $this.cfpLoadingBar.stop();
                                                             $this.mainservice.setMessage({
                                                                 "title": "Error " + response.status,
-                                                                "text": JSON.parse(response._body).errorMessage,
+                                                                "text": response.statusText,
                                                                 "status": "error"
                                                             });
                                                             // $this.callBackFree = true;
@@ -2200,7 +2382,7 @@ export class StudiesComponent{
                                                 $this.cfpLoadingBar.stop();
                                                 $this.mainservice.setMessage({
                                                     "title": "Error " + response.status,
-                                                    "text": JSON.parse(response._body).errorMessage,
+                                                    "text": response.statusText,
                                                     "status": "error"
                                                 });
                                                 console.log("response", response);
@@ -2213,7 +2395,8 @@ export class StudiesComponent{
                                             "../aets/" + $this.aet + "/rs/studies/" + $this.target.attrs['0020000D'].Value[0] + "/copy",
                                             m,
                                             headers
-                                        ).map(res => {
+                                        )
+/*                                            .map(res => {
                                             let resjson;
                                             try {
                                                 resjson = res.json();
@@ -2221,7 +2404,7 @@ export class StudiesComponent{
                                                 resjson = {};
                                             }
                                             return resjson;
-                                        })
+                                        })*/
                                             .subscribe((response) => {
                                                 console.log("in then function");
                                                 $this.clipboard = {};
@@ -2237,7 +2420,7 @@ export class StudiesComponent{
                                                 $this.cfpLoadingBar.stop();
                                                 $this.mainservice.setMessage({
                                                     "title": "Error " + response.status,
-                                                    "text": JSON.parse(response._body).errorMessage,
+                                                    "text": response.statusText,
                                                     "status": "error"
                                                 });
                                                 // $this.callBackFree = true;
@@ -2258,7 +2441,7 @@ export class StudiesComponent{
                                         study,
                                         headers
                                     )
-                                        .map(res => {
+/*                                        .map(res => {
                                             let resjson;
                                             try {
                                                 resjson = res.json();
@@ -2266,7 +2449,7 @@ export class StudiesComponent{
                                                 resjson = {};
                                             }
                                             return resjson;
-                                        })
+                                        })*/
                                         .subscribe((response) => {
                                                 _.forEach($this.clipboard.otherObjects, function (m, i) {
                                                     console.log("m", m);
@@ -2298,7 +2481,7 @@ export class StudiesComponent{
                                                             $this.cfpLoadingBar.stop();
                                                             $this.mainservice.setMessage({
                                                                 "title": "Error " + response.status,
-                                                                "text": JSON.parse(response._body).errorMessage,
+                                                                "text": response.statusText,
                                                                 "status": "error"
                                                             });
                                                         });
@@ -2308,7 +2491,7 @@ export class StudiesComponent{
                                                 $this.cfpLoadingBar.stop();
                                                 $this.mainservice.setMessage({
                                                     "title": "Error " + response.status,
-                                                    "text": JSON.parse(response._body).errorMessage,
+                                                    "text": response.statusText,
                                                     "status": "error"
                                                 });
                                                 console.log("response", response);
@@ -2322,7 +2505,7 @@ export class StudiesComponent{
                                             m,
                                             headers
                                         )
-                                            .map(res => {
+      /*                                      .map(res => {
                                                 let resjson;
                                                 try {
                                                     resjson = res.json();
@@ -2330,7 +2513,7 @@ export class StudiesComponent{
                                                     resjson = {};
                                                 }
                                                 return resjson;
-                                            })
+                                            })*/
                                             .subscribe((response) => {
                                                 console.log("in then function");
                                                 $this.clipboard = {};
@@ -2345,7 +2528,7 @@ export class StudiesComponent{
                                                 $this.cfpLoadingBar.stop();
                                                 $this.mainservice.setMessage({
                                                     "title": "Error " + response.status,
-                                                    "text": JSON.parse(response._body).errorMessage,
+                                                    "text": response.statusText,
                                                     "status": "error"
                                                 });
                                             });
@@ -2626,7 +2809,7 @@ export class StudiesComponent{
         let url,
             slash,
             configuredUrl;
-
+        console.log("aetmodel",this.aetmodel);
         switch(mode) {
             case 'patient':
                 configuredUrl = this.aetmodel.dcmInvokeImageDisplayPatientURL;
