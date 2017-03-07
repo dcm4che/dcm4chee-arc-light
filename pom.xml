@@ -57,6 +57,7 @@
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
     <wildfly-javaee7.version>10.1.0.Final</wildfly-javaee7.version>
     <jbossws-cxf-client.version>5.1.5.Final</jbossws-cxf-client.version>
+    <apache-cxf.version>3.1.6</apache-cxf.version>
     <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
     <jaxws-tools-maven-plugin.version>1.2.0.Final</jaxws-tools-maven-plugin.version>
     <!-- Versions -->
@@ -133,6 +134,11 @@
         <version>${wildfly-javaee7.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-simple</artifactId>
+        <version>${apache-cxf.version}</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.ws.cxf</groupId>

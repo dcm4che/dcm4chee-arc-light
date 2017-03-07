@@ -63,6 +63,8 @@
             <module name="org.dcm4che.imageio" export="TRUE" services="export"/>
             <module name="org.dcm4che.image" export="TRUE"/>
             <module name="org.dcm4che.soundex" export="TRUE"/>
+            <!-- apache-cxf modules -->
+            <module name="org.apache.cxf.impl" export="TRUE"/>
             <!-- querydsl modules -->
             <module name="com.querydsl" export="TRUE"/>
             <!-- jclouds modules -->

@@ -44,6 +44,7 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.xdsi.DocumentRepositoryService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -58,6 +59,8 @@ import javax.inject.Named;
 @Named("xds-i")
 public class XDSiExporterProvider implements ExporterProvider {
 
+    private DocumentRepositoryService service = new DocumentRepositoryService();
+
     @Inject
     private QueryService queryService;
 
@@ -69,6 +72,6 @@ public class XDSiExporterProvider implements ExporterProvider {
 
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new XDSiExporter(descriptor, queryService, device, exportEvent);
+        return new XDSiExporter(descriptor, service, queryService, device, exportEvent);
     }
 }

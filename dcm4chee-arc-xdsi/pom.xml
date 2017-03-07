@@ -18,6 +18,11 @@
       <artifactId>jbossws-cxf-client</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-simple</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>

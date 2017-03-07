@@ -36,7 +36,7 @@
  *
  */
 
-package org.dcm4chee.arc.export.xdsi;
+package org.dcm4chee.arc.xdsi;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;

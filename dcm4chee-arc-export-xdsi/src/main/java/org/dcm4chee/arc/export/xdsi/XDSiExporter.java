@@ -53,10 +53,11 @@ import org.dcm4chee.arc.xdsi.*;
 
 import javax.enterprise.event.Event;
 import javax.xml.bind.JAXBElement;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static org.dcm4chee.arc.xdsi.XDSConstants.*;
 
@@ -106,6 +107,7 @@ public class XDSiExporter extends AbstractExporter {
             UID.DICOMUIDRegistry, null,
             UID.KeyObjectSelectionDocumentStorage);
 
+    private final DocumentRepositoryService service;
     private final QueryService queryService;
     private final Device device;
     private final Event<ExportContext> exportEvent;
@@ -132,9 +134,10 @@ public class XDSiExporter extends AbstractExporter {
     private String sourcePatientId;
     private int id;
 
-    public XDSiExporter(ExporterDescriptor descriptor, QueryService queryService, Device device,
-                        Event<ExportContext> exportEvent) {
+    public XDSiExporter(ExporterDescriptor descriptor, DocumentRepositoryService service, QueryService queryService,
+                        Device device, Event<ExportContext> exportEvent) {
         super(descriptor);
+        this.service = service;
         this.queryService = queryService;
         this.device = device;
         this.exportEvent = exportEvent;
@@ -216,14 +219,12 @@ public class XDSiExporter extends AbstractExporter {
         return pid;
     }
 
-    private DocumentRepositoryPortType port() {
-        DocumentRepositoryPortType port = new DocumentRepositoryService().getDocumentRepositoryPortSoap12(
+    private DocumentRepositoryPortType port() throws Exception {
+        DocumentRepositoryPortType port = service.getDocumentRepositoryPortSoap12(
                 new AddressingFeature(true, true),
                 new MTOMFeature());
-        BindingProvider bindingProvider = (BindingProvider) port;
-        bindingProvider.getBinding().setHandlerChain(Collections.singletonList(new EnsureMustUnderstandHandler()));
-        Map<String, Object> reqCtx = bindingProvider.getRequestContext();
-        reqCtx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, repositoryURL);
+        XDSUtils.ensureMustUnderstandHandler(port);
+        XDSUtils.setEndpointAddress(port, repositoryURL, device);
         return port;
     }
 
