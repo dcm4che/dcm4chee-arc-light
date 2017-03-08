@@ -696,7 +696,7 @@ myApp.factory('DeviceService', function($log, cfpLoadingBar, $http, $compile, sc
                             "text": "Changes saved successfully!",
                             "status": "info"
                         });
-                        $http.get("../ctrl/reload").then(function (res) {
+                        $http.post("../ctrl/reload").then(function (res) {
                             msg($scope, {
                                 "title": "Info",
                                 "text": "Archive reloaded successfully!",
