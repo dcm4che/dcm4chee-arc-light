@@ -2,10 +2,12 @@
     <div class="vex-dialog-form">
         <h5 *ngIf="parameters.title">{{ parameters.title }}</h5>
         <div class="content">
-            {{ parameters.content }}
-            <div *ngIf="parameters.selectoptions">
-                <select id="reject" name="reject" class="col-md-9" (change)="parameters.result = $event.target.value">
-                    <option *ngFor="let rjn of parameters.selectoptions" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
+            <h3>
+                {{ parameters.content }}
+            </h3>
+            <div *ngIf="parameters.select">
+                <select id="reject" name="reject" class="col-md-12" (change)="parameters.result.select = $event.target.value">
+                    <option *ngFor="let s of parameters.select" title="{{s.title}}" value="{{ s.value }}">{{ s.label }}</option>
                 </select>
             </div>
         </div>

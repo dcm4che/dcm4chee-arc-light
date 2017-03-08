@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef} from '@angular/core';
+import {Component, ViewContainerRef, OnDestroy} from '@angular/core';
 import {Http, Headers} from "@angular/http";
 import {StudiesService} from "./studies.service";
 import {AppService} from "../app.service";
@@ -24,7 +24,7 @@ import {ComparewithiodPipe} from "../pipes/comparewithiod.pipe";
     selector: 'app-studies',
     templateUrl: './studies.component.html'
 })
-export class StudiesComponent{
+export class StudiesComponent implements OnDestroy{
 
     // @ViewChildren(MessagingComponent) msg;
 
@@ -85,6 +85,20 @@ export class StudiesComponent{
     _ = _;
     jsonHeader = new Headers({ 'Content-Type': 'application/json' });
 
+    studyDateChanged(){
+        console.log("on studydate changed",this.studyDate);
+        if(this.studyDate.from === "" && this.studyDate.to === ""){
+            localStorage.setItem("dateset","no");
+        }else if(this.studyDate.from != "" && this.studyDate.to != ""){
+                localStorage.setItem("dateset","yes");
+            }
+    }
+    clearStudyDate(){
+        this.studyDate.fromObject = null;
+        this.studyDate.toObject = null;
+        this.studyDate.from = "";
+        this.studyDate.to = "";
+    }
     clearForm(){
         _.forEach(this.filter,(m,i)=>{
             if(i != "orderby"){
@@ -92,10 +106,9 @@ export class StudiesComponent{
             }
         });
         $(".single_clear").hide();
-        this.studyDate.fromObject = null;
-        this.studyDate.toObject = null;
-        this.studyDate.from = "";
-        this.studyDate.to = "";
+        this.clearStudyDate();
+        // localStorage.setItem("dateset",false);
+        this.studyDateChanged();
         this.studyTime.fromObject = null;
         this.studyTime.toObject = null;
         this.studyTime.from = "";
@@ -210,7 +223,28 @@ export class StudiesComponent{
         //     // TODO: time changed
         //     console.log(this.value);
         // });
+        console.log("getglobal",this.mainservice.global);
+        let $this = this;
+        let dateset = localStorage.getItem("dateset");
+        console.log("dateset", dateset);
+        if(dateset === "no"){
+            this.clearStudyDate();
+        }
 
+        if(_.hasIn(this.mainservice.global,"state")){
+            // $this = $this.mainservice.global.studyThis;
+            // _.merge(this,$this.mainservice.global.studyThis);
+            _.forEach(this.mainservice.global.state,(m,i)=>{
+                console.log("m",m);
+                console.log("i",i);
+                if(m){
+                    $this[i] = m;
+                }
+            });
+        }
+        // if(_.hasIn(this.mainservice.global,"patients")){
+        //     this.patients = this.mainservice.global.patients;
+        // }
         this.cfpLoadingBar.interval = 200;
         this.modalities = Globalvar.MODALITIES;
         console.log("modalities",this.modalities);
@@ -222,7 +256,6 @@ export class StudiesComponent{
         if(!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
-            let $this = this;
             this.mainservice.user
                 .subscribe(
                     (response) => {
@@ -265,7 +298,6 @@ export class StudiesComponent{
             // console.log("isroletest",this.user.applyisRole("admin"));
         }
         this.hoverdic.forEach((m, i)=>{
-            let $this = this;
             $(document.body).on("mouseover mouseleave",m,function(e){
 
                 if(e.type === "mouseover" && $this.visibleHeaderIndex != i){
@@ -284,7 +316,6 @@ export class StudiesComponent{
         });
 
         console.log("thisrole=",this.isRole);
-        let $this = this;
         $(document).keydown(function(e){
 
             $this.pressedKey = e.keyCode;
@@ -349,7 +380,6 @@ export class StudiesComponent{
 
         this.headers.forEach((m, i)=>{
             this.items[i] = this.items[i] || {};
-            let $this = this;
             $(window).scroll(()=>{
                 if($(m).length){
                     $this.items[i].itemOffset = $(m).offset().top;
@@ -510,7 +540,12 @@ export class StudiesComponent{
                 //     "text": "Test",
                 //     "status": "info"
                 // });
+                // sessionStorage.setItem("patients", $this.patients);
+                // $this.mainservice.setGlobal({patients:this.patients,moreStudies:$this.moreStudies});
+                // $this.mainservice.setGlobal({studyThis:$this});
+                console.log("global set",$this.mainservice.global);
                 $this.cfpLoadingBar.complete();
+
             } else {
                 console.log("in else setmsg");
                 $this.patients = [];
@@ -1135,13 +1170,13 @@ export class StudiesComponent{
         });
     };
     deleteStudy = function(study){
-        this.cfpLoadingBar.start();
         console.log("study",study);
         // if(study.attrs['00201208'].Value[0] === 0){
         let $this = this;
         this.confirm({
             content:'Are you sure you want to delete this study?'
         }).subscribe(result => {
+            $this.cfpLoadingBar.start();
             if(result){
                 $this.$http.delete(
                     "../aets/"+$this.aet+"/rs/studies/"+study.attrs["0020000D"].Value[0]
@@ -1166,6 +1201,7 @@ export class StudiesComponent{
                     }
                 );
             }
+            $this.cfpLoadingBar.complete();
         });
 /*        vex.dialog.confirm({
             message: 'Are you sure you want to delete this study?',
@@ -1207,10 +1243,6 @@ export class StudiesComponent{
     rejectStudy(study) {
         let $this = this;
         if (this.trashaktive) {
-            console.log("studyURL(study.attrs)",this.studyURL(study.attrs));
-            console.log("$scope.rjcode.codeValue",this.rjcode);
-            console.log("$scope.rjcode.codingSchemeDesignator",this.rjcode.codingSchemeDesignator);
-
             this.$http.post(
                 this.studyURL(study.attrs) + '/reject/' + this.rjcode.codeValue + "^"+ this.rjcode.codingSchemeDesignator,
                 {},
@@ -1235,13 +1267,27 @@ export class StudiesComponent{
                 }
             );
         }else{
-
+            let select:any = [];
+            _.forEach(this.rjnotes, (m,i)=>{
+                select.push({
+                    title:m.codeMeaning,
+                    value:m.codeValue+'^'+m.codingSchemeDesignator,
+                    label:m.label
+                });
+            });
             let parameters: any = {
+                content: 'Select rejected type',
+                select: select,
+                result: {select:this.rjnotes[0].codeValue+'^'+this.rjnotes[0].codingSchemeDesignator},
+                saveButton: "REJECT"
+            };
+            console.log("rejectstudy",parameters);
+/*            let parameters: any = {
                 content: 'Select rejected type',
                 selectoptions: this.rjnotes,
                 result: this.rjnotes[0].codeValue+'^'+this.rjnotes[0].codingSchemeDesignator,
                 saveButton: "REJECT"
-            };
+            };*/
             console.log("parameters", parameters);
             this.confirm(parameters).subscribe(result => {
                 if (result) {
@@ -1249,7 +1295,7 @@ export class StudiesComponent{
                     console.log("parameters", parameters);
                     $this.cfpLoadingBar.start();
                     $this.$http.post(
-                        $this.studyURL(study.attrs) + '/reject/' + parameters.result,
+                        $this.studyURL(study.attrs) + '/reject/' + parameters.result.select,
                         {},
                         $this.jsonHeader
                     ).subscribe(
@@ -1280,7 +1326,169 @@ export class StudiesComponent{
                 }
             });
         }
-    }
+    };
+    rejectSeries(series) {
+        let $this = this;
+        if (this.trashaktive) {
+            this.$http.post(
+                this.seriesURL(series.attrs) + '/reject/' + this.rjcode.codeValue + "^"+ this.rjcode.codingSchemeDesignator,
+                {},
+                $this.jsonHeader
+            ).subscribe(
+                (res) => {
+                // $scope.queryStudies($scope.studies[0].offset);
+                    $this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "Series restored successfully!",
+                        "status": "info"
+                    });
+                    $this.queryStudies($this.patients[0].offset);
+                },
+                (response) => {
+                    $this.mainservice.setMessage({
+                        "title": "Error "+response.status,
+                        "text": response.statusText,
+                        "status": "error"
+                    });
+                    console.log("response",response);
+                }
+            );
+        }else{
+            let select:any = [];
+            _.forEach(this.rjnotes, (m,i)=>{
+                select.push({
+                    title:m.codeMeaning,
+                    value:m.codeValue+'^'+m.codingSchemeDesignator,
+                    label:m.label
+                });
+            });
+            let parameters: any = {
+                content: 'Select rejected type',
+                select: select,
+                result: {select:this.rjnotes[0].codeValue+'^'+this.rjnotes[0].codingSchemeDesignator},
+                saveButton: "REJECT"
+            };
+
+            console.log("parameters", parameters);
+            this.confirm(parameters).subscribe(result => {
+                if (result) {
+                    console.log("result", result);
+                    console.log("parameters", parameters);
+                    $this.cfpLoadingBar.start();
+                    $this.$http.post(
+                        $this.seriesURL(series.attrs) + '/reject/' + parameters.result.select,
+                        {},
+                        $this.jsonHeader
+                    ).subscribe(
+                        (response) => {
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Series rejected successfully!",
+                                "status": "info"
+                            });
+
+                            // patients.splice(patientkey,1);
+                            $this.fireRightQuery();
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.mainservice.setMessage({
+                                "title": "Error " + err.status,
+                                "text": err.statusText,
+                                "status": "error"
+                            });
+                            // angular.element("#querypatients").trigger('click');
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                } else {
+                    console.log("else", result);
+                    console.log("parameters", parameters);
+                }
+            });
+        }
+    };
+    rejectInstance(instance) {
+        let $this = this;
+        if (this.trashaktive) {
+            this.$http.post(
+                this.instanceURL(instance.attrs) + '/reject/' + this.rjcode.codeValue + "^"+ this.rjcode.codingSchemeDesignator,
+                {},
+                $this.jsonHeader
+            ).subscribe(
+                (res) => {
+                    // $scope.queryStudies($scope.studies[0].offset);
+                    $this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "Instance restored successfully!",
+                        "status": "info"
+                    });
+                    $this.queryStudies($this.patients[0].offset);
+                },
+                (response) => {
+                    $this.mainservice.setMessage({
+                        "title": "Error "+response.status,
+                        "text": response.statusText,
+                        "status": "error"
+                    });
+                    console.log("response",response);
+                }
+            );
+        }else{
+
+            let select:any = [];
+            _.forEach(this.rjnotes, (m,i)=>{
+                select.push({
+                    title:m.codeMeaning,
+                    value:m.codeValue+'^'+m.codingSchemeDesignator,
+                    label:m.label
+                });
+            });
+            let parameters: any = {
+                content: 'Select rejected type',
+                select: select,
+                result: {select:this.rjnotes[0].codeValue+'^'+this.rjnotes[0].codingSchemeDesignator},
+                saveButton: "REJECT"
+            };
+            console.log("parameters", parameters);
+            this.confirm(parameters).subscribe(result => {
+                if (result) {
+                    console.log("result", result);
+                    console.log("parameters", parameters);
+                    $this.cfpLoadingBar.start();
+                    $this.$http.post(
+                        $this.instanceURL(instance.attrs) + '/reject/' + parameters.result.select,
+                        {},
+                        $this.jsonHeader
+                    ).subscribe(
+                        (response) => {
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Instance rejected successfully!",
+                                "status": "info"
+                            });
+
+                            // patients.splice(patientkey,1);
+                            $this.fireRightQuery();
+                            $this.cfpLoadingBar.complete();
+                        },
+                        (err) => {
+                            $this.mainservice.setMessage({
+                                "title": "Error " + err.status,
+                                "text": err.statusText,
+                                "status": "error"
+                            });
+                            // angular.element("#querypatients").trigger('click');
+                            $this.cfpLoadingBar.complete();
+                        }
+                    );
+                } else {
+                    console.log("else", result);
+                    console.log("parameters", parameters);
+                }
+            });
+        }
+    };
     deletePatient(patient,patients, patientkey){
         // console.log("study",study);
         if(_.hasIn(patient,'attrs["00201200"].Value[0]') && patient.attrs['00201200'].Value[0] === 0){
@@ -1364,6 +1572,193 @@ export class StudiesComponent{
             this.fireRightQuery();
         }
     }
+
+    exportStudy(study) {
+        console.log("exporters",this.exporters);
+        let select:any = [];
+        _.forEach(this.exporters, (m,i)=>{
+            select.push({
+                title:m.description,
+                value:m.id,
+                label:m.id
+            });
+        });
+        let parameters: any = {
+            content: 'Select Exporter',
+            select: select,
+            result: {select:this.exporters[0].id},
+            saveButton: "EXPORT"
+        };
+        console.log("parameters", parameters);
+        let $this = this;
+        this.confirm(parameters).subscribe(result => {
+            if (result) {
+                $this.cfpLoadingBar.start();
+                console.log("result",result);
+                console.log("result",parameters.result.select);
+                $this.$http.post(
+                    $this.studyURL(study.attrs) + '/export/' + parameters.result.select,
+                    {},
+                    $this.jsonHeader
+                ).subscribe(
+                    (result)=>{
+                        $this.mainservice.setMessage({
+                            "title": "Info",
+                            "text": "Study exported successfully!",
+                            "status": "info"
+                        });
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (err) => {
+                        $this.mainservice.setMessage({
+                            "title": "Error "+err.status,
+                            "text": err.statusText,
+                            "status": "error"
+                        });
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+
+            }
+        });
+    };
+    exportSeries(series) {
+        console.log("exporters",this.exporters);
+        let select:any = [];
+        _.forEach(this.exporters, (m,i)=>{
+            select.push({
+                title:m.description,
+                value:m.id,
+                label:m.id
+            });
+        });
+        let parameters: any = {
+            content: 'Select Exporter',
+            select: select,
+            result: {select:this.exporters[0].id},
+            saveButton: "EXPORT"
+        };
+        console.log("parameters", parameters);
+        let $this = this;
+        this.confirm(parameters).subscribe(result => {
+            if (result) {
+                $this.cfpLoadingBar.start();
+                console.log("result",result);
+                console.log("result",parameters.result.select);
+                $this.$http.post(
+                    $this.seriesURL(series.attrs) + '/export/' + parameters.result.select,
+                    {},
+                    $this.jsonHeader
+                ).subscribe(
+                    (result)=>{
+                        $this.mainservice.setMessage({
+                            "title": "Info",
+                            "text": "Series exported successfully!",
+                            "status": "info"
+                        });
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (err) => {
+                        $this.mainservice.setMessage({
+                            "title": "Error "+err.status,
+                            "text": err.statusText,
+                            "status": "error"
+                        });
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+
+            }
+        });
+/*        var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
+        vex.dialog.open({
+            message: 'Select Exporter',
+            input: html,
+            buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                    text: 'Export'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                    text: 'Cancel'
+                })
+            ],
+            callback: function(data) {
+                if (data === false) {
+                    return console.log('Cancelled');
+                }else{
+                    $http.post(seriesURL(series.attrs) + '/export/' + $scope.exporterID);
+                }
+            }
+        });*/
+    };
+    exportInstance(instance) {
+        console.log("exporters",this.exporters);
+        let select:any = [];
+        _.forEach(this.exporters, (m,i)=>{
+            select.push({
+                title:m.description,
+                value:m.id,
+                label:m.id
+            });
+        });
+        let parameters: any = {
+            content: 'Select Exporter',
+            select: select,
+            result: {select:this.exporters[0].id},
+            saveButton: "EXPORT"
+        };
+        console.log("parameters", parameters);
+        let $this = this;
+        this.confirm(parameters).subscribe(result => {
+            if (result) {
+                $this.cfpLoadingBar.start();
+                console.log("result",result);
+                console.log("result",parameters.result.select);
+                $this.$http.post(
+                    $this.instanceURL(instance.attrs) + '/export/' + parameters.result.select,
+                    {},
+                    $this.jsonHeader
+                ).subscribe(
+                    (result)=>{
+                        $this.mainservice.setMessage({
+                            "title": "Info",
+                            "text": "Instance exported successfully!",
+                            "status": "info"
+                        });
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (err) => {
+                        $this.mainservice.setMessage({
+                            "title": "Error "+err.status,
+                            "text": err.statusText,
+                            "status": "error"
+                        });
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+
+            }
+        });
+/*        var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
+        vex.dialog.open({
+            message: 'Select Exporter',
+            input: html,
+            buttons: [
+                $.extend({}, vex.dialog.buttons.YES, {
+                    text: 'Export'
+                }), $.extend({}, vex.dialog.buttons.NO, {
+                    text: 'Cancel'
+                })
+            ],
+            callback: function(data) {
+                if (data === false) {
+                    return console.log('Cancelled');
+                }else{
+                    $http.post(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
+                }
+            }
+        });*/
+
+    };
     queryMWL(offset){
         this.queryMode = "queryMWL";
         this.moreStudies = undefined;
@@ -1415,6 +1810,12 @@ export class StudiesComponent{
                             $this.patients.pop();
                         // $this.studies.pop();
                     }
+                    // $this.mainservice.setGlobal({
+                    //     patients:this.patients,
+                    //     moreMWL:$this.moreMWL,
+                    //     morePatients:$this.morePatients,
+                    //     moreStudies:$this.moreStudies
+                    // });
                 } else {
                     this.mainservice.setMessage({
                         "title": "Info",
@@ -2694,12 +3095,26 @@ export class StudiesComponent{
                     });
                     console.log("$this.aes after map",$this.aes);
                     $this.aet = $this.aes[0].title.toString();
-                    $this.aetmodel = $this.aes[0];
+                    if(!$this.aetmodel){
+                        $this.aetmodel = $this.aes[0];
+                    }
+                    // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
                 },
                 function (res) {
                     if (retries)
                         this.initAETs(retries-1);
             });
+    }
+    testSetObject() {
+        this.aetmodel = {
+            "title": "DCM4CHEE_TRASH",
+            "description": "Show rejected instances only",
+            "dcmHideNotRejectedInstances": true,
+            "dcmAcceptedUserRole": [
+                "admin"
+            ],
+            "label": "DCM4CHEE_TRASH"
+        };
     }
     onChange(newValue, model) {
         // if(model.includes(".")){
@@ -2708,6 +3123,9 @@ export class StudiesComponent{
             // for(let o of arr){
             // }
             // console.log("filter.PatientSex=",this["filter"]["PatientSex"]);
+        console.log("onchange, newValue",newValue);
+        console.log("arr",arr);
+        console.log("model",model);
             _.set(this, arr,newValue);
             // console.log("filter.PatientSex2=",this["filter"]["PatientSex"]);
         // }else{
@@ -2716,8 +3134,10 @@ export class StudiesComponent{
         // }
         if(model === "aetmodel"){
             this.aet = newValue.title;
+            // this.aetmodel = newValue;
             this.setTrash();
         }
+        console.log("this.aetmodel",this.aetmodel);
     }
     initAttributeFilter(entity, retries) {
         let $this = this;
@@ -2731,6 +3151,7 @@ export class StudiesComponent{
                     }
                     $this.attributeFilters[entity] = res;
                     console.log("this.attributeFilters",$this.attributeFilters);
+                    // $this.mainservice.setGlobal({attributeFilters:$this.attributeFilters});
                 },
                 function (res) {
                     if (retries)
@@ -2896,10 +3317,11 @@ export class StudiesComponent{
             .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
             .subscribe(
                 function (res) {
-                    this.exporters = res;
+                    $this.exporters = res;
                     if(res && res[0] && res[0].id){
                         $this.exporterID = res[0].id;
                     }
+                    // $this.mainservice.setGlobal({exporterID:$this.exporterID});
                 },
                 function (res) {
                     if (retries)
@@ -2922,6 +3344,8 @@ export class StudiesComponent{
                     });
                     $this.rjnotes = rjnotes;
                     $this.reject = rjnotes[0].codeValue + "^" + rjnotes[0].codingSchemeDesignator;
+
+                    // $this.mainservice.setGlobal({rjnotes:rjnotes,reject:$this.reject});
                 },
                 function (res) {
                     if (retries)
@@ -2934,5 +3358,44 @@ export class StudiesComponent{
 
     debugTemplate(obj){
         console.log("obj",obj);
+    }
+    ngOnDestroy() {
+        // Save state of the study page in a global variable after leaving it
+        let state = {
+            aet:this.aet,
+            aes:this.aes,
+            aetmodel:this.aetmodel,
+            attributeFilters:this.attributeFilters,
+            exporterID:this.exporterID,
+            aesdropdown:this.aesdropdown,
+            rjnotes:this.rjnotes,
+            reject:this.reject,
+            filter:this.filter,
+            moreMWL:this.moreMWL,
+            morePatients:this.morePatients,
+            moreStudies:this.moreStudies,
+            limit:this.limit,
+            trashaktive:this.trashaktive,
+            patientmode:this.patientmode,
+            ScheduledProcedureStepSequence:this.ScheduledProcedureStepSequence,
+            filterMode:this.filterMode,
+            user:this.user,
+            patients:this.patients,
+            patient:this.patient,
+            study:this.study,
+            series:this.series,
+            instance:this.instance,
+            exporters:this.exporters,
+            studyDate:this.studyDate,
+            studyTime:this.studyTime,
+            orderbytext:this.orderbytext,
+            rjcode:this.rjcode
+        };
+        // if(_.hasIn(this.mainservice.global,"state")){
+        //     this.mainservice.setGlobal({state:{}});
+        //     this.mainservice.setGlobal({state:state});
+        // }else{
+            this.mainservice.setGlobal({state:state});
+        // }
     }
 }

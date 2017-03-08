@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, AfterViewChecked} from '@angular/core';
 import {MdDialogRef} from "@angular/material";
 
 @Component({
@@ -11,11 +11,10 @@ import {MdDialogRef} from "@angular/material";
         }
     `]
 })
-export class ConfirmComponent {
+export class ConfirmComponent{
 
     private _parameters;
     constructor(public dialogRef: MdDialogRef<ConfirmComponent>) {
-
     }
     get parameters() {
         return this._parameters;
@@ -33,4 +32,5 @@ export class ConfirmComponent {
             dialogRef.close(null);
         }
     }
+
 }

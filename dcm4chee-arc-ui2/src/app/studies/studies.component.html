@@ -1,12 +1,15 @@
-<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
+<!--<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
 <pre *ngIf="debugpre" style="position: absolute;width:70%;top:0;z-index: 9999999;">
     <div style="float:left;width:50%">
-        clipboard: {{ clipboard | json}}
+        &lt;!&ndash;clipboard: {{ clipboard | json}}&ndash;&gt;
+    aetmodel:{{aetmodel|json}}
     </div>
     <div style="float:left;width:50%">
-        select: {{ selected | json}}
+        &lt;!&ndash;select: {{ selected | json}}&ndash;&gt;
+    aes:{{aes|json}}
     </div>
-</pre>
+    <button (click)="testSetObject()">testSetObject</button>
+</pre>-->
 <div class="main_content studies">
     <div *ngIf="user">
 
@@ -122,7 +125,7 @@
                             >
                                 <!--ng-change="setTrash()"-->
                                 <!--ng-options="ae.title for ae in aes"-->
-                                <option [ngValue]="ae" (click)="setTrash()" title="{{ae.description}}" *ngFor="let ae of aes" >{{ae.title}}</option>
+                                <option [ngValue]="ae" tooltip="{{ae.description}}" [attr.selected]="(ae.title == aetmodel.title)?'':null" (click)="setTrash()" title="{{ae.description}}" *ngFor="let ae of aes" >{{ae.title}}</option>
                             </select>
                             <!--<p-dropdown [options]="aes" [(ngModel)]="aetmodel"></p-dropdown>-->
                         </div>
@@ -300,7 +303,7 @@
                                 <!--datepicker-options="dateOptions"-->
                                 <!--close-text="Close"/>-->
                                 <!--<input type="date" placeholder="Study date from" name="StudyDateFrom" value="12/13/2013"/>-->
-                                <p-calendar dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date from"></p-calendar>
+                                <p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date from"></p-calendar>
                             </div>
                             <div class="col-md-12">
                                 <!--<input-->
@@ -338,7 +341,7 @@
                                 <!--[(ngModel)]="studyDate.toObject"-->
                                 <!--uib-datepicker-popup="{{format}}"/>-->
                                 <!--<input type="date" placeholder="Study date to" name="StudyDateFrom" [(ngModel)]="studyDate.toObject" />-->
-                                <p-calendar dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder=" Study date to"></p-calendar>
+                                <p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder=" Study date to"></p-calendar>
 
                             </div>
                             <div class="col-md-12">
@@ -413,7 +416,7 @@
                     </div>
                 </div>
 
-                <a *ngIf="isRole('admin')" (click)="deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="btn-danger btn">Delete Instances
+                <a *ngIf="isRole('admin')" (click)="$event.preventDefault();deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="btn-danger btn">Delete Instances
                     <span class="glyphicon glyphicon-trash"></span>
                 </a>
             </div>
@@ -731,8 +734,8 @@
                               <span class="glyphicon glyphicon-th-list"></span>
                           </a>
 
-                          <a *ngIf="!(isRole('admin') && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)) && !(patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
-                          <a *ngIf="!(isRole('admin') && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)) && (patient._VALUE.studies)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
+                          <a *ngIf="isRole('admin') && !(patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
+                          <a *ngIf="isRole('admin') && (patient._VALUE.studies)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
                           <a class="table_btn" *ngIf="!patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = true" href="" title="Show MWLs">&#9658;</a>
                           <a class="table_btn" *ngIf="patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
                       </div>
@@ -764,13 +767,13 @@
                                     <a class="hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
-                                    <a class="hiddenbuttons" (click)="exportStudy(study._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export study">
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportStudy(study._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export study">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
                                     <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
                                         <span class="glyphicon glyphicon-ok"></span>
                                     </a>
-                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && isRole('admin') && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && !_.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0))" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Reject study">
+                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && isRole('admin') && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0))" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Reject study">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
                                     <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="$event.preventDefault();deleteStudy(study._VALUE)" href="" title="Delete study permanently">
@@ -835,13 +838,13 @@
                                                     <div class="checkbox_content hiddenbuttons">
                                                         <input type="checkbox" [(ngModel)]="series._VALUE.selected" (change)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY},"fromcheckbox")'>
                                                     </div>
-                                                    <a class="hiddenbuttons" (click)="exportSeries(series._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export Series">
+                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportSeries(series._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export Series">
                                                         <span class="glyphicon glyphicon-export"></span>
                                                     </a>
-                                                    <a class="hiddenbuttons" [hidden]="trashaktive || !isRole('admin') ||  series._VALUE.attrs['00201209'].Value[0] === 0" (click)="rejectSeries(series._VALUE)" href="" title="Reject Series">
+                                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && isRole('admin') && _.hasIn(series._VALUE,'attrs.00201208.Value[0]') && !_.isEqual(series._VALUE.attrs['00201208'].Value[0], 0))" (click)="$event.preventDefault();rejectSeries(series._VALUE)" href="" title="Reject Series">
                                                         <span  class="glyphicon glyphicon-trash"></span>
                                                     </a>
-                                                    <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="rejectSeries(series._VALUE)" href="" title="Restore Series">
+                                                    <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="$event.preventDefault();rejectSeries(series._VALUE)" href="" title="Restore Series">
                                                         <span class="glyphicon glyphicon-repeat"></span>
                                                     </a>
                                                     <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('series', series._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
@@ -888,7 +891,7 @@
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export instance">
                                                             <span class="glyphicon glyphicon-export"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" [hidden]="trashaktive || !isRole('admin')" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" href="" title="Reject instance">
+                                                        <a class="hiddenbuttons" *ngIf="!trashaktive && isRole('admin')" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" href="" title="Reject instance">
                                                             <span  class="glyphicon glyphicon-trash"></span>
                                                         </a>
                                                         <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" href="" title="Restore instance">

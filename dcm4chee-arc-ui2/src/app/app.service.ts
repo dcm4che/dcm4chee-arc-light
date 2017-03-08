@@ -1,19 +1,34 @@
-import {Injectable, OnInit, ViewContainerRef} from '@angular/core';
+import {Injectable, OnInit, ViewContainerRef, OnDestroy} from '@angular/core';
 import {MessagingComponent} from "./widgets/messaging/messaging.component";
 import {Http} from "@angular/http";
-import {Observer, Observable, Subject} from "rxjs";
+import {Observer, Observable, Subject, Subscription} from "rxjs";
 import {User} from "./models/user";
 import * as _ from "lodash";
 import {ViewChildren, ViewChild} from "@angular/core/src/metadata/di";
 import {ConfirmComponent} from "./widgets/dialogs/confirm/confirm.component";
 
 @Injectable()
-export class AppService implements OnInit{
+export class AppService implements OnInit, OnDestroy{
     private _user:User;
-    // @ViewChild(MessagingComponent) msg;
+    private _global;
+    subscription:Subscription;
 
     constructor(public $http:Http) {
+        this.subscription = this.globalSet$.subscribe(obj => {
+            console.log("globalset subscribe ",obj);
+            this._global = obj;
+            console.log("globalafterset",this._global);
+        });
     }
+
+    get global() {
+        return this._global;
+    }
+
+    set global(value) {
+        this._global = value;
+    }
+
     private _isRole = function(role){
         if(this.user){
             if(this.user.user === null && this.user.roles.length === 0){
@@ -36,14 +51,27 @@ export class AppService implements OnInit{
 
     // Observable string sources
     private setMessageSource = new Subject<string>();
+    private setGlobalSource = new Subject<string>();
     private createPatientSource = new Subject<string>();
 
     // Observable string streams
     messageSet$ = this.setMessageSource.asObservable();
+    globalSet$ = this.setGlobalSource.asObservable();
     createPatient$ = this.createPatientSource.asObservable();
     // Service message commands
     setMessage(msg: any) {
         this.setMessageSource.next(msg);
+    }
+    setGlobal(object: any) {
+        // if(this._global){
+        //
+        //     let globalClone = _.cloneDeep(this._global);
+        //     _.merge(globalClone, object);
+        //     console.log("globalClone",globalClone);
+        //     this.setGlobalSource.next(globalClone);
+        // }else{
+            this.setGlobalSource.next(object);
+        // }
     }
     createPatient(patient:any){
         this.createPatientSource.next(patient);
@@ -103,4 +131,8 @@ export class AppService implements OnInit{
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef;
     }*/
+    ngOnDestroy() {
+        // prevent memory leak when component destroyed
+        this.subscription.unsubscribe();
+    }
 }
