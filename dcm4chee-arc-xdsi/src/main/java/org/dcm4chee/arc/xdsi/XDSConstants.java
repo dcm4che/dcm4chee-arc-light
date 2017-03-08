@@ -224,4 +224,12 @@ public interface XDSConstants {
     public static final String WS_ADDRESSING_NS = "http://www.w3.org/2005/08/addressing";
     public static final String WS_ADDRESSING_ANONYMOUS = "http://www.w3.org/2005/08/addressing/anonymous";
 
+    //CXi identifier Type Codes
+    public static final String CXI_TYPE_UNIQUQ_ID = "urn:ihe:iti:xds:2013:uniqueId";
+    public static final String CXI_TYPE_ACCESSION = "urn:ihe:iti:xds:2013:accession";
+    public static final String CXI_TYPE_REFERRAL = "urn:ihe:iti:xds:2013:referral";
+    public static final String CXI_TYPE_ORDER = "urn:ihe:iti:xds:2013:order";
+    public static final String CXI_TYPE_WORKFLOW_INSTANCE_ID = "urn:ihe:iti:xdw:2013:workflowInstanceId";
+    public static final String CXI_TYPE_STUDY_INSTANCE_UID = "urn:ihe:iti:xds:2016:studyInstanceUID";
+    public static final String CXI_TYPE_ENCOUNTER_ID = "urn:ihe:iti:xds:2015:encounterId";
 }

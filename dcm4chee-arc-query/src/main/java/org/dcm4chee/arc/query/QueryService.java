@@ -99,7 +99,7 @@ public interface QueryService {
 
     Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
                                   String[] retrieveAETs, String retrieveLocationUID,
-                                  Code conceptNameCode, int seriesNumber, int instanceNumber);
+                                  Code conceptNameCode, int seriesNumber, int instanceNumber, Collection<Attributes> seriesAttrs);
 
     Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote);

@@ -39,6 +39,8 @@
 package org.dcm4chee.arc.export.xdsi;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.AcquisitionModality;
+import org.dcm4che3.dcmr.AnatomicRegion;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
@@ -55,9 +57,7 @@ import javax.enterprise.event.Event;
 import javax.xml.bind.JAXBElement;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.dcm4chee.arc.xdsi.XDSConstants.*;
 
@@ -114,6 +114,7 @@ public class XDSiExporter extends AbstractExporter {
 
     private final String sourceId;
     private final String assigningAuthorityOfPatientID;
+    private final String assigningAuthorityOfAccessionNumber;
     private final Code manifestContentType;
     private final Code manifestTitle;
     private final int manifestSeriesNumber;
@@ -126,6 +127,10 @@ public class XDSiExporter extends AbstractExporter {
     private final Code healthCareFacilityTypeCode;
     private final Code practiceSettingCode;
     private final Code typeCode;
+    private final List<String> sourcePatientInfo = new ArrayList<>();
+    private final Set<String> referenceIdList = new HashSet<>();
+    private final Map<Code.Key, Code> modalityCodes = new HashMap<>();
+    private final Map<Code.Key, Code> anatomicRegionCodes = new HashMap<>();
 
     private String submissionSetUID;
     private Attributes manifest;
@@ -146,6 +151,7 @@ public class XDSiExporter extends AbstractExporter {
         this.manifestSeriesNumber = Integer.parseInt(descriptor.getProperty("Manifest.seriesNumber", "0"));
         this.manifestInstanceNumber = Integer.parseInt(descriptor.getProperty("Manifest.instanceNumber", "0"));
         this.assigningAuthorityOfPatientID = descriptor.getProperty("AssigningAuthority.patientId", null);
+        this.assigningAuthorityOfAccessionNumber = descriptor.getProperty("AssigningAuthority.accessionNumber", null);
         this.sourceId = descriptor.getProperty("XDSSubmissionSet.sourceId", DEFAULT_SOURCE_ID);
         this.manifestContentType = getCodeProperty("XDSSubmissionSet.contentType", DICOM_KON_TYPECODE);
         this.typeCode = getCodeProperty("DocumentEntry.typeCode", DICOM_KON_TYPECODE);
@@ -164,13 +170,18 @@ public class XDSiExporter extends AbstractExporter {
     @Override
     public Outcome export(ExportContext ctx) throws Exception {
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
+        Collection<Attributes> seriesAttrs = new ArrayList<>();
         this.manifest = queryService.createXDSiManifest(ae, ctx.getStudyInstanceUID(),
                 descriptor.getRetrieveAETitles(), descriptor.getRetrieveLocationUID(),
-                manifestTitle, manifestSeriesNumber, manifestInstanceNumber);
+                manifestTitle, manifestSeriesNumber, manifestInstanceNumber, seriesAttrs);
         this.documentUID = manifest.getString(Tag.SOPInstanceUID);
         this.submissionSetUID = UIDUtils.createUID();
         this.sourcePatientId = adjustIssuer(IDWithIssuer.pidOf(manifest)).toString();
         this.patientId = sourcePatientId;
+        initSourcePatientInfo();
+        referenceIdList.add(manifest.getString(Tag.StudyInstanceUID) + "^^^^" + CXI_TYPE_STUDY_INSTANCE_UID);
+        addAccessionNumber(manifest);
+        processSeriesAttrs(seriesAttrs);
         ctx.setXDSiManifest(manifest);
         ctx.setSubmissionSetUID(submissionSetUID);
         try {
@@ -193,6 +204,38 @@ public class XDSiExporter extends AbstractExporter {
             throw e;
         } finally {
             exportEvent.fire(ctx);
+        }
+    }
+
+    private void addAccessionNumber(Attributes attrs) {
+        IDWithIssuer accno = IDWithIssuer.valueOf(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
+        if (accno != null) {
+            Issuer issuer = accno.getIssuer();
+            String uid = issuer != null && "ISO".equals(issuer.getUniversalEntityIDType())
+                    ? issuer.getUniversalEntityID()
+                    : assigningAuthorityOfAccessionNumber;
+            referenceIdList.add(uid == null
+                    ? accno.getID() + "^^^^" + CXI_TYPE_ACCESSION
+                    : accno.getID() + "^^^&" + uid + "&ISO^" + CXI_TYPE_ACCESSION);
+        }
+    }
+
+    private void processSeriesAttrs(Collection<Attributes> seriesAttrs) {
+        for (Attributes attrs : seriesAttrs) {
+            Code modalityCode = AcquisitionModality.codeOf(attrs.getString(Tag.Modality));
+            if (modalityCode != null)
+                modalityCodes.put(modalityCode.key(), modalityCode);
+            Attributes anatomicRegionCodeItem = attrs.getNestedDataset(Tag.AnatomicRegionSequence);
+            Code anatomicRegionCode = anatomicRegionCodeItem != null
+                    ? new Code(anatomicRegionCodeItem)
+                    : AnatomicRegion.codeOf(attrs.getString(Tag.BodyPartExamined));
+            if (anatomicRegionCode != null)
+                anatomicRegionCodes.put(anatomicRegionCode.key(), anatomicRegionCode);
+            Sequence reqAttrsSeq = attrs.getSequence(Tag.RequestAttributesSequence);
+            if (reqAttrsSeq != null)
+                for (Attributes reqAttrs : reqAttrsSeq) {
+                    addAccessionNumber(reqAttrs);
+                }
         }
     }
 
@@ -276,7 +319,9 @@ public class XDSiExporter extends AbstractExporter {
         list.add(new SlotBuilder(SLOT_NAME_SOURCE_PATIENT_ID)
                 .valueList(sourcePatientId).build());
         list.add(new SlotBuilder(SLOT_NAME_SOURCE_PATIENT_INFO)
-                .valueList(sourcePatientInfo(manifest)).build());
+                .valueList(sourcePatientInfo).build());
+        list.add(new SlotBuilder(SLOT_NAME_REFERENCE_ID_LIST)
+                .valueList(referenceIdList).build());
     }
 
     private void createDocumentEntryClassifications(List<ClassificationType> list) {
@@ -310,6 +355,20 @@ public class XDSiExporter extends AbstractExporter {
                 .classifiedObject(DOCUMENT_ID)
                 .code(typeCode)
                 .build());
+        for (Code code : modalityCodes.values()) {
+            list.add(new ClassificationBuilder(nextId())
+                    .classificationScheme(UUID_XDSDocumentEntry_eventCodeList)
+                    .classifiedObject(DOCUMENT_ID)
+                    .code(code)
+                    .build());
+        }
+        for (Code code : anatomicRegionCodes.values()) {
+            list.add(new ClassificationBuilder(nextId())
+                    .classificationScheme(UUID_XDSDocumentEntry_eventCodeList)
+                    .classifiedObject(DOCUMENT_ID)
+                    .code(code)
+                    .build());
+        }
     }
 
     private void createDocumentEntryExternalIdentifiers(List<ExternalIdentifierType> list) {
@@ -327,16 +386,14 @@ public class XDSiExporter extends AbstractExporter {
                 .build());
     }
 
-    private static String[] sourcePatientInfo(Attributes manifest) {
-        List<String> list = new ArrayList<>(4);
-        list.add("PID-3|" + IDWithIssuer.pidOf(manifest).toString());
-        addIfNotNullTo("PID-5|", manifest.getString(Tag.PatientName), list);
-        addIfNotNullTo("PID-7|", manifest.getString(Tag.PatientBirthDate), list);
-        addIfNotNullTo("PID-8|", manifest.getString(Tag.PatientSex), list);
-        return list.toArray(new String[list.size()]);
+    private void initSourcePatientInfo() {
+        sourcePatientInfo.add("PID-3|" + IDWithIssuer.pidOf(manifest).toString());
+        addIfNotNullTo("PID-5|", manifest.getString(Tag.PatientName), sourcePatientInfo);
+        addIfNotNullTo("PID-7|", manifest.getString(Tag.PatientBirthDate), sourcePatientInfo);
+        addIfNotNullTo("PID-8|", manifest.getString(Tag.PatientSex), sourcePatientInfo);
     }
 
-    private static void addIfNotNullTo(String prefix, String value, List<String> list) {
+    private static void addIfNotNullTo(String prefix, String value, Collection<String> list) {
         if (value != null)
             list.add(prefix + value);
     }

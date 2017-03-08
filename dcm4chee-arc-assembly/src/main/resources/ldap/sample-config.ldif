@@ -997,6 +997,7 @@ dcmProperty: XDSSubmissionSet.contentType=(DICOM KON TYPECODE, 1.3.6.1.4.1.21367
 dcmProperty: DocumentEntry.languageCode=en-us
 dcmProperty: DocumentEntry.typeCode=(DICOM KON TYPECODE, 1.3.6.1.4.1.21367.100.1, "DICOM Key Object Note Type Code")
 dcmProperty: Manifest.title=(113030, DCM, "Manifest")
+dcmProperty: AssigningAuthority.accessionNumber=1.3.6.1.4.1.21367.2005.13.20.1000
 dcmProperty: DocumentEntry.confidentialityCode=(N, 2.16.840.1.113883.5.25, "Normal")
 dcmProperty: DocumentEntry.healthCareFacilityTypeCode=(RADDX, 2.16.840.1.113883.5.11, "Radiology diagnostics or therapeutics unit")
 dcmProperty: AssigningAuthority.patientId=1.3.6.1.4.1.21367.2005.13.20.1000

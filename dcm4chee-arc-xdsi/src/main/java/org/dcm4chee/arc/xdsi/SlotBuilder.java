@@ -41,9 +41,7 @@ package org.dcm4chee.arc.xdsi;
 import org.dcm4che3.data.DatePrecision;
 import org.dcm4che3.util.DateUtils;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -61,7 +59,11 @@ public class SlotBuilder {
         return result;
     }
 
-    public SlotBuilder valueList(String... values) {
+    public SlotBuilder valueList(String value) {
+        return valueList(Collections.singletonList(value));
+    }
+
+    public SlotBuilder valueList(Collection<String> values) {
         ValueListType valueList = new ValueListType();
         for (String value : values) {
             valueList.getValue().add(value);

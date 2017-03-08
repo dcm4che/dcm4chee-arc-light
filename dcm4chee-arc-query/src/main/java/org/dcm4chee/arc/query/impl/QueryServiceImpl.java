@@ -45,7 +45,6 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -214,10 +213,11 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
                                          String[] retrieveAETs, String retrieveLocationUID,
-                                         Code conceptNameCode, int seriesNumber, int instanceNumber) {
+                                         Code conceptNameCode, int seriesNumber, int instanceNumber,
+                                         Collection<Attributes> seriesAttrs) {
         SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);
         Attributes attrs = ejb.getStudyAttributesWithSOPInstanceRefs(
-                QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, builder.build(ae), null,
+                QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, builder.build(ae), seriesAttrs,
                 retrieveAETs, retrieveLocationUID);
         if (attrs == null || !attrs.containsValue(Tag.CurrentRequestedProcedureEvidenceSequence))
             return null;
