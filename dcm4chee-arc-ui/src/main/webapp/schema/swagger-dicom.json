@@ -247,6 +247,18 @@
             "in": "query",
             "description": "return Studies which were created between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "return Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "return Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
           }
         ],
         "responses": {
