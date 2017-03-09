@@ -826,6 +826,7 @@ dcmTag: 00081040
 dcmTag: 00081050
 dcmTag: 00081090
 dcmTag: 00081111
+dcmTag: 00082218
 dcmTag: 00180015
 dcmTag: 0020000E
 dcmTag: 00200011
@@ -921,6 +922,7 @@ dcmTag: 00080018
 dcmTag: 00080023
 dcmTag: 00080033
 dcmTag: 00081115
+dcmTag: 00082218
 dcmTag: 00200013
 dcmTag: 00280008
 dcmTag: 00280010
@@ -1356,6 +1358,7 @@ dcmTag: 00081050
 dcmTag: 00081090
 dcmTag: 00081111
 dcmTag: 00081115
+dcmTag: 00082218
 dcmTag: 00100010
 dcmTag: 00100020
 dcmTag: 00100021

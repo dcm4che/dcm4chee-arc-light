@@ -1,17 +1,5 @@
 version: 1
 
-dn: cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dicomConfigurationRoot
-cn: DICOM Configuration
-
-dn: cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dicomDevicesRoot
-cn: Devices
-
-dn: cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
-objectClass: dicomUniqueAETitlesRegistryRoot
-cn: Unique AE Titles Registry
-
 dn: dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomDeviceName: unknown
@@ -342,6 +330,7 @@ dcmTag: 00081040
 dcmTag: 00081050
 dcmTag: 00081090
 dcmTag: 00081111
+dcmTag: 00082218
 dcmTag: 00180015
 dcmTag: 0020000E
 dcmTag: 00200011
@@ -429,6 +418,7 @@ dcmTag: 00080018
 dcmTag: 00080023
 dcmTag: 00080033
 dcmTag: 00081115
+dcmTag: 00082218
 dcmTag: 00200013
 dcmTag: 00280008
 dcmTag: 00280010
@@ -720,6 +710,7 @@ dcmTag: 00081050
 dcmTag: 00081090
 dcmTag: 00081111
 dcmTag: 00081115
+dcmTag: 00082218
 dcmTag: 00100010
 dcmTag: 00100020
 dcmTag: 00100021
