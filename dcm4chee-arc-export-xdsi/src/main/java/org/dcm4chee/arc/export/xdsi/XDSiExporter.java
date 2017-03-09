@@ -112,6 +112,7 @@ public class XDSiExporter extends AbstractExporter {
     private final Device device;
     private final Event<ExportContext> exportEvent;
 
+    private boolean disableCNCheck;
     private final String sourceId;
     private final String assigningAuthorityOfPatientID;
     private final String assigningAuthorityOfAccessionNumber;
@@ -147,6 +148,7 @@ public class XDSiExporter extends AbstractExporter {
         this.device = device;
         this.exportEvent = exportEvent;
         this.repositoryURL = descriptor.getExportURI().getSchemeSpecificPart();
+        this.disableCNCheck = Boolean.parseBoolean(descriptor.getProperty("TLS.disableCNCheck", null));
         this.manifestTitle = getCodeProperty("Manifest.title", DEFAULT_MANIFEST_TITLE);
         this.manifestSeriesNumber = Integer.parseInt(descriptor.getProperty("Manifest.seriesNumber", "0"));
         this.manifestInstanceNumber = Integer.parseInt(descriptor.getProperty("Manifest.instanceNumber", "0"));
@@ -267,7 +269,9 @@ public class XDSiExporter extends AbstractExporter {
                 new AddressingFeature(true, true),
                 new MTOMFeature());
         XDSUtils.ensureMustUnderstandHandler(port);
-        XDSUtils.setEndpointAddress(port, repositoryURL, device);
+        XDSUtils.setEndpointAddress(port, repositoryURL);
+        if (repositoryURL.startsWith("https"))
+            XDSUtils.setTlsClientParameters(port, device.sslContext().getSocketFactory(), disableCNCheck);
         return port;
     }
 

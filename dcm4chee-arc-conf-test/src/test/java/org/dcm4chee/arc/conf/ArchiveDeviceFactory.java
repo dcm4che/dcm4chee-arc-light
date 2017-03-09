@@ -1412,6 +1412,7 @@ class ArchiveDeviceFactory {
             xdsiExportDescriptor.setAETitle("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveAETitles("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveLocationUID(XDSI_SOURCE_ID);
+            xdsiExportDescriptor.setProperty("TLS.disableCNCheck", "true");
             xdsiExportDescriptor.setProperty("Manifest.title", XDSI_MANIFEST_TITLE.toString());
             xdsiExportDescriptor.setProperty("AssigningAuthority.patientId", XDSI_ASSIGNING_AUTHORITY);
             xdsiExportDescriptor.setProperty("AssigningAuthority.accessionNumber", XDSI_ASSIGNING_AUTHORITY);

@@ -993,6 +993,7 @@ dcmQueueName: Export3
 dcmExporterID: XDS-I
 dicomAETitle: DCM4CHEE
 objectClass: dcmExporter
+dcmProperty: TLS.disableCNCheck=true
 dcmProperty: XDSSubmissionSet.contentType=(DICOM KON TYPECODE, 1.3.6.1.4.1.21367.100.1, "DICOM Key Object Note Type Code")
 dcmProperty: DocumentEntry.languageCode=en-us
 dcmProperty: DocumentEntry.typeCode=(DICOM KON TYPECODE, 1.3.6.1.4.1.21367.100.1, "DICOM Key Object Note Type Code")

@@ -42,13 +42,15 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.dcm4che3.data.DatePrecision;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.DateUtils;
 
+import javax.net.ssl.SSLSocketFactory;
 import javax.xml.ws.BindingProvider;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -61,28 +63,31 @@ public class XDSUtils {
         bindingProvider.getBinding().setHandlerChain(Collections.singletonList(new EnsureMustUnderstandHandler()));
     }
 
-    public static void setEndpointAddress(Object port, String url, Device device)
+    public static void setEndpointAddress(Object port, String url)
             throws GeneralSecurityException, IOException {
         BindingProvider bindingProvider = (BindingProvider) port;
         bindingProvider.getBinding().setHandlerChain(Collections.singletonList(new EnsureMustUnderstandHandler()));
         Map<String, Object> reqCtx = bindingProvider.getRequestContext();
         reqCtx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, url);
-        if (url.startsWith("https"))
-            setTlsClientParameters(port, device);
     }
 
-    public static void setTlsClientParameters(Object port, Device device)
+    public static void setTlsClientParameters(Object port, SSLSocketFactory factory, boolean disableCNCheck)
             throws GeneralSecurityException, IOException {
         Client client = ClientProxy.getClient(port);
         HTTPConduit conduit = (HTTPConduit) client.getConduit();
-        conduit.setTlsClientParameters(tlsClientParametersOf(device));
+        conduit.setTlsClientParameters(tlsClientParametersOf(factory, disableCNCheck));
     }
 
-    private static TLSClientParameters tlsClientParametersOf(Device device)
+    private static TLSClientParameters tlsClientParametersOf(SSLSocketFactory factory, boolean disableCNCheck)
             throws GeneralSecurityException, IOException {
         TLSClientParameters params = new TLSClientParameters();
-        params.setSSLSocketFactory(device.sslContext().getSocketFactory());
+        params.setSSLSocketFactory(factory);
+        params.setDisableCNCheck(disableCNCheck);
         return params;
+    }
+
+    public static String formatDTM(Date date) {
+        return DateUtils.formatDT(TimeZone.getTimeZone("UTC"), date, new DatePrecision(Calendar.SECOND));
     }
 
 }

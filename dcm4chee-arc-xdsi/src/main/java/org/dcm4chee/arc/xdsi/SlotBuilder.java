@@ -38,10 +38,9 @@
 
 package org.dcm4chee.arc.xdsi;
 
-import org.dcm4che3.data.DatePrecision;
-import org.dcm4che3.util.DateUtils;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,7 +72,7 @@ public class SlotBuilder {
     }
 
     public SlotBuilder valueDTM(Date date) {
-        return valueList(DateUtils.formatDT(TimeZone.getTimeZone("UTC"), date, new DatePrecision(Calendar.SECOND)));
+        return valueList(XDSUtils.formatDTM(date));
     }
 
     public SlotBuilder slotType(String value) {
