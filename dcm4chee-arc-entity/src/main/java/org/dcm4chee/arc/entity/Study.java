@@ -243,7 +243,7 @@ public class Study {
     @Basic
     @Column(name = "expiration_date")
     private String expirationDate;
-    
+
     @Column(name = "ext_retrieve_aet")
     private String externalRetrieveAET;
 
@@ -504,5 +504,7 @@ public class Study {
         else
             attributesBlob.setAttributes(new Attributes(attrs, filter.getSelection()));
         modifiedTime = new Date();
+        if (externalRetrieveAET == null)
+            externalRetrieveAET = "*";
     }
 }

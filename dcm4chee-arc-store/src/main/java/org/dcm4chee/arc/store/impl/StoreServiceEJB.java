@@ -186,7 +186,7 @@ public class StoreServiceEJB {
                     result.setStoredInstance(prevInstance);
                     deleteQueryAttributes(prevInstance);
                     prevSeries.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
-                    prevStudy.setExternalRetrieveAET(null);
+                    prevStudy.setExternalRetrieveAET("*");
                     prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                     logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
                 }
@@ -229,7 +229,7 @@ public class StoreServiceEJB {
                 series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
             }
             Study study = series.getStudy();
-            study.setExternalRetrieveAET(null);
+            study.setExternalRetrieveAET("*");
             study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
         }
         return result;
