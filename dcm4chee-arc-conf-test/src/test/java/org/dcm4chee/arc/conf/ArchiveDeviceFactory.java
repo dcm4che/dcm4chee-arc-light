@@ -865,6 +865,7 @@ class ArchiveDeviceFactory {
     static final String HL7_ORDER2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl";
     static final String UNZIP_VENDOR_DATA = "${jboss.server.temp.url}/dcm4chee-arc";
     static final String NULLIFY_PN = "${jboss.server.temp.url}/dcm4chee-arc/nullify-pn.xsl";
+    static final String CORRECT_VR = "${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl";
     static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
     static final String MERGE_MWL = "${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
@@ -1452,6 +1453,8 @@ class ArchiveDeviceFactory {
                     MergeMWLMatchingKey.StudyInstanceUID, configType));
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, null, null, configType));
+            ext.addAttributeCoercion(createAttributeCoercion(
+                    "Correct VR", Dimse.C_STORE_RQ, SCP, "CORRECT_VR", CORRECT_VR, null, null, configType));
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Leading DCMQRSCP", Dimse.C_STORE_RQ, SCP, "LEADING_DCMQRSCP", null, "DCMQRSCP", null, configType));
 
