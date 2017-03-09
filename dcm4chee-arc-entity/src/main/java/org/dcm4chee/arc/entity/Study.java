@@ -243,8 +243,7 @@ public class Study {
     @Basic
     @Column(name = "expiration_date")
     private String expirationDate;
-
-    @Basic(optional = false)
+    
     @Column(name = "ext_retrieve_aet")
     private String externalRetrieveAET;
 
