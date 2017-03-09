@@ -224,6 +224,12 @@ public class QidoRS {
     @QueryParam("StudyReceiveDateTime")
     private String studyReceiveDateTime;
 
+    @QueryParam("ExternalRetrieveAET")
+    private String externalRetrieveAET;
+
+    @QueryParam("ExternalRetrieveAET!")
+    private String externalRetrieveAETNot;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -437,6 +443,8 @@ public class QidoRS {
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setSendingApplicationEntityTitleOfSeries(sendingApplicationEntityTitleOfSeries);
         queryParam.setStudyReceiveDateTime(studyReceiveDateTime);
+        queryParam.setExternalRetrieveAET(externalRetrieveAET);
+        queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
         ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
         Attributes keys = queryAttrs.getQueryKeys();
@@ -503,6 +511,8 @@ public class QidoRS {
                     case "incomplete":
                     case "SendingApplicationEntityTitleOfSeries":
                     case "StudyReceiveDateTime":
+                    case "ExternalRetrieveAET":
+                    case "ExternalRetrieveAET!":
                         break;
                     default:
                         addQueryKey(key, entry.getValue());

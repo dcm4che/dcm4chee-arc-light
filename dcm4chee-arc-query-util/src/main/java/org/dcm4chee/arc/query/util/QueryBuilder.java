@@ -322,6 +322,10 @@ public class QueryBuilder {
             builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
                     QStudy.study.createdTime, getDateRange(queryParam.getStudyReceiveDateTime()), MatchDateTimeRange.FormatDate.DT),
                     QStudy.study.createdTime.isNotNull()));
+        if (queryParam.getExternalRetrieveAET() != null)
+            builder.and(QStudy.study.externalRetrieveAET.eq(queryParam.getExternalRetrieveAET()));
+        if (queryParam.getExternalRetrieveAETNot() != null)
+            builder.and(QStudy.study.externalRetrieveAET.ne(queryParam.getExternalRetrieveAETNot()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
             if (queryParam.isExpired())
                 builder.and(QStudy.study.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
