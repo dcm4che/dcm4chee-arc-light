@@ -1414,7 +1414,7 @@ class ArchiveDeviceFactory {
             xdsiExportDescriptor.setAETitle("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveAETitles("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveLocationUID(XDSI_SOURCE_ID);
-            xdsiExportDescriptor.setProperty("TLS.disableCNCheck", "true");
+            xdsiExportDescriptor.setProperty("TLS.disableCNCheck", String.valueOf(true));
             xdsiExportDescriptor.setProperty("Manifest.title", XDSI_MANIFEST_TITLE.toString());
             xdsiExportDescriptor.setProperty("AssigningAuthority.patientId", XDSI_ASSIGNING_AUTHORITY);
             xdsiExportDescriptor.setProperty("AssigningAuthority.accessionNumber", XDSI_ASSIGNING_AUTHORITY);
@@ -1426,6 +1426,9 @@ class ArchiveDeviceFactory {
             xdsiExportDescriptor.setProperty("DocumentEntry.confidentialityCode", XDSI_CONFIDENTIALITY_CODE.toString());
             xdsiExportDescriptor.setProperty("DocumentEntry.healthCareFacilityTypeCode", XDSI_HEALTH_CARE_FACILITY_TYPE_CODE.toString());
             xdsiExportDescriptor.setProperty("DocumentEntry.practiceSettingCode", XDSI_PRACTICE_SETTING_CODE.toString());
+            xdsiExportDescriptor.setProperty("DocumentEntry.includeModalityCodes", String.valueOf(true));
+            xdsiExportDescriptor.setProperty("DocumentEntry.includeAnatomicRegionCodes", String.valueOf(true));
+            xdsiExportDescriptor.setProperty("DocumentEntry.useProcedureCodeAsTypeCode", String.valueOf(false));
             ext.addExporterDescriptor(xdsiExportDescriptor);
 
             HL7ForwardRule hl7ForwardRule = new HL7ForwardRule("Forward to HL7RCV|DCM4CHEE");

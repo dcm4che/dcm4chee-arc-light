@@ -111,8 +111,10 @@ public class XDSiExporter extends AbstractExporter {
     private final QueryService queryService;
     private final Device device;
     private final Event<ExportContext> exportEvent;
-
-    private boolean disableCNCheck;
+    private final boolean disableCNCheck;
+    private final boolean includeModalityCodes;
+    private final boolean includeAnatomicRegionCodes;
+    private final boolean useProcedureCodeAsTypeCode;
     private final String sourceId;
     private final String assigningAuthorityOfPatientID;
     private final String assigningAuthorityOfAccessionNumber;
@@ -127,7 +129,7 @@ public class XDSiExporter extends AbstractExporter {
     private final Code confidentialityCode;
     private final Code healthCareFacilityTypeCode;
     private final Code practiceSettingCode;
-    private final Code typeCode;
+    private final Code defTypeCode;
     private final List<String> sourcePatientInfo = new ArrayList<>();
     private final Set<String> referenceIdList = new HashSet<>();
     private final Map<Code.Key, Code> modalityCodes = new HashMap<>();
@@ -138,6 +140,7 @@ public class XDSiExporter extends AbstractExporter {
     private String documentUID;
     private String patientId;
     private String sourcePatientId;
+    private Code typeCode;
     private int id;
 
     public XDSiExporter(ExporterDescriptor descriptor, DocumentRepositoryService service, QueryService queryService,
@@ -156,12 +159,15 @@ public class XDSiExporter extends AbstractExporter {
         this.assigningAuthorityOfAccessionNumber = descriptor.getProperty("AssigningAuthority.accessionNumber", null);
         this.sourceId = descriptor.getProperty("XDSSubmissionSet.sourceId", DEFAULT_SOURCE_ID);
         this.manifestContentType = getCodeProperty("XDSSubmissionSet.contentType", DICOM_KON_TYPECODE);
-        this.typeCode = getCodeProperty("DocumentEntry.typeCode", DICOM_KON_TYPECODE);
+        this.defTypeCode = getCodeProperty("DocumentEntry.typeCode", DICOM_KON_TYPECODE);
         this.languageCode = descriptor.getProperty("DocumentEntry.languageCode", DEFAULT_LANGUAGE_CODE);
         this.classCode = getCodeProperty("DocumentEntry.classCode", DEFAULT_CLASS_CODE);
         this.confidentialityCode = getCodeProperty("DocumentEntry.confidentialityCode", DEFAULT_CONFIDENTIALITY_CODE);
         this.healthCareFacilityTypeCode = getCodeProperty("DocumentEntry.healthCareFacilityTypeCode", DEFAULT_HEALTH_CARE_FACILITY_TYPE_CODE);
         this.practiceSettingCode = getCodeProperty("DocumentEntry.practiceSettingCode", DEFAULT_PRACTICE_SETTING_CODE);
+        this.includeModalityCodes = Boolean.parseBoolean(descriptor.getProperty("DocumentEntry.includeModalityCodes", null));
+        this.includeAnatomicRegionCodes = Boolean.parseBoolean(descriptor.getProperty("DocumentEntry.includeAnatomicRegionCodes", null));
+        this.useProcedureCodeAsTypeCode = Boolean.parseBoolean(descriptor.getProperty("DocumentEntry.useProcedureCodeAsTypeCode", null));
     }
 
     private Code getCodeProperty(String name, Code defValue) {
@@ -180,6 +186,7 @@ public class XDSiExporter extends AbstractExporter {
         this.submissionSetUID = UIDUtils.createUID();
         this.sourcePatientId = adjustIssuer(IDWithIssuer.pidOf(manifest)).toString();
         this.patientId = sourcePatientId;
+        this.typeCode = typeCodeOf(manifest);
         initSourcePatientInfo();
         referenceIdList.add(manifest.getString(Tag.StudyInstanceUID) + "^^^^" + CXI_TYPE_STUDY_INSTANCE_UID);
         addAccessionNumber(manifest);
@@ -209,6 +216,15 @@ public class XDSiExporter extends AbstractExporter {
         }
     }
 
+    private Code typeCodeOf(Attributes manifest) {
+        if (useProcedureCodeAsTypeCode) {
+            Attributes codeItem = manifest.getNestedDataset(Tag.ProcedureCodeSequence);
+            if (codeItem != null)
+                return new Code(codeItem);
+        }
+        return defTypeCode;
+    }
+
     private void addAccessionNumber(Attributes attrs) {
         IDWithIssuer accno = IDWithIssuer.valueOf(attrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence);
         if (accno != null) {
@@ -224,15 +240,19 @@ public class XDSiExporter extends AbstractExporter {
 
     private void processSeriesAttrs(Collection<Attributes> seriesAttrs) {
         for (Attributes attrs : seriesAttrs) {
-            Code modalityCode = AcquisitionModality.codeOf(attrs.getString(Tag.Modality));
-            if (modalityCode != null)
-                modalityCodes.put(modalityCode.key(), modalityCode);
-            Attributes anatomicRegionCodeItem = attrs.getNestedDataset(Tag.AnatomicRegionSequence);
-            Code anatomicRegionCode = anatomicRegionCodeItem != null
-                    ? new Code(anatomicRegionCodeItem)
-                    : AnatomicRegion.codeOf(attrs.getString(Tag.BodyPartExamined));
-            if (anatomicRegionCode != null)
-                anatomicRegionCodes.put(anatomicRegionCode.key(), anatomicRegionCode);
+            if (includeModalityCodes) {
+                Code modalityCode = AcquisitionModality.codeOf(attrs.getString(Tag.Modality));
+                if (modalityCode != null)
+                    modalityCodes.put(modalityCode.key(), modalityCode);
+            }
+            if (includeAnatomicRegionCodes) {
+                Attributes anatomicRegionCodeItem = attrs.getNestedDataset(Tag.AnatomicRegionSequence);
+                Code anatomicRegionCode = anatomicRegionCodeItem != null
+                        ? new Code(anatomicRegionCodeItem)
+                        : AnatomicRegion.codeOf(attrs.getString(Tag.BodyPartExamined));
+                if (anatomicRegionCode != null)
+                    anatomicRegionCodes.put(anatomicRegionCode.key(), anatomicRegionCode);
+            }
             Sequence reqAttrsSeq = attrs.getSequence(Tag.RequestAttributesSequence);
             if (reqAttrsSeq != null)
                 for (Attributes reqAttrs : reqAttrsSeq) {
