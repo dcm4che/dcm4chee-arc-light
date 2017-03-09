@@ -381,7 +381,7 @@
                             <option value="-PatientName,StudyDate,StudyTime">Order by patient._VALUE name &uarr; and study._VALUE date &darr;</option>
                             <option value="-PatientName,-StudyDate,-StudyTime">Order by patient._VALUE name &uarr; and study._VALUE date &uarr;</option>
                         </select> -->
-                <div class="orderbyblock">
+                <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false}">
                     <div class="btn-group" role="group" >
                         <button id="showoptionlistbutton" type="button" class="btn btn-default selectedorderbutton" (click)="showoptionlist = !showoptionlist" >
                             <span id="selectedorder" class="selectedorder"  [innerHtml]="orderbytext"></span>
@@ -415,17 +415,10 @@
                         </button>
                     </div>
                 </div>
-
-                <a *ngIf="isRole('admin')" (click)="$event.preventDefault();deleteRejectedInstances()" href="" title="Delete Rejected Instances permanently" class="btn-danger btn">Delete Instances
-                    <span class="glyphicon glyphicon-trash"></span>
-                </a>
             </div>
         </div>
         <!-- <div class="placeholder-35"></div> -->
-        <a href="" (click)="extendedFilter(true, $event)" *ngIf="!advancedConfig" class="more">Extended filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-        <a href="" (click)="extendedFilter(false, $event)" *ngIf="advancedConfig" class="more [hidden]">Close extended filters<i class="glyphicon glyphicon-triangle-top"></i></a>
-
-        <div class="row [hidden] filter hidden_filters" *ngIf="advancedConfig">
+        <div class="row filter hidden_filters" [hidden]="!advancedConfig">
             <div class="col-md-3 block-2-1">
                 <div class="row">
                     <div class="col-md-6" *ngIf="filterMode === 'study'">
@@ -568,6 +561,23 @@
                 </div>
             </div>
         </div>
+        <div class="morefunctionblock">
+            <a href="" (click)="extendedFilter(true, $event)" *ngIf="!advancedConfig" class="more">More filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+            <a href="" (click)="extendedFilter(false, $event)" *ngIf="advancedConfig" class="more [hidden]">Close more filters<i class="glyphicon glyphicon-triangle-top"></i></a>
+            <div class="more functions" *ngIf="isRole('admin')">
+                <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
+                   <span *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                    <span *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
+                </div>
+                <ul *ngIf="moreFunctionsButtons">
+                    <li (click)="moreFunctionsButtons = false;createPatient()" title="Create new patient">Create patient</li>
+                    <li (click)="moreFunctionsButtons = false;deleteRejectedInstances()"title="Delete Rejected Instances permanently">Permanent delete</li>
+                </ul>
+            </div>
+        </div>
+
+
+
         <!--<pre>-->
             <!--visibleHeaderIndex:{{visibleHeaderIndex}};-->
         <!--</pre>-->

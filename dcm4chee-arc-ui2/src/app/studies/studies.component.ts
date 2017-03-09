@@ -1,5 +1,5 @@
-import {Component, ViewContainerRef, OnDestroy} from '@angular/core';
-import {Http, Headers} from "@angular/http";
+import {Component, ViewContainerRef, OnDestroy, trigger, transition, style, animate, state} from '@angular/core';
+import {Http, Headers, RequestOptionsArgs} from "@angular/http";
 import {StudiesService} from "./studies.service";
 import {AppService} from "../app.service";
 import {User} from "../models/user";
@@ -19,10 +19,24 @@ import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {Subscription} from "rxjs";
 import {EditStudyComponent} from "../widgets/dialogs/edit-study/edit-study.component";
 import {ComparewithiodPipe} from "../pipes/comparewithiod.pipe";
+import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 
 @Component({
     selector: 'app-studies',
-    templateUrl: './studies.component.html'
+    templateUrl: './studies.component.html',
+    animations: [
+        trigger('enterAnimation', [
+                transition(':enter', [
+                    style({transform: 'translateY(-50%)', opacity: 0}),
+                    animate('500ms', style({transform: 'translateY(0)', opacity: 1}))
+                ]),
+                transition(':leave', [
+                    style({transform: 'translateY(0)', opacity: 1}),
+                    animate('500ms', style({transform: 'translateY(-50%)', opacity: 0}))
+                ])
+            ]
+        )
+    ],
 })
 export class StudiesComponent implements OnDestroy{
 
@@ -69,6 +83,7 @@ export class StudiesComponent implements OnDestroy{
     moreMWL;
     morePatients;
     moreStudies;
+    moreFunctionsButtons = false;
     opendropdown = false;
     addPatientAttribut = "";
     lastPressedCode;
@@ -422,6 +437,7 @@ export class StudiesComponent implements OnDestroy{
     * @confirmparameters is an object that can contain title, content
     * */
     confirm(confirmparameters){
+        this.scrollToDialog();
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
         this.dialogRef.componentInstance.parameters = confirmparameters;
@@ -581,6 +597,68 @@ export class StudiesComponent implements OnDestroy{
         this.titleLabel += ((_.hasIn(patient,'attrs.00100020.Value.0')) ? " with ID: <b>" + patient.attrs["00100020"].Value[0] + "</b>" : "");
         this.modifyMWL(patient, "edit", patientkey, mwlkey, mwl);
     };
+    deleteRejectedInstances(){
+        // let result = {
+        // };
+        let $this = this;
+        this.scrollToDialog();
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, this.config);
+        this.dialogRef.componentInstance.rjnotes = this.rjnotes;
+        // this.dialogRef.componentInstance.results = result;
+        this.dialogRef.afterClosed().subscribe(re => {
+            console.log("afterclose re",re);
+            $this.cfpLoadingBar.start();
+            if (re) {
+                console.log("in re", re);
+                console.log("in re", _.size(re));
+                // console.log("in result",result);
+                let params:RequestOptionsArgs = {};
+                if(re.rejectedBefore){
+                    params["rejectedBefore"] = re.rejectedBefore;
+                }
+                if(re.keepRejectionNote === true){
+                    params["keepRejectionNote"] = re.keepRejectionNote;
+                }
+                console.log("params",params);
+                $this.$http.delete(
+                    '../reject/' + re.reject,
+                    params
+                )
+                    .map(res => res.json())
+                    .subscribe(
+                    (res) => {
+                        console.log("in res",res);
+                        $this.cfpLoadingBar.complete();
+                        // $this.fireRightQuery();
+                        if(_.hasIn(res,"deleted")){
+                            this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": res.deleted + " instances deleted successfully!",
+                                "status":'info'
+                            });
+                        }else{
+                            this.mainservice.setMessage({
+                                "title": "Warning",
+                                "text": "Process executed successfully",
+                                "status":'warning'
+                            });
+                        }
+                    },
+                    (err) => {
+                        console.log("error", err);
+                        $this.mainservice.setMessage({
+                            "title": "Error " + err.status,
+                            "text": err.statusText,
+                            "status": "error"
+                        });
+                    });
+            }
+            $this.cfpLoadingBar.complete();
+            this.dialogRef = null;
+        });
+
+    }
     createMWL(patient){
         let mwl:any = {
             "attrs":{
@@ -642,7 +720,7 @@ export class StudiesComponent implements OnDestroy{
             let mwlFiltered = _.cloneDeep(mwl);
             mwlFiltered.attrs = new ComparewithiodPipe().transform(mwl.attrs,iod);
             $this.service.initEmptyValue(mwlFiltered.attrs);
-
+            $this.scrollToDialog();
             $this.dialogRef = $this.dialog.open(EditMwlComponent, $this.config);
             $this.dialogRef.componentInstance.iod = iod;
             $this.dialogRef.componentInstance.mode = mode;
@@ -766,6 +844,7 @@ export class StudiesComponent implements OnDestroy{
             studyFiltered.attrs = new ComparewithiodPipe().transform(study.attrs,iod);
             $this.service.initEmptyValue(studyFiltered.attrs);
             console.log("afterinintemptyvalue");
+            $this.scrollToDialog();
             $this.dialogRef = $this.dialog.open(EditStudyComponent, $this.config);
             console.log("afterinintemptyvalue2");
             $this.dialogRef.componentInstance.study = studyFiltered;
@@ -936,7 +1015,22 @@ export class StudiesComponent implements OnDestroy{
         };
         this.modifyPatient(newPatient, "create", null);
     };
-
+    scrollToDialog(){
+        let counter = 0;
+        let i = setInterval(function(){
+            if(($(".md-overlay-pane").length > 0)) {
+                clearInterval(i);
+                $('html, body').animate({
+                    scrollTop: ($(".md-overlay-pane").offset().top)
+                }, 200);
+            }
+            if(counter > 200){
+                clearInterval(i);
+            }else{
+                counter++;
+            }
+        }, 50);
+    }
     modifyPatient(patient, mode ,patientkey){
         let originalPatientObject = _.cloneDeep(patient);
         this.config.viewContainerRef = this.viewContainerRef;
@@ -945,6 +1039,7 @@ export class StudiesComponent implements OnDestroy{
         let oldUniversalEntityId;
         let oldUniversalEntityType;
         this.lastPressedCode = 0;
+
         if(mode === "edit"){
             _.forEach(patient.attrs,function(value, index) {
                 var checkValue = "";
@@ -1007,6 +1102,7 @@ export class StudiesComponent implements OnDestroy{
             $this.service.patientIod = res;
 
             $this.service.initEmptyValue(patient.attrs);
+            $this.scrollToDialog();
             $this.dialogRef = $this.dialog.open(EditPatientComponent, $this.config);
             $this.dialogRef.componentInstance.mode = mode;
             $this.dialogRef.componentInstance.patient = patient;

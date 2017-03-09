@@ -10,13 +10,12 @@
         <!--<div class="progress"></div>-->
     <!--</li>-->
 <!--</div>-->
-<div class="user">
+<div class="user" *ngIf="user.user && user.user != 'anonymous'">
     <span (click)="showUserMenu = !showUserMenu" id="usermenu">
         <div class="username" *ngIf="user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>
         <i class="config glyphicon glyphicon-cog"></i>
     </span>
     <ul *ngIf="showUserMenu">
-        <li *ngIf="isRole('admin')"><a  (click)="$event.preventDefault();createPatient();showUserMenu=false">Create new patient</a></li>
         <li *ngIf="user.user && user.user != 'anonymous'"><a href="{{url}}/realms/dcm4che/account" target="_blank">Edit {{user.user}}</a></li>
         <li *ngIf="user.user && user.user != 'anonymous'"><a href="{{logoutUrl}}">Logout</a></li>
     </ul>

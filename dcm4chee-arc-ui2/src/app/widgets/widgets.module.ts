@@ -10,6 +10,8 @@ import { EditMwlComponent } from './dialogs/edit-mwl/edit-mwl.component';
 import { CopyMoveObjectsComponent } from './dialogs/copy-move-objects/copy-move-objects.component';
 import { ConfirmComponent } from './dialogs/confirm/confirm.component';
 import { EditStudyComponent } from './dialogs/edit-study/edit-study.component';
+import { DeleteRejectedInstancesComponent } from './dialogs/delete-rejected-instances/delete-rejected-instances.component';
+import {CalendarModule} from "primeng/components/calendar/calendar";
 
 
 @NgModule({
@@ -17,10 +19,11 @@ import { EditStudyComponent } from './dialogs/edit-study/edit-study.component';
         CommonModule,
         BrowserModule,
         FormsModule,
+        CalendarModule
     ],
     declarations: [WidgetsComponent],
     exports:[WidgetsComponent],
     providers: [MdDialogConfig]
 })
 export class WidgetsModule { }
-export const WidgetsComponents = [ MessagingComponent,EditPatientComponent, EditMwlComponent, EditStudyComponent, CopyMoveObjectsComponent, ConfirmComponent];
+export const WidgetsComponents = [ MessagingComponent,EditPatientComponent, EditMwlComponent, EditStudyComponent, CopyMoveObjectsComponent, ConfirmComponent, DeleteRejectedInstancesComponent];

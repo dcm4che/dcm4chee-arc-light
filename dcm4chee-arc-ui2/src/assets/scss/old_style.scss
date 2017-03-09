@@ -30,18 +30,7 @@ body{
     	width: 100%;
     	&.studies{
 			float:left;
-			.more {
-			    color: black;
-			    float: left;
-			    margin-bottom: 15px;
-			    margin-right: 70%;
-			    i{
-			    	margin-left: 5px;
-			    }
-			    &:hover{
-			    	color: black;
-			    }
-			}
+
 	    	.form-group {
 	    		label {
 			    	width: 100px;
@@ -932,7 +921,7 @@ table{
 .div-table{
 	float: left;
     width: 100%;
-	margin-top: 228px;
+	margin-top: 267px;
 	&.extended {
 	    margin-top: 319px;
 	}
@@ -1727,12 +1716,91 @@ table{
 		}
 	}
 }
+.morefunctionblock{
+  display: block;
+  border: 1px solid #ccc;
+  float: left;
+  width: 460px;
+  padding: 15px;
+  box-sizing: border-box;
+  margin-bottom:15px;
+  &:hover{
+    color:white;
+    text-decoration: none;
+  }
+  .more {
+    float: left;
+    display: block;
+    background: white;
+    color: black;
+    padding: 3px 7px;
+    width: 200px;
+    border: 1px solid #ccc;
+    &.functions{
+      float:right;
+      padding:0;
+      position: relative;
+      .mainbutton{
+        padding: 3px 7px;
+        span{
+          color:black;
+        }
+        &:hover{
+          background: #3b6b8c;
+          color:white;
+          cursor:pointer;
+          span{
+            color:white;
+          }
+        }
+      }
+      ul{
+        padding: 0;
+        position: absolute;
+        -webkit-box-shadow: 2px 2px 7px #999999;
+        -moz-box-shadow: 2px 2px 7px #999999;
+        box-shadow: 2px 2px 7px #999999;
+        z-index: 9999;
+        li{
+          display: block;
+          float: left;
+          width: 100%;
+          padding: 3px 7px;
+          border-top: 1px solid #ccc;
+          list-style: none;
+          background: white;
+          &:hover{
+            background: #3b6b8c;
+            color:white;
+            cursor:pointer;
+          }
+        }
+      }
+      &:hover{
+        background: white;
+        color:black;
+      }
+    }
+    &:hover{
+      background: #3b6b8c;
+      color:white;
+    }
+    i{
+      float: right;
+      margin: 2px;
+    }
+  }
+}
 .filter{
 	&.row{
 		margin-left: 0;
 	}
 	&.hidden_filters{
 		width: 81%;
+      -webkit-transition: 0.5s all;
+      -moz-transition: 0.5s all;
+      -o-transition: 0.5s all;
+      transition: 0.5s all;
 	}
     input, select{
       border:1px solid #ccc;
@@ -1785,10 +1853,7 @@ table{
 		// 	}
 		// }
 		.orderbyblock {
-			border-bottom: 1px solid #ddd;
-		    margin-bottom: 20px;
-		    margin-top: 10px;
-		    padding-bottom: 20px;
+          margin-top: 80px;
 			label{
 				font-weight: normal;
 				width: 70px;
