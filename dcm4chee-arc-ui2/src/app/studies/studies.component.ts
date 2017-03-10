@@ -20,6 +20,7 @@ import {Subscription} from "rxjs";
 import {EditStudyComponent} from "../widgets/dialogs/edit-study/edit-study.component";
 import {ComparewithiodPipe} from "../pipes/comparewithiod.pipe";
 import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
+import {DatePipe} from "@angular/common";
 
 @Component({
     selector: 'app-studies',
@@ -59,7 +60,10 @@ export class StudiesComponent implements OnDestroy{
     disabled = {};
     patientmode = false;
     ExternalRetrieveAETchecked = false;
-
+    StudyReceiveDateTime = {
+        from:undefined,
+        to:undefined
+    };
     filter = {
         orderby: "-StudyDate,-StudyTime",
         ModalitiesInStudy:"",
@@ -128,8 +132,11 @@ export class StudiesComponent implements OnDestroy{
         this.studyDateChanged();
         this.studyTime.fromObject = null;
         this.studyTime.toObject = null;
+        this.ExternalRetrieveAETchecked = null;
         this.studyTime.from = "";
         this.studyTime.to = "";
+        this.StudyReceiveDateTime.from = undefined;
+        this.StudyReceiveDateTime.to = undefined;
         // this.birthDate = {};
         // this.birthDate.object = null;
         // this.birthDate.opened = false;
@@ -599,6 +606,23 @@ export class StudiesComponent implements OnDestroy{
         this.titleLabel += ((_.hasIn(patient,'attrs.00100020.Value.0')) ? " with ID: <b>" + patient.attrs["00100020"].Value[0] + "</b>" : "");
         this.modifyMWL(patient, "edit", patientkey, mwlkey, mwl);
     };
+    studyReceiveDateTimeChanged(e,mode){
+        this.filter["StudyReceiveDateTime"] = this.filter["StudyReceiveDateTime"] || {};
+        console.log("StudyReceiveDateTime=",this.StudyReceiveDateTime);
+        this['StudyReceiveDateTime'][mode] = e;
+        if(this.StudyReceiveDateTime.from && this.StudyReceiveDateTime.to){
+/*            var dd = this.StudyReceiveDateTime.from.getDate();
+            var mm = this.StudyReceiveDateTime.from.getMonth()+1; //January is 0!
+            var yyyy = this.StudyReceiveDateTime.from.getFullYear();
+            console.log("date",yyyy+'-'+mm+'-'+dd);*/
+            let datePipeEn = new DatePipe('us-US');
+            console.log("yy=",datePipeEn.transform(this.StudyReceiveDateTime.from, 'yyyyMMddHHmmss'));
+            this.filter["StudyReceiveDateTime"] = datePipeEn.transform(this.StudyReceiveDateTime.from, 'yyyyMMddHHmmss') + '-' + datePipeEn.transform(this.StudyReceiveDateTime.to, 'yyyyMMddHHmmss');
+        }else{
+            console.log("in else",this.StudyReceiveDateTime);
+        }
+        console.log("filter",this.filter);
+    }
     deleteRejectedInstances(){
         // let result = {
         // };

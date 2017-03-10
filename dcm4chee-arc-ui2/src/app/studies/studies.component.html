@@ -553,23 +553,42 @@
             </div>
             <div class="col-md-3 block-2-1" *ngIf="filterMode === 'study'">
                 <div class="row">
-                    <div class="col-md-6" *ngIf="filterMode === 'study'" ng-init="ExternalRetrieveAETchecked = false">
+<!--                    <div class="col-md-6" *ngIf="filterMode === 'study'" ng-init="ExternalRetrieveAETchecked = false">
                         <label title="Show only studies failed to be retrieved">
                             <input type="checkbox" [(ngModel)]="ExternalRetrieveAETchecked" (change)="filter.ExternalRetrieveAET = '';filter['ExternalRetrieveAET!'] = ''">Not retrieveable from external retrieve AET
                         </label>
+                    </div>-->
+                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                        <div class="input-group">
+                            <span class="checkboxpart">
+                                <!--<input type="checkbox" aria-label="Checkbox for following text input"> No-->
+                                <input type="checkbox" [(ngModel)]="ExternalRetrieveAETchecked" (change)="filter.ExternalRetrieveAET = '';filter['ExternalRetrieveAET!'] = ''"> No
+                            </span>
+                            <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET" *ngIf="!ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter.ExternalRetrieveAET" placeholder="External retrieve AET" title="Retrieveable from external retrieve AET" />
+                            <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET!" *ngIf="ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter['ExternalRetrieveAET!']" placeholder="External retrieve AET" title="Not retrieveable from external retrieve AET"/>
+                        </div>
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study' && !ExternalRetrieveAETchecked">
-                        <input id="ExternalRetrieveAET" type="text" [(ngModel)]="filter.ExternalRetrieveAET" placeholder="External retrieve AET" title="Retrieveable from external retrieve AET" class="col-md-12 clearable" />
-                    </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study' && ExternalRetrieveAETchecked">
-                        <input id="ExternalRetrieveAET!" type="text" [(ngModel)]="filter['ExternalRetrieveAET!']" placeholder="(Not) External retrieve AET" title="Not retrieveable from external retrieve AET" class="col-md-12 clearable" />
-                    </div>
-                </div>
-                <div class="row">
+                    <!--<div class="col-md-6" *ngIf="filterMode === 'study' && ExternalRetrieveAETchecked">-->
+                    <!--</div>-->
                     <div class="col-md-6">
                         <label title="Show only studies failed to be retrieved">
                             <input type="checkbox" [(ngModel)]="filter.retrievefailed"> Only failed to be retrieved
                         </label>
+                    </div>
+                </div>
+                <div class="row" *ngIf="filterMode === 'study'">
+                    <div class="col-md-12">
+                          <label>
+                            Study created date/time:
+                          </label>
+                    </div>
+                </div>
+                <div class="row" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6">
+                        <p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'from')" [(ngModel)]="StudyReceiveDateTime.from" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="from"></p-calendar>
+                    </div>
+                    <div class="col-md-6">
+                        <p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'to')" [(ngModel)]="StudyReceiveDateTime.to" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="to"></p-calendar>
                     </div>
                 </div>
             </div>

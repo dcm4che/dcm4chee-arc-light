@@ -409,3 +409,30 @@ p-calendar select{
     color: rgba(6, 29, 47, 0.84);
   }
 }
+.filter{
+  label{
+    font-weight:normal;
+  }
+  .input-group{
+    .checkboxpart{
+      float: left;
+      display: inline-block;
+      background: #eceeef;
+      width: 26%;
+      height: 30px;
+      vertical-align: middle;
+      line-height: 32px;
+      text-align: center;
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+      border: 1px solid #ccc;
+      border-right: none;
+    }
+    .inputpart{
+      float: left;
+      width: 70%;
+      height: 30px;
+      margin: 0;
+    }
+  }
+}
