@@ -265,6 +265,8 @@ public class PatientServiceEJB {
         for (Study study : em.createNamedQuery(Study.FIND_BY_PATIENT, Study.class)
                 .setParameter(1, from).getResultList()) {
             study.setPatient(to);
+            to.incrementNumberOfStudies();
+            from.decrementNumberOfStudies();
         }
     }
 
