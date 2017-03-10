@@ -549,12 +549,23 @@
             </div> -->
 
 
+            <div class="col-md-6" ng-show="filterMode === 'study'" ng-init="ExternalRetrieveAETchecked = false">
+                <label title="Show only studies failed to be retrieved">
+                    <input type="checkbox" ng-model="ExternalRetrieveAETchecked" ng-change="filter.ExternalRetrieveAET = '';filter['ExternalRetrieveAET!'] = ''">Not retrieveable from external retrieve AET
+                </label>
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'study' && !ExternalRetrieveAETchecked">
+                <input id="ExternalRetrieveAET" type="text" ng-model="filter.ExternalRetrieveAET" placeholder="External retrieve AET" title="Retrieveable from external retrieve AET" class="col-md-12 clearable" />
+            </div>
+            <div class="col-md-6" ng-show="filterMode === 'study' && ExternalRetrieveAETchecked">
+                <input id="ExternalRetrieveAET!" type="text" ng-model="filter['ExternalRetrieveAET!']" placeholder="(Not) External retrieve AET" title="Not retrieveable from external retrieve AET" class="col-md-12 clearable" />
+            </div>
+        </div>
             <div class="col-md-6">
                 <label title="Show only studies failed to be retrieved">
                     <input type="checkbox" ng-model="filter.retrievefailed"> Only failed to be retrieved
                 </label>
             </div>
-        </div>
     </div>
 </div>
     <div class="header_block" ng-show="patients.length != 0">

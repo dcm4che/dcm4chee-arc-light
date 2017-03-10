@@ -1759,6 +1759,7 @@ myApp.controller('StudyListCtrl', function ($scope, $window, $http, QidoService,
             }
         });
         angular.element(".single_clear").hide();
+        $scope.ExternalRetrieveAETchecked = null;
         $scope.studyDate.fromObject = null;
         $scope.studyDate.toObject = null;
         $scope.studyDate.from = "";
