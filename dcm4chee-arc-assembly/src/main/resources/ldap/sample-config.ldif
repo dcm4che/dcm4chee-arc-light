@@ -618,6 +618,15 @@ dcmMergeMWLTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl
 objectClass: dcmArchiveAttributeCoercion
 cn: Merge MWL
 
+dn: cn=Correct VR,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmDIMSE: C_STORE_RQ
+dcmAETitle: CORRECT_VR
+dicomTransferRole: SCP
+objectClass: dcmArchiveAttributeCoercion
+dcmNoKeywords: TRUE
+dcmURI: ${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl
+cn: Correct VR
+
 dn: cn=Ensure PID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dcmAETitle: ENSURE_PID
