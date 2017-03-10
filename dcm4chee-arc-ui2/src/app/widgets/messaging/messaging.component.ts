@@ -27,6 +27,7 @@ export class MessagingComponent implements OnDestroy{
         });
     }
     setMsg(msg:any){
+        console.log("in setmessage in messaging.component",msg);
         let timeout = msg.timeout || this.msgTimeout;
         let isInArray = false;
         let presentId = "";

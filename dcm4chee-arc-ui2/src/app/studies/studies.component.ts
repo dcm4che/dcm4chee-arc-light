@@ -608,20 +608,11 @@ export class StudiesComponent implements OnDestroy{
     };
     studyReceiveDateTimeChanged(e,mode){
         this.filter["StudyReceiveDateTime"] = this.filter["StudyReceiveDateTime"] || {};
-        console.log("StudyReceiveDateTime=",this.StudyReceiveDateTime);
         this['StudyReceiveDateTime'][mode] = e;
         if(this.StudyReceiveDateTime.from && this.StudyReceiveDateTime.to){
-/*            var dd = this.StudyReceiveDateTime.from.getDate();
-            var mm = this.StudyReceiveDateTime.from.getMonth()+1; //January is 0!
-            var yyyy = this.StudyReceiveDateTime.from.getFullYear();
-            console.log("date",yyyy+'-'+mm+'-'+dd);*/
             let datePipeEn = new DatePipe('us-US');
-            console.log("yy=",datePipeEn.transform(this.StudyReceiveDateTime.from, 'yyyyMMddHHmmss'));
             this.filter["StudyReceiveDateTime"] = datePipeEn.transform(this.StudyReceiveDateTime.from, 'yyyyMMddHHmmss') + '-' + datePipeEn.transform(this.StudyReceiveDateTime.to, 'yyyyMMddHHmmss');
-        }else{
-            console.log("in else",this.StudyReceiveDateTime);
         }
-        console.log("filter",this.filter);
     }
     deleteRejectedInstances(){
         // let result = {

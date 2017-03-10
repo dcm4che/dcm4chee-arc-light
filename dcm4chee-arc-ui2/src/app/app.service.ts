@@ -60,6 +60,7 @@ export class AppService implements OnInit, OnDestroy{
     createPatient$ = this.createPatientSource.asObservable();
     // Service message commands
     setMessage(msg: any) {
+        console.log("in set message",msg);
         this.setMessageSource.next(msg);
     }
     setGlobal(object: any) {
