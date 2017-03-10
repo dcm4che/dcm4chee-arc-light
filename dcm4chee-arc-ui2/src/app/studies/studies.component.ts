@@ -58,6 +58,8 @@ export class StudiesComponent implements OnDestroy{
     showCheckboxes = false;
     disabled = {};
     patientmode = false;
+    ExternalRetrieveAETchecked = false;
+
     filter = {
         orderby: "-StudyDate,-StudyTime",
         ModalitiesInStudy:"",

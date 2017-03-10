@@ -82,7 +82,8 @@ import { PlaceholderchangerDirective } from './helpers/placeholderchanger.direct
             { path: 'studies', component: StudiesComponent },
             { path: 'control', component: ControlComponent },
             { path: '**', component: PageNotFoundComponent }
-      ])
+      ],
+            { useHash: true })
     ],
     entryComponents:[WidgetsComponents],
     providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, DatePipe, CalendarModule, DropdownModule],
