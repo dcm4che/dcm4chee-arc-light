@@ -52,6 +52,7 @@
             <module name="org.dcm4che.conf.ldap-hl7" export="TRUE"/>
             <module name="org.dcm4che.conf.ldap-imageio" export="TRUE"/>
             <module name="org.dcm4che.core" export="TRUE"/>
+            <module name="org.dcm4che.dcmr" export="TRUE"/>
             <module name="org.dcm4che.dict-arc" export="TRUE"/>
             <module name="org.dcm4che.json" export="TRUE"/>
             <module name="org.dcm4che.mime" export="TRUE"/>
@@ -63,6 +64,8 @@
             <module name="org.dcm4che.imageio" export="TRUE" services="export"/>
             <module name="org.dcm4che.image" export="TRUE"/>
             <module name="org.dcm4che.soundex" export="TRUE"/>
+            <!-- apache-cxf modules -->
+            <module name="org.apache.cxf.impl" export="TRUE"/>
             <!-- querydsl modules -->
             <module name="com.querydsl" export="TRUE"/>
             <!-- jclouds modules -->
