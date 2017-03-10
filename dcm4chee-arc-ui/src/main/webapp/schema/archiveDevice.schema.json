@@ -639,11 +639,6 @@
       "description": "Enable to keep track of the prior Patient ID on a change of the Patient ID by HL7 ADT^A47 or by the RESTful Patient Update Service. Enabled if absent.",
       "type": "boolean"
     },
-    "dcmCorrectVRTemplateURI": {
-      "title": "DICOM Correct VR Template URI",
-      "description": "Specifies URI for the style sheet used by DICOM Store Service.",
-      "type": "string"
-    },
     "dcmStorage": {
       "title": "Storage Descriptor",
       "description": "Specifies Storage System",

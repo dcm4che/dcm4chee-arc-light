@@ -163,7 +163,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String invokeImageDisplayStudyURL;
     private String[] hl7ADTReceivingApplication = {};
     private String hl7ADTSendingApplication;
-    private String correctVRTemplateURI;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1437,13 +1436,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ADTSendingApplication = hl7ADTSendingApplication;
     }
 
-    public String getCorrectVRTemplateURI() {
-        return correctVRTemplateURI;
-    }
-
-    public void setCorrectVRTemplateURI(String correctVRTemplateURI) {
-        this.correctVRTemplateURI = correctVRTemplateURI;
-    }
 
     @Override
     public void reconfigure(DeviceExtension from) {
@@ -1555,7 +1547,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         invokeImageDisplayStudyURL = arcdev.invokeImageDisplayStudyURL;
         hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
         hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;
-        correctVRTemplateURI = arcdev.correctVRTemplateURI;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

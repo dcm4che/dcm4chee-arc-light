@@ -189,7 +189,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL());
         writer.writeNotNull("hl7ADTSendingApplication", arcDev.getHl7ADTSendingApplication());
         writer.writeNotEmpty("hl7ADTReceivingApplication", arcDev.getHl7ADTReceivingApplication());
-        writer.writeNotNull("dcmCorrectVRTemplateURI", arcDev.getCorrectVRTemplateURI());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -894,9 +893,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ADTReceivingApplication":
                     arcDev.setHl7ADTReceivingApplication(reader.stringArray());
-                    break;
-                case "dcmCorrectVRTemplateURI":
-                    arcDev.setCorrectVRTemplateURI(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
