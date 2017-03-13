@@ -4,6 +4,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,8 +60,7 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    Attributes copyInstances(Attributes ko,
-            StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
+    Attributes copyInstances(RejectionNote rj, StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
             throws Exception;
 
     Collection<InstanceLocations> queryInstances(

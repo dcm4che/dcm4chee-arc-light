@@ -285,8 +285,7 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes copyInstances(Attributes ko,
-            StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
+    public Attributes copyInstances(RejectionNote rj, StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
             throws Exception {
         Attributes result = new Attributes();
         session.setUIDMap(uidMap);
@@ -307,21 +306,14 @@ class StoreServiceImpl implements StoreService {
                     store(ctx, attr);
                     populateResult(refSOPSeq, attr);
                 } catch (DicomServiceException e) {
-                    if (ko != null)
-                        UIDUtils.remapUIDs(attr, reverseUIDMap(uidMap));
                     result.setString(Tag.FailureReason, VR.US, Integer.toString(e.getStatus()));
+                    if (rj != null)
+                        attr.setString(Tag.SOPInstanceUID, VR.UI, il.getSopInstanceUID());
                     populateResult(failedSOPSeq, attr);
                 }
             }
         }
         return result;
-    }
-
-    private Map<String, String> reverseUIDMap(Map<String, String> uidMap) {
-        Map<String, String> reverseUidMap = new HashMap<>();
-        for (Map.Entry<String, String> entry : uidMap.entrySet())
-            reverseUidMap.put(entry.getValue(), entry.getKey());
-        return reverseUidMap;
     }
 
     private void populateResult(Sequence refSOPSeq, Attributes ilAttr) {

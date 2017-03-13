@@ -584,26 +584,35 @@ public class IocmRS {
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
 
-        Attributes ko = null;
-        StoreContext koctx = storeService.newStoreContext(session);
+        final Attributes result = storeService.copyInstances(rjNote, session, instances, uidMap);
+
         if (rjNote != null) {
-            ko = queryService.createRejectionNote(instanceRefs, rjNote);
-            koctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
-            koctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
-            koctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-            storeService.store(koctx, ko);
-        }
-
-        final Attributes result = storeService.copyInstances(ko, session, instances, uidMap);
-
-        if (result.getString(Tag.FailureReason) != null && ko != null) {
-            deletionService.deleteInstances(koctx.getLocations());
-            StoreContext revokeCtx = storeService.newStoreContext(session);
-            RejectionNote revokeRjNote = arcDev.getRejectionNote(
-                    new Code("REVOKE_REJECTION", "99DCM4CHEE", null, "?"));
-            reverseRejectionMove(revokeCtx, revokeRjNote, instanceRefs);
-            throw new WebApplicationException(getResponse("Moving of instances failed with failure reason : " +
-                    result.getString(Tag.FailureReason), Response.Status.INTERNAL_SERVER_ERROR));
+            if (result.getString(Tag.FailureReason) != null) {
+                for (int k=0; k < instanceRefs.getSequence(Tag.ReferencedSeriesSequence).size();) {
+                    Attributes refSeries = instanceRefs.getSequence(Tag.ReferencedSeriesSequence).get(0);
+                    if (!refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty()) {
+                        for (int j = 0; j < refSeries.getSequence(Tag.ReferencedSOPSequence).size();) {
+                                Attributes refSop = refSeries.getSequence(Tag.ReferencedSOPSequence).get(0);
+                                for (int i = 0; i < result.getSequence(Tag.FailedSOPSequence).size(); i++) {
+                                    boolean removed = false;
+                                    if (refSop.getString(Tag.ReferencedSOPInstanceUID).equals(
+                                            result.getSequence(Tag.FailedSOPSequence).get(i).getString(Tag.ReferencedSOPInstanceUID))) {
+                                        refSeries.getSequence(Tag.ReferencedSOPSequence).remove(refSop);
+                                        removed = true;
+                                    }
+                                    if (removed)
+                                        break;
+                                }
+                        }
+                        if (refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty())
+                            instanceRefs.getSequence(Tag.ReferencedSeriesSequence).remove(0);
+                    }
+                }
+                if (instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
+                    throw new WebApplicationException(getResponse("Moving of all instances failed with failure reason : " +
+                        result.getString(Tag.FailureReason), Response.Status.INTERNAL_SERVER_ERROR));
+            }
+            reject(session, instanceRefs, rjNote);
         }
 
         forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);
@@ -617,13 +626,13 @@ public class IocmRS {
         };
     }
 
-    private void reverseRejectionMove(StoreContext revokeCtx, RejectionNote revokeRjNote, Attributes instanceRefs)
-            throws IOException {
-        Attributes revoke = queryService.createRejectionNote(instanceRefs, revokeRjNote);
-        revokeCtx.setSopClassUID(revoke.getString(Tag.SOPClassUID));
-        revokeCtx.setSopInstanceUID(revoke.getString(Tag.SOPInstanceUID));
-        revokeCtx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-        storeService.store(revokeCtx, revoke);
+    private void reject(StoreSession session, Attributes instanceRefs, RejectionNote rjNote) throws IOException {
+        StoreContext koctx = storeService.newStoreContext(session);
+        Attributes ko = queryService.createRejectionNote(instanceRefs, rjNote);
+        koctx.setSopClassUID(ko.getString(Tag.SOPClassUID));
+        koctx.setSopInstanceUID(ko.getString(Tag.SOPInstanceUID));
+        koctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+        storeService.store(koctx, ko);
     }
 
     private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
