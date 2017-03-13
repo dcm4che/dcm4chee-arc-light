@@ -189,6 +189,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL());
         writer.writeNotNull("hl7ADTSendingApplication", arcDev.getHl7ADTSendingApplication());
         writer.writeNotEmpty("hl7ADTReceivingApplication", arcDev.getHl7ADTReceivingApplication());
+        writer.writeNotNull("hl7ScheduledProtocolCodeInOrder", arcDev.getHl7ScheduledProtocolCodeInOrder());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -893,6 +894,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ADTReceivingApplication":
                     arcDev.setHl7ADTReceivingApplication(reader.stringArray());
+                    break;
+                case "hl7ScheduledProtocolCodeInOrder":
+                    arcDev.setHl7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder.valueOf(reader.stringValue()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

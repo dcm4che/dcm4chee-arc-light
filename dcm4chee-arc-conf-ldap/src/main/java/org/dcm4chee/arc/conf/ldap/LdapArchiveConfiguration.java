@@ -183,6 +183,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL());
         LdapUtils.storeNotNull(attrs, "hl7ADTSendingApplication", ext.getHl7ADTSendingApplication());
         LdapUtils.storeNotEmpty(attrs, "hl7ADTReceivingApplication", ext.getHl7ADTReceivingApplication());
+        LdapUtils.storeNotNull(attrs, "hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder());
     }
 
     @Override
@@ -302,6 +303,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
         ext.setHl7ADTReceivingApplication(LdapUtils.stringArray(attrs.get("hl7ADTReceivingApplication")));
         ext.setHl7ADTSendingApplication(LdapUtils.stringValue(attrs.get("hl7ADTSendingApplication"), null));
+        ext.setHl7ScheduledProtocolCodeInOrder(LdapUtils.enumValue(ScheduledProtocolCodeInOrder.class,
+                attrs.get("hl7ScheduledProtocolCodeInOrder"), null));
     }
 
     @Override
@@ -486,6 +489,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL());
         LdapUtils.storeDiff(mods, "hl7ADTReceivingApplication", aa.getHl7ADTReceivingApplication(), bb.getHl7ADTReceivingApplication());
         LdapUtils.storeDiff(mods, "hl7ADTSendingApplication", aa.getHl7ADTSendingApplication(), bb.getHl7ADTSendingApplication());
+        LdapUtils.storeDiff(mods, "hl7ScheduledProtocolCodeInOrder", aa.getHl7ScheduledProtocolCodeInOrder(), bb.getHl7ScheduledProtocolCodeInOrder());
     }
 
     @Override

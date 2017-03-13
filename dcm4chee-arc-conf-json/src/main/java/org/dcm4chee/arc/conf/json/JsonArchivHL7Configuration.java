@@ -8,6 +8,7 @@ import org.dcm4che3.conf.json.hl7.JsonHL7ConfigurationExtension;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
+import org.dcm4chee.arc.conf.ScheduledProtocolCodeInOrder;
 
 import javax.json.stream.JsonParser;
 
@@ -30,6 +31,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNull("hl7LogFilePattern", ext.getHl7LogFilePattern());
         writer.writeNotNull("hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern());
         writer.writeNotNull("dicomAETitle", ext.getAETitle());
+        writer.writeNotNull("hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder());
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeScheduledStations(writer, ext.getHL7OrderScheduledStations());
         JsonArchiveConfiguration.writeHL7OrderSPSStatus(writer, ext.getHL7OrderSPSStatuses());
@@ -72,6 +74,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "dicomAETitle":
                     ext.setAETitle(reader.stringValue());
+                    break;
+                case "hl7ScheduledProtocolCodeInOrder":
+                    ext.setHl7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder.valueOf(reader.stringValue()));
                     break;
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);

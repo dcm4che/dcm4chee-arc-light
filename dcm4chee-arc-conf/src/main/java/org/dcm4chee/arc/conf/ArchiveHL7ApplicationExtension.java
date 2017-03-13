@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7ApplicationExtension;
+import org.dcm4che3.util.StringUtils;
 
 import java.util.*;
 
@@ -60,6 +61,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String scheduleProcedureTemplateURI;
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
+    private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
@@ -77,6 +79,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         scheduleProcedureTemplateURI = arcapp.scheduleProcedureTemplateURI;
         hl7LogFilePattern = arcapp.hl7LogFilePattern;
         hl7ErrorLogFilePattern = arcapp.hl7ErrorLogFilePattern;
+        hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
         hl7OrderScheduledStations.clear();
@@ -241,4 +244,18 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 : hl7OrderSPSStatuses).values();
     }
 
+    public ScheduledProtocolCodeInOrder getHl7ScheduledProtocolCodeInOrder() {
+        return hl7ScheduledProtocolCodeInOrder;
+    }
+
+    public void setHl7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder) {
+        this.hl7ScheduledProtocolCodeInOrder = hl7ScheduledProtocolCodeInOrder;
+    }
+
+    public ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder() {
+        return hl7ScheduledProtocolCodeInOrder != null
+                ? hl7ScheduledProtocolCodeInOrder
+                : StringUtils.maskNull(getArchiveDeviceExtension().getHl7ScheduledProtocolCodeInOrder(),
+                    ScheduledProtocolCodeInOrder.OBR_4_4);
+    }
 }

@@ -163,6 +163,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String invokeImageDisplayStudyURL;
     private String[] hl7ADTReceivingApplication = {};
     private String hl7ADTSendingApplication;
+    private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1436,6 +1437,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ADTSendingApplication = hl7ADTSendingApplication;
     }
 
+    public ScheduledProtocolCodeInOrder getHl7ScheduledProtocolCodeInOrder() {
+        return hl7ScheduledProtocolCodeInOrder;
+    }
+
+    public void setHl7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder) {
+        this.hl7ScheduledProtocolCodeInOrder = hl7ScheduledProtocolCodeInOrder;
+    }
 
     @Override
     public void reconfigure(DeviceExtension from) {
@@ -1547,6 +1555,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         invokeImageDisplayStudyURL = arcdev.invokeImageDisplayStudyURL;
         hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
         hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;
+        hl7ScheduledProtocolCodeInOrder = arcdev.hl7ScheduledProtocolCodeInOrder;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();
