@@ -5,7 +5,7 @@
         <div id="dropdown" class="dropdown" *ngIf="opendropdown">
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut"  (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
         </div>
-        <iod-form-generator [object]="patient.attrs" [prefix]="" [mode]="mode" (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
+        <iod-form-generator [object]="patient.attrs" [prefix]="" [mode]="mode" [iod]="iod"(keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
         <div class="dialogbuttons">
             <button class="save" type="button" (click)="dialogRef.close(patient)">{{saveLabel}}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>

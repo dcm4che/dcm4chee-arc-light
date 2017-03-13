@@ -12,6 +12,7 @@ export class IodFormGeneratorComponent implements OnInit {
     @Input() object;
     @Input() prefix;
     @Input() mode;
+    @Input() iod;
 
     objectIsArray;
     hasValue;

@@ -27,7 +27,7 @@ export class EditPatientComponent {
     private _dropdown
     private _patient:any;
     private _patientkey:any;
-    private _iod:any;
+    iod:any;
 
     constructor(public dialogRef: MdDialogRef<EditPatientComponent>, public mainservice:AppService) {
         setTimeout(()=>{
@@ -58,13 +58,7 @@ export class EditPatientComponent {
     set mode(value) {
         this._mode = value;
     }
-    get iod(): any {
-        return this._iod;
-    }
 
-    set iod(value: any) {
-        this._iod = value;
-    }
 
     get dropdown() {
         return this._dropdown;
@@ -156,7 +150,7 @@ export class EditPatientComponent {
             }
             console.log("patient_attrs not undefined", this._patient.attrs[attrcode]);
             if(this._patient.attrs[attrcode] != undefined){
-                if(this._iod[attrcode].multi){
+                if(this.iod[attrcode].multi){
                     this._patient.attrs[attrcode]["Value"].push("");
                     this.addPatientAttribut           = "";
                     this.opendropdown                 = false;
@@ -214,14 +208,14 @@ export class EditPatientComponent {
     }
     addAttribute(attrcode, patient){
         if(patient.attrs[attrcode]){
-            if(this._iod[attrcode].multi){
-                        // this.patien.attrs[attrcode]  = this._iod.data[attrcode];
-                console.log("multi",this._iod[attrcode]);
+            if(this.iod[attrcode].multi){
+                        // this.patien.attrs[attrcode]  = this.iod.data[attrcode];
+                console.log("multi",this.iod[attrcode]);
                 if(patient.attrs[attrcode].vr === "PN"){
                     patient.attrs[attrcode]["Value"].push({Alphabetic:''});
                 }else{
                     if(patient.attrs[attrcode].vr === "SQ"){
-                        patient.attrs[attrcode]["Value"].push(_.cloneDeep(this._iod[attrcode].Value[0]));
+                        patient.attrs[attrcode]["Value"].push(_.cloneDeep(this.iod[attrcode].Value[0]));
                     }else{
                         patient.attrs[attrcode]["Value"].push("");
                     }
@@ -238,8 +232,8 @@ export class EditPatientComponent {
             }
         }else{
             // console.log("in else", this.dialogRef.componentInstance.patient);
-            console.log("this._iodattrcod",this._iod[attrcode]);
-             patient.attrs[attrcode]  = _.cloneDeep(this._iod[attrcode]);
+            console.log("this.iodattrcod",this.iod[attrcode]);
+             patient.attrs[attrcode]  = _.cloneDeep(this.iod[attrcode]);
             // patient.attrs[attrcode].Value[0] = "";
             console.log("patient=",patient);
         }
