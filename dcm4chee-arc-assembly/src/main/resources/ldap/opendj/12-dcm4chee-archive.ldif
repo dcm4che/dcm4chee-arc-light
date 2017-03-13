@@ -800,7 +800,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.160 NAME 'dcmInvokeImageDisplayStudyURL
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.161 NAME 'hl7ADTReceivingApplication'
-  DESC 'Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates.'
+  DESC 'Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.162 NAME 'hl7ADTSendingApplication'
@@ -813,6 +813,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.163 NAME 'dcmRetrieveLocationUID'
    EQUALITY  objectIdentifierMatch
    SYNTAX 1.3.6.1.4.1.1466.115.121.1.38 )
    SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.164 NAME 'hl7ScheduledProtocolCodeInOrder'
+  DESC 'Specifies location of Scheduled Protocol Code in received HL7 Order message. Enumerated values: OBR_4_1, OBR_4_4. If absent, OBR_4_4 will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -884,6 +889,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PatientUpdateTemplateURI $
     hl7ImportReportTemplateURI $
     hl7ScheduleProcedureTemplateURI $
+    hl7ScheduledProtocolCodeInOrder $
     hl7LogFilePattern $
     hl7ErrorLogFilePattern $
     dcmUnzipVendorDataToURI $
@@ -999,6 +1005,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
      hl7PatientUpdateTemplateURI $
      hl7ImportReportTemplateURI $
      hl7ScheduleProcedureTemplateURI $
+     hl7ScheduledProtocolCodeInOrder $
      hl7LogFilePattern $
      hl7ErrorLogFilePattern $
      dicomAETitle ) )

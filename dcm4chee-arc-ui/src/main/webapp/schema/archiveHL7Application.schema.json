@@ -18,6 +18,15 @@
       "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items.",
       "type": "string"
     },
+    "hl7ScheduledProtocolCodeInOrder": {
+      "title": "HL7 Schedule Protocol Code in Order",
+      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. Enumerated values: OBR_4_1, OBR_4_4. If absent, OBR_4_4 will be applied.",
+      "type": "string",
+      "enum": [
+        "OBR_4_1",
+        "OBR_4_4"
+      ]
+    },
     "hl7LogFilePattern": {
       "title": "HL7 Log File Pattern",
       "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging.",
