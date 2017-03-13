@@ -15,8 +15,10 @@ export class SearchPipe implements PipeTransform {
             let keys = _.keysIn(obj);
             let objString = JSON.stringify(obj).toLowerCase();
             _.each(keys,(k)=>{
-                let re = new RegExp('"'+k.toLowerCase()+'"',"g");
-                objString = objString.replace(re,'');
+                if(k){
+                    let re = new RegExp('"'+k.toLowerCase()+'"',"g");
+                    objString = objString.replace(re,'');
+                }
             });
             return objString.indexOf(args.toLowerCase()) !== -1;
         });

@@ -35,6 +35,8 @@ import { IodFormGeneratorComponent } from './helpers/iod-form-generator/iod-form
 import { TooltipDirective } from './helpers/tooltip/tooltip.directive';
 import { ComparewithiodPipe } from './pipes/comparewithiod.pipe';
 import { PlaceholderchangerDirective } from './helpers/placeholderchanger.directive';
+import {QueuesService} from "./queues/queues.service";
+import { DevicesComponent } from './devices/devices.component';
 
 @NgModule({
     declarations: [
@@ -61,7 +63,8 @@ import { PlaceholderchangerDirective } from './helpers/placeholderchanger.direct
         IodFormGeneratorComponent,
         TooltipDirective,
         ComparewithiodPipe,
-        PlaceholderchangerDirective
+        PlaceholderchangerDirective,
+        DevicesComponent
     ],
     imports: [
         BrowserModule,
@@ -81,12 +84,14 @@ import { PlaceholderchangerDirective } from './helpers/placeholderchanger.direct
             },
             { path: 'studies', component: StudiesComponent },
             { path: 'control', component: ControlComponent },
+            { path: 'queues', component: QueuesComponent },
+            { path: 'devicelist', component: DevicesComponent },
             { path: '**', component: PageNotFoundComponent }
       ],
             { useHash: true })
     ],
     entryComponents:[WidgetsComponents],
-    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, DatePipe, CalendarModule, DropdownModule],
+    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DatePipe, CalendarModule, DropdownModule],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

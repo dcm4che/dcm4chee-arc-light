@@ -136,4 +136,13 @@ export class AppService implements OnInit, OnDestroy{
         // prevent memory leak when component destroyed
         this.subscription.unsubscribe();
     }
+    param(filter){
+        let filterMaped = Object.keys(filter).map((key)=>{
+            if(filter[key]){
+                return encodeURIComponent(key) + '=' + encodeURIComponent(filter[key]);
+            }
+        })
+        let filterCleared = _.compact(filterMaped);
+        return filterCleared.join("&");
+    }
 }
