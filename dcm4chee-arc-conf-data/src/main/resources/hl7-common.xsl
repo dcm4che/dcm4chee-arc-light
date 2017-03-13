@@ -248,16 +248,18 @@
     <xsl:param name="tag"/>
     <xsl:param name="cn"/>
     <xsl:param name="cn26" select="$cn/component"/>
-    <xsl:call-template name="pnAttr">
-      <xsl:with-param name="tag" select="$tag"/>
-      <xsl:with-param name="val" select="string($cn/text())"/>
-      <xsl:with-param name="fn" select="string($cn26[1]/text())"/>
-      <xsl:with-param name="gn" select="string($cn26[2]/text())"/>
-      <xsl:with-param name="mn" select="string($cn26[3]/text())"/>
-      <xsl:with-param name="ns" select="string($cn26[4]/text())"/>
-      <xsl:with-param name="np" select="string($cn26[5]/text())"/>
-      <xsl:with-param name="deg" select="string($cn26[6]/text())"/>
-    </xsl:call-template>
+    <xsl:if test="$cn26 or $cn = '&quot;&quot;'">
+      <xsl:call-template name="pnAttr">
+        <xsl:with-param name="tag" select="$tag"/>
+        <xsl:with-param name="val" select="string($cn/text())"/>
+        <xsl:with-param name="fn" select="string($cn26[1]/text())"/>
+        <xsl:with-param name="gn" select="string($cn26[2]/text())"/>
+        <xsl:with-param name="mn" select="string($cn26[3]/text())"/>
+        <xsl:with-param name="ns" select="string($cn26[4]/text())"/>
+        <xsl:with-param name="np" select="string($cn26[5]/text())"/>
+        <xsl:with-param name="deg" select="string($cn26[6]/text())"/>
+      </xsl:call-template>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="codeItem">
@@ -265,7 +267,7 @@
     <xsl:param name="code"/>
     <xsl:param name="scheme"/>
     <xsl:param name="meaning"/>
-    <xsl:if test="$code">
+    <xsl:if test="$code and $scheme and $meaning">
       <DicomAttribute tag="{$sqtag}" vr="SQ">
         <Item number="1">
           <!-- Code Value -->
@@ -411,14 +413,40 @@
   </xsl:template>
   <xsl:template name="ei2attr">
     <xsl:param name="tag"/>
+    <xsl:param name="sqtag"/>
     <xsl:param name="ei"/>
-    <DicomAttribute tag="{$tag}" vr="LO">
-      <Value number="1">
-      <xsl:value-of select="string($ei/text())"/>
-      <xsl:text>^</xsl:text>
-      <xsl:value-of select="string($ei/component[1]/text())"/>
-      </Value>
-    </DicomAttribute>
+    <xsl:if test="$ei/text()">
+      <DicomAttribute tag="{$tag}" vr="LO">
+        <Value number="1">
+          <xsl:value-of select="$ei/text()"/>
+        </Value>
+      </DicomAttribute>
+      <xsl:if test="$ei/component">
+        <DicomAttribute tag="{$sqtag}" vr="SQ">
+          <Item number="1">
+            <xsl:if test="$ei/component[1]">
+              <DicomAttribute tag="00400031" vr="UT">
+                <Value number="1">
+                  <xsl:value-of select="$ei/component[1]/text()"/>
+                </Value>
+              </DicomAttribute>
+            </xsl:if>
+            <xsl:if test="$ei/component[2] and $ei/component[3]">
+              <DicomAttribute tag="00400032" vr="UT">
+                <Value number="1">
+                  <xsl:value-of select="$ei/component[2]/text()"/>
+                </Value>
+              </DicomAttribute>
+              <DicomAttribute tag="00400033" vr="CS">
+                <Value number="1">
+                  <xsl:value-of select="$ei/component[3]/text()"/>
+                </Value>
+              </DicomAttribute>
+            </xsl:if>
+          </Item>
+         </DicomAttribute>
+      </xsl:if>
+    </xsl:if>
   </xsl:template>
   <xsl:template name="attrDATM">
     <xsl:param name="datag"/>

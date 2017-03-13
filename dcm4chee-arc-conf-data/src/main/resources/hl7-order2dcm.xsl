@@ -2,6 +2,8 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:output method="xml"/>
   <xsl:include href="hl7-common.xsl"/>
+  <xsl:param name="hl7OrderScheduledProtocolCodeLocation"/>
+
   <xsl:template match="/hl7">
     <NativeDicomModel>
       <DicomAttribute tag="00080005" vr="CS">
@@ -63,11 +65,13 @@
     <!-- Placer Order Number -->
     <xsl:call-template name="ei2attr">
       <xsl:with-param name="tag" select="'00402016'"/>
+      <xsl:with-param name="sqtag" select="'00400026'"/>
       <xsl:with-param name="ei" select="field[2]"/>
     </xsl:call-template>
     <!-- Filler Order Number -->
     <xsl:call-template name="ei2attr">
       <xsl:with-param name="tag" select="'00402017'"/>
+      <xsl:with-param name="sqtag" select="'00400027'"/>
       <xsl:with-param name="ei" select="field[3]"/>
     </xsl:call-template>
     <xsl:call-template name="procedurePriority">
@@ -107,19 +111,31 @@
       <xsl:with-param name="tag" select="'00321032'"/>
       <xsl:with-param name="cn" select="field[16]"/>
     </xsl:call-template>
-    <!-- Requested Procedure Description -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00321060'"/>
-      <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="val" select="field[44]/component[1]"/>
-    </xsl:call-template>
-    <!-- Requested Procedure Code Sequence -->
-    <xsl:call-template name="codeItem">
-      <xsl:with-param name="sqtag" select="'00321064'"/>
-      <xsl:with-param name="code" select="string(field[44]/text())"/>
-      <xsl:with-param name="scheme" select="string(field[44]/component[2]/text())"/>
-      <xsl:with-param name="meaning" select="substring(field[44]/component[1]/text(),1,64)"/>
-    </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test="field[44]/component[1]">
+        <!-- Requested Procedure Description -->
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00321060'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="field[44]/component[1]"/>
+        </xsl:call-template>
+        <!-- Requested Procedure Code Sequence -->
+        <xsl:call-template name="codeItem">
+          <xsl:with-param name="sqtag" select="'00321064'"/>
+          <xsl:with-param name="code" select="string(field[44]/text())"/>
+          <xsl:with-param name="scheme" select="string(field[44]/component[2]/text())"/>
+          <xsl:with-param name="meaning" select="substring(field[44]/component[1]/text(),1,64)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- Requested Procedure Description -->
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00321060'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="field[44]"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
     <!-- Patient State -->
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00380500'"/>
@@ -132,11 +148,24 @@
       <xsl:with-param name="vr" select="'SH'"/>
       <xsl:with-param name="val" select="string(field[19]/text())"/>
     </xsl:call-template>
+    <!-- Reason for the Requested Procedure -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00401002'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
+      <xsl:with-param name="val" select="substring(field[31]/component[1],1,64)"/>
+    </xsl:call-template>
     <!-- Patient Transport Arrangements -->
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00401004'"/>
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="val" select="substring(field[30]/text(),1,64)"/>
+    </xsl:call-template>
+    <!-- Reason for Requested Procedure Code Sequence -->
+    <xsl:call-template name="codeItem">
+      <xsl:with-param name="sqtag" select="'0040100A'"/>
+      <xsl:with-param name="code" select="string(field[30]/text())"/>
+      <xsl:with-param name="scheme" select="string(field[30]/component[2]/text())"/>
+      <xsl:with-param name="meaning" select="substring(field[30]/component[1]/text(),1,64)"/>
     </xsl:call-template>
   </xsl:template>
   <xsl:template match="ORC" mode="sps">
@@ -169,19 +198,38 @@
       <xsl:with-param name="cn" select="field[34]"/>
       <xsl:with-param name="cn26" select="field[34]/subcomponent"/>
     </xsl:call-template>
-    <!-- Scheduled Procedure Step Description -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00400007'"/>
-      <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="val" select="substring(field[4]/component[4]/text(),1,64)"/>
-    </xsl:call-template>
-    <!-- Scheduled Protocol Code Sequence -->
-    <xsl:call-template name="codeItem">
-      <xsl:with-param name="sqtag" select="'00400008'"/>
-      <xsl:with-param name="code" select="string(field[4]/component[3]/text())"/>
-      <xsl:with-param name="scheme" select="string(field[4]/component[5]/text())"/>
-      <xsl:with-param name="meaning" select="substring(field[4]/component[4]/text(),1,64)"/>
-    </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test="$hl7OrderScheduledProtocolCodeLocation = 'OBR.4.3-6'">
+        <!-- Scheduled Procedure Step Description -->
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00400007'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="substring(field[4]/component[4]/text(),1,64)"/>
+        </xsl:call-template>
+        <!-- Scheduled Protocol Code Sequence -->
+        <xsl:call-template name="codeItem">
+          <xsl:with-param name="sqtag" select="'00400008'"/>
+          <xsl:with-param name="code" select="string(field[4]/component[3]/text())"/>
+          <xsl:with-param name="scheme" select="string(field[4]/component[5]/text())"/>
+          <xsl:with-param name="meaning" select="substring(field[4]/component[4]/text(),1,64)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- Scheduled Procedure Step Description -->
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00400007'"/>
+          <xsl:with-param name="vr" select="'LO'"/>
+          <xsl:with-param name="val" select="substring(field[4]/component[1]/text(),1,64)"/>
+        </xsl:call-template>
+        <!-- Scheduled Protocol Code Sequence -->
+        <xsl:call-template name="codeItem">
+          <xsl:with-param name="sqtag" select="'00400008'"/>
+          <xsl:with-param name="code" select="string(field[4]/text())"/>
+          <xsl:with-param name="scheme" select="string(field[4]/component[2]/text())"/>
+          <xsl:with-param name="meaning" select="substring(field[4]/component[1]/text(),1,64)"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
     <!-- Scheduled Procedure Step ID -->
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00400009'"/>
