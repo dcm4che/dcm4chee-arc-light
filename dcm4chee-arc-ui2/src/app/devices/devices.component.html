@@ -1,4 +1,4 @@
-<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
+<!--<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
 <pre *ngIf="debugpre" style="position: absolute;width:70%;top:0;z-index: 9999999;">
     <div style="float:left;width:50%">
         devices: {{devices|json}}
@@ -7,7 +7,7 @@
 
     </div>
     <button (click)="testSetObject()">testSetObject</button>
-</pre>
+</pre>-->
 <div class="main_content queues">
     <div class="devicelist_block">
         <ul class="nav nav-tabs" role="tablist">
@@ -105,7 +105,7 @@
                             <a class="table_btn" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
                                 <span class="glyphicon glyphicon-remove"></span>
                             </a>
-                            <a class="table_btn" title="Clone device" href="" (click)="$event.preventDefault();cloneDeviceDeviceList(device)">
+                            <a class="table_btn" title="Clone device" href="" (click)="$event.preventDefault();cloneDevice(device)">
                                 <span class="glyphicon glyphicon-duplicate"></span>
                             </a>
                         </td>
@@ -212,9 +212,9 @@
                             <a class="table_btn" title="Echo" href="" (click)="$event.preventDefault();echoAe(ae.dicomAETitle)">
                                 <span class="echo_icon"></span>
                             </a>
-                            <a class="table_btn" title="Edit AE" href="" (click)="$event.preventDefault();editAe(ae.dicomDeviceName, ae.dicomAETitle)">
+<!--                            <a class="table_btn" title="Edit AE" href="" (click)="$event.preventDefault();editAe(ae.dicomDeviceName, ae.dicomAETitle)">
                                 <span class="glyphicon glyphicon-pencil"></span>
-                            </a>
+                            </a>-->
                             <a class="table_btn" title="Unregister and delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae.dicomDeviceName, ae.dicomAETitle)">
                                 <span class="glyphicon glyphicon-remove"></span>
                             </a>
@@ -222,9 +222,9 @@
                         <!-- <td><a class="listlink" (click)="editDeviceList(ae.dicomDeviceName)"  title="Edit device">{{ae.dicomDeviceName}}</a></td> -->
                         <td>{{ae.dicomAETitle}}</td>
                         <td>
-                            <a title="Edit device" href="" (click)="$event.preventDefault();editDeviceList(ae.dicomDeviceName)">
+                            <!--<a title="Edit device" href="" (click)="$event.preventDefault();editDeviceList(ae.dicomDeviceName)">-->
                                 {{ae.dicomDeviceName}}
-                            </a>
+                            <!--</a>-->
                         </td>
                         <td>
                             <span *ngFor="let otherae of ae.dcmOtherAETitle">{{otherae}}<br></span>

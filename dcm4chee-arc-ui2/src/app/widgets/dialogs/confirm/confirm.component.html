@@ -1,19 +1,24 @@
-<div class="vex vex-theme-os confirm" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
+<div class="vex vex-theme-os confirm" [ngClass]="parameters.cssClass" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
         <h5 *ngIf="parameters.title">{{ parameters.title }}</h5>
         <div class="content">
-            <h3>
-                {{ parameters.content }}
+            <h3 [innerHtml]="parameters.content">
             </h3>
-            <div *ngIf="parameters.select">
+            <div class="dropdownpart" *ngIf="parameters.select">
                 <select id="reject" name="reject" class="col-md-12" (change)="parameters.result.select = $event.target.value">
                     <option *ngFor="let s of parameters.select" title="{{s.title}}" value="{{ s.value }}">{{ s.label }}</option>
                 </select>
             </div>
+            <div class="inputpart" *ngIf="parameters.input">
+                <input *ngIf="!(parameters.input && parameters.input.type && parameters.input.type == 'checkbox')" [(ngModel)]="parameters.result.input" name="{{parameters.input.name}}" type="{{parameters.input.type}}">
+                <input *ngIf="(parameters.input && parameters.input.type && parameters.input.type == 'checkbox')" [checked]="parameters.result.input" (change)="parameters.result.input = !parameters.result.input" name="{{parameters.input.name}}" type="{{parameters.input.type}}">
+                <ng-container *ngIf="parameters.input && parameters.input.type && parameters.input.type == 'checkbox' && parameters.input.checkboxtext"><span [innerHtml]="parameters.input.checkboxtext">{{parameters.input.checkboxtext}}</span></ng-container>
+            </div>
+            <p class="bodytext" *ngIf="parameters.bodytext"  [innerHtml]="parameters.bodytext"></p>
         </div>
         <div class="dialogbuttons">
             <button *ngIf="!parameters.saveButton"  class="save" type="button" (click)="dialogRef.close('ok')">OK</button>
-            <button *ngIf="parameters.saveButton" class="save" type="button" (click)="dialogRef.close(parameters.result)">{{ parameters.saveButton }}</button>
+            <button *ngIf="parameters.saveButton" [disabled]="(parameters.result.input && parameters.result.input === '') || (parameters.result.select && parameters.result.select === '')" class="save" type="button" (click)="dialogRef.close(parameters.result)">{{ parameters.saveButton }}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>
         </div>
     </div>
