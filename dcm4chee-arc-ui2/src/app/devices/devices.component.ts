@@ -185,6 +185,7 @@ export class DevicesComponent {
                         "text": "This name exist, pleas chose an other one!",
                         "status": "error"
                     });
+                    $this.cfpLoadingBar.complete();
                 }else{
                     $this.$http.get(
                         '../devices/'+devicename.dicomDeviceName
@@ -206,6 +207,7 @@ export class DevicesComponent {
                                             "status": "info"
                                         });
                                         $this.getDevices();
+                                        $this.getAes();
                                     },
                                     err =>{
                                         console.log("error");
