@@ -904,7 +904,9 @@ class ArchiveDeviceFactory {
     static final String WADO_JSON_ACCEPT = "application/json";
     static final String XDSI_EXPORTER_ID = "XDS-I";
     static final String XDSI_EXPORTER_DESC = "XDS-I Provide and Register";
-    static final URI XDSI_EXPORT_URI = URI.create("xds-i:http://localhost:8081/xdstools4/sim/default__rr/rep/prb");
+    static final URI XDSI_EXPORT_URI = URI.create("xds-i:https://localhost:9443/xdstools4/sim/default__rr/rep/prb");
+    static final String XDSI_TLS_PROTOCOL = "TLSv1.2" ;
+    static final String XDSI_TLS_CIPHERSUITES = "TLS_RSA_WITH_AES_128_CBC_SHA, SSL_RSA_WITH_3DES_EDE_CBC_SHA";
     static final String XDSI_SOURCE_ID = "1.3.6.1.4.1.21367.13.80.110";
     static final String XDSI_ASSIGNING_AUTHORITY = "1.3.6.1.4.1.21367.2005.13.20.1000";
     static final String XDSI_LANGUAGE_CODE = "en-us";
@@ -1415,6 +1417,8 @@ class ArchiveDeviceFactory {
             xdsiExportDescriptor.setAETitle("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveAETitles("DCM4CHEE");
             xdsiExportDescriptor.setRetrieveLocationUID(XDSI_SOURCE_ID);
+            xdsiExportDescriptor.setProperty("TLS.protocol", XDSI_TLS_PROTOCOL);
+            xdsiExportDescriptor.setProperty("TLS.ciphersuites", XDSI_TLS_CIPHERSUITES);
             xdsiExportDescriptor.setProperty("TLS.disableCNCheck", String.valueOf(true));
             xdsiExportDescriptor.setProperty("Manifest.title", XDSI_MANIFEST_TITLE.toString());
             xdsiExportDescriptor.setProperty("AssigningAuthority.patientId", XDSI_ASSIGNING_AUTHORITY);

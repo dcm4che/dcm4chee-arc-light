@@ -43,7 +43,6 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.dcm4che3.data.DatePrecision;
-import org.dcm4che3.net.Device;
 import org.dcm4che3.util.DateUtils;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -71,19 +70,10 @@ public class XDSUtils {
         reqCtx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, url);
     }
 
-    public static void setTlsClientParameters(Object port, SSLSocketFactory factory, boolean disableCNCheck)
-            throws GeneralSecurityException, IOException {
+    public static void setTlsClientParameters(Object port, TLSClientParameters params) {
         Client client = ClientProxy.getClient(port);
         HTTPConduit conduit = (HTTPConduit) client.getConduit();
-        conduit.setTlsClientParameters(tlsClientParametersOf(factory, disableCNCheck));
-    }
-
-    private static TLSClientParameters tlsClientParametersOf(SSLSocketFactory factory, boolean disableCNCheck)
-            throws GeneralSecurityException, IOException {
-        TLSClientParameters params = new TLSClientParameters();
-        params.setSSLSocketFactory(factory);
-        params.setDisableCNCheck(disableCNCheck);
-        return params;
+        conduit.setTlsClientParameters(params);
     }
 
     public static String formatDTM(Date date) {

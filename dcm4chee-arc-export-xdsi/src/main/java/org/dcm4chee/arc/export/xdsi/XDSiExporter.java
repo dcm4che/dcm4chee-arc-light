@@ -38,11 +38,13 @@
 
 package org.dcm4chee.arc.export.xdsi;
 
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.AcquisitionModality;
 import org.dcm4che3.dcmr.AnatomicRegion;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -54,9 +56,14 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.xdsi.*;
 
 import javax.enterprise.event.Event;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.xml.bind.JAXBElement;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.*;
 
 import static org.dcm4chee.arc.xdsi.XDSConstants.*;
@@ -111,6 +118,8 @@ public class XDSiExporter extends AbstractExporter {
     private final QueryService queryService;
     private final Device device;
     private final Event<ExportContext> exportEvent;
+    private final String tlsProtocol;
+    private final String[] cipherSuites;
     private final boolean disableCNCheck;
     private final boolean includeModalityCodes;
     private final boolean includeAnatomicRegionCodes;
@@ -152,6 +161,8 @@ public class XDSiExporter extends AbstractExporter {
         this.exportEvent = exportEvent;
         this.repositoryURL = descriptor.getExportURI().getSchemeSpecificPart();
         this.disableCNCheck = Boolean.parseBoolean(descriptor.getProperty("TLS.disableCNCheck", null));
+        this.tlsProtocol = descriptor.getProperty("TLS.protocol", null);
+        this.cipherSuites = StringUtils.split(descriptor.getProperty("TLS.cipherSuites", null), ',');
         this.manifestTitle = getCodeProperty("Manifest.title", DEFAULT_MANIFEST_TITLE);
         this.manifestSeriesNumber = Integer.parseInt(descriptor.getProperty("Manifest.seriesNumber", "0"));
         this.manifestInstanceNumber = Integer.parseInt(descriptor.getProperty("Manifest.instanceNumber", "0"));
@@ -291,8 +302,19 @@ public class XDSiExporter extends AbstractExporter {
         XDSUtils.ensureMustUnderstandHandler(port);
         XDSUtils.setEndpointAddress(port, repositoryURL);
         if (repositoryURL.startsWith("https"))
-            XDSUtils.setTlsClientParameters(port, device.sslContext().getSocketFactory(), disableCNCheck);
+            XDSUtils.setTlsClientParameters(port, tlsClientParams());
         return port;
+    }
+
+    private TLSClientParameters tlsClientParams() throws GeneralSecurityException, IOException {
+        TLSClientParameters params = new TLSClientParameters();
+        params.setKeyManagers(device.keyManagers());
+        params.setTrustManagers(device.trustManagers());
+        params.setSecureSocketProtocol(tlsProtocol);
+        for (String cipherSuite : cipherSuites)
+            params.getCipherSuites().add(cipherSuite.trim());
+        params.setDisableCNCheck(disableCNCheck);
+        return params;
     }
 
     private ProvideAndRegisterDocumentSetRequestType createRequest() {
