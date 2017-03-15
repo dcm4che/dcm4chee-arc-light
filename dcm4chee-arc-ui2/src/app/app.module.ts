@@ -37,6 +37,7 @@ import { ComparewithiodPipe } from './pipes/comparewithiod.pipe';
 import { PlaceholderchangerDirective } from './helpers/placeholderchanger.directive';
 import {QueuesService} from "./queues/queues.service";
 import { DevicesComponent } from './devices/devices.component';
+import {DevicesService} from "./devices/devices.service";
 
 @NgModule({
     declarations: [
@@ -91,7 +92,7 @@ import { DevicesComponent } from './devices/devices.component';
             { useHash: true })
     ],
     entryComponents:[WidgetsComponents],
-    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DatePipe, CalendarModule, DropdownModule],
+    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DevicesService, DatePipe, CalendarModule, DropdownModule],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

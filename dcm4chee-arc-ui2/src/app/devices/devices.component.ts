@@ -311,7 +311,36 @@ export class DevicesComponent {
                 console.log("parameters",parameters);
                 $this.$http.delete(
                     "../unique/aets/"+ae
-                ).subscribe((response) => {
+                )
+                    .subscribe((response) => {
+
+                    $this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "Aet unregistered successfully!",
+                        "status": "info"
+                    });
+                    clearAe();
+                },(err)=>{
+                        console.log("in errror");
+
+                        if(err.status === 404){
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Aet not regiestered!",
+                                "status": "info"
+                            });
+                            clearAe();
+                        }else{
+                            $this.mainservice.setMessage({
+                                "title": "Error "+err.status,
+                                "text": "Error:"+err.statusText,
+                                "status": "error"
+                            });
+                        }
+                }
+                )
+                let clearAe = function () {
+                    console.log("in clearae",result);
                     if(result.input === true){
                         $this.$http.delete('../devices/'+device).subscribe((res)=>{
                                 console.log("res",res);
@@ -342,67 +371,57 @@ export class DevicesComponent {
                             });
                     }else{
                         $this.$http.get('../devices/'+device)
-                        .map(res => res.json())
-                        .subscribe(
-                            (res) => {
-                                console.log("res",res);
-                                let deviceObject = res;
-                                //Remove ae from device and save it back
-                                _.forEach(deviceObject.dicomNetworkAE ,(m, i) => {
-                                    if(m.dicomAETitle === ae){
-                                        deviceObject.dicomNetworkAE.splice(i, 1);
-                                    }
-                                });
-
-                                console.log("deviceObj",deviceObject);
-                                $this.$http.put("../devices/" + device, deviceObject)
-                                    .subscribe((resdev) => {
-                                        console.log("resdev",resdev);
-                                            $this.mainservice.setMessage({
-                                                "title": "Info",
-                                                "text": "Ae removed from device successfully!",
-                                                "status": "info"
-                                            });
-                                            $this.$http.post("../ctrl/reload",{}).subscribe((res) => {
+                            .map(res => res.json())
+                            .subscribe(
+                                (res) => {
+                                    console.log("res",res);
+                                    let deviceObject = res;
+                                    //Remove ae from device and save it back
+                                    _.forEach(deviceObject.dicomNetworkAE ,(m, i) => {
+                                        console.log("m",m);
+                                        console.log("i",i);
+                                        if(m && m.dicomAETitle === ae){
+                                            deviceObject.dicomNetworkAE.splice(i, 1);
+                                        }
+                                    });
+                                    console.log("equal",_.isEqual(res,deviceObject));
+                                    console.log("deviceObj",deviceObject);
+                                    $this.$http.put("../devices/" + device, deviceObject)
+                                        .subscribe((resdev) => {
+                                                console.log("resdev",resdev);
                                                 $this.mainservice.setMessage({
                                                     "title": "Info",
-                                                    "text": "Archive reloaded successfully!",
+                                                    "text": "Ae removed from device successfully!",
                                                     "status": "info"
                                                 });
-                                                $this.getAes();
+                                                $this.$http.post("../ctrl/reload",{}).subscribe((res) => {
+                                                    $this.mainservice.setMessage({
+                                                        "title": "Info",
+                                                        "text": "Archive reloaded successfully!",
+                                                        "status": "info"
+                                                    });
+                                                    $this.getAes();
+                                                });
+                                            },
+                                            (err) => {
+                                                console.log("err",err);
+                                                $this.mainservice.setMessage({
+                                                    "title": "error",
+                                                    "text": "Error, the AE was not removed from device!",
+                                                    "status": "error"
+                                                });
                                             });
-                                    },
-                                    (err) => {
-                                        console.log("err",err);
-                                        $this.mainservice.setMessage({
-                                            "title": "error",
-                                            "text": "Error, the AE was not removed from device!",
-                                            "status": "error"
-                                        });
+                                },
+                                (err) => {
+                                    $this.mainservice.setMessage({
+                                        "title": "error",
+                                        "text": "Error getting device "+device,
+                                        "status": "error"
                                     });
-                            },
-                            (err) => {
-                                $this.mainservice.setMessage({
-                                    "title": "error",
-                                    "text": "Error getting device "+device,
-                                    "status": "error"
-                                });
-                            }
-                        );
+                                }
+                            );
                     }
-                    $this.mainservice.setMessage({
-                        "title": "Info",
-                        "text": "Aet unregistered successfully!",
-                        "status": "info"
-                    });
-
-                },(err)=>{
-                    $this.mainservice.setMessage({
-                        "title": "Error "+err.status,
-                        "text": "Error:"+err.statusText,
-                        "status": "error"
-                    });
-                });
+                }
             }
         });
     }
