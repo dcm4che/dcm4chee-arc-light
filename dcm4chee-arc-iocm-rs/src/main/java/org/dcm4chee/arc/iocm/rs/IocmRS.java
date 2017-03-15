@@ -171,7 +171,7 @@ public class IocmRS {
     @Path("/studies/{StudyUID}/copy")
     @Consumes("application/json")
     @Produces("application/json")
-    public StreamingOutput copyInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
+    public Response copyInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
         return copyOrMoveInstances(RSOperation.CopyInstances, studyUID, in, null);
     }
 
@@ -179,7 +179,7 @@ public class IocmRS {
     @Path("/studies/{StudyUID}/move/{CodeValue}^{CodingSchemeDesignator}")
     @Consumes("application/json")
     @Produces("application/json")
-    public StreamingOutput moveInstances(
+    public Response moveInstances(
             @PathParam("StudyUID") String studyUID,
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator,
@@ -561,7 +561,7 @@ public class IocmRS {
         return out.toByteArray();
     }
 
-    private StreamingOutput copyOrMoveInstances(RSOperation op, String studyUID, InputStream in, Code code)
+    private Response copyOrMoveInstances(RSOperation op, String studyUID, InputStream in, Code code)
             throws Exception {
         logRequest();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
@@ -608,15 +608,13 @@ public class IocmRS {
                             instanceRefs.getSequence(Tag.ReferencedSeriesSequence).remove(0);
                     }
                 }
-                if (instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
-                    throw new WebApplicationException(getResponse("Moving of all instances failed with failure reason : " +
-                        result.getString(Tag.FailureReason), Response.Status.INTERNAL_SERVER_ERROR));
             }
-            reject(session, instanceRefs, rjNote);
+            if (!instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
+                reject(session, instanceRefs, rjNote);
         }
 
         forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);
-        return new StreamingOutput() {
+        StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
@@ -624,6 +622,14 @@ public class IocmRS {
                 }
             }
         };
+        return Response.status(status(result)).entity(entity).build();
+    }
+
+    private Response.Status status(Attributes result) {
+        return result.getSequence(Tag.ReferencedSOPSequence).isEmpty()
+                ? Response.Status.CONFLICT
+                : result.getSequence(Tag.FailedSOPSequence).isEmpty()
+                    ? Response.Status.OK : Response.Status.ACCEPTED;
     }
 
     private void reject(StoreSession session, Attributes instanceRefs, RejectionNote rjNote) throws IOException {

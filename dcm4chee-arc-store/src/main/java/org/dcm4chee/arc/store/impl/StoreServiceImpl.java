@@ -307,8 +307,7 @@ class StoreServiceImpl implements StoreService {
                     populateResult(refSOPSeq, attr);
                 } catch (DicomServiceException e) {
                     result.setString(Tag.FailureReason, VR.US, Integer.toString(e.getStatus()));
-                    if (rj != null)
-                        attr.setString(Tag.SOPInstanceUID, VR.UI, il.getSopInstanceUID());
+                    attr.setString(Tag.SOPInstanceUID, VR.UI, il.getSopInstanceUID());
                     populateResult(failedSOPSeq, attr);
                 }
             }
