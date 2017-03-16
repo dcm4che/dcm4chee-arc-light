@@ -48,7 +48,7 @@
   <!--
   <security-constraint>
     <web-resource-collection>
-      <web-resource-name>dcm4chee-arc-ui</web-resource-name>
+      <web-resource-name>dcm4chee-arc-ui2</web-resource-name>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
