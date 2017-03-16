@@ -258,6 +258,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -287,6 +289,8 @@ objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
 dcmProtocol: HL7
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: hl7-tls
@@ -311,6 +315,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -336,6 +342,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -363,6 +371,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -388,6 +398,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -430,6 +442,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -486,6 +500,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -511,6 +527,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -538,6 +556,8 @@ objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
 dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 cn: dicom-tls
@@ -582,6 +602,8 @@ cn: syslog
 
 dn: cn=hl7-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmClientBindAddress: 0.0.0.0
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 dcmBindAddress: 0.0.0.0
@@ -596,6 +618,8 @@ dicomPort: 12575
 
 dn: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmClientBindAddress: 0.0.0.0
+dcmTLSProtocol: TLSv1.2
+dcmTLSProtocol: TLSv1.1
 dcmTLSProtocol: TLSv1
 dcmTLSProtocol: SSLv3
 dcmMaxOpsInvoked: 0
