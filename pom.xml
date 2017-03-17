@@ -467,7 +467,11 @@
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
+    <module>dcm4chee-arc-ui</module>
+    <module>dcm4chee-arc-ui2</module>
     <module>dcm4chee-arc-xdsi</module>
+    <module>dcm4chee-arc-ear</module>
+    <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arr-proxy</module>
   </modules>
 
@@ -492,34 +496,6 @@
       <properties>
         <db>psql</db>
       </properties>
-    </profile>
-    <profile>
-      <id>build_ui</id>
-      <activation>
-        <property>
-          <name>skipUI</name>
-          <value>!true</value>
-        </property>
-      </activation>
-      <modules>
-        <module>dcm4chee-arc-ui</module>
-        <module>dcm4chee-arc-ui2</module>
-        <module>dcm4chee-arc-ear</module>
-        <module>dcm4chee-arc-assembly</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>skip_ui</id>
-      <activation>
-        <property>
-          <name>skipUI</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <modules>
-        <module>dcm4chee-arc-ear</module>
-        <module>dcm4chee-arc-assembly</module>
-      </modules>
     </profile>
   </profiles>
 

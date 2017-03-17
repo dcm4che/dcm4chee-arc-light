@@ -138,7 +138,9 @@
     <profile>
       <id>unsecure</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>!secure</name>
+        </property>
       </activation>
       <properties>
         <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
@@ -147,6 +149,12 @@
     </profile>
     <profile>
       <id>secure</id>
+      <activation>
+        <property>
+          <name>secure</name>
+          <value>!ui</value>
+        </property>
+      </activation>
       <properties>
         <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
         <classifier>secure</classifier>

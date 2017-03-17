@@ -35,11 +35,11 @@ Build
 
     with secured WEB UI:
 
-        > $mvn install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver} -P secure-ui
+        > $mvn install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver} -D secure=ui
 
     with secured WEB UI and secured RESTful services:
 
-        > $mvn install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver} -P secure
+        > $mvn install -D db={db2|firebird|h2|mysql|oracle|psql|sqlserver} -D secure=all
 
 
 Installation

@@ -373,7 +373,9 @@
     <profile>
       <id>unsecure</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>!secure</name>
+        </property>
       </activation>
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
@@ -385,6 +387,12 @@
     </profile>
     <profile>
       <id>secure</id>
+      <activation>
+        <property>
+          <name>secure</name>
+          <value>all</value>
+        </property>
+      </activation>
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web-secure.xml</webXml>
         <classifier>${db}-secure</classifier>
@@ -395,6 +403,12 @@
     </profile>
     <profile>
       <id>secure-ui</id>
+      <activation>
+        <property>
+          <name>secure</name>
+          <value>ui</value>
+        </property>
+      </activation>
       <properties>
         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web-secure.xml</webXml>
         <classifier>${db}-secure-ui</classifier>

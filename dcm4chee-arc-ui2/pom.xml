@@ -45,7 +45,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.9.3</version>
+    <version>5.10.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -60,45 +60,7 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend-maven-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>install node and npm</id>
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>${node.version}</nodeVersion>
-              <npmVersion>${npm.version}</npmVersion>
-            </configuration>
-          </execution>
-          <execution>
-            <id>npm install</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
-            <execution>
-                <!--<id>npm run-script prod</id>-->
-                <id>npm run-script prod</id>
-                <phase>prepare-package</phase>
-                <goals>
-                    <goal>npm</goal>
-                </goals>
-                <configuration>
-                    <!--<arguments>run-script prod</arguments> //use this for production-->
-                    <arguments>run-script prod</arguments>
-                </configuration>
-            </execution>
-        </executions>
-      </plugin>
-      <plugin>
+       <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <version>${maven-war-plugin.version}</version>
         <configuration>
@@ -117,28 +79,106 @@
 
   <profiles>
     <profile>
+      <id>ng-build</id>
+      <activation>
+        <file>
+          <missing>target/webapp</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>${frontend-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>install node and npm</id>
+                <goals>
+                  <goal>install-node-and-npm</goal>
+                </goals>
+                <configuration>
+                  <nodeVersion>${node.version}</nodeVersion>
+                  <npmVersion>${npm.version}</npmVersion>
+                </configuration>
+              </execution>
+              <execution>
+                <id>npm install</id>
+                <goals>
+                  <goal>npm</goal>
+                </goals>
+                <configuration>
+                  <arguments>install</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <!--<id>npm run-script prod</id>-->
+                <id>npm run-script prod</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>npm</goal>
+                </goals>
+                <configuration>
+                  <!--<arguments>run-script prod</arguments> //use this for production-->
+                  <arguments>run-script prod</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>unsecure</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>!secure</name>
+        </property>
       </activation>
-      <properties>
-        <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
-        <classifier>unsecure</classifier>
-      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>${maven-war-plugin.version}</version>
+            <configuration>
+              <classifier>unsecure</classifier>
+              <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
+              <webResources>
+                <resource>
+                  <directory>target/webapp</directory>
+                </resource>
+              </webResources>
+              <webappDirectory>${project.build.directory}/${project.build.finalName}-unsecure</webappDirectory>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>secure</id>
-      <properties>
-        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
-        <classifier>secure</classifier>
-      </properties>
-    </profile>
-    <profile>
-      <id>secure-ui</id>
-      <properties>
-        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
-        <classifier>secure</classifier>
-      </properties>
+      <activation>
+        <property>
+          <name>secure</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>${maven-war-plugin.version}</version>
+            <configuration>
+              <classifier>secure</classifier>
+              <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
+              <webResources>
+                <resource>
+                  <directory>target/webapp</directory>
+                </resource>
+              </webResources>
+              <webappDirectory>${project.build.directory}/${project.build.finalName}-secure</webappDirectory>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 
