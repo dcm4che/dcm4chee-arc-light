@@ -41,15 +41,12 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.DicomOutputStream;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Connection;
-import org.dcm4che3.net.Device;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
@@ -64,10 +61,10 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
-import org.dcm4chee.arc.xdsi.RegistryResponseType;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
@@ -98,8 +95,13 @@ public class AuditService {
     private final String studyDate = "StudyDate";
     private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
     private final String noValue = "<none>";
+
     @Inject
     private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
+
 
     boolean hasAuditLoggers() {
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
@@ -139,6 +141,9 @@ public class AuditService {
             case PROV_REGISTER:
                 auditProvideAndRegister(auditLogger, readerObj, eventTime, eventType);
                 break;
+            case STGCMT:
+                auditStorageCommit(auditLogger, readerObj, eventTime, eventType);
+                break;
         }
     }
 
@@ -165,19 +170,11 @@ public class AuditService {
     void spoolInstancesDeleted(StoreContext ctx) {
         Attributes attrs = ctx.getAttributes();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence)) {
-            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence)) {
-                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
-                    String cuid = sopRef.getString(Tag.ReferencedSOPClassUID);
-                    HashSet<String> iuids = sopClassMap.get(cuid);
-                    if (iuids == null) {
-                        iuids = new HashSet<>();
-                        sopClassMap.put(cuid, iuids);
-                    }
-                    iuids.add(sopRef.getString(Tag.ReferencedSOPInstanceUID));
-                }
-            }
-        }
+        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
+            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence))
+                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence))
+                    buildSOPClassMap(sopClassMap, sopRef.getString(Tag.ReferencedSOPClassUID),
+                            sopRef.getString(Tag.ReferencedSOPInstanceUID));
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx)));
         String eventType = String.valueOf(AuditServiceUtils.EventType.RJN_DELETE);
         writeSpoolFile(eventType, deleteObjs);
@@ -185,15 +182,8 @@ public class AuditService {
 
     void spoolStudyDeleted(StudyDeleteContext ctx) {
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-        for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances()) {
-            String cuid = i.getSopClassUID();
-            HashSet<String> iuids = sopClassMap.get(cuid);
-            if (iuids == null) {
-                iuids = new HashSet<>();
-                sopClassMap.put(cuid, iuids);
-            }
-            iuids.add(i.getSopInstanceUID());
-        }
+        for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances())
+            buildSOPClassMap(sopClassMap, i.getSopClassUID(), i.getSopInstanceUID());
         Study s = ctx.getStudy();
         Patient p = ctx.getPatient();
         HttpServletRequest request = ctx.getHttpRequest();
@@ -423,19 +413,23 @@ public class AuditService {
         }
     }
 
+    private void buildSOPClassMap(HashMap<String, HashSet<String>> sopClassMap, String cuid, String iuid) {
+        HashSet<String> iuids = sopClassMap.get(cuid);
+        if (iuids == null) {
+            iuids = new HashSet<>();
+            sopClassMap.put(cuid, iuids);
+        }
+        iuids.add(iuid);
+    }
+
     private void auditStoreOrWADORetrieve(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime,
                                           AuditServiceUtils.EventType eventType) {
         HashSet<String> mppsUIDs = new HashSet<>();
-        HashMap<String, List<String>> sopClassMap = new HashMap<>();
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         AuditInfo i = new AuditInfo(readerObj.getMainInfo());
         for (String line : readerObj.getInstanceLines()) {
             AuditInfo iI = new AuditInfo(line);
-            List<String> iuids = sopClassMap.get(iI.getField(AuditInfo.SOP_CUID));
-            if (iuids == null) {
-                iuids = new ArrayList<>();
-                sopClassMap.put(iI.getField(AuditInfo.SOP_CUID), iuids);
-            }
-            iuids.add(iI.getField(AuditInfo.SOP_IUID));
+            buildSOPClassMap(sopClassMap, iI.getField(AuditInfo.SOP_CUID), iI.getField(AuditInfo.SOP_IUID));
             mppsUIDs.add(iI.getField(AuditInfo.MPPS_UID));
 //                for (int i = AuditInfo.ACCESSION_NO; iI.getField(i) != null; i++)
 //                    accNos.add(iI.getField(i));
@@ -450,17 +444,20 @@ public class AuditService {
                 i.getField(AuditInfo.CALLED_AET), getLocalHostName(auditLogger))
                 .altUserID(auditLogger.processID()).requester(eventType.isDest).roleIDCode(eventType.destination).build();
         HashSet<SOPClass> sopC = new HashSet<>();
-        for (Map.Entry<String, List<String>> entry : sopClassMap.entrySet())
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet())
             sopC.add(getSOPC(null, entry.getKey(), entry.getValue().size()));
         ParticipantObjectContainsStudy pocs = getPocs(i.getField(AuditInfo.STUDY_UID));
         BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(sopC, pocs)
                 .acc(getAccessions(i.getField(AuditInfo.ACC_NUM)))
                 .mpps(AuditMessages.getMPPS(mppsUIDs.toArray(new String[mppsUIDs.size()]))).build();
+        String lifecycle = (eventType == AuditServiceUtils.EventType.STORE_CREA
+                || eventType == AuditServiceUtils.EventType.STORE_UPDT)
+                ? AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation : null;
         BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
                 i.getField(AuditInfo.STUDY_UID),
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(getPODesc(desc)).detail(getPod(studyDate, i.getField(AuditInfo.STUDY_DATE))).build();
+                .desc(getPODesc(desc)).detail(getPod(studyDate, i.getField(AuditInfo.STUDY_DATE))).lifeCycle(lifecycle).build();
         BuildParticipantObjectIdentification poi2 = new BuildParticipantObjectIdentification.Builder(
                 i.getField(AuditInfo.P_ID),
                 AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
@@ -752,6 +749,103 @@ public class AuditService {
         emitAuditMessage(ei, getApList(apSource, apDest), getPoiList(poiPatient, poiSubmissionSet), auditLogger);
     }
 
+    void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
+        try {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            ApplicationEntity remoteAE = aeCache.findApplicationEntity(stgCmtEventInfo.getRemoteAET());
+            Attributes eventInfo = stgCmtEventInfo.getExtendedEventInfo();
+            Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
+            Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
+            String pID = eventInfo.getString(Tag.PatientID) != null ? getPID(eventInfo) : arcDev.getUnknownPatientID();
+            String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
+                    ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.getUnknownStudyInstanceUID();
+            if (failed != null && !failed.isEmpty()) {
+                Set<String> failureReasons = new HashSet<>();
+                Set<AuditInfo> aiSet = new HashSet<>();
+                LinkedHashSet<Object> objs = new LinkedHashSet<>();
+                for (Attributes item : failed) {
+                    BuildAuditInfo ii = new BuildAuditInfo.Builder()
+                            .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
+                            .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
+                    String outcome = item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
+                            ? "NoSuchObjectInstance" : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
+                            ? "ClassInstanceConflict" : "ProcessingFailure";
+                    failureReasons.add(outcome);
+                    aiSet.add(new AuditInfo(ii));
+                }
+                BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(stgCmtEventInfo.getRemoteAET())
+                        .callingHost(remoteAE.getConnections().get(0).getHostname())
+                        .calledAET(stgCmtEventInfo.getLocalAET()).pID(pID).pName(pName(eventInfo)).studyUID(studyUID)
+                        .outcome(buildStrings(failureReasons.toArray(new String[failureReasons.size()]))).build();
+                objs.add(new AuditInfo(i));
+                for (AuditInfo ai : aiSet)
+                    objs.add(ai);
+                writeSpoolFile(AuditServiceUtils.EventType.STG_CMT__E.toString(), objs);
+            }
+            if (success != null && !success.isEmpty()) {
+                LinkedHashSet<Object> objs = new LinkedHashSet<>();
+                BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(stgCmtEventInfo.getRemoteAET())
+                        .callingHost(remoteAE.getConnections().get(0).getHostname())
+                        .calledAET(stgCmtEventInfo.getLocalAET()).pID(pID).pName(pName(eventInfo))
+                        .studyUID(studyUID).build();
+                objs.add(new AuditInfo(i));
+                for (Attributes item : success) {
+                    BuildAuditInfo ii = new BuildAuditInfo.Builder().sopCUID(item.getString(Tag.ReferencedSOPClassUID))
+                            .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
+                    objs.add(new AuditInfo(ii));
+                }
+                writeSpoolFile(AuditServiceUtils.EventType.STG_CMT__P.toString(), objs);
+            }
+        } catch (ConfigurationException e) {
+            LOG.error(e.getMessage(), stgCmtEventInfo.getRemoteAET());
+        }
+    }
+
+    private void auditStorageCommit(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType et) {
+        AuditInfo stgCmtI = new AuditInfo(readerObj.getMainInfo());
+        EventIdentification ei = getEI(et, stgCmtI.getField(AuditInfo.OUTCOME), eventTime);
+        BuildActiveParticipant apDest = new BuildActiveParticipant.Builder(stgCmtI.getField(AuditInfo.CALLED_AET),
+                getLocalHostName(auditLogger)).altUserID(auditLogger.processID()).requester(et.isDest)
+                .roleIDCode(et.destination).build();
+        BuildActiveParticipant apSource = new BuildActiveParticipant.Builder(stgCmtI.getField(AuditInfo.CALLING_AET),
+                stgCmtI.getField(AuditInfo.CALLING_HOST)).requester(et.isSource).roleIDCode(et.source).build();
+        BuildParticipantObjectIdentification poiPat = new BuildParticipantObjectIdentification.Builder(
+                stgCmtI.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
+                AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
+                .name(stgCmtI.getField(AuditInfo.P_NAME)).build();
+        HashSet<String> studySet = new HashSet<>();
+        String[] studyUIDs = StringUtils.split(stgCmtI.getField(AuditInfo.STUDY_UID), ';');
+        for (String s : studyUIDs)
+            studySet.add(s);
+        ParticipantObjectContainsStudy pocs = getPocs(studySet.toArray(new String[studySet.size()]));
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+        for (String line : readerObj.getInstanceLines()) {
+            AuditInfo ii = new AuditInfo(line);
+            buildSOPClassMap(sopClassMap, ii.getField(AuditInfo.SOP_CUID), ii.getField(AuditInfo.SOP_IUID));
+        }
+        HashSet<SOPClass> sopC = new HashSet<>();
+        if (studyUIDs.length>1 || stgCmtI.getField(AuditInfo.OUTCOME) != null)
+            for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet())
+                sopC.add(getSOPC(entry.getValue(), entry.getKey(), entry.getValue().size()));
+        else
+            for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet())
+                sopC.add(getSOPC(null, entry.getKey(), entry.getValue().size()));
+        BuildParticipantObjectDescription poDesc = new BuildParticipantObjectDescription.Builder(sopC, pocs).build();
+        BuildParticipantObjectIdentification poiStudy = new BuildParticipantObjectIdentification.Builder(studyUIDs[0],
+                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
+                .desc(getPODesc(poDesc)).lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification).build();
+        emitAuditMessage(ei, getApList(apSource, apDest), getPoiList(poiStudy, poiPat), auditLogger);
+    }
+
+    private String buildStrings(String[] strings) {
+        StringBuilder b = new StringBuilder();
+        b.append(strings[0]);
+        for (int i = 1; i < strings.length; i++)
+            b.append(';').append(strings[i]);
+        return b.toString();
+    }
+
     private BuildAuditInfo getAIStoreCtx(StoreContext ctx) {
         StoreSession ss = ctx.getStoreSession();
         HttpServletRequest req = ss.getHttpRequest();
@@ -850,8 +944,8 @@ public class AuditService {
         return value != null ? AuditMessages.createParticipantObjectDetail(type, value.getBytes()) : null;
     }
 
-    private ParticipantObjectContainsStudy getPocs(String studyId) {
-        return AuditMessages.getPocs(studyId);
+    private ParticipantObjectContainsStudy getPocs(String... studyUIDs) {
+        return AuditMessages.getPocs(studyUIDs);
     }
 
     private ParticipantObjectDescription getPODesc(BuildParticipantObjectDescription desc) {

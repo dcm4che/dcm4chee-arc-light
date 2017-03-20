@@ -117,7 +117,14 @@ import java.util.*;
         @NamedQuery(
                 name=Study.STUDY_IUIDS_BY_ACCESSION_NUMBER,
                 query = "select st.studyInstanceUID from Study st " +
-                        "where st.accessionNumber = ?1")
+                        "where st.accessionNumber = ?1"),
+        @NamedQuery(
+                name = Study.FIND_PATIENT_ATTRS_BY_STUDY_UIDS,
+                query = "select st.patient.attributesBlob from Study st " +
+                        "join st.patient p " +
+                        "join p.attributesBlob " +
+                        "where st.studyInstanceUID in ?1")
+
 })
 @Entity
 @Table(name = "study",
@@ -155,6 +162,7 @@ public class Study {
     public static final String GET_EXPIRED_STUDIES = "Study.GetExpiredStudies";
     public static final String FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID = "Study.FindByAccessTimeAndAccessControlID";
     public static final String STUDY_IUIDS_BY_ACCESSION_NUMBER = "Study.StudyIUIDsByAccessionNumber";
+    public static final String FIND_PATIENT_ATTRS_BY_STUDY_UIDS = "Study.findPatientAttrsByStudyUIDs";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

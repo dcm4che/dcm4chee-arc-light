@@ -190,6 +190,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("hl7ADTSendingApplication", arcDev.getHl7ADTSendingApplication());
         writer.writeNotEmpty("hl7ADTReceivingApplication", arcDev.getHl7ADTReceivingApplication());
         writer.writeNotNull("hl7ScheduledProtocolCodeInOrder", arcDev.getHl7ScheduledProtocolCodeInOrder());
+        writer.writeNotNull("dcmUnknownStudyInstanceUID", arcDev.getUnknownStudyInstanceUID());
+        writer.writeNotNull("dcmUnknownPatientID", arcDev.getUnknownPatientID());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -897,6 +899,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ScheduledProtocolCodeInOrder":
                     arcDev.setHl7ScheduledProtocolCodeInOrder(ScheduledProtocolCodeInOrder.valueOf(reader.stringValue()));
+                    break;
+                case "dcmUnknownStudyInstanceUID":
+                    arcDev.setUnknownStudyInstanceUID(reader.stringValue());
+                    break;
+                case "dcmUnknownPatientID":
+                    arcDev.setUnknownPatientID(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

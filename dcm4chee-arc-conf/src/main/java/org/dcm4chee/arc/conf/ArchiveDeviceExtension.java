@@ -164,6 +164,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] hl7ADTReceivingApplication = {};
     private String hl7ADTSendingApplication;
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
+    private String unknownStudyInstanceUID;
+    private String unknownPatientID;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1445,6 +1447,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ScheduledProtocolCodeInOrder = hl7ScheduledProtocolCodeInOrder;
     }
 
+    public String getUnknownStudyInstanceUID() {
+        return unknownStudyInstanceUID != null ? unknownStudyInstanceUID : "unknownStudy";
+    }
+
+    public void setUnknownStudyInstanceUID(String unknownStudyInstanceUID) {
+        this.unknownStudyInstanceUID = unknownStudyInstanceUID;
+    }
+
+    public String getUnknownPatientID() {
+        return unknownPatientID != null ? unknownPatientID : "<none>";
+    }
+
+    public void setUnknownPatientID(String unknownPatientID) {
+        this.unknownPatientID = unknownPatientID;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1556,6 +1574,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
         hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;
         hl7ScheduledProtocolCodeInOrder = arcdev.hl7ScheduledProtocolCodeInOrder;
+        unknownStudyInstanceUID = arcdev.unknownStudyInstanceUID;
+        unknownPatientID = arcdev.unknownPatientID;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

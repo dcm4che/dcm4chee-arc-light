@@ -51,6 +51,7 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveWADO;
+import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
@@ -182,6 +183,11 @@ public class AuditTriggerObserver {
 
         if (auditService.hasAuditLoggers())
             auditService.spoolProcedureRecord(ctx);
+    }
+
+    public void onStorageCommit(@Observes StgCmtEventInfo stgCmtEventInfo) {
+        if (auditService.hasAuditLoggers())
+            auditService.spoolStgCmt(stgCmtEventInfo);
     }
 
     private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {

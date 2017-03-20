@@ -139,7 +139,7 @@ public class StgCmtEJB implements StgCmtManager {
         int size = refSopSeq.size();
         Map<String,List<Tuple>> instances = new HashMap<>(size * 4 / 3);
         String commonRetrieveAETs = queryInstances(createPredicate(refSopSeq), instances);
-        Attributes eventInfo = new Attributes(4);
+        Attributes eventInfo = new Attributes(8);
         if (commonRetrieveAETs != null)
             eventInfo.setString(Tag.RetrieveAETitle, VR.AE, commonRetrieveAETs);
         eventInfo.setString(Tag.TransactionUID, VR.UI, transactionUID);
@@ -148,6 +148,7 @@ public class StgCmtEJB implements StgCmtManager {
         HashMap<String,Storage> storageMap = new HashMap<>();
         try {
             byte[] buffer = new byte[BUFFER_SIZE];
+            Set<String> studyUIDs = new HashSet<>();
             for (Attributes refSOP : refSopSeq) {
                 String iuid = refSOP.getString(Tag.ReferencedSOPInstanceUID);
                 String cuid = refSOP.getString(Tag.ReferencedSOPClassUID);
@@ -156,13 +157,27 @@ public class StgCmtEJB implements StgCmtManager {
                     failedSeq.add(refSOP(cuid, iuid, Status.NoSuchObjectInstance));
                 else {
                     Tuple tuple = tuples.get(0);
+                    studyUIDs.add(tuple.get(QStudy.study.studyInstanceUID));
                     if (!cuid.equals(tuple.get(QInstance.instance.sopClassUID)))
                         failedSeq.add(refSOP(cuid, iuid, Status.ClassInstanceConflict));
                     else if (validateLocations(tuples, storageMap, buffer))
                         successSeq.add(refSOP(cuid, iuid,
                                 commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
                     else
-                        failedSeq.add(refSOP(iuid, cuid, Status.ProcessingFailure));
+                        failedSeq.add(refSOP(cuid, iuid, Status.ProcessingFailure));
+                }
+            }
+            if (!studyUIDs.isEmpty()) {
+                eventInfo.setString(Tag.StudyInstanceUID, VR.UI, studyUIDs.toArray(new String[studyUIDs.size()]));
+                List<AttributesBlob> attrs = em.createNamedQuery(Study.FIND_PATIENT_ATTRS_BY_STUDY_UIDS, AttributesBlob.class)
+                        .setParameter(1, studyUIDs).getResultList();
+                if (attrs.size() > 1)
+                    LOG.warn("Storage commitment of objects of multiple patients");
+                else {
+                    Attributes attr = attrs.get(0).getAttributes();
+                    eventInfo.setString(Tag.PatientID, VR.LO, attr.getString(Tag.PatientID));
+                    eventInfo.setString(Tag.IssuerOfPatientID, VR.LO, attr.getString(Tag.IssuerOfPatientID));
+                    eventInfo.setString(Tag.PatientName, VR.PN, attr.getString(Tag.PatientName));
                 }
             }
         } finally {
@@ -173,6 +188,7 @@ public class StgCmtEJB implements StgCmtManager {
             eventInfo.remove(Tag.FailedSOPSequence);
         return eventInfo;
     }
+
 
     @Override
     public Attributes calculateResult(String studyIUID, String seriesIUID, String sopIUID) {

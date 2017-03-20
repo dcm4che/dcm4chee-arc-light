@@ -43,8 +43,10 @@ package org.dcm4chee.arc.stgcmt.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.entity.PatientID;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgCmtSCP;
 import org.slf4j.Logger;
@@ -54,16 +56,18 @@ import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.jms.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 @MessageDriven(activationConfig = {
@@ -78,6 +82,9 @@ public class StgCmtSCPMDB implements MessageListener {
 
     @Inject
     private Device device;
+
+    @Inject
+    private Event<StgCmtEventInfo> stgCmtEvent;
 
 
     @Inject
@@ -103,14 +110,15 @@ public class StgCmtSCPMDB implements MessageListener {
         if (!queueManager.onProcessingStart(msgID))
             return;
         try {
+            String localAET = msg.getStringProperty("LocalAET");
+            String remoteAET = msg.getStringProperty("RemoteAET");
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
             Attributes eventInfo = stgCmtMgr.calculateResult(
                     actionInfo.getSequence(Tag.ReferencedSOPSequence),
                     actionInfo.getString(Tag.TransactionUID));
-            Outcome outcome = stgCmtSCP.sendNEventReport(
-                    msg.getStringProperty("LocalAET"),
-                    msg.getStringProperty("RemoteAET"),
-                    eventInfo);
+            stgCmtEvent.fire(new StgCmtEventInfoImpl(remoteAET, localAET, eventInfo));
+            removeExtendedEventInfo(eventInfo);
+            Outcome outcome = stgCmtSCP.sendNEventReport(localAET, remoteAET, eventInfo);
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
@@ -118,5 +126,10 @@ public class StgCmtSCPMDB implements MessageListener {
         }
     }
 
-
+    private void removeExtendedEventInfo(Attributes eventInfo) {
+        eventInfo.remove(Tag.StudyInstanceUID);
+        eventInfo.remove(Tag.PatientName);
+        eventInfo.remove(Tag.PatientID);
+        eventInfo.remove(Tag.IssuerOfPatientID);
+    }
 }
