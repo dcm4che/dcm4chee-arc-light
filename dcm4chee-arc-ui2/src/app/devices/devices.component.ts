@@ -136,6 +136,7 @@ export class DevicesComponent {
             }).subscribe(result => {
                 if(result){
                     $this.cfpLoadingBar.start();
+                    //TODO Unregister all AETs first
                     $this.$http.delete("../devices/" + device.dicomDeviceName).subscribe((res)=>{
                         $this.mainservice.setMessage({
                             "title": "Info",
