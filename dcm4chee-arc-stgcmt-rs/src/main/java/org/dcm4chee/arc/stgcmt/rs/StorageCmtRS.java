@@ -43,8 +43,12 @@ package org.dcm4chee.arc.stgcmt.rs;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.stgcmt.impl.StgCmtEventInfoImpl;
+
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -66,6 +70,9 @@ public class StorageCmtRS {
 
     @Inject
     private StgCmtManager stgCmtMgr;
+
+    @Inject
+    private Event<StgCmtEventInfo> stgCmtEvent;
 
     @PathParam("aet")
     private String aet;
@@ -99,6 +106,7 @@ public class StorageCmtRS {
 
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
         Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID);
+        stgCmtEvent.fire(new StgCmtEventInfoImpl(request, eventInfo));
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {

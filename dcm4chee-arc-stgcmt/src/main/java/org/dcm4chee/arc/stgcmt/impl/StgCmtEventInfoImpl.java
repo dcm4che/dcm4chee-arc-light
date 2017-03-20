@@ -43,19 +43,27 @@ package org.dcm4chee.arc.stgcmt.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since March 2017
  */
-class StgCmtEventInfoImpl implements StgCmtEventInfo {
+public class StgCmtEventInfoImpl implements StgCmtEventInfo {
     private String remoteAET;
     private String localAET;
+    private HttpServletRequest request;
     private Attributes extendedEventInfo;
 
     public StgCmtEventInfoImpl(String remoteAET, String localAET, Attributes extendedEventInfo) {
         this.remoteAET = remoteAET;
         this.localAET = localAET;
+        this.extendedEventInfo = extendedEventInfo;
+    }
+
+    public StgCmtEventInfoImpl(HttpServletRequest request, Attributes extendedEventInfo) {
+        this.request = request;
         this.extendedEventInfo = extendedEventInfo;
     }
 
@@ -72,6 +80,11 @@ class StgCmtEventInfoImpl implements StgCmtEventInfo {
     @Override
     public Attributes getExtendedEventInfo() {
         return extendedEventInfo;
+    }
+
+    @Override
+    public HttpServletRequest getRequest() {
+        return request;
     }
 
 }

@@ -42,6 +42,8 @@ package org.dcm4chee.arc.stgcmt;
 
 import org.dcm4che3.data.Attributes;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -54,4 +56,5 @@ public interface StgCmtEventInfo {
 
     Attributes getExtendedEventInfo();
 
+    HttpServletRequest getRequest();
 }

@@ -168,6 +168,8 @@ public class StgCmtEJB implements StgCmtManager {
                 }
             }
             if (!studyUIDs.isEmpty()) {
+                if (studyUIDs.size()>1)
+                    LOG.warn("Storage commitment of objects of multiple studies.");
                 eventInfo.setString(Tag.StudyInstanceUID, VR.UI, studyUIDs.toArray(new String[studyUIDs.size()]));
                 List<AttributesBlob> attrs = em.createNamedQuery(Study.FIND_PATIENT_ATTRS_BY_STUDY_UIDS, AttributesBlob.class)
                         .setParameter(1, studyUIDs).getResultList();
@@ -213,6 +215,13 @@ public class StgCmtEJB implements StgCmtManager {
                 else
                     failedSeq.add(refSOP(cuid, iuid, Status.ProcessingFailure));
             }
+            eventInfo.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+            List<AttributesBlob> attrs = em.createNamedQuery(Study.FIND_PATIENT_ATTRS_BY_STUDY_UIDS, AttributesBlob.class)
+                    .setParameter(1, studyIUID).getResultList();
+            Attributes attr = attrs.get(0).getAttributes();
+            eventInfo.setString(Tag.PatientID, VR.LO, attr.getString(Tag.PatientID));
+            eventInfo.setString(Tag.IssuerOfPatientID, VR.LO, attr.getString(Tag.IssuerOfPatientID));
+            eventInfo.setString(Tag.PatientName, VR.PN, attr.getString(Tag.PatientName));
         } finally {
             for (Storage storage : storageMap.values())
                 SafeClose.close(storage);

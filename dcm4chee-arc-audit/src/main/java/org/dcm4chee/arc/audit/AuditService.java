@@ -752,7 +752,13 @@ public class AuditService {
     void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(stgCmtEventInfo.getRemoteAET());
+            String callingAET = stgCmtEventInfo.getRemoteAET() != null ? stgCmtEventInfo.getRemoteAET()
+                    : stgCmtEventInfo.getRequest() != null && stgCmtEventInfo.getRequest().getAttribute(keycloakClassName) != null
+                    ? getPreferredUsername(stgCmtEventInfo.getRequest()) : stgCmtEventInfo.getRequest().getRemoteHost();
+            ApplicationEntity remoteAE = stgCmtEventInfo.getRemoteAET() != null
+                    ? aeCache.findApplicationEntity(stgCmtEventInfo.getRemoteAET()) : null;
+            String callingHost = remoteAE != null
+                    ? remoteAE.getConnections().get(0).getHostname() : stgCmtEventInfo.getRequest().getRemoteHost();
             Attributes eventInfo = stgCmtEventInfo.getExtendedEventInfo();
             Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
             Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
@@ -773,8 +779,7 @@ public class AuditService {
                     failureReasons.add(outcome);
                     aiSet.add(new AuditInfo(ii));
                 }
-                BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(stgCmtEventInfo.getRemoteAET())
-                        .callingHost(remoteAE.getConnections().get(0).getHostname())
+                BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(callingAET).callingHost(callingHost)
                         .calledAET(stgCmtEventInfo.getLocalAET()).pID(pID).pName(pName(eventInfo)).studyUID(studyUID)
                         .outcome(buildStrings(failureReasons.toArray(new String[failureReasons.size()]))).build();
                 objs.add(new AuditInfo(i));
