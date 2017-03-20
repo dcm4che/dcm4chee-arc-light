@@ -54,6 +54,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -176,7 +177,8 @@ public class AuditService {
                     buildSOPClassMap(sopClassMap, sopRef.getString(Tag.ReferencedSOPClassUID),
                             sopRef.getString(Tag.ReferencedSOPInstanceUID));
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx)));
-        String eventType = String.valueOf(AuditServiceUtils.EventType.RJN_DELETE);
+        String eventType = ctx.getStoredInstance().getSeries().getStudy().getRejectionState()== RejectionState.COMPLETE
+        ? String.valueOf(AuditServiceUtils.EventType.RJ_COMPLET) : String.valueOf(AuditServiceUtils.EventType.RJ_PARTIAL);
         writeSpoolFile(eventType, deleteObjs);
     }
 
