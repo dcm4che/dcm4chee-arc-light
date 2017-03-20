@@ -326,6 +326,36 @@
       "description": "Audit Message Aggregation Duration in ISO-8601 duration format PnDTnHnMn.nS. Audit Message aggregation disabled, if absent.",
       "type": "string"
     },
+    "dcmAuditUnknownStudyInstanceUID": {
+      "title": "Audit Unknown Study Instance UID",
+      "description": "Indicates study instance uid value to be sent in audit message when not known. If absent, 'unknownStudy' will be applied.",
+      "type": "string"
+    },
+    "dcmAuditUnknownPatientID": {
+      "title": "Audit Unknown Patient ID",
+      "description": "Indicates patient id value to be sent in audit message when not known. If absent, '<none>' will be applied.",
+      "type": "string"
+    },
+    "dcmShowPatientInfoInSystemLog": {
+      "title": "Show Patient Info In System Log",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in system logs. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
+      "type": "string",
+      "enum": [
+        "PLAIN_TEXT",
+        "HASH_NAME",
+        "HASH_NAME_AND_ID"
+      ]
+    },
+    "dcmShowPatientInfoInAuditLog": {
+      "title": "Show Patient Info In Audit Log",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in emitted audit messages. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
+      "type": "string",
+      "enum": [
+        "PLAIN_TEXT",
+        "HASH_NAME",
+        "HASH_NAME_AND_ID"
+      ]
+    },
     "dcmStowSpoolDirectory": {
       "title": "STOW-RS Spool Directory",
       "description": "Path to Directory used by STOW-RS Service to spool Bulkdata of XML/JSON Metadata and Bulk Data Request Messages.",
@@ -479,26 +509,6 @@
       "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"([0-9]{8})\". If absent, locally configured Study Retention Policy Rules will be applied.",
       "type": "string"
     },
-    "dcmShowPatientInfoInSystemLog": {
-      "title": "Show Patient Info In System Log",
-      "description": "Specifies if Patient Information is shown as plain text or hashed in system logs. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
-      "type": "string",
-      "enum": [
-        "PLAIN_TEXT",
-        "HASH_NAME",
-        "HASH_NAME_AND_ID"
-      ]
-    },
-    "dcmShowPatientInfoInAuditLog": {
-      "title": "Show Patient Info In Audit Log",
-      "description": "Specifies if Patient Information is shown as plain text or hashed in emitted audit messages. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
-      "type": "string",
-      "enum": [
-        "PLAIN_TEXT",
-        "HASH_NAME",
-        "HASH_NAME_AND_ID"
-      ]
-    },
     "dcmPurgeStgCmtCompletedDelay": {
       "title": "Purge Storage Commitment Completed Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which results of completed Storage Commitment requests are purged. If absent, there is no deletion.",
@@ -647,16 +657,6 @@
       "title": "HL7 Track Changed Patient ID",
       "description": "Enable to keep track of the prior Patient ID on a change of the Patient ID by HL7 ADT^A47 or by the RESTful Patient Update Service. Enabled if absent.",
       "type": "boolean"
-    },
-    "dcmAuditUnknownStudyInstanceUID": {
-      "title": "Audit Unknown Study Instance UID",
-      "description": "Indicates study instance uid value to be sent in audit message when not known. If absent, 'unknownStudy' will be applied.",
-      "type": "string"
-    },
-    "dcmAuditUnknownPatientID": {
-      "title": "Audit Unknown Patient ID",
-      "description": "Indicates patient id value to be sent in audit message when not known. If absent, '<none>' will be applied.",
-      "type": "string"
     },
     "dcmStorage": {
       "title": "Storage Descriptor",

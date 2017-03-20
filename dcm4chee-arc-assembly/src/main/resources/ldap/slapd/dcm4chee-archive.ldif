@@ -817,6 +817,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.164 NAME 'hl7ScheduledProtocolCodeIn
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.165 NAME 'dcmAuditUnknownStudyInstanceUID'
+  DESC 'Indicates study instance uid value to be sent in audit message when not known. If absent, "unknownStudy" will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.166 NAME 'dcmAuditUnknownPatientID'
+  DESC 'Indicates patient id value to be sent in audit message when not known. If absent, "<none>" will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -881,6 +891,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAuditSpoolDirectory $
     dcmAuditPollingInterval $
     dcmAuditAggregateDuration $
+    dcmAuditUnknownStudyInstanceUID $
+    dcmAuditUnknownPatientID $
     dcmShowPatientInfoInSystemLog $
     dcmShowPatientInfoInAuditLog $
     dcmStowSpoolDirectory $
