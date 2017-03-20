@@ -124,7 +124,7 @@
             <div role="tabpanel" class="aet_modus" id="aet_modus" *ngIf="showAetList">
                 <h2>Application Entities list</h2>
                 <input autocomplete="off" id="aesfilter" class="aesfilter" [(ngModel)]="aesfilter" placeholder="Search AEs"/>
-                <button class="adddevice" (click)="createAe()" title="Register new Application Entity"><span class="glyphicon glyphicon-plus"></span></button>
+                <button class="adddevice" (click)="createAe()" title="Register new application entity"><span class="glyphicon glyphicon-plus"></span></button>
                 <!--     <button class="adddevice" (click)="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
                 <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
                 <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>

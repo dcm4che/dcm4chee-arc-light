@@ -12,6 +12,7 @@ import { ConfirmComponent } from './dialogs/confirm/confirm.component';
 import { EditStudyComponent } from './dialogs/edit-study/edit-study.component';
 import { DeleteRejectedInstancesComponent } from './dialogs/delete-rejected-instances/delete-rejected-instances.component';
 import {CalendarModule} from "primeng/components/calendar/calendar";
+import { CreateAeComponent } from './dialogs/create-ae/create-ae.component';
 
 
 @NgModule({
@@ -26,4 +27,4 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
     providers: [MdDialogConfig]
 })
 export class WidgetsModule { }
-export const WidgetsComponents = [ MessagingComponent,EditPatientComponent, EditMwlComponent, EditStudyComponent, CopyMoveObjectsComponent, ConfirmComponent, DeleteRejectedInstancesComponent];
+export const WidgetsComponents = [ MessagingComponent,EditPatientComponent, EditMwlComponent, EditStudyComponent, CreateAeComponent, CopyMoveObjectsComponent, ConfirmComponent, DeleteRejectedInstancesComponent];

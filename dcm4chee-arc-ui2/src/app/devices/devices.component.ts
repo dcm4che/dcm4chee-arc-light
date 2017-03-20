@@ -6,6 +6,8 @@ import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
 import {AppService} from "../app.service";
 import {MdDialog, MdDialogConfig, MdDialogRef} from "@angular/material";
 import {DevicesService} from "./devices.service";
+import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
+import {CreateAeComponent} from "../widgets/dialogs/create-ae/create-ae.component";
 
 @Component({
   selector: 'app-devices',
@@ -426,7 +428,165 @@ export class DevicesComponent {
                 }
             }
         });
-    }
+    };
+/*
+    testCreateAe(){
+        console.log("in test create ae");
+        this.createAe();
+    }*/
+    createAe(){
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+            console.log("in create ae");
+        let dicomconn = [];
+        let newAetModel = {
+            dicomNetworkConnection:[{
+                cn:'dicom',
+                dicomHostname:'localhost',
+                dicomPort:104
+            }],
+            dicomNetworkAE:[{
+                dicomNetworkConnectionReference:["/dicomNetworkConnection/0"]
+            }]
+
+        };
+        let netAEModel;
+
+        netAEModel = newAetModel.dicomNetworkAE[0];
+        dicomconn.push({
+            "value":"/dicomNetworkConnection/" + 0,
+            "name":"dicom"
+        });
+        let $this = this;
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(CreateAeComponent, this.config);
+        this.dialogRef.componentInstance.dicomconn = dicomconn;
+        this.dialogRef.componentInstance.newAetModel = newAetModel;
+        this.dialogRef.componentInstance.netAEModel = netAEModel;
+        this.dialogRef.componentInstance.devices = this.devices;
+
+        this.dialogRef.afterClosed().subscribe(re => {
+            if(re){
+                console.log("res",re);
+                $this.$http.post(
+                    "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle,
+                    {},
+                    headers
+                ).subscribe((response) => {
+                    console.log("success response",response);
+                    if(re.mode === "createdevice"){
+                        //Create device
+                        //            console.log("$scope.netAEModel",$scope.netAEModel);
+                        console.log("re.newaetmodel",re.newaetmodel);
+                        if(re.newaetmodel.dicomInstalled === 'true'){
+                            re.newaetmodel.dicomInstalled = true;
+                        }else{
+                            re.newaetmodel.dicomInstalled = false;
+                        }
+                        re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
+                        re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
+                        $this.$http.post("../devices/" + re.newaetmodel.dicomDeviceName, re.newaetmodel, headers)
+                            .subscribe( (devre) => {
+                                $this.mainservice.setMessage({
+                                    "title": "Info",
+                                    "text": "Aet registered successfully!<br>Device created successfully!",
+                                    "status": "info"
+                                });
+                                $this.$http.post("../ctrl/reload",{},headers).subscribe((res) => {
+                                    $this.mainservice.setMessage({
+                                        "title": "Info",
+                                        "text": "Archive reloaded successfully!",
+                                        "status": "info"
+                                    });
+                                });
+                                $this.searchAes();
+                            },
+                            (err)=>{
+                                $this.cfpLoadingBar.complete();
+                                $this.$http.delete(
+                                    "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
+                                ).subscribe((response) => {
+                                    $this.mainservice.setMessage({
+                                        "title": "Error",
+                                        "text": "Aet couldn't be registered!",
+                                        "status": "error"
+                                    });
+                                });
+                            });
+                    }else{
+                        console.log("in else post",re);
+
+                        re.device.dicomNetworkAE =  re.device.dicomNetworkAE || [];
+
+                        console.log("re.device.dicomNetworkAE",re.device.dicomNetworkAE);
+
+                        console.log("re",_.cloneDeep(re));
+                        console.log("re.newaetmode",_.cloneDeep(re.newaetmodel));
+
+                        re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
+
+                        console.log("re.newaetmode.dicomNetworkAE",re.newaetmodel.dicomNetworkAE);
+
+                        re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
+
+
+
+                        re.device.dicomNetworkAE.push(re.newaetmodel.dicomNetworkAE[0]);
+
+
+
+                        $this.$http.put("../devices/" + re.device.dicomDeviceName, re.device)
+                            .subscribe((putresponse) => {
+                                $this.mainservice.setMessage({
+                                    "title": "Info",
+                                    "text": "Aet registered and added to device successfully!",
+                                    "status": "info"
+                                });
+                                $this.$http.post("../ctrl/reload",{}).subscribe((res) => {
+                                    $this.mainservice.setMessage({
+                                        "title": "Info",
+                                        "text": "Archive reloaded successfully!",
+                                        "status": "info"
+                                    });
+                                });
+                                $this.searchAes();
+                            },(err) => {
+                                $this.cfpLoadingBar.complete();
+                                $this.$http.delete(
+                                    "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
+                                ).subscribe((response) => {
+                                    $this.mainservice.setMessage({
+                                        "title": "Error",
+                                        "text": "Aet couldn't be registered!",
+                                        "status": "error"
+                                    });
+                                });
+                            });
+                    }
+                    // DeviceService.msg($scope, {
+                    //     "title": "Info",
+                    //     "text": "Aet registered successfully!",
+                    //     "status": "info"
+                    // });
+                }, (response) => {
+                    console.log("errorcallback response",response);
+                    if(response.status === 409){
+                        $this.mainservice.setMessage({
+                            "title": "Error "+response.status,
+                            "text": "AET already exists, try with an other name",
+                            "status": "error"
+                        });
+                    }else{
+                        $this.mainservice.setMessage({
+                            "title": "Error " + response.status,
+                            "text": response.statusText,
+                            "status": "error"
+                        });
+                    }
+                });
+            }
+        });
+    };
+
     getDevices(){
         let $this = this;
         this.$http.get(

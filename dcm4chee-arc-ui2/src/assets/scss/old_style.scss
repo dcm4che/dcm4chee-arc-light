@@ -3,7 +3,12 @@ $hoverBlue:#5293C1;
 body{
 	padding: 2px 40px;
 	.background{
-		background: url("../img/bg.jpg");
+		//background: url("../img/bg.jpg");
+		//background: url("../img/156265438.jpg");
+		//background: url("../img/155539853.jpg");
+		background: url("../img/bg2.jpg");
+        background-repeat: no-repeat;
+        background-size: 100%;
 		-webkit-filter: blur(5px);
 	  	-moz-filter: blur(5px);
 	  	-o-filter: blur(5px);
@@ -19,7 +24,7 @@ body{
 
 	}
 	.main_content{
-		background: rgba(255, 255, 255, 0.78) none repeat scroll 0 0;
+		background: rgba(255, 255, 255, 0.85) none repeat scroll 0 0;
 //		margin:40px;
 		//margin: 40px 20px;
 		 margin: 27px -30px 40px 4px;
