@@ -137,7 +137,7 @@ class AuditServiceUtils {
                  null, null, true, false, false, null),
 
         PROV_REGIS(EventClass.PROV_REGISTER, AuditMessages.EventID.Export, AuditMessages.EventActionCode.Read,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, false,
+                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false,
                 AuditMessages.EventTypeCode.ITI_41_ProvideAndRegisterDocumentSetB);
 
 

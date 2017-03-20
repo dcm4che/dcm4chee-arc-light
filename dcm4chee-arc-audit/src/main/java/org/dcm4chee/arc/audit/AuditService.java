@@ -725,9 +725,10 @@ public class AuditService {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         Attributes xdsiManifest = ctx.getXDSiManifest();
         URI dest = ctx.getExporter().getExporterDescriptor().getExportURI();
-        BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(getAET(device))
-                .calledAET(dest.toString()).calledHost(dest.getHost())
-                .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
+        String schemeSpecificPart = dest.getSchemeSpecificPart();
+        String calledHost = schemeSpecificPart.substring(schemeSpecificPart.indexOf("://")+3, schemeSpecificPart.lastIndexOf(":"));
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(getAET(device)).calledAET(dest.toString())
+                .calledHost(calledHost).outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
                 .pID(getPID(xdsiManifest)).pName(pName(xdsiManifest)).submissionSetUID(ctx.getSubmissionSetUID()).build();
         obj.add(new AuditInfo(i));
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.PROV_REGIS), obj);
@@ -737,9 +738,9 @@ public class AuditService {
         AuditInfo ai = new AuditInfo(readerObj.getMainInfo());
         EventIdentification ei = getEI(et, ai.getField(AuditInfo.OUTCOME), eventTime);
         BuildActiveParticipant apSource = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLING_AET),
-                getLocalHostName(auditLogger)).altUserID(auditLogger.processID()).roleIDCode(et.source).build();
+                getLocalHostName(auditLogger)).altUserID(auditLogger.processID()).requester(et.isSource).roleIDCode(et.source).build();
         BuildActiveParticipant apDest = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLED_AET),
-                ai.getField(AuditInfo.CALLED_HOST)).roleIDCode(et.destination).build();
+                ai.getField(AuditInfo.CALLED_HOST)).requester(et.isDest).roleIDCode(et.destination).build();
         BuildParticipantObjectIdentification poiPatient = new BuildParticipantObjectIdentification.Builder(
                 ai.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
