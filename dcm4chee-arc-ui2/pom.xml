@@ -58,25 +58,6 @@
     <npm.version>3.10.6</npm.version>
   </properties>
 
-  <build>
-    <plugins>
-       <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>${maven-war-plugin.version}</version>
-        <configuration>
-          <classifier>${classifier}</classifier>
-          <webXml>${webXml}</webXml>
-          <webResources>
-            <resource>
-              <directory>target/webapp</directory>
-            </resource>
-          </webResources>
-          <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
   <profiles>
     <profile>
       <id>ng-build</id>
