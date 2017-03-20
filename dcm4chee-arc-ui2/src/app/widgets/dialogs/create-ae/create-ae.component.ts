@@ -238,4 +238,22 @@ export class CreateAeComponent {
         }
         console.log("this.selctedDeviceObject=",this.selctedDeviceObject);
     }
+    validAeForm(){
+        if(!_.hasIn(this.newAetModel,'dicomNetworkAE[0].dicomAETitle') || this.newAetModel.dicomNetworkAE[0].dicomAETitle === ''){
+            return false;
+        }
+        if(!_.hasIn(this.newAetModel,'dicomNetworkAE[0].dicomNetworkConnectionReference[0]') || this.newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference[0] === ''){
+            return false;
+        }
+        if(this.activetab === 'createdevice'){
+            if(!_.hasIn(this.newAetModel,'dicomNetworkConnection[0]') || (this.newAetModel.dicomNetworkConnection[0].cn && this.newAetModel.dicomNetworkConnection[0].cn === "")){
+                return false;
+            }
+        }else{
+            if(!this.selctedDeviceObject){
+                return false;
+            }
+        }
+        return true;
+    }
 }

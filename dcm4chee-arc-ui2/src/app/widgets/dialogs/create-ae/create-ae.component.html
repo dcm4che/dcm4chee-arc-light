@@ -1,16 +1,16 @@
-<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
+<!--<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
 <pre *ngIf="debugpre" style="position: absolute;width:70%;top:0;z-index: 9999999;">
     <div style="float:left;width:50%">
-        <!--clipboard: {{ clipboard | json}}-->
+        &lt;!&ndash;clipboard: {{ clipboard | json}}&ndash;&gt;
     selctedDeviceObject2:{{ selctedDeviceObject |json}}
     </div>
     <div style="float:left;width:50%">
     selectedDevice2:{{selectedDevice|json}}
     newAetModel:{{newAetModel|json}}
-        <!--select: {{ selected | json}}-->
+        &lt;!&ndash;select: {{ selected | json}}&ndash;&gt;
     </div>
     <button (click)="testSetObject()">testSetObject</button>
-</pre>
+</pre>-->
 <div class="vex vex-theme-os registernewaet">
     <div class="vex-dialog-form" >
         <div class="device">
@@ -172,7 +172,7 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="dialogRef.close({device:selctedDeviceObject,newaetmodel:newAetModel,mode:activetab})">APPLY</button>
+            <button class="save" type="button" (click)="dialogRef.close({device:selctedDeviceObject,newaetmodel:newAetModel,mode:activetab})" [disabled]="!validAeForm()">APPLY</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>
         </div>
     </div>

@@ -256,6 +256,13 @@ md-progress-circle, [_nghost-nyg-8]{
     &.save{
       background: $lightBlue;
       color: white;
+      &[disabled] {
+        color: #888;
+        background: rgba(6, 29, 47, 0.74);
+        &:hover{
+          background: rgba(6, 29, 47, 0.74);
+        }
+      }
       &:hover{
         background:$blue;
       }
