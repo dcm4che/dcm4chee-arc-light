@@ -95,7 +95,6 @@ public class AuditService {
     private final String JBOSS_SERVER_TEMP = "${jboss.server.data.dir}/temp";
     private final String studyDate = "StudyDate";
     private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
-    private final String noValue = "<none>";
 
     @Inject
     private Device device;
@@ -536,7 +535,7 @@ public class AuditService {
                     ri.getField(AuditInfo.CALLING_HOST)).requester(eventType.isOther).build();
         }
         HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
-        String pID = noValue;
+        String pID = device.getDeviceExtension(ArchiveDeviceExtension.class).getAuditUnknownPatientID();
         String pName = null;
         String studyDt = null;
         for (String line : readerObj.getInstanceLines()) {
@@ -605,7 +604,8 @@ public class AuditService {
             }
             String pID = eventType == AuditServiceUtils.EventType.PAT_DELETE && ctx.getPreviousPatientID() != null
                     ? getPlainOrHashedPatientID(ctx.getPreviousPatientID().toString())
-                    : ctx.getPatientID() != null ? getPlainOrHashedPatientID(ctx.getPatientID().toString()) : noValue;
+                    : ctx.getPatientID() != null ? getPlainOrHashedPatientID(ctx.getPatientID().toString())
+                    : device.getDeviceExtension(ArchiveDeviceExtension.class).getAuditUnknownPatientID();
             String pName = eventType == AuditServiceUtils.EventType.PAT_DELETE && ctx.getPreviousAttributes() != null
                     ? StringUtils.maskEmpty(pName(ctx.getPreviousAttributes()), null)
                     : StringUtils.maskEmpty(pName(ctx.getAttributes()), null);
@@ -765,9 +765,9 @@ public class AuditService {
             Attributes eventInfo = stgCmtEventInfo.getExtendedEventInfo();
             Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
             Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
-            String pID = eventInfo.getString(Tag.PatientID) != null ? getPID(eventInfo) : arcDev.getUnknownPatientID();
+            String pID = eventInfo.getString(Tag.PatientID) != null ? getPID(eventInfo) : arcDev.getAuditUnknownPatientID();
             String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                    ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.getUnknownStudyInstanceUID();
+                    ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.getAuditUnknownStudyInstanceUID();
             if (failed != null && !failed.isEmpty()) {
                 Set<String> failureReasons = new HashSet<>();
                 Set<AuditInfo> aiSet = new HashSet<>();
@@ -910,8 +910,8 @@ public class AuditService {
     private String getPID(Attributes attrs) {
         return attrs != null
                 ? attrs.getString(Tag.PatientID) != null
-                ? getPlainOrHashedPatientID(IDWithIssuer.pidOf(attrs).toString()) : noValue
-                : null;
+                ? getPlainOrHashedPatientID(IDWithIssuer.pidOf(attrs).toString())
+                : device.getDeviceExtension(ArchiveDeviceExtension.class).getAuditUnknownPatientID() : null;
     }
 
     private String pName(Attributes attr) {

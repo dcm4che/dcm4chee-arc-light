@@ -164,8 +164,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] hl7ADTReceivingApplication = {};
     private String hl7ADTSendingApplication;
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
-    private String unknownStudyInstanceUID;
-    private String unknownPatientID;
+    private String auditUnknownStudyInstanceUID;
+    private String auditUnknownPatientID;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1447,20 +1447,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ScheduledProtocolCodeInOrder = hl7ScheduledProtocolCodeInOrder;
     }
 
-    public String getUnknownStudyInstanceUID() {
-        return unknownStudyInstanceUID != null ? unknownStudyInstanceUID : "unknownStudy";
+    public String getAuditUnknownStudyInstanceUID() {
+        return auditUnknownStudyInstanceUID != null
+                ? auditUnknownStudyInstanceUID : "unknownStudy";
     }
 
-    public void setUnknownStudyInstanceUID(String unknownStudyInstanceUID) {
-        this.unknownStudyInstanceUID = unknownStudyInstanceUID;
+    public void setAuditUnknownStudyInstanceUID(String auditUnknownStudyInstanceUID) {
+        this.auditUnknownStudyInstanceUID = auditUnknownStudyInstanceUID;
     }
 
-    public String getUnknownPatientID() {
-        return unknownPatientID != null ? unknownPatientID : "<none>";
+    public String getAuditUnknownPatientID() {
+        return auditUnknownPatientID != null
+                ? auditUnknownPatientID : "<none>";
     }
 
-    public void setUnknownPatientID(String unknownPatientID) {
-        this.unknownPatientID = unknownPatientID;
+    public void setAuditUnknownPatientID(String auditUnknownPatientID) {
+        this.auditUnknownPatientID = auditUnknownPatientID;
     }
 
     @Override
@@ -1574,8 +1576,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
         hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;
         hl7ScheduledProtocolCodeInOrder = arcdev.hl7ScheduledProtocolCodeInOrder;
-        unknownStudyInstanceUID = arcdev.unknownStudyInstanceUID;
-        unknownPatientID = arcdev.unknownPatientID;
+        auditUnknownStudyInstanceUID = arcdev.auditUnknownStudyInstanceUID;
+        auditUnknownPatientID = arcdev.auditUnknownPatientID;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();

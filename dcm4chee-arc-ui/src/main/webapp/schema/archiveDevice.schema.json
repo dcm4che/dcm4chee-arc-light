@@ -648,14 +648,14 @@
       "description": "Enable to keep track of the prior Patient ID on a change of the Patient ID by HL7 ADT^A47 or by the RESTful Patient Update Service. Enabled if absent.",
       "type": "boolean"
     },
-    "dcmUnknownStudyInstanceUID": {
-      "title": "Unknown Study Instance UID",
-      "description": "Indicates study instance uid value to be sent in storage commit audit message. If absent, 'unknownStudy' will be applied.",
+    "dcmAuditUnknownStudyInstanceUID": {
+      "title": "Audit Unknown Study Instance UID",
+      "description": "Indicates study instance uid value to be sent in audit message when not known. If absent, 'unknownStudy' will be applied.",
       "type": "string"
     },
-    "dcmUnknownPatientID": {
-      "title": "Unknown Patient ID",
-      "description": "Indicates patient id value to be sent in storage commit audit message. If absent, '<none>' will be applied.",
+    "dcmAuditUnknownPatientID": {
+      "title": "Audit Unknown Patient ID",
+      "description": "Indicates patient id value to be sent in audit message when not known. If absent, '<none>' will be applied.",
       "type": "string"
     },
     "dcmStorage": {
