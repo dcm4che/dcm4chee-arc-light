@@ -70,15 +70,15 @@ export class CreateAeComponent {
         }*/
     };
     getDevice(e){
-        console.log("e",e);
+        console.log("e3",e);
         console.log("selectedDevice",this.selectedDevice);
-        this.cfpLoadingBar.start();
         this.selectedDevice = e;
         let $this = this;
         if(this.selectedDevice){
             if(this.selctedDeviceObject && this.selctedDeviceObject.dicomDeviceName === this.selectedDevice){
                 $this.setReferencesFromDevice();
             }else{
+                $this.cfpLoadingBar.start();
                 $this.$http.get('../devices/'+this.selectedDevice)
                     .map(res => res.json())
                     .subscribe((response) => {
@@ -87,13 +87,14 @@ export class CreateAeComponent {
                         // $scope.selctedDeviceObject.dicomNetworkConnection.push($scope.netConnModelDevice);
                         console.log("this.selctedDeviceObject",$this.selctedDeviceObject);
                         $this.setReferencesFromDevice();
-                        this.cfpLoadingBar.complete();
+                        $this.cfpLoadingBar.stop()
                     },(err) => {
                         $this.mainservice.setMessage({
                             "title": "Error " + err.status,
                             "text": err.statusText,
                             "status": "error"
                         });
+                        $this.cfpLoadingBar.complete();
                     });
             }
         }
@@ -134,21 +135,15 @@ export class CreateAeComponent {
         }
     }
     toggleReference(model,ref){
-        console.log("model",model);
-        console.log("ref",ref);
+
         if(this.inArray(ref, model)){
-            console.log("in if");
           _.remove(model,(i)=>{
-              console.log("i",i);
               return i === ref
           });
-            console.log("in hasin",model);
         }else{
-            console.log("in else");
             model.push(ref)
         }
-        console.log("model",model)
-        console.log("ref",ref)
+
     }
     inArray(element, array){
         for(let i of array){
