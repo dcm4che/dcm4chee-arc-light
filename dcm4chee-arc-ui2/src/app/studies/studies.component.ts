@@ -2981,7 +2981,7 @@ export class StudiesComponent implements OnDestroy{
                                                             }
                                                             return resjson;
                                                         })
-                                                        .subscribe(function successCallback(response) {
+                                                        .subscribe((response) => {
                                                             console.log("in then function");
                                                             $this.clipboard = {};
                                                             $this.cfpLoadingBar.stop();
@@ -2991,7 +2991,7 @@ export class StudiesComponent implements OnDestroy{
                                                                 "status": "info"
                                                             });
                                                             $this.fireRightQuery();
-                                                        }, function errorCallback(response) {
+                                                        }, (response) => {
                                                             $this.cfpLoadingBar.stop();
                                                             $this.mainservice.setMessage({
                                                                 "title": "Error " + response.status,

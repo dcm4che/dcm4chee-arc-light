@@ -13,7 +13,7 @@
                     <div class="content" *ngIf="showdevice===true">
                         <div class="inputblock">
                             <label class="title">Device name</label>
-                            <input  [(ngModel)]="newAetModel.dicomDeviceName" (keyup)="updateAetFromDevicename($event)" (keydown)="updateAetFromDevicename($event)" (keypress)="updateAetFromDevicename($event)">
+                            <input type="text" [(ngModel)]="newAetModel.dicomDeviceName" (keyup)="updateAetFromDevicename($event)" (keydown)="updateAetFromDevicename($event)" (keypress)="updateAetFromDevicename($event)">
                             <span class="description">A unique name for this device</span>
                         </div>
                         <div class="inputblock">
@@ -35,7 +35,7 @@
                                     <span>False</span>
                                 </label>
                             </div>
-                            <span class="description">A unique name for this device</span>
+                            <span class="description checkbox">A unique name for this device</span>
                         </div>
                     </div>
                     <h4 (click)="showconn=!showconn;showdevice=false">New Network Connection  <span *ngIf="newAetModel && newAetModel.dicomNetworkConnection && newAetModel.dicomNetworkConnection[0] && newAetModel.dicomNetworkConnection[0].cn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>
@@ -43,12 +43,12 @@
                         <!--<div sf-schema="netConnSchema" sf-form="netConnForm" sf-model="netConnModel"  sf-options="sfOptions"></div>-->
                         <div class="inputblock">
                             <label class="title">Name</label>
-                            <input  [(ngModel)]="newAetModel.dicomNetworkConnection[0].cn">
+                            <input type="text"  [(ngModel)]="newAetModel.dicomNetworkConnection[0].cn">
                             <span class="description">Arbitrary/Meaningful name for the Network Connection object</span>
                         </div>
                         <div class="inputblock">
                             <label class="title">Hostname</label>
-                            <input  [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomHostname">
+                            <input type="text"  [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomHostname">
                             <span class="description">DNS name for this particular connection</span>
                         </div>
                         <div class="inputblock">
@@ -66,22 +66,6 @@
                                 Select device to connect the AE to:
                             </div>
                             <div class="input_part">
-           <!--                     <select tabindex="1"
-                                        id="init_select"
-                                        class="form-control"
-                                        name="device"
-                                        ng-change="getDevice()"
-                                        ng-model="selectedDevice"
-                                        [ngClass]="activeMenu == 'device_menu' ? 'active_menu': ''"
-                                        ng-options="obj.dicomDeviceName as obj.dicomDeviceName for obj in devices"
-                                >
-                                </select>-->
-<!--                                <select [ngClass]="activeMenu == 'device_menu' ? 'active_menu': ''"
-                                        (change)="getDevice($event)"
-                                        [ngModel]="selectedDevice">
-                                    <option [ngValue]="selectedDevice" *ngFor="let obj of devices">{{obj.dicomDeviceName}}</option>
-                                </select>-->
-                                <!--<select (change)="getDevice($event)" (ngChangeModel)="">-->
                                 <select [ngModel]="selectedDevice" (ngModelChange)="getDevice($event)" name="dicomDeviceName">
                                     <option [value]="obj.dicomDeviceName" *ngFor="let obj of devices">{{obj.dicomDeviceName}}</option>
                                 </select>
@@ -89,24 +73,24 @@
                             <span class="description">Already existing devices</span>
                         </div>
                     </div>
-                    <h4 (click)="showconnselecteddevice=!showconnselecteddevice;showselectdevice=false;">New Network Connection  to selected device <span *ngIf="newAetModel && newAetModel.dicomNetworkConnection && newAetModel.dicomNetworkConnection[0] && newAetModel.dicomNetworkConnection[0].cn && !showconn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>
-                    <div class="content"  *ngIf="selctedDeviceObject">
+                    <h4 (click)="showconn=!showconn;showdevice=false">New Network Connection  to selected device</h4>
+                    <div class="content"  *ngIf="selctedDeviceObject && showconn===true">
                         <!--<h4 (click)="showconn=!showconn;showdevice=false">New Network Connection  <span *ngIf="newAetModel.dicomNetworkConnection[0].cn && !showconn"> <b>{{newAetModel.dicomNetworkConnection[0].cn}}</b></span></h4>-->
                         <!--<div class="content"  *ngIf="showconn===true">-->
                             <!--<div sf-schema="netConnSchema" sf-form="netConnForm" sf-model="netConnModel"  sf-options="sfOptions"></div>-->
                             <div class="inputblock">
                                 <label class="title">Name</label>
-                                <input  [(ngModel)]="newAetModel.dicomNetworkConnection[0].cn">
+                                <input type="text"  [(ngModel)]="newAetModel.dicomNetworkConnection[0].cn">
                                 <span class="description">Arbitrary/Meaningful name for the Network Connection object</span>
                             </div>
                             <div class="inputblock">
                                 <label class="title">Hostname</label>
-                                <input  [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomHostname">
+                                <input type="text" [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomHostname">
                                 <span class="description">DNS name for this particular connection</span>
                             </div>
                             <div class="inputblock">
                                 <label class="title">Port</label>
-                                <input  [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomPort">
+                                <input type="number" [(ngModel)]="newAetModel.dicomNetworkConnection[0].dicomPort">
                                 <span class="description">TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections</span>
                             </div>
                             <div class="vex-dialog-buttons aet_buttons">
@@ -115,7 +99,7 @@
                             </div>
                         </div>
                     <!--</div>-->
-                    <div class="content" *ngIf="!selctedDeviceObject">
+                    <div class="content" *ngIf="!selctedDeviceObject && showconn===true">
                         Select first a device!
                     </div>
                 </div>
@@ -125,25 +109,25 @@
                         <!--<div angular-validator  sf-schema="netAESchema" sf-form="netAEForm" sf-model="netAEModel"  sf-options="sfOptions"></div>-->
                         <div class="inputblock">
                             <label class="title">AE Title</label>
-                            <input  [(ngModel)]="newAetModel.dicomNetworkAE[0].dicomAETitle">
+                            <input type="text" [(ngModel)]="newAetModel.dicomNetworkAE[0].dicomAETitle">
                             <span class="description">Unique AE title for this Network AE</span>
                         </div>
                         <div class="inputblock">
                             <ng-container *ngIf="_.hasIn(selctedDeviceObject,'dicomNetworkConnection[0]') && activetab === 'selectdevice'">
                                 <label class="title">Network Connection Reference</label>
-                                <label *ngFor="let i of selctedDeviceObject.dicomNetworkConnection;let j = index">
+                                <label class="checkbox" *ngFor="let i of selctedDeviceObject.dicomNetworkConnection;let j = index">
                                     <input type="checkbox" value="{{'/dicomNetworkConnection/'+j}}" (change)="toggleReference(newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference,'/dicomNetworkConnection/'+j)">
                                     <span>{{i.cn}}</span>
                                 </label>
-                                <span class="description">JSON Pointers to the Network Connection objects for this AE</span>
+                                <span class="description checkbox">JSON Pointers to the Network Connection objects for this AE</span>
                             </ng-container>
                             <ng-container *ngIf="activetab === 'createdevice'">
                                 <label class="title">Network Connection Reference</label>
-                                <label>
+                                <label class="checkbox">
                                     <input type="checkbox" value="/dicomNetworkConnection/0" checked (change)="toggleReference(newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference,'/dicomNetworkConnection/0')">
                                     <span>{{newAetModel.dicomNetworkConnection[0].cn}}</span>
                                 </label>
-                                <span class="description">JSON Pointers to the Network Connection objects for this AE</span>
+                                <span class="description checkbox">JSON Pointers to the Network Connection objects for this AE</span>
                             </ng-container>
                             <ng-container *ngIf="!_.hasIn(selctedDeviceObject,'dicomNetworkAE[0].dicomNetworkConnectionReference') && activetab === 'selectdevice'">
                                 <div class="helpvalue">

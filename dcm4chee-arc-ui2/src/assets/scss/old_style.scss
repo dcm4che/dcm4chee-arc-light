@@ -52,12 +52,12 @@ body{
 	.logo{
 	    height: auto;
 	    margin-left: 10px;
-	    opacity: 0.7;
+	    //opacity: 0.7;
 	    position: absolute;
 	    right: 32px;
-	    top: 44px;
+	    bottom: 44px;
 	    width: 140px;
-	    z-index: 999;
+	    z-index: -1;
 	    &:hover{
 	    	cursor: pointer;
 	    }
@@ -155,7 +155,7 @@ ul.nav#mainmenu {
 #showDeviceForm.active_dropbox:focus
  {
  	outline: 0;
-    background: #3b6b8c none repeat scroll 0 0;
+    background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
     border: 1px solid #00526d;
     -moz-box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
     -webkit-box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.65) inset;
@@ -174,7 +174,7 @@ ul.nav#mainmenu {
 	.btn {
 	    //background: rgba(54, 54, 54, 0.55) none repeat scroll 0 0;
 	    //border: 1px solid #ccc;
-	    background: #3b6b8c;
+	    background: rgba(6, 29, 47, 0.84);
 		border:1px solid #2e6da4;
 	    color: #ffffff;
 	    display: block;
@@ -222,7 +222,7 @@ device and create an other one with the new name*/
 		     background: rgba(255, 255, 255, 0.63);
 		}
 		.btn-primary,.save, .btn{
-			background: #3b6b8c;
+			background: rgba(6, 29, 47, 0.84);
 			border:1px solid #2e6da4;
 			border-radius:0;
 		}
@@ -459,7 +459,7 @@ device and create an other one with the new name*/
     	font-weight: bold;
 	}
 	.vex-dialog-button-primary.vex-dialog-button.vex-dialog-button-primary.vex-first {
-	    background: #3b6b8c none repeat scroll 0 0;
+	    background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
 	    border-radius: 0;
 	    color: white;
 	}
@@ -592,12 +592,12 @@ device and create an other one with the new name*/
 		    border-color: #296ba0;
 		    color: #fff;
 		    background: url(../img/info.png);
-    		background-color: rgba(46, 121, 180, 0.9);
+    		background-color: rgba(6, 29, 47, 0.84);
 			background-size:55px;
 			background-position: 15px center;
 			background-repeat: no-repeat;
 			&:hover{
-	    		background-color: rgb(46, 121, 180);
+	    		background-color: rgb(6, 29, 47);
 			}
 
     	}
@@ -802,7 +802,7 @@ table{
             background: #666;
             overflow: hidden;
 		    .cellhover{
-	 			background: #3b6b8c;
+	 			background: rgba(6, 29, 47, 0.84);
 		    }
 		    .close_allpatients,.open_allpatients{
 		    	&:hover{
@@ -1751,7 +1751,7 @@ table{
           color:black;
         }
         &:hover{
-          background: #3b6b8c;
+          background: rgba(6, 29, 47, 0.84);
           color:white;
           cursor:pointer;
           span{
@@ -1775,7 +1775,7 @@ table{
           list-style: none;
           background: white;
           &:hover{
-            background: #3b6b8c;
+            background: rgba(6, 29, 47, 0.84);
             color:white;
             cursor:pointer;
           }
@@ -1787,7 +1787,7 @@ table{
       }
     }
     &:hover{
-      background: #3b6b8c;
+      background: rgba(6, 29, 47, 0.84);
       color:white;
     }
     i{
@@ -1919,7 +1919,7 @@ table{
 		    height: 30px;
 		    width: 20%;
 		    border: 1px solid #aaa;
-		    background:#3b6b8c;
+		    background:rgba(6, 29, 47, 0.84);
 		    color: white;
 		}
 		.optionlist {
@@ -2218,7 +2218,7 @@ div[tooltip]{
 }
 
 .hover_cell:hover{
-	background: #3b6b8c !important;
+	background: rgba(6, 29, 47, 0.84) !important;
 	color:white !important;
 }
 #loading-bar-spinner {
@@ -2491,7 +2491,7 @@ table.j4care-table{
 		    background:white;
 		}
 		button{
-			background: #3b6b8c none repeat scroll 0 0;
+			background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
 		    border: 1px solid #ccc;
 		    color: white;
 		    border-radius:0;
@@ -2505,7 +2505,7 @@ table.j4care-table{
 		}
 	}
 	.adddevice{
-	  	background: #3b6b8c none repeat scroll 0 0;
+	  	background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
 	    border: 1px solid #ccc;
 	    color: white;
 	    height: 27px;
@@ -2870,7 +2870,7 @@ input.ng-invalid, .has-error .form-control{
 					padding:0 !important;
 					float: left;
 					button{
-					    background: #3b6b8c none repeat scroll 0 0;
+					    background: rgba(6, 29, 47, 0.84) none repeat scroll 0 0;
 					    border-radius: 0;
 					    color: white;
 					    height: 26px;
@@ -3053,7 +3053,7 @@ input.ng-invalid, .has-error .form-control{
 	    font-size: 15px;
 	    font-weight: bold;
 	    &:hover{
-	    	color: #3b6b8c;
+	    	color: rgba(6, 29, 47, 0.84);
 	    }
 	}
 	.input{
@@ -3467,7 +3467,7 @@ color:white;*/
 .vex.vex-theme-os.registernewaet{
 	.vex-content{
 		.vex-dialog-button-primary.vex-dialog-button.vex-first{
-			background: #3b6b8c none repeat scroll 0 0;
+			background: rgba(6, 29, 47, 0.84);
 		    border-radius: 0;
 		    color: white;
 		    // height: 26px;
@@ -3506,7 +3506,7 @@ color:white;*/
 		    float: left;
 		    width:100%;
 		    h4 {
-			    background: #666 none repeat scroll 0 0;
+			    background: rgba(6, 29, 47, 0.84);
 			    -moz-box-shadow: 1px 6px 6px -3px #a3a1a1;
 			    -webkit-box-shadow: 1px 6px 6px -3px #a3a1a1;
 			    box-shadow: 1px 6px 6px -3px #a3a1a1;

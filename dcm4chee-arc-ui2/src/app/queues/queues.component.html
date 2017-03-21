@@ -1,40 +1,92 @@
 <div class="main_content queues">
-    <div class="form-inline">
-        <div class="form-group">
+    <!--<div class="form-inline">-->
+<!--        <div class="form-group">
             <label for="queue">Queue:</label>
             <select id="queue" [(ngModel)]="queueName">
-                <!-- <option ng-repeat="queue in queues" title="{{queue.description}}">{{queue.name}}</option> -->
+                &lt;!&ndash; <option ng-repeat="queue in queues" title="{{queue.description}}">{{queue.name}}</option> &ndash;&gt;
                 <option *ngFor="let queue of queues" title="{{queue.name}}" value="{{queue.name}}">{{queue.description}}</option>
             </select>
+        </div>-->
+        <!--<div class="form-group">-->
+        <div class="row filter">
+            <div class="main_filter_block">
+            <div class="col-md-3 block-1-1">
+                <div class="row">
+                    <label for="queue" class="col-md-6 text-right control-label">Queue:</label>
+                    <div class="col-md-6">
+                        <select id="queue" [(ngModel)]="queueName" class="col-md-12">
+                            <!-- <option ng-repeat="queue in queues" title="{{queue.description}}">{{queue.name}}</option> -->
+                            <option *ngFor="let queue of queues" title="{{queue.name}}" value="{{queue.name}}">{{queue.description}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <label for="status" class="col-md-6 text-right control-label">Status:</label>
+                    <div class="col-md-6">
+                        <select id="status" [(ngModel)]="status" class="col-md-12">
+                            <option>*</option>
+                            <option>SCHEDULED</option>
+                            <option>IN PROCESS</option>
+                            <option>COMPLETED</option>
+                            <option>WARNING</option>
+                            <option>FAILED</option>
+                            <option>CANCELED</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <label for="limit" class="col-md-6 text-right control-label">Page Size:</label>
+                    <div class="col-md-6">
+                        <input id="limit" type="number" min="1" [(ngModel)]="limit" class="col-md-12" required/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 block-2-1">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before:</button>
+                    </div>
+                    <div class="col-md-6">
+                        <!--<input id="before" type="date" class="col-md-12" [(ngModel)]="before"/>-->
+                        <p-calendar  dataType="string" [(ngModel)]="before" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Flush before this date"></p-calendar>
+                    </div>
+                </div>
+                <div class="row"></div>
+                <div class="row">
+                    <div class="col-md-6">
+
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-default submit col-md-12" (click)="search(0)" title="Refresh">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                            SUBMIT
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!--<label for="status">Status:</label>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+            <!--<label for="limit">Page Size:</label>-->
+            <!--<input id="limit" type="number" min="1" style="width: 3em" [(ngModel)]="limit" required/>-->
+        <!--</div>-->
+        <!--<div class="form-group" *ngIf="isRole('admin')">-->
+            <!--<button class="btn btn-danger" (click)="flushBefore()">Flush before:</button>-->
+            <!--<input id="before" type="date" [(ngModel)]="before"/>-->
+        <!--</div>-->
+<!--        <div class="form-group" *ngIf="isRole('admin')">
+            <button class="btn btn-default submit" (click)="search(0)" title="Refresh">
+                <span class="glyphicon glyphicon-refresh"></span>
+                Submit
+            </button>
+        </div>-->
         </div>
-        <div class="form-group">
-            <label for="status">Status:</label>
-            <select id="status" [(ngModel)]="status">
-                <option>*</option>
-                <option>SCHEDULED</option>
-                <option>IN PROCESS</option>
-                <option>COMPLETED</option>
-                <option>WARNING</option>
-                <option>FAILED</option>
-                <option>CANCELED</option>
-            </select>
         </div>
-        <div class="form-group">
-            <label for="limit">Page Size:</label>
-            <input id="limit" type="number" min="1" style="width: 3em" [(ngModel)]="limit" required/>
-        </div>
-        <div class="form-group" *ngIf="isRole('admin')">
-            <button class="btn btn-danger" (click)="flushBefore()">Flush before:</button>
-            <input id="before" type="date" [(ngModel)]="before"/>
-        </div>
-    </div>
+    <!--</div>-->
     <table class="table table-bordered table-condensed">
         <thead>
         <tr>
             <th colspan="2">
-                <button class="btn btn-link btn-xs" (click)="search(0)" title="Refresh">
-                    <span class="glyphicon glyphicon-refresh"></span>
-                </button>
                 <button class="btn btn-link btn-xs"
                         [disabled]="!hasNewer(matches)"
                         (click)="search(newerOffset(matches))"

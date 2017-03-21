@@ -6,6 +6,7 @@ import {ViewChild} from "@angular/core/src/metadata/di";
 import {User} from "./models/user";
 import 'rxjs/add/operator/catch';
 import {Http} from "@angular/http";
+import {ProductLabellingComponent} from "./widgets/dialogs/product-labelling/product-labelling.component";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -26,8 +27,11 @@ export class AppComponent {
     url = "/auth";
     logoutUrl = '';
     isRole:any;
+    archive;
+
     @ViewChild(MessagingComponent) msg;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
+
     constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging:MessagingComponent,public mainservice:AppService,public $http:Http){
         let $this = this;
         if(!this.mainservice.user){
@@ -69,6 +73,17 @@ export class AppComponent {
                 );
         }
 
+        this.$http.get('../devicename')
+            .map(res => res.json())
+            .subscribe((res)=>{
+                console.log("devicename",res);
+                $this.$http.get('../devices?dicomDeviceName='+res.dicomDeviceName)
+                    .map(res => res.json())
+                    .subscribe(arc => {
+                        console.log("arch");
+                        $this.archive = arc[0];
+                    });
+            });
 
         this.$http.get('../auth')
             .map(res => res.json())
@@ -137,7 +152,25 @@ export class AppComponent {
         // this.messaging.showMessageBlock.emit(false);
         // console.log("showmessging=",this.messaging.showMessageBlock);
     }
+    productLabelling(){
+        // this.scrollToDialog();
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ProductLabellingComponent, this.config);
 
+        this.dialogRef.componentInstance.archive = this.archive;
+        /*        this.dialogRef.afterClosed().subscribe(result => {
+         if(result){
+         console.log("result", result);
+         }else{
+         console.log("false");
+         }
+         });*/
+        this.dialogRef.afterClosed().subscribe(res => {
+            if(res){
+                console.log("in res")
+            }
+        });
+    }
 
 
     sidenavopen = false;

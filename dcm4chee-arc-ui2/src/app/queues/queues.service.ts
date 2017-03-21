@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import {Http, Headers} from "@angular/http";
 import {DatePipe} from "@angular/common";
+import {AppService} from "../app.service";
 
 @Injectable()
 export class QueuesService {
 
     header = new Headers({ 'Content-Type': 'application/json' });
-    constructor(public $http: Http) { }
-
+    constructor(public $http: Http,public mainservice:AppService) { }
 
     search(queueName, status, offset, limit) {
         return this.$http.get(this.url(queueName), this.queryParams(status, offset, limit));
@@ -26,7 +26,8 @@ export class QueuesService {
     };
 
     flush(queueName, status, before) {
-        return this.$http.delete(this.url(queueName), this.flushParams(status, before));
+        let urlParam = this.mainservice.param(this.flushParams(status, before));
+        return this.$http.delete(this.url(queueName)+'?'+urlParam);
     };
 
     url(queueName) {
@@ -42,10 +43,14 @@ export class QueuesService {
     }
 
     config(params) {
-        return {
-            headers: {Accept: 'application/json'},
-            params: params
-        }
+        console.log("paramsconfig",params);
+        let header = new Headers({ 'Content-Type': 'application/json' });
+        header.append('params',params);
+        return header;
+        // return {
+        //     headers: {Accept: 'application/json'},
+        //     params: params
+        // }
     }
 
     queryParams(status, offset, limit) {
@@ -72,6 +77,7 @@ export class QueuesService {
             console.log("params,updatedBefore",params.updatedBefore);
             // params.updatedBefore = $filter('date')(before, 'yyyy-MM-dd'); //TODO
         }
+        console.log("params",params);
         return params;
     }
 

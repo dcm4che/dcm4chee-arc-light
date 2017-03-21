@@ -3,6 +3,7 @@ import {MdDialogRef} from "@angular/material";
 import * as _ from "lodash";
 import {AppService} from "../../../app.service";
 import {Http} from "@angular/http";
+import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 
 @Component({
   selector: 'app-create-ae',
@@ -23,7 +24,7 @@ export class CreateAeComponent {
     netConnModelDevice;
     private _devices;
     _ = _;
-    constructor(public $http:Http, public dialogRef: MdDialogRef<CreateAeComponent>, public mainservice:AppService) { }
+    constructor(public $http:Http, public dialogRef: MdDialogRef<CreateAeComponent>, public mainservice:AppService, public cfpLoadingBar:SlimLoadingBarService) { }
 
     get dicomconn() {
         return this._dicomconn;
@@ -71,6 +72,7 @@ export class CreateAeComponent {
     getDevice(e){
         console.log("e",e);
         console.log("selectedDevice",this.selectedDevice);
+        this.cfpLoadingBar.start();
         this.selectedDevice = e;
         let $this = this;
         if(this.selectedDevice){
@@ -85,7 +87,7 @@ export class CreateAeComponent {
                         // $scope.selctedDeviceObject.dicomNetworkConnection.push($scope.netConnModelDevice);
                         console.log("this.selctedDeviceObject",$this.selctedDeviceObject);
                         $this.setReferencesFromDevice();
-
+                        this.cfpLoadingBar.complete();
                     },(err) => {
                         $this.mainservice.setMessage({
                             "title": "Error " + err.status,
@@ -220,10 +222,35 @@ export class CreateAeComponent {
         }
     }
     addNewConnectionToDevice(){
-        console.log("in addnewconnectiontodevice",this.selctedDeviceObject);
-        this.selctedDeviceObject.dicomNetworkConnection.push(_.cloneDeep(this.newAetModel.dicomNetworkConnection[0]));
-        // this.setReferencesFromDevice();
-        console.log("in addnewconnectiontodevice",this.selctedDeviceObject);
+        console.log("in addnewconnectiontodevice2",this.selctedDeviceObject);
+        console.log("dicomnetworkconnection",this.newAetModel.dicomNetworkConnection);
+        if(!this.newAetModel.dicomNetworkConnection[0].cn || this.newAetModel.dicomNetworkConnection[0].cn === ''){
+            this.mainservice.setMessage({
+                "title": "Error",
+                "text": "Name of the new connection is empty!",
+                "status": "error"
+            });
+        }else{
+
+            let hasConnection:boolean = false;
+            _.forEach(this.selctedDeviceObject.dicomNetworkConnection, (m, i) =>{
+                console.log("m",m);
+                console.log("i",i);
+                    if(m.cn === this.newAetModel.dicomNetworkConnection[0].cn){
+                        hasConnection = true;
+                    }
+            });
+            if(hasConnection){
+                this.mainservice.setMessage({
+                    "title": "Error",
+                    "text": "Connection with that name exist!",
+                    "status": "error"
+                });
+            }else{
+                this.selctedDeviceObject.dicomNetworkConnection.push(_.cloneDeep(this.newAetModel.dicomNetworkConnection[0]));
+            }
+            console.log("in addnewconnectiontodevice",this.selctedDeviceObject);
+        }
     }
     removeNewConnectionFromDevice(){
         if(_.hasIn(this.newAetModel,'dicomNetworkConnection[0].cn')){
