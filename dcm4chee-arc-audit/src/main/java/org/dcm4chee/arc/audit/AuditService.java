@@ -793,9 +793,8 @@ public class AuditService {
             if (success != null && !success.isEmpty()) {
                 LinkedHashSet<Object> objs = new LinkedHashSet<>();
                 BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(stgCmtEventInfo.getRemoteAET())
-                        .callingHost(remoteAE.getConnections().get(0).getHostname())
-                        .calledAET(stgCmtEventInfo.getLocalAET()).pID(pID).pName(pName(eventInfo))
-                        .studyUID(studyUID).build();
+                        .callingHost(callingHost).calledAET(stgCmtEventInfo.getLocalAET()).pID(pID)
+                        .pName(pName(eventInfo)).studyUID(studyUID).build();
                 objs.add(new AuditInfo(i));
                 for (Attributes item : success) {
                     BuildAuditInfo ii = new BuildAuditInfo.Builder().sopCUID(item.getString(Tag.ReferencedSOPClassUID))
