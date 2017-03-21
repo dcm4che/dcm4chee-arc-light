@@ -310,6 +310,24 @@
       <xsl:with-param name="scheme" select="string(field[6]/component[2]/text())"/>
       <xsl:with-param name="meaning" select="substring(field[6]/component[1]/text(),1,64)"/>
     </xsl:call-template>
+    <!-- Scheduled Station Name -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00400010'"/>
+      <xsl:with-param name="vr" select="'SH'"/>
+      <xsl:with-param name="val" select="string(field[7]/text())"/>
+    </xsl:call-template>
+    <!-- Scheduled Procedure Step Location -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00400011'"/>
+      <xsl:with-param name="vr" select="'SH'"/>
+      <xsl:with-param name="val" select="string(field[8]/text())"/>
+    </xsl:call-template>
+    <!-- Scheduled Station AE Title -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00400001'"/>
+      <xsl:with-param name="vr" select="'AE'"/>
+      <xsl:with-param name="val" select="string(field[9]/text())"/>
+    </xsl:call-template>
   </xsl:template>
 
 

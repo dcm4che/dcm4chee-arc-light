@@ -130,17 +130,19 @@ public class ProcedureUpdateService extends AbstractHL7Service {
             if ("SCHEDULED".equals(sps.getString(Tag.ScheduledProcedureStepStatus))
                     && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
                 sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
-            List<String> ssAETs = new ArrayList<>();
-            List<String> ssNames = new ArrayList<>();
-            Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
-            for (Device device : devices) {
-                ssNames.add(device.getDeviceName());
-                for (String ae : device.getApplicationAETitles())
-                    ssAETs.add(ae);
-            }
-            if (!ssAETs.isEmpty()) {
-                sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
-                sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
+            if (sps.getString(Tag.ScheduledStationName) == null && sps.getString(Tag.ScheduledStationAETitle) == null) {
+                List<String> ssAETs = new ArrayList<>();
+                List<String> ssNames = new ArrayList<>();
+                Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
+                for (Device device : devices) {
+                    ssNames.add(device.getDeviceName());
+                    for (String ae : device.getApplicationAETitles())
+                        ssAETs.add(ae);
+                }
+                if (!ssAETs.isEmpty()) {
+                    sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
+                    sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
+                }
             }
             String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
             List<String> ordercontrolStatusCodes = new ArrayList<>();
