@@ -152,7 +152,6 @@
       <activation>
         <property>
           <name>secure</name>
-          <value>!ui</value>
         </property>
       </activation>
       <properties>
