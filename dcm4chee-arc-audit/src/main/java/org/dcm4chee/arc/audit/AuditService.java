@@ -724,6 +724,8 @@ public class AuditService {
     void spoolProvideAndRegister(ExportContext ctx) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         Attributes xdsiManifest = ctx.getXDSiManifest();
+        if (xdsiManifest == null)
+            return;
         URI dest = ctx.getExporter().getExporterDescriptor().getExportURI();
         String schemeSpecificPart = dest.getSchemeSpecificPart();
         String calledHost = schemeSpecificPart.substring(schemeSpecificPart.indexOf("://")+3, schemeSpecificPart.lastIndexOf(":"));
