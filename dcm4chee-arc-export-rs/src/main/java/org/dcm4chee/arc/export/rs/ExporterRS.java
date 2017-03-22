@@ -146,7 +146,7 @@ public class ExporterRS {
         if (bOnlyIAN || bOnlyStgCmt)
             exportEvent.fire(createExportContext(studyUID, seriesUID, objectUID, exporter, aet, bOnlyIAN, bOnlyStgCmt));
         else
-            exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, aet);
+            exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter);
     }
 
     private Response getResponse(String errorMessage, Response.Status status) {

@@ -90,7 +90,7 @@ public class StgCmtSCUMDB implements MessageListener {
         } catch (JMSException e) {
             LOG.error("Failed to process {}", msg, e);
         }
-        if (!queueManager.onProcessingStart(msgID))
+        if (queueManager.onProcessingStart(msgID) == null)
             return;
         try {
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();

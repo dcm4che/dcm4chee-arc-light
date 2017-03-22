@@ -89,15 +89,16 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    public void scheduleMessage(String queueName, ObjectMessage msg) {
+    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg) {
         sendMessage(descriptorOf(queueName), msg, 0L);
         QueueMessage entity = new QueueMessage(queueName, msg);
         em.persist(entity);
         LOG.info("Schedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        return entity;
     }
 
     @Override
-    public boolean onProcessingStart(String msgId) {
+    public QueueMessage onProcessingStart(String msgId) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null || !entity.getStatus().equals(QueueMessage.Status.SCHEDULED)) {
             if (entity == null)
@@ -105,20 +106,20 @@ public class QueueManagerEJB implements QueueManager {
             else
                 LOG.info("Suppress processing of Task[id={}] at Queue {} with Status: {}",
                         msgId, entity.getQueueName(), entity.getStatus());
-            return false;
+            return null;
         }
         entity.setProcessingStartTime(new Date());
         entity.setStatus(QueueMessage.Status.IN_PROCESS);
         LOG.info("Start processing Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
-        return true;
+        return entity;
     }
 
     @Override
-    public void onProcessingSuccessful(String msgId, Outcome outcome) {
+    public QueueMessage onProcessingSuccessful(String msgId, Outcome outcome) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null) {
             LOG.info("Finished processing of Task[id={}]", msgId);
-            return;
+            return null;
         }
         QueueMessage.Status status = outcome.getStatus();
         String queueName = entity.getQueueName();
@@ -127,7 +128,7 @@ public class QueueManagerEJB implements QueueManager {
         if (status == QueueMessage.Status.COMPLETED) {
             LOG.info("Finished processing of Task[id={}] at Queue {}", msgId, queueName);
             entity.setStatus(status);
-            return;
+            return entity;
         }
         if (status == QueueMessage.Status.FAILED || status == QueueMessage.Status.WARNING) {
             QueueDescriptor descriptor = descriptorOf(queueName);
@@ -142,14 +143,15 @@ public class QueueManagerEJB implements QueueManager {
         }
         LOG.warn("Failed processing of Task[id={}] at Queue {} with Status {}", msgId, queueName, status);
         entity.setStatus(status);
+        return entity;
     }
 
     @Override
-    public void onProcessingFailed(String msgId, Throwable e) {
+    public QueueMessage onProcessingFailed(String msgId, Throwable e) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null) {
             LOG.warn("Failed processing of Task[id={}]:\n", msgId, e);
-            return;
+            return null;
         }
 
         entity.setErrorMessage(e.getMessage());
@@ -163,6 +165,7 @@ public class QueueManagerEJB implements QueueManager {
             LOG.info("Failed processing of Task[id={}] at Queue {} - retry:\n", msgId, entity.getQueueName(), e);
             rescheduleMessage(entity, descriptor, delay * 1000L);
         }
+        return entity;
     }
 
     @Override

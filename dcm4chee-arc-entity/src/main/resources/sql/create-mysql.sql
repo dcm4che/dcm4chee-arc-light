@@ -1,7 +1,7 @@
 create table code (pk bigint not null auto_increment, code_meaning varchar(255) not null, code_value varchar(255) not null, code_designator varchar(255) not null, code_version varchar(255) not null, primary key (pk));
 create table content_item (pk bigint not null auto_increment, rel_type varchar(255) not null, text_value varchar(255), code_fk bigint, name_fk bigint not null, instance_fk bigint, primary key (pk));
 create table dicomattrs (pk bigint not null auto_increment, attrs longblob not null, primary key (pk));
-create table export_task (pk bigint not null auto_increment, device_name varchar(255) not null, exporter_id varchar(255) not null, scheduled_time datetime not null, series_iuid varchar(255) not null, sop_iuid varchar(255) not null, study_iuid varchar(255) not null, version bigint, primary key (pk));
+create table export_task (pk bigint not null auto_increment, created_time datetime not null, device_name varchar(255) not null, error_msg varchar(255), exporter_id varchar(255) not null, modalities varchar(255), num_failures integer not null, num_instances integer, outcome_msg varchar(255), proc_end_time datetime, proc_start_time datetime, queue_message_fk bigint, scheduled_time datetime not null, series_iuid varchar(255) not null, sop_iuid varchar(255) not null, msg_status integer not null, study_iuid varchar(255) not null, updated_time datetime not null, version bigint, primary key (pk));
 create table hl7psu_task (pk bigint not null auto_increment, aet varchar(255) not null, created_time datetime not null, device_name varchar(255) not null, scheduled_time datetime, study_iuid varchar(255), mpps_fk bigint, primary key (pk));
 create table ian_task (pk bigint not null auto_increment, calling_aet varchar(255) not null, device_name varchar(255) not null, ian_dests varchar(255) not null, scheduled_time datetime, study_iuid varchar(255), mpps_fk bigint, primary key (pk));
 create table id_sequence (name varchar(64) not null, next_value integer not null, version bigint, primary key (name));
@@ -29,8 +29,12 @@ create table verify_observer (pk bigint not null auto_increment, verify_datetime
 alter table code add constraint UK_sb4oc9lkns36wswku831c33w6  unique (code_value, code_designator, code_version);
 create index UK_i715nk4mi378f9bxflvfroa5a on content_item (rel_type(64));
 create index UK_6iism30y000w85v649ju968sv on content_item (text_value(64));
-alter table export_task add constraint UK_aoqbyfnen6evu73ltc1osexfr  unique (exporter_id, study_iuid, series_iuid, sop_iuid);
-create index UK_cxaqwh62doxvy1itpdi43c681 on export_task (device_name(64), scheduled_time);
+create index UK_c5cof80jx0oopvovf3p4jv4l8 on export_task (device_name(64));
+create index UK_p5jjs08sdp9oecvr93r2g0kyq on export_task (updated_time);
+create index UK_j1t0mj3vlmf5xwt4fs5xida1r on export_task (scheduled_time);
+create index UK_q7gmfr3aog1hateydhfeiu7si on export_task (exporter_id(64));
+create index UK_hb9rftf7opmg56nkg7dkvsdc8 on export_task (study_iuid(64), series_iuid(64), sop_iuid(64));
+create index UK_ik18n9rpnwd3addwne5ypqyf on export_task (msg_status);
 alter table hl7psu_task add constraint UK_p5fraoqdbaywmlyumaeo16t56  unique (study_iuid);
 create index UK_t0y05h07d9dagn9a4a9s4a5a4 on hl7psu_task (device_name(64));
 alter table ian_task add constraint UK_dq88edcjjxh7h92f89y5ueast  unique (study_iuid);

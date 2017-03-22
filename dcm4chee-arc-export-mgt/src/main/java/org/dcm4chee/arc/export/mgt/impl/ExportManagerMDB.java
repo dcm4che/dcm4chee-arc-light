@@ -3,6 +3,8 @@ package org.dcm4chee.arc.export.mgt.impl;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
@@ -28,6 +30,9 @@ public class ExportManagerMDB implements MessageListener {
     private static final Logger LOG = LoggerFactory.getLogger(ExportManagerMDB.class);
 
     @Inject
+    private ExportManager ejb;
+
+    @Inject
     private QueueManager queueManager;
 
     @Inject
@@ -48,10 +53,13 @@ public class ExportManagerMDB implements MessageListener {
             LOG.error("Failed to process {}", msg, e);
             return;
         }
-        if (!queueManager.onProcessingStart(msgID))
+        QueueMessage queueMessage = queueManager.onProcessingStart(msgID);
+        if (queueMessage == null)
             return;
+
         Outcome outcome;
         try {
+            ejb.updateExportTask(queueMessage);
             Exporter exporter = exporterFactory.getExporter(getExporterDescriptor(msg.getStringProperty("ExporterID")));
             ExportContext exportContext = exporter.createExportContext();
             exportContext.setMessageID(msgID);
@@ -64,10 +72,12 @@ public class ExportManagerMDB implements MessageListener {
             exportEvent.fire(exportContext);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
-            queueManager.onProcessingFailed(msgID, e);
+            queueMessage = queueManager.onProcessingFailed(msgID, e);
+            ejb.updateExportTask(queueMessage);
             return;
         }
-        queueManager.onProcessingSuccessful(msgID, outcome);
+        queueMessage = queueManager.onProcessingSuccessful(msgID, outcome);
+        ejb.updateExportTask(queueMessage);
     }
 
     private ExporterDescriptor getExporterDescriptor(String exporterID) {

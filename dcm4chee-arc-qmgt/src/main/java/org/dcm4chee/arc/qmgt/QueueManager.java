@@ -42,7 +42,6 @@ package org.dcm4chee.arc.qmgt;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 
-import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
 import java.util.Date;
@@ -55,13 +54,13 @@ import java.util.List;
 public interface QueueManager {
     ObjectMessage createObjectMessage(Serializable object);
 
-    void scheduleMessage(String queueName, ObjectMessage message);
+    QueueMessage scheduleMessage(String queueName, ObjectMessage message);
 
-    boolean onProcessingStart(String msgId);
+    QueueMessage onProcessingStart(String msgId);
 
-    void onProcessingSuccessful(String msgId, Outcome outcome);
+    QueueMessage onProcessingSuccessful(String msgId, Outcome outcome);
 
-    void onProcessingFailed(String msgId, Throwable e);
+    QueueMessage onProcessingFailed(String msgId, Throwable e);
 
     void cancelProcessing(String msgId) throws MessageAlreadyDeletedException;
 

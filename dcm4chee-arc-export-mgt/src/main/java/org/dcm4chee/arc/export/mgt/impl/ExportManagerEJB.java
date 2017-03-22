@@ -1,11 +1,14 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.Series;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -39,6 +42,9 @@ public class ExportManagerEJB implements ExportManager {
 
     @Inject
     private Device device;
+
+    @Inject
+    private QueryService queryService;
 
     @Inject
     private QueueManager queueManager;
@@ -95,62 +101,54 @@ public class ExportManagerEJB implements ExportManager {
             task.setSopInstanceUID("*");
             task.setScheduledTime(scheduledTime);
         } catch (NoResultException nre) {
-            ExportTask task = new ExportTask();
-            task.setDeviceName(device.getDeviceName());
-            task.setExporterID(exporterID);
-            task.setStudyInstanceUID(studyIUID);
-            task.setSeriesInstanceUID("*");
-            task.setSopInstanceUID("*");
-            task.setScheduledTime(scheduledTime);
-            em.persist(task);
+            createExportTask(exporterID, studyIUID, "*", "*", scheduledTime);
         }
     }
 
     private void createOrUpdateSeriesExportTask(
-            String exporterID, String studyInstanceUID, String seriesInstanceUID, Date scheduledTime) {
+            String exporterID, String studyIUID, String seriesIUID, Date scheduledTime) {
         try {
             ExportTask task = em.createNamedQuery(
                     ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID, ExportTask.class)
                     .setParameter(1, exporterID)
-                    .setParameter(2, studyInstanceUID)
-                    .setParameter(3, seriesInstanceUID)
+                    .setParameter(2, studyIUID)
+                    .setParameter(3, seriesIUID)
                     .getSingleResult();
             task.setSopInstanceUID("*");
             task.setScheduledTime(scheduledTime);
         } catch (NoResultException nre) {
-            ExportTask task = new ExportTask();
-            task.setDeviceName(device.getDeviceName());
-            task.setExporterID(exporterID);
-            task.setStudyInstanceUID(studyInstanceUID);
-            task.setSeriesInstanceUID(seriesInstanceUID);
-            task.setSopInstanceUID("*");
-            task.setScheduledTime(scheduledTime);
-            em.persist(task);
+            createExportTask(exporterID, studyIUID, seriesIUID, "*", scheduledTime);
         }
     }
 
     private void createOrUpdateInstanceExportTask(
-            String exporterID, String studyInstanceUID, String seriesInstanceUID, String sopInstanceUID,
-            Date scheduledTime) {
+            String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime) {
         try {
             ExportTask task = em.createNamedQuery(
                     ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID, ExportTask.class)
                     .setParameter(1, exporterID)
-                    .setParameter(2, studyInstanceUID)
-                    .setParameter(3, seriesInstanceUID)
-                    .setParameter(4, sopInstanceUID)
+                    .setParameter(2, studyIUID)
+                    .setParameter(3, seriesIUID)
+                    .setParameter(4, sopIUID)
                     .getSingleResult();
             task.setScheduledTime(scheduledTime);
         } catch (NoResultException nre) {
-            ExportTask task = new ExportTask();
-            task.setDeviceName(device.getDeviceName());
-            task.setExporterID(exporterID);
-            task.setStudyInstanceUID(studyInstanceUID);
-            task.setSeriesInstanceUID(seriesInstanceUID);
-            task.setSopInstanceUID(sopInstanceUID);
-            task.setScheduledTime(scheduledTime);
-            em.persist(task);
+            createExportTask(exporterID, studyIUID, seriesIUID, sopIUID, scheduledTime);
         }
+    }
+
+    private ExportTask createExportTask(
+            String exporterID, String studyIUID, String seriesIUID, String sopIUID, Date scheduledTime) {
+        ExportTask task = new ExportTask();
+        task.setDeviceName(device.getDeviceName());
+        task.setExporterID(exporterID);
+        task.setStudyInstanceUID(studyIUID);
+        task.setSeriesInstanceUID(seriesIUID);
+        task.setSopInstanceUID(sopIUID);
+        task.setScheduledTime(scheduledTime);
+        task.setStatus(QueueMessage.Status.TO_SCHEDULE);
+        em.persist(task);
+        return task;
     }
 
     private Date scheduledTime(Calendar cal, Duration exportDelay, ScheduleExpression[] schedules) {
@@ -172,36 +170,59 @@ public class ExportManagerEJB implements ExportManager {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
-            scheduleExportTask(
-                    exportTask.getStudyInstanceUID(),
-                    exportTask.getSeriesInstanceUID(),
-                    exportTask.getSopInstanceUID(),
-                    exporter,
-                    exporter.getAETitle());
-            em.remove(exportTask);
+            scheduleExportTask(exportTask, exporter);
         }
         return resultList.size();
     }
 
     @Override
-    public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                   String aeTitle) {
-        queueManager.scheduleMessage(exporter.getQueueName(),
-                createMessage(studyUID, seriesUID, objectUID, exporter.getExporterID(), aeTitle));
+    public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter) {
+        ExportTask task = createExportTask(exporter.getExporterID(), studyUID, seriesUID, objectUID, new Date());
+        scheduleExportTask(task, exporter);
     }
 
-    private ObjectMessage createMessage(String studyUID, String seriesUID, String objectUID, String exporterID,
-                                        String aeTitle) {
-        ObjectMessage msg = queueManager.createObjectMessage("");
+    private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter) {
+        QueueMessage queueMessage = queueManager.scheduleMessage(exporter.getQueueName(),
+                createMessage(exportTask, exporter.getAETitle()));
+        exportTask.setQueueMessagePk(queueMessage.getPk());
+        exportTask.setScheduledTime(queueMessage.getScheduledTime());
+        exportTask.setStatus(queueMessage.getStatus());
+        Attributes attrs = queryService.queryExportTaskInfo(
+                exportTask.getStudyInstanceUID(),
+                exportTask.getSeriesInstanceUID(),
+                exportTask.getSopInstanceUID(),
+                device.getApplicationEntity(exporter.getAETitle(), true));
+        if (attrs != null) {
+            exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
+            exportTask.setNumberOfInstances(
+                    Integer.valueOf(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1)));
+        }
+    }
+
+    private ObjectMessage createMessage(ExportTask exportTask, String aeTitle) {
+        ObjectMessage msg = queueManager.createObjectMessage(exportTask.getPk());
         try {
-            msg.setStringProperty("StudyInstanceUID", studyUID);
-            msg.setStringProperty("SeriesInstanceUID", seriesUID);
-            msg.setStringProperty("SopInstanceUID", objectUID);
-            msg.setStringProperty("ExporterID", exporterID);
+            msg.setStringProperty("StudyInstanceUID", exportTask.getStudyInstanceUID());
+            msg.setStringProperty("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
+            msg.setStringProperty("SopInstanceUID", exportTask.getSopInstanceUID());
+            msg.setStringProperty("ExporterID", exportTask.getExporterID());
             msg.setStringProperty("AETitle", aeTitle);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }
         return msg;
     }
+
+    @Override
+    public void updateExportTask(QueueMessage queueMessage) {
+        ExportTask exportTask = em.find(ExportTask.class, queueMessage.getMessageBody());
+        exportTask.setScheduledTime(queueMessage.getScheduledTime());
+        exportTask.setProcessingStartTime(queueMessage.getProcessingStartTime());
+        exportTask.setProcessingEndTime(queueMessage.getProcessingEndTime());
+        exportTask.setNumberOfFailures(queueMessage.getNumberOfFailures());
+        exportTask.setOutcomeMessage(queueMessage.getOutcomeMessage());
+        exportTask.setErrorMessage(queueMessage.getErrorMessage());
+        exportTask.setStatus(queueMessage.getStatus());
+    }
+
 }

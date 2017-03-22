@@ -239,6 +239,12 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Attributes queryExportTaskInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
+        //TODO
+        return null;
+    }
+
+    @Override
     public Attributes createRejectionNote(
             ApplicationEntity ae, String studyUID, String seriesUID, String objectUID, RejectionNote rjNote) {
         SOPInstanceRefsPredicateBuilder builder = new SOPInstanceRefsPredicateBuilder(studyUID);

@@ -273,7 +273,6 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-
     public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT }
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(

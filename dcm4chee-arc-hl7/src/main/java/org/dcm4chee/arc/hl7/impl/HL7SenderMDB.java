@@ -84,7 +84,7 @@ public class HL7SenderMDB implements MessageListener {
         } catch (JMSException e) {
             LOG.error("Failed to process {}", msg, e);
         }
-        if (!queueManager.onProcessingStart(msgID))
+        if (queueManager.onProcessingStart(msgID) == null)
             return;
         try {
             byte[] hl7msg = (byte[]) ((ObjectMessage) msg).getObject();

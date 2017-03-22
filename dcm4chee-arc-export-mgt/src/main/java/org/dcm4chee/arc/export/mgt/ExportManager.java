@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.export.mgt;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.store.StoreContext;
 
 import javax.enterprise.event.Observes;
@@ -54,5 +55,7 @@ public interface ExportManager {
 
     int scheduleExportTasks(int fetchSize);
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle);
+    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter);
+
+    void updateExportTask(QueueMessage queueMessage);
 }

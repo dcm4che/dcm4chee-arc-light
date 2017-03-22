@@ -93,7 +93,7 @@ public class QueueMessage {
             "QueueMessage.DeleteByQueueNameAndStatusAndUpdatedBefore";
 
     public enum Status {
-        SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED
+        SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED, TO_SCHEDULE
     }
 
     @Id

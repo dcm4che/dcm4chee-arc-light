@@ -106,7 +106,10 @@ public interface QueryService {
 
     Attributes createRejectionNote(Attributes sopInstanceRefs, RejectionNote rjNote);
 
-   Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae);
+    Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae);
+
+    Attributes queryExportTaskInfo(
+            String studyUID, String seriesUID, String sopIUID, ApplicationEntity ae);
 
     List<Object[]> getSeriesInstanceUIDs(String studyUID);
 
