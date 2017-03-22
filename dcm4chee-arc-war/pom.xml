@@ -139,7 +139,8 @@
       <id>unsecure</id>
       <activation>
         <property>
-          <name>!secure</name>
+          <name>secure</name>
+          <value>!all</value>
         </property>
       </activation>
       <properties>
@@ -152,6 +153,7 @@
       <activation>
         <property>
           <name>secure</name>
+          <value>all</value>
         </property>
       </activation>
       <properties>
