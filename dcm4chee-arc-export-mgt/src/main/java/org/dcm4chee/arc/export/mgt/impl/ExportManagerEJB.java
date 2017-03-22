@@ -184,7 +184,7 @@ public class ExportManagerEJB implements ExportManager {
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter) {
         QueueMessage queueMessage = queueManager.scheduleMessage(exporter.getQueueName(),
                 createMessage(exportTask, exporter.getAETitle()));
-        exportTask.setQueueMessagePk(queueMessage.getPk());
+        exportTask.setMessageID(queueMessage.getMessageID());
         exportTask.setScheduledTime(queueMessage.getScheduledTime());
         exportTask.setStatus(queueMessage.getStatus());
         Attributes attrs = queryService.queryExportTaskInfo(

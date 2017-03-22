@@ -104,6 +104,9 @@ public class ExportTask {
     @Column(name = "modalities")
     private String modalities;
 
+    @Column(name = "msg_id")
+    private String messageID;
+
     @Basic(optional = false)
     @Column(name = "msg_status")
     private QueueMessage.Status status;
@@ -117,9 +120,6 @@ public class ExportTask {
 
     @Column(name = "outcome_msg")
     private String outcomeMessage;
-
-    @Column(name = "queue_message_fk")
-    private Long queueMessagePk;
 
     public long getPk() {
         return pk;
@@ -245,12 +245,12 @@ public class ExportTask {
         this.outcomeMessage = outcomeMessage;
     }
 
-    public Long getQueueMessagePk() {
-        return queueMessagePk;
+    public String getMessageID() {
+        return messageID;
     }
 
-    public void setQueueMessagePk(Long queueMessagePk) {
-        this.queueMessagePk = queueMessagePk;
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
     }
 
     @PrePersist
